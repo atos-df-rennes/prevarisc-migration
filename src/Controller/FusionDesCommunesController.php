@@ -17,10 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class FusionDesCommunesController extends AbstractController
 {
-    /**
-     * @var FusionDesCommunes
-     */
-    private $fusionDesCommunes;
+    private FusionDesCommunes $fusionDesCommunes;
 
     public function __construct(FusionDesCommunes $fusionDesCommunes)
     {

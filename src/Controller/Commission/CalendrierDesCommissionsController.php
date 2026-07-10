@@ -36,40 +36,19 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 // Pièces jointes → CalendrierDesCommissionsPiecesJointesController
 class CalendrierDesCommissionsController extends AbstractController
 {
-    /**
-     * @var CalendarService
-     */
-    private $calendarService;
+    private CalendarService $calendarService;
 
-    /**
-     * @var DateCommissionRepository
-     */
-    private $dateCommissionRepository;
+    private DateCommissionRepository $dateCommissionRepository;
 
-    /**
-     * @var CommissionDatesTransformer
-     */
-    private $commissionDatesTransformer;
+    private CommissionDatesTransformer $commissionDatesTransformer;
 
-    /**
-     * @var CommissionTypeEvenementRepository
-     */
-    private $commissionTypeEvenementRepository;
+    private CommissionTypeEvenementRepository $commissionTypeEvenementRepository;
 
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
+    private CommissionRepository $commissionRepository;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var DataStore
-     */
-    private $dataStore;
+    private DataStore $dataStore;
 
     public function __construct(
         CalendarService $calendarService,
@@ -111,9 +90,7 @@ class CalendrierDesCommissionsController extends AbstractController
         $userCommissionIds = [];
         if ($user instanceof Utilisateur) {
             $userCommissionIds = array_map(
-                function (Commission $c): int {
-                    return (int) $c->getId();
-                },
+                fn (Commission $c): int => (int) $c->getId(),
                 $user->getCommissions()->toArray()
             );
         }
@@ -167,12 +144,10 @@ class CalendrierDesCommissionsController extends AbstractController
             ['q' => '%'.$q.'%']
         );
 
-        $items = array_map(function (array $row): array {
-            return [
-                'id' => $row['ID_COMMISSION'],
-                'infos' => $row['LIBELLE_COMMISSION'],
-            ];
-        }, $rows);
+        $items = array_map(fn (array $row): array => [
+            'id' => $row['ID_COMMISSION'],
+            'infos' => $row['LIBELLE_COMMISSION'],
+        ], $rows);
 
         return $this->json($items);
     }
@@ -586,9 +561,7 @@ class CalendrierDesCommissionsController extends AbstractController
         );
 
         $items = array_map(
-            function (CalendarEventDto $event): array {
-                return $event->toArray();
-            },
+            fn (CalendarEventDto $event): array => $event->toArray(),
             $events
         );
 
@@ -624,9 +597,7 @@ class CalendrierDesCommissionsController extends AbstractController
         $dtos = array_map([DateCommissionLieeDto::class, 'fromEntity'], $datesLiees);
 
         $items = array_map(
-            function (DateCommissionLieeDto $dto): array {
-                return $dto->toArray();
-            },
+            fn (DateCommissionLieeDto $dto): array => $dto->toArray(),
             $dtos
         );
 

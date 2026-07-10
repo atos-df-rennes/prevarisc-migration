@@ -4,11 +4,9 @@ namespace App\Dto\FusionDesCommunes;
 
 final class Commune
 {
-    /** @var string */
-    private $nom;
+    private string $nom;
 
-    /** @var string */
-    private $numinsee;
+    private string $numinsee;
 
     public function __construct(string $nom, string $numinsee)
     {

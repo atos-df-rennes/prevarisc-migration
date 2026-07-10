@@ -20,7 +20,7 @@ class DescriptifFormData implements \ArrayAccess
      *
      * @var array<int, RubriqueFormData>
      */
-    private $rubriques;
+    private array $rubriques;
 
     /**
      * @param array<int, RubriqueFormData> $rubriques

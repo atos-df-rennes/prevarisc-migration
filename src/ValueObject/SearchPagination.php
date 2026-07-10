@@ -9,16 +9,13 @@ namespace App\ValueObject;
 class SearchPagination
 {
     /** @var array<int|string, mixed> */
-    private $items;
+    private array $items;
 
-    /** @var int */
-    private $totalCount;
+    private int $totalCount;
 
-    /** @var int */
-    private $currentPage;
+    private int $currentPage;
 
-    /** @var int */
-    private $itemsPerPage;
+    private int $itemsPerPage;
 
     /**
      * @param array<int|string, mixed> $items

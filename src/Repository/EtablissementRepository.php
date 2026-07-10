@@ -444,9 +444,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, $params);
 
-        return array_map(static function (array $row): EtablissementDashboardDto {
-            return EtablissementDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(static fn (array $row): EtablissementDashboardDto => EtablissementDashboardDto::fromArray($row), $rows);
     }
 
     /**
@@ -516,9 +514,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, $params);
 
-        return array_map(static function (array $row): EtablissementDashboardDto {
-            return EtablissementDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(static fn (array $row): EtablissementDashboardDto => EtablissementDashboardDto::fromArray($row), $rows);
     }
 
     /**
@@ -543,9 +539,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, []);
 
-        return array_map(static function (array $row): EtablissementDashboardDto {
-            return EtablissementDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(static fn (array $row): EtablissementDashboardDto => EtablissementDashboardDto::fromArray($row), $rows);
     }
 
     /**
@@ -575,9 +569,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idUtilisateur' => $idUtilisateur]);
 
-        return array_map(static function (array $row): EtablissementDashboardDto {
-            return EtablissementDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(static fn (array $row): EtablissementDashboardDto => EtablissementDashboardDto::fromArray($row), $rows);
     }
 
     /**

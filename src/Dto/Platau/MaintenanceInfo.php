@@ -8,20 +8,15 @@ namespace App\Dto\Platau;
  */
 final class MaintenanceInfo implements \JsonSerializable
 {
-    /** @var bool */
-    private $active;
+    private bool $active;
 
-    /** @var string|null */
-    private $typeMaintenance;
+    private ?string $typeMaintenance;
 
-    /** @var string|null */
-    private $descMaintenance;
+    private ?string $descMaintenance;
 
-    /** @var string|null */
-    private $prochaineMaintenance;
+    private ?string $prochaineMaintenance;
 
-    /** @var string|null */
-    private $descProchaineMaintenance;
+    private ?string $descProchaineMaintenance;
 
     public function __construct(
         bool $active,

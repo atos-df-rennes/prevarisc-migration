@@ -4,11 +4,9 @@ namespace App\Dto\Historique;
 
 class Auteur
 {
-    /** @var ?int */
-    private $id;
+    private ?int $id;
 
-    /** @var string */
-    private $name;
+    private string $name;
 
     public function __construct(?int $id, string $name)
     {

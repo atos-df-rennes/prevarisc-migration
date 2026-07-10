@@ -18,17 +18,13 @@ use App\Repository\ValeurRepository;
 
 class Descriptif
 {
-    /** @var CapsuleRubriqueRepository */
-    private $capsuleRubriqueRepository;
+    private CapsuleRubriqueRepository $capsuleRubriqueRepository;
 
-    /** @var ValeurRepository */
-    private $valeurRepository;
+    private ValeurRepository $valeurRepository;
 
-    /** @var DossierDisplayRubriqueRepository */
-    private $dossierDisplayRubriqueRepository;
+    private DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository;
 
-    /** @var EtablissementDisplayRubriqueRepository */
-    private $etablissementDisplayRubriqueRepository;
+    private EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository;
 
     public function __construct(
         CapsuleRubriqueRepository $capsuleRubriqueRepository,

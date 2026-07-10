@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class DossierFieldsTest extends TestCase
 {
-    /** @var DossierFields */
-    private $service;
+    private DossierFields $service;
 
     protected function setUp(): void
     {

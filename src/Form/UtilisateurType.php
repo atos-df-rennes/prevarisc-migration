@@ -21,11 +21,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UtilisateurType extends AbstractType
 {
-    /** @var bool */
-    private $enforceSecurity;
+    private bool $enforceSecurity;
 
-    /** @var Authentification */
-    private $authentification;
+    private Authentification $authentification;
 
     public function __construct(bool $enforceSecurity, Authentification $authentification)
     {
@@ -104,13 +102,10 @@ class UtilisateurType extends AbstractType
                 'choice_label' => 'libelle',
                 'required' => false,
                 'multiple' => true,
-                'query_builder' => function (EntityRepository $entityRepository) {
-                    return $entityRepository->createQueryBuilder('g')
-                        ->addSelect('gt')
-                        ->join('g.type', 'gt')
-                        ->orderBy('gt.id, g.libelle')
-                    ;
-                },
+                'query_builder' => fn (EntityRepository $entityRepository) => $entityRepository->createQueryBuilder('g')
+                    ->addSelect('gt')
+                    ->join('g.type', 'gt')
+                    ->orderBy('gt.id, g.libelle'),
                 'group_by' => function (Groupement $choice): ?string {
                     $typeGroupement = $choice->getType();
 

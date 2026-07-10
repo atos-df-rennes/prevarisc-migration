@@ -4,11 +4,9 @@ namespace App\Dto\Prescriptions;
 
 final class PrescriptionsReprises
 {
-    /** @var int */
-    private $nombrePrescriptions = 0;
+    private int $nombrePrescriptions = 0;
 
-    /** @var int */
-    private $nombreDossiers = 0;
+    private int $nombreDossiers = 0;
 
     public function incrementNombrePrescriptions(): void
     {

@@ -11,8 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 final class CalendarServiceTest extends TestCase
 {
-    /** @var CalendarService */
-    private $calendarService;
+    private CalendarService $calendarService;
 
     protected function setUp(): void
     {

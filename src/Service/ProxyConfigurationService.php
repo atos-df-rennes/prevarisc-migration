@@ -8,26 +8,20 @@ namespace App\Service;
  */
 class ProxyConfigurationService
 {
-    /** @var bool */
-    private $proxyEnabled;
+    private bool $proxyEnabled;
 
     // @fixme: La variable a pour valeur "HTTP", ce qui n'est pas correct mais fonctionne avec le legacy car (int) "HTTP" = 0
     // Modifier l'env var processor pour utiliser int après modification de la configuration chez tous les SDIS
     // + constructeur et suppression du cast (int)
-    /** @var int */
-    private $proxyProtocol;
+    private int $proxyProtocol;
 
-    /** @var int */
-    private $proxyPort;
+    private int $proxyPort;
 
-    /** @var string */
-    private $proxyHost;
+    private string $proxyHost;
 
-    /** @var string */
-    private $proxyUsername;
+    private string $proxyUsername;
 
-    /** @var string */
-    private $proxyPassword;
+    private string $proxyPassword;
 
     /**
      * @param string $proxyProtocol Constante cURL : 0 = CURLPROXY_HTTP, 5 = CURLPROXY_SOCKS5 -> Legacy = "HTTP", à corriger

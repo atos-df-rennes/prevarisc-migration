@@ -17,26 +17,19 @@ use Symfony\Component\Security\Http\Logout\LogoutSuccessHandlerInterface;
  */
 class CasLogoutSuccessHandler implements LogoutSuccessHandlerInterface
 {
-    /** @var bool */
-    private $casEnabled;
+    private bool $casEnabled;
 
-    /** @var string */
-    private $casHost;
+    private string $casHost;
 
-    /** @var int */
-    private $casPort;
+    private int $casPort;
 
-    /** @var string */
-    private $casPublicHost;
+    private string $casPublicHost;
 
-    /** @var int */
-    private $casPublicPort;
+    private int $casPublicPort;
 
-    /** @var string */
-    private $casContext;
+    private string $casContext;
 
-    /** @var bool */
-    private $casNoSsl;
+    private bool $casNoSsl;
 
     public function __construct(
         bool $casEnabled,

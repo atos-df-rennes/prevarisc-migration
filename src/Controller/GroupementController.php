@@ -29,29 +29,17 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class GroupementController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var CommuneRepository */
-    private $communeRepository;
+    private CommuneRepository $communeRepository;
 
-    /**
-     * @var GroupementTypeRepository
-     */
-    private $groupementTypeRepository;
+    private GroupementTypeRepository $groupementTypeRepository;
 
-    /**
-     * @var GroupementCommunes
-     */
-    private $groupementCommunes;
+    private GroupementCommunes $groupementCommunes;
 
-    /**
-     * @var Contact
-     */
-    private $contactService;
+    private Contact $contactService;
 
-    /** @var TagAwareAdapterInterface */
-    private $searchCache;
+    private TagAwareAdapterInterface $searchCache;
 
     public function __construct(
         EntityManagerInterface $entityManager,

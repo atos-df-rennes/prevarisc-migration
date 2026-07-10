@@ -30,32 +30,23 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class RessourcesSpecialiseesEtablissementTextGenerator
 {
-    /** @var RessourcesSpecialiseesZoneTexter */
-    private $zoneTexter;
+    private RessourcesSpecialiseesZoneTexter $zoneTexter;
 
-    /** @var RessourcesSpecialiseesHabitationTexter */
-    private $habitationTexter;
+    private RessourcesSpecialiseesHabitationTexter $habitationTexter;
 
-    /** @var RessourcesSpecialiseesIghTexter */
-    private $ighTexter;
+    private RessourcesSpecialiseesIghTexter $ighTexter;
 
-    /** @var RessourcesSpecialiseesCelluleTexter */
-    private $celluleTexter;
+    private RessourcesSpecialiseesCelluleTexter $celluleTexter;
 
-    /** @var RessourcesSpecialiseesErpTexter */
-    private $erpTexter;
+    private RessourcesSpecialiseesErpTexter $erpTexter;
 
-    /** @var RessourcesSpecialiseesBupTexter */
-    private $bupTexter;
+    private RessourcesSpecialiseesBupTexter $bupTexter;
 
-    /** @var RessourcesSpecialiseesCampingTexter */
-    private $campingTexter;
+    private RessourcesSpecialiseesCampingTexter $campingTexter;
 
-    /** @var RessourcesSpecialiseesIopTexter */
-    private $iopTexter;
+    private RessourcesSpecialiseesIopTexter $iopTexter;
 
-    /** @var RessourcesSpecialiseesManifestationTemporaireTexter */
-    private $manifestationTemporaireTexter;
+    private RessourcesSpecialiseesManifestationTemporaireTexter $manifestationTemporaireTexter;
 
     public function __construct(
         RessourcesSpecialiseesZoneTexter $zoneTexter,

@@ -4,26 +4,19 @@ namespace App\Dto;
 
 final class IgnApi
 {
-    /** @var string */
-    private $nom;
+    private string $nom;
 
-    /** @var string */
-    private $url;
+    private string $url;
 
-    /** @var string */
-    private $type;
+    private string $type;
 
-    /** @var string */
-    private $layers;
+    private string $layers;
 
-    /** @var string */
-    private $format;
+    private string $format;
 
-    /** @var bool */
-    private $transparent;
+    private bool $transparent;
 
-    /** @var bool */
-    private $baseLayer;
+    private bool $baseLayer;
 
     public function __construct(string $nom, string $url, string $type, string $layers, string $format)
     {

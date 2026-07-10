@@ -16,20 +16,15 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class DossierLateralNavigationSubscriber implements EventSubscriberInterface
 {
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /** @var DossierAffectationRepository */
-    private $dossierAffectationRepository;
+    private DossierAffectationRepository $dossierAffectationRepository;
 
-    /** @var CapsuleRubriqueRepository */
-    private $capsuleRubriqueRepository;
+    private CapsuleRubriqueRepository $capsuleRubriqueRepository;
 
-    /** @var DateAffectation */
-    private $dateAffectation;
+    private DateAffectation $dateAffectation;
 
-    /** @var Dossier */
-    private $serviceDossier;
+    private Dossier $serviceDossier;
 
     public function __construct(
         DossierRepository $dossierRepository,

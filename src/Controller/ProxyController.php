@@ -15,14 +15,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProxyController extends AbstractController
 {
-    /** @var ProxyConfigurationService */
-    private $proxyConfiguration;
+    private ProxyConfigurationService $proxyConfiguration;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var bool */
-    private $debugEnabled;
+    private bool $debugEnabled;
 
     public function __construct(
         ProxyConfigurationService $proxyConfiguration,
@@ -48,9 +45,7 @@ class ProxyController extends AbstractController
         $queryAll = $request->query->all();
         $filteredParams = array_filter(
             $queryAll,
-            static function (string $key) use ($excluded): bool {
-                return !in_array($key, $excluded, true);
-            },
+            static fn (string $key): bool => !in_array($key, $excluded, true),
             ARRAY_FILTER_USE_KEY
         );
 

@@ -27,25 +27,16 @@ class DossierVoter extends Voter
 
     public const VERROUILLAGE = 'verrouillage_dossier';
 
-    /**
-     * @var ResourcesRepository
-     */
-    private $resourcesRepository;
+    private ResourcesRepository $resourcesRepository;
 
-    /**
-     * @var PrivilegesRepository
-     */
-    private $privilegesRepository;
+    private PrivilegesRepository $privilegesRepository;
 
     /**
      * @var Resources[]
      */
     private $resources;
 
-    /**
-     * @var EtablissementCollectionAccessChecker
-     */
-    private $collectionAccessChecker;
+    private EtablissementCollectionAccessChecker $collectionAccessChecker;
 
     public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, EtablissementCollectionAccessChecker $collectionAccessChecker)
     {

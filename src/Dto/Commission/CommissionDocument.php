@@ -6,17 +6,14 @@ use App\Dto\Document;
 
 final class CommissionDocument
 {
-    /** @var int */
-    private $id;
+    private int $id;
 
-    /** @var string */
-    private $nom;
+    private string $nom;
 
-    /** @var string */
-    private $type;
+    private string $type;
 
     /** @var Document[]|null */
-    private $documents;
+    private ?array $documents;
 
     /**
      * @param Document[]|null $documents

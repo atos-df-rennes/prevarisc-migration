@@ -20,35 +20,25 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class IndexController extends AbstractController
 {
-    /** @var VersionBuilder */
-    private $versionBuilder;
+    private VersionBuilder $versionBuilder;
 
-    /** @var DashboardBlocConfig */
-    private $dashboardBlocConfig;
+    private DashboardBlocConfig $dashboardBlocConfig;
 
-    /** @var DashboardService */
-    private $dashboardService;
+    private DashboardService $dashboardService;
 
-    /** @var FeedService */
-    private $feedService;
+    private FeedService $feedService;
 
-    /** @var GroupeRepository */
-    private $groupeRepository;
+    private GroupeRepository $groupeRepository;
 
-    /** @var NotificationService */
-    private $notificationService;
+    private NotificationService $notificationService;
 
-    /** @var PlatauHealthcheckService */
-    private $platauHealthcheckService;
+    private PlatauHealthcheckService $platauHealthcheckService;
 
-    /** @var bool */
-    private $deactivatePlatau;
+    private bool $deactivatePlatau;
 
-    /** @var bool */
-    private $platauNoHealthcheck;
+    private bool $platauNoHealthcheck;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
         VersionBuilder $versionBuilder,
@@ -207,7 +197,7 @@ class IndexController extends AbstractController
                 }
 
                 /** @var int[] $confIds */
-                $confIds = array_map(static function ($v): int { return is_numeric($v) ? (int) $v : 0; }, $conf);
+                $confIds = array_map(static fn ($v): int => is_numeric($v) ? (int) $v : 0, $conf);
 
                 $this->feedService->addMessage($type, $text, $user, $confIds);
                 $this->addFlash('success', 'Le message a bien été ajouté.');

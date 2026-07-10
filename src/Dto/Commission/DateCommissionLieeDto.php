@@ -10,26 +10,19 @@ use App\Entity\DateCommission;
  */
 final class DateCommissionLieeDto
 {
-    /** @var int */
-    private $id;
+    private int $id;
 
-    /** @var string */
-    private $dateCommission;
+    private string $dateCommission;
 
-    /** @var string */
-    private $heureDebut;
+    private string $heureDebut;
 
-    /** @var string */
-    private $heureFin;
+    private string $heureFin;
 
-    /** @var string|null */
-    private $libelle;
+    private ?string $libelle;
 
-    /** @var int */
-    private $idCommission;
+    private int $idCommission;
 
-    /** @var int */
-    private $idTypeEvenement;
+    private int $idTypeEvenement;
 
     private function __construct(
         int $id,

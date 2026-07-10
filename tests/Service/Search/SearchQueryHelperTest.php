@@ -13,10 +13,9 @@ use PHPUnit\Framework\TestCase;
 final class SearchQueryHelperTest extends TestCase
 {
     /** @var Connection|MockObject */
-    private $connection;
+    private MockObject $connection;
 
-    /** @var SearchQueryHelper */
-    private $helper;
+    private SearchQueryHelper $helper;
 
     protected function setUp(): void
     {
@@ -91,7 +90,7 @@ final class SearchQueryHelperTest extends TestCase
     public function testBuildCriteriaExactAvecTableauProduitConditionOr(): void
     {
         $this->connection->method('quote')
-            ->willReturnCallback(function (string $v): string { return sprintf("'%s'", $v); });
+            ->willReturnCallback(fn (string $v): string => sprintf("'%s'", $v));
 
         $result = $this->helper->buildCriteria('genre.ID_GENRE', ['1', '2', '3']);
 
@@ -133,7 +132,7 @@ final class SearchQueryHelperTest extends TestCase
     public function testBuildCriteriaLikeAvecTableauProduitMultiplesLike(): void
     {
         $this->connection->method('quote')
-            ->willReturnCallback(function (string $v): string { return sprintf("'%s'", $v); });
+            ->willReturnCallback(fn (string $v): string => sprintf("'%s'", $v));
 
         $result = $this->helper->buildCriteria('LIBELLE', ['foo', 'bar'], false);
 

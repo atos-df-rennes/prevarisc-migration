@@ -10,8 +10,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 final class PasswordValidator extends ConstraintValidator
 {
-    /** @var bool */
-    private $enforceSecurity;
+    private bool $enforceSecurity;
 
     public function __construct(bool $enforceSecurity)
     {

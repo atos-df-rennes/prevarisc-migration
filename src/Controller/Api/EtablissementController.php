@@ -17,14 +17,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class EtablissementController extends AbstractController
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /** @var PeriodiciteRepository */
-    private $periodiciteRepository;
+    private PeriodiciteRepository $periodiciteRepository;
 
-    /** @var EntityManagerInterface */
-    private $em;
+    private EntityManagerInterface $em;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,

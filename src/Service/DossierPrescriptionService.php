@@ -19,17 +19,13 @@ use Symfony\Component\Security\Core\Security;
 
 class DossierPrescriptionService
 {
-    /** @var PrescriptionDossierRepository */
-    private $repository;
+    private PrescriptionDossierRepository $repository;
 
-    /** @var EntityManagerInterface */
-    private $em;
+    private EntityManagerInterface $em;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var Security */
-    private $security;
+    private Security $security;
 
     public function __construct(
         PrescriptionDossierRepository $repository,
@@ -261,7 +257,7 @@ class DossierPrescriptionService
     {
         if (TypePrescription::REGLEMENTAIRE === $type) {
             $ids = array_map(
-                function (PrescriptionDossier $p): int { return (int) $p->getId(); },
+                fn (PrescriptionDossier $p): int => (int) $p->getId(),
                 $this->repository->findByDossierAndType($dossier, TypePrescription::REGLEMENTAIRE)
             );
         } else {
@@ -269,7 +265,7 @@ class DossierPrescriptionService
             $amelioration = $this->repository->findByDossierAndType($dossier, TypePrescription::AMELIORATION);
 
             $ids = array_map(
-                function (PrescriptionDossier $p): int { return (int) $p->getId(); },
+                fn (PrescriptionDossier $p): int => (int) $p->getId(),
                 array_merge($exploitation, $amelioration)
             );
         }

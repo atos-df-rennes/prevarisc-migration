@@ -33,53 +33,37 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SearchController extends AbstractController
 {
-    /** @var EtablissementSearchService */
-    private $etablissementSearchService;
+    private EtablissementSearchService $etablissementSearchService;
 
-    /** @var DossierSearchService */
-    private $dossierSearchService;
+    private DossierSearchService $dossierSearchService;
 
-    /** @var GroupementRepository */
-    private $groupementRepository;
+    private GroupementRepository $groupementRepository;
 
-    /** @var CommissionRepository */
-    private $commissionRepository;
+    private CommissionRepository $commissionRepository;
 
-    /** @var DossierTypeRepository */
-    private $dossierTypeRepository;
+    private DossierTypeRepository $dossierTypeRepository;
 
-    /** @var GenreRepository */
-    private $genreRepository;
+    private GenreRepository $genreRepository;
 
-    /** @var EtablissementStatutRepository */
-    private $etablissementStatutRepository;
+    private EtablissementStatutRepository $etablissementStatutRepository;
 
-    /** @var EtablissementCategorieRepository */
-    private $etablissementCategorieRepository;
+    private EtablissementCategorieRepository $etablissementCategorieRepository;
 
-    /** @var IghClasseRepository */
-    private $ighClasseRepository;
+    private IghClasseRepository $ighClasseRepository;
 
-    /** @var EtablissementActiviteRepository */
-    private $etablissementActiviteRepository;
+    private EtablissementActiviteRepository $etablissementActiviteRepository;
 
-    /** @var FamilleRepository */
-    private $familleRepository;
+    private FamilleRepository $familleRepository;
 
-    /** @var CommuneRepository */
-    private $communeRepository;
+    private CommuneRepository $communeRepository;
 
-    /** @var AdresseRueRepository */
-    private $adresseRueRepository;
+    private AdresseRueRepository $adresseRueRepository;
 
-    /** @var EtablissementAdresseRepository */
-    private $etablissementAdresseRepository;
+    private EtablissementAdresseRepository $etablissementAdresseRepository;
 
-    /** @var SearchExport */
-    private $searchExport;
+    private SearchExport $searchExport;
 
-    /** @var bool */
-    private $deactivatePlatau;
+    private bool $deactivatePlatau;
 
     public function __construct(
         EtablissementSearchService $etablissementSearchService,

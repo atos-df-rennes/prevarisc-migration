@@ -18,29 +18,21 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 final class FusionDesCommunes
 {
-    /** @var SerializerInterface */
-    private $serializer;
+    private SerializerInterface $serializer;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var CommuneRepository */
-    private $communeRepository;
+    private CommuneRepository $communeRepository;
 
-    /** @var EtablissementAdresseRepository */
-    private $etablissementAdresseRepository;
+    private EtablissementAdresseRepository $etablissementAdresseRepository;
 
-    /** @var AdresseRueRepository */
-    private $adresseRueRepository;
+    private AdresseRueRepository $adresseRueRepository;
 
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
+    private UtilisateurRepository $utilisateurRepository;
 
-    /** @var CommissionRegleRepository */
-    private $commissionRegleRepository;
+    private CommissionRegleRepository $commissionRegleRepository;
 
     public function __construct(
         SerializerInterface $serializer,

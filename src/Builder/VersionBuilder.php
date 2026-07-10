@@ -11,17 +11,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class VersionBuilder
 {
-    /** @var string */
-    private $srcDir;
+    private string $srcDir;
 
-    /** @var HttpClientInterface */
-    private $client;
+    private HttpClientInterface $client;
 
-    /** @var SerializerInterface */
-    private $serializer;
+    private SerializerInterface $serializer;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public const REPO_URL = 'https://github.com/atos-df-rennes/prevarisc';
 

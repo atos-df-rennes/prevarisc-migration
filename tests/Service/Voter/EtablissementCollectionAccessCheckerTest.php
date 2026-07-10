@@ -16,13 +16,12 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 class EtablissementCollectionAccessCheckerTest extends TestCase
 {
     /** @var MockObject&EtablissementVoterFactory */
-    private $factory;
+    private MockObject $factory;
 
     /** @var MockObject&LoggerInterface */
-    private $logger;
+    private MockObject $logger;
 
-    /** @var EtablissementCollectionAccessChecker */
-    private $checker;
+    private EtablissementCollectionAccessChecker $checker;
 
     protected function setUp(): void
     {

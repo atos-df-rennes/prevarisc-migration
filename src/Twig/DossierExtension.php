@@ -9,8 +9,7 @@ use Twig\TwigFilter;
 
 class DossierExtension extends AbstractExtension
 {
-    /** @var DossierFields */
-    private $dossierFieldsService;
+    private DossierFields $dossierFieldsService;
 
     public function __construct(DossierFields $dossierFieldsService)
     {

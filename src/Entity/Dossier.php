@@ -617,11 +617,9 @@ class Dossier
     private $dateSignature;
 
     /**
-     * @var ?string
-     *
      * @ORM\Column(name="DESCRIPTIF_DOSSIER", type="text", nullable=true)
      */
-    private $descriptif;
+    private ?string $descriptif = null;
 
     /**
      * @var ?\DateTimeInterface
@@ -1073,9 +1071,7 @@ class Dossier
 
     public function getNumerosUrbanisme(): string
     {
-        $numerosUrbanisme = $this->documentsUrbanisme->map(static function (DossierDocumentUrbanisme $documentUrbanisme): ?string {
-            return $documentUrbanisme->getNumero();
-        });
+        $numerosUrbanisme = $this->documentsUrbanisme->map(static fn (DossierDocumentUrbanisme $documentUrbanisme): ?string => $documentUrbanisme->getNumero());
 
         return implode(', ', $numerosUrbanisme->toArray());
     }

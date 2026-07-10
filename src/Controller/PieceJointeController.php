@@ -18,17 +18,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PieceJointeController extends AbstractController
 {
-    /** @var DataStore */
-    private $dataStore;
+    private DataStore $dataStore;
 
-    /** @var EtablissementPieceJointeRepository */
-    private $etablissementPieceJointeRepository;
+    private EtablissementPieceJointeRepository $etablissementPieceJointeRepository;
 
-    /** @var PieceJointeRepository */
-    private $pieceJointeRepository;
+    private PieceJointeRepository $pieceJointeRepository;
 
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepository;
+    private DateCommissionRepository $dateCommissionRepository;
 
     public function __construct(
         DataStore $dataStore,

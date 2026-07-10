@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 
 final class PrescriptionsTest extends TestCase
 {
-    private $prescriptions;
+    private Prescriptions $prescriptions;
 
     protected function setUp(): void
     {

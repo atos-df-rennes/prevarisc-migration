@@ -12,20 +12,11 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementCampingVoter extends EtablissementVoter
 {
-    /**
-     * @var ResourcesRepository
-     */
-    private $resourcesRepository;
+    private ResourcesRepository $resourcesRepository;
 
-    /**
-     * @var PrivilegesRepository
-     */
-    private $privilegesRepository;
+    private PrivilegesRepository $privilegesRepository;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, LoggerInterface $logger)
     {

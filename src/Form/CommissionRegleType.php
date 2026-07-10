@@ -23,8 +23,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommissionRegleType extends AbstractType
 {
-    /** @var int */
-    private $commissionCommunaleType;
+    private int $commissionCommunaleType;
 
     public function __construct(int $commissionCommunaleType)
     {
@@ -49,10 +48,8 @@ class CommissionRegleType extends AbstractType
                     'class' => 'tom-select',
                     'data-placeholder' => 'Sélectionnez une commune',
                 ],
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('c')
-                        ->orderBy('c.libelle', 'ASC');
-                },
+                'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('c')
+                    ->orderBy('c.libelle', 'ASC'),
             ]);
         } else {
             $builder->add('groupement', EntityType::class, [
@@ -65,16 +62,12 @@ class CommissionRegleType extends AbstractType
                     'class' => 'tom-select',
                     'data-placeholder' => 'Sélectionnez un groupement',
                 ],
-                'group_by' => function (Groupement $groupement): ?string {
-                    return $groupement->getType() instanceof GroupementType ? $groupement->getType()->getLibelle() : 'Autre';
-                },
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('g')
-                        ->leftJoin('g.type', 't')
-                        ->addSelect('t')
-                        ->orderBy('t.id', 'ASC')
-                        ->addOrderBy('g.libelle', 'ASC');
-                },
+                'group_by' => fn (Groupement $groupement): ?string => $groupement->getType() instanceof GroupementType ? $groupement->getType()->getLibelle() : 'Autre',
+                'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('g')
+                    ->leftJoin('g.type', 't')
+                    ->addSelect('t')
+                    ->orderBy('t.id', 'ASC')
+                    ->addOrderBy('g.libelle', 'ASC'),
             ]);
         }
 
@@ -89,10 +82,8 @@ class CommissionRegleType extends AbstractType
             'attr' => [
                 'data-select-all-target' => 'categories',
             ],
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('c')
-                    ->orderBy('c.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('c')
+                ->orderBy('c.libelle', 'ASC'),
         ]);
 
         // Types ERP - Select multiple (TomSelect) avec bouton "Tout sélectionner"
@@ -109,10 +100,8 @@ class CommissionRegleType extends AbstractType
                 'data-select-all-target' => 'types',
                 'data-placeholder' => 'Sélectionnez les types',
             ],
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('t')
-                    ->orderBy('t.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('t')
+                ->orderBy('t.libelle', 'ASC'),
         ]);
 
         // Classes IGH - Select multiple (TomSelect) avec bouton "Tout sélectionner"
@@ -129,10 +118,8 @@ class CommissionRegleType extends AbstractType
                 'data-select-all-target' => 'classes',
                 'data-placeholder' => 'Sélectionnez les classes',
             ],
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('c')
-                    ->orderBy('c.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('c')
+                ->orderBy('c.libelle', 'ASC'),
         ]);
 
         // Local Sommeil et Étude/Visite : champs non mappés, pré-remplis via PRE_SET_DATA,

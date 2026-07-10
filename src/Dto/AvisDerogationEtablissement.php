@@ -4,26 +4,19 @@ namespace App\Dto;
 
 final class AvisDerogationEtablissement
 {
-    /** @var int */
-    private $idDossier;
+    private int $idDossier;
 
-    /** @var int */
-    private $id;
+    private int $id;
 
-    /** @var string */
-    private $titre;
+    private string $titre;
 
-    /** @var string */
-    private $type;
+    private string $type;
 
-    /** @var bool */
-    private $leve;
+    private bool $leve;
 
-    /** @var string|null */
-    private $debut;
+    private ?string $debut;
 
-    /** @var int|null */
-    private $typeDossier;
+    private ?int $typeDossier;
 
     public function __construct(
         int $idDossier,

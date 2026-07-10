@@ -22,30 +22,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AlerteController extends AbstractController
 {
-    /**
-     * @var EtablissementRepository
-     */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /**
-     * @var ChangementRepository
-     */
-    private $changementRepository;
+    private ChangementRepository $changementRepository;
 
-    /**
-     * @var AlerteService
-     */
-    private $alerteService;
+    private AlerteService $alerteService;
 
-    /**
-     * @var MailerInterface
-     */
-    private $mailer;
+    private MailerInterface $mailer;
 
-    /**
-     * @var MailerConfiguration
-     */
-    private $mailerConfig;
+    private MailerConfiguration $mailerConfig;
 
     public function __construct(EtablissementRepository $etablissementRepository, ChangementRepository $changementRepository, AlerteService $alerteService, MailerInterface $mailer, MailerConfiguration $mailerConfig)
     {
@@ -159,9 +144,7 @@ class AlerteController extends AbstractController
         }
 
         // Extraction destinataires
-        $destinataires = array_filter(array_map('trim', explode(';', $emailsRaw)), function (string $email): bool {
-            return false !== filter_var($email, FILTER_VALIDATE_EMAIL);
-        });
+        $destinataires = array_filter(array_map('trim', explode(';', $emailsRaw)), fn (string $email): bool => false !== filter_var($email, FILTER_VALIDATE_EMAIL));
         if ([] === $destinataires) {
             return $this->json([
                 'success' => false,

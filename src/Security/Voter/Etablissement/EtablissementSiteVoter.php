@@ -12,14 +12,11 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementSiteVoter extends EtablissementVoter
 {
-    /** @var EtablissementCollectionAccessChecker */
-    private $collectionAccessChecker;
+    private EtablissementCollectionAccessChecker $collectionAccessChecker;
 
-    /** @var ResourcesRepository */
-    private $resourcesRepository;
+    private ResourcesRepository $resourcesRepository;
 
-    /** @var PrivilegesRepository */
-    private $privilegesRepository;
+    private PrivilegesRepository $privilegesRepository;
 
     public function __construct(
         EtablissementCollectionAccessChecker $collectionAccessChecker,

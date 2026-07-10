@@ -12,8 +12,7 @@ use Psr\Log\LoggerInterface;
  */
 final class CommissionDatesTransformer
 {
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(LoggerInterface $logger)
     {

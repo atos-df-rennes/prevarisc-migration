@@ -16,17 +16,13 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DossierAffectationService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var DossierAffectationRepository */
-    private $affectationRepository;
+    private DossierAffectationRepository $affectationRepository;
 
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepository;
+    private DateCommissionRepository $dateCommissionRepository;
 
-    /** @var DossierFields */
-    private $dossierFieldsService;
+    private DossierFields $dossierFieldsService;
 
     public function __construct(
         EntityManagerInterface $entityManager,

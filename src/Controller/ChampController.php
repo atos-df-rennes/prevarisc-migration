@@ -25,28 +25,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ChampController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
+    private FormFactoryInterface $formFactory;
 
-    /**
-     * @var ChampRepository
-     */
-    private $champRepository;
+    private ChampRepository $champRepository;
 
-    /**
-     * @var ChampValeurListeRepository
-     */
-    private $champValeurListeRepository;
+    private ChampValeurListeRepository $champValeurListeRepository;
 
-    /**
-     * @var TypeChampRepository
-     */
-    private $typeChampRepository;
+    private TypeChampRepository $typeChampRepository;
 
     public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory, ChampRepository $champRepository, ChampValeurListeRepository $champValeurListeRepository, TypeChampRepository $typeChampRepository)
     {

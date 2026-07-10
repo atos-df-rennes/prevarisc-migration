@@ -7,11 +7,9 @@ final class ClesTableauDesPeriodicites
     /** @var int */
     private $categorie;
 
-    /** @var string */
-    private $type;
+    private string $type;
 
-    /** @var bool */
-    private $localSommeil;
+    private bool $localSommeil;
 
     private function __construct(string $categorie, string $type, string $localSommeil)
     {

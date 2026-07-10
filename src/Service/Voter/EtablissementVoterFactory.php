@@ -21,32 +21,23 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  */
 class EtablissementVoterFactory
 {
-    /** @var EtablissementErpVoter */
-    private $erpVoter;
+    private EtablissementErpVoter $erpVoter;
 
-    /** @var EtablissementCelluleVoter */
-    private $celluleVoter;
+    private EtablissementCelluleVoter $celluleVoter;
 
-    /** @var EtablissementHabitationVoter */
-    private $habitationVoter;
+    private EtablissementHabitationVoter $habitationVoter;
 
-    /** @var EtablissementIghVoter */
-    private $ighVoter;
+    private EtablissementIghVoter $ighVoter;
 
-    /** @var EtablissementBupVoter */
-    private $bupVoter;
+    private EtablissementBupVoter $bupVoter;
 
-    /** @var EtablissementCampingVoter */
-    private $campingVoter;
+    private EtablissementCampingVoter $campingVoter;
 
-    /** @var EtablissementManifestationTemporaireVoter */
-    private $manifestationTemporaireVoter;
+    private EtablissementManifestationTemporaireVoter $manifestationTemporaireVoter;
 
-    /** @var EtablissementIopVoter */
-    private $iopVoter;
+    private EtablissementIopVoter $iopVoter;
 
-    /** @var EtablissementZoneVoter */
-    private $zoneVoter;
+    private EtablissementZoneVoter $zoneVoter;
 
     public function __construct(
         EtablissementErpVoter $erpVoter,

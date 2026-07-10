@@ -7,8 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 final class VersionServiceTest extends TestCase
 {
-    /** @var string */
-    private $tmpDir;
+    private string $tmpDir;
 
     protected function setUp(): void
     {

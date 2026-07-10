@@ -4,8 +4,7 @@ namespace App\Dto\GithubApi;
 
 final class GithubObject
 {
-    /** @var string */
-    private $sha;
+    private string $sha;
 
     public function __construct(string $sha)
     {

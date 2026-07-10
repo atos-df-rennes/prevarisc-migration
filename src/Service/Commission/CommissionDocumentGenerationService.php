@@ -32,38 +32,27 @@ use Segment;
  */
 class CommissionDocumentGenerationService
 {
-    /** @var EntityManagerInterface */
-    private $em;
+    private EntityManagerInterface $em;
 
-    /** @var DataStore */
-    private $dataStore;
+    private DataStore $dataStore;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var CommissionMembreEligibilityChecker */
-    private $eligibilityChecker;
+    private CommissionMembreEligibilityChecker $eligibilityChecker;
 
-    /** @var string */
-    private $courriersMembresRealDataPath;
+    private string $courriersMembresRealDataPath;
 
-    /** @var string */
-    private $documentsCommissionRealDataPath;
+    private string $documentsCommissionRealDataPath;
 
-    /** @var Descriptif */
-    private $descriptif;
+    private Descriptif $descriptif;
 
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepo;
+    private DateCommissionRepository $dateCommissionRepo;
 
-    /** @var OdtWriter */
-    private $odtWriter;
+    private OdtWriter $odtWriter;
 
-    /** @var DossierPrescriptionService */
-    private $prescriptionService;
+    private DossierPrescriptionService $prescriptionService;
 
-    /** @var CommissionDataProvider */
-    private $dataProvider;
+    private CommissionDataProvider $dataProvider;
 
     public function __construct(
         EntityManagerInterface $em,

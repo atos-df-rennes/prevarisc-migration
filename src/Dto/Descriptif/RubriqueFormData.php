@@ -17,17 +17,15 @@ class RubriqueFormData implements \ArrayAccess
 {
     /**
      * Préférence d'affichage de la rubrique (true = visible, false = masquée).
-     *
-     * @var bool
      */
-    private $display;
+    private bool $display;
 
     /**
      * Données des champs racines indexées par champId.
      *
      * @var array<int, ChampValueData>
      */
-    private $champs;
+    private array $champs;
 
     /**
      * @param array<int, ChampValueData> $champs

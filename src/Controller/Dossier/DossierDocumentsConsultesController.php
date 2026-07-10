@@ -20,11 +20,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierDocumentsConsultesController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var DossierDocumentsConsultesService */
-    private $documentsConsultesService;
+    private DossierDocumentsConsultesService $documentsConsultesService;
 
     public function __construct(
         EntityManagerInterface $entityManager,

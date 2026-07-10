@@ -33,33 +33,17 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class GroupeController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var GroupeRepository
-     */
-    private $groupeRepository;
+    private GroupeRepository $groupeRepository;
 
-    /**
-     * @var UtilisateurRepository
-     */
-    private $utilisateurRepository;
+    private UtilisateurRepository $utilisateurRepository;
 
-    /**
-     * @var ResourcesRepository
-     */
-    private $resourcesRepository;
+    private ResourcesRepository $resourcesRepository;
 
-    /**
-     * @var RessourcesSpecialiseesDossierTextGenerator
-     */
-    private $ressourcesSpecialiseesDossierTextGenerator;
+    private RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator;
 
-    /**
-     * @var RessourcesSpecialiseesEtablissementTextGenerator
-     */
-    private $ressourcesSpecialiseesEtablissementTextGenerator;
+    private RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator;
 
     public function __construct(EntityManagerInterface $entityManager, GroupeRepository $groupeRepository, UtilisateurRepository $utilisateurRepository, ResourcesRepository $resourcesRepository, RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
     {

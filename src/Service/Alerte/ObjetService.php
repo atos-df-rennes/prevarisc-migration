@@ -17,8 +17,7 @@ use App\Entity\EtablissementType;
  */
 class ObjetService
 {
-    /** @var AvisService */
-    private $avisService;
+    private AvisService $avisService;
 
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis

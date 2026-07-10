@@ -22,11 +22,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommissionContactsController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var Contact */
-    private $contactService;
+    private Contact $contactService;
 
     public function __construct(
         EntityManagerInterface $entityManager,

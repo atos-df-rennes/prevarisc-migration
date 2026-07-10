@@ -7,8 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class HighlightExtensionTest extends TestCase
 {
-    /** @var HighlightExtension */
-    private $extension;
+    private HighlightExtension $extension;
 
     protected function setUp(): void
     {

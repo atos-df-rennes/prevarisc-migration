@@ -32,20 +32,15 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DescriptifFormPersister
 {
-    /** @var ValeurRepository */
-    private $valeurRepository;
+    private ValeurRepository $valeurRepository;
 
-    /** @var ChampRepository */
-    private $champRepository;
+    private ChampRepository $champRepository;
 
-    /** @var DossierDisplayRubriqueRepository */
-    private $dossierDisplayRubriqueRepository;
+    private DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository;
 
-    /** @var EtablissementDisplayRubriqueRepository */
-    private $etablissementDisplayRubriqueRepository;
+    private EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository;
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(
         ValeurRepository $valeurRepository,

@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class UtilisateurManagerTest extends TestCase
 {
-    /** @var string */
-    private $globalSalt = 'globalsalt';
+    private string $globalSalt = 'globalsalt';
 
     public static function providePasswordCases(): array
     {

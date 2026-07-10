@@ -10,8 +10,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class BooleanStringTransformerTest extends TestCase
 {
-    /** @var BooleanStringTransformer */
-    private $transformer;
+    private BooleanStringTransformer $transformer;
 
     protected function setUp(): void
     {

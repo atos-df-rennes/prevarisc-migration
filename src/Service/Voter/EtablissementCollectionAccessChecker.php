@@ -15,11 +15,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  */
 class EtablissementCollectionAccessChecker
 {
-    /** @var EtablissementVoterFactory */
-    private $voterFactory;
+    private EtablissementVoterFactory $voterFactory;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(EtablissementVoterFactory $voterFactory, LoggerInterface $logger)
     {

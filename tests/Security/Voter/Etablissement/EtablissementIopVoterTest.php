@@ -17,6 +17,7 @@ use App\Security\Voter\Etablissement\EtablissementVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -24,15 +25,15 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class EtablissementIopVoterTest extends TestCase
 {
-    private $resourcesRepository;
+    private MockObject $resourcesRepository;
 
-    private $privilegesRepository;
+    private MockObject $privilegesRepository;
 
-    private $logger;
+    private MockObject $logger;
 
-    private $voter;
+    private EtablissementIopVoter $voter;
 
-    private $token;
+    private MockObject $token;
 
     protected function setUp(): void
     {

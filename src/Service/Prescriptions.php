@@ -19,23 +19,17 @@ use App\Repository\PrescriptionTypeRepository;
 
 final class Prescriptions
 {
-    /** @var PrescriptionTypeRepository */
-    private $prescriptionTypeRepository;
+    private PrescriptionTypeRepository $prescriptionTypeRepository;
 
-    /** @var PrescriptionTypeAssociationRepository */
-    private $prescriptionTypeAssociationRepository;
+    private PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository;
 
-    /** @var PrescriptionTexteListeRepository */
-    private $prescriptionTexteListeRepository;
+    private PrescriptionTexteListeRepository $prescriptionTexteListeRepository;
 
-    /** @var PrescriptionArticleListeRepository */
-    private $prescriptionArticleListeRepository;
+    private PrescriptionArticleListeRepository $prescriptionArticleListeRepository;
 
-    /** @var PrescriptionReglementaireRepository */
-    private $prescriptionReglementaireRepository;
+    private PrescriptionReglementaireRepository $prescriptionReglementaireRepository;
 
-    /** @var PrescriptionReglementaireAssociationRepository */
-    private $prescriptionReglementaireAssociationRepository;
+    private PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository;
 
     public function __construct(
         PrescriptionTypeRepository $prescriptionTypeRepository,

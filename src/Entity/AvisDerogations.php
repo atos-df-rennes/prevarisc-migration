@@ -72,11 +72,9 @@ class AvisDerogations
     private $analyseDeRisque;
 
     /**
-     * @var bool
-     *
      * @ORM\Column(name="DISPLAY_HISTORIQUE", type="boolean", options={"default": 0})
      */
-    private $displayHistorique;
+    private bool $displayHistorique;
 
     /**
      * @var ?Avis

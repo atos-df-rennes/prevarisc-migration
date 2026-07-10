@@ -15,8 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 class DossierServiceInstructeurTest extends TestCase
 {
-    /** @var Dossier */
-    private $dossier;
+    private Dossier $dossier;
 
     protected function setUp(): void
     {

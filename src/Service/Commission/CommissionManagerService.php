@@ -14,17 +14,13 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 final class CommissionManagerService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var CommissionFilesystem */
-    private $commissionFilesystem;
+    private CommissionFilesystem $commissionFilesystem;
 
-    /** @var CommissionMembreCourrierService */
-    private $courrierService;
+    private CommissionMembreCourrierService $courrierService;
 
-    /** @var Contact */
-    private $contactService;
+    private Contact $contactService;
 
     public function __construct(
         EntityManagerInterface $entityManager,

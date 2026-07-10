@@ -17,14 +17,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ChangementController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var ChangementRepository */
-    private $changementRepository;
+    private ChangementRepository $changementRepository;
 
-    /** @var Changement */
-    private $changement;
+    private Changement $changement;
 
     public function __construct(EntityManagerInterface $entityManager, ChangementRepository $changementRepository, Changement $changement)
     {

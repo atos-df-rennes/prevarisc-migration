@@ -16,17 +16,15 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 final class CommissionDocumentCrServiceTest extends TestCase
 {
-    /** @var string */
-    private $tmpDir;
+    private string $tmpDir;
 
     /** @var EntityManagerInterface|MockObject */
-    private $entityManager;
+    private MockObject $entityManager;
 
     /** @var LoggerInterface|MockObject */
-    private $logger;
+    private MockObject $logger;
 
-    /** @var CommissionDocumentCrService */
-    private $service;
+    private CommissionDocumentCrService $service;
 
     protected function setUp(): void
     {

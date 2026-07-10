@@ -31,33 +31,17 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class FormulairesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var CapsuleRubriqueRepository
-     */
-    private $capsuleRubriqueRepository;
+    private CapsuleRubriqueRepository $capsuleRubriqueRepository;
 
-    /**
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
+    private FormFactoryInterface $formFactory;
 
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
+    private SerializerInterface $serializer;
 
-    /**
-     * @var FormulairesImporter
-     */
-    private $formulairesImporter;
+    private FormulairesImporter $formulairesImporter;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(EntityManagerInterface $entityManager, CapsuleRubriqueRepository $capsuleRubriqueRepository, FormFactoryInterface $formFactory, SerializerInterface $serializer, FormulairesImporter $formulairesImporter, LoggerInterface $logger)
     {
@@ -114,9 +98,7 @@ class FormulairesController extends AbstractController
 
         return $this->render('formulaires/index.html.twig', [
             'formulaires' => $formulaires,
-            'forms' => array_map(function (FormInterface $form) {
-                return $form->createView();
-            }, $forms),
+            'forms' => array_map(fn (FormInterface $form) => $form->createView(), $forms),
         ]);
     }
 

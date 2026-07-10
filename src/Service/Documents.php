@@ -7,11 +7,9 @@ use Symfony\Component\Finder\Finder;
 
 final class Documents
 {
-    /** @var string */
-    private $dataPath;
+    private string $dataPath;
 
-    /** @var string */
-    private $realDataPath;
+    private string $realDataPath;
 
     public function __construct(string $documentsDataPath, string $documentsRealDataPath)
     {

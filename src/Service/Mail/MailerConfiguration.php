@@ -10,29 +10,21 @@ namespace App\Service\Mail;
  */
 class MailerConfiguration
 {
-    /** @var string */
-    private $transport;
+    private string $transport;
 
-    /** @var string */
-    private $host;
+    private string $host;
 
-    /** @var string */
-    private $port;
+    private string $port;
 
-    /** @var string */
-    private $username;
+    private string $username;
 
-    /** @var string */
-    private $password;
+    private string $password;
 
-    /** @var string */
-    private $sender;
+    private string $sender;
 
-    /** @var string */
-    private $senderName;
+    private string $senderName;
 
-    /** @var bool */
-    private $enabled;
+    private bool $enabled;
 
     /**
      * @param string $transport  Type transport (smtp, sendmail, mail)

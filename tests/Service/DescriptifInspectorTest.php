@@ -23,8 +23,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class DescriptifInspectorTest extends TestCase
 {
-    /** @var DescriptifInspector */
-    private $service;
+    private DescriptifInspector $service;
 
     protected function setUp(): void
     {

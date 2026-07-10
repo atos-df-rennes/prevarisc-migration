@@ -14,8 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class RessourcesSpecialiseesDossierTextGenerator
 {
-    /** @var DossierNatureListeRepository */
-    private $naturesRepository;
+    private DossierNatureListeRepository $naturesRepository;
 
     public function __construct(DossierNatureListeRepository $naturesRepository)
     {
@@ -40,16 +39,12 @@ class RessourcesSpecialiseesDossierTextGenerator
             $naturesIds = $formData['natures'];
 
             /** @var array<int, ?DossierNatureListe> $naturesEntities */
-            $naturesEntities = array_map(function (string $idNature) {
-                return $this->naturesRepository->find($idNature);
-            }, $naturesIds);
+            $naturesEntities = array_map(fn (string $idNature) => $this->naturesRepository->find($idNature), $naturesIds);
             /** @var array<int, DossierNatureListe> $naturesEntities */
             $naturesEntities = array_filter($naturesEntities);
 
             /** @var array<int, ?string> $naturesLibelles */
-            $naturesLibelles = array_map(function (DossierNatureListe $nature): ?string {
-                return $nature->getLibelle();
-            }, $naturesEntities);
+            $naturesLibelles = array_map(fn (DossierNatureListe $nature): ?string => $nature->getLibelle(), $naturesEntities);
             /** @var array<int, string> $naturesLibelles */
             $naturesLibelles = array_filter($naturesLibelles);
 

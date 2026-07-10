@@ -14,23 +14,22 @@ use PHPUnit\Framework\TestCase;
 
 final class ContactTest extends TestCase
 {
-    /** @var UtilisateurInformations */
-    private $contact;
+    private UtilisateurInformations $contact;
 
     /** @var EtablissementRepository|MockObject */
-    private $etablissementRepository;
+    private MockObject $etablissementRepository;
 
     /** @var DossierRepository|MockObject */
-    private $dossierRepository;
+    private MockObject $dossierRepository;
 
     /** @var GroupementRepository|MockObject */
-    private $groupementRepository;
+    private MockObject $groupementRepository;
 
     /** @var CommissionRepository|MockObject */
-    private $commissionRepository;
+    private MockObject $commissionRepository;
 
     /** @var CommuneRepository|MockObject */
-    private $communeRepository;
+    private MockObject $communeRepository;
 
     protected function setUp(): void
     {

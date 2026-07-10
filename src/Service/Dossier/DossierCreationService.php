@@ -21,17 +21,13 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DossierCreationService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /** @var DossierPrescriptionService */
-    private $prescriptionService;
+    private DossierPrescriptionService $prescriptionService;
 
-    /** @var Prescriptions */
-    private $prescriptions;
+    private Prescriptions $prescriptions;
 
     public function __construct(
         EntityManagerInterface $entityManager,

@@ -10,8 +10,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 final class FormHelper
 {
-    /** @var RequestStack */
-    private $requestStack;
+    private RequestStack $requestStack;
 
     public function __construct(RequestStack $requestStack)
     {

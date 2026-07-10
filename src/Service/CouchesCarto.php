@@ -20,14 +20,11 @@ final class CouchesCarto
 
     public const FORMATS = [self::WMTS, self::WMS_RASTER, self::WMS_VECTEUR];
 
-    /** @var HttpClientInterface */
-    private $client;
+    private HttpClientInterface $client;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var CacheItemPoolInterface */
-    private $cache;
+    private CacheItemPoolInterface $cache;
 
     public function __construct(HttpClientInterface $client, LoggerInterface $logger, CacheItemPoolInterface $cache)
     {

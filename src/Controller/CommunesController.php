@@ -21,14 +21,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommunesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var CommuneRepository */
-    private $communeRepository;
+    private CommuneRepository $communeRepository;
 
-    /** @var FonctionRepository */
-    private $fonctionRepository;
+    private FonctionRepository $fonctionRepository;
 
     public function __construct(EntityManagerInterface $entityManager, CommuneRepository $communeRepository, FonctionRepository $fonctionRepository)
     {

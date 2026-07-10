@@ -13,15 +13,12 @@ namespace App\Dto\Descriptif;
  */
 class ChampValueData
 {
-    /** @var int */
-    private $champId;
+    private int $champId;
 
     /**
      * ID de la Valeur existante (null si nouvelle valeur).
-     *
-     * @var int|null
      */
-    private $valeurId;
+    private ?int $valeurId;
 
     /**
      * Valeur du champ selon son TypeChamp :
@@ -41,14 +38,14 @@ class ChampValueData
      *
      * @var TableauRowData[]
      */
-    private $lignes;
+    private array $lignes;
 
     /**
      * Sous-champs du groupe (uniquement pour PARENT avec tableau=false).
      *
      * @var ChampValueData[]
      */
-    private $sousChamps;
+    private array $sousChamps;
 
     /**
      * @param string|int|bool|\DateTimeInterface|null $value

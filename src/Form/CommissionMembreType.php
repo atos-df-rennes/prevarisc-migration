@@ -72,28 +72,22 @@ class CommissionMembreType extends AbstractType
                 'class' => 'tom-select',
                 'data-placeholder' => 'Sélectionnez un groupement',
             ],
-            'group_by' => function (Groupement $groupement): ?string {
-                return $groupement->getType() instanceof GroupementType ? $groupement->getType()->getLibelle() : 'Autre';
-            },
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('g')
-                    ->leftJoin('g.type', 't')
-                    ->addSelect('t')
-                    ->orderBy('t.id', 'ASC')
-                    ->addOrderBy('g.libelle', 'ASC');
-            },
+            'group_by' => fn (Groupement $groupement): ?string => $groupement->getType() instanceof GroupementType ? $groupement->getType()->getLibelle() : 'Autre',
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('g')
+                ->leftJoin('g.type', 't')
+                ->addSelect('t')
+                ->orderBy('t.id', 'ASC')
+                ->addOrderBy('g.libelle', 'ASC'),
         ]);
 
         // Contacts de la commission (filtrés sur cette commission uniquement)
         $contactIds = $commission->getContacts()
-            ->map(static function (UtilisateurInformations $c): ?int { return $c->getId(); })
+            ->map(static fn (UtilisateurInformations $c): ?int => $c->getId())
             ->toArray();
 
         $builder->add('utilisateurInformations', EntityType::class, [
             'class' => UtilisateurInformations::class,
-            'choice_label' => function (UtilisateurInformations $ui): string {
-                return trim($ui->getNom().' '.$ui->getPrenom());
-            },
+            'choice_label' => fn (UtilisateurInformations $ui): string => trim($ui->getNom().' '.$ui->getPrenom()),
             'placeholder' => 'Sélectionnez un contact',
             'required' => false,
             'label' => 'Contact',
@@ -125,9 +119,7 @@ class CommissionMembreType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Catégories ERP',
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('c')->orderBy('c.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('c')->orderBy('c.libelle', 'ASC'),
         ]);
 
         // Activités ERP - EntityType mappé sur CommissionMembre::types, groupé par type ERP
@@ -143,13 +135,11 @@ class CommissionMembreType extends AbstractType
 
                 return null !== $type ? (string) $type->getLibelle() : 'Autres';
             },
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('a')
-                    ->leftJoin('a.type', 't')
-                    ->addSelect('t')
-                    ->orderBy('t.id', 'ASC')
-                    ->addOrderBy('a.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('a')
+                ->leftJoin('a.type', 't')
+                ->addSelect('t')
+                ->orderBy('t.id', 'ASC')
+                ->addOrderBy('a.libelle', 'ASC'),
         ]);
 
         $builder->add('classes', EntityType::class, [
@@ -159,9 +149,7 @@ class CommissionMembreType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Classes IGH',
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('c')->orderBy('c.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('c')->orderBy('c.libelle', 'ASC'),
         ]);
 
         // Types de dossier - checkboxes
@@ -172,9 +160,7 @@ class CommissionMembreType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Types de dossier',
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('dt')->orderBy('dt.id', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('dt')->orderBy('dt.id', 'ASC'),
         ]);
 
         // Natures de dossier - checkboxes (imbriquées par type dans le template)
@@ -185,13 +171,11 @@ class CommissionMembreType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Natures de dossier',
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('n')
-                    ->leftJoin('n.type', 'dt')
-                    ->addSelect('dt')
-                    ->orderBy('dt.id', 'ASC')
-                    ->addOrderBy('n.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('n')
+                ->leftJoin('n.type', 'dt')
+                ->addSelect('dt')
+                ->orderBy('dt.id', 'ASC')
+                ->addOrderBy('n.libelle', 'ASC'),
         ]);
 
         $builder->add('manifestation', CheckboxType::class, [

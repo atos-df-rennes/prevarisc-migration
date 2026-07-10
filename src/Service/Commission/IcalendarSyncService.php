@@ -27,10 +27,7 @@ use Sabre\VObject\Component\VCalendar;
  */
 class IcalendarSyncService
 {
-    /**
-     * @var DateCommissionRepository
-     */
-    private $dateCommissionRepository;
+    private DateCommissionRepository $dateCommissionRepository;
 
     public function __construct(DateCommissionRepository $dateCommissionRepository)
     {
@@ -220,9 +217,7 @@ class IcalendarSyncService
             ? trim($row['CONTACTS_ETABLISSEMENT'])
             : '';
 
-        $allContacts = array_filter([$contactsDossier, $contactsEts], static function ($c): bool {
-            return '' !== $c;
-        });
+        $allContacts = array_filter([$contactsDossier, $contactsEts], static fn ($c): bool => '' !== $c);
 
         if (!empty($allContacts)) {
             $corpus .= implode($lf, $allContacts).$lf;

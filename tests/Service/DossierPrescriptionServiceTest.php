@@ -10,6 +10,7 @@ use App\Repository\PrescriptionDossierRepository;
 use App\Service\DossierPrescriptionService;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Security;
@@ -17,10 +18,9 @@ use Symfony\Component\Security\Core\Security;
 final class DossierPrescriptionServiceTest extends TestCase
 {
     /** @var PrescriptionDossierRepository */
-    private $repository;
+    private MockObject $repository;
 
-    /** @var DossierPrescriptionService */
-    private $service;
+    private DossierPrescriptionService $service;
 
     protected function setUp(): void
     {
@@ -105,9 +105,7 @@ final class DossierPrescriptionServiceTest extends TestCase
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
         $this->repository->method('findByDossierAndType')->willReturn([]);
 
-        $em->method('wrapInTransaction')->willReturnCallback(function (callable $callback) use ($em) {
-            return $callback($em);
-        });
+        $em->method('wrapInTransaction')->willReturnCallback(fn (callable $callback) => $callback($em));
         $em->expects($this->once())->method('persist')
             ->with($this->isInstanceOf(PrescriptionDossier::class));
         $em->expects($this->once())->method('flush');
@@ -133,9 +131,7 @@ final class DossierPrescriptionServiceTest extends TestCase
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(3);
         $this->repository->method('findByDossierAndType')->willReturn([]);
 
-        $em->method('wrapInTransaction')->willReturnCallback(function (callable $callback) use ($em) {
-            return $callback($em);
-        });
+        $em->method('wrapInTransaction')->willReturnCallback(fn (callable $callback) => $callback($em));
 
         $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::REGLEMENTAIRE);
 
@@ -156,9 +152,7 @@ final class DossierPrescriptionServiceTest extends TestCase
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
         $this->repository->method('findByDossierAndType')->willReturn([]);
 
-        $em->method('wrapInTransaction')->willReturnCallback(function (callable $callback) use ($em) {
-            return $callback($em);
-        });
+        $em->method('wrapInTransaction')->willReturnCallback(fn (callable $callback) => $callback($em));
 
         $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::AMELIORATION);
 

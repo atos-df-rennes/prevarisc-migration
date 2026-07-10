@@ -7,8 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class PlatauTempsRestantTest extends TestCase
 {
-    /** @var PlatauTempsRestant */
-    private $service;
+    private PlatauTempsRestant $service;
 
     protected function setUp(): void
     {

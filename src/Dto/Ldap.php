@@ -4,17 +4,13 @@ namespace App\Dto;
 
 final class Ldap
 {
-    /** @var bool */
-    private $enabled;
+    private bool $enabled;
 
-    /** @var string */
-    private $host;
+    private string $host;
 
-    /** @var int */
-    private $port;
+    private int $port;
 
-    /** @var string */
-    private $baseDn;
+    private string $baseDn;
 
     public function __construct(
         bool $enabled,

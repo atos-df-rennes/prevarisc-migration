@@ -8,8 +8,7 @@ use Imagine\Image\ImageInterface;
 
 final class Image
 {
-    /** @var Imagine */
-    private $imagine;
+    private Imagine $imagine;
 
     public function __construct()
     {

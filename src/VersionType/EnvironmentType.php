@@ -11,14 +11,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class EnvironmentType implements VersionType
 {
-    /** @var HttpClientInterface */
-    private $client;
+    private HttpClientInterface $client;
 
-    /** @var SerializerInterface */
-    private $serializer;
+    private SerializerInterface $serializer;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(HttpClientInterface $client, SerializerInterface $serializer, LoggerInterface $logger)
     {
@@ -52,9 +49,7 @@ final class EnvironmentType implements VersionType
 
         $githubApiResponseToDto = $this->serializer->deserialize($githubApiResponse, GithubApi::class.'[]', 'json');
 
-        $tagRefs = array_map(function ($tag) {
-            return $tag->ref();
-        }, $githubApiResponseToDto);
+        $tagRefs = array_map(fn ($tag) => $tag->ref(), $githubApiResponseToDto);
         $latestTagRef = end($tagRefs);
 
         if (false === $latestTagRef) {

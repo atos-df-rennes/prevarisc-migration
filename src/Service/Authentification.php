@@ -4,14 +4,11 @@ namespace App\Service;
 
 final class Authentification
 {
-    /** @var bool */
-    private $casEnabled;
+    private bool $casEnabled;
 
-    /** @var bool */
-    private $ntlmEnabled;
+    private bool $ntlmEnabled;
 
-    /** @var bool */
-    private $ldapEnabled;
+    private bool $ldapEnabled;
 
     public function __construct(bool $casEnabled, bool $ntlmEnabled, bool $ldapEnabled)
     {

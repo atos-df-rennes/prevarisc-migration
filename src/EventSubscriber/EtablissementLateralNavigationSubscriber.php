@@ -14,14 +14,11 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /** @var CapsuleRubriqueRepository */
-    private $capsuleRubriqueRepository;
+    private CapsuleRubriqueRepository $capsuleRubriqueRepository;
 
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
+    private AuthorizationCheckerInterface $authorizationChecker;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,

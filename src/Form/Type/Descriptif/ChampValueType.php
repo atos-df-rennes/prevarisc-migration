@@ -22,8 +22,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ChampValueType extends AbstractType
 {
-    /** @var ChampRepository */
-    private $champRepository;
+    private ChampRepository $champRepository;
 
     public function __construct(ChampRepository $champRepository)
     {

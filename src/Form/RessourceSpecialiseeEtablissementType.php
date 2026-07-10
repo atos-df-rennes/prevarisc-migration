@@ -32,12 +32,9 @@ class RessourceSpecialiseeEtablissementType extends AbstractType
             ->add('genre', EntityType::class, [
                 'mapped' => false,
                 'class' => Genre::class,
-                'query_builder' => function (GenreRepository $genreRepository) {
-                    return $genreRepository->createQueryBuilder('g')
-                        ->where('g.libelle != :type')
-                        ->setParameter('type', 'Site')
-                    ;
-                },
+                'query_builder' => fn (GenreRepository $genreRepository) => $genreRepository->createQueryBuilder('g')
+                    ->where('g.libelle != :type')
+                    ->setParameter('type', 'Site'),
                 'choice_label' => 'libelle',
             ])
             ->add('typesActivites', EntityType::class, [
@@ -46,11 +43,8 @@ class RessourceSpecialiseeEtablissementType extends AbstractType
                 'required' => false,
                 'mapped' => false,
                 'class' => EtablissementActivite::class,
-                'query_builder' => function (EtablissementActiviteRepository $etablissementActiviteRepository) {
-                    return $etablissementActiviteRepository->createQueryBuilder('ea')
-                        ->orderBy('ea.type', 'ASC')
-                    ;
-                },
+                'query_builder' => fn (EtablissementActiviteRepository $etablissementActiviteRepository) => $etablissementActiviteRepository->createQueryBuilder('ea')
+                    ->orderBy('ea.type', 'ASC'),
                 'group_by' => function (EtablissementActivite $etablissementActivite): ?string {
                     $etablissementActiviteType = $etablissementActivite->getType();
 

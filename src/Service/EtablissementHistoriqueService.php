@@ -14,11 +14,9 @@ use App\Repository\EtablissementRepository;
 
 final class EtablissementHistoriqueService
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,

@@ -14,11 +14,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PrescriptionTypePrescriptionAssociationType extends AbstractType
 {
-    /** @var PrescriptionArticleListeRepository */
-    private $prescriptionArticleListeRepository;
+    private PrescriptionArticleListeRepository $prescriptionArticleListeRepository;
 
-    /** @var PrescriptionTexteListeRepository */
-    private $prescriptionTexteListeRepository;
+    private PrescriptionTexteListeRepository $prescriptionTexteListeRepository;
 
     public function __construct(
         PrescriptionArticleListeRepository $prescriptionArticleListeRepository,

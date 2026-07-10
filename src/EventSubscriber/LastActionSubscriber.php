@@ -18,11 +18,9 @@ use Symfony\Component\Security\Core\Security;
  */
 class LastActionSubscriber implements EventSubscriberInterface
 {
-    /** @var Security */
-    private $security;
+    private Security $security;
 
-    /** @var LastActionUpdater */
-    private $lastActionUpdater;
+    private LastActionUpdater $lastActionUpdater;
 
     public function __construct(Security $security, LastActionUpdater $lastActionUpdater)
     {

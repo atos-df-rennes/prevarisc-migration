@@ -25,23 +25,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DocumentsController extends AbstractController
 {
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
+    private CommissionRepository $commissionRepository;
 
-    /**
-     * @var CommissionDocumentBuilder
-     */
-    private $commissionDocumentBuilder;
+    private CommissionDocumentBuilder $commissionDocumentBuilder;
 
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     public function __construct(LoggerInterface $logger, CommissionRepository $commissionRepository, CommissionDocumentBuilder $commissionDocumentBuilder, Filesystem $filesystem)
     {
