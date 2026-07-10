@@ -27,8 +27,7 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 final class EtablissementPersistenceService
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
     public function __construct(
         EtablissementRepository $etablissementRepository

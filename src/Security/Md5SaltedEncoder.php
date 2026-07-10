@@ -17,8 +17,7 @@ use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
  */
 class Md5SaltedEncoder implements PasswordEncoderInterface
 {
-    /** @var string */
-    private $globalSalt;
+    private string $globalSalt;
 
     /**
      * @param string $globalSalt La valeur de PREVARISC_SECURITY_SALT

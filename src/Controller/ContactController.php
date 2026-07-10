@@ -22,13 +22,9 @@ use Symfony\Component\Routing\RouterInterface;
 
 class ContactController extends AbstractController
 {
-    /**
-     * @var UtilisateurInformationsRepository
-     */
-    private $utilisateurInformationsRepository;
+    private UtilisateurInformationsRepository $utilisateurInformationsRepository;
 
-    /** @var RouterInterface */
-    private $router;
+    private RouterInterface $router;
 
     public function __construct(
         UtilisateurInformationsRepository $utilisateurInformationsRepository,

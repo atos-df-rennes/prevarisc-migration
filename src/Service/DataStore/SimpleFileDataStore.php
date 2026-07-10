@@ -12,21 +12,17 @@ use App\Repository\EtablissementRepository;
 class SimpleFileDataStore implements DataStore
 {
     // Format de formattage des noms de fichiers.
-    /** @var string */
-    protected $format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
+    protected string $format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
 
     // Mapping entre les types de pièces jointes et les répertoires dans lesquels ils sont stockés.
     /** @var array|string[] */
     protected $types = [];
 
-    /** @var EtablissementRepository */
-    protected $etablissementRepository;
+    protected EtablissementRepository $etablissementRepository;
 
-    /** @var string */
-    protected $dataPath;
+    protected string $dataPath;
 
-    /** @var string */
-    protected $realDataPath;
+    protected string $realDataPath;
 
     /**
      * @param array<string>|null $options

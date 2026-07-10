@@ -24,20 +24,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommissionDocumentsController extends AbstractController
 {
-    /** @var CommissionDocumentCrService */
-    private $commissionDocumentCrService;
+    private CommissionDocumentCrService $commissionDocumentCrService;
 
-    /** @var CommissionMembreCourrierService */
-    private $commissionMembreCourrierService;
+    private CommissionMembreCourrierService $commissionMembreCourrierService;
 
-    /** @var CommissionMembreRepository */
-    private $commissionMembreRepository;
+    private CommissionMembreRepository $commissionMembreRepository;
 
-    /** @var string */
-    private $documentsCommissionDataPath;
+    private string $documentsCommissionDataPath;
 
-    /** @var string */
-    private $courriersMembresDataPath;
+    private string $courriersMembresDataPath;
 
     public function __construct(
         CommissionDocumentCrService $commissionDocumentCrService,

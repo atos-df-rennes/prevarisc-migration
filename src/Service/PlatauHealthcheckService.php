@@ -22,20 +22,15 @@ class PlatauHealthcheckService
 {
     private const HEALTHCHECK_ENDPOINT = 'healthcheck';
 
-    /** @var string */
-    private $platauConfigFilePath;
+    private string $platauConfigFilePath;
 
-    /** @var string */
-    private $platauServiceFilePath;
+    private string $platauServiceFilePath;
 
-    /** @var string */
-    private $varDir;
+    private string $varDir;
 
-    /** @var string */
-    private $appEnv;
+    private string $appEnv;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     /** @var string|null */
     private $pisteClientId;
@@ -43,8 +38,7 @@ class PlatauHealthcheckService
     /** @var string|null */
     private $pisteClientSecret;
 
-    /** @var ProxyConfigurationService */
-    private $proxyConfiguration;
+    private ProxyConfigurationService $proxyConfiguration;
 
     public function __construct(
         string $platauConfigFile,

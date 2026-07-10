@@ -20,26 +20,19 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierSauvegardeService
 {
-    /** @var DossierDonnantAvisService */
-    private $dossierDonnantAvisService;
+    private DossierDonnantAvisService $dossierDonnantAvisService;
 
-    /** @var AlerteService */
-    private $alerteService;
+    private AlerteService $alerteService;
 
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
+    private AuthorizationCheckerInterface $authorizationChecker;
 
-    /** @var FlashBagInterface */
-    private $flashBag;
+    private FlashBagInterface $flashBag;
 
-    /** @var UrlGeneratorInterface */
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
-    /** @var DossierFields */
-    private $dossierFields;
+    private DossierFields $dossierFields;
 
-    /** @var TagAwareCacheInterface */
-    private $searchCache;
+    private TagAwareCacheInterface $searchCache;
 
     public function __construct(
         DossierDonnantAvisService $dossierDonnantAvisService,
@@ -192,7 +185,7 @@ class DossierSauvegardeService
      */
     public function construireUrlRedirection(Dossier $dossier, array $etablissementsIds, ?string $target = null): string
     {
-        $target = $target ?? $this->urlGenerator->generate('dossier_index', ['id' => $dossier->getId()]);
+        $target ??= $this->urlGenerator->generate('dossier_index', ['id' => $dossier->getId()]);
 
         $this->searchCache->invalidateTags(['search']);
 

@@ -22,23 +22,18 @@ final class Contact
 
     public const COMMUNE = 'commune';
 
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /** @var GroupementRepository */
-    private $groupementRepository;
+    private GroupementRepository $groupementRepository;
 
-    /** @var CommissionRepository */
-    private $commissionRepository;
+    private CommissionRepository $commissionRepository;
 
-    /** @var CommuneRepository */
-    private $communeRepository;
+    private CommuneRepository $communeRepository;
 
     /** @var array<string, HasContacts> */
-    private $repositories;
+    private array $repositories;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,

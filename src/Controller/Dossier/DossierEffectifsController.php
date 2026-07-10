@@ -29,37 +29,25 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DossierEffectifsController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /** @var DescriptifService */
-    private $descriptifService;
+    private DescriptifService $descriptifService;
 
-    /** @var DescriptifInspector */
-    private $descriptifInspector;
+    private DescriptifInspector $descriptifInspector;
 
-    /** @var DescriptifCopier */
-    private $descriptifCopier;
+    private DescriptifCopier $descriptifCopier;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /** @var EffectifsDegagementsRepriseValidator */
-    private $repriseValidator;
+    private EffectifsDegagementsRepriseValidator $repriseValidator;
 
-    /** @var DescriptifFormHydrator */
-    private $descriptifFormHydrator;
+    private DescriptifFormHydrator $descriptifFormHydrator;
 
-    /** @var DescriptifFormBuilder */
-    private $descriptifFormBuilder;
+    private DescriptifFormBuilder $descriptifFormBuilder;
 
-    /** @var DescriptifFormPersister */
-    private $descriptifFormPersister;
+    private DescriptifFormPersister $descriptifFormPersister;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
+    private FormFactoryInterface $formFactory;
 
     public function __construct(
         DescriptifService $descriptifService,

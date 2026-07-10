@@ -69,7 +69,7 @@ class CommissionMembreRepository extends ServiceEntityRepository
         }
 
         // Initialise les collections ManyToMany pour chaque membre (évite N+1)
-        $ids = array_map(static function (CommissionMembre $m): ?int { return $m->getId(); }, $membres);
+        $ids = array_map(static fn (CommissionMembre $m): ?int => $m->getId(), $membres);
 
         $this->createQueryBuilder('m')
             ->leftJoin('m.categories', 'cat')->addSelect('cat')

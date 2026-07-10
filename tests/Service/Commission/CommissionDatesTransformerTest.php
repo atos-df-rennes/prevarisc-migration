@@ -8,16 +8,16 @@ use App\Entity\Commission;
 use App\Entity\CommissionTypeEvenement;
 use App\Entity\DateCommission;
 use App\Service\Commission\CommissionDatesTransformer;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 final class CommissionDatesTransformerTest extends TestCase
 {
-    /** @var CommissionDatesTransformer */
-    private $transformer;
+    private CommissionDatesTransformer $transformer;
 
     /** @var LoggerInterface */
-    private $logger;
+    private MockObject $logger;
 
     protected function setUp(): void
     {
@@ -175,9 +175,7 @@ final class CommissionDatesTransformerTest extends TestCase
             ->method('error')
             ->with(
                 $this->stringContains('Informations manquantes'),
-                $this->callback(function ($context) use ($expectedErrorContext): bool {
-                    return null === $context[$expectedErrorContext];
-                })
+                $this->callback(fn ($context): bool => null === $context[$expectedErrorContext])
             );
 
         $result = $this->transformer->transformToEntities($dto);

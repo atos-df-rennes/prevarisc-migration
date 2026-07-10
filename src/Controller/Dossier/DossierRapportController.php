@@ -20,29 +20,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DossierRapportController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
+    private CommissionRepository $commissionRepository;
 
-    /**
-     * @var DossierRapportOdtService
-     */
-    private $odtService;
+    private DossierRapportOdtService $odtService;
 
     /**
      * Chemin URL des documents de commission (pour les liens de téléchargement).
-     *
-     * @var string
      */
-    private $documentsDataPath;
+    private string $documentsDataPath;
 
     /**
      * Chemin réel (filesystem) des documents de commission (pour lister les fichiers).
-     *
-     * @var string
      */
-    private $documentsRealDataPath;
+    private string $documentsRealDataPath;
 
     public function __construct(
         CommissionRepository $commissionRepository,
@@ -157,10 +147,8 @@ class DossierRapportController extends AbstractController implements DossierLate
         }
 
         // B4 : filtrer les idEtab soumis contre ceux du dossier (IDOR)
-        $allowedIds = array_map(function (Etablissement $e): int { return $e->getId(); }, $dossier->getEtablissements()->toArray());
-        $idEtabList = array_values(array_filter($idEtabList, function ($id) use ($allowedIds): bool {
-            return in_array((int) $id, $allowedIds, true);
-        }));
+        $allowedIds = array_map(fn (Etablissement $e): int => $e->getId(), $dossier->getEtablissements()->toArray());
+        $idEtabList = array_values(array_filter($idEtabList, fn ($id): bool => in_array((int) $id, $allowedIds, true)));
 
         $html = '';
         foreach ($idEtabList as $etablissementId) {

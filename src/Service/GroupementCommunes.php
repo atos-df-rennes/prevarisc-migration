@@ -7,8 +7,7 @@ use App\Repository\EtablissementInformationsRepository;
 
 final class GroupementCommunes
 {
-    /** @var EtablissementInformationsRepository */
-    private $etablissementInformationsRepository;
+    private EtablissementInformationsRepository $etablissementInformationsRepository;
 
     public function __construct(
         EtablissementInformationsRepository $etablissementInformationsRepository

@@ -4,8 +4,7 @@ namespace App\Service;
 
 final class Avatar
 {
-    /** @var string */
-    private $basePath;
+    private string $basePath;
 
     public const SMALL_DIRECTORY = 'small';
 

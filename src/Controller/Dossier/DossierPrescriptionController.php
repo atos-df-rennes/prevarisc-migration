@@ -17,8 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierPrescriptionController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /** @var DossierPrescriptionService */
-    private $service;
+    private DossierPrescriptionService $service;
 
     public function __construct(DossierPrescriptionService $service)
     {

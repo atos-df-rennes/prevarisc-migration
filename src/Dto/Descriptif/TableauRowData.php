@@ -15,14 +15,14 @@ class TableauRowData
      *
      * @var array<int, mixed>
      */
-    private $cells;
+    private array $cells;
 
     /**
      * IDs des Valeur existantes indexés par champId enfant (null = nouvelle valeur).
      *
      * @var array<int, int|null>
      */
-    private $valeurIds;
+    private array $valeurIds;
 
     /**
      * @param array<int, mixed>    $cells

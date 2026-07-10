@@ -19,17 +19,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierLiaisonsController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /** @var DossierLiaisonsService */
-    private $dossierLiaisonsService;
+    private DossierLiaisonsService $dossierLiaisonsService;
 
-    /** @var DossierSauvegardeService */
-    private $dossierSauvegardeService;
+    private DossierSauvegardeService $dossierSauvegardeService;
 
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
     public function __construct(
         DossierLiaisonsService $dossierLiaisonsService,

@@ -12,14 +12,11 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 final class CommissionFilesystem
 {
-    /** @var string */
-    private $documentsRealDataPath;
+    private string $documentsRealDataPath;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var Filesystem */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     public function __construct(string $documentsRealDataPath, LoggerInterface $logger, Filesystem $filesystem)
     {

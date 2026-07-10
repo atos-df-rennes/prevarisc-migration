@@ -18,8 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CalendrierDesCommissionsGenerationController extends AbstractController
 {
-    /** @var CommissionDocumentGenerationService */
-    private $generationService;
+    private CommissionDocumentGenerationService $generationService;
 
     public function __construct(CommissionDocumentGenerationService $generationService)
     {

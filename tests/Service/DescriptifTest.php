@@ -32,19 +32,18 @@ use PHPUnit\Framework\TestCase;
 final class DescriptifTest extends TestCase
 {
     /** @var CapsuleRubriqueRepository|MockObject */
-    private $capsuleRepo;
+    private MockObject $capsuleRepo;
 
     /** @var ValeurRepository|MockObject */
-    private $valeurRepo;
+    private MockObject $valeurRepo;
 
     /** @var DossierDisplayRubriqueRepository|MockObject */
-    private $dossierDisplayRepo;
+    private MockObject $dossierDisplayRepo;
 
     /** @var EtablissementDisplayRubriqueRepository|MockObject */
-    private $etablissementDisplayRepo;
+    private MockObject $etablissementDisplayRepo;
 
-    /** @var Descriptif */
-    private $service;
+    private Descriptif $service;
 
     protected function setUp(): void
     {

@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class PlatauExtensionTest extends TestCase
 {
-    /** @var PlatauExtension */
-    private $extension;
+    private PlatauExtension $extension;
 
     protected function setUp(): void
     {

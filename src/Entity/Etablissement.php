@@ -1005,10 +1005,8 @@ class Etablissement
 
     public function hasAvisDiffere(): bool
     {
-        $dossiersAvisDiffere = $this->getDossiers()->filter(function (Dossier $dossier): bool {
-            return $dossier->hasAvisDiffere()
-                && null === $dossier->getDateSuppression();
-        });
+        $dossiersAvisDiffere = $this->getDossiers()->filter(fn (Dossier $dossier): bool => $dossier->hasAvisDiffere()
+            && null === $dossier->getDateSuppression());
 
         return !$dossiersAvisDiffere->isEmpty();
     }

@@ -15,14 +15,11 @@ class EtablissementSearchService
 {
     public const MAX_LIMIT_PAGES_ETABLISSEMENTS = 1000;
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var SearchQueryHelper */
-    private $queryHelper;
+    private SearchQueryHelper $queryHelper;
 
-    /** @var TagAwareCacheInterface */
-    private $searchCache;
+    private TagAwareCacheInterface $searchCache;
 
     public function __construct(Connection $connection, SearchQueryHelper $queryHelper, TagAwareCacheInterface $searchCache)
     {

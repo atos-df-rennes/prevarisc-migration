@@ -11,10 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierController extends AbstractController
 {
-    /**
-     * @var DossierNatureListeRepository
-     */
-    private $dossierNatureListeRepository;
+    private DossierNatureListeRepository $dossierNatureListeRepository;
 
     public function __construct(DossierNatureListeRepository $dossierNatureListeRepository)
     {

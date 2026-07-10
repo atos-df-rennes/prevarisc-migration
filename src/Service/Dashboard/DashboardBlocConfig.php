@@ -14,17 +14,13 @@ namespace App\Service\Dashboard;
  */
 class DashboardBlocConfig
 {
-    /** @var bool */
-    private $deactivatePlatau;
+    private bool $deactivatePlatau;
 
-    /** @var int */
-    private $nextCommissionsDays;
+    private int $nextCommissionsDays;
 
-    /** @var int */
-    private $dossiersSansAvisDays;
+    private int $dossiersSansAvisDays;
 
-    /** @var int */
-    private $courrierSansReponseDays;
+    private int $courrierSansReponseDays;
 
     /** @var array<string, array<string, mixed>> */
     private $blocsConfig = [

@@ -14,14 +14,11 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class FeedService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var NewsRepository */
-    private $newsRepository;
+    private NewsRepository $newsRepository;
 
-    /** @var GroupeRepository */
-    private $groupeRepository;
+    private GroupeRepository $groupeRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,

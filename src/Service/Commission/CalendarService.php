@@ -19,17 +19,13 @@ use Symfony\Component\HttpFoundation\Request;
  */
 final class CalendarService
 {
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepository;
+    private DateCommissionRepository $dateCommissionRepository;
 
-    /** @var CommissionTypeEvenementRepository */
-    private $commissionTypeEvenementRepository;
+    private CommissionTypeEvenementRepository $commissionTypeEvenementRepository;
 
-    /** @var CommissionRepository */
-    private $commissionRepository;
+    private CommissionRepository $commissionRepository;
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(
         DateCommissionRepository $dateCommissionRepository,

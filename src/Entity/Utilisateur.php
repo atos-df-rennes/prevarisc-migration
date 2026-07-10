@@ -50,8 +50,7 @@ class Utilisateur implements UserInterface
      */
     private $roles = [];
 
-    /** @var ?string */
-    private $plainPassword;
+    private ?string $plainPassword = null;
 
     /**
      * @var ?string The hashed password
@@ -176,11 +175,9 @@ class Utilisateur implements UserInterface
     private $sso;
 
     /**
-     * @var string
-     *
      * @Groups({"api_response"})
      */
-    private $displayLabel;
+    private ?string $displayLabel = null;
 
     public function __construct()
     {

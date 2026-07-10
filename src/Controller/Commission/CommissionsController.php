@@ -18,14 +18,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommissionsController extends AbstractController
 {
-    /** @var CommissionRepository */
-    private $commissionRepository;
+    private CommissionRepository $commissionRepository;
 
-    /** @var CommissionTypeRepository */
-    private $commissionTypeRepository;
+    private CommissionTypeRepository $commissionTypeRepository;
 
-    /** @var CommissionManagerService */
-    private $commissionManagerService;
+    private CommissionManagerService $commissionManagerService;
 
     public function __construct(
         CommissionRepository $commissionRepository,

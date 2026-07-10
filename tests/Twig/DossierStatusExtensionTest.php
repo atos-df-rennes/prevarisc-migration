@@ -13,10 +13,9 @@ use PHPUnit\Framework\TestCase;
 class DossierStatusExtensionTest extends TestCase
 {
     /** @var DateDiffFormatterService|MockObject */
-    private $dateDiffFormatter;
+    private MockObject $dateDiffFormatter;
 
-    /** @var DossierStatusExtension */
-    private $extension;
+    private DossierStatusExtension $extension;
 
     protected function setUp(): void
     {

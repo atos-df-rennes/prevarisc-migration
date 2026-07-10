@@ -56,120 +56,63 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var PlatauConsultation */
-    private $platauConsultationService;
+    private PlatauConsultation $platauConsultationService;
 
-    /** @var DateCommission */
-    private $dateCommissionService;
+    private DateCommission $dateCommissionService;
 
-    /**
-     * @var DossierTypeRepository
-     */
-    private $dossierTypeRepository;
+    private DossierTypeRepository $dossierTypeRepository;
 
-    /**
-     * @var AvisDerogationsRepository
-     */
-    private $avisDerogationsRepository;
+    private AvisDerogationsRepository $avisDerogationsRepository;
 
-    /**
-     * @var AvisRepository
-     */
-    private $avisRepository;
+    private AvisRepository $avisRepository;
 
-    /**
-     * @var CommissionTypeRepository
-     */
-    private $commissionTypeRepository;
+    private CommissionTypeRepository $commissionTypeRepository;
 
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
+    private CommissionRepository $commissionRepository;
 
-    /**
-     * @var EtablissementRepository
-     */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /**
-     * @var UtilisateurRepository
-     */
-    private $utilisateurRepository;
+    private UtilisateurRepository $utilisateurRepository;
 
-    /**
-     * @var DossierFields
-     */
-    private $dossierFieldsService;
+    private DossierFields $dossierFieldsService;
 
-    /** @var EtablissementHistoriqueService */
-    private $etablissementHistoriqueService;
+    private EtablissementHistoriqueService $etablissementHistoriqueService;
 
-    /**
-     * @var DossierDocumentManquantService
-     */
-    private $documentManquantService;
+    private DossierDocumentManquantService $documentManquantService;
 
-    /**
-     * @var PieceJointeExportService
-     */
-    private $pieceJointeExportService;
+    private PieceJointeExportService $pieceJointeExportService;
 
-    /**
-     * @var DossierAffectationService
-     */
-    private $dossierAffectationService;
+    private DossierAffectationService $dossierAffectationService;
 
-    /**
-     * @var DossierAffectationRepository
-     */
-    private $dossierAffectationRepository;
+    private DossierAffectationRepository $dossierAffectationRepository;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var bool */
-    private $deactivatePlatau;
+    private bool $deactivatePlatau;
 
-    /** @var DossierService */
-    private $dossierService;
+    private DossierService $dossierService;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /** @var DossierCreationService */
-    private $dossierCreationService;
+    private DossierCreationService $dossierCreationService;
 
-    /** @var DossierSauvegardeService */
-    private $dossierSauvegardeService;
+    private DossierSauvegardeService $dossierSauvegardeService;
 
-    /** @var DossierSuppressionService */
-    private $dossierSuppressionService;
+    private DossierSuppressionService $dossierSuppressionService;
 
-    /** @var TagAwareCacheInterface */
-    private $searchCache;
+    private TagAwareCacheInterface $searchCache;
 
-    /** @var DescriptifService */
-    private $descriptifService;
+    private DescriptifService $descriptifService;
 
-    /** @var DescriptifFormHydrator */
-    private $descriptifFormHydrator;
+    private DescriptifFormHydrator $descriptifFormHydrator;
 
-    /** @var DescriptifFormBuilder */
-    private $descriptifFormBuilder;
+    private DescriptifFormBuilder $descriptifFormBuilder;
 
-    /** @var DescriptifFormPersister */
-    private $descriptifFormPersister;
+    private DescriptifFormPersister $descriptifFormPersister;
 
-    /**
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
+    private FormFactoryInterface $formFactory;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -1055,9 +998,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             // @fixme: variable non utilisée mais conservée une fois les caches entité implémentés à nouveau
             /** @var int[] $etablissementsIds */
             $etablissementsIds = $this->entityManager->wrapInTransaction(
-                function () use ($dossier, $user): array {
-                    return $this->dossierSuppressionService->supprimer($dossier, $user);
-                }
+                fn (): array => $this->dossierSuppressionService->supprimer($dossier, $user)
             );
 
             $this->addFlash('success', 'Le dossier a bien été supprimé.');

@@ -18,8 +18,7 @@ use App\Entity\PieceJointe;
  */
 class RuntimeDataStore implements DataStore
 {
-    /** @var DataStoreFactory */
-    private $factory;
+    private DataStoreFactory $factory;
 
     /** @var DataStore|null */
     private $dataStore;

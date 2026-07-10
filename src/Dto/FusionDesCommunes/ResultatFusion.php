@@ -10,10 +10,10 @@ namespace App\Dto\FusionDesCommunes;
 final class ResultatFusion
 {
     /** @var list<string> */
-    private $succes = [];
+    private array $succes = [];
 
     /** @var list<array{nom: string, message: string}> */
-    private $echecs = [];
+    private array $echecs = [];
 
     public function ajouterSucces(string $nom): void
     {

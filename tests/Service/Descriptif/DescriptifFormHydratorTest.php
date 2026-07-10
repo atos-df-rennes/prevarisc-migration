@@ -19,8 +19,7 @@ use PHPUnit\Framework\TestCase;
  */
 class DescriptifFormHydratorTest extends TestCase
 {
-    /** @var DescriptifFormHydrator */
-    private $hydrator;
+    private DescriptifFormHydrator $hydrator;
 
     protected function setUp(): void
     {

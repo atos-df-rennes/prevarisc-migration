@@ -4,11 +4,9 @@ namespace App\Dto;
 
 final class Document
 {
-    /** @var string */
-    private $filename;
+    private string $filename;
 
-    /** @var string */
-    private $filepath;
+    private string $filepath;
 
     public function __construct(string $filename, string $filepath)
     {

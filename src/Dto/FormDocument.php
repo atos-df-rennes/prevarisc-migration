@@ -4,14 +4,11 @@ namespace App\Dto;
 
 class FormDocument
 {
-    /** @var int */
-    private $id;
+    private int $id;
 
-    /** @var string */
-    private $nom;
+    private string $nom;
 
-    /** @var ?string */
-    private $type;
+    private ?string $type;
 
     public function __construct(int $id, string $nom, ?string $type = null)
     {

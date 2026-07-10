@@ -160,11 +160,9 @@ class CommissionMembre
     private $typesDossier;
 
     /**
-     * @var bool
-     *
      * @ORM\Column(name="MANIFESTATION_COMMISSIONMEMBRE", type="boolean", nullable=false, options={"default":false})
      */
-    private $manifestation;
+    private bool $manifestation;
 
     public function __construct()
     {

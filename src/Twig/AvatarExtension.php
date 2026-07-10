@@ -8,14 +8,11 @@ use Twig\TwigFunction;
 
 final class AvatarExtension extends AbstractExtension
 {
-    /** @var string */
-    private $dataPath;
+    private string $dataPath;
 
-    /** @var string */
-    private $realDataPath;
+    private string $realDataPath;
 
-    /** @var string */
-    private $imageTag;
+    private ?string $imageTag = null;
 
     public function __construct(string $dataPath, string $realDataPath)
     {

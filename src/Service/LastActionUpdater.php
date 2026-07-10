@@ -17,14 +17,11 @@ use Psr\Log\LoggerInterface;
  */
 class LastActionUpdater
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
+    private UtilisateurRepository $utilisateurRepository;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
         EntityManagerInterface $entityManager,

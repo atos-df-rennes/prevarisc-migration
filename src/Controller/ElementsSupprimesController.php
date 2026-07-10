@@ -21,28 +21,15 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  */
 class ElementsSupprimesController extends AbstractController
 {
-    /**
-     * @var EtablissementRepository
-     */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /**
-     * @var DossierRepository
-     */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /**
-     * @var EtablissementService
-     */
-    private $etablissementService;
+    private EtablissementService $etablissementService;
 
-    /**
-     * @var DossierService
-     */
-    private $dossierService;
+    private DossierService $dossierService;
 
-    /** @var TagAwareCacheInterface */
-    private $searchCache;
+    private TagAwareCacheInterface $searchCache;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,

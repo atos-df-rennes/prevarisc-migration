@@ -10,11 +10,9 @@ use Twig\TwigFunction;
 
 class SearchExtension extends AbstractExtension
 {
-    /** @var PlatauTempsRestant */
-    private $platauTempsRestant;
+    private PlatauTempsRestant $platauTempsRestant;
 
-    /** @var DateDiffFormatterService */
-    private $dateDiffFormatter;
+    private DateDiffFormatterService $dateDiffFormatter;
 
     public function __construct(PlatauTempsRestant $platauTempsRestant, DateDiffFormatterService $dateDiffFormatter)
     {

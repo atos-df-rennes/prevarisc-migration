@@ -11,20 +11,15 @@ use Symfony\Component\Security\Core\Security;
 
 final class Dossier
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /** @var Security */
-    private $security;
+    private Security $security;
 
-    /** @var PlatauTempsRestant */
-    private $servicePlatauTempsRestant;
+    private PlatauTempsRestant $servicePlatauTempsRestant;
 
-    /** @var TexteApplicable */
-    private $texteApplicableService;
+    private TexteApplicable $texteApplicableService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -298,9 +293,7 @@ final class Dossier
         $end = new \DateTime();
         $interval = $end->diff($start);
 
-        $doPlural = function (int $nb, string $str): string {
-            return $nb > 1 ? $str.'s' : $str;
-        };
+        $doPlural = (fn (int $nb, string $str): string => $nb > 1 ? $str.'s' : $str);
 
         $format = [];
         if (0 !== $interval->y) {

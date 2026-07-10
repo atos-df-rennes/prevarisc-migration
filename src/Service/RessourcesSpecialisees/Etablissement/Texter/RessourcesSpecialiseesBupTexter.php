@@ -11,8 +11,7 @@ use App\ValueObject\EtablissementTexter;
  */
 class RessourcesSpecialiseesBupTexter implements RessourcesSpecialiseesEtablissementTexter
 {
-    /** @var EtablissementTexter */
-    private $etablissementTexter;
+    private EtablissementTexter $etablissementTexter;
 
     public function __construct(
         EtablissementTexter $etablissementTexter

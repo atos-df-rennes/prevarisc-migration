@@ -20,15 +20,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class IcalendarController extends AbstractController
 {
-    /**
-     * @var UtilisateurRepository
-     */
-    private $utilisateurRepository;
+    private UtilisateurRepository $utilisateurRepository;
 
-    /**
-     * @var IcalendarSyncService
-     */
-    private $icalendarSyncService;
+    private IcalendarSyncService $icalendarSyncService;
 
     public function __construct(
         UtilisateurRepository $utilisateurRepository,

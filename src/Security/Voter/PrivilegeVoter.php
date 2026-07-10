@@ -11,8 +11,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class PrivilegeVoter implements VoterInterface
 {
-    /** @var PrivilegesRepository */
-    private $privilegesRepository;
+    private PrivilegesRepository $privilegesRepository;
 
     /**
      * Index en mémoire des privileges (name → entité), chargé en une seule requête.

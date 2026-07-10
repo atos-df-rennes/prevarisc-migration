@@ -20,12 +20,10 @@ class ReplacePrescriptionArticleListeType extends AbstractType
             'class' => PrescriptionArticleListe::class,
             'choice_label' => 'libelle',
             'label' => 'Article de remplacement',
-            'query_builder' => function (EntityRepository $er) use ($excluded) {
-                return $er->createQueryBuilder('a')
-                    ->where('a.id != :excluded')
-                    ->setParameter('excluded', $excluded->getId())
-                    ->orderBy('a.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('a')
+                ->where('a.id != :excluded')
+                ->setParameter('excluded', $excluded->getId())
+                ->orderBy('a.libelle', 'ASC'),
         ]);
     }
 

@@ -7,14 +7,11 @@ class DonneeHistorique
     /** @var false|int */
     private $date;
 
-    /** @var ?string */
-    private $valeur;
+    private ?string $valeur;
 
-    /** @var ?Auteur */
-    private $auteur;
+    private ?Auteur $auteur;
 
-    /** @var false|int */
-    private $fin;
+    private bool $fin;
 
     /**
      * @param false|int $date

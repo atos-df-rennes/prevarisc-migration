@@ -25,17 +25,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class EtablissementContactController extends AbstractController implements EtablissementLateralNavigationInterface
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /** @var UtilisateurInformationsRepository */
-    private $utilisateurInformationsRepository;
+    private UtilisateurInformationsRepository $utilisateurInformationsRepository;
 
-    /** @var Contact */
-    private $contactService;
+    private Contact $contactService;
 
     public function __construct(
         EntityManagerInterface $entityManager,

@@ -20,17 +20,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommissionMembresController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var CommissionMembreRepository */
-    private $membreRepository;
+    private CommissionMembreRepository $membreRepository;
 
-    /** @var DossierNatureListeRepository */
-    private $dossierNatureListeRepository;
+    private DossierNatureListeRepository $dossierNatureListeRepository;
 
-    /** @var CommissionMembreCourrierService */
-    private $courrierService;
+    private CommissionMembreCourrierService $courrierService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -70,9 +66,7 @@ class CommissionMembresController extends AbstractController
             // Identifie les membres supprimés : présents avant, absents après soumission
             $removedMembres = array_filter(
                 $originalMembres,
-                static function (CommissionMembre $membre) use ($commission): bool {
-                    return !$commission->getMembres()->contains($membre);
-                }
+                static fn (CommissionMembre $membre): bool => !$commission->getMembres()->contains($membre)
             );
 
             // Capture les IDs AVANT le flush (après, ils seront null)

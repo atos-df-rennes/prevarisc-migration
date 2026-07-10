@@ -18,14 +18,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class TextesApplicablesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var TexteApplicableRepository */
-    private $texteApplicableRepository;
+    private TexteApplicableRepository $texteApplicableRepository;
 
-    /** @var \App\Service\TexteApplicable */
-    private $serviceTexteApplicable;
+    private \App\Service\TexteApplicable $serviceTexteApplicable;
 
     public function __construct(EntityManagerInterface $entityManager, TexteApplicableRepository $texteApplicableRepository, \App\Service\TexteApplicable $serviceTexteApplicable)
     {

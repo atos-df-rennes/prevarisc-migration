@@ -20,12 +20,10 @@ class ReplacePrescriptionTexteListeType extends AbstractType
             'class' => PrescriptionTexteListe::class,
             'choice_label' => 'libelle',
             'label' => 'Texte de remplacement',
-            'query_builder' => function (EntityRepository $er) use ($excluded) {
-                return $er->createQueryBuilder('t')
-                    ->where('t.id != :excluded')
-                    ->setParameter('excluded', $excluded->getId())
-                    ->orderBy('t.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('t')
+                ->where('t.id != :excluded')
+                ->setParameter('excluded', $excluded->getId())
+                ->orderBy('t.libelle', 'ASC'),
         ]);
     }
 

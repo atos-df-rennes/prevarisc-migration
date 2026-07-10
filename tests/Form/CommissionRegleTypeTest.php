@@ -17,8 +17,7 @@ use Symfony\Component\Form\FormInterface;
  */
 final class CommissionRegleTypeTest extends TestCase
 {
-    /** @var CommissionRegleType */
-    private $type;
+    private CommissionRegleType $type;
 
     protected function setUp(): void
     {

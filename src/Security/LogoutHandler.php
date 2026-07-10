@@ -25,11 +25,9 @@ use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
  */
 class LogoutHandler implements LogoutHandlerInterface
 {
-    /** @var LastActionUpdater */
-    private $lastActionUpdater;
+    private LastActionUpdater $lastActionUpdater;
 
-    /** @var bool */
-    private $casEnabled;
+    private bool $casEnabled;
 
     public function __construct(
         LastActionUpdater $lastActionUpdater,

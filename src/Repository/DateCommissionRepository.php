@@ -128,9 +128,7 @@ class DateCommissionRepository extends ServiceEntityRepository
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($select, $params, $types);
 
-        return array_map(static function (array $row): NextCommissionDto {
-            return NextCommissionDto::fromArray($row);
-        }, $rows);
+        return array_map(static fn (array $row): NextCommissionDto => NextCommissionDto::fromArray($row), $rows);
     }
 
     /**
@@ -195,9 +193,7 @@ class DateCommissionRepository extends ServiceEntityRepository
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
 
-        return array_map(static function (array $row): DossierAffectationDto {
-            return DossierAffectationDto::fromArray($row);
-        }, $rows);
+        return array_map(static fn (array $row): DossierAffectationDto => DossierAffectationDto::fromArray($row), $rows);
     }
 
     /**
@@ -233,9 +229,7 @@ class DateCommissionRepository extends ServiceEntityRepository
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
 
-        return array_map(static function (array $row): DossierAffectationDto {
-            return DossierAffectationDto::fromArray($row);
-        }, $rows);
+        return array_map(static fn (array $row): DossierAffectationDto => DossierAffectationDto::fromArray($row), $rows);
     }
 
     /**
@@ -317,9 +311,7 @@ class DateCommissionRepository extends ServiceEntityRepository
             return;
         }
 
-        $dossierIds = array_map(function (array $row): int {
-            return (int) $row['ID_DOSSIER_AFFECT'];
-        }, $dossiers);
+        $dossierIds = array_map(fn (array $row): int => (int) $row['ID_DOSSIER_AFFECT'], $dossiers);
 
         if (1 === $idTypeEvenement) {
             $conn->executeStatement(

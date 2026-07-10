@@ -10,15 +10,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementZoneVoter extends EtablissementVoter
 {
-    /**
-     * @var ResourcesRepository
-     */
-    private $resourcesRepository;
+    private ResourcesRepository $resourcesRepository;
 
-    /**
-     * @var PrivilegesRepository
-     */
-    private $privilegesRepository;
+    private PrivilegesRepository $privilegesRepository;
 
     public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
     {

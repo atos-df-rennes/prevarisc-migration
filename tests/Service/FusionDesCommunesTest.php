@@ -26,28 +26,28 @@ use Symfony\Component\Serializer\SerializerInterface;
 final class FusionDesCommunesTest extends TestCase
 {
     /** @var SerializerInterface|MockObject */
-    private $serializer;
+    private MockObject $serializer;
 
     /** @var LoggerInterface|MockObject */
-    private $logger;
+    private MockObject $logger;
 
     /** @var EntityManagerInterface|MockObject */
-    private $entityManager;
+    private MockObject $entityManager;
 
     /** @var CommuneRepository|MockObject */
-    private $communeRepository;
+    private MockObject $communeRepository;
 
     /** @var EtablissementAdresseRepository|MockObject */
-    private $etablissementAdresseRepository;
+    private MockObject $etablissementAdresseRepository;
 
     /** @var AdresseRueRepository|MockObject */
-    private $adresseRueRepository;
+    private MockObject $adresseRueRepository;
 
     /** @var UtilisateurRepository|MockObject */
-    private $utilisateurRepository;
+    private MockObject $utilisateurRepository;
 
     /** @var CommissionRegleRepository|MockObject */
-    private $commissionRegleRepository;
+    private MockObject $commissionRegleRepository;
 
     protected function setUp(): void
     {

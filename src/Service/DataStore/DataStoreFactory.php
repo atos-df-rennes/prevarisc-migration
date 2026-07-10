@@ -8,17 +8,13 @@ use App\Repository\EtablissementRepository;
 
 class DataStoreFactory
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /** @var string */
-    private $adapter;
+    private string $adapter;
 
-    /** @var string */
-    protected $dataPath;
+    protected string $dataPath;
 
-    /** @var string */
-    protected $realDataPath;
+    protected string $realDataPath;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,

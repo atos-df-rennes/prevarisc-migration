@@ -6,11 +6,9 @@ use App\Entity\Avis;
 
 class LastAvis
 {
-    /** @var ?Avis */
-    private $avis;
+    private ?Avis $avis = null;
 
-    /** @var false|int */
-    private $date;
+    private bool $date;
 
     public function __construct()
     {

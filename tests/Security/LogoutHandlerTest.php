@@ -18,7 +18,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 final class LogoutHandlerTest extends TestCase
 {
     /** @var LastActionUpdater|MockObject */
-    private $lastActionUpdater;
+    private MockObject $lastActionUpdater;
 
     protected function setUp(): void
     {

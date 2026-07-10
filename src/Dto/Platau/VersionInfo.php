@@ -7,14 +7,11 @@ namespace App\Dto\Platau;
  */
 final class VersionInfo implements \JsonSerializable
 {
-    /** @var string|null */
-    private $version;
+    private ?string $version;
 
-    /** @var string|null */
-    private $versionModel;
+    private ?string $versionModel;
 
-    /** @var string|null */
-    private $versionNomenclature;
+    private ?string $versionNomenclature;
 
     public function __construct(?string $version, ?string $versionModel, ?string $versionNomenclature)
     {

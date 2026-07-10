@@ -16,8 +16,7 @@ use App\Repository\DossierRepository;
  */
 class AvisService
 {
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
     /**
      * @param DossierRepository $dossierRepository Pour vérifier avis différé

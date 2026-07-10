@@ -22,14 +22,11 @@ final class GithubType implements VersionType
     /** @var string */
     private $revision;
 
-    /** @var HttpClientInterface */
-    private $client;
+    private HttpClientInterface $client;
 
-    /** @var SerializerInterface */
-    private $serializer;
+    private SerializerInterface $serializer;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(string $srcDir, HttpClientInterface $client, SerializerInterface $serializer, LoggerInterface $logger)
     {

@@ -20,20 +20,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CalendrierDesCommissionsOdjController extends AbstractController
 {
-    /**
-     * @var DateCommissionRepository
-     */
-    private $dateCommissionRepository;
+    private DateCommissionRepository $dateCommissionRepository;
 
-    /**
-     * @var DossierAffectationRepository
-     */
-    private $dossierAffectationRepository;
+    private DossierAffectationRepository $dossierAffectationRepository;
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(
         DateCommissionRepository $dateCommissionRepository,

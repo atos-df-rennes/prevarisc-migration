@@ -16,26 +16,19 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class EtablissementPieceJointeService
 {
-    /** @var EtablissementPieceJointeRepository */
-    private $etablissementPJRepository;
+    private EtablissementPieceJointeRepository $etablissementPJRepository;
 
-    /** @var DataStore */
-    private $dataStore;
+    private DataStore $dataStore;
 
-    /** @var LoggerInterface */
-    private $datastoreLogger;
+    private LoggerInterface $datastoreLogger;
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var PieceJointeRepository */
-    private $pieceJointeRepository;
+    private PieceJointeRepository $pieceJointeRepository;
 
-    /** @var Image */
-    private $imageService;
+    private Image $imageService;
 
-    /** @var Filesystem */
-    private $filesystem;
+    private Filesystem $filesystem;
 
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPJRepository,

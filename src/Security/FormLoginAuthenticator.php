@@ -44,114 +44,80 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
     public const MAX_LOGIN_ATTEMPTS = 2;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var UserPasswordEncoderInterface */
-    private $passwordEncoder;
+    private UserPasswordEncoderInterface $passwordEncoder;
 
-    /** @var RouterInterface */
-    private $router;
+    private RouterInterface $router;
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var bool */
-    /** @var bool */
-    private $casEnabled;
+    private bool $casEnabled;
 
-    /** @var string */
-    private $casHost;
+    private string $casHost;
 
-    /** @var int */
-    private $casPort;
+    private int $casPort;
 
-    /** @var string */
-    private $casPublicHost;
+    private string $casPublicHost;
 
-    /** @var int */
-    private $casPublicPort;
+    private int $casPublicPort;
 
-    /** @var string */
-    private $casContext;
+    private string $casContext;
 
-    /** @var bool */
-    private $casNoServerValidation;
+    private bool $casNoServerValidation;
 
-    /** @var bool */
-    private $casNoSsl;
+    private bool $casNoSsl;
 
-    /** @var string */
-    private $casVersion;
+    private string $casVersion;
 
-    /** @var bool */
-    private $ntlmEnabled;
+    private bool $ntlmEnabled;
 
-    /** @var bool */
-    private $ldapEnabled;
+    private bool $ldapEnabled;
 
-    /** @var string */
-    private $ldapHost;
+    private string $ldapHost;
 
-    /** @var int */
-    private $ldapPort;
+    private int $ldapPort;
 
-    /** @var string */
-    private $ldapUsername;
+    private string $ldapUsername;
 
-    /** @var string */
-    private $ldapPassword;
+    private string $ldapPassword;
 
-    /** @var string */
-    private $ldapBaseDn;
+    private string $ldapBaseDn;
 
     /**
      * Filtre de recherche LDAP pour retrouver le DN d'un utilisateur.
      * Format sprintf avec %s pour le nom d'utilisateur.
      * Exemples : '(uid=%s)' pour OpenLDAP, '(sAMAccountName=%s)' pour Active Directory.
-     *
-     * @var string
      */
-    private $ldapFilter;
+    private string $ldapFilter;
 
     /**
      * Format du compte LDAP pour le bind direct (fallback sans service-account).
      * Format sprintf avec %s pour le nom d'utilisateur.
      * Exemples : '%s@domain.tld' (UPN), 'DOMAIN\%s' (pre-Win2000), '' (pas de transformation).
-     *
-     * @var string
      */
-    private $ldapAccountForm;
+    private string $ldapAccountForm;
 
-    /** @var bool */
-    private $enforceSecurity;
+    private bool $enforceSecurity;
 
-    /** @var TokenStorageInterface */
-    private $tokenStorage;
+    private TokenStorageInterface $tokenStorage;
 
-    /** @var CsrfTokenManagerInterface */
-    private $csrfTokenManager;
+    private CsrfTokenManagerInterface $csrfTokenManager;
 
     /**
      * Instance LDAP partagée (connexion lazy, créée une seule fois par requête).
-     *
-     * @var Ldap|null
      */
-    private $ldap;
+    private ?Ldap $ldap;
 
     /**
      * Dernier utilisateur tentant une authentification (pour onAuthenticationFailure).
-     *
-     * @var Utilisateur|null
      */
-    private $lastAttemptedUser;
+    private ?Utilisateur $lastAttemptedUser = null;
 
     /**
      * Indicateur d'initialisation phpCAS (static car phpCAS est une classe statique).
-     *
-     * @var bool
      */
-    private static $casInitialized = false;
+    private static bool $casInitialized = false;
 
     public function __construct(
         LoggerInterface $logger,

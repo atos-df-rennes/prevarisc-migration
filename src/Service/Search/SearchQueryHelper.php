@@ -10,8 +10,7 @@ use Doctrine\DBAL\Connection;
  */
 class SearchQueryHelper
 {
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

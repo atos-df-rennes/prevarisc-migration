@@ -30,26 +30,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PrescriptionsTypesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var PrescriptionCategorieRepository */
-    private $prescriptionCategorieRepository;
+    private PrescriptionCategorieRepository $prescriptionCategorieRepository;
 
-    /** @var PrescriptionTexteRepository */
-    private $prescriptionTexteRepository;
+    private PrescriptionTexteRepository $prescriptionTexteRepository;
 
-    /** @var PrescriptionArticleRepository */
-    private $prescriptionArticleRepository;
+    private PrescriptionArticleRepository $prescriptionArticleRepository;
 
-    /** @var PrescriptionTypeRepository */
-    private $prescriptionTypeRepository;
+    private PrescriptionTypeRepository $prescriptionTypeRepository;
 
-    /** @var Prescriptions */
-    private $prescriptionsService;
+    private Prescriptions $prescriptionsService;
 
-    /** @var FormHelper */
-    private $formHelper;
+    private FormHelper $formHelper;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -93,9 +86,7 @@ class PrescriptionsTypesController extends AbstractController
         }
 
         /** @var array<int, string> $orders */
-        $order = array_map(function (string $identifiant): int {
-            return (int) $identifiant;
-        }, $orders);
+        $order = array_map(fn (string $identifiant): int => (int) $identifiant, $orders);
 
         if ('categorie' === $type) {
             $this->prescriptionCategorieRepository->setOrder($order);

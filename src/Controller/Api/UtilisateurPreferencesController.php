@@ -17,8 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UtilisateurPreferencesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {

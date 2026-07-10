@@ -15,8 +15,7 @@ use App\Service\Changement;
  */
 class MessageService
 {
-    /** @var AvisService */
-    private $avisService;
+    private AvisService $avisService;
 
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis

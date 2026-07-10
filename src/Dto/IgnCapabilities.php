@@ -4,11 +4,9 @@ namespace App\Dto;
 
 final class IgnCapabilities
 {
-    /** @var ?string */
-    private $url;
+    private ?string $url;
 
-    /** @var ?string */
-    private $error;
+    private ?string $error;
 
     public function __construct(?string $url, ?string $error)
     {

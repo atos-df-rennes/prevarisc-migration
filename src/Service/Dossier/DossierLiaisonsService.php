@@ -9,14 +9,11 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class DossierLiaisonsService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /** @var DossierDonnantAvisService */
-    private $dossierDonnantAvisService;
+    private DossierDonnantAvisService $dossierDonnantAvisService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -67,9 +64,7 @@ final class DossierLiaisonsService
      */
     public function getDossiersDisponiblesGroupesParEtablissement(Dossier $dossier): array
     {
-        $liaisonIds = array_map(function (Dossier $lie): ?int {
-            return $lie->getId();
-        }, $this->getLiaisons($dossier));
+        $liaisonIds = array_map(fn (Dossier $lie): ?int => $lie->getId(), $this->getLiaisons($dossier));
 
         $result = [];
 
@@ -79,9 +74,7 @@ final class DossierLiaisonsService
             foreach (['visites', 'etudes', 'autres'] as $key) {
                 $groupes[$key] = array_values(array_filter(
                     $groupes[$key],
-                    function (Dossier $d) use ($liaisonIds): bool {
-                        return !in_array($d->getId(), $liaisonIds, true);
-                    }
+                    fn (Dossier $d): bool => !in_array($d->getId(), $liaisonIds, true)
                 ));
             }
 

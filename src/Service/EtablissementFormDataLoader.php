@@ -25,44 +25,31 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  */
 final class EtablissementFormDataLoader
 {
-    /** @var GenreRepository */
-    private $genreRepository;
+    private GenreRepository $genreRepository;
 
-    /** @var EtablissementStatutRepository */
-    private $statutRepository;
+    private EtablissementStatutRepository $statutRepository;
 
-    /** @var EtablissementCategorieRepository */
-    private $categorieRepository;
+    private EtablissementCategorieRepository $categorieRepository;
 
-    /** @var EtablissementTypeRepository */
-    private $typeRepository;
+    private EtablissementTypeRepository $typeRepository;
 
-    /** @var EtablissementActiviteRepository */
-    private $activiteRepository;
+    private EtablissementActiviteRepository $activiteRepository;
 
-    /** @var CommissionRepository */
-    private $commissionRepository;
+    private CommissionRepository $commissionRepository;
 
-    /** @var TypePlanRepository */
-    private $typePlanRepository;
+    private TypePlanRepository $typePlanRepository;
 
-    /** @var FamilleRepository */
-    private $familleRepository;
+    private FamilleRepository $familleRepository;
 
-    /** @var IghClasseRepository */
-    private $ighClasseRepository;
+    private IghClasseRepository $ighClasseRepository;
 
-    /** @var ClassementRepository */
-    private $classementRepository;
+    private ClassementRepository $classementRepository;
 
-    /** @var CoucheCartoRepository */
-    private $coucheCartoRepository;
+    private CoucheCartoRepository $coucheCartoRepository;
 
-    /** @var ParameterBagInterface */
-    private $parameterBag;
+    private ParameterBagInterface $parameterBag;
 
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
+    private AuthorizationCheckerInterface $authorizationChecker;
 
     public function __construct(
         GenreRepository $genreRepository,

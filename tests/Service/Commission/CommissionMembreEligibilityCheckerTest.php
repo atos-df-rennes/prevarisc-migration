@@ -7,8 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class CommissionMembreEligibilityCheckerTest extends TestCase
 {
-    /** @var CommissionMembreEligibilityChecker */
-    private $checker;
+    private CommissionMembreEligibilityChecker $checker;
 
     protected function setUp(): void
     {

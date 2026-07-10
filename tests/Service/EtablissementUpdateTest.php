@@ -51,9 +51,7 @@ class EtablissementUpdateTest extends TestCase
         $em->method('getConnection')->willReturn($connection);
         $em->method('persist');
         $em->method('flush');
-        $em->method('getReference')->willReturnCallback(function (string $class, $id): MockObject {
-            return $this->createMock($class);
-        });
+        $em->method('getReference')->willReturnCallback(fn (string $class, $id): MockObject => $this->createMock($class));
 
         $logger = $this->createMock(LoggerInterface::class);
         $dossierRepo = $this->createMock(DossierRepository::class);

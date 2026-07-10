@@ -8,11 +8,9 @@ use Twig\TwigFunction;
 
 class AssetExistExtension extends AbstractExtension
 {
-    /** @var Packages */
-    private $packages;
+    private Packages $packages;
 
-    /** @var string */
-    private $srcDir;
+    private string $srcDir;
 
     public function __construct(Packages $packages, string $srcDir)
     {

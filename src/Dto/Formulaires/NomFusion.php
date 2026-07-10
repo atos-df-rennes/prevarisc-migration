@@ -4,11 +4,10 @@ namespace App\Dto\Formulaires;
 
 final class NomFusion
 {
-    /** @var string */
-    private $valeur;
+    private string $valeur;
 
     /** @var self[] */
-    private $enfants;
+    private array $enfants;
 
     /**
      * @param self[] $enfants

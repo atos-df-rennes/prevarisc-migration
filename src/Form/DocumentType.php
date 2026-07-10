@@ -19,15 +19,9 @@ class DocumentType extends AbstractType
         $builder
             ->add('commission', ChoiceType::class, [
                 'choices' => $builder->getData(),
-                'choice_label' => function (FormDocument $commission): string {
-                    return $commission->nom();
-                },
-                'choice_value' => function (?FormDocument $commission) {
-                    return null !== $commission ? $commission->id() : '';
-                },
-                'group_by' => function (FormDocument $commission): ?string {
-                    return $commission->type();
-                }
+                'choice_label' => fn (FormDocument $commission): string => $commission->nom(),
+                'choice_value' => fn (?FormDocument $commission) => null !== $commission ? $commission->id() : '',
+                'group_by' => fn (FormDocument $commission): ?string => $commission->type()
             ])
             ->add('file', FileType::class, [
                 'label' => 'Fichier à envoyer',

@@ -23,18 +23,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class RubriqueController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var RubriqueRepository
-     */
-    private $rubriqueRepository;
+    private RubriqueRepository $rubriqueRepository;
 
-    /**
-     * @var ChampValeurListeRepository
-     */
-    private $champValeurListeRepository;
+    private ChampValeurListeRepository $champValeurListeRepository;
 
     public function __construct(EntityManagerInterface $entityManager, RubriqueRepository $rubriqueRepository, ChampValeurListeRepository $champValeurListeRepository)
     {

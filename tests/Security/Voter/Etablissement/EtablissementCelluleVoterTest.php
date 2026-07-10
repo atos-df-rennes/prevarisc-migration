@@ -16,17 +16,18 @@ use App\Repository\ResourcesRepository;
 use App\Security\Voter\Etablissement\EtablissementCelluleVoter;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class EtablissementCelluleVoterTest extends TestCase
 {
-    private $resourcesRepository;
+    private MockObject $resourcesRepository;
 
-    private $privilegesRepository;
+    private MockObject $privilegesRepository;
 
-    private $voter;
+    private EtablissementCelluleVoter $voter;
 
     protected function setUp(): void
     {

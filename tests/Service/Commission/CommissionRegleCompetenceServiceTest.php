@@ -19,8 +19,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class CommissionRegleCompetenceServiceTest extends TestCase
 {
-    /** @var CommissionRegleCompetenceService */
-    private $service;
+    private CommissionRegleCompetenceService $service;
 
     protected function setUp(): void
     {

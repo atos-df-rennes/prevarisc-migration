@@ -25,23 +25,17 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UtilisateursController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
+    private UtilisateurRepository $utilisateurRepository;
 
-    /** @var GroupeRepository */
-    private $groupeRepository;
+    private GroupeRepository $groupeRepository;
 
-    /** @var Avatar */
-    private $avatar;
+    private Avatar $avatar;
 
-    /** @var Image */
-    private $image;
+    private Image $image;
 
-    /** @var UtilisateurManager */
-    private $utilisateurManager;
+    private UtilisateurManager $utilisateurManager;
 
     public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image, UtilisateurManager $utilisateurManager)
     {

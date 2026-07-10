@@ -4,8 +4,7 @@ namespace App\Service;
 
 final class VersionService
 {
-    /** @var string */
-    private $srcDir;
+    private string $srcDir;
 
     public function __construct(string $srcDir)
     {
@@ -75,9 +74,7 @@ final class VersionService
             ];
         }
 
-        uksort($sections, function (string $a, string $b): int {
-            return version_compare($b, $a);
-        });
+        uksort($sections, fn (string $a, string $b): int => version_compare($b, $a));
 
         return $sections;
     }

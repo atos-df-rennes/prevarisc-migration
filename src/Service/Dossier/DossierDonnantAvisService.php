@@ -16,14 +16,11 @@ use Psr\Log\LoggerInterface;
  */
 class DossierDonnantAvisService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,

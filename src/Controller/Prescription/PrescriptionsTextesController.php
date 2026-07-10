@@ -19,14 +19,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PrescriptionsTextesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var Prescriptions */
-    private $servicePrescTextes;
+    private Prescriptions $servicePrescTextes;
 
-    /** @var PrescriptionTexteListeRepository */
-    private $prescriptionTexteListeRepository;
+    private PrescriptionTexteListeRepository $prescriptionTexteListeRepository;
 
     public function __construct(EntityManagerInterface $entityManager, Prescriptions $servicePrescTextes, PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
     {

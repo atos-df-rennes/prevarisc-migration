@@ -7,8 +7,7 @@ use Twig\TwigFunction;
 
 class IconeTypeEtablissementExtension extends AbstractExtension
 {
-    /** @var string */
-    private $srcDir;
+    private string $srcDir;
 
     public function __construct(string $srcDir)
     {

@@ -30,13 +30,12 @@ use Psr\Log\LoggerInterface;
 final class DescriptifCopierTest extends TestCase
 {
     /** @var EntityManagerInterface|MockObject */
-    private $entityManager;
+    private MockObject $entityManager;
 
     /** @var LoggerInterface|MockObject */
-    private $logger;
+    private MockObject $logger;
 
-    /** @var DescriptifCopier */
-    private $service;
+    private DescriptifCopier $service;
 
     protected function setUp(): void
     {

@@ -11,26 +11,19 @@ use App\Entity\DateCommission;
  */
 final class CalendarEventDto
 {
-    /** @var int */
-    private $id;
+    private int $id;
 
-    /** @var string */
-    private $title;
+    private string $title;
 
-    /** @var string */
-    private $start;
+    private string $start;
 
-    /** @var string */
-    private $end;
+    private string $end;
 
-    /** @var string */
-    private $url;
+    private string $url;
 
-    /** @var string */
-    private $className;
+    private string $className;
 
-    /** @var bool */
-    private $allDay;
+    private bool $allDay;
 
     private function __construct(
         int $id,

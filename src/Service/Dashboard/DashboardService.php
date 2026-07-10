@@ -24,23 +24,17 @@ use App\Service\NotificationService;
  */
 class DashboardService
 {
-    /** @var DashboardBlocConfig */
-    private $blocConfig;
+    private DashboardBlocConfig $blocConfig;
 
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepository;
+    private DateCommissionRepository $dateCommissionRepository;
 
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /** @var FeedService */
-    private $feedService;
+    private FeedService $feedService;
 
-    /** @var NotificationService */
-    private $notificationService;
+    private NotificationService $notificationService;
 
     public function __construct(
         DashboardBlocConfig $blocConfig,

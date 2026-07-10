@@ -4,14 +4,12 @@ namespace App\Dto\FusionDesCommunes;
 
 final class FusionDeCommunes
 {
-    /** @var string */
-    private $nom;
+    private string $nom;
 
-    /** @var string */
-    private $numinsee;
+    private string $numinsee;
 
     /** @var Commune[] */
-    private $listeCommunes;
+    private array $listeCommunes;
 
     /**
      * @param Commune[] $listeCommunes

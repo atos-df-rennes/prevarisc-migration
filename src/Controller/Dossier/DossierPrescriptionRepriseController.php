@@ -14,14 +14,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierPrescriptionRepriseController extends AbstractController
 {
-    /** @var DossierPrescriptionService */
-    private $service;
+    private DossierPrescriptionService $service;
 
-    /** @var DossierRepository */
-    private $dossierRepo;
+    private DossierRepository $dossierRepo;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
         DossierPrescriptionService $service,
@@ -85,7 +82,7 @@ class DossierPrescriptionRepriseController extends AbstractController
         }
 
         $dossierIds = $request->request->get('dossierIds', []);
-        $dossierIds = is_array($dossierIds) ? array_map(function ($v): int { return (int) (is_scalar($v) ? $v : 0); }, $dossierIds) : [];
+        $dossierIds = is_array($dossierIds) ? array_map(fn ($v): int => (int) (is_scalar($v) ? $v : 0), $dossierIds) : [];
         $dossierIds = array_filter($dossierIds);
 
         if ([] === $dossierIds) {
@@ -95,7 +92,7 @@ class DossierPrescriptionRepriseController extends AbstractController
         }
 
         $sources = array_filter(
-            array_map(function (int $id) { return $this->dossierRepo->find($id); }, $dossierIds)
+            array_map(fn (int $id) => $this->dossierRepo->find($id), $dossierIds)
         );
 
         try {

@@ -17,11 +17,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 abstract class AbstractOdtDocumentService
 {
-    /** @var Filesystem */
-    protected $filesystem;
+    protected Filesystem $filesystem;
 
-    /** @var LoggerInterface */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     public function __construct(Filesystem $filesystem, LoggerInterface $logger)
     {

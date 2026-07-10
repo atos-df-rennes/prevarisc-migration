@@ -21,17 +21,13 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class CouchesCartographiquesController extends AbstractController
 {
-    /** @var SerializerInterface */
-    private $serializer;
+    private SerializerInterface $serializer;
 
-    /** @var CouchesCarto */
-    private $couchesCarto;
+    private CouchesCarto $couchesCarto;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var CoucheCartoRepository */
-    private $coucheCartoRepository;
+    private CoucheCartoRepository $coucheCartoRepository;
 
     public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger, CoucheCartoRepository $coucheCartoRepository)
     {

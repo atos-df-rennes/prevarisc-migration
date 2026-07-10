@@ -14,14 +14,11 @@ use Psr\Log\LoggerInterface;
 
 final class FormulairesImporter
 {
-    /** @var CapsuleRubriqueRepository */
-    private $capsuleRubriqueRepository;
+    private CapsuleRubriqueRepository $capsuleRubriqueRepository;
 
-    /** @var TypeChampRepository */
-    private $typeChampRepository;
+    private TypeChampRepository $typeChampRepository;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(
         CapsuleRubriqueRepository $capsuleRubriqueRepository,

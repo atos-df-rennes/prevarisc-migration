@@ -29,22 +29,21 @@ use PHPUnit\Framework\TestCase;
 class DescriptifFormPersisterTest extends TestCase
 {
     /** @var ValeurRepository|MockObject */
-    private $valeurRepository;
+    private MockObject $valeurRepository;
 
     /** @var ChampRepository|MockObject */
-    private $champRepository;
+    private MockObject $champRepository;
 
     /** @var DossierDisplayRubriqueRepository|MockObject */
-    private $dossierDisplayRubriqueRepository;
+    private MockObject $dossierDisplayRubriqueRepository;
 
     /** @var EtablissementDisplayRubriqueRepository|MockObject */
-    private $etablissementDisplayRubriqueRepository;
+    private MockObject $etablissementDisplayRubriqueRepository;
 
     /** @var EntityManagerInterface|MockObject */
-    private $entityManager;
+    private MockObject $entityManager;
 
-    /** @var DescriptifFormPersister */
-    private $persister;
+    private DescriptifFormPersister $persister;
 
     protected function setUp(): void
     {
@@ -230,7 +229,7 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
-        $valeurs = array_filter($persisted, static function ($obj): bool { return $obj instanceof Valeur; });
+        $valeurs = array_filter($persisted, static fn ($obj): bool => $obj instanceof Valeur);
         self::assertNotEmpty($valeurs);
 
         $created = array_values($valeurs)[0];
@@ -394,9 +393,7 @@ class DescriptifFormPersisterTest extends TestCase
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
         // Un objet DossierDisplayRubrique doit avoir été persisté
-        $displayPrefs = array_filter($persisted, static function ($obj): bool {
-            return $obj instanceof DossierDisplayRubrique;
-        });
+        $displayPrefs = array_filter($persisted, static fn ($obj): bool => $obj instanceof DossierDisplayRubrique);
         self::assertNotEmpty($displayPrefs);
     }
 

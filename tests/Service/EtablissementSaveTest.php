@@ -56,9 +56,7 @@ class EtablissementSaveTest extends TestCase
             }
         });
         $em->method('flush');
-        $em->method('getReference')->willReturnCallback(function (string $class, $id): MockObject {
-            return $this->createMock($class);
-        });
+        $em->method('getReference')->willReturnCallback(fn (string $class, $id): MockObject => $this->createMock($class));
 
         $etablissementRepo = $this->createMock(EtablissementRepository::class);
         $etablissementRepo->method('find')->willReturnCallback(

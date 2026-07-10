@@ -48,102 +48,59 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class EtablissementController extends AbstractController implements EtablissementLateralNavigationInterface
 {
-    /** @var EtablissementPieceJointeRepository */
-    private $etablissementPieceJointeRepository;
+    private EtablissementPieceJointeRepository $etablissementPieceJointeRepository;
 
-    /** @var EtablissementAdresseRepository */
-    private $etablissementAdresseRepository;
+    private EtablissementAdresseRepository $etablissementAdresseRepository;
 
-    /** @var DossierRepository */
-    private $dossierRepository;
+    private DossierRepository $dossierRepository;
 
-    /** @var EtablissementService */
-    private $etablissementService;
+    private EtablissementService $etablissementService;
 
-    /** @var EtablissementHistoriqueService */
-    private $etablissementHistoriqueService;
+    private EtablissementHistoriqueService $etablissementHistoriqueService;
 
-    /** @var EtablissementPieceJointeService */
-    private $etablissementPieceJointeService;
+    private EtablissementPieceJointeService $etablissementPieceJointeService;
 
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
+    private EtablissementRepository $etablissementRepository;
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var CoucheCartoRepository
-     */
-    private $coucheCartoRepository;
+    private CoucheCartoRepository $coucheCartoRepository;
 
-    /**
-     * @var PeriodiciteRepository
-     */
-    private $periodiciteRepository;
+    private PeriodiciteRepository $periodiciteRepository;
 
-    /**
-     * @var GroupementRepository
-     */
-    private $groupementRepository;
+    private GroupementRepository $groupementRepository;
 
-    /**
-     * @var DataStore
-     */
-    private $dataStore;
+    private DataStore $dataStore;
 
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
+    private SerializerInterface $serializer;
 
-    /** @var Dossier */
-    private $dossierService;
+    private Dossier $dossierService;
 
-    /**
-     * @var MailerConfiguration
-     */
-    private $mailerConfig;
+    private MailerConfiguration $mailerConfig;
 
-    /**
-     * @var AlerteService
-     */
-    private $alerteService;
+    private AlerteService $alerteService;
 
-    /** @var int */
-    private $nbDossiersAAfficher;
+    private int $nbDossiersAAfficher;
 
-    /** @var DescriptifService */
-    private $descriptifService;
+    private DescriptifService $descriptifService;
 
-    /** @var DescriptifFormHydrator */
-    private $descriptifFormHydrator;
+    private DescriptifFormHydrator $descriptifFormHydrator;
 
-    /** @var DescriptifFormBuilder */
-    private $descriptifFormBuilder;
+    private DescriptifFormBuilder $descriptifFormBuilder;
 
-    /** @var DescriptifFormPersister */
-    private $descriptifFormPersister;
+    private DescriptifFormPersister $descriptifFormPersister;
 
-    /** @var bool */
-    private $descriptifPersonnalise;
+    private bool $descriptifPersonnalise;
 
-    /** @var LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var LoggerInterface */
-    private $pieceJointeLogger;
+    private LoggerInterface $pieceJointeLogger;
 
-    /**
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
+    private FormFactoryInterface $formFactory;
 
-    /** @var EtablissementFormDataLoader */
-    private $formDataLoader;
+    private EtablissementFormDataLoader $formDataLoader;
 
-    /** @var TagAwareCacheInterface */
-    private $searchCache;
+    private TagAwareCacheInterface $searchCache;
 
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
@@ -238,9 +195,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                 if (GenreEtablissement::SITE === $idGenre
                     && isset($post['ID_FILS_ETABLISSEMENT'])
                     && is_array($post['ID_FILS_ETABLISSEMENT'])
-                    && 1 === count(array_filter($post['ID_FILS_ETABLISSEMENT'], static function ($v): bool {
-                        return is_scalar($v) && (int) $v > 0;
-                    }))
+                    && 1 === count(array_filter($post['ID_FILS_ETABLISSEMENT'], static fn ($v): bool => is_scalar($v) && (int) $v > 0))
                 ) {
                     $this->addFlash(
                         'warning',

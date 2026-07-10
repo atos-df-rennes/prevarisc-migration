@@ -18,13 +18,12 @@ use Symfony\Component\Security\Core\Security;
 final class LastActionSubscriberTest extends TestCase
 {
     /** @var Security|MockObject */
-    private $security;
+    private MockObject $security;
 
     /** @var LastActionUpdater|MockObject */
-    private $lastActionUpdater;
+    private MockObject $lastActionUpdater;
 
-    /** @var LastActionSubscriber */
-    private $subscriber;
+    private LastActionSubscriber $subscriber;
 
     protected function setUp(): void
     {
