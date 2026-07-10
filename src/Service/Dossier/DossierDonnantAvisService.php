@@ -298,7 +298,7 @@ class DossierDonnantAvisService
 
             $this->logger->info('Établissement mis à jour après désaffectation', [
                 'etablissement_id' => $etablissement->getId(),
-                'dernier_dossier_valide_id' => $dernierDossierValide ? $dernierDossierValide->getId() : null,
+                'dernier_dossier_valide_id' => $dernierDossierValide instanceof Dossier ? $dernierDossierValide->getId() : null,
             ]);
         }
 

@@ -263,8 +263,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
         }
 
-        $rawDossierSelect = $request->request->get('dossierSelect', 0);
-        $idDossierSource = is_scalar($rawDossierSelect) ? (int) $rawDossierSelect : 0;
+        $idDossierSource = $request->request->getInt('dossierSelect', 0);
         if (0 === $idDossierSource) {
             return $this->json(['error' => 'Aucun dossier source sélectionné.'], 400);
         }

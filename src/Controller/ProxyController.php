@@ -52,8 +52,7 @@ class ProxyController extends AbstractController
         $queryString = !empty($filteredParams) ? '?'.http_build_query($filteredParams) : '';
 
         // URL cible
-        $rawUrl = $request->query->get('url', '');
-        $targetUrl = (is_string($rawUrl) ? $rawUrl : '').$queryString;
+        $targetUrl = $request->query->get('url', '').$queryString;
 
         if ('' === $targetUrl) {
             return new Response('URL parameter required', Response::HTTP_BAD_REQUEST);

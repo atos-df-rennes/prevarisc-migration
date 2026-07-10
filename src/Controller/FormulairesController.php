@@ -63,11 +63,16 @@ class FormulairesController extends AbstractController
         /** @var array<string, FormInterface<Rubrique>> $forms */
         $forms = [];
         foreach ($formulaires as $formulaire) {
+            $nomInterne = $formulaire->getNomInterne();
+            if (null === $nomInterne) {
+                continue;
+            }
+
             $rubrique = new Rubrique();
             $rubrique->setIdx($formulaire->getRubriques()->count() + 1);
             $rubrique->setCapsuleRubrique($formulaire);
 
-            $forms[$formulaire->getNomInterne()] = $this->formFactory->createNamed($formulaire->getNomInterne(), RubriqueType::class, $rubrique);
+            $forms[$nomInterne] = $this->formFactory->createNamed($nomInterne, RubriqueType::class, $rubrique);
         }
 
         $submittedForm = $request->request->get('formulaire');

@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\Role\Role;
+use Symfony\Component\Security\Core\User\LegacyPasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -19,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @PrevariscAssert\Password
  */
-class Utilisateur implements UserInterface
+class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInterface
 {
     /**
      * @var int
@@ -198,6 +199,11 @@ class Utilisateur implements UserInterface
     public function getUsername(): string
     {
         return (string) $this->username;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->getUsername();
     }
 
     public function setUsername(string $username): self

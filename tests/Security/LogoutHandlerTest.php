@@ -10,10 +10,10 @@ use App\Service\LastActionUpdater;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 final class LogoutHandlerTest extends TestCase
 {
@@ -44,6 +44,11 @@ final class LogoutHandlerTest extends TestCase
         return $request;
     }
 
+    private function buildLogoutEvent(?TokenInterface $token): LogoutEvent
+    {
+        return new LogoutEvent($this->buildRequest(), $token);
+    }
+
     public function testLogoutUpdatesLastActionForUtilisateur(): void
     {
         $utilisateur = new Utilisateur();
@@ -53,7 +58,7 @@ final class LogoutHandlerTest extends TestCase
 
         $this->lastActionUpdater->expects($this->once())->method('update')->with($utilisateur);
 
-        $this->buildHandler()->logout($this->buildRequest(), new Response(), $token);
+        $this->buildHandler()->onLogout($this->buildLogoutEvent($token));
     }
 
     public function testLogoutSkipsLastActionWhenUserIsNotUtilisateur(): void
@@ -63,7 +68,7 @@ final class LogoutHandlerTest extends TestCase
 
         $this->lastActionUpdater->expects($this->never())->method('update');
 
-        $this->buildHandler()->logout($this->buildRequest(), new Response(), $token);
+        $this->buildHandler()->onLogout($this->buildLogoutEvent($token));
     }
 
     public function testLogoutSkipsLastActionWhenUserIsString(): void
@@ -73,7 +78,7 @@ final class LogoutHandlerTest extends TestCase
 
         $this->lastActionUpdater->expects($this->never())->method('update');
 
-        $this->buildHandler()->logout($this->buildRequest(), new Response(), $token);
+        $this->buildHandler()->onLogout($this->buildLogoutEvent($token));
     }
 
     public function testLogoutClearsPhpCasSessionWhenCasEnabled(): void
@@ -83,7 +88,7 @@ final class LogoutHandlerTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
 
-        $this->buildHandler(true)->logout($this->buildRequest(), new Response(), $token);
+        $this->buildHandler(true)->onLogout($this->buildLogoutEvent($token));
 
         $this->assertArrayNotHasKey('phpCAS', $_SESSION);
     }
@@ -95,7 +100,7 @@ final class LogoutHandlerTest extends TestCase
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
 
-        $this->buildHandler(false)->logout($this->buildRequest(), new Response(), $token);
+        $this->buildHandler(false)->onLogout($this->buildLogoutEvent($token));
 
         $this->assertArrayHasKey('phpCAS', $_SESSION);
     }

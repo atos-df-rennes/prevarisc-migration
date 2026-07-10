@@ -38,6 +38,9 @@ class PrivilegeVoter implements VoterInterface
         $this->privilegesRepository = $privilegesRepository;
     }
 
+    /**
+     * @return int
+     */
     public function vote(TokenInterface $token, $subject, array $attributes)
     {
         $attribute = $attributes[0];

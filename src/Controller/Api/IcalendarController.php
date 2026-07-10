@@ -47,17 +47,15 @@ class IcalendarController extends AbstractController
     public function sync(Request $request): Response
     {
         // Vérification de la clé de sécurité
-        $keyRaw = $request->query->get('key', '');
-        $key = \is_string($keyRaw) ? $keyRaw : '';
+        $key = (string) $request->query->get('key', '');
         $securityKey = (string) (getenv('PREVARISC_SECURITY_KEY') ?: '');
 
         if ('' === $securityKey || !hash_equals($securityKey, $key)) {
             return new Response('Accès refusé', Response::HTTP_FORBIDDEN);
         }
 
-        /** @var string|null $rawUserId */
-        $rawUserId = $request->query->get('userid');
-        if (null === $rawUserId || '' === $rawUserId) {
+        $rawUserId = (string) $request->query->get('userid', '');
+        if ('' === $rawUserId) {
             return new Response('Paramètre userid requis', Response::HTTP_BAD_REQUEST);
         }
 

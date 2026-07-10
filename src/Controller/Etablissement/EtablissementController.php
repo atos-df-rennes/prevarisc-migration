@@ -303,7 +303,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         // Récupération des groupements de communes liés à la commune de l'établissement
         $groupementsDeCommunes = [];
-        if (0 !== count($adresses)) {
+        if ([] !== $adresses) {
             $firstAddress = current($adresses);
             if ($firstAddress instanceof EtablissementAdresse && $firstAddress->getCommune() instanceof Commune) {
                 $groupementsDeCommunes = $this->groupementRepository->findByNumInsee(

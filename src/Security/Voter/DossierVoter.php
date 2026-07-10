@@ -34,7 +34,7 @@ class DossierVoter extends Voter
     /**
      * @var Resources[]
      */
-    private $resources;
+    private array $resources = [];
 
     private EtablissementCollectionAccessChecker $collectionAccessChecker;
 

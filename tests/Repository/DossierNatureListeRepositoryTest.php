@@ -18,8 +18,8 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->repository = self::$container->get(DossierNatureListeRepository::class);
-        $this->dossierTypeRepository = self::$container->get(DossierTypeRepository::class);
+        $this->repository = self::getContainer()->get(DossierNatureListeRepository::class);
+        $this->dossierTypeRepository = self::getContainer()->get(DossierTypeRepository::class);
     }
 
     /**

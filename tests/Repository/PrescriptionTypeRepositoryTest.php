@@ -16,7 +16,7 @@ class PrescriptionTypeRepositoryTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->repository = self::$container->get(PrescriptionTypeRepository::class);
+        $this->repository = self::getContainer()->get(PrescriptionTypeRepository::class);
     }
 
     public function testFindByClassementAvecCategorieFiltreLesResultats(): void

@@ -190,11 +190,9 @@ class IndexController extends AbstractController
                 $type = is_string($rawType) ? $rawType : '';
                 $rawText = $request->request->get('text', '');
                 $text = is_string($rawText) ? $rawText : '';
-                $conf = $request->request->get('conf', []);
-
-                if (!is_array($conf)) {
-                    $conf = [];
-                }
+                $requestData = $request->request->all();
+                $conf = $requestData['conf'] ?? [];
+                $conf = is_array($conf) ? $conf : [];
 
                 /** @var int[] $confIds */
                 $confIds = array_map(static fn ($v): int => is_numeric($v) ? (int) $v : 0, $conf);

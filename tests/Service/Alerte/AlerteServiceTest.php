@@ -15,7 +15,7 @@ class AlerteServiceTest extends KernelTestCase
         self::ensureKernelShutdown();
         self::bootKernel();
 
-        $container = self::$container;
+        $container = self::getContainer();
 
         $this->alerteService = $container->get(AlerteService::class);
     }

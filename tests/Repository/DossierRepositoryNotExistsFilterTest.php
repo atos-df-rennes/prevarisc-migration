@@ -20,7 +20,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->repository = self::$container->get(DossierRepository::class);
+        $this->repository = self::getContainer()->get(DossierRepository::class);
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace App\Utils;
 
-use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -32,10 +31,6 @@ final class FormHelper
         }
 
         foreach ($form->getErrors(true) as $error) {
-            if (!$error instanceof FormError) {
-                continue;
-            }
-
             $session->getFlashBag()->add('danger', $error->getMessage());
         }
     }

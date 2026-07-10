@@ -6,13 +6,11 @@ namespace App\Security;
 
 use App\Entity\Utilisateur;
 use App\Service\LastActionUpdater;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 /**
- * Gestionnaire de déconnexion Symfony (Symfony 4.4, Guard).
+ * Gestionnaire de déconnexion Symfony.
  *
  * Appelé par le LogoutListener du firewall AVANT l'invalidation de la session PHP.
  * Effectue le nettoyage complémentaire : logout CAS si le SSO CAS est actif.
@@ -21,9 +19,9 @@ use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
  * LastActionSubscriber) car kernel.terminate se déclenche APRÈS l'invalidation du token,
  * rendant $security->getUser() null au moment du logout.
  *
- * Enregistré via security.firewalls.main.logout.handlers dans security.php.
+ * Enregistré automatiquement comme subscriber du LogoutEvent.
  */
-class LogoutHandler implements LogoutHandlerInterface
+class LogoutHandler implements EventSubscriberInterface
 {
     private LastActionUpdater $lastActionUpdater;
 
@@ -37,21 +35,17 @@ class LogoutHandler implements LogoutHandlerInterface
         $this->casEnabled = $casEnabled;
     }
 
-    /**
-     * Nettoyage à la déconnexion.
-     *
-     * @param Request        $request  La requête HTTP
-     * @param Response       $response La réponse HTTP (modifiable, ex. redirect vers CAS)
-     * @param TokenInterface $token    Le token Symfony en cours d'invalidation
-     */
-    public function logout(Request $request, Response $response, TokenInterface $token): void
+    public function onLogout(LogoutEvent $logoutEvent): void
     {
-        // Mettre à jour la dernière action avant l'invalidation du token.
-        // $token->getUser() est encore disponible à ce stade, contrairement à
-        // kernel.terminate où le token a déjà été invalidé.
-        $utilisateur = $token->getUser();
-        if ($utilisateur instanceof Utilisateur) {
-            $this->lastActionUpdater->update($utilisateur);
+        $token = $logoutEvent->getToken();
+        if (null !== $token) {
+            // Mettre à jour la dernière action avant l'invalidation du token.
+            // $token->getUser() est encore disponible à ce stade, contrairement à
+            // kernel.terminate où le token a déjà été invalidé.
+            $utilisateur = $token->getUser();
+            if ($utilisateur instanceof Utilisateur) {
+                $this->lastActionUpdater->update($utilisateur);
+            }
         }
 
         // Nettoyer la session phpCAS si activé.
@@ -60,5 +54,13 @@ class LogoutHandler implements LogoutHandlerInterface
         if ($this->casEnabled && isset($_SESSION['phpCAS'])) {
             unset($_SESSION['phpCAS']);
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [LogoutEvent::class => 'onLogout'];
     }
 }

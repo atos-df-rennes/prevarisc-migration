@@ -127,7 +127,7 @@ final class CalendarServiceTest extends TestCase
     {
         if ($shouldThrowException) {
             $this->expectException(\InvalidArgumentException::class);
-            $this->expectExceptionMessageRegExp('/Format de date invalide/');
+            $this->expectExceptionMessageMatches('/Format de date invalide/');
         }
 
         $result = $this->calendarService->parseJavaScriptDate($dateString);

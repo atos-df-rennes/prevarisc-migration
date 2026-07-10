@@ -125,8 +125,7 @@ class DossierRapportController extends AbstractController implements DossierLate
         $idDossier = (int) $dossier->getId();
 
         // B1 : reconstruire le chemin depuis l'identifiant relatif et valider qu'il reste sous documentsRealDataPath
-        $rawFichier = $request->request->get('file', '');
-        $relativeFile = is_scalar($rawFichier) ? (string) $rawFichier : '';
+        $relativeFile = (string) $request->request->get('file', '');
         $resolvedPath = realpath($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$relativeFile);
         if (
             false === $resolvedPath
@@ -140,19 +139,21 @@ class DossierRapportController extends AbstractController implements DossierLate
 
         $repriseCC = $request->request->getBoolean('repriseCC');
 
-        /** @var string[]|null $idEtabList */
-        $idEtabList = $request->request->get('idEtab', []);
-        if (!is_array($idEtabList)) {
-            $idEtabList = [];
-        }
+        $requestData = $request->request->all();
+        $idEtabList = $requestData['idEtab'] ?? [];
+        $idEtabList = is_array($idEtabList) ? $idEtabList : [];
 
         // B4 : filtrer les idEtab soumis contre ceux du dossier (IDOR)
         $allowedIds = array_map(fn (Etablissement $e): int => $e->getId(), $dossier->getEtablissements()->toArray());
-        $idEtabList = array_values(array_filter($idEtabList, fn ($id): bool => in_array((int) $id, $allowedIds, true)));
+        $idEtabList = array_map(
+            static fn ($id): int => is_scalar($id) ? (int) $id : 0,
+            $idEtabList
+        );
+        $idEtabList = array_values(array_filter($idEtabList, fn (int $id): bool => in_array($id, $allowedIds, true)));
 
         $html = '';
         foreach ($idEtabList as $etablissementId) {
-            $html .= $this->odtService->generer($idDossier, (int) $etablissementId, $fichierSelect, $repriseCC);
+            $html .= $this->odtService->generer($idDossier, $etablissementId, $fichierSelect, $repriseCC);
         }
 
         return new Response($html);

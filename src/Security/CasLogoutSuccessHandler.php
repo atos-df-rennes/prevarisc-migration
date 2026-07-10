@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Security;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Http\Logout\LogoutSuccessHandlerInterface;
+use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 /**
  * Gestionnaire de succès de déconnexion pour CAS.
@@ -15,7 +14,7 @@ use Symfony\Component\Security\Http\Logout\LogoutSuccessHandlerInterface;
  * Redirige vers le serveur CAS pour invalider le TGT quand CAS est activé,
  * sinon redirige vers /session/login (géré par Symfony ou Zend selon PREVARISC_SYMFONY_LOGIN).
  */
-class CasLogoutSuccessHandler implements LogoutSuccessHandlerInterface
+class CasLogoutSuccessHandler implements EventSubscriberInterface
 {
     private bool $casEnabled;
 
@@ -49,8 +48,12 @@ class CasLogoutSuccessHandler implements LogoutSuccessHandlerInterface
         $this->casNoSsl = $casNoSsl;
     }
 
-    public function onLogoutSuccess(Request $request): Response
+    public function onLogout(LogoutEvent $logoutEvent): void
     {
+        if (null !== $logoutEvent->getResponse()) {
+            return;
+        }
+
         if ($this->casEnabled) {
             $scheme = $this->casNoSsl ? 'http' : 'https';
             $context = ltrim($this->casContext, '/');
@@ -61,9 +64,19 @@ class CasLogoutSuccessHandler implements LogoutSuccessHandlerInterface
             $port = (!empty($this->casPublicHost) && $this->casPublicPort > 0) ? $this->casPublicPort : $this->casPort;
             $casLogoutUrl = sprintf('%s://%s:%d/%s/logout', $scheme, $host, $port, $context);
 
-            return new RedirectResponse($casLogoutUrl);
+            $logoutEvent->setResponse(new RedirectResponse($casLogoutUrl));
+
+            return;
         }
 
-        return new RedirectResponse('/session/login');
+        $logoutEvent->setResponse(new RedirectResponse('/session/login'));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [LogoutEvent::class => ['onLogout', 64]];
     }
 }
