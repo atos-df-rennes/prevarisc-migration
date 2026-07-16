@@ -8,13 +8,12 @@ class LastAvis
 {
     private ?Avis $avis = null;
 
-    /** @var false|int */
-    private $date;
+    private ?int $date = null;
 
     public function __construct()
     {
         $this->avis = null;
-        $this->date = false; // int|false - set to int when needed
+        $this->date = null; // Set to int when needed
     }
 
     public function setAvis(?Avis $avis): self
@@ -29,20 +28,14 @@ class LastAvis
         return $this->avis;
     }
 
-    /**
-     * @param false|int $date
-     */
-    public function setDate($date): self
+    public function setDate(?int $date): self
     {
         $this->date = $date;
 
         return $this;
     }
 
-    /**
-     * @return false|int
-     */
-    public function getDate()
+    public function getDate(): ?int
     {
         return $this->date;
     }
