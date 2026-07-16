@@ -8,12 +8,13 @@ class LastAvis
 {
     private ?Avis $avis = null;
 
-    private bool $date;
+    /** @var false|int */
+    private $date;
 
     public function __construct()
     {
         $this->avis = null;
-        $this->date = false;
+        $this->date = false; // int|false - set to int when needed
     }
 
     public function setAvis(?Avis $avis): self

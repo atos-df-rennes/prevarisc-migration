@@ -11,7 +11,8 @@ class DonneeHistorique
 
     private ?Auteur $auteur;
 
-    private bool $fin;
+    /** @var false|int */
+    private $fin;
 
     /**
      * @param false|int $date
@@ -24,7 +25,7 @@ class DonneeHistorique
         $this->date = $date;
         $this->valeur = $valeur;
         $this->auteur = $auteur;
-        $this->fin = false;
+        $this->fin = false; // int|false - set to int via setFin() when the value changes
     }
 
     /**
@@ -62,4 +63,5 @@ class DonneeHistorique
     {
         return $this->fin;
     }
+
 }
