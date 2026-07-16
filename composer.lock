@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3f2dac97ce225a185d72d027a616898a",
+    "content-hash": "38047c8f3b22330aa8e0e8ff8aa0594b",
     "packages": [
         {
             "name": "apereo/phpcas",
@@ -235,12 +235,12 @@
             "version": "v1.7",
             "source": {
                 "type": "git",
-                "url": "https://github.com/cybermonde/odtphp.git",
+                "url": "https://github.com/atos-df-rennes/odtphp.git",
                 "reference": "23aba70923ca3c07af15a5600f4072751c1b4a36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cybermonde/odtphp/zipball/23aba70923ca3c07af15a5600f4072751c1b4a36",
+                "url": "https://api.github.com/repos/atos-df-rennes/odtphp/zipball/23aba70923ca3c07af15a5600f4072751c1b4a36",
                 "reference": "23aba70923ca3c07af15a5600f4072751c1b4a36",
                 "shasum": ""
             },
@@ -253,7 +253,6 @@
                     "library"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL"
             ],
@@ -264,8 +263,7 @@
                 "php"
             ],
             "support": {
-                "issues": "https://github.com/cybermonde/odtphp/issues",
-                "source": "https://github.com/cybermonde/odtphp/tree/v1.7"
+                "source": "https://github.com/atos-df-rennes/odtphp/tree/v1.7"
             },
             "time": "2015-06-02T07:28:25+00:00"
         },
