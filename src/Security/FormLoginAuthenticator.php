@@ -505,7 +505,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
         $session = $request->getSession();
         $session->getFlashBag()->add('danger', "Erreur d'authentification : identifiants incorrects.");
 
-        return new RedirectResponse('/session/login');
+        return new RedirectResponse($this->router->generate('session_login'));
     }
 
     /**
@@ -527,7 +527,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
             $this->saveTargetPath($request->getSession(), 'main', $request->getRequestUri());
         }
 
-        return new RedirectResponse('/session/login');
+        return new RedirectResponse($this->router->generate('session_login'));
     }
 
     public function isInteractive(): bool
