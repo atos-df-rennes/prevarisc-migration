@@ -116,7 +116,7 @@ class DossierAffectationService
             $setter = 'set'.ucfirst($colonneDate);
             $dossier->$setter(null);
 
-            if ($affectationExistante) {
+            if (null !== $affectationExistante) {
                 $this->entityManager->remove($affectationExistante);
             }
 
@@ -130,7 +130,7 @@ class DossierAffectationService
         }
 
         // Cas 2.1 : Nouvelle affectation → INSERT et early return
-        if (!$affectationExistante) {
+        if (null === $affectationExistante) {
             $nouvelleAffectation = new DossierAffectation();
             $nouvelleAffectation->setDossier($dossier);
             $nouvelleAffectation->setDateCommission($dateCommission);

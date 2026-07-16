@@ -210,11 +210,8 @@ final class CalendarService
      */
     public function createDatesDtoFromRequest(Request $request): CommissionDatesDto
     {
+        /** @var string|null $libelle */
         $libelle = $request->query->get('libelle');
-
-        if (!\is_string($libelle) && null !== $libelle) {
-            throw new \InvalidArgumentException("Le format du libellé n'est pas valide.");
-        }
 
         // Propriétés générales.
         $dateCommissionDto = new CommissionDatesDto();

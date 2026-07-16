@@ -62,7 +62,7 @@ class ProxyConfigurationService
         curl_setopt($ch, CURLOPT_PROXYPORT, $this->proxyPort);
         curl_setopt($ch, CURLOPT_PROXY, $this->proxyHost);
 
-        if ($this->proxyUsername) {
+        if ('' !== $this->proxyUsername && '0' !== $this->proxyUsername) {
             curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->proxyUsername.':'.$this->proxyPassword);
         }
     }
@@ -84,7 +84,7 @@ class ProxyConfigurationService
             CURLOPT_PROXY => $this->proxyHost,
         ];
 
-        if ($this->proxyUsername) {
+        if ('' !== $this->proxyUsername && '0' !== $this->proxyUsername) {
             $options[CURLOPT_PROXYUSERPWD] = $this->proxyUsername.':'.$this->proxyPassword;
         }
 

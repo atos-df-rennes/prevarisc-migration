@@ -29,11 +29,7 @@ class GroupementController extends AbstractController
      */
     public function search(Request $request): JsonResponse
     {
-        $query = $request->query->get('q', '');
-
-        if (!\is_string($query)) {
-            throw new \InvalidArgumentException('Query must be a string.');
-        }
+        $query = (string) $request->query->get('q', '');
 
         $limit = filter_var($request->query->get('limit', 50), FILTER_VALIDATE_INT);
 

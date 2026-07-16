@@ -81,7 +81,8 @@ class DossierPrescriptionRepriseController extends AbstractController
             throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
         }
 
-        $dossierIds = $request->request->get('dossierIds', []);
+        $requestData = $request->request->all();
+        $dossierIds = $requestData['dossierIds'] ?? [];
         $dossierIds = is_array($dossierIds) ? array_map(fn ($v): int => (int) (is_scalar($v) ? $v : 0), $dossierIds) : [];
         $dossierIds = array_filter($dossierIds);
 

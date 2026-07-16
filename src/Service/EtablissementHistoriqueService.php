@@ -11,6 +11,7 @@ use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
+use Psr\Log\LoggerInterface;
 
 final class EtablissementHistoriqueService
 {
@@ -18,12 +19,16 @@ final class EtablissementHistoriqueService
 
     private DossierRepository $dossierRepository;
 
+    private LoggerInterface $logger;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository
+        DossierRepository $dossierRepository,
+        LoggerInterface $logger
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->dossierRepository = $dossierRepository;
+        $this->logger = $logger;
     }
 
     public function getHistorique(int $id): Informations
@@ -212,7 +217,23 @@ final class EtablissementHistoriqueService
 
         foreach ($dossiers as $dossier) {
             $avis = $dossier->getAvisCommission();
-            $date = null !== $dossier->getDateCommission() ? strtotime($dossier->getDateCommission()) : (null !== $dossier->getDateVisite() ? $dossier->getDateVisite()->getTimestamp() : false);
+
+            // Résoudre la date : commission > visite > null
+            $date = null;
+            if (null !== $dossier->getDateCommission()) {
+                $timestamp = strtotime($dossier->getDateCommission());
+                if (false === $timestamp) {
+                    $this->logger->warning('Invalid date_commission in dossier', [
+                        'dossier_id' => $dossier->getId(),
+                        'date_commission' => $dossier->getDateCommission(),
+                    ]);
+                } else {
+                    $date = $timestamp;
+                }
+            } elseif (null !== $dossier->getDateVisite()) {
+                $date = $dossier->getDateVisite()->getTimestamp();
+            }
+
             $auteur = $dossier->getCreateur();
             $infosAuteur = null;
 

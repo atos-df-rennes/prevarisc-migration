@@ -121,8 +121,8 @@ class EtablissementErpVoterTest extends TestCase
         $resource->method('getName')->willReturn('etablissement_erp_1_2_0_1_0');
         $privilege = $this->createMock(Privileges::class);
 
-        $commune10 = $this->createConfiguredMock(Commune::class, ['getId' => 100]);
-        $commune30 = $this->createConfiguredMock(Commune::class, ['getId' => 300]);
+        $commune10 = $this->createConfiguredMock(Commune::class, ['getId' => '100']);
+        $commune30 = $this->createConfiguredMock(Commune::class, ['getId' => '300']);
         $groupement10 = $this->createMock(Groupement::class);
         $groupement10->method('getCommunes')->willReturn(new ArrayCollection([$commune10]));
 
@@ -144,8 +144,8 @@ class EtablissementErpVoterTest extends TestCase
         $resource->method('getName')->willReturn('etablissement_erp_1_2_0_0_1');
         $privilege = $this->createMock(Privileges::class);
 
-        $commune100 = $this->createConfiguredMock(Commune::class, ['getId' => 100]);
-        $commune200 = $this->createConfiguredMock(Commune::class, ['getId' => 200]);
+        $commune100 = $this->createConfiguredMock(Commune::class, ['getId' => '100']);
+        $commune200 = $this->createConfiguredMock(Commune::class, ['getId' => '200']);
 
         $user = $this->createMockUserWithPrivileges($privilege, [], $commune100);
         $subjectCommune100 = $this->createMockEtablissement(1, 2, [$commune100]);

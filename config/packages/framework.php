@@ -9,6 +9,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'secret' => '%env(APP_SECRET)%',
         'session' => [
             'handler_id' => null,
+            'storage_factory_id' => 'session.storage.factory.native',
             'cookie_secure' => 'auto',
             'cookie_samesite' => 'lax',
         ],

@@ -13,7 +13,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -115,10 +114,6 @@ class DocumentsController extends AbstractController
             }
 
             foreach ($form->getErrors(true) as $error) {
-                if (!$error instanceof FormError) {
-                    continue;
-                }
-
                 $this->addFlash('danger', $error->getMessage());
             }
 

@@ -8,6 +8,7 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\EtablissementHistoriqueService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 final class EtablissementHistoriqueServiceTest extends TestCase
 {
@@ -16,6 +17,7 @@ final class EtablissementHistoriqueServiceTest extends TestCase
     {
         $etablissementRepository = $this->createMock(EtablissementRepository::class);
         $dossierRepository = $this->createMock(DossierRepository::class);
+        $logger = $this->createMock(LoggerInterface::class);
 
         // Construire les mocks de dossiers à partir des paramètres
         $dossiersData = [];
@@ -30,7 +32,8 @@ final class EtablissementHistoriqueServiceTest extends TestCase
 
         $service = new EtablissementHistoriqueService(
             $etablissementRepository,
-            $dossierRepository
+            $dossierRepository,
+            $logger
         );
 
         $result = $service->getLastAvisLibelle(1);

@@ -593,7 +593,8 @@ class SearchController extends AbstractController
      */
     private function getArrayQueryParam(Request $request, string $key): ?array
     {
-        $value = $request->query->get($key);
+        $queryParams = $request->query->all();
+        $value = $queryParams[$key] ?? null;
         if (!is_array($value) || [] === $value) {
             return null;
         }

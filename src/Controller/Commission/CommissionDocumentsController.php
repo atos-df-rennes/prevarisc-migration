@@ -11,7 +11,6 @@ use App\Service\Commission\CommissionDocumentCrService;
 use App\Service\Commission\CommissionMembreCourrierService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -130,10 +129,6 @@ class CommissionDocumentsController extends AbstractController
 
         if ($form->isSubmitted() && !$form->isValid()) {
             foreach ($form->getErrors(true) as $error) {
-                if (!$error instanceof FormError) {
-                    continue;
-                }
-
                 $this->addFlash('danger', $error->getMessage());
             }
         }
@@ -209,10 +204,6 @@ class CommissionDocumentsController extends AbstractController
 
         if ($form->isSubmitted() && !$form->isValid()) {
             foreach ($form->getErrors(true) as $error) {
-                if (!$error instanceof FormError) {
-                    continue;
-                }
-
                 $this->addFlash('danger', $error->getMessage());
             }
         }

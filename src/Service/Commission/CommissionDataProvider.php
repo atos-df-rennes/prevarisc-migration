@@ -301,6 +301,7 @@ class CommissionDataProvider
         }
 
         $placeholders = implode(',', array_fill(0, count($dossierIds), '?'));
+        $params = array_values($dossierIds);
         $rows = $this->conn->fetchAllAssociative(
             'SELECT ad.*, d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
                     a.LIBELLE_AVIS, dl.TYPE_DOSSIER, dl.OBJET_DOSSIER
@@ -309,7 +310,7 @@ class CommissionDataProvider
              JOIN avis a ON ad.AVIS = a.ID_AVIS
              LEFT JOIN dossier dl ON ad.ID_DOSSIER_LIE = dl.ID_DOSSIER
              WHERE d.ID_DOSSIER IN ('.$placeholders.')',
-            $dossierIds
+            $params
         );
 
         $grouped = [];
@@ -338,6 +339,8 @@ class CommissionDataProvider
 
         $placeholders = implode(',', array_fill(0, count($idsEtablissements), '?'));
 
+        $params = array_values($idsEtablissements);
+
         return $this->conn->fetchAllAssociative(
             'SELECT d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
                     ad.*, a.LIBELLE_AVIS, d2.TYPE_DOSSIER
@@ -349,7 +352,7 @@ class CommissionDataProvider
              LEFT JOIN dossier d2 ON d2.ID_DOSSIER = ad.ID_DOSSIER_LIE
              WHERE e.ID_ETABLISSEMENT IN ('.$placeholders.')
                AND ad.DISPLAY_HISTORIQUE = 1',
-            $idsEtablissements
+            $params
         );
     }
 
@@ -367,9 +370,10 @@ class CommissionDataProvider
         }
 
         $placeholders = implode(',', array_fill(0, count($dossierIds), '?'));
+        $params = array_values($dossierIds);
         $rows = $this->conn->fetchAllAssociative(
             'SELECT * FROM dossierdocurba WHERE ID_DOSSIER IN ('.$placeholders.')',
-            $dossierIds
+            $params
         );
 
         $grouped = [];
@@ -414,9 +418,10 @@ class CommissionDataProvider
         }
 
         $placeholders = implode(',', array_fill(0, count($membreIds), '?'));
+        $params = array_values($membreIds);
         $rows = $this->conn->fetchAllAssociative(
             'SELECT * FROM '.$table.' WHERE ID_COMMISSIONMEMBRE IN ('.$placeholders.')',
-            $membreIds
+            $params
         );
 
         $grouped = [];

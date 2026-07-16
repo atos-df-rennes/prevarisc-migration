@@ -13,18 +13,22 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Ldap\Entry;
 use Symfony\Component\Ldap\Ldap;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\InteractiveAuthenticatorInterface;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\CustomCredentials;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
+use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
 /**
@@ -35,10 +39,8 @@ use Symfony\Component\Security\Http\Util\TargetPathTrait;
  *   2. NTLM ($_SERVER['REMOTE_USER']) — si PREVARISC_NTLM_ENABLED=1
  *   3. LDAP (Symfony\Component\Ldap) — si PREVARISC_LDAP_ENABLED=1 (fallback du dbtable)
  *   4. dbtable MD5 → bcrypt via migrate_from — cas par défaut
- *
- * @todo SF 5.1+: migrer vers AbstractAuthenticator (Guard supprimé en SF 6.0).
  */
-class FormLoginAuthenticator extends AbstractGuardAuthenticator
+class FormLoginAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface, InteractiveAuthenticatorInterface
 {
     use TargetPathTrait;
 
@@ -46,7 +48,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
     private LoggerInterface $logger;
 
-    private UserPasswordEncoderInterface $passwordEncoder;
+    private UserPasswordHasherInterface $passwordEncoder;
 
     private RouterInterface $router;
 
@@ -121,7 +123,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
     public function __construct(
         LoggerInterface $logger,
-        UserPasswordEncoderInterface $passwordEncoder,
+        UserPasswordHasherInterface $passwordEncoder,
         RouterInterface $router,
         EntityManagerInterface $entityManager,
         TokenStorageInterface $tokenStorage,
@@ -184,11 +186,11 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
      *   - POST sur /session/login → true
      *   - Sinon → false
      */
-    public function supports(Request $request): bool
+    public function supports(Request $request): ?bool
     {
         if ($this->casEnabled) {
             // Ne pas relancer le pipeline d'auth si un token Symfony existe déjà en session.
-            // Note : avec `anonymous: lazy`, le tokenStorage n'est pas encore peuplé lors de
+            // Note : avec un firewall lazy, le tokenStorage n'est pas encore peuplé lors de
             // supports() — le token est chargé paresseusement et getToken() retourne null même
             // si le token existe en session. On vérifie donc la session directement en complément.
             $token = $this->tokenStorage->getToken();
@@ -212,12 +214,23 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
             && '/session/login' === $request->getPathInfo();
     }
 
+    public function authenticate(Request $request): Passport
+    {
+        $credentials = $this->getCredentials($request);
+
+        return new Passport(
+            new UserBadge(
+                $credentials['username'],
+                fn (string $identifier): UserInterface => $this->loadUserByIdentifier($identifier)
+            ),
+            new CustomCredentials([$this, 'checkCredentials'], $credentials)
+        );
+    }
+
     /**
-     * Extrait les identifiants de la requête selon le mécanisme d'auth actif.
-     *
-     * @return array<string, mixed>
+     * @return array{username: string, password: string|null, sso_type: string|null}
      */
-    public function getCredentials(Request $request)
+    private function getCredentials(Request $request): array
     {
         // --- CAS ---
         if ($this->casEnabled) {
@@ -273,24 +286,17 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     }
 
     /**
-     * Charge l'utilisateur depuis le UserProvider et vérifie qu'il est actif.
-     *
-     * @param array{username: string, password: string|null, sso_type: string|null} $credentials
+     * Charge l'utilisateur et vérifie qu'il est actif.
      */
-    public function getUser($credentials, UserProviderInterface $userProvider): ?UserInterface
+    private function loadUserByIdentifier(string $username): UserInterface
     {
-        $username = $credentials['username'];
-
-        try {
-            $user = $userProvider->loadUserByUsername($username);
-        } catch (UsernameNotFoundException $usernameNotFoundException) {
-            $this->logger->error("Auth: utilisateur inexistant en base de données Prevarisc. Veuillez l'ajouter.");
-            throw new AuthenticationException('Authentification invalide.', $usernameNotFoundException->getCode(), $usernameNotFoundException);
-        }
+        $user = $this->entityManager
+            ->getRepository(Utilisateur::class)
+            ->findOneBy(['username' => $username]);
 
         if (!$user instanceof Utilisateur) {
-            $this->logger->error('Auth: type utilisateur inattendu', ['class' => get_class($user)]);
-            throw new AuthenticationException('Authentification invalide.');
+            $this->logger->error("Auth: utilisateur inexistant en base de données Prevarisc. Veuillez l'ajouter.");
+            throw new UserNotFoundException();
         }
 
         if (!$user->getActif()) {
@@ -434,11 +440,11 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
      * Met à jour l'IP et les compteurs en base, propage vers la session Zend,
      * puis redirige vers la page demandée ou l'accueil.
      *
-     * @param Request        $request     La requête HTTP
-     * @param TokenInterface $token       Le token de sécurité Symfony
-     * @param string         $providerKey La clé du firewall
+     * @param Request        $request      La requête HTTP
+     * @param TokenInterface $token        Le token de sécurité Symfony
+     * @param string         $firewallName La clé du firewall
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey): ?Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         /** @var Utilisateur $utilisateur */
         $utilisateur = $token->getUser();
@@ -453,7 +459,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
 
         // Redirection post-login : priorité au target path Symfony (mécanisme natif),
         // sinon fallback sur le paramètre query ?redirect= (mitigation open redirect).
-        $targetPath = $this->getTargetPath($request->getSession(), $providerKey);
+        $targetPath = $this->getTargetPath($request->getSession(), $firewallName);
         if (null !== $targetPath) {
             return new RedirectResponse($targetPath);
         }
@@ -499,7 +505,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         $session = $request->getSession();
         $session->getFlashBag()->add('danger', "Erreur d'authentification : identifiants incorrects.");
 
-        return new RedirectResponse('/session/login');
+        return new RedirectResponse($this->router->generate('session_login'));
     }
 
     /**
@@ -521,12 +527,12 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
             $this->saveTargetPath($request->getSession(), 'main', $request->getRequestUri());
         }
 
-        return new RedirectResponse('/session/login');
+        return new RedirectResponse($this->router->generate('session_login'));
     }
 
-    public function supportsRememberMe(): bool
+    public function isInteractive(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -542,7 +548,7 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
     {
         if (!self::$casInitialized) {
             $version = !empty($this->casVersion) ? $this->casVersion : CAS_VERSION_2_0;
-            \phpCAS::client($version, $this->casHost, $this->casPort, $this->casContext);
+            \phpCAS::client($version, $this->casHost, $this->casPort, $this->casContext, $this->getServiceBaseUrl());
             self::$casInitialized = true;
         }
 
@@ -574,5 +580,19 @@ class FormLoginAuthenticator extends AbstractGuardAuthenticator
         if ($this->casNoServerValidation) {
             \phpCAS::setNoCasServerValidation();
         }
+    }
+
+    private function getServiceBaseUrl(): string
+    {
+        $https = $_SERVER['HTTPS'] ?? null;
+        $requestScheme = $_SERVER['REQUEST_SCHEME'] ?? null;
+        $isHttps = ('on' === $https
+            || '1' === $https
+            || (is_string($requestScheme) && 'https' === strtolower($requestScheme)));
+        $scheme = $isHttps ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+        $host = is_string($host) ? $host : 'localhost';
+
+        return sprintf('%s://%s', $scheme, $host);
     }
 }

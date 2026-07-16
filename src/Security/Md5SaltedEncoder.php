@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\LegacyPasswordHasherInterface;
 
 /**
  * Encodeur MD5 legacy compatible avec le format de hachage Prévarisc.
@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
  * Utilisé via migrate_from dans security.php pour migrer automatiquement
  * les anciens hashs MD5 vers bcrypt lors de la prochaine connexion réussie.
  */
-class Md5SaltedEncoder implements PasswordEncoderInterface
+class Md5SaltedEncoder implements LegacyPasswordHasherInterface
 {
     private string $globalSalt;
 
@@ -40,6 +40,11 @@ class Md5SaltedEncoder implements PasswordEncoderInterface
         return md5($salt.$this->globalSalt.$raw);
     }
 
+    public function hash(string $plainPassword, ?string $salt = null): string
+    {
+        return $this->encodePassword($plainPassword, $salt);
+    }
+
     /**
      * Vérifie si le mot de passe en clair correspond au hash stocké.
      *
@@ -50,6 +55,11 @@ class Md5SaltedEncoder implements PasswordEncoderInterface
     public function isPasswordValid($encoded, $raw, $salt): bool
     {
         return hash_equals($encoded, $this->encodePassword($raw, $salt));
+    }
+
+    public function verify(string $hashedPassword, string $plainPassword, ?string $salt = null): bool
+    {
+        return $this->isPasswordValid($hashedPassword, $plainPassword, $salt);
     }
 
     /**

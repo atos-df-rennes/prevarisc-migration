@@ -69,7 +69,7 @@ class PlatauHealthcheckServiceTest extends TestCase
 
         $this->assertNotFalse($json);
 
-        $data = json_decode((string) $json, true);
+        $data = json_decode($json, true);
 
         $this->assertArrayHasKey('success', $data);
         $this->assertArrayHasKey('errorSource', $data);

@@ -75,9 +75,9 @@ class EtablissementController extends AbstractController
      */
     public function search(Request $request): JsonResponse
     {
-        $query = $request->query->get('q', '');
+        $query = (string) $request->query->get('q', '');
 
-        if (!is_string($query) || strlen($query) < 2) {
+        if (strlen($query) < 2) {
             return new JsonResponse([]);
         }
 

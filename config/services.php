@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Ldap\Ldap;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->import(__DIR__.'/prevarisc.php');
@@ -30,8 +30,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
         ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
         ->bind('$debugEnabled', '%app.debug%')
-        ->bind(FlashBagInterface::class, ref('session.flash_bag'))
-        ->bind('$searchCache', ref('cache.search'))
+        ->bind(FlashBagInterface::class, service('session.flash_bag'))
+        ->bind('$searchCache', service('cache.search'))
     ;
 
     $services->load('App\\', __DIR__.'/../src/')
@@ -94,8 +94,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$casNoSsl', '%app.cas_no_ssl%');
 
     $services->set('App\Security\FormLoginAuthenticator')
-        ->arg('$tokenStorage', ref('security.token_storage'))
-        ->arg('$csrfTokenManager', ref('security.csrf.token_manager'))
+        ->arg('$tokenStorage', service('security.token_storage'))
+        ->arg('$csrfTokenManager', service('security.csrf.token_manager'))
         ->arg('$casEnabled', '%app.cas_enabled%')
         ->arg('$casHost', '%app.cas_host%')
         ->arg('$casPort', '%app.cas_port%')
@@ -115,13 +115,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ldapFilter', '%app.ldap_filter%')
         ->arg('$ldapAccountForm', '%app.ldap_account_form%')
         ->arg('$enforceSecurity', '%app.enforce_security%')
-        ->arg('$ldap', ref('app.ldap'));
+        ->arg('$ldap', service('app.ldap'));
 
     $services->set('App\Service\DataStore\DataStoreFactory')
         ->arg('$adapter', '%app.datastore_adapter%');
 
     $services->set('App\Service\CouchesCarto')
-        ->arg('$cache', ref('cache.ign_capabilities'));
+        ->arg('$cache', service('cache.ign_capabilities'));
 
     $services->set('App\Service\EtablissementSearchService');
 
@@ -136,7 +136,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Service\Dossier\DossierSauvegardeService');
 
     $services->set('App\Service\EtablissementPieceJointeService')
-        ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
+        ->arg('$datastoreLogger', service('monolog.logger.datastore'));
 
     $services->set('logger.null', NullLogger::class);
 

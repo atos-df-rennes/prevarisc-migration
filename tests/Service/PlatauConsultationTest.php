@@ -17,7 +17,7 @@ class PlatauConsultationTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $container = self::$container;
+        $container = self::getContainer();
         $this->service = $container->get(PlatauConsultation::class);
     }
 

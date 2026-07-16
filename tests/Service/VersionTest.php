@@ -14,7 +14,7 @@ final class VersionTest extends KernelTestCase
     {
         self::bootKernel();
 
-        $container = self::$container;
+        $container = self::getContainer();
         $versionBuilder = $container->get(VersionBuilder::class);
 
         putenv('PREVARISC_BRANCH='.$branch);

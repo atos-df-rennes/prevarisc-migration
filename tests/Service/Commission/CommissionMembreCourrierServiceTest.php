@@ -99,7 +99,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $this->service->upload($membre, CommissionMembreCourrierType::CONVOCATIONVISITE, $uploadedFile);
 
         self::assertSame('nouveau.odt', $membre->getCourrierConvocationVisite());
-        self::assertFileNotExists($ancienFichier);
+        self::assertFileDoesNotExist($ancienFichier);
         self::assertFileExists($this->tmpDir.'42CONVOCATIONVISITE_nouveau.odt');
     }
 
@@ -116,7 +116,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $this->service->delete($membre, CommissionMembreCourrierType::ODJ);
 
         self::assertNull($membre->getCourrierOrdreDuJour());
-        self::assertFileNotExists($fichier);
+        self::assertFileDoesNotExist($fichier);
     }
 
     public function testDeleteSansCourrierNeFaitRien(): void

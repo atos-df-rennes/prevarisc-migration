@@ -21,7 +21,7 @@ final class DateAffectationTest extends KernelTestCase
         self::ensureKernelShutdown();
         self::bootKernel();
 
-        $container = self::$container;
+        $container = self::getContainer();
 
         $this->dateAffectation = $container->get(DateAffectation::class);
     }
