@@ -10,12 +10,6 @@ class LastAvis
 
     private ?int $date = null;
 
-    public function __construct()
-    {
-        $this->avis = null;
-        $this->date = null; // Set to int when needed
-    }
-
     public function setAvis(?Avis $avis): self
     {
         $this->avis = $avis;

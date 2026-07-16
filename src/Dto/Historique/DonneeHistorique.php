@@ -4,8 +4,7 @@ namespace App\Dto\Historique;
 
 class DonneeHistorique
 {
-    /** @var int|null */
-    private $date;
+    private ?int $date;
 
     private ?string $valeur;
 
@@ -13,24 +12,17 @@ class DonneeHistorique
 
     private ?int $fin = null;
 
-    /**
-     * @param int|null $date
-     */
     public function __construct(
-        $date,
+        ?int $date,
         ?string $valeur,
         ?Auteur $auteur
     ) {
         $this->date = $date;
         $this->valeur = $valeur;
         $this->auteur = $auteur;
-        $this->fin = null; // Set to int via setFin() when the value period ends
     }
 
-    /**
-     * @return int|null
-     */
-    public function getDate()
+    public function getDate(): ?int
     {
         return $this->date;
     }
