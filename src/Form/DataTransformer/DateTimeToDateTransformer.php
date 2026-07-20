@@ -8,7 +8,8 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 class DateTimeToDateTransformer implements DataTransformerInterface
 {
     /**
-     * Transform DateTime to Date (string in Y-m-d format).
+     * Transform DateTime to Date string (Y-m-d format).
+     * This is used when displaying the form.
      *
      * @param ?\DateTimeInterface $value
      */
@@ -18,11 +19,16 @@ class DateTimeToDateTransformer implements DataTransformerInterface
             return null;
         }
 
+        if (!$value instanceof \DateTimeInterface) {
+            throw new TransformationFailedException(sprintf('Expected a DateTimeInterface, but got %s', get_debug_type($value)));
+        }
+
         return $value->format('Y-m-d');
     }
 
     /**
-     * Transform Date (string) back to DateTime at midnight.
+     * Transform Date string back to DateTime at midnight.
+     * This is used when the form is submitted.
      *
      * @param ?string $value
      */

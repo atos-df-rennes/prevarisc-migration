@@ -4,8 +4,9 @@ namespace App\Form\Type;
 
 use App\Form\DataTransformer\DateTimeToDateTransformer;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DateTimeAsDateType extends AbstractType
 {
@@ -16,6 +17,14 @@ class DateTimeAsDateType extends AbstractType
 
     public function getParent(): string
     {
-        return DateType::class;
+        return DateTimeType::class;
+    }
+
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'widget' => 'single_text',
+            'format' => 'Y-m-d',
+        ]);
     }
 }
