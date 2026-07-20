@@ -73,7 +73,7 @@ class DossierType extends AbstractType
                     'data-action' => 'change',
                 ],
             ])
-            ->add('dateInsert', DateType::class, [
+            ->add('dateInsert', DateTimeType::class, [
                 'label' => 'Date de création du dossier',
                 'widget' => 'single_text',
                 'required' => false,
@@ -127,7 +127,7 @@ class DossierType extends AbstractType
                     'rows' => 3,
                 ],
             ])
-            ->add('dateSecretariat', DateType::class, [
+            ->add('dateSecretariat', DateTimeType::class, [
                 'label' => 'Date de réception secrétariat commission',
                 'widget' => 'single_text',
                 'required' => false,
@@ -189,7 +189,7 @@ class DossierType extends AbstractType
                 'placeholder' => 'Aucune commission',
                 'required' => false,
             ])
-            ->add('dateReception', DateType::class, [
+            ->add('dateReception', DateTimeType::class, [
                 'label' => 'Date de réception SDIS',
                 'widget' => 'single_text',
                 'required' => false,
@@ -285,12 +285,12 @@ class DossierType extends AbstractType
                 'label' => 'Lieu de réunion',
                 'required' => false,
             ])
-            ->add('dateReunion', DateType::class, [
+            ->add('dateReunion', DateTimeType::class, [
                 'label' => 'Date de réunion',
                 'widget' => 'single_text',
                 'required' => false,
             ])
-            ->add('dateReponse', DateType::class, [
+            ->add('dateReponse', DateTimeType::class, [
                 'label' => 'Date de réponse',
                 'widget' => 'single_text',
                 'required' => false,
@@ -352,7 +352,7 @@ class DossierType extends AbstractType
                 ],
             ])
             // Champs spécifiques courriers (natures 49, 51, 52, 53, 54, 55)
-            ->add('dateMairie', DateType::class, [
+            ->add('dateMairie', DateTimeType::class, [
                 'label' => 'Date de réception mairie',
                 'widget' => 'single_text',
                 'required' => false,
@@ -362,17 +362,17 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
             ])
-            ->add('dateTransfertCommission', DateType::class, [
+            ->add('dateTransfertCommission', DateTimeType::class, [
                 'label' => 'Date de transfert à la commission compétente',
                 'widget' => 'single_text',
                 'required' => false,
             ])
-            ->add('dateReceptionCommission', DateType::class, [
+            ->add('dateReceptionCommission', DateTimeType::class, [
                 'label' => 'Date de réception à la commission compétente',
                 'widget' => 'single_text',
                 'required' => false,
             ])
-            ->add('datePrefecture', DateType::class, [
+            ->add('datePrefecture', DateTimeType::class, [
                 'label' => 'Date réception préfecture',
                 'widget' => 'single_text',
                 'required' => false,
