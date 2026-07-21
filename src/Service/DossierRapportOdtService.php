@@ -24,6 +24,9 @@ use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Odtphp\Exceptions\OdfException;
+use Odtphp\Odf;
+use Odtphp\Segment;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -200,7 +203,7 @@ class DossierRapportOdtService
 
         try {
             // --- Init Odf ---
-            $odf = new \Odf($fichierSelect);
+            $odf = new Odf($fichierSelect);
 
             // --- Champs scalaires du dossier (commission, objet, servInstructeur, avis…) ---
             $this->fillChampsDossier($odf, $rawDossier, $idDossier, $typeDossierLabel, $natureDossierLabel, $numInsee);
@@ -237,7 +240,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segPreventionnistes);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException $odfException) {
             }
 
             try {
@@ -248,7 +251,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segPrevTel);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException $odfException) {
             }
 
             $this->addChamp($odf, 'listeMailPreventioniste', implode(', ', $listeMails));
@@ -318,7 +321,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segListeDocs);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException $odfException) {
             }
 
             // =====================================================================
@@ -348,7 +351,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segDocsAjout);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException $odfException) {
             }
 
             // --- Segments prescriptions (standard + CC) ---
@@ -372,7 +375,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segTexte);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException $odfException) {
             }
 
             // --- Champs établissement (infos générales, adresse, effectifs, avis) ---
@@ -435,7 +438,7 @@ class DossierRapportOdtService
      * @param array<string, string|null> $rawDossier
      */
     private function fillChampsDossier(
-        \Odf $odf,
+        Odf $odf,
         array $rawDossier,
         int $idDossier,
         string $typeDossierLabel,
@@ -582,7 +585,7 @@ class DossierRapportOdtService
      *
      * @param array<string, string|null> $rawDossier
      */
-    private function fillChampsDatesDossier(\Odf $odf, array $rawDossier): void
+    private function fillChampsDatesDossier(Odf $odf, array $rawDossier): void
     {
         // --- dateRvrat ---
         $dateRvrat = 'Indisponible';
@@ -652,7 +655,7 @@ class DossierRapportOdtService
      * @param array<string, string|null> $rawDossier
      */
     private function fillChampsEtablissement(
-        \Odf $odf,
+        Odf $odf,
         array $rawEtab,
         array $rawEtabInfos,
         array $adresseRow,
@@ -895,7 +898,7 @@ class DossierRapportOdtService
      *
      * @param array<string, string|null> $rawEtab
      */
-    private function fillChampsDescTech(\Odf $odf, array $rawEtab): void
+    private function fillChampsDescTech(Odf $odf, array $rawEtab): void
     {
         // =====================================================================
         // Champs DESCTECH — colonnes directes de la table etablissement
@@ -970,7 +973,7 @@ class DossierRapportOdtService
     /**
      * Remplit les champs relatifs au maire de la commune de l'établissement.
      */
-    private function fillChampsMaire(\Odf $odf, ?string $numInsee): void
+    private function fillChampsMaire(Odf $odf, ?string $numInsee): void
     {
         $nomMaire = '';
         $prenomMaire = '';
@@ -1020,7 +1023,7 @@ class DossierRapportOdtService
     /**
      * Remplit les 11 champs contacts du dossier (DUS, Exploitant, RespSecu, etc.).
      */
-    private function fillChampsContacts(\Odf $odf, int $idDossier, int $idEtab): void
+    private function fillChampsContacts(Odf $odf, int $idDossier, int $idEtab): void
     {
         // =====================================================================
         // CONTACTS (11 contacts)
@@ -1062,7 +1065,7 @@ class DossierRapportOdtService
     /**
      * Remplit les champs de l'établissement père (groupement).
      */
-    private function fillChampsEtablissementPere(\Odf $odf, int $idEtab): void
+    private function fillChampsEtablissementPere(Odf $odf, int $idEtab): void
     {
         // =====================================================================
         // Établissement père
@@ -1116,7 +1119,7 @@ class DossierRapportOdtService
      * @param array<string, string|null> $rawDossier
      */
     private function fillSegmentsPrescriptions(
-        \Odf $odf,
+        Odf $odf,
         Dossier $dossier,
         int $dossierNature,
         bool $repriseCC,
@@ -1160,7 +1163,7 @@ class DossierRapportOdtService
                 try {
                     $segCellules = $odf->setSegment('cellulesPresc');
                     $odf->mergeSegment($segCellules);
-                } catch (\OdfException $odfException) {
+                } catch (OdfException $odfException) {
                 }
             }
         }
@@ -1176,7 +1179,7 @@ class DossierRapportOdtService
      * @return string lien HTML vers la pièce jointe
      */
     private function persistPieceJointe(
-        \Odf $odf,
+        Odf $odf,
         Dossier $dossier,
         string $fichierSelect,
         array $rawDossier,
@@ -1235,7 +1238,7 @@ class DossierRapportOdtService
     // =========================================================================
 
     /**
-     * @param \Odf|\Segment $odf
+     * @param Odf|Segment $odf
      */
     private function addChamp($odf, string $nomOdf, ?string $variable): void
     {
@@ -1253,7 +1256,7 @@ class DossierRapportOdtService
      * @param int                                          $type        TypePrescription::*
      * @param string                                       $typeContenu 'all' | 'reprises' | 'actuelles'
      */
-    private function addPrescription(\Odf $odf, array $prescArray, int $type, string $typeContenu): void
+    private function addPrescription(Odf $odf, array $prescArray, int $type, string $typeContenu): void
     {
         $segName = PrescriptionArrayHelper::getPrescriptionSegmentName($type, $typeContenu);
         if ('' === $segName) {
@@ -1282,7 +1285,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($segment);
-        } catch (\OdfException $odfException) {
+        } catch (OdfException $odfException) {
         }
     }
 
@@ -1292,7 +1295,7 @@ class DossierRapportOdtService
      * Port direct legacy addPrescriptionCC() de creationdoc.phtml.
      * Une ligne ODT par prescription : {num}, {libelle}, {textearticle}
      *
-     * @param \Segment                                     $segCellule  Segment parent (cellulesPresc)
+     * @param Segment                                      $segCellule  Segment parent (cellulesPresc)
      * @param array<int, array<int, array<string, mixed>>> $prescArray  Tableau issu de buildPrescriptionNestedArray()
      * @param int                                          $type        TypePrescription::*
      * @param string                                       $typeContenu 'all' | 'reprises' | 'actuelles'
@@ -1435,7 +1438,7 @@ class DossierRapportOdtService
      * Port direct legacy : setSegment + mergeSegment TOUJOURS appelés pour vider le bloc
      * si aucune cellule trouvée (sinon les markers [!-- BEGIN/END --] restent verbatim).
      */
-    private function applyCelluleDossier(\Odf $odf, Dossier $dossier): void
+    private function applyCelluleDossier(Odf $odf, Dossier $dossier): void
     {
         try {
             $segCellules = $odf->setSegment('cellulesPresc');
@@ -1477,7 +1480,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($segCellules);
-        } catch (\OdfException $odfException) {
+        } catch (OdfException $odfException) {
         }
     }
 
@@ -1486,7 +1489,7 @@ class DossierRapportOdtService
      *
      * @param array<string, string|null> $rawDossier
      */
-    private function applyCelluleDossierLevee(\Odf $odf, int $idEtab, int $dossierNature, array $rawDossier): void
+    private function applyCelluleDossierLevee(Odf $odf, int $idEtab, int $dossierNature, array $rawDossier): void
     {
         /** @var array<int, array<string, string|null>> $enfants */
         $enfants = $this->conn->fetchAllAssociative(
@@ -1573,7 +1576,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($segCellules);
-        } catch (\OdfException $odfException) {
+        } catch (OdfException $odfException) {
         }
     }
 
@@ -1582,7 +1585,7 @@ class DossierRapportOdtService
      *
      * @param bool $isEtablissement Si true, récupère par établissement (DISPLAY_HISTORIQUE=1)
      */
-    private function applyAvisDerogations(\Odf $odf, int $idDossier, string $segmentName, bool $isEtablissement, int $idEtab): void
+    private function applyAvisDerogations(Odf $odf, int $idDossier, string $segmentName, bool $isEtablissement, int $idEtab): void
     {
         try {
             $seg = $odf->setSegment($segmentName);
@@ -1645,11 +1648,11 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($seg);
-        } catch (\OdfException $odfException) {
+        } catch (OdfException $odfException) {
         }
     }
 
-    private function applyFormulaires(\Odf $odf, Dossier $dossier, Etablissement $etablissement): void
+    private function applyFormulaires(Odf $odf, Dossier $dossier, Etablissement $etablissement): void
     {
         $capsules = [
             NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES => $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES),

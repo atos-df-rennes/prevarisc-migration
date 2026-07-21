@@ -24,7 +24,7 @@
         "ext-zlib": "*",
         "apereo/phpcas": "^1.6",
         "composer/semver": "^3.4",
-        "cybermonde/odtphp": "^1.7",
+        "cybermonde/odtphp": "^2.0",
         "doctrine/annotations": "^2.0",
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.7",
@@ -91,14 +91,7 @@
     "autoload": {
         "psr-4": {
             "App\\": "src/"
-        },
-        "classmap": [
-            "vendor/cybermonde/odtphp/library/zip/PclZipProxy.php",
-            "vendor/cybermonde/odtphp/library/zip/PhpZipProxy.php",
-            "vendor/cybermonde/odtphp/library/Segment.php",
-            "vendor/cybermonde/odtphp/library/SegmentIterator.php",
-            "vendor/cybermonde/odtphp/library/Odf.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
