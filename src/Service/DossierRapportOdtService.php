@@ -199,7 +199,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segPrevTel);
-            } catch (OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             $this->addChamp($odf, 'listeMailPreventioniste', implode(', ', $listeMails));

@@ -46,71 +46,6 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
 
     public const MAX_LOGIN_ATTEMPTS = 2;
 
-    private LoggerInterface $logger;
-
-    private UserPasswordHasherInterface $passwordEncoder;
-
-    private RouterInterface $router;
-
-    private EntityManagerInterface $entityManager;
-
-    private bool $casEnabled;
-
-    private string $casHost;
-
-    private int $casPort;
-
-    private string $casPublicHost;
-
-    private int $casPublicPort;
-
-    private string $casContext;
-
-    private bool $casNoServerValidation;
-
-    private bool $casNoSsl;
-
-    private string $casVersion;
-
-    private bool $ntlmEnabled;
-
-    private bool $ldapEnabled;
-
-    private string $ldapHost;
-
-    private int $ldapPort;
-
-    private string $ldapUsername;
-
-    private string $ldapPassword;
-
-    private string $ldapBaseDn;
-
-    /**
-     * Filtre de recherche LDAP pour retrouver le DN d'un utilisateur.
-     * Format sprintf avec %s pour le nom d'utilisateur.
-     * Exemples : '(uid=%s)' pour OpenLDAP, '(sAMAccountName=%s)' pour Active Directory.
-     */
-    private string $ldapFilter;
-
-    /**
-     * Format du compte LDAP pour le bind direct (fallback sans service-account).
-     * Format sprintf avec %s pour le nom d'utilisateur.
-     * Exemples : '%s@domain.tld' (UPN), 'DOMAIN\%s' (pre-Win2000), '' (pas de transformation).
-     */
-    private string $ldapAccountForm;
-
-    private bool $enforceSecurity;
-
-    private TokenStorageInterface $tokenStorage;
-
-    private CsrfTokenManagerInterface $csrfTokenManager;
-
-    /**
-     * Instance LDAP partagée (connexion lazy, créée une seule fois par requête).
-     */
-    private ?Ldap $ldap;
-
     /**
      * Dernier utilisateur tentant une authentification (pour onAuthenticationFailure).
      */
@@ -122,59 +57,46 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
     private static bool $casInitialized = false;
 
     public function __construct(
-        LoggerInterface $logger,
-        UserPasswordHasherInterface $passwordEncoder,
-        RouterInterface $router,
-        EntityManagerInterface $entityManager,
-        TokenStorageInterface $tokenStorage,
-        CsrfTokenManagerInterface $csrfTokenManager,
-        bool $casEnabled,
-        string $casHost,
-        int $casPort,
-        string $casPublicHost,
-        int $casPublicPort,
-        string $casContext,
-        bool $casNoServerValidation,
-        bool $casNoSsl,
-        string $casVersion,
-        bool $ntlmEnabled,
-        bool $ldapEnabled,
-        string $ldapHost,
-        int $ldapPort,
-        string $ldapUsername,
-        string $ldapPassword,
-        string $ldapBaseDn,
-        string $ldapFilter,
-        string $ldapAccountForm,
-        bool $enforceSecurity,
-        ?Ldap $ldap = null
+        private LoggerInterface $logger,
+        private UserPasswordHasherInterface $passwordEncoder,
+        private RouterInterface $router,
+        private EntityManagerInterface $entityManager,
+        private TokenStorageInterface $tokenStorage,
+        private CsrfTokenManagerInterface $csrfTokenManager,
+        private bool $casEnabled,
+        private string $casHost,
+        private int $casPort,
+        private string $casPublicHost,
+        private int $casPublicPort,
+        private string $casContext,
+        private bool $casNoServerValidation,
+        private bool $casNoSsl,
+        private string $casVersion,
+        private bool $ntlmEnabled,
+        private bool $ldapEnabled,
+        private string $ldapHost,
+        private int $ldapPort,
+        private string $ldapUsername,
+        private string $ldapPassword,
+        private string $ldapBaseDn,
+        /**
+         * Filtre de recherche LDAP pour retrouver le DN d'un utilisateur.
+         * Format sprintf avec %s pour le nom d'utilisateur.
+         * Exemples : '(uid=%s)' pour OpenLDAP, '(sAMAccountName=%s)' pour Active Directory.
+         */
+        private string $ldapFilter,
+        /**
+         * Format du compte LDAP pour le bind direct (fallback sans service-account).
+         * Format sprintf avec %s pour le nom d'utilisateur.
+         * Exemples : '%s@domain.tld' (UPN), 'DOMAIN\%s' (pre-Win2000), '' (pas de transformation).
+         */
+        private string $ldapAccountForm,
+        private bool $enforceSecurity,
+        /**
+         * Instance LDAP partagée (connexion lazy, créée une seule fois par requête).
+         */
+        private ?Ldap $ldap = null
     ) {
-        $this->logger = $logger;
-        $this->passwordEncoder = $passwordEncoder;
-        $this->router = $router;
-        $this->entityManager = $entityManager;
-        $this->tokenStorage = $tokenStorage;
-        $this->csrfTokenManager = $csrfTokenManager;
-        $this->casEnabled = $casEnabled;
-        $this->casHost = $casHost;
-        $this->casPort = $casPort;
-        $this->casPublicHost = $casPublicHost;
-        $this->casPublicPort = $casPublicPort;
-        $this->casContext = $casContext;
-        $this->casNoServerValidation = $casNoServerValidation;
-        $this->casNoSsl = $casNoSsl;
-        $this->casVersion = $casVersion;
-        $this->ntlmEnabled = $ntlmEnabled;
-        $this->ldapEnabled = $ldapEnabled;
-        $this->ldapHost = $ldapHost;
-        $this->ldapPort = $ldapPort;
-        $this->ldapUsername = $ldapUsername;
-        $this->ldapPassword = $ldapPassword;
-        $this->ldapBaseDn = $ldapBaseDn;
-        $this->ldapFilter = $ldapFilter;
-        $this->ldapAccountForm = $ldapAccountForm;
-        $this->enforceSecurity = $enforceSecurity;
-        $this->ldap = $ldap;
     }
 
     /**
@@ -408,7 +330,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
                 // (ex: '%s@domain.tld', 'DOMAIN\%s'). Les valeurs legacy sans %s (ex: '1')
                 // sont ignorées — elles servaient de sentinel dans Zend_Ldap et n'ont pas
                 // d'équivalent dans le composant Symfony.
-                $bindUsername = (false !== strpos($this->ldapAccountForm, '%s'))
+                $bindUsername = (str_contains($this->ldapAccountForm, '%s'))
                     ? sprintf($this->ldapAccountForm, $credentials['username'])
                     : $credentials['username'];
                 $ldap->bind($bindUsername, (string) $credentials['password']);

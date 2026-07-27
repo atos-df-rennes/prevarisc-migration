@@ -11,27 +11,11 @@ namespace App\Dto\Descriptif;
 class TableauRowData
 {
     /**
-     * Valeurs des cellules indexées par champId enfant.
-     *
-     * @var array<int, mixed>
+     * @param array<int, mixed>    $cells     Valeurs des cellules indexées par champId enfant
+     * @param array<int, int|null> $valeurIds IDs des Valeur existantes indexés par champId enfant (null = nouvelle valeur)
      */
-    private array $cells;
-
-    /**
-     * IDs des Valeur existantes indexés par champId enfant (null = nouvelle valeur).
-     *
-     * @var array<int, int|null>
-     */
-    private array $valeurIds;
-
-    /**
-     * @param array<int, mixed>    $cells
-     * @param array<int, int|null> $valeurIds
-     */
-    public function __construct(array $cells = [], array $valeurIds = [])
+    public function __construct(private array $cells = [], private array $valeurIds = [])
     {
-        $this->cells = $cells;
-        $this->valeurIds = $valeurIds;
     }
 
     /**
