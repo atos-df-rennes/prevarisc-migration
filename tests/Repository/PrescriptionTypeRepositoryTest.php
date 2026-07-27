@@ -3,10 +3,11 @@
 namespace App\Tests\Repository;
 
 use App\Repository\PrescriptionTypeRepository;
-use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-#[Group('functional')]
+/**
+ * @group functional
+ */
 class PrescriptionTypeRepositoryTest extends KernelTestCase
 {
     /** @var PrescriptionTypeRepository */
