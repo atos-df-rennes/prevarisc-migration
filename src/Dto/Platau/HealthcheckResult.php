@@ -13,30 +13,13 @@ use App\Constant\Platau\HealthcheckErrorSource;
  */
 final class HealthcheckResult implements \JsonSerializable
 {
-    private bool $success;
-
-    /** @var int|null HealthcheckErrorSource::PREVARISC ou PLATAU */
-    private ?int $errorSource;
-
-    /** @var string|null Message HTML prêt à l'emploi pour le toast (échappé XSS) */
-    private ?string $message;
-
-    private ?VersionInfo $versionInfo;
-
-    private ?MaintenanceInfo $maintenanceInfo;
-
     private function __construct(
-        bool $success,
-        ?int $errorSource,
-        ?string $message,
-        ?VersionInfo $versionInfo,
-        ?MaintenanceInfo $maintenanceInfo
+        private bool $success,
+        private ?int $errorSource,
+        private ?string $message,
+        private ?VersionInfo $versionInfo,
+        private ?MaintenanceInfo $maintenanceInfo
     ) {
-        $this->success = $success;
-        $this->errorSource = $errorSource;
-        $this->message = $message;
-        $this->versionInfo = $versionInfo;
-        $this->maintenanceInfo = $maintenanceInfo;
     }
 
     /**

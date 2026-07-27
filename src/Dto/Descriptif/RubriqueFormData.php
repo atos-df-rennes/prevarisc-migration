@@ -16,24 +16,12 @@ namespace App\Dto\Descriptif;
 class RubriqueFormData implements \ArrayAccess
 {
     /**
-     * Préférence d'affichage de la rubrique (true = visible, false = masquée).
-     */
-    private bool $display;
-
-    /**
-     * Données des champs racines indexées par champId.
-     *
-     * @var array<int, ChampValueData>
-     */
-    private array $champs;
-
-    /**
      * @param array<int, ChampValueData> $champs
      */
-    public function __construct(bool $display = true, array $champs = [])
-    {
-        $this->display = $display;
-        $this->champs = $champs;
+    public function __construct(
+        private bool $display = true,
+        private array $champs = []
+    ) {
     }
 
     public function isDisplay(): bool

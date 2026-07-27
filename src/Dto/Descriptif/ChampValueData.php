@@ -13,57 +13,18 @@ namespace App\Dto\Descriptif;
  */
 class ChampValueData
 {
-    private int $champId;
-
-    /**
-     * ID de la Valeur existante (null si nouvelle valeur).
-     */
-    private ?int $valeurId;
-
-    /**
-     * Valeur du champ selon son TypeChamp :
-     * - TEXT/SELECT → string|null
-     * - TEXTAREA    → string|null
-     * - NUMBER      → int|null
-     * - CHECKBOX    → bool|null
-     * - DATE        → \DateTimeInterface|null
-     * - PARENT      → null (voir $lignes ou $sousChamps)
-     *
-     * @var string|int|bool|\DateTimeInterface|null
-     */
-    private $value;
-
-    /**
-     * Lignes du tableau (uniquement pour PARENT avec tableau=true).
-     *
-     * @var TableauRowData[]
-     */
-    private array $lignes;
-
-    /**
-     * Sous-champs du groupe (uniquement pour PARENT avec tableau=false).
-     *
-     * @var ChampValueData[]
-     */
-    private array $sousChamps;
-
     /**
      * @param string|int|bool|\DateTimeInterface|null $value
      * @param TableauRowData[]                        $lignes
      * @param ChampValueData[]                        $sousChamps
      */
     public function __construct(
-        int $champId,
-        $value = null,
-        array $lignes = [],
-        array $sousChamps = [],
-        ?int $valeurId = null
+        private int $champId,
+        private $value = null,
+        private array $lignes = [],
+        private array $sousChamps = [],
+        private ?int $valeurId = null
     ) {
-        $this->champId = $champId;
-        $this->value = $value;
-        $this->lignes = $lignes;
-        $this->sousChamps = $sousChamps;
-        $this->valeurId = $valeurId;
     }
 
     public function getChampId(): int

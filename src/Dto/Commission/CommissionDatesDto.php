@@ -5,7 +5,6 @@ namespace App\Dto\Commission;
 use App\Entity\Commission;
 use App\Entity\CommissionTypeEvenement;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
