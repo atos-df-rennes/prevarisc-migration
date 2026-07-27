@@ -42,11 +42,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Page principale du calendrier des commissions.
-     *
-     * @Route("/commissions/calendrier", name="calendrier_des_commissions_index", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
+    #[Route(path: '/commissions/calendrier', name: 'calendrier_des_commissions_index', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
     public function index(Request $request): Response
     {
         /** @var string|null $rawIdComm */
@@ -94,11 +92,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Autocomplete de recherche de commission.
-     *
-     * @Route("/commissions/calendrier/commissionselection", name="calendrier_des_commissions_commissionselection", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
+    #[Route(path: '/commissions/calendrier/commissionselection', name: 'calendrier_des_commissions_commissionselection', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
     public function commissionSelection(Request $request): JsonResponse
     {
         /** @var string $q */
@@ -126,11 +122,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Dialogue de gestion des dates de commission (mega-switch).
-     *
-     * @Route("/commissions/calendrier/dialogcomm", name="calendrier_des_commissions_dialog_edit", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("ecriture_commission")
      */
+    #[Route(path: '/commissions/calendrier/dialogcomm', name: 'calendrier_des_commissions_dialog_edit', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('ecriture_commission')]
     public function dialogComm(Request $request): Response
     {
         /** @var string $do */
@@ -417,11 +411,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Affiche la boîte de dialogue de confirmation de suppression d'une date.
-     *
-     * @Route("/commissions/calendrier/alertsuppression", name="calendrier_des_commissions_alertsuppression", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("ecriture_commission")
      */
+    #[Route(path: '/commissions/calendrier/alertsuppression', name: 'calendrier_des_commissions_alertsuppression', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('ecriture_commission')]
     public function alertSuppression(Request $request): Response
     {
         /** @var string $commissionId */
@@ -437,11 +429,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Supprime définitivement une date de commission et ses données liées.
-     *
-     * @Route("/commissions/calendrier/validsuppression", name="calendrier_des_commissions_validsuppression", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("ecriture_commission")
      */
+    #[Route(path: '/commissions/calendrier/validsuppression', name: 'calendrier_des_commissions_validsuppression', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('ecriture_commission')]
     public function validSuppression(Request $request): Response
     {
         /** @var string $csrfToken */
@@ -498,11 +488,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Récupère les événements du calendrier des commissions.
-     *
-     * @Route("/commissions/calendrier/recupevenement", name="calendrier_des_commissions_recuperer_evenements", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
+    #[Route(path: '/commissions/calendrier/recupevenement', name: 'calendrier_des_commissions_recuperer_evenements', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
     public function getCalendarEvents(Request $request): JsonResponse
     {
         /** @var string|null $start */
@@ -545,11 +533,9 @@ class CalendrierDesCommissionsController extends AbstractController
      * exemple: /calendrier-des-commissions/<date>/recuperer-dates-liees qui donnera le paramètre DateCommission $dateCommission.
      *
      * Récupère les dates de commission liées à une date donnée.
-     *
-     * @Route("/commissions/calendrier/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
+    #[Route(path: '/commissions/calendrier/recuperer-dates-liees', name: 'calendrier_des_commissions_recuperer_dates_liees', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
     public function getLinkedDates(Request $request): JsonResponse
     {
         $idDate = filter_var($request->query->get('idDate'), FILTER_VALIDATE_INT);
@@ -578,11 +564,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Modifie l'heure de fin d'une date de commission.
-     *
-     * @Route("/commissions/calendrier/redimensionner-date", name="calendrier_des_commissions_redimensionner_date", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
+    #[Route(path: '/commissions/calendrier/redimensionner-date', name: 'calendrier_des_commissions_redimensionner_date', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
     public function resizeCommissionDate(Request $request): JsonResponse
     {
         try {
@@ -620,11 +604,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Déplace une date de commission (modifie la date et les heures).
-     *
-     * @Route("/commissions/calendrier/deplacer-date", name="calendrier_des_commissions_deplacer_date", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("ecriture_commission")
      */
+    #[Route(path: '/commissions/calendrier/deplacer-date', name: 'calendrier_des_commissions_deplacer_date', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('ecriture_commission')]
     public function moveCommissionDate(Request $request): JsonResponse
     {
         try {
@@ -681,11 +663,8 @@ class CalendrierDesCommissionsController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/commissions/calendrier/creer-date", name="calendrier_des_commissions_creer_date", methods={"GET", "POST"}, options={"expose"=true})
-     *
-     * @IsGranted("creation_commission")
-     */
+    #[Route(path: '/commissions/calendrier/creer-date', name: 'calendrier_des_commissions_creer_date', methods: ['GET', 'POST'], options: ['expose' => true])]
+    #[IsGranted('creation_commission')]
     public function creerDate(
         Request $request
     ): Response {

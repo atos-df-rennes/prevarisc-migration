@@ -5,30 +5,20 @@ namespace App\Entity;
 use App\Repository\TypeChampRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="listetypechamprubrique")
- *
- * @ORM\Entity(repositoryClass=TypeChampRepository::class)
- */
+#[ORM\Entity(repositoryClass: TypeChampRepository::class)]
+#[ORM\Table(name: 'listetypechamprubrique')]
 class TypeChamp
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_TYPECHAMP", type="integer")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_TYPECHAMP', type: 'integer')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="TYPE", type="string", length=50, nullable=false)
-     */
-    private $type;
+    #[ORM\Column(name: 'TYPE', type: 'string', length: 50, nullable: false)]
+    private ?string $type = null;
 
     public function getId(): ?int
     {

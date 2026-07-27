@@ -10,85 +10,54 @@ use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass=GroupementRepository::class)
- */
+#[ORM\Entity(repositoryClass: GroupementRepository::class)]
 class Groupement
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_GROUPEMENT", type="bigint", options={"unsigned":true})
-     *
-     * @Groups({"api_response"})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_GROUPEMENT', type: 'bigint', options: ['unsigned' => true])]
+    #[Groups(['api_response'])]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_GROUPEMENT", type="string", length=255, nullable=false)
-     *
-     * @Groups({"api_response"})
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_GROUPEMENT', type: 'string', length: 255, nullable: false)]
+    #[Groups(['api_response'])]
+    private ?string $libelle = null;
 
-    /**
-     * @var ?UtilisateurInformations
-     *
-     * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})
-     */
-    private $informations;
+    #[ORM\OneToOne(targetEntity: UtilisateurInformations::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', options: ['unsigned' => true])]
+    private ?UtilisateurInformations $informations = null;
 
-    /**
-     * @var ?GroupementType
-     *
-     * @ORM\ManyToOne(targetEntity=GroupementType::class, inversedBy="groupements")
-     *
-     * @ORM\JoinColumn(name="ID_GROUPEMENTTYPE", referencedColumnName="ID_GROUPEMENTTYPE", nullable=false)
-     *
-     * @Groups({"api_response"})
-     */
-    private $type;
+    #[ORM\ManyToOne(targetEntity: GroupementType::class, inversedBy: 'groupements')]
+    #[ORM\JoinColumn(name: 'ID_GROUPEMENTTYPE', referencedColumnName: 'ID_GROUPEMENTTYPE', nullable: false)]
+    #[Groups(['api_response'])]
+    private ?GroupementType $type = null;
 
     /**
      * @var Collection<int, Utilisateur>
-     *
-     * @ORM\ManyToMany(targetEntity=Utilisateur::class, mappedBy="groupements")
      */
-    private $utilisateurs;
+    #[ORM\ManyToMany(targetEntity: Utilisateur::class, mappedBy: 'groupements')]
+    private Collection $utilisateurs;
 
     /**
      * @var Collection<int, Commune>
-     *
-     * @ORM\JoinTable(
-     *     name="groupementcommune",
-     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", options={"fixed":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Commune::class, inversedBy="groupements")
      */
-    private $communes;
+    #[ORM\JoinTable(name: 'groupementcommune')]
+    #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'NUMINSEE_COMMUNE', referencedColumnName: 'NUMINSEE_COMMUNE', options: ['fixed' => true])]
+    #[ORM\ManyToMany(targetEntity: Commune::class, inversedBy: 'groupements')]
+    private Collection $communes;
 
     /**
      * @var Collection<int, UtilisateurInformations>
-     *
-     * @ORM\JoinTable(
-     *     name="groupementcontact",
-     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=UtilisateurInformations::class)
      */
-    private $contacts;
+    #[ORM\JoinTable(name: 'groupementcontact')]
+    #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: UtilisateurInformations::class)]
+    private Collection $contacts;
 
     /*
      * La table de jointure contient plus de champs avec des dates
@@ -96,16 +65,12 @@ class Groupement
      */
     /**
      * @var Collection<int, Utilisateur>
-     *
-     * @ORM\JoinTable(
-     *     name="groupementpreventionniste",
-     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Utilisateur::class)
      */
-    private $preventionnistes;
+    #[ORM\JoinTable(name: 'groupementpreventionniste')]
+    #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: Utilisateur::class)]
+    private Collection $preventionnistes;
 
     public function __construct()
     {

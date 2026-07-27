@@ -13,618 +13,335 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass=DossierRepository::class)
- *
- * @ORM\Table(indexes={@ORM\Index(columns={"DATESUPPRESSION_DOSSIER"})})
- *
  * @DossierObjet(groups={"edit_informations"})
  *
  * @DossierDocumentsManquants(groups={"edit_informations"})
  */
+#[ORM\Entity(repositoryClass: DossierRepository::class)]
+#[ORM\Table]
+#[ORM\Index(columns: ['DATESUPPRESSION_DOSSIER'])]
 class Dossier
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_DOSSIER", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_DOSSIER', type: 'bigint')]
     private $id;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATESUPPRESSION_DOSSIER", type="date", nullable=true)
-     */
-    private $dateSuppression;
+    #[ORM\Column(name: 'DATESUPPRESSION_DOSSIER', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateSuppression = null;
 
-    /**
-     * @var ?Utilisateur
-     *
-     * @ORM\ManyToOne(targetEntity=Utilisateur::class)
-     *
-     * @ORM\JoinColumn(name="DELETED_BY", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})
-     */
-    private $deletedBy;
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
+    #[ORM\JoinColumn(name: 'DELETED_BY', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
+    private ?Utilisateur $deletedBy = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="OBJET_DOSSIER", type="text", nullable=true)
-     */
-    private $objet;
+    #[ORM\Column(name: 'OBJET_DOSSIER', type: 'text', nullable: true)]
+    private ?string $objet = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="DESCGEN_DOSSIER", type="text", nullable=true)
-     */
-    private $descriptifGeneral;
+    #[ORM\Column(name: 'DESCGEN_DOSSIER', type: 'text', nullable: true)]
+    private ?string $descriptifGeneral = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="DESCEFF_DOSSIER", type="text", nullable=true)
-     */
-    private $descriptifEffectifs;
+    #[ORM\Column(name: 'DESCEFF_DOSSIER', type: 'text', nullable: true)]
+    private ?string $descriptifEffectifs = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="COORDSSI_DOSSIER", type="text", nullable=true)
-     */
-    private $coordonneesSsi;
+    #[ORM\Column(name: 'COORDSSI_DOSSIER', type: 'text', nullable: true)]
+    private ?string $coordonneesSsi = null;
 
-    /**
-     * @var DossierType
-     *
-     * @ORM\ManyToOne(targetEntity=DossierType::class)
-     *
-     * @ORM\JoinColumn(name="TYPE_DOSSIER", referencedColumnName="ID_DOSSIERTYPE", nullable=false, options={"unsigned":true})
-     *
-     * @Assert\NotNull(message="Le type de dossier est obligatoire.")
-     */
-    private $type;
+    #[ORM\ManyToOne(targetEntity: DossierType::class)]
+    #[ORM\JoinColumn(name: 'TYPE_DOSSIER', referencedColumnName: 'ID_DOSSIERTYPE', nullable: false, options: ['unsigned' => true])]
+    #[Assert\NotNull(message: 'Le type de dossier est obligatoire.')]
+    private ?DossierType $type = null;
 
     /**
      * @var Collection<int, DossierNatureListe>
-     *
-     * @ORM\JoinTable(name="dossiernature",
-     *    joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
-     *    inverseJoinColumns={@ORM\JoinColumn(name="ID_NATURE", referencedColumnName="ID_DOSSIERNATURE")}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=DossierNatureListe::class)
-     *
-     * @Assert\Count(
-     *     min=1,
-     *     minMessage="La nature du dossier est obligatoire."
-     * )
      */
-    private $nature;
+    #[ORM\JoinTable(name: 'dossiernature')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\InverseJoinColumn(name: 'ID_NATURE', referencedColumnName: 'ID_DOSSIERNATURE')]
+    #[ORM\ManyToMany(targetEntity: DossierNatureListe::class)]
+    #[Assert\Count(min: 1, minMessage: 'La nature du dossier est obligatoire.')]
+    private Collection $nature;
 
     /**
      * @var Collection<int, Etablissement>
-     *
-     * @ORM\JoinTable(name="etablissementdossier",
-     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Etablissement::class, inversedBy="dossiers")
      */
-    private $etablissements;
+    #[ORM\JoinTable(name: 'etablissementdossier')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\InverseJoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: Etablissement::class, inversedBy: 'dossiers')]
+    private Collection $etablissements;
 
-    /**
-     * @var ?Avis
-     *
-     * @ORM\ManyToOne(targetEntity=Avis::class)
-     *
-     * @ORM\JoinColumn(name="AVIS_DOSSIER_COMMISSION", referencedColumnName="ID_AVIS", nullable=true, options={"unsigned":true})
-     */
-    private $avisCommission;
+    #[ORM\ManyToOne(targetEntity: Avis::class)]
+    #[ORM\JoinColumn(name: 'AVIS_DOSSIER_COMMISSION', referencedColumnName: 'ID_AVIS', nullable: true, options: ['unsigned' => true])]
+    private ?Avis $avisCommission = null;
 
     /**
      * @var ?int
-     *
-     * @ORM\Column(name="FACTDANGE_DOSSIER", type="integer", nullable=true, options={"unsigned":true})
      */
+    #[ORM\Column(name: 'FACTDANGE_DOSSIER', type: 'integer', nullable: true, options: ['unsigned' => true])]
     private $facteurDangerosite;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(type="string", length=10, nullable=true, name="DATECOMM_DOSSIER")
-     */
-    private $dateCommission;
+    #[ORM\Column(type: 'string', length: 10, nullable: true, name: 'DATECOMM_DOSSIER')]
+    private ?string $dateCommission = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(type="date", nullable=true, name="DATEVISITE_DOSSIER")
-     */
-    private $dateVisite;
+    #[ORM\Column(type: 'date', nullable: true, name: 'DATEVISITE_DOSSIER')]
+    private ?\DateTimeInterface $dateVisite = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(type="datetime", nullable=false, name="DATEINSERT_DOSSIER")
-     *
-     * @Assert\NotNull(message="La date de création du dossier est obligatoire.")
-     */
-    private $dateInsert;
+    #[ORM\Column(type: 'datetime', nullable: false, name: 'DATEINSERT_DOSSIER')]
+    #[Assert\NotNull(message: 'La date de création du dossier est obligatoire.')]
+    private ?\DateTimeInterface $dateInsert = null;
 
-    /**
-     * @var ?Utilisateur
-     *
-     * @ORM\ManyToOne(targetEntity=Utilisateur::class)
-     *
-     * @ORM\JoinColumn(name="CREATEUR_DOSSIER", referencedColumnName="ID_UTILISATEUR", nullable=true)
-     */
-    private $createur;
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
+    #[ORM\JoinColumn(name: 'CREATEUR_DOSSIER', referencedColumnName: 'ID_UTILISATEUR', nullable: true)]
+    private ?Utilisateur $createur = null;
 
     /**
      * @var Collection<int, AvisDerogations>
-     *
-     * @ORM\OneToMany(targetEntity=AvisDerogations::class, mappedBy="dossier", orphanRemoval=true)
      */
-    private $avisDerogations;
+    #[ORM\OneToMany(targetEntity: AvisDerogations::class, mappedBy: 'dossier', orphanRemoval: true)]
+    private Collection $avisDerogations;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="DIFFEREAVIS_DOSSIER", type="boolean", nullable=true)
-     */
-    private $avisDiffere;
+    #[ORM\Column(name: 'DIFFEREAVIS_DOSSIER', type: 'boolean', nullable: true)]
+    private ?bool $avisDiffere = null;
 
     /**
      * @var Collection<int, DossierDisplayRubrique>
-     *
-     * @ORM\OneToMany(targetEntity=DossierDisplayRubrique::class, mappedBy="dossier", orphanRemoval=true)
      */
-    private $displayRubriques;
+    #[ORM\OneToMany(targetEntity: DossierDisplayRubrique::class, mappedBy: 'dossier', orphanRemoval: true)]
+    private Collection $displayRubriques;
 
     /**
      * @var Collection<int, Valeur>
-     *
-     * @ORM\ManyToMany(targetEntity=Valeur::class, cascade={"persist", "remove"})
-     *
-     * @ORM\JoinTable(
-     *     name="dossiervaleur",
-     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_VALEUR", referencedColumnName="ID_VALEUR")}
-     * )
      */
-    private $valeurs;
+    #[ORM\JoinTable(name: 'dossiervaleur')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\InverseJoinColumn(name: 'ID_VALEUR', referencedColumnName: 'ID_VALEUR')]
+    #[ORM\ManyToMany(targetEntity: Valeur::class, cascade: ['persist', 'remove'])]
+    private Collection $valeurs;
 
     /**
      * @var Collection<int, UtilisateurInformations>
-     *
-     * @ORM\JoinTable(
-     *     name="dossiercontact",
-     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=UtilisateurInformations::class)
      */
-    private $contacts;
+    #[ORM\JoinTable(name: 'dossiercontact')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\InverseJoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: UtilisateurInformations::class)]
+    private Collection $contacts;
 
     /**
      * @var Collection<int, Dossier>
-     *
-     * @ORM\JoinTable(
-     *     name="dossierlie",
-     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER1", referencedColumnName="ID_DOSSIER")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_DOSSIER2", referencedColumnName="ID_DOSSIER")}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Dossier::class, inversedBy="dossiersAyantLie")
      */
-    private $dossiersLies;
+    #[ORM\JoinTable(name: 'dossierlie')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER1', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\InverseJoinColumn(name: 'ID_DOSSIER2', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\ManyToMany(targetEntity: Dossier::class, inversedBy: 'dossiersAyantLie')]
+    private Collection $dossiersLies;
 
     /**
      * @var Collection<int, Dossier>
-     *
-     * @ORM\JoinTable(
-     *     name="dossierlie",
-     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER2", referencedColumnName="ID_DOSSIER")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_DOSSIER1", referencedColumnName="ID_DOSSIER")}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Dossier::class, mappedBy="dossiersLies")
      */
-    private $dossiersAyantLie;
+    #[ORM\JoinTable(name: 'dossierlie')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER2', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\InverseJoinColumn(name: 'ID_DOSSIER1', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\ManyToMany(targetEntity: Dossier::class, mappedBy: 'dossiersLies')]
+    private Collection $dossiersAyantLie;
 
     /**
      * @var Collection<int, DossierDocumentManquant>
-     *
-     * @ORM\OneToMany(targetEntity=DossierDocumentManquant::class, mappedBy="dossier", orphanRemoval=true, cascade={"persist", "remove"})
      */
-    private $documentsManquants;
+    #[ORM\OneToMany(targetEntity: DossierDocumentManquant::class, mappedBy: 'dossier', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    private Collection $documentsManquants;
 
     /**
      * @var Collection<int, DossierDocumentUrbanisme>
-     *
-     * @ORM\OneToMany(targetEntity=DossierDocumentUrbanisme::class, mappedBy="dossier", orphanRemoval=true, cascade={"persist", "remove"})
      */
-    private $documentsUrbanisme;
+    #[ORM\OneToMany(targetEntity: DossierDocumentUrbanisme::class, mappedBy: 'dossier', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    private Collection $documentsUrbanisme;
 
     /**
      * @var Collection<int, Utilisateur>
-     *
-     * @ORM\JoinTable(
-     *     name="dossierpreventionniste",
-     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_PREVENTIONNISTE", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Utilisateur::class)
      */
-    private $preventionnistes;
+    #[ORM\JoinTable(name: 'dossierpreventionniste')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\InverseJoinColumn(name: 'ID_PREVENTIONNISTE', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: Utilisateur::class)]
+    private Collection $preventionnistes;
 
     /**
      * @var Collection<int, TexteApplicable>
-     *
-     * @ORM\JoinTable(
-     *     name="dossiertextesappl",
-     *     joinColumns={@ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_TEXTESAPPL", referencedColumnName="ID_TEXTESAPPL")}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=TexteApplicable::class)
      */
-    private $textesApplicables;
+    #[ORM\JoinTable(name: 'dossiertextesappl')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
+    #[ORM\InverseJoinColumn(name: 'ID_TEXTESAPPL', referencedColumnName: 'ID_TEXTESAPPL')]
+    #[ORM\ManyToMany(targetEntity: TexteApplicable::class)]
+    private Collection $textesApplicables;
 
     /**
      * @var Collection<int, ListeDocumentAjoute>
-     *
-     * @ORM\OneToMany(targetEntity=ListeDocumentAjoute::class, mappedBy="dossier", orphanRemoval=true)
      */
-    private $documentsAjoutes;
+    #[ORM\OneToMany(targetEntity: ListeDocumentAjoute::class, mappedBy: 'dossier', orphanRemoval: true)]
+    private Collection $documentsAjoutes;
 
     /**
      * @var Collection<int, DossierDocumentConsulte>
-     *
-     * @ORM\OneToMany(targetEntity=DossierDocumentConsulte::class, mappedBy="dossier", orphanRemoval=true)
      */
-    private $documentsConsultes;
+    #[ORM\OneToMany(targetEntity: DossierDocumentConsulte::class, mappedBy: 'dossier', orphanRemoval: true)]
+    private Collection $documentsConsultes;
 
     /**
      * @var Collection<int, DossierPieceJointe>
-     *
-     * @ORM\OneToMany(targetEntity=DossierPieceJointe::class, mappedBy="dossier", orphanRemoval=true)
      */
-    private $piecesJointes;
+    #[ORM\OneToMany(targetEntity: DossierPieceJointe::class, mappedBy: 'dossier', orphanRemoval: true)]
+    private Collection $piecesJointes;
 
     /**
      * @var Collection<int, PrescriptionDossier>
-     *
-     * @ORM\OneToMany(targetEntity=PrescriptionDossier::class, mappedBy="dossier", orphanRemoval=true)
      */
-    private $prescriptions;
+    #[ORM\OneToMany(targetEntity: PrescriptionDossier::class, mappedBy: 'dossier', orphanRemoval: true)]
+    private Collection $prescriptions;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="VERROU_DOSSIER", type="boolean", nullable=true)
-     */
-    private $verrou;
+    #[ORM\Column(name: 'VERROU_DOSSIER', type: 'boolean', nullable: true)]
+    private ?bool $verrou = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="VERROU_USER_DOSSIER", type="bigint", nullable=true)
-     */
-    private $utilisateurVerrou;
+    #[ORM\Column(name: 'VERROU_USER_DOSSIER', type: 'bigint', nullable: true)]
+    private ?int $utilisateurVerrou = null;
 
-    /**
-     * @var ?PlatauConsultation
-     *
-     * @ORM\OneToOne(targetEntity=PlatauConsultation::class, cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(name="ID_PLATAU", referencedColumnName="ID_PLATAU", options={"fixed":true})
-     */
-    private $consultationPlatau;
+    #[ORM\OneToOne(targetEntity: PlatauConsultation::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'ID_PLATAU', referencedColumnName: 'ID_PLATAU', options: ['fixed' => true])]
+    private ?PlatauConsultation $consultationPlatau = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="DEMANDEUR_DOSSIER", type="text", nullable=true)
-     */
-    private $demandeur;
+    #[ORM\Column(name: 'DEMANDEUR_DOSSIER', type: 'text', nullable: true)]
+    private ?string $demandeur = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATESDIS_DOSSIER", type="datetime", nullable=true)
-     */
-    private $dateReception;
+    #[ORM\Column(name: 'DATESDIS_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateReception = null;
 
-    /**
-     * @var ?Commission
-     *
-     * @ORM\ManyToOne(targetEntity=Commission::class)
-     *
-     * @ORM\JoinColumn(name="COMMISSION_DOSSIER", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true})
-     */
-    private $commission;
+    #[ORM\ManyToOne(targetEntity: Commission::class)]
+    #[ORM\JoinColumn(name: 'COMMISSION_DOSSIER', referencedColumnName: 'ID_COMMISSION', nullable: true, options: ['unsigned' => true])]
+    private ?Commission $commission = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATEMAIRIE_DOSSIER", type="datetime", nullable=true)
-     */
-    private $dateMairie;
+    #[ORM\Column(name: 'DATEMAIRIE_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateMairie = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATESECRETARIAT_DOSSIER", type="datetime", nullable=true)
-     */
-    private $dateSecretariat;
+    #[ORM\Column(name: 'DATESECRETARIAT_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateSecretariat = null;
 
     /**
      * @var ?string
-     *
-     * @ORM\Column(name="SERVICEINSTRUC_DOSSIER", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: 'SERVICEINSTRUC_DOSSIER', type: 'string', length: 255, nullable: true)]
     private $serviceInstructeur;
 
-    /**
-     * @var ?Avis
-     *
-     * @ORM\ManyToOne(targetEntity=Avis::class)
-     *
-     * @ORM\JoinColumn(name="AVIS_DOSSIER", referencedColumnName="ID_AVIS", nullable=true, options={"unsigned":true})
-     */
-    private $avis;
+    #[ORM\ManyToOne(targetEntity: Avis::class)]
+    #[ORM\JoinColumn(name: 'AVIS_DOSSIER', referencedColumnName: 'ID_AVIS', nullable: true, options: ['unsigned' => true])]
+    private ?Avis $avis = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="ANOMALIE_DOSSIER", type="text", nullable=true)
-     */
-    private $analyseDeRisque;
+    #[ORM\Column(name: 'ANOMALIE_DOSSIER', type: 'text', nullable: true)]
+    private ?string $analyseDeRisque = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="OBSERVATION_DOSSIER", type="text", nullable=true)
-     */
-    private $observations;
+    #[ORM\Column(name: 'OBSERVATION_DOSSIER', type: 'text', nullable: true)]
+    private ?string $observations = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATEREP_DOSSIER", type="datetime", nullable=true)
-     */
-    private $dateReponse;
+    #[ORM\Column(name: 'DATEREP_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateReponse = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="HORSDELAI_DOSSIER", type="boolean", nullable=true, options={"default": 0})
-     */
-    private $horsDelai;
+    #[ORM\Column(name: 'HORSDELAI_DOSSIER', type: 'boolean', nullable: true, options: ['default' => 0])]
+    private ?bool $horsDelai = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="ABSQUORUM_DOSSIER", type="boolean", nullable=true)
-     */
-    private $absenceDeQuorum;
+    #[ORM\Column(name: 'ABSQUORUM_DOSSIER', type: 'boolean', nullable: true)]
+    private ?bool $absenceDeQuorum = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DELAIPRESC_DOSSIER", type="date", nullable=true)
-     */
-    private $dateLimitePrescription;
+    #[ORM\Column(name: 'DELAIPRESC_DOSSIER', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateLimitePrescription = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="ECHEANCIERTRAV_DOSSIER", type="date", nullable=true)
-     */
-    private $echeancierTravaux;
+    #[ORM\Column(name: 'ECHEANCIERTRAV_DOSSIER', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $echeancierTravaux = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="INCOMPLET_DOSSIER", type="boolean", nullable=true, options={"default": 0})
-     */
-    private $incomplet;
+    #[ORM\Column(name: 'INCOMPLET_DOSSIER', type: 'boolean', nullable: true, options: ['default' => 0])]
+    private ?bool $incomplet = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATEINCOMPLET_DOSSIER", type="date", nullable=true)
-     */
-    private $dateIncomplet;
+    #[ORM\Column(name: 'DATEINCOMPLET_DOSSIER', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateIncomplet = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="LIEUREUNION_DOSSIER", type="text", nullable=true)
-     */
-    private $lieuReunion;
+    #[ORM\Column(name: 'LIEUREUNION_DOSSIER', type: 'text', nullable: true)]
+    private ?string $lieuReunion = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATEENVTRANSIT_DOSSIER", type="date", nullable=true)
-     */
-    private $dateEnvoiTransit;
+    #[ORM\Column(name: 'DATEENVTRANSIT_DOSSIER', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateEnvoiTransit = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATERVRAT_DOSSIER", type="date", nullable=true)
-     */
-    private $dateReceptionRvrat;
+    #[ORM\Column(name: 'DATERVRAT_DOSSIER', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateReceptionRvrat = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="DESCANAL_DOSSIER", type="text", nullable=true)
-     */
-    private $descriptifAnalyseRisque;
+    #[ORM\Column(name: 'DESCANAL_DOSSIER', type: 'text', nullable: true)]
+    private ?string $descriptifAnalyseRisque = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="REGLEDEROG_DOSSIER", type="text", nullable=true)
-     */
-    private $reglesDerogation;
+    #[ORM\Column(name: 'REGLEDEROG_DOSSIER', type: 'text', nullable: true)]
+    private ?string $reglesDerogation = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="JUSTIFDEROG_DOSSIER", type="text", nullable=true)
-     */
-    private $justificationDerogation;
+    #[ORM\Column(name: 'JUSTIFDEROG_DOSSIER', type: 'text', nullable: true)]
+    private ?string $justificationDerogation = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="MESURESCOMPENS_DOSSIER", type="text", nullable=true)
-     */
-    private $mesuresCompensatoires;
+    #[ORM\Column(name: 'MESURESCOMPENS_DOSSIER', type: 'text', nullable: true)]
+    private ?string $mesuresCompensatoires = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="MESURESCOMPLE_DOSSIER", type="text", nullable=true)
-     */
-    private $mesuresComplementaires;
+    #[ORM\Column(name: 'MESURESCOMPLE_DOSSIER', type: 'text', nullable: true)]
+    private ?string $mesuresComplementaires = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="NPSP_DOSSIER", type="boolean", nullable=true)
-     */
-    private $nePeutSePrononcer;
+    #[ORM\Column(name: 'NPSP_DOSSIER', type: 'boolean', nullable: true)]
+    private ?bool $nePeutSePrononcer = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="CNE_DOSSIER", type="boolean", nullable=true)
-     */
-    private $celluleNonExploitee;
+    #[ORM\Column(name: 'CNE_DOSSIER', type: 'boolean', nullable: true)]
+    private ?bool $celluleNonExploitee = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATEPREF_DOSSIER", type="datetime", nullable=true)
-     */
-    private $datePrefecture;
+    #[ORM\Column(name: 'DATEPREF_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $datePrefecture = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATETRANSFERTCOMM_DOSSIER", type="datetime", nullable=true)
-     */
-    private $dateTransfertCommission;
+    #[ORM\Column(name: 'DATETRANSFERTCOMM_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateTransfertCommission = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATERECEPTIONCOMM_DOSSIER", type="datetime", nullable=true)
-     */
-    private $dateReceptionCommission;
+    #[ORM\Column(name: 'DATERECEPTIONCOMM_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateReceptionCommission = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATEREUN_DOSSIER", type="datetime", nullable=true)
-     */
-    private $dateReunion;
+    #[ORM\Column(name: 'DATEREUN_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateReunion = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="OPERSDIS_DOSSIER", type="boolean", nullable=true)
-     */
-    private $operationSdis;
+    #[ORM\Column(name: 'OPERSDIS_DOSSIER', type: 'boolean', nullable: true)]
+    private ?bool $operationSdis = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="RCCI_DOSSIER", type="boolean", nullable=true)
-     */
-    private $rcci;
+    #[ORM\Column(name: 'RCCI_DOSSIER', type: 'boolean', nullable: true)]
+    private ?bool $rcci = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="REX_DOSSIER", type="text", nullable=true)
-     */
-    private $rex;
+    #[ORM\Column(name: 'REX_DOSSIER', type: 'text', nullable: true)]
+    private ?string $rex = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="CHARGESEC_DOSSIER", type="text", nullable=true)
-     */
-    private $chargeSecurite;
+    #[ORM\Column(name: 'CHARGESEC_DOSSIER', type: 'text', nullable: true)]
+    private ?string $chargeSecurite = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="DUREEDEPL_DOSSIER", type="integer", nullable=true)
-     */
-    private $dureeDeplacement;
+    #[ORM\Column(name: 'DUREEDEPL_DOSSIER', type: 'integer', nullable: true)]
+    private ?int $dureeDeplacement = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="GRAVPRESC_DOSSIER", type="text", nullable=true)
-     */
-    private $gravitePrescription;
+    #[ORM\Column(name: 'GRAVPRESC_DOSSIER', type: 'text', nullable: true)]
+    private ?string $gravitePrescription = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="NUMINTERV_DOSSIER", type="string", length=255, nullable=true)
-     */
-    private $numeroIntervention;
+    #[ORM\Column(name: 'NUMINTERV_DOSSIER', type: 'string', length: 255, nullable: true)]
+    private ?string $numeroIntervention = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATEINTERV_DOSSIER", type="datetime", nullable=true)
-     */
-    private $dateIntervention;
+    #[ORM\Column(name: 'DATEINTERV_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateIntervention = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DUREEINTERV_DOSSIER", type="time", nullable=true)
-     */
-    private $dureeIntervention;
+    #[ORM\Column(name: 'DUREEINTERV_DOSSIER', type: 'time', nullable: true)]
+    private ?\DateTimeInterface $dureeIntervention = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATESIGN_DOSSIER", type="date", nullable=true)
-     */
-    private $dateSignature;
+    #[ORM\Column(name: 'DATESIGN_DOSSIER', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateSignature = null;
 
-    /**
-     * @ORM\Column(name="DESCRIPTIF_DOSSIER", type="text", nullable=true)
-     */
+    #[ORM\Column(name: 'DESCRIPTIF_DOSSIER', type: 'text', nullable: true)]
     private ?string $descriptif = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_NOTIFICATION", type="datetime", nullable=true)
-     */
-    private $dateNotification;
+    #[ORM\Column(name: 'DATE_NOTIFICATION', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateNotification = null;
 
     // @todo: Voir s'il y a des valeurs par défaut à mettre (notamment les booléens)
     public function __construct()

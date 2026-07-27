@@ -19,18 +19,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("docs")
- */
+#[IsGranted('docs')]
 class DocumentsController extends AbstractController
 {
     public function __construct(private LoggerInterface $logger, private CommissionRepository $commissionRepository, private CommissionDocumentBuilder $commissionDocumentBuilder, private Filesystem $filesystem)
     {
     }
 
-    /**
-     * @Route("/admin/documents", name="admin_documents")
-     */
+    #[Route(path: '/admin/documents', name: 'admin_documents')]
     public function index(Documents $documents): Response
     {
         $commissions = $this->commissionRepository->findAll();
@@ -41,9 +37,7 @@ class DocumentsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/documents/ajouter", name="admin_documents_add", options={"expose"=true})
-     */
+    #[Route(path: '/admin/documents/ajouter', name: 'admin_documents_add', options: ['expose' => true])]
     public function ajouter(Request $request, string $documentsRealDataPath): Response
     {
         $commissions = $this->commissionRepository->findAll();
@@ -113,9 +107,7 @@ class DocumentsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/documents/supprimer", name="admin_documents_delete", methods={"POST"}, options={"expose"=true})
-     */
+    #[Route(path: '/admin/documents/supprimer', name: 'admin_documents_delete', methods: ['POST'], options: ['expose' => true])]
     public function supprimer(Request $request, string $documentsRealDataPath): Response
     {
         // @todo: Générer un nom de fichier plus sûr

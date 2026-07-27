@@ -5,62 +5,34 @@ namespace App\Entity;
 use App\Repository\ListeDocumentAjouteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ListeDocumentAjouteRepository::class)
- *
- * @ORM\Table(name="listedocajout")
- */
+#[ORM\Entity(repositoryClass: ListeDocumentAjouteRepository::class)]
+#[ORM\Table(name: 'listedocajout')]
 class ListeDocumentAjoute
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_DOCAJOUT", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_DOCAJOUT', type: 'bigint')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_DOCAJOUT", type="text", nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_DOCAJOUT', type: 'text', nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="REF_DOCAJOUT", type="string", length=255, nullable=true)
-     */
-    private $reference;
+    #[ORM\Column(name: 'REF_DOCAJOUT', type: 'string', length: 255, nullable: true)]
+    private ?string $reference = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_DOCAJOUT", type="date", nullable=true)
-     */
-    private $date;
+    #[ORM\Column(name: 'DATE_DOCAJOUT', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $date = null;
 
-    /**
-     * @var DossierNatureListe
-     *
-     * @ORM\ManyToOne(targetEntity=DossierNatureListe::class)
-     *
-     * @ORM\JoinColumn(name="ID_NATURE", referencedColumnName="ID_DOSSIERNATURE", nullable=false)
-     */
-    private $nature;
+    #[ORM\ManyToOne(targetEntity: DossierNatureListe::class)]
+    #[ORM\JoinColumn(name: 'ID_NATURE', referencedColumnName: 'ID_DOSSIERNATURE', nullable: false)]
+    private ?DossierNatureListe $nature = null;
 
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="documentsAjoutes")
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'documentsAjoutes')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false)]
+    private ?Dossier $dossier = null;
 
     public function getId(): ?int
     {

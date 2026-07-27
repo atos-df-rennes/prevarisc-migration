@@ -27,12 +27,10 @@ class PieceJointeController extends AbstractController
      *
      * Port direct de PieceJointeController::getAction() pour le type "etablissement".
      *
-     * @Route("/piece-jointe/etablissement/{id}/recuperer/{idpj}", name="piece_jointe_get_etablissement", methods={"GET"}, requirements={"id"="\d+","idpj"="\d+"})
-     *
      * @todo: vérifier le droit à appliquer
-     *
-     * @IsGranted("ROLE_USER")
      */
+    #[Route(path: '/piece-jointe/etablissement/{id}/recuperer/{idpj}', name: 'piece_jointe_get_etablissement', methods: ['GET'], requirements: ['id' => '\d+', 'idpj' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function getEtablissement(int $id, int $idpj): Response
     {
         $pieceJointe = $this->pieceJointeRepository->find($idpj);
@@ -72,12 +70,10 @@ class PieceJointeController extends AbstractController
      *
      * Port direct de PieceJointeController::getAction() pour le type "dateCommission".
      *
-     * @Route("/piece-jointe/date-commission/{id}/recuperer/{idpj}", name="piece_jointe_get_date_commission", methods={"GET"}, requirements={"id"="\d+","idpj"="\d+"})
-     *
      * @todo: vérifier le droit à appliquer
-     *
-     * @IsGranted("ROLE_USER")
      */
+    #[Route(path: '/piece-jointe/date-commission/{id}/recuperer/{idpj}', name: 'piece_jointe_get_date_commission', methods: ['GET'], requirements: ['id' => '\d+', 'idpj' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function getDateCommission(int $id, int $idpj): Response
     {
         $pieceJointe = $this->pieceJointeRepository->find($idpj);

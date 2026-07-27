@@ -31,9 +31,8 @@ class AlerteController extends AbstractController
      *
      * Équivalent legacy : ChangementController::alerteformAction()
      * Route legacy : /changement/alerteform
-     *
-     * @Route("/symfony/alerte/formulaire", name="alerte_formulaire", methods={"GET"}, options={"expose"=true})
      */
+    #[Route(path: '/symfony/alerte/formulaire', name: 'alerte_formulaire', methods: ['GET'], options: ['expose' => true])]
     public function formulaire(
         Request $request
     ): Response {
@@ -90,10 +89,9 @@ class AlerteController extends AbstractController
      * Équivalent legacy : ChangementController::sendmailalerteAction()
      * Route legacy : /changement/sendmailalerte
      *
-     * @Route("/symfony/alerte/envoyer", name="alerte_envoyer", methods={"POST"}, options={"expose"=true})
-     *
      * @param Request $request Requête HTTP
      */
+    #[Route(path: '/symfony/alerte/envoyer', name: 'alerte_envoyer', methods: ['POST'], options: ['expose' => true])]
     public function envoyer(Request $request): Response
     {
         $emailsRaw = $request->request->get('emails');

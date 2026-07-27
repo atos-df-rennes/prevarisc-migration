@@ -16,18 +16,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @IsGranted("admin")
- */
+#[IsGranted('admin')]
 class CouchesCartographiquesController extends AbstractController
 {
     public function __construct(private CouchesCarto $couchesCarto, private SerializerInterface $serializer, private LoggerInterface $logger, private CoucheCartoRepository $coucheCartoRepository)
     {
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques", name="couches_cartographiques")
-     */
+    #[Route(path: '/admin/couches-cartographiques', name: 'couches_cartographiques')]
     public function index(): Response
     {
         /** @var string $autoconfPath */
@@ -49,9 +45,7 @@ class CouchesCartographiquesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/ajouter", name="couches_cartographiques_add")
-     */
+    #[Route(path: '/admin/couches-cartographiques/ajouter', name: 'couches_cartographiques_add')]
     public function ajouter(Request $request, EntityManagerInterface $entityManager): Response
     {
         $coucheCarto = new CoucheCarto();
@@ -74,9 +68,7 @@ class CouchesCartographiquesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/ajouter-ign", name="couches_cartographiques_add_IGN")
-     */
+    #[Route(path: '/admin/couches-cartographiques/ajouter-ign', name: 'couches_cartographiques_add_IGN')]
     public function ajouterIGN(Request $request, EntityManagerInterface $entityManager): Response
     {
         if ($request->isMethod('POST')) {
@@ -117,9 +109,7 @@ class CouchesCartographiquesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/reordonner", name="couches_cartographiques_order")
-     */
+    #[Route(path: '/admin/couches-cartographiques/reordonner', name: 'couches_cartographiques_order')]
     public function changerOrdre(Request $request, EntityManagerInterface $entityManager): Response
     {
         $couchesCarto = $this->coucheCartoRepository->findAllOrdered();
@@ -142,9 +132,7 @@ class CouchesCartographiquesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/{id}/modifier", name="couche_cartographique_edit")
-     */
+    #[Route(path: '/admin/couches-cartographiques/{id}/modifier', name: 'couche_cartographique_edit')]
     public function modifier(Request $request, CoucheCarto $coucheCarto, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(CoucheCartoType::class, $coucheCarto);
@@ -165,9 +153,7 @@ class CouchesCartographiquesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/{id}/supprimer", name="couche_cartographique_delete")
-     */
+    #[Route(path: '/admin/couches-cartographiques/{id}/supprimer', name: 'couche_cartographique_delete')]
     public function supprimer(CoucheCarto $coucheCarto): Response
     {
         try {

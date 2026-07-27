@@ -5,50 +5,29 @@ namespace App\Entity;
 use App\Repository\EtablissementInformationsTypesActivitesSecondairesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EtablissementInformationsTypesActivitesSecondairesRepository::class)
- *
- * @ORM\Table(name="etablissementinformationstypesactivitessecondaires")
- */
+#[ORM\Entity(repositoryClass: EtablissementInformationsTypesActivitesSecondairesRepository::class)]
+#[ORM\Table(name: 'etablissementinformationstypesactivitessecondaires')]
 class EtablissementInformationsTypesActivitesSecondaires
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_ETABLISSEMENTINFORMATIONSTYPESACTIVITESSECONDAIRES", type="bigint", options={"unsigned":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSTYPESACTIVITESSECONDAIRES', type: 'bigint', options: ['unsigned' => true])]
     private $id;
 
-    /**
-     * @var ?EtablissementInformations
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementInformations::class, inversedBy="typesActivitesSecondaires")
-     *
-     * @ORM\JoinColumn(name="ID_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_ETABLISSEMENTINFORMATIONS", nullable=false, options={"unsigned":true})
-     */
-    private $etablissementInformations;
+    #[ORM\ManyToOne(targetEntity: EtablissementInformations::class, inversedBy: 'typesActivitesSecondaires')]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENTINFORMATIONS', referencedColumnName: 'ID_ETABLISSEMENTINFORMATIONS', nullable: false, options: ['unsigned' => true])]
+    private ?EtablissementInformations $etablissementInformations = null;
 
-    /**
-     * @var EtablissementType
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementType::class)
-     *
-     * @ORM\JoinColumn(name="ID_TYPE_SECONDAIRE", referencedColumnName="ID_TYPE", nullable=false, options={"unsigned":true})
-     */
-    private $type;
+    #[ORM\ManyToOne(targetEntity: EtablissementType::class)]
+    #[ORM\JoinColumn(name: 'ID_TYPE_SECONDAIRE', referencedColumnName: 'ID_TYPE', nullable: false, options: ['unsigned' => true])]
+    private ?EtablissementType $type = null;
 
-    /**
-     * @var EtablissementActivite
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementActivite::class)
-     *
-     * @ORM\JoinColumn(name="ID_TYPEACTIVITE_SECONDAIRE", referencedColumnName="ID_TYPEACTIVITE", nullable=false, options={"unsigned":true})
-     */
-    private $activite;
+    #[ORM\ManyToOne(targetEntity: EtablissementActivite::class)]
+    #[ORM\JoinColumn(name: 'ID_TYPEACTIVITE_SECONDAIRE', referencedColumnName: 'ID_TYPEACTIVITE', nullable: false, options: ['unsigned' => true])]
+    private ?EtablissementActivite $activite = null;
 
     public function getId(): ?int
     {

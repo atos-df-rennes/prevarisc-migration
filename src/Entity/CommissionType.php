@@ -8,41 +8,28 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=CommissionTypeRepository::class)
- *
- * @ORM\Table(name="commissiontype")
- */
+#[ORM\Entity(repositoryClass: CommissionTypeRepository::class)]
+#[ORM\Table(name: 'commissiontype')]
 class CommissionType
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_COMMISSIONTYPE", type="integer", length=2, options={"unsigned":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_COMMISSIONTYPE', type: 'integer', length: 2, options: ['unsigned' => true])]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank(message="Le type de commission est obligatoire.")
-     *
-     * @Assert\Length(max=50, maxMessage="Le libellé du type de commission ne peut pas dépasser {{ limit }} caractères.")
-     *
-     * @ORM\Column(name="LIBELLE_COMMISSIONTYPE", type="string", length=50, nullable=false)
-     */
-    private $libelle;
+    #[Assert\NotBlank(message: 'Le type de commission est obligatoire.')]
+    #[Assert\Length(max: 50, maxMessage: 'Le libellé du type de commission ne peut pas dépasser {{ limit }} caractères.')]
+    #[ORM\Column(name: 'LIBELLE_COMMISSIONTYPE', type: 'string', length: 50, nullable: false)]
+    private ?string $libelle = null;
 
     /**
      * @var Collection<int, Commission>
-     *
-     * @ORM\OneToMany(targetEntity=Commission::class, mappedBy="type")
      */
-    private $commissions;
+    #[ORM\OneToMany(targetEntity: Commission::class, mappedBy: 'type')]
+    private Collection $commissions;
 
     public function __construct()
     {

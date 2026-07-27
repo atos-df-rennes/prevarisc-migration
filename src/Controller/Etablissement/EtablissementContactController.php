@@ -20,20 +20,16 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Gère les contacts d'un établissement.
- *
- * @Route(requirements={"id"="\d+"})
  */
+#[Route(requirements: ['id' => '\d+'])]
 class EtablissementContactController extends AbstractController implements EtablissementLateralNavigationInterface
 {
     public function __construct(private EntityManagerInterface $entityManager, private EtablissementRepository $etablissementRepository, private UtilisateurInformationsRepository $utilisateurInformationsRepository, private Contact $contactService)
     {
     }
 
-    /**
-     * @Route("/etablissement/{id}/contacts", name="etablissement_contacts")
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/contacts', name: 'etablissement_contacts')]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function contacts(Etablissement $etablissement): Response
     {
         $dto = $this->etablissementRepository->findContactsWithInheritance($etablissement->getId());
@@ -45,11 +41,8 @@ class EtablissementContactController extends AbstractController implements Etabl
         ]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/contacts/ajouter", name="etablissement_contacts_add", defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/contacts/ajouter', name: 'etablissement_contacts_add', defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function addContact(Request $request, Etablissement $etablissement): Response
     {
         $contact = new UtilisateurInformations();
@@ -74,11 +67,8 @@ class EtablissementContactController extends AbstractController implements Etabl
         ]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/contacts/ajouter/existant', name: 'etablissement_contacts_add_existing', methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function addExistingContact(
         Request $request,
         Etablissement $etablissement
@@ -116,14 +106,10 @@ class EtablissementContactController extends AbstractController implements Etabl
         return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
     }
 
-    /**
-     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     *
-     * @ParamConverter("etablissement", options={"id" = "id"})
-     * @ParamConverter("contact", options={"id" = "contact"})
-     */
+    #[Route(path: 'etablissement/{id}/contacts/{contact}/supprimer', name: 'etablissement_contacts_delete', methods: ['GET', 'DELETE'], options: ['expose' => true], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
+    #[ParamConverter('etablissement', options: ['id' => 'id'])]
+    #[ParamConverter('contact', options: ['id' => 'contact'])]
     public function deleteContact(
         Request $request,
         Etablissement $etablissement,

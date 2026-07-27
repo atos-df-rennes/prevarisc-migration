@@ -26,20 +26,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(requirements={"id"="\d+"})
- *
- * @IsGranted("admin")
- */
+#[Route(requirements: ['id' => '\d+'])]
+#[IsGranted('admin')]
 class GroupeController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private GroupeRepository $groupeRepository, private UtilisateurRepository $utilisateurRepository, private ResourcesRepository $resourcesRepository, private RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, private RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
     {
     }
 
-    /**
-     * @Route("/admin/groupes/{id}/utilisateurs", name="admin_groupe_index")
-     */
+    #[Route(path: '/admin/groupes/{id}/utilisateurs', name: 'admin_groupe_index')]
     public function index(Groupe $groupe): Response
     {
         $groupeId = $groupe->getId();
@@ -52,9 +47,7 @@ class GroupeController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/ajouter", name="admin_groupe_add")
-     */
+    #[Route(path: '/admin/groupes/ajouter', name: 'admin_groupe_add')]
     public function ajouter(Request $request): Response
     {
         $groupe = new Groupe();
@@ -77,9 +70,7 @@ class GroupeController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/{id}/modifier", name="admin_groupe_edit")
-     */
+    #[Route(path: '/admin/groupes/{id}/modifier', name: 'admin_groupe_edit')]
     public function modifier(Request $request, Groupe $groupe): Response
     {
         $form = $this->createForm(GroupeType::class, $groupe);
@@ -100,9 +91,7 @@ class GroupeController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/{id}/supprimer", name="admin_groupe_delete")
-     */
+    #[Route(path: '/admin/groupes/{id}/supprimer', name: 'admin_groupe_delete')]
     public function supprimer(Groupe $groupe): Response
     {
         $groupeId = $groupe->getId();
@@ -129,9 +118,7 @@ class GroupeController extends AbstractController
         return $this->redirectToRoute('admin_utilisateurs_index');
     }
 
-    /**
-     * @Route("/admin/groupes/matrice-des-droits", name="admin_groupe_manage_privileges")
-     */
+    #[Route(path: '/admin/groupes/matrice-des-droits', name: 'admin_groupe_manage_privileges')]
     public function matriceDesDroits(Request $request): Response
     {
         $groupes = $this->groupeRepository->findAll();
@@ -152,9 +139,7 @@ class GroupeController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/ressources-specialisees", name="admin_groupe_ressources_specialisees")
-     */
+    #[Route(path: '/admin/groupes/ressources-specialisees', name: 'admin_groupe_ressources_specialisees')]
     public function ressourcesSpecialisees(): Response
     {
         $ressourceDossierForm = $this->createForm(RessourceSpecialiseeDossierType::class, null, [
@@ -172,9 +157,7 @@ class GroupeController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/ressources-specialisees/{id}/supprimer", name="admin_groupe_ressources_specialisees_delete", methods={"DELETE"})
-     */
+    #[Route(path: '/admin/groupes/ressources-specialisees/{id}/supprimer', name: 'admin_groupe_ressources_specialisees_delete', methods: ['DELETE'])]
     public function supprimerRessourceSpecialisee(Resources $resources): RedirectResponse
     {
         $this->entityManager->remove($resources);
@@ -183,9 +166,7 @@ class GroupeController extends AbstractController
         return $this->redirectToRoute('admin_groupe_ressources_specialisees');
     }
 
-    /**
-     * @Route("/admin/groupes/ressources-specialisees/dossier/ajouter", name="admin_groupe_ressources_specialisees_add_dossier", methods={"POST"}))
-     */
+    #[Route(path: '/admin/groupes/ressources-specialisees/dossier/ajouter', name: 'admin_groupe_ressources_specialisees_add_dossier', methods: ['POST'])]
     public function ajouterRessourceSpecialiseeDossier(Request $request): RedirectResponse
     {
         $resource = new Resources();
@@ -224,9 +205,7 @@ class GroupeController extends AbstractController
         return $this->redirectToRoute('admin_groupe_ressources_specialisees');
     }
 
-    /**
-     * @Route("/admin/groupes/ressources-specialisees/etablissement/ajouter", name="admin_groupe_ressources_specialisees_add_etablissement", methods={"POST"}))
-     */
+    #[Route(path: '/admin/groupes/ressources-specialisees/etablissement/ajouter', name: 'admin_groupe_ressources_specialisees_add_etablissement', methods: ['POST'])]
     public function ajouterRessourceSpecialiseeEtablissement(Request $request): RedirectResponse
     {
         $resource = new Resources();

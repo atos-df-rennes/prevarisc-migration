@@ -14,170 +14,99 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass=UtilisateurRepository::class)
- *
  * @PrevariscAssert\UniqueUtilisateur
  *
  * @PrevariscAssert\Password
  */
+#[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInterface
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_UTILISATEUR", type="bigint", options={"unsigned":true})
-     *
-     * @Groups({"api_response"})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_UTILISATEUR', type: 'bigint', options: ['unsigned' => true])]
+    #[Groups(['api_response'])]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="USERNAME_UTILISATEUR", type="string", length=100, nullable=false)
-     *
-     * @Assert\NotNull(message="Le nom d'utilisateur ne doit pas être null.")
-     */
-    private $username;
+    #[ORM\Column(name: 'USERNAME_UTILISATEUR', type: 'string', length: 100, nullable: false)]
+    #[Assert\NotNull(message: "Le nom d'utilisateur ne doit pas être null.")]
+    private ?string $username = null;
 
     /**
      * @var array<Role|string>
-     *
-     * @ORM\Column(type="json")
      */
-    private $roles = [];
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     private ?string $plainPassword = null;
 
     /**
      * @var ?string The hashed password
-     *
-     * @ORM\Column(name="PASSWD_UTILISATEUR", type="string", length=255, nullable=true)
      */
-    private $password;
+    #[ORM\Column(name: 'PASSWD_UTILISATEUR', type: 'string', length: 255, nullable: true)]
+    private ?string $password = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="LASTACTION_UTILISATEUR", type="datetime", nullable=true)
-     */
-    private $lastAction;
+    #[ORM\Column(name: 'LASTACTION_UTILISATEUR', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $lastAction = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="ACTIF_UTILISATEUR", type="boolean", nullable=false)
-     */
-    private $actif;
+    #[ORM\Column(name: 'ACTIF_UTILISATEUR', type: 'boolean', nullable: false)]
+    private ?bool $actif = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="FAILED_LOGIN_ATTEMPTS_UTILISATEUR", type="smallint", nullable=false, options={"unsigned":true})
-     */
-    private $failedLoginAttempts = 0;
+    #[ORM\Column(name: 'FAILED_LOGIN_ATTEMPTS_UTILISATEUR', type: 'smallint', nullable: false, options: ['unsigned' => true])]
+    private int $failedLoginAttempts = 0;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="IP_UTILISATEUR", type="string", length=45, nullable=true)
-     */
-    private $ip;
+    #[ORM\Column(name: 'IP_UTILISATEUR', type: 'string', length: 45, nullable: true)]
+    private ?string $ip = null;
 
     // @todo: Vérifier si doublon avec $commune
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="NUMINSEE_COMMUNE", type="string", length=5, nullable=true)
-     */
-    private $numinsee;
+    #[ORM\Column(name: 'NUMINSEE_COMMUNE', type: 'string', length: 5, nullable: true)]
+    private ?string $numinsee = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DERNIERE_VISITE_DASHBOARD", type="datetime", nullable=true)
-     */
-    private $derniereVisiteDashboard;
+    #[ORM\Column(name: 'DERNIERE_VISITE_DASHBOARD', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $derniereVisiteDashboard = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DERNIERE_VISITE_PIECES_DOSSIER", type="datetime", nullable=true)
-     */
-    private $derniereVisitePiecesDossier;
+    #[ORM\Column(name: 'DERNIERE_VISITE_PIECES_DOSSIER', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $derniereVisitePiecesDossier = null;
 
-    /**
-     * @var ?Groupe
-     *
-     * @ORM\ManyToOne(targetEntity=Groupe::class, inversedBy="utilisateurs")
-     *
-     * @ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", nullable=false, options={"unsigned":true})
-     */
-    private $groupe;
+    #[ORM\ManyToOne(targetEntity: Groupe::class, inversedBy: 'utilisateurs')]
+    #[ORM\JoinColumn(name: 'ID_GROUPE', referencedColumnName: 'ID_GROUPE', nullable: false, options: ['unsigned' => true])]
+    private ?Groupe $groupe = null;
 
-    /**
-     * @var UtilisateurInformations
-     *
-     * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=false, options={"unsigned":true})
-     */
-    private $informations;
+    #[ORM\OneToOne(targetEntity: UtilisateurInformations::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', nullable: false, options: ['unsigned' => true])]
+    private ?UtilisateurInformations $informations = null;
 
-    /**
-     * @var UtilisateurPreferences
-     *
-     * @ORM\OneToOne(targetEntity=UtilisateurPreferences::class, mappedBy="utilisateur", cascade={"persist", "remove"})
-     */
-    private $preferences;
+    #[ORM\OneToOne(targetEntity: UtilisateurPreferences::class, mappedBy: 'utilisateur', cascade: ['persist', 'remove'])]
+    private ?UtilisateurPreferences $preferences = null;
 
-    /**
-     * @var ?Commune
-     *
-     * @ORM\ManyToOne(targetEntity=Commune::class, inversedBy="utilisateurs")
-     *
-     * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=true)
-     */
-    private $commune;
+    #[ORM\ManyToOne(targetEntity: Commune::class, inversedBy: 'utilisateurs')]
+    #[ORM\JoinColumn(name: 'NUMINSEE_COMMUNE', referencedColumnName: 'NUMINSEE_COMMUNE', nullable: true)]
+    private ?Commune $commune = null;
 
     /**
      * @var Collection<int, Commission>
-     *
-     * @ORM\JoinTable(name="utilisateurcommission",
-     *   joinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})},
-     *   inverseJoinColumns={@ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Commission::class, inversedBy="utilisateurs")
      */
-    private $commissions;
+    #[ORM\JoinTable(name: 'utilisateurcommission')]
+    #[ORM\JoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_COMMISSION', referencedColumnName: 'ID_COMMISSION', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: Commission::class, inversedBy: 'utilisateurs')]
+    private Collection $commissions;
 
     /**
      * @var Collection<int, Groupement>
-     *
-     * @ORM\JoinTable(name="utilisateurgroupement",
-     *   joinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})},
-     *   inverseJoinColumns={@ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Groupement::class, inversedBy="utilisateurs")
      */
-    private $groupements;
+    #[ORM\JoinTable(name: 'utilisateurgroupement')]
+    #[ORM\JoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: Groupement::class, inversedBy: 'utilisateurs')]
+    private Collection $groupements;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $sso;
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $sso = null;
 
-    /**
-     * @Groups({"api_response"})
-     */
+    #[Groups(['api_response'])]
     private ?string $displayLabel = null;
 
     public function __construct()

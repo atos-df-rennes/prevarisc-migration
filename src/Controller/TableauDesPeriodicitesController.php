@@ -16,18 +16,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-/**
- * @IsGranted("periodicites")
- */
+#[IsGranted('periodicites')]
 class TableauDesPeriodicitesController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private PeriodiciteRepository $periodiciteRepository, private EtablissementTypeRepository $etablissementTypeRepository, private EtablissementCategorieRepository $etablissementCategorieRepository, private IghClasseRepository $ighClasseRepository, private TagAwareCacheInterface $searchCache)
     {
     }
 
-    /**
-     * @Route("/admin/tableau-des-periodicites", name="admin_tableau_des_periodicites")
-     */
+    #[Route(path: '/admin/tableau-des-periodicites', name: 'admin_tableau_des_periodicites')]
     public function index(): Response
     {
         $periodicites = $this->periodiciteRepository->findAll();
@@ -50,9 +46,7 @@ class TableauDesPeriodicitesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/tableau-des-periodicites/sauvegarder", name="admin_tableau_des_periodicites_save")
-     */
+    #[Route(path: '/admin/tableau-des-periodicites/sauvegarder', name: 'admin_tableau_des_periodicites_save')]
     public function save(Request $request): Response
     {
         foreach ($request->request->all() as $periodiciteKey => $periodicite) {
@@ -97,9 +91,7 @@ class TableauDesPeriodicitesController extends AbstractController
         return $this->redirectToRoute('admin_tableau_des_periodicites');
     }
 
-    /**
-     * @Route("/admin/tableau-des-periodicites/appliquer", name="admin_tableau_des_periodicites_apply", methods={"POST"})
-     */
+    #[Route(path: '/admin/tableau-des-periodicites/appliquer', name: 'admin_tableau_des_periodicites_apply', methods: ['POST'])]
     public function apply(Request $request): Response
     {
         /** @var string $csrfToken */

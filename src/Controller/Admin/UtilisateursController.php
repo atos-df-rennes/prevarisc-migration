@@ -18,20 +18,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(requirements={"id"="\d+"})
- *
- * @IsGranted("admin")
- */
+#[Route(requirements: ['id' => '\d+'])]
+#[IsGranted('admin')]
 class UtilisateursController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private UtilisateurRepository $utilisateurRepository, private GroupeRepository $groupeRepository, private Avatar $avatar, private Image $image, private UtilisateurManager $utilisateurManager)
     {
     }
 
-    /**
-     * @Route("/admin/utilisateurs/", name="admin_utilisateurs_index")
-     */
+    #[Route(path: '/admin/utilisateurs/', name: 'admin_utilisateurs_index')]
     public function utilisateurs(): Response
     {
         return $this->render('utilisateurs/index.html.twig', [
@@ -42,9 +37,7 @@ class UtilisateursController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/utilisateurs/ajouter", name="admin_utilisateurs_add")
-     */
+    #[Route(path: '/admin/utilisateurs/ajouter', name: 'admin_utilisateurs_add')]
     public function ajouter(Request $request): Response
     {
         $utilisateur = new Utilisateur();
@@ -95,9 +88,7 @@ class UtilisateursController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/utilisateurs/{id}/modifier", name="admin_utilisateurs_edit")
-     */
+    #[Route(path: '/admin/utilisateurs/{id}/modifier', name: 'admin_utilisateurs_edit')]
     public function modifier(Request $request, Utilisateur $utilisateur): Response
     {
         $form = $this->createForm(UtilisateurType::class, $utilisateur);

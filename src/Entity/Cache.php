@@ -5,33 +5,21 @@ namespace App\Entity;
 use App\Repository\CacheRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CacheRepository::class)
- */
+#[ORM\Entity(repositoryClass: CacheRepository::class)]
 class Cache
 {
     /**
      * @var string
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="ID_CACHE", type="string", length=250)
      */
+    #[ORM\Id]
+    #[ORM\Column(name: 'ID_CACHE', type: 'string', length: 250)]
     private $id;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="VALUE_CACHE", type="text", nullable=true)
-     */
-    private $value;
+    #[ORM\Column(name: 'VALUE_CACHE', type: 'text', nullable: true)]
+    private ?string $value = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="EXPIRE_CACHE", type="integer", nullable=true)
-     */
-    private $expire;
+    #[ORM\Column(name: 'EXPIRE_CACHE', type: 'integer', nullable: true)]
+    private ?int $expire = null;
 
     public function getId(): ?string
     {

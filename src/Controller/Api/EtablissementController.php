@@ -24,9 +24,8 @@ class EtablissementController extends AbstractController
     /**
      * Récupération d'une adresse d'établissement par son ID.
      * Port de Api_Service_Etablissement::getAdresse.
-     *
-     * @Route("/api/2.0/etablissement/get_adresse", name="api_etablissement_get_adresse", methods={"GET"})
      */
+    #[Route(path: '/api/2.0/etablissement/get_adresse', name: 'api_etablissement_get_adresse', methods: ['GET'])]
     public function getAdresse(Request $request): JsonResponse
     {
         /** @var string|null $id */
@@ -58,9 +57,8 @@ class EtablissementController extends AbstractController
 
     /**
      * Recherche d'établissements par libellé pour autocomplete.
-     *
-     * @Route("/api/etablissements/search", name="api_etablissements_search", methods={"GET"})
      */
+    #[Route(path: '/api/etablissements/search', name: 'api_etablissements_search', methods: ['GET'])]
     public function search(Request $request): JsonResponse
     {
         $query = (string) $request->query->get('q', '');
@@ -97,9 +95,8 @@ class EtablissementController extends AbstractController
      * pour un établissement selon son genre, catégorie, type et commune.
      *
      * Port de Api_Service_Etablissement::getDefaultValues() / Service_Etablissement::getDefaultValues().
-     *
-     * @Route("/api/2.0/etablissement/defaults_values", name="api_etablissement_defaults_values", methods={"GET","POST"})
      */
+    #[Route(path: '/api/2.0/etablissement/defaults_values', name: 'api_etablissement_defaults_values', methods: ['GET', 'POST'])]
     public function defaultsValues(Request $request): JsonResponse
     {
         // Récupération des paramètres (GET ou POST)

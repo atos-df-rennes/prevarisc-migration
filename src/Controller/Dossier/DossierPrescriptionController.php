@@ -21,11 +21,8 @@ class DossierPrescriptionController extends AbstractController implements Dossie
     {
     }
 
-    /**
-     * @Route("/dossier/{id}/prescriptions", name="dossier_prescriptions", requirements={"id"="\d+"}, methods={"GET"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/prescriptions', name: 'dossier_prescriptions', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function index(Dossier $dossier): Response
     {
         return $this->render('dossier/prescriptions/index.html.twig', [
@@ -36,11 +33,8 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/prescriptions/reordonner", name="dossier_prescriptions_reordonner", requirements={"id"="\d+"}, methods={"POST"}, options={"expose"=true}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/prescriptions/reordonner', name: 'dossier_prescriptions_reordonner', requirements: ['id' => '\d+'], methods: ['POST'], options: ['expose' => true], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function reordonner(Request $request, Dossier $dossier): Response
     {
         /** @var string $csrfToken */
@@ -61,14 +55,10 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
-    /**
-     * @Route("/dossier/{id}/prescriptions/ajouter", name="dossier_prescriptions_ajouter", requirements={"id"="\d+"})
-     * @Route("/dossier/{id}/prescriptions/{idPrescription}/modifier", name="dossier_prescriptions_modifier", requirements={"id"="\d+", "idPrescription"="\d+"})
-     *
-     * @ParamConverter("prescription", options={"id" = "idPrescription"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/prescriptions/ajouter', name: 'dossier_prescriptions_ajouter', requirements: ['id' => '\d+'])]
+    #[Route(path: '/dossier/{id}/prescriptions/{idPrescription}/modifier', name: 'dossier_prescriptions_modifier', requirements: ['id' => '\d+', 'idPrescription' => '\d+'])]
+    #[ParamConverter('prescription', options: ['id' => 'idPrescription'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function form(Request $request, Dossier $dossier, ?PrescriptionDossier $prescription = null): Response
     {
         $isNew = null === $prescription;
@@ -112,13 +102,9 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/prescriptions/{idPrescription}/supprimer", name="dossier_prescriptions_supprimer", requirements={"id"="\d+", "idPrescription"="\d+"}, methods={"DELETE"})
-     *
-     * @ParamConverter("prescription", options={"id" = "idPrescription"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/prescriptions/{idPrescription}/supprimer', name: 'dossier_prescriptions_supprimer', requirements: ['id' => '\d+', 'idPrescription' => '\d+'], methods: ['DELETE'])]
+    #[ParamConverter('prescription', options: ['id' => 'idPrescription'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function supprimer(Request $request, Dossier $dossier, PrescriptionDossier $prescription): Response
     {
         /** @var string $csrfToken */

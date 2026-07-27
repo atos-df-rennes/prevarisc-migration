@@ -15,9 +15,7 @@ class AboutController extends AbstractController
     {
     }
 
-    /**
-     * @Route("/about/{doc}", name="about")
-     */
+    #[Route(path: '/about/{doc}', name: 'about')]
     public function index(string $doc = AboutDocument::ABOUT): Response
     {
         if (!in_array($doc, AboutDocument::ALL)) {

@@ -7,107 +7,70 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CommissionRegleRepository::class)
- *
- * @ORM\Table(name="commissionregle")
- */
+#[ORM\Entity(repositoryClass: CommissionRegleRepository::class)]
+#[ORM\Table(name: 'commissionregle')]
 class CommissionRegle
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_REGLE", type="bigint", options={"unsigned":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_REGLE', type: 'bigint', options: ['unsigned' => true])]
     private $id;
 
-    /**
-     * @var ?Groupement
-     *
-     * @ORM\ManyToOne(targetEntity=Groupement::class)
-     *
-     * @ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", nullable=true)
-     */
-    private $groupement;
+    #[ORM\ManyToOne(targetEntity: Groupement::class)]
+    #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', nullable: true)]
+    private ?Groupement $groupement = null;
 
-    /**
-     * @var ?Commission
-     *
-     * @ORM\ManyToOne(targetEntity=Commission::class, inversedBy="regles")
-     *
-     * @ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", nullable=false, options={"unsigned":true}, onDelete="CASCADE")
-     */
-    private $commission;
+    #[ORM\ManyToOne(targetEntity: Commission::class, inversedBy: 'regles')]
+    #[ORM\JoinColumn(name: 'ID_COMMISSION', referencedColumnName: 'ID_COMMISSION', nullable: false, options: ['unsigned' => true], onDelete: 'CASCADE')]
+    private ?Commission $commission = null;
 
-    /**
-     * @var ?Commune
-     *
-     * @ORM\ManyToOne(targetEntity=Commune::class)
-     *
-     * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=true, onDelete="CASCADE")
-     */
-    private $commune;
+    #[ORM\ManyToOne(targetEntity: Commune::class)]
+    #[ORM\JoinColumn(name: 'NUMINSEE_COMMUNE', referencedColumnName: 'NUMINSEE_COMMUNE', nullable: true, onDelete: 'CASCADE')]
+    private ?Commune $commune = null;
 
     /**
      * @var Collection<int, EtablissementCategorie>
-     *
-     * @ORM\JoinTable(
-     *     name="commissionreglecategorie",
-     *     joinColumns={@ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=EtablissementCategorie::class)
      */
-    private $categories;
+    #[ORM\JoinTable(name: 'commissionreglecategorie')]
+    #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_CATEGORIE', referencedColumnName: 'ID_CATEGORIE', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: EtablissementCategorie::class)]
+    private Collection $categories;
 
     /**
      * @var Collection<int, IghClasse>
-     *
-     * @ORM\JoinTable(
-     *     name="commissionregleclasse",
-     *     joinColumns={@ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_CLASSE", referencedColumnName="ID_CLASSE", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=IghClasse::class)
      */
-    private $classes;
+    #[ORM\JoinTable(name: 'commissionregleclasse')]
+    #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_CLASSE', referencedColumnName: 'ID_CLASSE', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: IghClasse::class)]
+    private Collection $classes;
 
     /**
      * @var Collection<int, EtablissementType>
-     *
-     * @ORM\JoinTable(
-     *     name="commissionregletype",
-     *     joinColumns={@ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=EtablissementType::class)
      */
-    private $types;
+    #[ORM\JoinTable(name: 'commissionregletype')]
+    #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_TYPE', referencedColumnName: 'ID_TYPE', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: EtablissementType::class)]
+    private Collection $types;
 
     /**
      * @var Collection<int, CommissionRegleEtudeVisite>
-     *
-     * @ORM\OneToMany(targetEntity=CommissionRegleEtudeVisite::class, mappedBy="regle", cascade={"persist"}, orphanRemoval=true)
-     *
-     * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})
      */
-    private $etudeVisite;
+    #[ORM\OneToMany(targetEntity: CommissionRegleEtudeVisite::class, mappedBy: 'regle', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
+    private Collection $etudeVisite;
 
     /**
      * @var Collection<int, CommissionRegleLocalSommeil>
-     *
-     * @ORM\OneToMany(targetEntity=CommissionRegleLocalSommeil::class, mappedBy="regle", cascade={"persist"}, orphanRemoval=true)
-     *
-     * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", options={"unsigned":true})
      */
-    private $localSommeil;
+    #[ORM\OneToMany(targetEntity: CommissionRegleLocalSommeil::class, mappedBy: 'regle', cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
+    private Collection $localSommeil;
 
     public function __construct()
     {

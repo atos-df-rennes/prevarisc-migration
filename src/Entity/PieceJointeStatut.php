@@ -7,44 +7,29 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PieceJointeStatutRepository::class)
- *
- * @ORM\Table(name="piecejointestatut")
- */
+#[ORM\Entity(repositoryClass: PieceJointeStatutRepository::class)]
+#[ORM\Table(name: 'piecejointestatut')]
 class PieceJointeStatut
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_PIECEJOINTESTATUT", type="integer")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_PIECEJOINTESTATUT', type: 'integer')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="NOM_STATUT", type="string", length=50, nullable=false)
-     */
-    private $nomStatut;
+    #[ORM\Column(name: 'NOM_STATUT', type: 'string', length: 50, nullable: false)]
+    private ?string $nomStatut = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="NOM_LISIBLE", type="string", length=50, nullable=false)
-     */
-    private $nomLisible;
+    #[ORM\Column(name: 'NOM_LISIBLE', type: 'string', length: 50, nullable: false)]
+    private ?string $nomLisible = null;
 
     /**
      * @var Collection<int, PieceJointe>
-     *
-     * @ORM\OneToMany(targetEntity=PieceJointe::class, mappedBy="statut")
      */
-    private $pieceJointes;
+    #[ORM\OneToMany(targetEntity: PieceJointe::class, mappedBy: 'statut')]
+    private Collection $pieceJointes;
 
     public function __construct()
     {

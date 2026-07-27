@@ -17,9 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Gère l'onglet "Contacts" d'une commission.
- *
- * @IsGranted("gestion_commissions")
  */
+#[IsGranted('gestion_commissions')]
 class CommissionContactsController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private Contact $contactService)
@@ -28,9 +27,8 @@ class CommissionContactsController extends AbstractController
 
     /**
      * Onglet Contacts.
-     *
-     * @Route("/admin/commissions/{id}/contacts", name="admin_commissions_contacts", requirements={"id"="\d+"}, methods={"GET"})
      */
+    #[Route(path: '/admin/commissions/{id}/contacts', name: 'admin_commissions_contacts', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function contacts(Commission $commission): Response
     {
         return $this->render('commissions/edit.html.twig', [
@@ -40,9 +38,7 @@ class CommissionContactsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/commissions/{id}/contacts/ajouter", name="admin_commissions_contacts_add", requirements={"id"="\d+"})
-     */
+    #[Route(path: '/admin/commissions/{id}/contacts/ajouter', name: 'admin_commissions_contacts_add', requirements: ['id' => '\d+'])]
     public function addNewContact(Request $request, Commission $commission): Response
     {
         $contact = new UtilisateurInformations();
@@ -67,9 +63,7 @@ class CommissionContactsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/commissions/{id}/contacts/ajouter/existant", name="admin_commissions_contacts_add_existing", requirements={"id"="\d+"})
-     */
+    #[Route(path: '/admin/commissions/{id}/contacts/ajouter/existant', name: 'admin_commissions_contacts_add_existing', requirements: ['id' => '\d+'])]
     public function addExistingContact(Request $request, Commission $commission): Response
     {
         $form = $this->createForm(AddExistingContactsType::class, null, [
@@ -98,12 +92,9 @@ class CommissionContactsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/commissions/{id}/contacts/{contact}/supprimer", name="admin_commissions_contacts_delete", requirements={"id"="\d+", "contact"="\d+"}, methods={"GET", "DELETE"}, options={"expose"=true})
-     *
-     * @ParamConverter("commission", options={"id" = "id"})
-     * @ParamConverter("contact", options={"id" = "contact"})
-     */
+    #[Route(path: '/admin/commissions/{id}/contacts/{contact}/supprimer', name: 'admin_commissions_contacts_delete', requirements: ['id' => '\d+', 'contact' => '\d+'], methods: ['GET', 'DELETE'], options: ['expose' => true])]
+    #[ParamConverter('commission', options: ['id' => 'id'])]
+    #[ParamConverter('contact', options: ['id' => 'contact'])]
     public function deleteContact(
         Request $request,
         Commission $commission,

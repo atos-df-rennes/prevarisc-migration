@@ -54,9 +54,8 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Affiche le formulaire d'ajout d'un établissement (GET) et traite la soumission (POST).
-     *
-     * @Route("/etablissement/ajouter", name="etablissement_ajouter", methods={"GET","POST"}, defaults={"_etablissement_lateral_nav": false})
      */
+    #[Route(path: '/etablissement/ajouter', name: 'etablissement_ajouter', methods: ['GET', 'POST'], defaults: ['_etablissement_lateral_nav' => false])]
     public function add(Request $request): Response
     {
         $this->denyAccessUnlessGranted(EtablissementVoter::CREATE);
@@ -114,11 +113,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Affiche le formulaire d'édition d'un établissement (GET) et traite la soumission (POST).
-     *
-     * @Route("/etablissement/{id}/modifier", name="etablissement_modifier", methods={"GET","POST"})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
      */
+    #[Route(path: '/etablissement/{id}/modifier', name: 'etablissement_modifier', methods: ['GET', 'POST'])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function edit(Request $request, Etablissement $etablissement): Response
     {
         $templateParams = $this->formDataLoader->load() + [
@@ -172,11 +169,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         return $this->render('etablissement/form.html.twig', $templateParams);
     }
 
-    /**
-     * @Route("/etablissement/{id}/informations", name="etablissement_informations", options={"expose"=true})
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/informations', name: 'etablissement_informations', options: ['expose' => true])]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function informations(
         Etablissement $etablissement
     ): Response {
@@ -242,14 +236,12 @@ class EtablissementController extends AbstractController implements Etablissemen
      *
      * Équivalent legacy : fin de EtablissementController::editAction() (flash + redirect)
      *
-     * @Route("/symfony/etablissement/{id}/apres-modification", name="etablissement_apres_modification", methods={"GET"}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     *
      * @param int           $id            Identifiant de l'établissement
      * @param Request       $request       Requête HTTP (query param type_alerte)
      * @param Etablissement $etablissement Établissement modifié
      */
+    #[Route(path: '/symfony/etablissement/{id}/apres-modification', name: 'etablissement_apres_modification', methods: ['GET'], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function apresModification(
         int $id,
         Request $request,
@@ -271,11 +263,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         return $this->redirectToRoute('etablissement_informations', ['id' => $id]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/historique", name="etablissement_historique")
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/historique', name: 'etablissement_historique')]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function historique(Etablissement $etablissement): Response
     {
         $historique = $this->etablissementHistoriqueService->getHistorique($etablissement->getId());
@@ -286,11 +275,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         ]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/textes-applicables", name="etablissement_textes_applicables")
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/textes-applicables', name: 'etablissement_textes_applicables')]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function textesApplicables(Etablissement $etablissement): Response
     {
         $etablissementData = $this->etablissementService->getTextesApplicables($etablissement->getId());
@@ -301,11 +287,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         ]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/textes-applicables/modifier", name="etablissement_textes_applicables_edit")
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/textes-applicables/modifier', name: 'etablissement_textes_applicables_edit')]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function editTextesApplicables(Request $request, Etablissement $etablissement): Response
     {
         $this->etablissementRepository->getTextesApplicablesByType($etablissement->getId());
@@ -326,11 +309,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         ]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/avis-derogations", name="etablissement_avis_derogations")
-     *
-     * @Security("is_granted('avis_derogations') and is_granted('view_ets', etablissement)")
-     */
+    #[Route(path: '/etablissement/{id}/avis-derogations', name: 'etablissement_avis_derogations')]
+    #[Security("is_granted('avis_derogations') and is_granted('view_ets', etablissement)")]
     public function avisDerogations(Etablissement $etablissement): Response
     {
         $historiqueAvisDerogations = $this->etablissementService->getAvisDerogations($etablissement);
@@ -343,11 +323,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         ]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/pieces-jointes", name="etablissement_pieces_jointes")
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/pieces-jointes', name: 'etablissement_pieces_jointes')]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function piecesJointes(Etablissement $etablissement): Response
     {
         $image_pjs = $this->etablissementPieceJointeService->getPJImages($etablissement->getId());
@@ -362,11 +339,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Affiche la liste de gestion des pièces jointes d'un établissement.
-     *
-     * @Route("/etablissement/{id}/pieces-jointes/modifier", name="etablissement_pieces_jointes_modifier", methods={"GET"})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
      */
+    #[Route(path: '/etablissement/{id}/pieces-jointes/modifier', name: 'etablissement_pieces_jointes_modifier', methods: ['GET'])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function editPiecesJointes(Etablissement $etablissement): Response
     {
         $image_pjs = $this->etablissementPieceJointeService->getPJImages($etablissement->getId());
@@ -381,11 +356,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Affiche le formulaire modal d'ajout de pièce jointe (chargé via AJAX).
-     *
-     * @Route("/etablissement/{id}/pieces-jointes/ajouter/formulaire", name="etablissement_pieces_jointes_ajouter_formulaire", methods={"GET"}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
      */
+    #[Route(path: '/etablissement/{id}/pieces-jointes/ajouter/formulaire', name: 'etablissement_pieces_jointes_ajouter_formulaire', methods: ['GET'], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function addPieceJointeForm(Etablissement $etablissement): Response
     {
         return $this->render('etablissement/add_piece_jointe.html.twig', [
@@ -395,11 +368,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Traite l'ajout d'une pièce jointe à un établissement (formulaire modal ou Dropzone).
-     *
-     * @Route("/etablissement/{id}/pieces-jointes/ajouter", name="etablissement_pieces_jointes_ajouter", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
      */
+    #[Route(path: '/etablissement/{id}/pieces-jointes/ajouter', name: 'etablissement_pieces_jointes_ajouter', methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function addPieceJointe(Etablissement $etablissement, Request $request): Response
     {
         $rawToken = $request->request->get('_token');
@@ -444,11 +415,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Supprime une pièce jointe d'un établissement.
-     *
-     * @Route("/etablissement/{id}/pieces-jointes/supprimer", name="etablissement_pieces_jointes_supprimer", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
      */
+    #[Route(path: '/etablissement/{id}/pieces-jointes/supprimer', name: 'etablissement_pieces_jointes_supprimer', methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function deletePieceJointe(Etablissement $etablissement, Request $request): Response
     {
         $idPj = $request->request->getInt('id_pj');
@@ -470,11 +439,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         return $this->redirectToRoute('etablissement_pieces_jointes_modifier', ['id' => $etablissement->getId()]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/dossiers", name="etablissement_dossiers", methods={"GET"})
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/dossiers', name: 'etablissement_dossiers', methods: ['GET'])]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function getDossiers(
         Etablissement $etablissement
     ): Response {
@@ -502,9 +468,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         ]);
     }
 
-    /**
-     * @Route("/etablissement/get-dossiers-after-n", name="etablissement_get_dossiers_after_n", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
-     */
+    #[Route(path: '/etablissement/get-dossiers-after-n', name: 'etablissement_get_dossiers_after_n', methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
     public function getDossiersAfterN(Request $request): Response
     {
         $id = $request->request->getInt('id');
@@ -547,11 +511,9 @@ class EtablissementController extends AbstractController implements Etablissemen
      * Affiche l'onglet Descriptif de l'établissement.
      * Si PREVARISC_DESCRIPTIF_PERSONNALISE est activé, affiche les formulaires personnalisés.
      * Sinon, affiche le descriptif original (champs fixes).
-     *
-     * @Route("/etablissement/{id}/descriptif", name="etablissement_descriptif", methods={"GET"})
-     *
-     * @IsGranted("view_ets", subject="etablissement")
      */
+    #[Route(path: '/etablissement/{id}/descriptif', name: 'etablissement_descriptif', methods: ['GET'])]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function descriptif(Etablissement $etablissement): Response
     {
         if (!$this->descriptifPersonnalise) {
@@ -577,11 +539,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Retourne le contenu du descriptif original pour la modale (sans layout).
-     *
-     * @Route("/etablissement/{id}/descriptif-original", name="etablissement_descriptif_original", methods={"GET"}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("view_ets", subject="etablissement")
      */
+    #[Route(path: '/etablissement/{id}/descriptif-original', name: 'etablissement_descriptif_original', methods: ['GET'], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function descriptifOriginal(Etablissement $etablissement, Request $request): Response
     {
         if (!$request->isXmlHttpRequest()) {
@@ -602,11 +562,9 @@ class EtablissementController extends AbstractController implements Etablissemen
      * Affiche et traite le formulaire d'édition du descriptif.
      * Si PREVARISC_DESCRIPTIF_PERSONNALISE est activé, gère les formulaires personnalisés (POST).
      * Sinon, gère le descriptif original (champs fixes).
-     *
-     * @Route("/etablissement/{id}/descriptif/modifier", name="etablissement_descriptif_modifier", methods={"GET", "POST"})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
      */
+    #[Route(path: '/etablissement/{id}/descriptif/modifier', name: 'etablissement_descriptif_modifier', methods: ['GET', 'POST'])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function editDescriptifOriginal(Etablissement $etablissement, Request $request): Response
     {
         if ($this->descriptifPersonnalise) {
@@ -676,11 +634,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Affiche et traite le formulaire d'édition des effectifs et dégagements de l'établissement.
-     *
-     * @Route("/etablissement/{id}/effectifs-degagements/modifier", name="etablissement_effectifs_degagements_edit", methods={"GET", "POST"})
-     *
-     * @Security("is_granted('effectifs_degagements_ets') and is_granted('edit_ets', etablissement)")
      */
+    #[Route(path: '/etablissement/{id}/effectifs-degagements/modifier', name: 'etablissement_effectifs_degagements_edit', methods: ['GET', 'POST'])]
+    #[Security("is_granted('effectifs_degagements_ets') and is_granted('edit_ets', etablissement)")]
     public function editEffectifsDegagements(Etablissement $etablissement, Request $request): Response
     {
         $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
@@ -716,11 +672,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Affiche l'onglet Effectifs et Dégagements de l'établissement.
-     *
-     * @Route("/etablissement/{id}/effectifs-degagements", name="etablissement_effectifs_degagements", methods={"GET"})
-     *
-     * @Security("is_granted('effectifs_degagements_ets') and is_granted('view_ets', etablissement)")
      */
+    #[Route(path: '/etablissement/{id}/effectifs-degagements', name: 'etablissement_effectifs_degagements', methods: ['GET'])]
+    #[Security("is_granted('effectifs_degagements_ets') and is_granted('view_ets', etablissement)")]
     public function effectifsDegagements(Etablissement $etablissement): Response
     {
         $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
@@ -734,11 +688,9 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /**
      * Supprime logiquement un établissement et tous ses dossiers associés (RG-ETB-018, RG-ETB-019).
-     *
-     * @Route("/etablissement/{id}/supprimer", name="etablissement_supprimer", requirements={"id"="\d+"}, methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("delete_etablissement")
      */
+    #[Route(path: '/etablissement/{id}/supprimer', name: 'etablissement_supprimer', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('delete_etablissement')]
     public function deleteEtablissement(Etablissement $etablissement, Request $request): Response
     {
         $rawToken = $request->request->get('_token');

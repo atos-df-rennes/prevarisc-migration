@@ -5,32 +5,18 @@ namespace App\Entity;
 use App\Repository\CommissionRegleEtudeVisiteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CommissionRegleEtudeVisiteRepository::class)
- *
- * @ORM\Table(name="commissionregleetudevisite")
- */
+#[ORM\Entity(repositoryClass: CommissionRegleEtudeVisiteRepository::class)]
+#[ORM\Table(name: 'commissionregleetudevisite')]
 class CommissionRegleEtudeVisite
 {
-    /**
-     * @var ?CommissionRegle
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=CommissionRegle::class, inversedBy="etudeVisite")
-     *
-     * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", nullable=false, options={"unsigned":true})
-     */
-    private $regle;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: CommissionRegle::class, inversedBy: 'etudeVisite')]
+    #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', nullable: false, options: ['unsigned' => true])]
+    private ?CommissionRegle $regle = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="ETUDEVISITE", type="smallint", nullable=false)
-     */
-    private $etudeVisite;
+    #[ORM\Id]
+    #[ORM\Column(name: 'ETUDEVISITE', type: 'smallint', nullable: false)]
+    private ?int $etudeVisite = null;
 
     public function getRegle(): ?CommissionRegle
     {

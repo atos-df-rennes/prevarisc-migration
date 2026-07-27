@@ -2,106 +2,56 @@
 
 namespace App\Entity;
 
+use App\Repository\AvisDerogationsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\AvisDerogationsRepository")
- *
- * @ORM\Table(name="avisderogations")
- */
+#[ORM\Entity(repositoryClass: AvisDerogationsRepository::class)]
+#[ORM\Table(name: 'avisderogations')]
 class AvisDerogations
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="AUTO")
-     *
-     * @ORM\Column(name="ID_AVIS_DEROGATION", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(name: 'ID_AVIS_DEROGATION', type: 'bigint')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="TYPE", type="string", length=50, nullable=false)
-     */
-    private $type;
+    #[ORM\Column(name: 'TYPE', type: 'string', length: 50, nullable: false)]
+    private ?string $type = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="TITRE", type="string", length=100, nullable=true)
-     */
-    private $titre;
+    #[ORM\Column(name: 'TITRE', type: 'string', length: 100, nullable: true)]
+    private ?string $titre = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="OBJET", type="text", nullable=true)
-     */
-    private $objet;
+    #[ORM\Column(name: 'OBJET', type: 'text', nullable: true)]
+    private ?string $objet = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="JUSTIFICATION", type="text", nullable=true)
-     */
-    private $justification;
+    #[ORM\Column(name: 'JUSTIFICATION', type: 'text', nullable: true)]
+    private ?string $justification = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="ARTICLES_CONCERNES", type="text", nullable=true)
-     */
-    private $articlesConcernes;
+    #[ORM\Column(name: 'ARTICLES_CONCERNES', type: 'text', nullable: true)]
+    private ?string $articlesConcernes = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="MESURES_COMPENSATOIRES_PROPOSEES", type="text", nullable=true)
-     */
-    private $mesuresCompensatoiresProposees;
+    #[ORM\Column(name: 'MESURES_COMPENSATOIRES_PROPOSEES', type: 'text', nullable: true)]
+    private ?string $mesuresCompensatoiresProposees = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="ANALYSE_DE_RISQUE", type="text", nullable=true)
-     */
-    private $analyseDeRisque;
+    #[ORM\Column(name: 'ANALYSE_DE_RISQUE', type: 'text', nullable: true)]
+    private ?string $analyseDeRisque = null;
 
-    /**
-     * @ORM\Column(name="DISPLAY_HISTORIQUE", type="boolean", options={"default": 0})
-     */
+    #[ORM\Column(name: 'DISPLAY_HISTORIQUE', type: 'boolean', options: ['default' => 0])]
     private bool $displayHistorique;
 
-    /**
-     * @var ?Avis
-     *
-     * @ORM\ManyToOne(targetEntity=Avis::class)
-     *
-     * @ORM\JoinColumn(name="AVIS", referencedColumnName="ID_AVIS", nullable=true, options={"unsigned":true})
-     */
-    private $avis;
+    #[ORM\ManyToOne(targetEntity: Avis::class)]
+    #[ORM\JoinColumn(name: 'AVIS', referencedColumnName: 'ID_AVIS', nullable: true, options: ['unsigned' => true])]
+    private ?Avis $avis = null;
 
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class)
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER_LIE", referencedColumnName="ID_DOSSIER", nullable=true)
-     */
-    private $dossierLie;
+    #[ORM\ManyToOne(targetEntity: Dossier::class)]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER_LIE', referencedColumnName: 'ID_DOSSIER', nullable: true)]
+    private ?Dossier $dossierLie = null;
 
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="avisDerogations")
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'avisDerogations')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false)]
+    private ?Dossier $dossier = null;
 
     public function __construct()
     {

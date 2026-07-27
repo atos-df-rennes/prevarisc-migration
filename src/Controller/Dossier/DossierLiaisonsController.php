@@ -25,11 +25,9 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
 
     /**
      * Affichage des établissements et dossiers liés.
-     *
-     * @Route("/dossier/{id}/liees", name="dossier_liees", requirements={"id"="\d+"}, methods={"GET"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/liees', name: 'dossier_liees', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function liees(Dossier $dossier): Response
     {
         $formAjouterEtab = $this->createForm(DossierAjouterEtablissementType::class, null, [
@@ -46,11 +44,9 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
 
     /**
      * Sélection des dossiers à lier (GET : formulaire, POST : enregistrement).
-     *
-     * @Route("/dossier/{id}/liees/dossiers", name="dossier_liees_doss", requirements={"id"="\d+"}, methods={"GET", "POST"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/liees/dossiers', name: 'dossier_liees_doss', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function lieesDoss(Request $request, Dossier $dossier): Response
     {
         $disponibles = $this->dossierLiaisonsService->getDossiersDisponibles($dossier);
@@ -80,14 +76,9 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
 
     /**
      * Ajout d'un établissement lié au dossier.
-     *
-     * @Route("/dossier/{id}/liees/etablissements/ajouter", name="dossier_liees_etab_ajouter",
-     *     requirements={"id"="\d+"},
-     *     methods={"POST"},
-     *     defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/liees/etablissements/ajouter', name: 'dossier_liees_etab_ajouter', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function ajouterEtablissementLie(Request $request, Dossier $dossier): Response
     {
         $form = $this->createForm(DossierAjouterEtablissementType::class);
@@ -121,15 +112,9 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
 
     /**
      * Suppression du lien entre un dossier et un établissement.
-     *
-     * @Route("/dossier/{id}/liees/etablissements/{idEtab}/supprimer", name="dossier_liees_etab_supprimer",
-     *     requirements={"id"="\d+", "idEtab"="\d+"},
-     *     methods={"GET", "DELETE"},
-     *     options={"expose"=true},
-     *     defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/liees/etablissements/{idEtab}/supprimer', name: 'dossier_liees_etab_supprimer', requirements: ['id' => '\d+', 'idEtab' => '\d+'], methods: ['GET', 'DELETE'], options: ['expose' => true], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function supprimerEtablissementLie(Request $request, Dossier $dossier, int $idEtab): Response
     {
         $etablissement = $this->etablissementRepository->find($idEtab);
@@ -168,16 +153,9 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
 
     /**
      * Suppression d'une liaison entre deux dossiers.
-     *
-     * @Route("/dossier/{id}/liees/{idLie}/supprimer", name="dossier_liees_supprimer",
-     *     requirements={"id"="\d+", "idLie"="\d+"},
-     *     methods={"GET", "DELETE"},
-     *     options={"expose"=true},
-     *     defaults={"_dossier_lateral_nav": false}
-     * )
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/liees/{idLie}/supprimer', name: 'dossier_liees_supprimer', requirements: ['id' => '\d+', 'idLie' => '\d+'], methods: ['GET', 'DELETE'], options: ['expose' => true], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function supprimerLiaison(Request $request, Dossier $dossier, int $idLie): Response
     {
         $dossierLie = $this->dossierRepository->find($idLie);

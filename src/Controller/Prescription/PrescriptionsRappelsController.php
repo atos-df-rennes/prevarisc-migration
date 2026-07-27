@@ -12,18 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_prescriptions")
- */
+#[IsGranted('gestion_prescriptions')]
 class PrescriptionsRappelsController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private Prescriptions $prescriptions)
     {
     }
 
-    /**
-     * @Route("/admin/prescriptions/rappels", name="admin_prescriptions_rappels")
-     */
+    #[Route(path: '/admin/prescriptions/rappels', name: 'admin_prescriptions_rappels')]
     public function index(): Response
     {
         return $this->render('prescriptions_rappels/index.html.twig', [
@@ -32,10 +28,8 @@ class PrescriptionsRappelsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/rappels/ajouter", name="admin_prescriptions_rappels_add")
-     * @Route("/admin/prescriptions/rappels/modifier/{rappelReg}", name="admin_prescriptions_rappels_edit")
-     */
+    #[Route(path: '/admin/prescriptions/rappels/ajouter', name: 'admin_prescriptions_rappels_add')]
+    #[Route(path: '/admin/prescriptions/rappels/modifier/{rappelReg}', name: 'admin_prescriptions_rappels_edit')]
     public function form(Request $request, ?PrescriptionReglementaire $rappelReg = null): Response
     {
         if (null === $rappelReg) {

@@ -12,18 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Security("is_granted('alerte_statut') or is_granted('alerte_avis') or is_granted('alerte_classement')")
- */
+#[Security("is_granted('alerte_statut') or is_granted('alerte_avis') or is_granted('alerte_classement')")]
 class ChangementController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private ChangementRepository $changementRepository, private Changement $changement)
     {
     }
 
-    /**
-     * @Route("/admin/changement", name="admin_changement")
-     */
+    #[Route(path: '/admin/changement', name: 'admin_changement')]
     public function index(Request $request): Response
     {
         $messages = $this->changementRepository->findAll();
@@ -48,9 +44,7 @@ class ChangementController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/changement/balises", name="changement_balises", options={"expose"=true})
-     */
+    #[Route(path: '/changement/balises', name: 'changement_balises', options: ['expose' => true])]
     public function balises(): Response
     {
         return $this->render('changement/balises.html.twig', [

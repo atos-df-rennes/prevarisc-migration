@@ -5,56 +5,28 @@ namespace App\Entity;
 use App\Repository\PlatauConsultationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PlatauConsultationRepository::class)
- *
- * @ORM\Table(name="platauconsultation")
- */
+#[ORM\Entity(repositoryClass: PlatauConsultationRepository::class)]
+#[ORM\Table(name: 'platauconsultation')]
 class PlatauConsultation
 {
-    /**
-     * @var string
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="ID_PLATAU", type="string", length=11, nullable=false, options={"fixed":true})
-     */
-    private $identifiant;
+    #[ORM\Id]
+    #[ORM\Column(name: 'ID_PLATAU', type: 'string', length: 11, nullable: false, options: ['fixed' => true])]
+    private ?string $identifiant = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="STATUT_AVIS", type="string", length=50, nullable=true)
-     */
-    private $statutAvis;
+    #[ORM\Column(name: 'STATUT_AVIS', type: 'string', length: 50, nullable: true)]
+    private ?string $statutAvis = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_AVIS", type="date", nullable=true)
-     */
-    private $dateAvis;
+    #[ORM\Column(name: 'DATE_AVIS', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateAvis = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="STATUT_PEC", type="string", length=50, nullable=true)
-     */
-    private $statutPriseEnCompte;
+    #[ORM\Column(name: 'STATUT_PEC', type: 'string', length: 50, nullable: true)]
+    private ?string $statutPriseEnCompte = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_PEC", type="date", nullable=true)
-     */
-    private $datePriseEnCompte;
+    #[ORM\Column(name: 'DATE_PEC', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $datePriseEnCompte = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_REPONSE_ATTENDUE", type="date", nullable=true)
-     */
-    private $dateReponseAttendue;
+    #[ORM\Column(name: 'DATE_REPONSE_ATTENDUE', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateReponseAttendue = null;
 
     public function getIdentifiant(): ?string
     {

@@ -27,11 +27,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Page principale de gestion de l'ordre du jour (ODJ).
      * Port direct de gestionodjAction().
-     *
-     * @Route("/commissions/calendrier/gestion-odj", name="calendrier_des_commissions_gestion_odj", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/gestion-odj', name: 'calendrier_des_commissions_gestion_odj', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('modification_odj')]
     public function gestionOdj(Request $request): Response
     {
         /** @var string $rawDateCommId */
@@ -92,11 +90,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Retourne les événements FullCalendar JSON pour les dossiers affectés à une date de commission (ODJ).
      * Port direct de recupevenementodjAction().
-     *
-     * @Route("/commissions/calendrier/recup-evenement-odj", name="calendrier_des_commissions_recup_evenement_odj", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/recup-evenement-odj', name: 'calendrier_des_commissions_recup_evenement_odj', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('modification_odj')]
     public function recupEvenementOdj(Request $request): JsonResponse
     {
         /** @var string $rawStart */
@@ -241,11 +237,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Affecte un dossier à un créneau horaire (drop depuis le panneau latéral vers le calendrier).
      * Port direct de affectedossodjAction().
-     *
-     * @Route("/commissions/calendrier/affecte-doss-odj", name="calendrier_des_commissions_affecte_doss_odj", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/affecte-doss-odj', name: 'calendrier_des_commissions_affecte_doss_odj', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('modification_odj')]
     public function affecteOdj(Request $request): JsonResponse
     {
         try {
@@ -297,11 +291,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Redimensionne un événement ODJ (mise à jour de l'heure de fin uniquement).
      * Port direct de resizeodjAction().
-     *
-     * @Route("/commissions/calendrier/resize-odj", name="calendrier_des_commissions_resize_odj", methods={"POST"})
-     *
-     * @IsGranted("lecture_commission")
      */
+    #[Route(path: '/commissions/calendrier/resize-odj', name: 'calendrier_des_commissions_resize_odj', methods: ['POST'])]
+    #[IsGranted('lecture_commission')]
     public function resizeOdj(Request $request): Response
     {
         try {
@@ -339,11 +331,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Déplace un événement ODJ (mise à jour heure de début et de fin).
      * Port direct de dropodjAction().
-     *
-     * @Route("/commissions/calendrier/drop-odj", name="calendrier_des_commissions_drop_odj", methods={"POST"})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/drop-odj', name: 'calendrier_des_commissions_drop_odj', methods: ['POST'])]
+    #[IsGranted('modification_odj')]
     public function dropOdj(Request $request): Response
     {
         try {
@@ -385,11 +375,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Bascule entre mode horaire (GESTION_HEURES=1) et séquentiel (GESTION_HEURES=0).
      * Port direct de gestionheuresAction().
-     *
-     * @Route("/commissions/calendrier/gestion-heures", name="calendrier_des_commissions_gestion_heures", methods={"POST"})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/gestion-heures', name: 'calendrier_des_commissions_gestion_heures', methods: ['POST'])]
+    #[IsGranted('modification_odj')]
     public function gestionHeures(Request $request): Response
     {
         try {
@@ -472,11 +460,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Réordonnancement séquentiel des dossiers par drag & drop.
      * Port direct de changementordreAction().
-     *
-     * @Route("/commissions/calendrier/changement-ordre", name="calendrier_des_commissions_changement_ordre", methods={"POST"})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/changement-ordre', name: 'calendrier_des_commissions_changement_ordre', methods: ['POST'])]
+    #[IsGranted('modification_odj')]
     public function changementOrdre(Request $request): Response
     {
         try {

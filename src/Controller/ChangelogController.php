@@ -20,9 +20,7 @@ class ChangelogController extends AbstractController
     {
     }
 
-    /**
-     * @Route("/changelog", name="changelog_index")
-     */
+    #[Route(path: '/changelog', name: 'changelog_index')]
     public function index(): Response
     {
         $rawSections = $this->versionService->getChangelogByMinorVersion();
@@ -46,9 +44,7 @@ class ChangelogController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/changelog/banner", name="changelog_banner")
-     */
+    #[Route(path: '/changelog/banner', name: 'changelog_banner')]
     public function banner(): Response
     {
         /** @var Utilisateur|null $user */
@@ -73,9 +69,7 @@ class ChangelogController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/api/changelog/dismiss", name="changelog_dismiss", methods={"POST"})
-     */
+    #[Route(path: '/api/changelog/dismiss', name: 'changelog_dismiss', methods: ['POST'])]
     public function dismiss(
         Request $request,
         EntityManagerInterface $em

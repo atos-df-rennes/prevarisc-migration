@@ -5,50 +5,26 @@ namespace App\Entity;
 use App\Repository\PrescriptionTypeAssociationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrescriptionTypeAssociationRepository::class)
- *
- * @ORM\Table(name="prescriptiontypeassoc")
- */
+#[ORM\Entity(repositoryClass: PrescriptionTypeAssociationRepository::class)]
+#[ORM\Table(name: 'prescriptiontypeassoc')]
 class PrescriptionTypeAssociation
 {
-    /**
-     * @ORM\Id
-     *
-     * @var int
-     *
-     * @ORM\Column(name="NUM_PRESCRIPTIONASSOC", type="integer", nullable=false)
-     */
-    private $numero;
+    #[ORM\Id]
+    #[ORM\Column(name: 'NUM_PRESCRIPTIONASSOC', type: 'integer', nullable: false)]
+    private ?int $numero = null;
 
-    /**
-     * @ORM\Id
-     *
-     * @var ?PrescriptionType
-     *
-     * @ORM\ManyToOne(targetEntity=PrescriptionType::class, inversedBy="associations")
-     *
-     * @ORM\JoinColumn(name="ID_PRESCRIPTIONTYPE", referencedColumnName="ID_PRESCRIPTIONTYPE", nullable=false)
-     */
-    private $prescriptionType;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: PrescriptionType::class, inversedBy: 'associations')]
+    #[ORM\JoinColumn(name: 'ID_PRESCRIPTIONTYPE', referencedColumnName: 'ID_PRESCRIPTIONTYPE', nullable: false)]
+    private ?PrescriptionType $prescriptionType = null;
 
-    /**
-     * @var PrescriptionTexteListe
-     *
-     * @ORM\ManyToOne(targetEntity=PrescriptionTexteListe::class)
-     *
-     * @ORM\JoinColumn(name="ID_TEXTE", referencedColumnName="ID_TEXTE", nullable=false)
-     */
-    private $texte;
+    #[ORM\ManyToOne(targetEntity: PrescriptionTexteListe::class)]
+    #[ORM\JoinColumn(name: 'ID_TEXTE', referencedColumnName: 'ID_TEXTE', nullable: false)]
+    private ?PrescriptionTexteListe $texte = null;
 
-    /**
-     * @var PrescriptionArticleListe
-     *
-     * @ORM\ManyToOne(targetEntity=PrescriptionArticleListe::class)
-     *
-     * @ORM\JoinColumn(name="ID_ARTICLE", referencedColumnName="ID_ARTICLE", nullable=false)
-     */
-    private $article;
+    #[ORM\ManyToOne(targetEntity: PrescriptionArticleListe::class)]
+    #[ORM\JoinColumn(name: 'ID_ARTICLE', referencedColumnName: 'ID_ARTICLE', nullable: false)]
+    private ?PrescriptionArticleListe $article = null;
 
     public function getNumero(): ?int
     {

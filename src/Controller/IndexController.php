@@ -24,17 +24,13 @@ class IndexController extends AbstractController
     {
     }
 
-    /**
-     * @Route("/", name="homepage")
-     */
+    #[Route(path: '/', name: 'homepage')]
     public function homepage(): Response
     {
         return $this->redirectToRoute('accueil_index', [], 301);
     }
 
-    /**
-     * @Route("/accueil", name="accueil_index", methods={"GET"})
-     */
+    #[Route(path: '/accueil', name: 'accueil_index', methods: ['GET'])]
     public function index(): Response
     {
         /** @var Utilisateur $user */
@@ -92,9 +88,8 @@ class IndexController extends AbstractController
 
     /**
      * Chargement AJAX d'un bloc du tableau de bord.
-     *
-     * @Route("/accueil/bloc", name="accueil_bloc", methods={"POST"})
      */
+    #[Route(path: '/accueil/bloc', name: 'accueil_bloc', methods: ['POST'])]
     public function bloc(Request $request): Response
     {
         /** @var Utilisateur $user */
@@ -128,9 +123,8 @@ class IndexController extends AbstractController
 
     /**
      * Formulaire d'ajout d'un message dans le flux.
-     *
-     * @Route("/accueil/add-message", name="accueil_add_message", methods={"GET", "POST"})
      */
+    #[Route(path: '/accueil/add-message', name: 'accueil_add_message', methods: ['GET', 'POST'])]
     public function addMessage(Request $request): Response
     {
         $this->denyAccessUnlessGranted('fil_actus');
@@ -173,9 +167,8 @@ class IndexController extends AbstractController
 
     /**
      * Suppression d'un message du flux.
-     *
-     * @Route("/accueil/delete-message", name="accueil_delete_message", methods={"POST"})
      */
+    #[Route(path: '/accueil/delete-message', name: 'accueil_delete_message', methods: ['POST'])]
     public function deleteMessage(Request $request): Response
     {
         $this->denyAccessUnlessGranted('fil_actus');
@@ -212,9 +205,8 @@ class IndexController extends AbstractController
 
     /**
      * Vérification de la santé de Plat'AU (AJAX).
-     *
-     * @Route("/accueil/platau-healthcheck", name="accueil_platau_healthcheck", methods={"GET"}, options={"expose"=true})
      */
+    #[Route(path: '/accueil/platau-healthcheck', name: 'accueil_platau_healthcheck', methods: ['GET'], options: ['expose' => true])]
     public function platauHealthcheck(): JsonResponse
     {
         return new JsonResponse($this->platauHealthcheckService->executeHealthcheck());

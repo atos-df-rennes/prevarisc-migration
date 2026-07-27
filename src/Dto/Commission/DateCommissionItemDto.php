@@ -9,20 +9,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class DateCommissionItemDto
 {
-    /**
-     * @Assert\NotNull(message="L'heure de début est obligatoire")
-     */
+    #[Assert\NotNull(message: "L'heure de début est obligatoire")]
     private ?\DateTime $heureDebut = null;
 
-    /**
-     * @Assert\NotNull(message="L'heure de fin est obligatoire")
-     */
+    #[Assert\NotNull(message: "L'heure de fin est obligatoire")]
     private ?\DateTime $heureFin = null;
 
     public function __construct(
-        /**
-         * @Assert\NotNull(message="La date est obligatoire")
-         */
+        #[Assert\NotNull(message: 'La date est obligatoire')]
         private ?\DateTime $date = null)
     {
         if (null !== $this->date) {

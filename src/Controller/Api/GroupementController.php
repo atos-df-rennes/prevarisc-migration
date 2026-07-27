@@ -21,9 +21,8 @@ class GroupementController extends AbstractController
     /**
      * Recherche de groupements pour autocomplete.
      * Filtre uniquement les groupements de type "Service Instructeur" (ID 10).
-     *
-     * @Route("/api/groupements/search", name="api_groupements_search", methods={"GET"})
      */
+    #[Route(path: '/api/groupements/search', name: 'api_groupements_search', methods: ['GET'])]
     public function search(Request $request): JsonResponse
     {
         $query = (string) $request->query->get('q', '');
@@ -52,9 +51,8 @@ class GroupementController extends AbstractController
 
     /**
      * Liste tous les groupements (pour initialisation).
-     *
-     * @Route("/api/groupements", name="api_groupements_list", methods={"GET"})
      */
+    #[Route(path: '/api/groupements', name: 'api_groupements_list', methods: ['GET'])]
     public function list(): JsonResponse
     {
         $groupements = $this->groupementRepository->findAllOrdered();

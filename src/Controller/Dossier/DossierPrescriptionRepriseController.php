@@ -22,11 +22,9 @@ class DossierPrescriptionRepriseController extends AbstractController
      * Retourne le contenu de la modale "Reprendre les prescriptions d'autres dossiers".
      *
      * Disponible uniquement si le dossier est lié à un seul établissement.
-     *
-     * @Route("/dossier/{id}/prescriptions/modal-reprise", name="dossier_prescriptions_modal_reprise", requirements={"id"="\d+"}, methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/prescriptions/modal-reprise', name: 'dossier_prescriptions_modal_reprise', requirements: ['id' => '\d+'], methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function repriseModal(Dossier $dossier): Response
     {
         $etablissements = $dossier->getEtablissements();
@@ -55,11 +53,9 @@ class DossierPrescriptionRepriseController extends AbstractController
 
     /**
      * Reprend les prescriptions des dossiers sélectionnés vers le dossier courant.
-     *
-     * @Route("/dossier/{id}/prescriptions/reprendre", name="dossier_prescriptions_reprendre", requirements={"id"="\d+"}, methods={"POST"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/prescriptions/reprendre', name: 'dossier_prescriptions_reprendre', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function reprendre(Request $request, Dossier $dossier): Response
     {
         /** @var string $csrfToken */

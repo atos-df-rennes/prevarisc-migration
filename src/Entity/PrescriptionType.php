@@ -7,65 +7,38 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrescriptionTypeRepository::class)
- *
- * @ORM\Table(name="prescriptiontype")
- */
+#[ORM\Entity(repositoryClass: PrescriptionTypeRepository::class)]
+#[ORM\Table(name: 'prescriptiontype')]
 class PrescriptionType
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_PRESCRIPTIONTYPE", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_PRESCRIPTIONTYPE', type: 'bigint')]
     private $id;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="PRESCRIPTIONTYPE_CATEGORIE", type="bigint", nullable=true)
-     */
-    private $categorie;
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_CATEGORIE', type: 'bigint', nullable: true)]
+    private ?int $categorie = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="PRESCRIPTIONTYPE_TEXTE", type="bigint", nullable=true)
-     */
-    private $texte;
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_TEXTE', type: 'bigint', nullable: true)]
+    private ?int $texte = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="PRESCRIPTIONTYPE_ARTICLE", type="bigint", nullable=true)
-     */
-    private $article;
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_ARTICLE', type: 'bigint', nullable: true)]
+    private ?int $article = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="PRESCRIPTIONTYPE_LIBELLE", type="text", nullable=true)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_LIBELLE', type: 'text', nullable: true)]
+    private ?string $libelle = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="PRESCRIPTIONTYPE_NUM", type="integer", nullable=true)
-     */
-    private $numero;
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_NUM', type: 'integer', nullable: true)]
+    private ?int $numero = null;
 
     /**
      * @var Collection<int, PrescriptionTypeAssociation>
-     *
-     * @ORM\OneToMany(targetEntity=PrescriptionTypeAssociation::class, mappedBy="prescriptionType", orphanRemoval=true, cascade={"persist"})
      */
-    private $associations;
+    #[ORM\OneToMany(targetEntity: PrescriptionTypeAssociation::class, mappedBy: 'prescriptionType', orphanRemoval: true, cascade: ['persist'])]
+    private Collection $associations;
 
     public function __construct()
     {

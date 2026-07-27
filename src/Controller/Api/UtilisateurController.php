@@ -21,9 +21,8 @@ class UtilisateurController extends AbstractController
     /**
      * Recherche de préventionnistes pour autocomplete.
      * Conforme au legacy /api/1.0/search/users (lignes 81-129).
-     *
-     * @Route("/api/utilisateurs/search", name="api_utilisateurs_search", methods={"GET"})
      */
+    #[Route(path: '/api/utilisateurs/search', name: 'api_utilisateurs_search', methods: ['GET'])]
     public function search(Request $request): JsonResponse
     {
         $query = (string) $request->query->get('q', '');

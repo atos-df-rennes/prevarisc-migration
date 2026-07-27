@@ -7,92 +7,50 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrescriptionDossierRepository::class)
- *
- * @ORM\Table(name="prescriptiondossier")
- */
+#[ORM\Entity(repositoryClass: PrescriptionDossierRepository::class)]
+#[ORM\Table(name: 'prescriptiondossier')]
 class PrescriptionDossier
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_PRESCRIPTION_DOSSIER", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_PRESCRIPTION_DOSSIER', type: 'bigint')]
     private $id;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="NUM_PRESCRIPTION_DOSSIER", type="integer", nullable=false)
-     */
-    private $numero;
+    #[ORM\Column(name: 'NUM_PRESCRIPTION_DOSSIER', type: 'integer', nullable: false)]
+    private ?int $numero = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="LIBELLE_PRESCRIPTION_DOSSIER", type="text", nullable=true)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_PRESCRIPTION_DOSSIER', type: 'text', nullable: true)]
+    private ?string $libelle = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="TYPE_PRESCRIPTION_DOSSIER", type="integer", nullable=false)
-     */
-    private $type;
+    #[ORM\Column(name: 'TYPE_PRESCRIPTION_DOSSIER', type: 'integer', nullable: false)]
+    private ?int $type = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_LEVEE", type="date", nullable=true)
-     */
-    private $dateLevee;
+    #[ORM\Column(name: 'DATE_LEVEE', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateLevee = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="JUSTIFICATIF_LEVEE", type="text", nullable=true)
-     */
-    private $justificatif;
+    #[ORM\Column(name: 'JUSTIFICATIF_LEVEE', type: 'text', nullable: true)]
+    private ?string $justificatif = null;
 
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class)
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER_REPRISE", referencedColumnName="ID_DOSSIER", nullable=true)
-     */
-    private $dossierReprise;
+    #[ORM\ManyToOne(targetEntity: Dossier::class)]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER_REPRISE', referencedColumnName: 'ID_DOSSIER', nullable: true)]
+    private ?Dossier $dossierReprise = null;
 
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="prescriptions")
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'prescriptions')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false)]
+    private ?Dossier $dossier = null;
 
-    /**
-     * @var ?PrescriptionType
-     *
-     * @ORM\ManyToOne(targetEntity=PrescriptionType::class)
-     *
-     * @ORM\JoinColumn(name="ID_PRESCRIPTION_TYPE", referencedColumnName="ID_PRESCRIPTIONTYPE", nullable=true)
-     */
-    private $prescriptionType;
+    #[ORM\ManyToOne(targetEntity: PrescriptionType::class)]
+    #[ORM\JoinColumn(name: 'ID_PRESCRIPTION_TYPE', referencedColumnName: 'ID_PRESCRIPTIONTYPE', nullable: true)]
+    private ?PrescriptionType $prescriptionType = null;
 
     /**
      * @var Collection<int, PrescriptionDossierAssociation>
-     *
-     * @ORM\OneToMany(targetEntity=PrescriptionDossierAssociation::class, mappedBy="prescriptionDossier", orphanRemoval=true, cascade={"persist"})
      */
-    private $associations;
+    #[ORM\OneToMany(targetEntity: PrescriptionDossierAssociation::class, mappedBy: 'prescriptionDossier', orphanRemoval: true, cascade: ['persist'])]
+    private Collection $associations;
 
     public function __construct()
     {
@@ -235,7 +193,7 @@ class PrescriptionDossier
 
     public function getEffectiveLibelle(): ?string
     {
-        return $this->prescriptionType ? $this->prescriptionType->getLibelle() : $this->libelle;
+        return $this->prescriptionType instanceof PrescriptionType ? $this->prescriptionType->getLibelle() : $this->libelle;
     }
 
     /**
@@ -243,6 +201,6 @@ class PrescriptionDossier
      */
     public function getEffectiveAssociations(): iterable
     {
-        return $this->prescriptionType ? $this->prescriptionType->getAssociations() : $this->associations;
+        return $this->prescriptionType instanceof PrescriptionType ? $this->prescriptionType->getAssociations() : $this->associations;
     }
 }

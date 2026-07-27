@@ -42,11 +42,9 @@ class DossierRapportController extends AbstractController implements DossierLate
 
     /**
      * Affiche l'onglet Rapport du dossier.
-     *
-     * @Route("/dossier/{id}/rapport", name="dossier_rapport", requirements={"id"="\d+"}, methods={"GET"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/rapport', name: 'dossier_rapport', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function rapport(Dossier $dossier): Response
     {
         $idDossier = (int) $dossier->getId();
@@ -103,11 +101,9 @@ class DossierRapportController extends AbstractController implements DossierLate
 
     /**
      * Action AJAX POST de génération des rapports ODT.
-     *
-     * @Route("/dossier/{id}/rapport/generer", name="dossier_generationrapport", requirements={"id"="\d+"}, methods={"POST"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("edit_doss_ignore_verrou", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/rapport/generer', name: 'dossier_generationrapport', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function generationRapport(Dossier $dossier, Request $request): Response
     {
         // B2 : protection CSRF

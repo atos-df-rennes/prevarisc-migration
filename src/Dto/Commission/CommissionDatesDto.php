@@ -13,31 +13,20 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  */
 final class CommissionDatesDto
 {
-    /**
-     * @Assert\Length(max=255, maxMessage="Le libellé ne peut pas dépasser {{ limit }} caractères")
-     */
+    #[Assert\Length(max: 255, maxMessage: 'Le libellé ne peut pas dépasser {{ limit }} caractères')]
     private ?string $libelle = null;
 
-    /**
-     * @Assert\NotNull(message="La commission est obligatoire")
-     */
+    #[Assert\NotNull(message: 'La commission est obligatoire')]
     private ?Commission $commission = null;
 
-    /**
-     * @Assert\NotNull(message="Le type d'événement est obligatoire")
-     */
+    #[Assert\NotNull(message: "Le type d'événement est obligatoire")]
     private ?CommissionTypeEvenement $typeEvenement = null;
 
     /**
      * @var ArrayCollection<int, DateCommissionItemDto>
-     *
-     * @Assert\Valid
-     *
-     * @Assert\Count(
-     *     min=1,
-     *     minMessage="Au moins une date est requise"
-     * )
      */
+    #[Assert\Valid]
+    #[Assert\Count(min: 1, minMessage: 'Au moins une date est requise')]
     private ArrayCollection $dates;
 
     private bool $withPeriodicite = false;
@@ -48,9 +37,8 @@ final class CommissionDatesDto
 
     /**
      * Valide que dateFin est renseignée quand withPeriodicite est activée.
-     *
-     * @Assert\Callback
      */
+    #[Assert\Callback]
     public function validatePeriodicite(ExecutionContextInterface $context): void
     {
         if ($this->withPeriodicite && null === $this->dateFin) {

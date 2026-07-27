@@ -7,51 +7,32 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrescriptionReglementaireRepository::class)
- *
- * @ORM\Table(name="prescriptionregl")
- */
+#[ORM\Entity(repositoryClass: PrescriptionReglementaireRepository::class)]
+#[ORM\Table(name: 'prescriptionregl')]
 class PrescriptionReglementaire
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_PRESCRIPTIONREGL", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_PRESCRIPTIONREGL', type: 'bigint')]
     private $id;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="PRESCRIPTIONREGL_TYPE", type="integer", nullable=true)
-     */
-    private $type;
+    #[ORM\Column(name: 'PRESCRIPTIONREGL_TYPE', type: 'integer', nullable: true)]
+    private ?int $type = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="PRESCRIPTIONREGL_LIBELLE", type="text", nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'PRESCRIPTIONREGL_LIBELLE', type: 'text', nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="PRESCRIPTIONREGL_VISIBLE", type="boolean", nullable=false)
-     */
-    private $visible;
+    #[ORM\Column(name: 'PRESCRIPTIONREGL_VISIBLE', type: 'boolean', nullable: false)]
+    private ?bool $visible = null;
 
     /**
      * @var Collection<int, PrescriptionReglementaireAssociation>
-     *
-     * @ORM\OneToMany(targetEntity=PrescriptionReglementaireAssociation::class, mappedBy="regle", orphanRemoval=true, cascade={"persist"})
      */
-    private $associations;
+    #[ORM\OneToMany(targetEntity: PrescriptionReglementaireAssociation::class, mappedBy: 'regle', orphanRemoval: true, cascade: ['persist'])]
+    private Collection $associations;
 
     public function __construct()
     {

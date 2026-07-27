@@ -22,9 +22,8 @@ class ProxyController extends AbstractController
     /**
      * Reçoit une URL externe en paramètre et la relaie via cURL côté serveur.
      * Retransmet le header Content-Type et le status HTTP de la réponse externe.
-     *
-     * @Route("/proxy/index", name="proxy_index", methods={"GET"})
      */
+    #[Route(path: '/proxy/index', name: 'proxy_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
         // On forme la chaîne de paramètres en excluant les paramètres de routage

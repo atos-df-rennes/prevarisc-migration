@@ -14,18 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_prescriptions")
- */
+#[IsGranted('gestion_prescriptions')]
 class PrescriptionsTextesController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private Prescriptions $servicePrescTextes, private PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
     {
     }
 
-    /**
-     * @Route("/admin/prescriptions/textes/", name="admin_prescriptions_textes")
-     */
+    #[Route(path: '/admin/prescriptions/textes/', name: 'admin_prescriptions_textes')]
     public function gestionTextes(): Response
     {
         $listeTextes = $this->servicePrescTextes->getTextesListe();
@@ -35,10 +31,8 @@ class PrescriptionsTextesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/textes/ajouter", name="admin_prescriptions_textes_add")
-     * @Route("/admin/prescriptions/textes/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
-     */
+    #[Route(path: '/admin/prescriptions/textes/ajouter', name: 'admin_prescriptions_textes_add')]
+    #[Route(path: '/admin/prescriptions/textes/modifier/{texteListe}', name: 'admin_prescriptions_textes_edit')]
     public function formTexte(Request $request, ?PrescriptionTexteListe $texteListe = null): Response
     {
         if (null === $texteListe) {
@@ -66,9 +60,7 @@ class PrescriptionsTextesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/textes/suppression/{texteListe}", name="admin_prescriptions_textes_suppression")
-     */
+    #[Route(path: '/admin/prescriptions/textes/suppression/{texteListe}', name: 'admin_prescriptions_textes_suppression')]
     public function suppressionTexte(
         Request $request,
         PrescriptionTexteListe $texteListe

@@ -5,62 +5,34 @@ namespace App\Entity;
 use App\Repository\EtablissementInformationsPlanRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EtablissementInformationsPlanRepository::class)
- *
- * @ORM\Table(name="etablissementinformationsplan")
- */
+#[ORM\Entity(repositoryClass: EtablissementInformationsPlanRepository::class)]
+#[ORM\Table(name: 'etablissementinformationsplan')]
 class EtablissementInformationsPlan
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_ETABLISSEMENTINFORMATIONSPLAN", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSPLAN', type: 'bigint')]
     private $id;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="NUMERO_ETABLISSEMENTPLAN", type="text", nullable=true)
-     */
-    private $numero;
+    #[ORM\Column(name: 'NUMERO_ETABLISSEMENTPLAN', type: 'text', nullable: true)]
+    private ?string $numero = null;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_ETABLISSEMENTPLAN", type="date", nullable=false)
-     */
-    private $date;
+    #[ORM\Column(name: 'DATE_ETABLISSEMENTPLAN', type: 'date', nullable: false)]
+    private ?\DateTimeInterface $date = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="MISEAJOUR_ETABLISSEMENTPLAN", type="boolean", nullable=false)
-     */
-    private $aMettreAJour;
+    #[ORM\Column(name: 'MISEAJOUR_ETABLISSEMENTPLAN', type: 'boolean', nullable: false)]
+    private ?bool $aMettreAJour = null;
 
-    /**
-     * @var TypePlan
-     *
-     * @ORM\ManyToOne(targetEntity=TypePlan::class)
-     *
-     * @ORM\JoinColumn(name="ID_TYPEPLAN", referencedColumnName="ID_TYPEPLAN", nullable=false)
-     */
-    private $type;
+    #[ORM\ManyToOne(targetEntity: TypePlan::class)]
+    #[ORM\JoinColumn(name: 'ID_TYPEPLAN', referencedColumnName: 'ID_TYPEPLAN', nullable: false)]
+    private ?TypePlan $type = null;
 
-    /**
-     * @var ?EtablissementInformations
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementInformations::class, inversedBy="plans")
-     *
-     * @ORM\JoinColumn(name="ID_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_ETABLISSEMENTINFORMATIONS", nullable=false, options={"unsigned":true})
-     */
-    private $etablissementInformations;
+    #[ORM\ManyToOne(targetEntity: EtablissementInformations::class, inversedBy: 'plans')]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENTINFORMATIONS', referencedColumnName: 'ID_ETABLISSEMENTINFORMATIONS', nullable: false, options: ['unsigned' => true])]
+    private ?EtablissementInformations $etablissementInformations = null;
 
     public function getId(): ?int
     {
