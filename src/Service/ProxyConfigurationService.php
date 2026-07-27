@@ -49,10 +49,8 @@ class ProxyConfigurationService
 
     /**
      * Applique la configuration proxy sur un handle cURL si le proxy est activé.
-     *
-     * @param resource $ch Handle cURL
      */
-    public function applyCurlOptions($ch): void
+    public function applyCurlOptions(\CurlHandle $ch): void
     {
         if (!$this->proxyEnabled) {
             return;
