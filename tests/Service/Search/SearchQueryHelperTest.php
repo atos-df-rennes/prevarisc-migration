@@ -65,7 +65,7 @@ final class SearchQueryHelperTest extends TestCase
      *
      * @param array<int|string, bool|int|string>|bool|float|int|string $value
      */
-    public function testBuildCriteriaExactProduitConditionEgalite(string $key, $value, string $quoteInput, string $expected): void
+    public function testBuildCriteriaExactProduitConditionEgalite(string $key, string|int|bool $value, string $quoteInput, string $expected): void
     {
         $this->connection->method('quote')
             ->with($quoteInput)

@@ -14,20 +14,8 @@ use Psr\Log\LoggerInterface;
 
 final class FormulairesImporter
 {
-    private CapsuleRubriqueRepository $capsuleRubriqueRepository;
-
-    private TypeChampRepository $typeChampRepository;
-
-    private LoggerInterface $logger;
-
-    public function __construct(
-        CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        TypeChampRepository $typeChampRepository,
-        LoggerInterface $logger
-    ) {
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->typeChampRepository = $typeChampRepository;
-        $this->logger = $logger;
+    public function __construct(private CapsuleRubriqueRepository $capsuleRubriqueRepository, private TypeChampRepository $typeChampRepository, private LoggerInterface $logger)
+    {
     }
 
     /**

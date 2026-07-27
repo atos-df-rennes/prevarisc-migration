@@ -6,14 +6,8 @@ use App\Dto\GithubApi\GithubObject;
 
 final class GithubApi
 {
-    private string $ref;
-
-    private GithubObject $object;
-
-    public function __construct(string $ref, GithubObject $object)
+    public function __construct(private string $ref, private GithubObject $object)
     {
-        $this->ref = $ref;
-        $this->object = $object;
     }
 
     public function ref(): string

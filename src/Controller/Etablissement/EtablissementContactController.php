@@ -25,24 +25,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class EtablissementContactController extends AbstractController implements EtablissementLateralNavigationInterface
 {
-    private EntityManagerInterface $entityManager;
-
-    private EtablissementRepository $etablissementRepository;
-
-    private UtilisateurInformationsRepository $utilisateurInformationsRepository;
-
-    private Contact $contactService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        EtablissementRepository $etablissementRepository,
-        UtilisateurInformationsRepository $utilisateurInformationsRepository,
-        Contact $contactService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->etablissementRepository = $etablissementRepository;
-        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
-        $this->contactService = $contactService;
+    public function __construct(private EntityManagerInterface $entityManager, private EtablissementRepository $etablissementRepository, private UtilisateurInformationsRepository $utilisateurInformationsRepository, private Contact $contactService)
+    {
     }
 
     /**

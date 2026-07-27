@@ -12,20 +12,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementSiteVoter extends EtablissementVoter
 {
-    private EtablissementCollectionAccessChecker $collectionAccessChecker;
-
-    private ResourcesRepository $resourcesRepository;
-
-    private PrivilegesRepository $privilegesRepository;
-
-    public function __construct(
-        EtablissementCollectionAccessChecker $collectionAccessChecker,
-        ResourcesRepository $resourcesRepository,
-        PrivilegesRepository $privilegesRepository
-    ) {
-        $this->collectionAccessChecker = $collectionAccessChecker;
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
+    public function __construct(private EtablissementCollectionAccessChecker $collectionAccessChecker, private ResourcesRepository $resourcesRepository, private PrivilegesRepository $privilegesRepository)
+    {
     }
 
     protected function supports($attribute, $subject): bool

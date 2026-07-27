@@ -24,20 +24,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DocumentsController extends AbstractController
 {
-    private LoggerInterface $logger;
-
-    private CommissionRepository $commissionRepository;
-
-    private CommissionDocumentBuilder $commissionDocumentBuilder;
-
-    private Filesystem $filesystem;
-
-    public function __construct(LoggerInterface $logger, CommissionRepository $commissionRepository, CommissionDocumentBuilder $commissionDocumentBuilder, Filesystem $filesystem)
+    public function __construct(private LoggerInterface $logger, private CommissionRepository $commissionRepository, private CommissionDocumentBuilder $commissionDocumentBuilder, private Filesystem $filesystem)
     {
-        $this->logger = $logger;
-        $this->commissionRepository = $commissionRepository;
-        $this->commissionDocumentBuilder = $commissionDocumentBuilder;
-        $this->filesystem = $filesystem;
     }
 
     /**

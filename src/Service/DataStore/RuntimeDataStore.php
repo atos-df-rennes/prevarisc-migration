@@ -18,13 +18,10 @@ use App\Entity\PieceJointe;
  */
 class RuntimeDataStore implements DataStore
 {
-    private DataStoreFactory $factory;
-
     private ?DataStore $dataStore = null;
 
-    public function __construct(DataStoreFactory $factory)
+    public function __construct(private DataStoreFactory $factory)
     {
-        $this->factory = $factory;
     }
 
     private function getDataStore(): DataStore

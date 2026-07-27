@@ -16,14 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AdminController extends AbstractController
 {
-    private UtilisateurRepository $utilisateurRepository;
-
-    private VersionBuilder $versionBuilder;
-
-    public function __construct(UtilisateurRepository $utilisateurRepository, VersionBuilder $versionBuilder)
+    public function __construct(private UtilisateurRepository $utilisateurRepository, private VersionBuilder $versionBuilder)
     {
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->versionBuilder = $versionBuilder;
     }
 
     /**

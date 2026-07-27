@@ -34,40 +34,8 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 {
     private const FORBIDDEN_EXTENSIONS = ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'];
 
-    private DataStore $dataStore;
-
-    private DossierPieceJointeRepository $dossierPieceJointeRepository;
-
-    private PieceJointeStatutRepository $pieceJointeStatutRepository;
-
-    private EntityManagerInterface $entityManager;
-
-    private NotificationService $notificationService;
-
-    private ValidatorInterface $validator;
-
-    private Filesystem $filesystem;
-
-    private string $realDataPath;
-
-    public function __construct(
-        DataStore $dataStore,
-        DossierPieceJointeRepository $dossierPieceJointeRepository,
-        PieceJointeStatutRepository $pieceJointeStatutRepository,
-        EntityManagerInterface $entityManager,
-        NotificationService $notificationService,
-        ValidatorInterface $validator,
-        Filesystem $filesystem,
-        string $realDataPath
-    ) {
-        $this->dataStore = $dataStore;
-        $this->dossierPieceJointeRepository = $dossierPieceJointeRepository;
-        $this->pieceJointeStatutRepository = $pieceJointeStatutRepository;
-        $this->entityManager = $entityManager;
-        $this->notificationService = $notificationService;
-        $this->validator = $validator;
-        $this->filesystem = $filesystem;
-        $this->realDataPath = $realDataPath;
+    public function __construct(private DataStore $dataStore, private DossierPieceJointeRepository $dossierPieceJointeRepository, private PieceJointeStatutRepository $pieceJointeStatutRepository, private EntityManagerInterface $entityManager, private NotificationService $notificationService, private ValidatorInterface $validator, private Filesystem $filesystem, private string $realDataPath)
+    {
     }
 
     /**
@@ -232,7 +200,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 
         try {
             $file->move(dirname($destPath), basename($destPath));
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $this->entityManager->remove($pj);
             $this->entityManager->flush();
 

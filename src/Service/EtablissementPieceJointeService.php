@@ -16,36 +16,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class EtablissementPieceJointeService
 {
-    private EtablissementPieceJointeRepository $etablissementPJRepository;
-
-    private DataStore $dataStore;
-
-    private LoggerInterface $datastoreLogger;
-
-    private EntityManagerInterface $entityManager;
-
-    private PieceJointeRepository $pieceJointeRepository;
-
-    private Image $imageService;
-
-    private Filesystem $filesystem;
-
-    public function __construct(
-        EtablissementPieceJointeRepository $etablissementPJRepository,
-        DataStore $dataStore,
-        LoggerInterface $datastoreLogger,
-        EntityManagerInterface $entityManager,
-        PieceJointeRepository $pieceJointeRepository,
-        Image $imageService,
-        Filesystem $filesystem
-    ) {
-        $this->etablissementPJRepository = $etablissementPJRepository;
-        $this->dataStore = $dataStore;
-        $this->datastoreLogger = $datastoreLogger;
-        $this->entityManager = $entityManager;
-        $this->pieceJointeRepository = $pieceJointeRepository;
-        $this->imageService = $imageService;
-        $this->filesystem = $filesystem;
+    public function __construct(private EtablissementPieceJointeRepository $etablissementPJRepository, private DataStore $dataStore, private LoggerInterface $datastoreLogger, private EntityManagerInterface $entityManager, private PieceJointeRepository $pieceJointeRepository, private Image $imageService, private Filesystem $filesystem)
+    {
     }
 
     /**

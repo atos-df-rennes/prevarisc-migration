@@ -15,20 +15,8 @@ use Psr\Log\LoggerInterface;
 
 final class EtablissementHistoriqueService
 {
-    private EtablissementRepository $etablissementRepository;
-
-    private DossierRepository $dossierRepository;
-
-    private LoggerInterface $logger;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        LoggerInterface $logger
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->logger = $logger;
+    public function __construct(private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private LoggerInterface $logger)
+    {
     }
 
     public function getHistorique(int $id): Informations

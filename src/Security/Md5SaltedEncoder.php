@@ -17,14 +17,11 @@ use Symfony\Component\PasswordHasher\LegacyPasswordHasherInterface;
  */
 class Md5SaltedEncoder implements LegacyPasswordHasherInterface
 {
-    private string $globalSalt;
-
     /**
      * @param string $globalSalt La valeur de PREVARISC_SECURITY_SALT
      */
-    public function __construct(string $globalSalt)
+    public function __construct(private string $globalSalt)
     {
-        $this->globalSalt = $globalSalt;
     }
 
     /**

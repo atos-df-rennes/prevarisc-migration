@@ -29,48 +29,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DossierEffectifsController extends AbstractController implements DossierLateralNavigationInterface
 {
-    private DescriptifService $descriptifService;
-
-    private DescriptifInspector $descriptifInspector;
-
-    private DescriptifCopier $descriptifCopier;
-
-    private DossierRepository $dossierRepository;
-
-    private EffectifsDegagementsRepriseValidator $repriseValidator;
-
-    private DescriptifFormHydrator $descriptifFormHydrator;
-
-    private DescriptifFormBuilder $descriptifFormBuilder;
-
-    private DescriptifFormPersister $descriptifFormPersister;
-
-    private LoggerInterface $logger;
-
-    private FormFactoryInterface $formFactory;
-
-    public function __construct(
-        DescriptifService $descriptifService,
-        DescriptifInspector $descriptifInspector,
-        DescriptifCopier $descriptifCopier,
-        DossierRepository $dossierRepository,
-        EffectifsDegagementsRepriseValidator $repriseValidator,
-        LoggerInterface $logger,
-        DescriptifFormHydrator $descriptifFormHydrator,
-        DescriptifFormBuilder $descriptifFormBuilder,
-        DescriptifFormPersister $descriptifFormPersister,
-        FormFactoryInterface $formFactory
-    ) {
-        $this->descriptifService = $descriptifService;
-        $this->descriptifInspector = $descriptifInspector;
-        $this->descriptifCopier = $descriptifCopier;
-        $this->dossierRepository = $dossierRepository;
-        $this->repriseValidator = $repriseValidator;
-        $this->logger = $logger;
-        $this->descriptifFormHydrator = $descriptifFormHydrator;
-        $this->descriptifFormBuilder = $descriptifFormBuilder;
-        $this->descriptifFormPersister = $descriptifFormPersister;
-        $this->formFactory = $formFactory;
+    public function __construct(private DescriptifService $descriptifService, private DescriptifInspector $descriptifInspector, private DescriptifCopier $descriptifCopier, private DossierRepository $dossierRepository, private EffectifsDegagementsRepriseValidator $repriseValidator, private LoggerInterface $logger, private DescriptifFormHydrator $descriptifFormHydrator, private DescriptifFormBuilder $descriptifFormBuilder, private DescriptifFormPersister $descriptifFormPersister, private FormFactoryInterface $formFactory)
+    {
     }
 
     /**

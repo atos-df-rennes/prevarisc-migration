@@ -25,26 +25,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UtilisateursController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private UtilisateurRepository $utilisateurRepository;
-
-    private GroupeRepository $groupeRepository;
-
-    private Avatar $avatar;
-
-    private Image $image;
-
-    private UtilisateurManager $utilisateurManager;
-
-    public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image, UtilisateurManager $utilisateurManager)
+    public function __construct(private EntityManagerInterface $entityManager, private UtilisateurRepository $utilisateurRepository, private GroupeRepository $groupeRepository, private Avatar $avatar, private Image $image, private UtilisateurManager $utilisateurManager)
     {
-        $this->entityManager = $entityManager;
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->groupeRepository = $groupeRepository;
-        $this->avatar = $avatar;
-        $this->image = $image;
-        $this->utilisateurManager = $utilisateurManager;
     }
 
     /**

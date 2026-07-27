@@ -38,60 +38,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class DossierRapportOdtService
 {
-    private EntityManagerInterface $em;
-
-    private Connection $conn;
-
-    private DataStore $dataStore;
-
-    private DossierPrescriptionService $prescriptionService;
-
-    private DossierAffectationRepository $dossierAffectationRepository;
-
-    private DateCommissionRepository $dateCommissionRepository;
-
-    private Descriptif $descriptifService;
-
-    private ListeDocumentConsulteRepository $listeDocRepository;
-
-    private DossierRepository $dossierRepository;
-
-    private UrlGeneratorInterface $urlGenerator;
-
-    private string $realDataPath;
-
-    private LoggerInterface $rapportLogger;
-
-    private OdtWriter $odtWriter;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        Connection $conn,
-        DataStore $dataStore,
-        DossierPrescriptionService $prescriptionService,
-        DossierAffectationRepository $dossierAffectationRepository,
-        DateCommissionRepository $dateCommissionRepository,
-        Descriptif $descriptifService,
-        ListeDocumentConsulteRepository $listeDocRepository,
-        DossierRepository $dossierRepository,
-        UrlGeneratorInterface $urlGenerator,
-        OdtWriter $odtWriter,
-        string $realDataPath,
-        LoggerInterface $rapportLogger
-    ) {
-        $this->em = $em;
-        $this->conn = $conn;
-        $this->dataStore = $dataStore;
-        $this->prescriptionService = $prescriptionService;
-        $this->dossierAffectationRepository = $dossierAffectationRepository;
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->descriptifService = $descriptifService;
-        $this->listeDocRepository = $listeDocRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->urlGenerator = $urlGenerator;
-        $this->odtWriter = $odtWriter;
-        $this->realDataPath = $realDataPath;
-        $this->rapportLogger = $rapportLogger;
+    public function __construct(private EntityManagerInterface $em, private Connection $conn, private DataStore $dataStore, private DossierPrescriptionService $prescriptionService, private DossierAffectationRepository $dossierAffectationRepository, private DateCommissionRepository $dateCommissionRepository, private Descriptif $descriptifService, private ListeDocumentConsulteRepository $listeDocRepository, private DossierRepository $dossierRepository, private UrlGeneratorInterface $urlGenerator, private OdtWriter $odtWriter, private string $realDataPath, private LoggerInterface $rapportLogger)
+    {
     }
 
     /**
@@ -240,7 +188,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segPreventionnistes);
-            } catch (OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             try {
@@ -251,7 +199,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segPrevTel);
-            } catch (OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             $this->addChamp($odf, 'listeMailPreventioniste', implode(', ', $listeMails));
@@ -309,7 +257,7 @@ class DossierRapportOdtService
                     $this->addChamp($segListeDocs, 'exist', 'X');
                     $this->addChamp($segListeDocs, 'refdoc', $consulte['REF_CONSULTE'] ?? '');
                     $dateDc = '';
-                    if (!empty($consulte['DATE_CONSULTE']) && '0000-00-00' !== substr($consulte['DATE_CONSULTE'], 0, 10)) {
+                    if (!empty($consulte['DATE_CONSULTE']) && !str_starts_with($consulte['DATE_CONSULTE'], '0000-00-00')) {
                         $dtDc = \DateTime::createFromFormat('Y-m-d', substr($consulte['DATE_CONSULTE'], 0, 10));
                         if ($dtDc instanceof \DateTime) {
                             $dateDc = $dtDc->format('d/m/Y');
@@ -321,7 +269,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segListeDocs);
-            } catch (OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             // =====================================================================
@@ -351,7 +299,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segDocsAjout);
-            } catch (OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             // --- Segments prescriptions (standard + CC) ---
@@ -375,7 +323,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segTexte);
-            } catch (OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             // --- Champs établissement (infos générales, adresse, effectifs, avis) ---
@@ -1163,7 +1111,7 @@ class DossierRapportOdtService
                 try {
                     $segCellules = $odf->setSegment('cellulesPresc');
                     $odf->mergeSegment($segCellules);
-                } catch (OdfException $odfException) {
+                } catch (OdfException) {
                 }
             }
         }
@@ -1285,7 +1233,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($segment);
-        } catch (OdfException $odfException) {
+        } catch (OdfException) {
         }
     }
 
@@ -1300,7 +1248,7 @@ class DossierRapportOdtService
      * @param int                                          $type        TypePrescription::*
      * @param string                                       $typeContenu 'all' | 'reprises' | 'actuelles'
      */
-    private function addPrescriptionCC($segCellule, array $prescArray, int $type, string $typeContenu): void
+    private function addPrescriptionCC(Segment $segCellule, array $prescArray, int $type, string $typeContenu): void
     {
         $segNames = [
             TypePrescription::REGLEMENTAIRE => [
@@ -1361,7 +1309,7 @@ class DossierRapportOdtService
                     $segment->merge();
                 }
             }
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
     }
 
@@ -1480,7 +1428,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($segCellules);
-        } catch (OdfException $odfException) {
+        } catch (OdfException) {
         }
     }
 
@@ -1576,7 +1524,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($segCellules);
-        } catch (OdfException $odfException) {
+        } catch (OdfException) {
         }
     }
 
@@ -1648,7 +1596,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($seg);
-        } catch (OdfException $odfException) {
+        } catch (OdfException) {
         }
     }
 

@@ -18,14 +18,8 @@ use Symfony\Component\Security\Core\Security;
  */
 class LastActionSubscriber implements EventSubscriberInterface
 {
-    private Security $security;
-
-    private LastActionUpdater $lastActionUpdater;
-
-    public function __construct(Security $security, LastActionUpdater $lastActionUpdater)
+    public function __construct(private Security $security, private LastActionUpdater $lastActionUpdater)
     {
-        $this->security = $security;
-        $this->lastActionUpdater = $lastActionUpdater;
     }
 
     public function onKernelTerminate(TerminateEvent $event): void

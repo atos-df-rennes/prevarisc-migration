@@ -20,32 +20,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierPrescriptionTypeController extends AbstractController
 {
-    private DossierPrescriptionService $service;
-
-    private PrescriptionCategorieRepository $categorieRepo;
-
-    private PrescriptionTypeRepository $prescriptionTypeRepo;
-
-    private PrescriptionTexteRepository $texteRepo;
-
-    private PrescriptionArticleRepository $articleRepo;
-
-    private LoggerInterface $logger;
-
-    public function __construct(
-        DossierPrescriptionService $service,
-        PrescriptionCategorieRepository $categorieRepo,
-        PrescriptionTypeRepository $prescriptionTypeRepo,
-        PrescriptionTexteRepository $texteRepo,
-        PrescriptionArticleRepository $articleRepo,
-        LoggerInterface $logger
-    ) {
-        $this->service = $service;
-        $this->categorieRepo = $categorieRepo;
-        $this->prescriptionTypeRepo = $prescriptionTypeRepo;
-        $this->texteRepo = $texteRepo;
-        $this->articleRepo = $articleRepo;
-        $this->logger = $logger;
+    public function __construct(private DossierPrescriptionService $service, private PrescriptionCategorieRepository $categorieRepo, private PrescriptionTypeRepository $prescriptionTypeRepo, private PrescriptionTexteRepository $texteRepo, private PrescriptionArticleRepository $articleRepo, private LoggerInterface $logger)
+    {
     }
 
     /**

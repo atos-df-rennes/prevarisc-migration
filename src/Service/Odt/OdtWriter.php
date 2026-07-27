@@ -36,7 +36,7 @@ class OdtWriter
                 $prefix = $target instanceof Segment ? '['.$target->getName().'] ' : '';
                 $logger->debug($prefix.'{'.$name.'} : '.json_encode($value, JSON_UNESCAPED_UNICODE));
             }
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // Silencieux — variable absente du template ODT
         }
     }
@@ -154,7 +154,7 @@ class OdtWriter
             $segmentTableau = $odf->setSegment($segName);
             $this->fillTableauRows($segmentTableau, $champ, $champData);
             $odf->mergeSegment($segmentTableau);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // Segment absent du template
         }
     }
@@ -180,7 +180,7 @@ class OdtWriter
         $segmentTableau = null;
         try {
             $segmentTableau = $segment->$segName;
-        } catch (\Exception $exception) { // @phpstan-ignore catch.neverThrown
+        } catch (\Exception) { // @phpstan-ignore catch.neverThrown
             // Segment absent du template
         }
 
@@ -223,10 +223,9 @@ class OdtWriter
     /**
      * Traite un champ parent non-tableau (sous-champs directs).
      *
-     * @param Odf|Segment          $target
      * @param array<string, mixed> $champData
      */
-    private function processParentNonTableau($target, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
+    private function processParentNonTableau(Odf|Segment $target, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
     {
         /** @var array<int, array{champ: Champ, valeur: Valeur|null}> $sousChamps */
         $sousChamps = $champData['sous_champs'] ?? [];
@@ -247,10 +246,9 @@ class OdtWriter
     /**
      * Traite un champ feuille (scalaire simple).
      *
-     * @param Odf|Segment          $target
      * @param array<string, mixed> $champData
      */
-    private function processLeafChamp($target, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
+    private function processLeafChamp(Odf|Segment $target, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
     {
         /** @var Valeur|null $valeur */
         $valeur = $champData['valeur'] ?? null;

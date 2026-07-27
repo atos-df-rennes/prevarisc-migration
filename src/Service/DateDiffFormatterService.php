@@ -45,7 +45,7 @@ class DateDiffFormatterService
             }
 
             return implode(', ', $parts);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return '';
         }
     }

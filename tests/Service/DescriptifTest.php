@@ -425,9 +425,9 @@ final class DescriptifTest extends TestCase
     // Helpers
     // -------------------------------------------------------------------------
 
-    private function setEntityId($entity, int $id): void
+    private function setEntityId(Rubrique|TypeChamp|Champ $entity, int $id): void
     {
-        $ref = new \ReflectionProperty(\get_class($entity), 'id');
+        $ref = new \ReflectionProperty($entity::class, 'id');
         $ref->setAccessible(true);
         $ref->setValue($entity, $id);
     }

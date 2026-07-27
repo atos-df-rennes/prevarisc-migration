@@ -17,14 +17,11 @@ use App\Entity\EtablissementType;
  */
 class ObjetService
 {
-    private AvisService $avisService;
-
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis
      */
-    public function __construct(AvisService $avisService)
+    public function __construct(private AvisService $avisService)
     {
-        $this->avisService = $avisService;
     }
 
     /**
@@ -98,19 +95,12 @@ class ObjetService
      */
     private function getPartieChangement(int $typeChangement, Etablissement $etablissement): string
     {
-        switch ($typeChangement) {
-            case TypeChangement::STATUT:
-                return $this->getObjetStatut($etablissement);
-
-            case TypeChangement::AVIS:
-                return $this->getObjetAvis($etablissement);
-
-            case TypeChangement::CLASSEMENT:
-                return $this->getObjetClassement($etablissement);
-
-            default:
-                return 'Changement';
-        }
+        return match ($typeChangement) {
+            TypeChangement::STATUT => $this->getObjetStatut($etablissement),
+            TypeChangement::AVIS => $this->getObjetAvis($etablissement),
+            TypeChangement::CLASSEMENT => $this->getObjetClassement($etablissement),
+            default => 'Changement',
+        };
     }
 
     /**

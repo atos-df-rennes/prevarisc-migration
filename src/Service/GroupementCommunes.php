@@ -7,12 +7,8 @@ use App\Repository\EtablissementInformationsRepository;
 
 final class GroupementCommunes
 {
-    private EtablissementInformationsRepository $etablissementInformationsRepository;
-
-    public function __construct(
-        EtablissementInformationsRepository $etablissementInformationsRepository
-    ) {
-        $this->etablissementInformationsRepository = $etablissementInformationsRepository;
+    public function __construct(private EtablissementInformationsRepository $etablissementInformationsRepository)
+    {
     }
 
     /**

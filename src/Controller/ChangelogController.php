@@ -16,14 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ChangelogController extends AbstractController
 {
-    private VersionService $versionService;
-
-    private UtilisateurPreferencesRepository $prefsRepository;
-
-    public function __construct(VersionService $versionService, UtilisateurPreferencesRepository $prefsRepository)
+    public function __construct(private VersionService $versionService, private UtilisateurPreferencesRepository $prefsRepository)
     {
-        $this->versionService = $versionService;
-        $this->prefsRepository = $prefsRepository;
     }
 
     /**
@@ -68,7 +62,7 @@ class ChangelogController extends AbstractController
         try {
             $prefs = $this->prefsRepository->findOneBy(['utilisateur' => $user]);
             $derniereVersionVue = null !== $prefs ? $prefs->getDerniereVersionVue() : null;
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // La migration ajoutant DERNIERE_VERSION_VUE n'a pas encore été jouée.
             return new Response('');
         }

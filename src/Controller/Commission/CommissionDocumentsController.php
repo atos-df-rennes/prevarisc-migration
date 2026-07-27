@@ -23,28 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommissionDocumentsController extends AbstractController
 {
-    private CommissionDocumentCrService $commissionDocumentCrService;
-
-    private CommissionMembreCourrierService $commissionMembreCourrierService;
-
-    private CommissionMembreRepository $commissionMembreRepository;
-
-    private string $documentsCommissionDataPath;
-
-    private string $courriersMembresDataPath;
-
-    public function __construct(
-        CommissionDocumentCrService $commissionDocumentCrService,
-        CommissionMembreCourrierService $commissionMembreCourrierService,
-        CommissionMembreRepository $commissionMembreRepository,
-        string $documentsCommissionDataPath,
-        string $courriersMembresDataPath
-    ) {
-        $this->commissionDocumentCrService = $commissionDocumentCrService;
-        $this->commissionMembreCourrierService = $commissionMembreCourrierService;
-        $this->commissionMembreRepository = $commissionMembreRepository;
-        $this->documentsCommissionDataPath = $documentsCommissionDataPath;
-        $this->courriersMembresDataPath = $courriersMembresDataPath;
+    public function __construct(private CommissionDocumentCrService $commissionDocumentCrService, private CommissionMembreCourrierService $commissionMembreCourrierService, private CommissionMembreRepository $commissionMembreRepository, private string $documentsCommissionDataPath, private string $courriersMembresDataPath)
+    {
     }
 
     /**
@@ -122,7 +102,7 @@ class CommissionDocumentsController extends AbstractController
             try {
                 $this->commissionMembreCourrierService->upload($membre, $type, $file);
                 $this->addFlash('success', 'Le courrier a bien été sauvegardé.');
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $this->addFlash('danger', 'Le téléchargement a échoué.');
             }
         }
@@ -168,7 +148,7 @@ class CommissionDocumentsController extends AbstractController
         try {
             $this->commissionMembreCourrierService->delete($membre, $type);
             $this->addFlash('success', 'Le courrier a bien été supprimé.');
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $this->addFlash('danger', 'Erreur lors de la suppression du courrier.');
         }
 
@@ -195,7 +175,7 @@ class CommissionDocumentsController extends AbstractController
             try {
                 $this->commissionDocumentCrService->upload($commission, $file);
                 $this->addFlash('success', 'Le document a bien été sauvegardé.');
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $this->addFlash('danger', 'Le téléchargement a échoué.');
             }
 
@@ -236,7 +216,7 @@ class CommissionDocumentsController extends AbstractController
         try {
             $this->commissionDocumentCrService->delete($commission);
             $this->addFlash('success', 'Le document a bien été supprimé.');
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $this->addFlash('danger', 'Erreur lors de la suppression du document.');
         }
 

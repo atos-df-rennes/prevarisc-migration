@@ -60,7 +60,7 @@ final class UtilisateurManagerTest extends TestCase
             return;
         }
 
-        if (0 === strpos($expectedDesc, 'encoded:')) {
+        if (str_starts_with($expectedDesc, 'encoded:')) {
             $raw = substr($expectedDesc, strlen('encoded:'));
             $expected = md5($user->getSalt().$this->globalSalt.$raw);
             self::assertSame($expected, $user->getPassword());

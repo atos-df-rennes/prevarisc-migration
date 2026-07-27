@@ -63,20 +63,13 @@ class TableauRowType extends AbstractType
      */
     private function resolveLeafType(?int $typeId): string
     {
-        switch ($typeId) {
-            case TypeChamp::TEXT:
-            default:
-                return ChampTextType::class;
-            case TypeChamp::TEXTAREA:
-                return ChampTextareaType::class;
-            case TypeChamp::SELECT:
-                return ChampSelectType::class;
-            case TypeChamp::NUMBER:
-                return ChampNumberType::class;
-            case TypeChamp::CHECKBOX:
-                return ChampCheckboxType::class;
-            case TypeChamp::DATE:
-                return ChampDateType::class;
-        }
+        return match ($typeId) {
+            TypeChamp::TEXTAREA => ChampTextareaType::class,
+            TypeChamp::SELECT => ChampSelectType::class,
+            TypeChamp::NUMBER => ChampNumberType::class,
+            TypeChamp::CHECKBOX => ChampCheckboxType::class,
+            TypeChamp::DATE => ChampDateType::class,
+            default => ChampTextType::class,
+        };
     }
 }

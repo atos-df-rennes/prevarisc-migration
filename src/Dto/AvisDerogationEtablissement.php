@@ -4,36 +4,8 @@ namespace App\Dto;
 
 final class AvisDerogationEtablissement
 {
-    private int $idDossier;
-
-    private int $id;
-
-    private string $titre;
-
-    private string $type;
-
-    private bool $leve;
-
-    private ?string $debut;
-
-    private ?int $typeDossier;
-
-    public function __construct(
-        int $idDossier,
-        int $id,
-        string $titre,
-        string $type,
-        bool $leve,
-        ?string $debut,
-        ?int $typeDossier
-    ) {
-        $this->idDossier = $idDossier;
-        $this->id = $id;
-        $this->titre = $titre;
-        $this->type = $type;
-        $this->leve = $leve;
-        $this->debut = $debut;
-        $this->typeDossier = $typeDossier;
+    public function __construct(private int $idDossier, private int $id, private string $titre, private string $type, private bool $leve, private ?string $debut, private ?int $typeDossier)
+    {
     }
 
     public function idDossier(): int

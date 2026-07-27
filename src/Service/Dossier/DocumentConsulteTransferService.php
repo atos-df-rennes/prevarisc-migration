@@ -19,20 +19,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 final class DocumentConsulteTransferService
 {
-    private EntityManagerInterface $entityManager;
-
-    private DossierDocumentConsulteRepository $documentConsulteRepository;
-
-    private ListeDocumentAjouteRepository $documentAjouteRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierDocumentConsulteRepository $documentConsulteRepository,
-        ListeDocumentAjouteRepository $documentAjouteRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->documentConsulteRepository = $documentConsulteRepository;
-        $this->documentAjouteRepository = $documentAjouteRepository;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierDocumentConsulteRepository $documentConsulteRepository, private ListeDocumentAjouteRepository $documentAjouteRepository)
+    {
     }
 
     /**

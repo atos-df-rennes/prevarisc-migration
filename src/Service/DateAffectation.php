@@ -8,11 +8,8 @@ use Psr\Log\LoggerInterface;
 
 final class DateAffectation
 {
-    private LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     /*

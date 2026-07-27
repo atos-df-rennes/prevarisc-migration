@@ -8,11 +8,8 @@ use App\Repository\DateCommissionRepository;
 
 final class DateCommission
 {
-    private DateCommissionRepository $dateCommissionRepository;
-
-    public function __construct(DateCommissionRepository $dateCommissionRepository)
+    public function __construct(private DateCommissionRepository $dateCommissionRepository)
     {
-        $this->dateCommissionRepository = $dateCommissionRepository;
     }
 
     /**

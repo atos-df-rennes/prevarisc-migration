@@ -16,36 +16,8 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
  */
 class CasLogoutSuccessHandler implements EventSubscriberInterface
 {
-    private bool $casEnabled;
-
-    private string $casHost;
-
-    private int $casPort;
-
-    private string $casPublicHost;
-
-    private int $casPublicPort;
-
-    private string $casContext;
-
-    private bool $casNoSsl;
-
-    public function __construct(
-        bool $casEnabled,
-        string $casHost,
-        int $casPort,
-        string $casPublicHost,
-        int $casPublicPort,
-        string $casContext,
-        bool $casNoSsl
-    ) {
-        $this->casEnabled = $casEnabled;
-        $this->casHost = $casHost;
-        $this->casPort = $casPort;
-        $this->casPublicHost = $casPublicHost;
-        $this->casPublicPort = $casPublicPort;
-        $this->casContext = $casContext;
-        $this->casNoSsl = $casNoSsl;
+    public function __construct(private bool $casEnabled, private string $casHost, private int $casPort, private string $casPublicHost, private int $casPublicPort, private string $casContext, private bool $casNoSsl)
+    {
     }
 
     public function onLogout(LogoutEvent $logoutEvent): void

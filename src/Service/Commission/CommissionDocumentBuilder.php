@@ -10,14 +10,8 @@ use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 
 final class CommissionDocumentBuilder
 {
-    private Documents $documents;
-
-    private LoggerInterface $logger;
-
-    public function __construct(Documents $documents, LoggerInterface $logger)
+    public function __construct(private Documents $documents, private LoggerInterface $logger)
     {
-        $this->documents = $documents;
-        $this->logger = $logger;
     }
 
     /**

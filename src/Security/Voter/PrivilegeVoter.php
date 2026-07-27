@@ -11,8 +11,6 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class PrivilegeVoter implements VoterInterface
 {
-    private PrivilegesRepository $privilegesRepository;
-
     /**
      * Index en mémoire des privileges (name → entité), chargé en une seule requête.
      * Ce voter est stateful par conception : acceptable dans un contexte web classique
@@ -33,9 +31,8 @@ class PrivilegeVoter implements VoterInterface
         EtablissementVoter::MODIFICATION,
     ];
 
-    public function __construct(PrivilegesRepository $privilegesRepository)
+    public function __construct(private PrivilegesRepository $privilegesRepository)
     {
-        $this->privilegesRepository = $privilegesRepository;
     }
 
     public function vote(TokenInterface $token, $subject, array $attributes): int

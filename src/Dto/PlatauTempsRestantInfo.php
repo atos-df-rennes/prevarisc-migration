@@ -8,14 +8,8 @@ namespace App\Dto;
  */
 final class PlatauTempsRestantInfo
 {
-    private ?string $tempsRestant;
-
-    private ?string $couleur;
-
-    public function __construct(?string $tempsRestant, ?string $couleur)
+    public function __construct(private ?string $tempsRestant, private ?string $couleur)
     {
-        $this->tempsRestant = $tempsRestant;
-        $this->couleur = $couleur;
     }
 
     /**

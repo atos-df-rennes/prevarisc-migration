@@ -15,17 +15,8 @@ class EtablissementSearchService
 {
     public const MAX_LIMIT_PAGES_ETABLISSEMENTS = 1000;
 
-    private Connection $connection;
-
-    private SearchQueryHelper $queryHelper;
-
-    private TagAwareCacheInterface $searchCache;
-
-    public function __construct(Connection $connection, SearchQueryHelper $queryHelper, TagAwareCacheInterface $searchCache)
+    public function __construct(private Connection $connection, private SearchQueryHelper $queryHelper, private TagAwareCacheInterface $searchCache)
     {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
-        $this->searchCache = $searchCache;
     }
 
     /**
@@ -154,7 +145,7 @@ class EtablissementSearchService
             // Critères : nom de l'établissement
             if (null !== $label) {
                 $cleanLabel = trim($label);
-                if ('#' === substr($cleanLabel, 0, 1)) {
+                if (str_starts_with($cleanLabel, '#')) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
                 } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $cleanLabel, false);
@@ -491,7 +482,7 @@ class EtablissementSearchService
         // Critères : nom de l'établissement
         if (null !== $label) {
             $cleanLabel = trim($label);
-            if ('#' === substr($cleanLabel, 0, 1)) {
+            if (str_starts_with($cleanLabel, '#')) {
                 $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
             } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
                 $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $cleanLabel, false);

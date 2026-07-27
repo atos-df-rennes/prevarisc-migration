@@ -12,17 +12,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementBupVoter extends EtablissementVoter
 {
-    private ResourcesRepository $resourcesRepository;
-
-    private PrivilegesRepository $privilegesRepository;
-
-    private VoterUtils $voterUtils;
-
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, VoterUtils $voterUtils)
+    public function __construct(private ResourcesRepository $resourcesRepository, private PrivilegesRepository $privilegesRepository, private VoterUtils $voterUtils)
     {
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
-        $this->voterUtils = $voterUtils;
     }
 
     protected function supports($attribute, $subject): bool

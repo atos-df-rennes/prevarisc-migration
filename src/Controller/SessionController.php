@@ -11,11 +11,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SessionController extends AbstractController
 {
-    private AuthenticationUtils $authenticationUtils;
-
-    public function __construct(AuthenticationUtils $authenticationUtils)
+    public function __construct(private AuthenticationUtils $authenticationUtils)
     {
-        $this->authenticationUtils = $authenticationUtils;
     }
 
     /**

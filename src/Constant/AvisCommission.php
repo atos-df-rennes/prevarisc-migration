@@ -26,16 +26,12 @@ final class AvisCommission
     {
         $avisInt = (int) $avis;
 
-        switch ($avisInt) {
-            case self::FAVORABLE:
-                return 'Favorable';
-            case self::DEFAVORABLE:
-                return 'Défavorable';
-            case self::FAVORABLE_AVEC_PRESCRIPTIONS:
-                return 'Favorable avec prescriptions';
-            default:
-                return '';
-        }
+        return match ($avisInt) {
+            self::FAVORABLE => 'Favorable',
+            self::DEFAVORABLE => 'Défavorable',
+            self::FAVORABLE_AVEC_PRESCRIPTIONS => 'Favorable avec prescriptions',
+            default => '',
+        };
     }
 
     /**

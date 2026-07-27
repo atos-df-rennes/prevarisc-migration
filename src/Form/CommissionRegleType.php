@@ -23,11 +23,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommissionRegleType extends AbstractType
 {
-    private int $commissionCommunaleType;
-
-    public function __construct(int $commissionCommunaleType)
+    public function __construct(private int $commissionCommunaleType)
     {
-        $this->commissionCommunaleType = $commissionCommunaleType;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

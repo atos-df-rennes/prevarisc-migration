@@ -48,116 +48,8 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class EtablissementController extends AbstractController implements EtablissementLateralNavigationInterface
 {
-    private EtablissementPieceJointeRepository $etablissementPieceJointeRepository;
-
-    private EtablissementAdresseRepository $etablissementAdresseRepository;
-
-    private DossierRepository $dossierRepository;
-
-    private EtablissementService $etablissementService;
-
-    private EtablissementHistoriqueService $etablissementHistoriqueService;
-
-    private EtablissementPieceJointeService $etablissementPieceJointeService;
-
-    private EtablissementRepository $etablissementRepository;
-
-    private EntityManagerInterface $entityManager;
-
-    private CoucheCartoRepository $coucheCartoRepository;
-
-    private PeriodiciteRepository $periodiciteRepository;
-
-    private GroupementRepository $groupementRepository;
-
-    private DataStore $dataStore;
-
-    private SerializerInterface $serializer;
-
-    private Dossier $dossierService;
-
-    private MailerConfiguration $mailerConfig;
-
-    private AlerteService $alerteService;
-
-    private int $nbDossiersAAfficher;
-
-    private DescriptifService $descriptifService;
-
-    private DescriptifFormHydrator $descriptifFormHydrator;
-
-    private DescriptifFormBuilder $descriptifFormBuilder;
-
-    private DescriptifFormPersister $descriptifFormPersister;
-
-    private bool $descriptifPersonnalise;
-
-    private LoggerInterface $logger;
-
-    private LoggerInterface $pieceJointeLogger;
-
-    private FormFactoryInterface $formFactory;
-
-    private EtablissementFormDataLoader $formDataLoader;
-
-    private TagAwareCacheInterface $searchCache;
-
-    public function __construct(
-        EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
-        EtablissementAdresseRepository $etablissementAdresseRepository,
-        DossierRepository $dossierRepository,
-        EtablissementService $etablissementService,
-        EtablissementRepository $etablissementRepository,
-        EntityManagerInterface $entityManager,
-        Dossier $dossierService,
-        CoucheCartoRepository $coucheCartoRepository,
-        PeriodiciteRepository $periodiciteRepository,
-        GroupementRepository $groupementRepository,
-        DataStore $dataStore,
-        SerializerInterface $serializer,
-        MailerConfiguration $mailerConfig,
-        AlerteService $alerteService,
-        int $nbDossiersAAfficher,
-        DescriptifService $descriptifService,
-        DescriptifFormHydrator $descriptifFormHydrator,
-        DescriptifFormBuilder $descriptifFormBuilder,
-        DescriptifFormPersister $descriptifFormPersister,
-        bool $descriptifPersonnalise,
-        LoggerInterface $logger,
-        FormFactoryInterface $formFactory,
-        LoggerInterface $pieceJointeLogger,
-        EtablissementHistoriqueService $etablissementHistoriqueService,
-        EtablissementPieceJointeService $etablissementPieceJointeService,
-        EtablissementFormDataLoader $formDataLoader,
-        TagAwareCacheInterface $searchCache
-    ) {
-        $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
-        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->etablissementService = $etablissementService;
-        $this->etablissementRepository = $etablissementRepository;
-        $this->entityManager = $entityManager;
-        $this->dossierService = $dossierService;
-        $this->coucheCartoRepository = $coucheCartoRepository;
-        $this->periodiciteRepository = $periodiciteRepository;
-        $this->groupementRepository = $groupementRepository;
-        $this->dataStore = $dataStore;
-        $this->serializer = $serializer;
-        $this->mailerConfig = $mailerConfig;
-        $this->alerteService = $alerteService;
-        $this->nbDossiersAAfficher = $nbDossiersAAfficher;
-        $this->descriptifService = $descriptifService;
-        $this->descriptifFormHydrator = $descriptifFormHydrator;
-        $this->descriptifFormBuilder = $descriptifFormBuilder;
-        $this->descriptifFormPersister = $descriptifFormPersister;
-        $this->descriptifPersonnalise = $descriptifPersonnalise;
-        $this->logger = $logger;
-        $this->formFactory = $formFactory;
-        $this->pieceJointeLogger = $pieceJointeLogger;
-        $this->etablissementHistoriqueService = $etablissementHistoriqueService;
-        $this->etablissementPieceJointeService = $etablissementPieceJointeService;
-        $this->formDataLoader = $formDataLoader;
-        $this->searchCache = $searchCache;
+    public function __construct(private EtablissementPieceJointeRepository $etablissementPieceJointeRepository, private EtablissementAdresseRepository $etablissementAdresseRepository, private DossierRepository $dossierRepository, private EtablissementService $etablissementService, private EtablissementRepository $etablissementRepository, private EntityManagerInterface $entityManager, private Dossier $dossierService, private CoucheCartoRepository $coucheCartoRepository, private PeriodiciteRepository $periodiciteRepository, private GroupementRepository $groupementRepository, private DataStore $dataStore, private SerializerInterface $serializer, private MailerConfiguration $mailerConfig, private AlerteService $alerteService, private int $nbDossiersAAfficher, private DescriptifService $descriptifService, private DescriptifFormHydrator $descriptifFormHydrator, private DescriptifFormBuilder $descriptifFormBuilder, private DescriptifFormPersister $descriptifFormPersister, private bool $descriptifPersonnalise, private LoggerInterface $logger, private FormFactoryInterface $formFactory, private LoggerInterface $pieceJointeLogger, private EtablissementHistoriqueService $etablissementHistoriqueService, private EtablissementPieceJointeService $etablissementPieceJointeService, private EtablissementFormDataLoader $formDataLoader, private TagAwareCacheInterface $searchCache)
+    {
     }
 
     /**
@@ -571,7 +463,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         try {
             $this->etablissementPieceJointeService->deletePJ($etablissement, $idPj);
             $this->addFlash('success', 'La pièce jointe a bien été supprimée.');
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $this->addFlash('danger', 'La pièce jointe n\'a pas été supprimée. Veuillez réessayer.');
         }
 
@@ -623,19 +515,12 @@ class EtablissementController extends AbstractController implements Etablissemen
         $typeDossier = $request->request->get('typeDossier');
 
         // Récupération des dossiers selon le type, en démarrant après les N premiers (offset SQL)
-        switch ($typeDossier) {
-            case 'etudes':
-                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE], false, null, $this->nbDossiersAAfficher);
-                break;
-            case 'visites':
-                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE, false, null, $this->nbDossiersAAfficher);
-                break;
-            case 'autres':
-                $dossiers = $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true, null, $this->nbDossiersAAfficher);
-                break;
-            default:
-                throw new \InvalidArgumentException('Type de dossier invalide.');
-        }
+        $dossiers = match ($typeDossier) {
+            'etudes' => $this->dossierRepository->getDossiersEtablissement($id, [DossierType::ETUDE], false, null, $this->nbDossiersAAfficher),
+            'visites' => $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_VISITE, false, null, $this->nbDossiersAAfficher),
+            'autres' => $this->dossierRepository->getDossiersEtablissement($id, DossierType::TYPES_PRINCIPAUX, true, null, $this->nbDossiersAAfficher),
+            default => throw new \InvalidArgumentException('Type de dossier invalide.'),
+        };
 
         if ([] === $dossiers) {
             return new Response('');

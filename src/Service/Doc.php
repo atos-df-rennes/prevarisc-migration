@@ -6,14 +6,8 @@ use Psr\Log\LoggerInterface;
 
 final class Doc
 {
-    private string $srcDir;
-
-    private LoggerInterface $logger;
-
-    public function __construct(string $srcDir, LoggerInterface $logger)
+    public function __construct(private string $srcDir, private LoggerInterface $logger)
     {
-        $this->srcDir = $srcDir;
-        $this->logger = $logger;
     }
 
     public function get(string $filename): string

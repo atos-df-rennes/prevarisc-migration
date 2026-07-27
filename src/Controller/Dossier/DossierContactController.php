@@ -27,24 +27,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DossierContactController extends AbstractController implements DossierLateralNavigationInterface
 {
-    private EntityManagerInterface $entityManager;
-
-    private DossierRepository $dossierRepository;
-
-    private UtilisateurInformationsRepository $utilisateurInformationsRepository;
-
-    private Contact $contactService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierRepository $dossierRepository,
-        UtilisateurInformationsRepository $utilisateurInformationsRepository,
-        Contact $contactService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->dossierRepository = $dossierRepository;
-        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
-        $this->contactService = $contactService;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private UtilisateurInformationsRepository $utilisateurInformationsRepository, private Contact $contactService)
+    {
     }
 
     /**

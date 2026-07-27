@@ -33,52 +33,8 @@ use Psr\Log\LoggerInterface;
  */
 class CommissionDocumentGenerationService
 {
-    private EntityManagerInterface $em;
-
-    private DataStore $dataStore;
-
-    private LoggerInterface $logger;
-
-    private CommissionMembreEligibilityChecker $eligibilityChecker;
-
-    private string $courriersMembresRealDataPath;
-
-    private string $documentsCommissionRealDataPath;
-
-    private Descriptif $descriptif;
-
-    private DateCommissionRepository $dateCommissionRepo;
-
-    private OdtWriter $odtWriter;
-
-    private DossierPrescriptionService $prescriptionService;
-
-    private CommissionDataProvider $dataProvider;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        DataStore $dataStore,
-        LoggerInterface $logger,
-        CommissionMembreEligibilityChecker $eligibilityChecker,
-        Descriptif $descriptif,
-        DateCommissionRepository $dateCommissionRepo,
-        OdtWriter $odtWriter,
-        DossierPrescriptionService $prescriptionService,
-        CommissionDataProvider $dataProvider,
-        string $courriersMembresRealDataPath,
-        string $documentsCommissionRealDataPath
-    ) {
-        $this->em = $em;
-        $this->dataStore = $dataStore;
-        $this->logger = $logger;
-        $this->eligibilityChecker = $eligibilityChecker;
-        $this->descriptif = $descriptif;
-        $this->dateCommissionRepo = $dateCommissionRepo;
-        $this->odtWriter = $odtWriter;
-        $this->prescriptionService = $prescriptionService;
-        $this->dataProvider = $dataProvider;
-        $this->courriersMembresRealDataPath = $courriersMembresRealDataPath;
-        $this->documentsCommissionRealDataPath = $documentsCommissionRealDataPath;
+    public function __construct(private EntityManagerInterface $em, private DataStore $dataStore, private LoggerInterface $logger, private CommissionMembreEligibilityChecker $eligibilityChecker, private Descriptif $descriptif, private DateCommissionRepository $dateCommissionRepo, private OdtWriter $odtWriter, private DossierPrescriptionService $prescriptionService, private CommissionDataProvider $dataProvider, private string $courriersMembresRealDataPath, private string $documentsCommissionRealDataPath)
+    {
     }
 
     /**
@@ -1175,12 +1131,11 @@ class CommissionDocumentGenerationService
     }
 
     /**
-     * @param Odf|Segment                                                       $odf
      * @param array<string, mixed>                                              $commissionInfos
      * @param array<string, string|null>                                        $infosGroupement
      * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
      */
-    private function fillGroupementCommissionInfo($odf, array $commissionInfos, string $heureDeb, string $dateComm, array $infosGroupement, array $listeCommunes): void
+    private function fillGroupementCommissionInfo(Odf|Segment $odf, array $commissionInfos, string $heureDeb, string $dateComm, array $infosGroupement, array $listeCommunes): void
     {
         $this->addChamp($odf, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
 
@@ -1768,7 +1723,7 @@ class CommissionDocumentGenerationService
                 // numWinPrev
                 try {
                     $dossInfos->setVars('numWinPrev', $crGeneral['NUMEROID_ETABLISSEMENT'] ?? '', true, 'UTF-8');
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     // Silencieux
                 }
 
@@ -1882,7 +1837,7 @@ class CommissionDocumentGenerationService
             }
 
             // @phpstan-ignore-next-line
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         if (null !== $avisDerogations) {
@@ -1902,7 +1857,7 @@ class CommissionDocumentGenerationService
             }
 
             // @phpstan-ignore-next-line
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         if (null !== $avisDerogationsEtablissement) {
@@ -2013,7 +1968,7 @@ class CommissionDocumentGenerationService
             }
 
             // @phpstan-ignore-next-line
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         if (null === $prescription) {

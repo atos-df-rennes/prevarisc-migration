@@ -11,36 +11,8 @@ use App\Entity\DateCommission;
  */
 final class CalendarEventDto
 {
-    private int $id;
-
-    private string $title;
-
-    private string $start;
-
-    private string $end;
-
-    private string $url;
-
-    private string $className;
-
-    private bool $allDay;
-
-    private function __construct(
-        int $id,
-        string $title,
-        string $start,
-        string $end,
-        string $url,
-        string $className,
-        bool $allDay
-    ) {
-        $this->id = $id;
-        $this->title = $title;
-        $this->start = $start;
-        $this->end = $end;
-        $this->url = $url;
-        $this->className = $className;
-        $this->allDay = $allDay;
+    private function __construct(private int $id, private string $title, private string $start, private string $end, private string $url, private string $className, private bool $allDay)
+    {
     }
 
     /**

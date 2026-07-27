@@ -15,26 +15,12 @@ use App\Entity\UtilisateurInformations;
 final class EtablissementContactsDto
 {
     /**
-     * Contacts directs de l'établissement.
-     *
-     * @var UtilisateurInformations[]
+     * @param UtilisateurInformations[] $contacts        Contacts directs de l'établissement
+     * @param UtilisateurInformations[] $contactsParents Contacts hérités des parents (niveau 1) et grands-parents (niveau 2)
      */
-    public $contacts;
-
-    /**
-     * Contacts hérités des parents (niveau 1) et grands-parents (niveau 2).
-     *
-     * @var UtilisateurInformations[]
-     */
-    public $contactsParents;
-
-    /**
-     * @param UtilisateurInformations[] $contacts
-     * @param UtilisateurInformations[] $contactsParents
-     */
-    public function __construct(array $contacts = [], array $contactsParents = [])
-    {
-        $this->contacts = $contacts;
-        $this->contactsParents = $contactsParents;
+    public function __construct(
+        public array $contacts = [],
+        public array $contactsParents = []
+    ) {
     }
 }

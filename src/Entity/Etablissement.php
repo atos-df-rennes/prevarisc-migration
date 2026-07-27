@@ -720,7 +720,7 @@ class Etablissement
     {
         try {
             return $this->getLatestInformations();
-        } catch (\OutOfBoundsException $outOfBoundsException) {
+        } catch (\OutOfBoundsException) {
             return null;
         }
     }

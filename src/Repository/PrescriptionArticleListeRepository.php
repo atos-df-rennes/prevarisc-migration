@@ -18,22 +18,13 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PrescriptionArticleListeRepository extends ServiceEntityRepository
 {
-    private PrescriptionDossierAssociationRepository $prescriptionDossierAssociationRepository;
-
-    private PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository;
-
-    private PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository;
-
     public function __construct(
         ManagerRegistry $registry,
-        PrescriptionDossierAssociationRepository $prescriptionDossierAssociationRepository,
-        PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository,
-        PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository
+        private PrescriptionDossierAssociationRepository $prescriptionDossierAssociationRepository,
+        private PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository,
+        private PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository
     ) {
         parent::__construct($registry, PrescriptionArticleListe::class);
-        $this->prescriptionDossierAssociationRepository = $prescriptionDossierAssociationRepository;
-        $this->prescriptionTypeAssociationRepository = $prescriptionTypeAssociationRepository;
-        $this->prescriptionReglementaireAssociationRepository = $prescriptionReglementaireAssociationRepository;
     }
 
     /**

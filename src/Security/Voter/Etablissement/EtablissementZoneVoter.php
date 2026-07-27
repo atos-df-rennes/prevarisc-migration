@@ -10,14 +10,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementZoneVoter extends EtablissementVoter
 {
-    private ResourcesRepository $resourcesRepository;
-
-    private PrivilegesRepository $privilegesRepository;
-
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
+    public function __construct(private ResourcesRepository $resourcesRepository, private PrivilegesRepository $privilegesRepository)
     {
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
     }
 
     protected function supports($attribute, $subject): bool

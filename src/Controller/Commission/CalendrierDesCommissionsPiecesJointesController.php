@@ -23,20 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CalendrierDesCommissionsPiecesJointesController extends AbstractController
 {
-    private PieceJointeRepository $pieceJointeRepository;
-
-    private DataStore $dataStore;
-
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(
-        PieceJointeRepository $pieceJointeRepository,
-        DataStore $dataStore,
-        EntityManagerInterface $entityManager
-    ) {
-        $this->pieceJointeRepository = $pieceJointeRepository;
-        $this->dataStore = $dataStore;
-        $this->entityManager = $entityManager;
+    public function __construct(private PieceJointeRepository $pieceJointeRepository, private DataStore $dataStore, private EntityManagerInterface $entityManager)
+    {
     }
 
     /**

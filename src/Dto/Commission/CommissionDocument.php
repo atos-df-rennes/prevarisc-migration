@@ -6,24 +6,11 @@ use App\Dto\Document;
 
 final class CommissionDocument
 {
-    private int $id;
-
-    private string $nom;
-
-    private string $type;
-
-    /** @var Document[]|null */
-    private ?array $documents;
-
     /**
      * @param Document[]|null $documents
      */
-    public function __construct(int $id, string $nom, string $type, ?array $documents)
+    public function __construct(private int $id, private string $nom, private string $type, private ?array $documents)
     {
-        $this->id = $id;
-        $this->nom = $nom;
-        $this->type = $type;
-        $this->documents = $documents;
     }
 
     public function getId(): int

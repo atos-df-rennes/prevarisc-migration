@@ -17,16 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CalendrierDesCommissionsExportController extends AbstractController
 {
-    private DateCommissionRepository $dateCommissionRepository;
-
-    private CommissionRepository $commissionRepository;
-
-    public function __construct(
-        DateCommissionRepository $dateCommissionRepository,
-        CommissionRepository $commissionRepository
-    ) {
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->commissionRepository = $commissionRepository;
+    public function __construct(private DateCommissionRepository $dateCommissionRepository, private CommissionRepository $commissionRepository)
+    {
     }
 
     /**
@@ -125,7 +117,7 @@ class CalendrierDesCommissionsExportController extends AbstractController
             try {
                 $dtStart = new \DateTime($dateCommStr.' '.$heureDebStr, $tz);
                 $dtEnd = new \DateTime($dateCommStr.' '.$heureFinStr, $tz);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 continue;
             }
 

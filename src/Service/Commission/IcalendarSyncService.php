@@ -27,11 +27,8 @@ use Sabre\VObject\Component\VCalendar;
  */
 class IcalendarSyncService
 {
-    private DateCommissionRepository $dateCommissionRepository;
-
-    public function __construct(DateCommissionRepository $dateCommissionRepository)
+    public function __construct(private DateCommissionRepository $dateCommissionRepository)
     {
-        $this->dateCommissionRepository = $dateCommissionRepository;
     }
 
     /**
@@ -100,7 +97,7 @@ class IcalendarSyncService
             try {
                 $dtStart = new \DateTime($dateStr.' '.$heureDebStr, $tz);
                 $dtEnd = new \DateTime($dateStr.' '.$heureFinStr, $tz);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 continue;
             }
 
@@ -271,7 +268,7 @@ class IcalendarSyncService
         if (\is_string($derniereVisite) && '' !== $derniereVisite) {
             try {
                 $derniereVisiteStr = (new \DateTime($derniereVisite))->format('d/m/Y');
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $derniereVisiteStr = $derniereVisite;
             }
         }

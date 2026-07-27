@@ -21,17 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommunesController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private CommuneRepository $communeRepository;
-
-    private FonctionRepository $fonctionRepository;
-
-    public function __construct(EntityManagerInterface $entityManager, CommuneRepository $communeRepository, FonctionRepository $fonctionRepository)
+    public function __construct(private EntityManagerInterface $entityManager, private CommuneRepository $communeRepository, private FonctionRepository $fonctionRepository)
     {
-        $this->entityManager = $entityManager;
-        $this->communeRepository = $communeRepository;
-        $this->fonctionRepository = $fonctionRepository;
     }
 
     /**

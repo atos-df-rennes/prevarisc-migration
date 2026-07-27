@@ -30,44 +30,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class RessourcesSpecialiseesEtablissementTextGenerator
 {
-    private RessourcesSpecialiseesZoneTexter $zoneTexter;
-
-    private RessourcesSpecialiseesHabitationTexter $habitationTexter;
-
-    private RessourcesSpecialiseesIghTexter $ighTexter;
-
-    private RessourcesSpecialiseesCelluleTexter $celluleTexter;
-
-    private RessourcesSpecialiseesErpTexter $erpTexter;
-
-    private RessourcesSpecialiseesBupTexter $bupTexter;
-
-    private RessourcesSpecialiseesCampingTexter $campingTexter;
-
-    private RessourcesSpecialiseesIopTexter $iopTexter;
-
-    private RessourcesSpecialiseesManifestationTemporaireTexter $manifestationTemporaireTexter;
-
-    public function __construct(
-        RessourcesSpecialiseesZoneTexter $zoneTexter,
-        RessourcesSpecialiseesHabitationTexter $habitationTexter,
-        RessourcesSpecialiseesIghTexter $ighTexter,
-        RessourcesSpecialiseesCelluleTexter $celluleTexter,
-        RessourcesSpecialiseesErpTexter $erpTexter,
-        RessourcesSpecialiseesBupTexter $bupTexter,
-        RessourcesSpecialiseesCampingTexter $campingTexter,
-        RessourcesSpecialiseesIopTexter $iopTexter,
-        RessourcesSpecialiseesManifestationTemporaireTexter $manifestationTemporaireTexter
-    ) {
-        $this->zoneTexter = $zoneTexter;
-        $this->habitationTexter = $habitationTexter;
-        $this->ighTexter = $ighTexter;
-        $this->celluleTexter = $celluleTexter;
-        $this->erpTexter = $erpTexter;
-        $this->bupTexter = $bupTexter;
-        $this->campingTexter = $campingTexter;
-        $this->iopTexter = $iopTexter;
-        $this->manifestationTemporaireTexter = $manifestationTemporaireTexter;
+    public function __construct(private RessourcesSpecialiseesZoneTexter $zoneTexter, private RessourcesSpecialiseesHabitationTexter $habitationTexter, private RessourcesSpecialiseesIghTexter $ighTexter, private RessourcesSpecialiseesCelluleTexter $celluleTexter, private RessourcesSpecialiseesErpTexter $erpTexter, private RessourcesSpecialiseesBupTexter $bupTexter, private RessourcesSpecialiseesCampingTexter $campingTexter, private RessourcesSpecialiseesIopTexter $iopTexter, private RessourcesSpecialiseesManifestationTemporaireTexter $manifestationTemporaireTexter)
+    {
     }
 
     public function fromRequest(Request $request): string
@@ -85,38 +49,17 @@ class RessourcesSpecialiseesEtablissementTextGenerator
 
     private function createTexter(int $genreId): RessourcesSpecialiseesEtablissementTexter
     {
-        switch ($genreId) {
-            case 2:
-                $texter = $this->erpTexter;
-                break;
-            case 3:
-                $texter = $this->celluleTexter;
-                break;
-            case 4:
-                $texter = $this->habitationTexter;
-                break;
-            case 5:
-                $texter = $this->ighTexter;
-                break;
-            case 6:
-                $texter = $this->bupTexter;
-                break;
-            case 7:
-                $texter = $this->campingTexter;
-                break;
-            case 8:
-                $texter = $this->manifestationTemporaireTexter;
-                break;
-            case 9:
-                $texter = $this->iopTexter;
-                break;
-            case 10:
-                $texter = $this->zoneTexter;
-                break;
-            default:
-                throw new \InvalidArgumentException(\sprintf('Genre %d inconnu', $genreId));
-        }
-
-        return $texter;
+        return match ($genreId) {
+            2 => $this->erpTexter,
+            3 => $this->celluleTexter,
+            4 => $this->habitationTexter,
+            5 => $this->ighTexter,
+            6 => $this->bupTexter,
+            7 => $this->campingTexter,
+            8 => $this->manifestationTemporaireTexter,
+            9 => $this->iopTexter,
+            10 => $this->zoneTexter,
+            default => throw new \InvalidArgumentException(\sprintf('Genre %d inconnu', $genreId)),
+        };
     }
 }

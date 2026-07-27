@@ -15,11 +15,8 @@ class NotificationService
 
     public const PIECES_DOSSIER_NAMESPACE = 'DERNIERE_VISITE_PIECES_DOSSIER';
 
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
     /**

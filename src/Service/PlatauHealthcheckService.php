@@ -28,32 +28,23 @@ class PlatauHealthcheckService
 
     private string $varDir;
 
-    private string $appEnv;
-
-    private LoggerInterface $logger;
-
     /** @var string|null */
     private $pisteClientId;
 
     /** @var string|null */
     private $pisteClientSecret;
 
-    private ProxyConfigurationService $proxyConfiguration;
-
     public function __construct(
         string $platauConfigFile,
         string $projectDir,
-        string $appEnv,
-        LoggerInterface $logger,
-        ProxyConfigurationService $proxyConfiguration
+        private string $appEnv,
+        private LoggerInterface $logger,
+        private ProxyConfigurationService $proxyConfiguration
     ) {
         $platauPath = (string) (getenv('PREVARISC_PLATAU_PATH') ?: dirname($projectDir).DIRECTORY_SEPARATOR.'prevarisc-passerelle-platau');
         $this->platauConfigFilePath = $platauPath.DIRECTORY_SEPARATOR.$platauConfigFile;
         $this->platauServiceFilePath = $platauPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, ['src', 'Service', 'PlatauAbstract.php']);
         $this->varDir = $projectDir.DIRECTORY_SEPARATOR.'var';
-        $this->appEnv = $appEnv;
-        $this->logger = $logger;
-        $this->proxyConfiguration = $proxyConfiguration;
 
         $pisteCredentials = $this->getPisteCredentials();
         if (is_array($pisteCredentials)) {
@@ -438,7 +429,7 @@ class PlatauHealthcheckService
         }
 
         foreach ($fileContent as $line) {
-            if (false !== strpos($line, $const)) {
+            if (str_contains($line, $const)) {
                 return explode("'", $line)[1];
             }
         }

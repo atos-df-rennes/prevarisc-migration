@@ -21,20 +21,8 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class CouchesCartographiquesController extends AbstractController
 {
-    private SerializerInterface $serializer;
-
-    private CouchesCarto $couchesCarto;
-
-    private LoggerInterface $logger;
-
-    private CoucheCartoRepository $coucheCartoRepository;
-
-    public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger, CoucheCartoRepository $coucheCartoRepository)
+    public function __construct(private CouchesCarto $couchesCarto, private SerializerInterface $serializer, private LoggerInterface $logger, private CoucheCartoRepository $coucheCartoRepository)
     {
-        $this->couchesCarto = $couchesCarto;
-        $this->serializer = $serializer;
-        $this->logger = $logger;
-        $this->coucheCartoRepository = $coucheCartoRepository;
     }
 
     /**

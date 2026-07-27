@@ -18,20 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommissionCompetencesController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private CommissionRegleCompetenceService $competenceService;
-
-    private EtablissementInformationsRepository $etablissementInformationsRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        CommissionRegleCompetenceService $competenceService,
-        EtablissementInformationsRepository $etablissementInformationsRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->competenceService = $competenceService;
-        $this->etablissementInformationsRepository = $etablissementInformationsRepository;
+    public function __construct(private EntityManagerInterface $entityManager, private CommissionRegleCompetenceService $competenceService, private EtablissementInformationsRepository $etablissementInformationsRepository)
+    {
     }
 
     /**

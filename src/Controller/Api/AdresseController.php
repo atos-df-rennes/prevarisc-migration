@@ -16,11 +16,8 @@ class AdresseController extends AbstractController
 {
     private const LONGUEUR_CODE_POSTAL = 5;
 
-    private Connection $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**

@@ -32,28 +32,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DescriptifFormPersister
 {
-    private ValeurRepository $valeurRepository;
-
-    private ChampRepository $champRepository;
-
-    private DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository;
-
-    private EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository;
-
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(
-        ValeurRepository $valeurRepository,
-        ChampRepository $champRepository,
-        DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository,
-        EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository,
-        EntityManagerInterface $entityManager
-    ) {
-        $this->valeurRepository = $valeurRepository;
-        $this->champRepository = $champRepository;
-        $this->dossierDisplayRubriqueRepository = $dossierDisplayRubriqueRepository;
-        $this->etablissementDisplayRubriqueRepository = $etablissementDisplayRubriqueRepository;
-        $this->entityManager = $entityManager;
+    public function __construct(private ValeurRepository $valeurRepository, private ChampRepository $champRepository, private DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository, private EntityManagerInterface $entityManager)
+    {
     }
 
     /**
@@ -87,11 +67,10 @@ class DescriptifFormPersister
     /**
      * Logique commune de persistance.
      *
-     * @param Dossier|Etablissement                                               $entity
      * @param list<array{rubrique: Rubrique, display: bool, champs: list<mixed>}> $rubriques
      * @param array<int, Valeur[]>                                                $existingValeurs indexées par champId
      */
-    private function doPersist($entity, DescriptifFormData $formData, array $rubriques, array $existingValeurs): void
+    private function doPersist(Dossier|Etablissement $entity, DescriptifFormData $formData, array $rubriques, array $existingValeurs): void
     {
         $lookup = $this->buildLookup($existingValeurs);
         /** @var int[] $touchedValeurIds IDs des Valeur tableau traitées (pour détection des suppressions) */
@@ -346,10 +325,8 @@ class DescriptifFormPersister
     /**
      * Crée ou met à jour la préférence d'affichage d'une rubrique.
      * La Rubrique est passée directement depuis la boucle appelante (déjà chargée).
-     *
-     * @param Dossier|Etablissement $entity
      */
-    private function upsertDisplayPref($entity, Rubrique $rubrique, bool $display): void
+    private function upsertDisplayPref(Dossier|Etablissement $entity, Rubrique $rubrique, bool $display): void
     {
         if ($entity instanceof Dossier) {
             $this->upsertDossierDisplayPref($entity, $rubrique, $display);
@@ -405,12 +382,11 @@ class DescriptifFormPersister
      * Seuls les champIds appartenant aux rubriques soumises ($scopedChampIds) sont concernés,
      * pour ne pas affecter les valeurs des autres onglets du formulaire personnalisé.
      *
-     * @param Dossier|Etablissement $entity
-     * @param array<int, Valeur[]>  $existingValeurs
-     * @param int[]                 $touchedValeurIds
-     * @param int[]                 $scopedChampIds
+     * @param array<int, Valeur[]> $existingValeurs
+     * @param int[]                $touchedValeurIds
+     * @param int[]                $scopedChampIds
      */
-    private function deleteUntouchedTableauValeurs($entity, array $existingValeurs, array $touchedValeurIds, array $scopedChampIds): void
+    private function deleteUntouchedTableauValeurs(Dossier|Etablissement $entity, array $existingValeurs, array $touchedValeurIds, array $scopedChampIds): void
     {
         foreach ($existingValeurs as $champId => $valeurs) {
             if (!in_array($champId, $scopedChampIds, true)) {

@@ -14,20 +14,8 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
 {
-    private EtablissementRepository $etablissementRepository;
-
-    private CapsuleRubriqueRepository $capsuleRubriqueRepository;
-
-    private AuthorizationCheckerInterface $authorizationChecker;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository,
-        CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        AuthorizationCheckerInterface $authorizationChecker
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->authorizationChecker = $authorizationChecker;
+    public function __construct(private EtablissementRepository $etablissementRepository, private CapsuleRubriqueRepository $capsuleRubriqueRepository, private AuthorizationCheckerInterface $authorizationChecker)
+    {
     }
 
     public function onKernelController(ControllerEvent $event): void

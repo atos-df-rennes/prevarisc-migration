@@ -20,48 +20,8 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class IndexController extends AbstractController
 {
-    private VersionBuilder $versionBuilder;
-
-    private DashboardBlocConfig $dashboardBlocConfig;
-
-    private DashboardService $dashboardService;
-
-    private FeedService $feedService;
-
-    private GroupeRepository $groupeRepository;
-
-    private NotificationService $notificationService;
-
-    private PlatauHealthcheckService $platauHealthcheckService;
-
-    private bool $deactivatePlatau;
-
-    private bool $platauNoHealthcheck;
-
-    private LoggerInterface $logger;
-
-    public function __construct(
-        VersionBuilder $versionBuilder,
-        DashboardBlocConfig $dashboardBlocConfig,
-        DashboardService $dashboardService,
-        FeedService $feedService,
-        GroupeRepository $groupeRepository,
-        NotificationService $notificationService,
-        PlatauHealthcheckService $platauHealthcheckService,
-        bool $deactivatePlatau,
-        bool $platauNoHealthcheck,
-        LoggerInterface $logger
-    ) {
-        $this->versionBuilder = $versionBuilder;
-        $this->dashboardBlocConfig = $dashboardBlocConfig;
-        $this->dashboardService = $dashboardService;
-        $this->feedService = $feedService;
-        $this->groupeRepository = $groupeRepository;
-        $this->notificationService = $notificationService;
-        $this->platauHealthcheckService = $platauHealthcheckService;
-        $this->deactivatePlatau = $deactivatePlatau;
-        $this->platauNoHealthcheck = $platauNoHealthcheck;
-        $this->logger = $logger;
+    public function __construct(private VersionBuilder $versionBuilder, private DashboardBlocConfig $dashboardBlocConfig, private DashboardService $dashboardService, private FeedService $feedService, private GroupeRepository $groupeRepository, private NotificationService $notificationService, private PlatauHealthcheckService $platauHealthcheckService, private bool $deactivatePlatau, private bool $platauNoHealthcheck, private LoggerInterface $logger)
+    {
     }
 
     /**

@@ -20,24 +20,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommissionMembresController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private CommissionMembreRepository $membreRepository;
-
-    private DossierNatureListeRepository $dossierNatureListeRepository;
-
-    private CommissionMembreCourrierService $courrierService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        CommissionMembreRepository $membreRepository,
-        DossierNatureListeRepository $dossierNatureListeRepository,
-        CommissionMembreCourrierService $courrierService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->membreRepository = $membreRepository;
-        $this->dossierNatureListeRepository = $dossierNatureListeRepository;
-        $this->courrierService = $courrierService;
+    public function __construct(private EntityManagerInterface $entityManager, private CommissionMembreRepository $membreRepository, private DossierNatureListeRepository $dossierNatureListeRepository, private CommissionMembreCourrierService $courrierService)
+    {
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,7 +47,7 @@ class DossierEditNature3Test extends WebTestCase
 
         // Récupérer l'utilisateur root
         $utilisateur = $this->entityManager
-            ->getRepository('App:Utilisateur')
+            ->getRepository(Utilisateur::class)
             ->findOneBy(['username' => 'root']);
 
         if (!$utilisateur) {

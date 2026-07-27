@@ -12,17 +12,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementManifestationTemporaireVoter extends EtablissementVoter
 {
-    private ResourcesRepository $resourcesRepository;
-
-    private PrivilegesRepository $privilegesRepository;
-
-    private LoggerInterface $logger;
-
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, LoggerInterface $logger)
+    public function __construct(private ResourcesRepository $resourcesRepository, private PrivilegesRepository $privilegesRepository, private LoggerInterface $logger)
     {
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
-        $this->logger = $logger;
     }
 
     protected function supports($attribute, $subject): bool
@@ -42,11 +33,11 @@ class EtablissementManifestationTemporaireVoter extends EtablissementVoter
 
         try {
             $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementManifestationTemporaire();
-        } catch (NoResultException $noResultException) {
+        } catch (NoResultException) {
             $this->logger->warning("Aucune règle trouvée pour les manifestations temporaires. Il est recommandé d'en ajouter une.");
 
             return false;
-        } catch (NonUniqueResultException $nonUniqueResultException) {
+        } catch (NonUniqueResultException) {
             $this->logger->warning('Plusieurs règles trouvées pour les manifestations temporaires. Il est recommandé de supprimer les doublons.');
 
             return false;

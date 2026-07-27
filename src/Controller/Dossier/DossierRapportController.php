@@ -20,10 +20,6 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DossierRapportController extends AbstractController implements DossierLateralNavigationInterface
 {
-    private CommissionRepository $commissionRepository;
-
-    private DossierRapportOdtService $odtService;
-
     /**
      * Chemin URL des documents de commission (pour les liens de téléchargement).
      */
@@ -35,13 +31,11 @@ class DossierRapportController extends AbstractController implements DossierLate
     private string $documentsRealDataPath;
 
     public function __construct(
-        CommissionRepository $commissionRepository,
-        DossierRapportOdtService $odtService,
+        private CommissionRepository $commissionRepository,
+        private DossierRapportOdtService $odtService,
         string $documentsDataPath,
         string $documentsRealDataPath
     ) {
-        $this->commissionRepository = $commissionRepository;
-        $this->odtService = $odtService;
         $this->documentsDataPath = rtrim($documentsDataPath, '/');
         $this->documentsRealDataPath = rtrim($documentsRealDataPath, '/');
     }
@@ -90,7 +84,7 @@ class DossierRapportController extends AbstractController implements DossierLate
                 if (null !== $latestInfos->getTypeActivite()) {
                     $idTypeActivitePrinc = $latestInfos->getTypeActivite()->getId();
                 }
-            } catch (\OutOfBoundsException $e) {
+            } catch (\OutOfBoundsException) {
                 // Établissement sans informations : idTypeActivitePrinc reste null
             }
         }
@@ -129,7 +123,7 @@ class DossierRapportController extends AbstractController implements DossierLate
         $resolvedPath = realpath($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$relativeFile);
         if (
             false === $resolvedPath
-            || 0 !== strpos($resolvedPath, $this->documentsRealDataPath.DIRECTORY_SEPARATOR)
+            || !str_starts_with($resolvedPath, $this->documentsRealDataPath.DIRECTORY_SEPARATOR)
             || 'odt' !== strtolower(pathinfo($resolvedPath, PATHINFO_EXTENSION))
         ) {
             return new Response('', Response::HTTP_BAD_REQUEST);

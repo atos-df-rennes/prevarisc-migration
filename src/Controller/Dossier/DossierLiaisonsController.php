@@ -19,24 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierLiaisonsController extends AbstractController implements DossierLateralNavigationInterface
 {
-    private DossierLiaisonsService $dossierLiaisonsService;
-
-    private DossierSauvegardeService $dossierSauvegardeService;
-
-    private EtablissementRepository $etablissementRepository;
-
-    private DossierRepository $dossierRepository;
-
-    public function __construct(
-        DossierLiaisonsService $dossierLiaisonsService,
-        DossierSauvegardeService $dossierSauvegardeService,
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository
-    ) {
-        $this->dossierLiaisonsService = $dossierLiaisonsService;
-        $this->dossierSauvegardeService = $dossierSauvegardeService;
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
+    public function __construct(private DossierLiaisonsService $dossierLiaisonsService, private DossierSauvegardeService $dossierSauvegardeService, private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository)
+    {
     }
 
     /**

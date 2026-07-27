@@ -24,32 +24,8 @@ use App\Service\NotificationService;
  */
 class DashboardService
 {
-    private DashboardBlocConfig $blocConfig;
-
-    private DateCommissionRepository $dateCommissionRepository;
-
-    private EtablissementRepository $etablissementRepository;
-
-    private DossierRepository $dossierRepository;
-
-    private FeedService $feedService;
-
-    private NotificationService $notificationService;
-
-    public function __construct(
-        DashboardBlocConfig $blocConfig,
-        DateCommissionRepository $dateCommissionRepository,
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        FeedService $feedService,
-        NotificationService $notificationService
-    ) {
-        $this->blocConfig = $blocConfig;
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->feedService = $feedService;
-        $this->notificationService = $notificationService;
+    public function __construct(private DashboardBlocConfig $blocConfig, private DateCommissionRepository $dateCommissionRepository, private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private FeedService $feedService, private NotificationService $notificationService)
+    {
     }
 
     /**
@@ -59,71 +35,29 @@ class DashboardService
      */
     public function getDataForBloc(string $blocId, Utilisateur $user): array
     {
-        switch ($blocId) {
-            case 'nextCommissions':
-            case 'nextCommissionsOdj':
-                return $this->getNextCommission($user);
-
-            case 'ERPSuivis':
-                return $this->getERPSuivis($user);
-
-            case 'ERPOuvertsSousAvisDefavorable':
-                return $this->getERPOuvertsSousAvisDefavorable();
-
-            case 'ERPOuvertsSousAvisDefavorableSuivis':
-                return $this->getERPOuvertsSousAvisDefavorableSuivis($user);
-
-            case 'ERPOuvertsSousAvisDefavorableSurCommune':
-                return $this->getERPOuvertsSousAvisDefavorableSurCommune($user);
-
-            case 'ERPSansPreventionniste':
-                return $this->getERPSansPreventionniste();
-
-            case 'ERPOuvertsSansProchainesVisitePeriodiques':
-                return $this->getERPOuvertsSansProchainesVisitePeriodiques($user);
-
-            case 'DossiersSuivisSansAvis':
-                return $this->getDossiersSuivisSansAvis($user);
-
-            case 'DossiersSuivisNonVerrouilles':
-                return $this->getDossiersSuivisNonVerrouilles($user);
-
-            case 'DossierDateCommissionEchu':
-                return $this->getDossierDateCommissionEchu($user);
-
-            case 'DossierAvecAvisDiffere':
-                return $this->getDossierAvecAvisDiffere($user);
-
-            case 'CourrierSansReponse':
-                return $this->getCourrierSansReponse();
-
-            case 'feeds':
-                return $this->feedService->getFeeds($user);
-
-            case 'leveePresc':
-                return $this->getLeveePresc();
-
-            case 'absQuorum':
-                return $this->getAbsenceQuorum();
-
-            case 'npsp':
-                return $this->getNpsp();
-
-            case 'dossiersIncomplets':
-                return $this->getDossiersIncomplets();
-
-            case 'dossierPlatau':
-                return $this->getDossiersPlatauSansEtablissement($user);
-
-            case 'pjPlatauErreur':
-                return $this->getDossiersPlatauPjsEnErreur();
-
-            case 'nouvellesPjsPlatau':
-                return $this->getDossiersPlatauNouvellesPjs($user);
-
-            default:
-                return [];
-        }
+        return match ($blocId) {
+            'nextCommissions', 'nextCommissionsOdj' => $this->getNextCommission($user),
+            'ERPSuivis' => $this->getERPSuivis($user),
+            'ERPOuvertsSousAvisDefavorable' => $this->getERPOuvertsSousAvisDefavorable(),
+            'ERPOuvertsSousAvisDefavorableSuivis' => $this->getERPOuvertsSousAvisDefavorableSuivis($user),
+            'ERPOuvertsSousAvisDefavorableSurCommune' => $this->getERPOuvertsSousAvisDefavorableSurCommune($user),
+            'ERPSansPreventionniste' => $this->getERPSansPreventionniste(),
+            'ERPOuvertsSansProchainesVisitePeriodiques' => $this->getERPOuvertsSansProchainesVisitePeriodiques($user),
+            'DossiersSuivisSansAvis' => $this->getDossiersSuivisSansAvis($user),
+            'DossiersSuivisNonVerrouilles' => $this->getDossiersSuivisNonVerrouilles($user),
+            'DossierDateCommissionEchu' => $this->getDossierDateCommissionEchu($user),
+            'DossierAvecAvisDiffere' => $this->getDossierAvecAvisDiffere($user),
+            'CourrierSansReponse' => $this->getCourrierSansReponse(),
+            'feeds' => $this->feedService->getFeeds($user),
+            'leveePresc' => $this->getLeveePresc(),
+            'absQuorum' => $this->getAbsenceQuorum(),
+            'npsp' => $this->getNpsp(),
+            'dossiersIncomplets' => $this->getDossiersIncomplets(),
+            'dossierPlatau' => $this->getDossiersPlatauSansEtablissement($user),
+            'pjPlatauErreur' => $this->getDossiersPlatauPjsEnErreur(),
+            'nouvellesPjsPlatau' => $this->getDossiersPlatauNouvellesPjs($user),
+            default => [],
+        };
     }
 
     /**
@@ -131,71 +65,29 @@ class DashboardService
      */
     public function getCountForBloc(string $blocId, Utilisateur $user): int
     {
-        switch ($blocId) {
-            case 'nextCommissions':
-            case 'nextCommissionsOdj':
-                return $this->getNextCommissionCount($user);
-
-            case 'ERPSuivis':
-                return $this->getERPSuivisCount($user);
-
-            case 'ERPOuvertsSousAvisDefavorable':
-                return $this->getERPOuvertsSousAvisDefavorableCount();
-
-            case 'ERPOuvertsSousAvisDefavorableSuivis':
-                return $this->getERPOuvertsSousAvisDefavorableSuivisCount($user);
-
-            case 'ERPOuvertsSousAvisDefavorableSurCommune':
-                return $this->getERPOuvertsSousAvisDefavorableSurCommuneCount($user);
-
-            case 'ERPSansPreventionniste':
-                return $this->getERPSansPreventionnisteCount();
-
-            case 'ERPOuvertsSansProchainesVisitePeriodiques':
-                return $this->getERPOuvertsSansProchainesVisitePeriodiquesCount($user);
-
-            case 'DossiersSuivisSansAvis':
-                return $this->getDossiersSuivisSansAvisCount($user);
-
-            case 'DossiersSuivisNonVerrouilles':
-                return $this->getDossiersSuivisNonVerrouillesCount($user);
-
-            case 'DossierDateCommissionEchu':
-                return $this->getDossierDateCommissionEchuCount($user);
-
-            case 'DossierAvecAvisDiffere':
-                return $this->getDossierAvecAvisDiffereCount($user);
-
-            case 'CourrierSansReponse':
-                return $this->getCourrierSansReponseCount();
-
-            case 'feeds':
-                return $this->feedService->getFeedsCount($user);
-
-            case 'leveePresc':
-                return count($this->getLeveePresc());
-
-            case 'absQuorum':
-                return count($this->getAbsenceQuorum());
-
-            case 'npsp':
-                return count($this->getNpsp());
-
-            case 'dossiersIncomplets':
-                return $this->getDossiersIncompleCountDirecte();
-
-            case 'dossierPlatau':
-                return $this->getDossiersPlatauSansEtablissementCount();
-
-            case 'pjPlatauErreur':
-                return $this->getDossiersPlatauPjsEnErreurCount();
-
-            case 'nouvellesPjsPlatau':
-                return $this->getDossiersPlatauNouvellesPjsCount($user);
-
-            default:
-                return 0;
-        }
+        return match ($blocId) {
+            'nextCommissions', 'nextCommissionsOdj' => $this->getNextCommissionCount($user),
+            'ERPSuivis' => $this->getERPSuivisCount($user),
+            'ERPOuvertsSousAvisDefavorable' => $this->getERPOuvertsSousAvisDefavorableCount(),
+            'ERPOuvertsSousAvisDefavorableSuivis' => $this->getERPOuvertsSousAvisDefavorableSuivisCount($user),
+            'ERPOuvertsSousAvisDefavorableSurCommune' => $this->getERPOuvertsSousAvisDefavorableSurCommuneCount($user),
+            'ERPSansPreventionniste' => $this->getERPSansPreventionnisteCount(),
+            'ERPOuvertsSansProchainesVisitePeriodiques' => $this->getERPOuvertsSansProchainesVisitePeriodiquesCount($user),
+            'DossiersSuivisSansAvis' => $this->getDossiersSuivisSansAvisCount($user),
+            'DossiersSuivisNonVerrouilles' => $this->getDossiersSuivisNonVerrouillesCount($user),
+            'DossierDateCommissionEchu' => $this->getDossierDateCommissionEchuCount($user),
+            'DossierAvecAvisDiffere' => $this->getDossierAvecAvisDiffereCount($user),
+            'CourrierSansReponse' => $this->getCourrierSansReponseCount(),
+            'feeds' => $this->feedService->getFeedsCount($user),
+            'leveePresc' => count($this->getLeveePresc()),
+            'absQuorum' => count($this->getAbsenceQuorum()),
+            'npsp' => count($this->getNpsp()),
+            'dossiersIncomplets' => $this->getDossiersIncompleCountDirecte(),
+            'dossierPlatau' => $this->getDossiersPlatauSansEtablissementCount(),
+            'pjPlatauErreur' => $this->getDossiersPlatauPjsEnErreurCount(),
+            'nouvellesPjsPlatau' => $this->getDossiersPlatauNouvellesPjsCount($user),
+            default => 0,
+        };
     }
 
     /**
