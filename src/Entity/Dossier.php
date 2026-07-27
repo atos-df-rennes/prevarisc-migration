@@ -62,7 +62,7 @@ class Dossier
     #[ORM\InverseJoinColumn(name: 'ID_NATURE', referencedColumnName: 'ID_DOSSIERNATURE')]
     #[ORM\ManyToMany(targetEntity: DossierNatureListe::class)]
     #[Assert\Count(min: 1, minMessage: 'La nature du dossier est obligatoire.')]
-    private ArrayCollection $nature;
+    private Collection $nature;
 
     /**
      * @var Collection<int, Etablissement>
@@ -119,7 +119,7 @@ class Dossier
     #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
     #[ORM\InverseJoinColumn(name: 'ID_VALEUR', referencedColumnName: 'ID_VALEUR')]
     #[ORM\ManyToMany(targetEntity: Valeur::class, cascade: ['persist', 'remove'])]
-    private ArrayCollection $valeurs;
+    private Collection $valeurs;
 
     /**
      * @var Collection<int, UtilisateurInformations>

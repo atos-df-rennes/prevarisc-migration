@@ -35,7 +35,7 @@ class Etablissement
      * @var Collection<int, EtablissementInformations>
      */
     #[ORM\OneToMany(targetEntity: EtablissementInformations::class, mappedBy: 'etablissement')]
-    private ?array $informations = null;
+    private Collection $informations;
 
     /**
      * @var Collection<int, Dossier>
@@ -108,7 +108,7 @@ class Etablissement
     #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_VALEUR', referencedColumnName: 'ID_VALEUR')]
     #[ORM\ManyToMany(targetEntity: Valeur::class, cascade: ['persist', 'remove'])]
-    private ArrayCollection $valeurs;
+    private Collection $valeurs;
 
     /**
      * @var Collection<int, UtilisateurInformations>
