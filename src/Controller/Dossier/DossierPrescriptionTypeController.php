@@ -26,11 +26,9 @@ class DossierPrescriptionTypeController extends AbstractController
 
     /**
      * Retourne le contenu de la modale "Ajouter une prescription type".
-     *
-     * @Route("/dossier/{id}/prescriptions/modal-type", name="dossier_prescriptions_modal_type", requirements={"id"="\d+"}, methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/prescriptions/modal-type', name: 'dossier_prescriptions_modal_type', requirements: ['id' => '\d+'], methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function ajouterTypeModal(Dossier $dossier): Response
     {
         return $this->render('dossier/prescriptions/_modal_ajout_type.html.twig', [
@@ -43,11 +41,9 @@ class DossierPrescriptionTypeController extends AbstractController
     /**
      * Recherche des prescriptions types par mots-clés (AJAX).
      * Retourne un fragment HTML avec la liste des résultats.
-     *
-     * @Route("/dossier/{id}/prescriptions/recherche-mots-cles", name="dossier_prescriptions_recherche_mots_cles", requirements={"id"="\d+"}, methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/prescriptions/recherche-mots-cles', name: 'dossier_prescriptions_recherche_mots_cles', requirements: ['id' => '\d+'], methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function rechercheMotsCles(Request $request, Dossier $dossier): Response
     {
         $rawMotsCles = $request->request->get('motsCles', '');
@@ -69,11 +65,9 @@ class DossierPrescriptionTypeController extends AbstractController
     /**
      * Navigation hiérarchique par classement (catégorie → texte → article) (AJAX).
      * Retourne un fragment HTML adapté au niveau de navigation courant.
-     *
-     * @Route("/dossier/{id}/prescriptions/recherche-classement", name="dossier_prescriptions_recherche_classement", requirements={"id"="\d+"}, methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/prescriptions/recherche-classement', name: 'dossier_prescriptions_recherche_classement', requirements: ['id' => '\d+'], methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function rechercheClassement(Request $request, Dossier $dossier): Response
     {
         $categorieId = $request->request->getInt('categorieId', 0);
@@ -129,13 +123,10 @@ class DossierPrescriptionTypeController extends AbstractController
     /**
      * Ajoute une prescription type au dossier (AJAX).
      * Retourne le fragment HTML de la prescription ajoutée.
-     *
-     * @Route("/dossier/{id}/prescriptions/{idPrescType}/ajouter-type", name="dossier_prescriptions_ajouter_type", requirements={"id"="\d+", "idPrescType"="\d+"}, methods={"POST"}, options={"expose"=true})
-     *
-     * @ParamConverter("prescriptionType", options={"id" = "idPrescType"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/prescriptions/{idPrescType}/ajouter-type', name: 'dossier_prescriptions_ajouter_type', requirements: ['id' => '\d+', 'idPrescType' => '\d+'], methods: ['POST'], options: ['expose' => true])]
+    #[ParamConverter('prescriptionType', options: ['id' => 'idPrescType'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function ajouterDepuisType(Request $request, Dossier $dossier, PrescriptionType $prescriptionType): Response
     {
         /** @var string $csrfToken */

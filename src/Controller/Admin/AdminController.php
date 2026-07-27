@@ -11,18 +11,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("admin")
- */
+#[IsGranted('admin')]
 class AdminController extends AbstractController
 {
     public function __construct(private UtilisateurRepository $utilisateurRepository, private VersionBuilder $versionBuilder)
     {
     }
 
-    /**
-     * @Route("/admin/", name="admin_index")
-     */
+    #[Route(path: '/admin/', name: 'admin_index')]
     public function index(): Response
     {
         $versionService = $this->versionBuilder->build();

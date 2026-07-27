@@ -5,37 +5,23 @@ namespace App\Entity;
 use App\Repository\PrescriptionTexteListeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrescriptionTexteListeRepository::class)
- *
- * @ORM\Table(name="prescriptiontexteliste")
- */
+#[ORM\Entity(repositoryClass: PrescriptionTexteListeRepository::class)]
+#[ORM\Table(name: 'prescriptiontexteliste')]
 class PrescriptionTexteListe
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_TEXTE", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_TEXTE', type: 'bigint')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_TEXTE", type="string", length=255, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_TEXTE', type: 'string', length: 255, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="VISIBLE_TEXTE", type="boolean", nullable=true)
-     */
-    private $visible;
+    #[ORM\Column(name: 'VISIBLE_TEXTE', type: 'boolean', nullable: true)]
+    private ?bool $visible = null;
 
     public function getId(): ?int
     {

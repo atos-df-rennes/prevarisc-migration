@@ -13,18 +13,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_textes_applicables")
- */
+#[IsGranted('gestion_textes_applicables')]
 class TextesApplicablesController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private TexteApplicableRepository $texteApplicableRepository, private \App\Service\TexteApplicable $serviceTexteApplicable)
     {
     }
 
-    /**
-     * @Route("/admin/textes-applicables", name="admin_textes_applicables")
-     */
+    #[Route(path: '/admin/textes-applicables', name: 'admin_textes_applicables')]
     public function index(): Response
     {
         $textesApplicables = $this->texteApplicableRepository->findAllSorted();
@@ -34,9 +30,7 @@ class TextesApplicablesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/textes-applicables/add", name="admin_textes_applicables_add", options={"expose"=true})
-     */
+    #[Route(path: '/admin/textes-applicables/add', name: 'admin_textes_applicables_add', options: ['expose' => true])]
     public function ajouter(Request $request): Response
     {
         $texteApplicable = new TexteApplicable();
@@ -66,9 +60,7 @@ class TextesApplicablesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/textes-applicables/{id}/edit", name="admin_textes_applicables_edit", options={"expose"=true})
-     */
+    #[Route(path: '/admin/textes-applicables/{id}/edit', name: 'admin_textes_applicables_edit', options: ['expose' => true])]
     public function modifier(Request $request, TexteApplicable $texteApplicable): Response
     {
         $form = $this->createForm(TexteApplicableType::class, $texteApplicable, [
@@ -94,9 +86,7 @@ class TextesApplicablesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/textes-applicables/updateorder", name="admin_textes_applicables_updateorder", options={"expose"=true})
-     */
+    #[Route(path: '/admin/textes-applicables/updateorder', name: 'admin_textes_applicables_updateorder', options: ['expose' => true])]
     public function ordonner(Request $request): JsonResponse
     {
         try {

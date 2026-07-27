@@ -24,9 +24,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Gère les actions liées aux effectifs et dégagements d'un dossier.
- *
- * @Route(requirements={"id"="\d+"})
  */
+#[Route(requirements: ['id' => '\d+'])]
 class DossierEffectifsController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private DescriptifService $descriptifService, private DescriptifInspector $descriptifInspector, private DescriptifCopier $descriptifCopier, private DossierRepository $dossierRepository, private EffectifsDegagementsRepriseValidator $repriseValidator, private LoggerInterface $logger, private DescriptifFormHydrator $descriptifFormHydrator, private DescriptifFormBuilder $descriptifFormBuilder, private DescriptifFormPersister $descriptifFormPersister, private FormFactoryInterface $formFactory)
@@ -35,11 +34,9 @@ class DossierEffectifsController extends AbstractController implements DossierLa
 
     /**
      * Affiche l'onglet Effectifs et Dégagements du dossier.
-     *
-     * @Route("/dossier/{id}/effectifs-degagements", name="dossier_effectifs_degagements", methods={"GET"})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('view_doss', dossier)")
      */
+    #[Route(path: '/dossier/{id}/effectifs-degagements', name: 'dossier_effectifs_degagements', methods: ['GET'])]
+    #[Security("is_granted('effectifs_degagements_doss') and is_granted('view_doss', dossier)")]
     public function effectifsDegagements(Dossier $dossier): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
@@ -52,15 +49,8 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/copier-effectifs-degagements-etablissement",
-     *        name="dossier_copier_effectifs_degagements_etablissement",
-     *        requirements={"id"="\d+"},
-     *        methods={"POST"},
-     *        defaults={"_dossier_lateral_nav": false})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
-     */
+    #[Route(path: '/dossier/{id}/copier-effectifs-degagements-etablissement', name: 'dossier_copier_effectifs_degagements_etablissement', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")]
     public function copierEffectifsDegagementsEtablissement(
         Dossier $dossier,
         Request $request
@@ -111,15 +101,8 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         return $this->json(['success' => true]);
     }
 
-    /**
-     * @Route("/dossier/{id}/recuperer-effectifs-degagements-etablissement",
-     *        name="dossier_recuperer_effectifs_degagements_etablissement",
-     *        requirements={"id"="\d+"},
-     *        methods={"POST"},
-     *        defaults={"_dossier_lateral_nav": false})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
-     */
+    #[Route(path: '/dossier/{id}/recuperer-effectifs-degagements-etablissement', name: 'dossier_recuperer_effectifs_degagements_etablissement', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")]
     public function recupererEffectifsDegagementsEtablissement(
         Dossier $dossier,
         Request $request
@@ -172,15 +155,9 @@ class DossierEffectifsController extends AbstractController implements DossierLa
 
     /**
      * Retourne le contenu de la modale "Reprendre les effectifs et dégagements d'un dossier précédent".
-     *
-     * @Route("/dossier/{id}/effectifs-degagements/modal-reprise",
-     *        name="dossier_effectifs_degagements_modal_reprise",
-     *        requirements={"id"="\d+"},
-     *        methods={"GET"},
-     *        defaults={"_dossier_lateral_nav": false})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
+    #[Route(path: '/dossier/{id}/effectifs-degagements/modal-reprise', name: 'dossier_effectifs_degagements_modal_reprise', requirements: ['id' => '\d+'], methods: ['GET'], defaults: ['_dossier_lateral_nav' => false])]
+    #[Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")]
     public function effectifsDegagementsModalReprise(Dossier $dossier): Response
     {
         $etablissements = $dossier->getEtablissements();
@@ -204,15 +181,9 @@ class DossierEffectifsController extends AbstractController implements DossierLa
 
     /**
      * Reprend les effectifs et dégagements d'un dossier source vers le dossier courant.
-     *
-     * @Route("/dossier/{id}/effectifs-degagements/reprendre-depuis-etude",
-     *        name="dossier_effectifs_degagements_reprendre_depuis_etude",
-     *        requirements={"id"="\d+"},
-     *        methods={"POST"},
-     *        defaults={"_dossier_lateral_nav": false})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
+    #[Route(path: '/dossier/{id}/effectifs-degagements/reprendre-depuis-etude', name: 'dossier_effectifs_degagements_reprendre_depuis_etude', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")]
     public function reprendreEffectifsDegagementsDepuisEtude(
         Dossier $dossier,
         Request $request
@@ -266,11 +237,9 @@ class DossierEffectifsController extends AbstractController implements DossierLa
 
     /**
      * Affiche et traite le formulaire d'édition des effectifs et dégagements du dossier.
-     *
-     * @Route("/dossier/{id}/effectifs-degagements/modifier", name="dossier_effectifs_degagements_edit", methods={"GET", "POST"})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
+    #[Route(path: '/dossier/{id}/effectifs-degagements/modifier', name: 'dossier_effectifs_degagements_edit', methods: ['GET', 'POST'])]
+    #[Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")]
     public function editEffectifsDegagements(Dossier $dossier, Request $request): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);

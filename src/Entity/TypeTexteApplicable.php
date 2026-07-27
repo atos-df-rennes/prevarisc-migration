@@ -5,30 +5,20 @@ namespace App\Entity;
 use App\Repository\TypeTexteApplicableRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=TypeTexteApplicableRepository::class)
- *
- * @ORM\Table(name="typetextesappl")
- */
+#[ORM\Entity(repositoryClass: TypeTexteApplicableRepository::class)]
+#[ORM\Table(name: 'typetextesappl')]
 class TypeTexteApplicable
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_TYPETEXTEAPPL", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_TYPETEXTEAPPL', type: 'bigint')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_TYPETEXTEAPPL", type="text", nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_TYPETEXTEAPPL', type: 'text', nullable: false)]
+    private ?string $libelle = null;
 
     public function getId(): ?int
     {

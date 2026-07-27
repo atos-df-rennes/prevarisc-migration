@@ -5,109 +5,54 @@ namespace App\Entity;
 use App\Repository\PieceJointeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PieceJointeRepository::class)
- *
- * @ORM\Table(name="piecejointe")
- */
+#[ORM\Entity(repositoryClass: PieceJointeRepository::class)]
+#[ORM\Table(name: 'piecejointe')]
 class PieceJointe
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_PIECEJOINTE", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_PIECEJOINTE', type: 'bigint')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="NOM_PIECEJOINTE", type="string", length=255, nullable=false)
-     */
-    private $nom;
+    #[ORM\Column(name: 'NOM_PIECEJOINTE', type: 'string', length: 255, nullable: false)]
+    private ?string $nom = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="EXTENSION_PIECEJOINTE", type="string", length=10, nullable=false)
-     */
-    private $extension;
+    #[ORM\Column(name: 'EXTENSION_PIECEJOINTE', type: 'string', length: 10, nullable: false)]
+    private ?string $extension = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="DESCRIPTION_PIECEJOINTE", type="text", nullable=true)
-     */
-    private $description;
+    #[ORM\Column(name: 'DESCRIPTION_PIECEJOINTE', type: 'text', nullable: true)]
+    private ?string $description = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_PIECEJOINTE", type="date", nullable=true)
-     */
-    private $date;
+    #[ORM\Column(name: 'DATE_PIECEJOINTE', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $date = null;
 
-    /**
-     * @var ?PieceJointeStatut
-     *
-     * @ORM\ManyToOne(targetEntity=PieceJointeStatut::class, inversedBy="pieceJointes")
-     *
-     * @ORM\JoinColumn(name="ID_PIECEJOINTESTATUT", referencedColumnName="ID_PIECEJOINTESTATUT")
-     */
-    private $statut;
+    #[ORM\ManyToOne(targetEntity: PieceJointeStatut::class, inversedBy: 'pieceJointes')]
+    #[ORM\JoinColumn(name: 'ID_PIECEJOINTESTATUT', referencedColumnName: 'ID_PIECEJOINTESTATUT')]
+    private ?PieceJointeStatut $statut = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="ID_PLATAU", type="string", length=11, nullable=true, options={"fixed":true})
-     */
-    private $identifiantPlatau;
+    #[ORM\Column(name: 'ID_PLATAU', type: 'string', length: 11, nullable: true, options: ['fixed' => true])]
+    private ?string $identifiantPlatau = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="MESSAGE_ERREUR", type="string", length=255, nullable=true)
-     */
-    private $messageErreur;
+    #[ORM\Column(name: 'MESSAGE_ERREUR', type: 'string', length: 255, nullable: true)]
+    private ?string $messageErreur = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_NOTIFICATION", type="datetime", nullable=true)
-     */
-    private $dateNotification;
+    #[ORM\Column(name: 'DATE_NOTIFICATION', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateNotification = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="TYPE", type="text", nullable=true)
-     */
-    private $type;
+    #[ORM\Column(name: 'TYPE', type: 'text', nullable: true)]
+    private ?string $type = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="SOUS_TYPE", type="text", nullable=true)
-     */
-    private $sousType;
+    #[ORM\Column(name: 'SOUS_TYPE', type: 'text', nullable: true)]
+    private ?string $sousType = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="NATURE", type="string", length=255, nullable=true)
-     */
-    private $nature;
+    #[ORM\Column(name: 'NATURE', type: 'string', length: 255, nullable: true)]
+    private ?string $nature = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_DEPOT", type="date", nullable=true)
-     */
-    private $dateDepot;
+    #[ORM\Column(name: 'DATE_DEPOT', type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateDepot = null;
 
     public function getId(): ?int
     {

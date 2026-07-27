@@ -12,18 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("communes")
- */
+#[IsGranted('communes')]
 class FusionDesCommunesController extends AbstractController
 {
     public function __construct(private FusionDesCommunes $fusionDesCommunes)
     {
     }
 
-    /**
-     * @Route("/admin/fusion-des-communes", name="admin_fusion_des_communes")
-     */
+    #[Route(path: '/admin/fusion-des-communes', name: 'admin_fusion_des_communes')]
     public function index(Request $request): Response
     {
         $form = $this->createForm(FusionDesCommunesType::class);

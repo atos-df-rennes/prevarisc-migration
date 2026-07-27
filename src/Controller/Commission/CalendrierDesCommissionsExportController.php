@@ -24,9 +24,8 @@ class CalendrierDesCommissionsExportController extends AbstractController
     /**
      * Génère un fichier ICS pour une DateCommission unique (export Outlook).
      * Port direct de exportoutlookAction() — bug ligne 1539 ($ics .= $idDateComm) non reproduit.
-     *
-     * @Route("/commissions/calendrier/export-outlook/{dateCommId}", name="calendrier_des_commissions_export_outlook", methods={"GET"}, requirements={"dateCommId"="\d+"})
      */
+    #[Route(path: '/commissions/calendrier/export-outlook/{dateCommId}', name: 'calendrier_des_commissions_export_outlook', methods: ['GET'], requirements: ['dateCommId' => '\d+'])]
     public function exportOutlook(int $dateCommId): Response
     {
         $dateCommission = $this->dateCommissionRepository->find($dateCommId);
@@ -78,9 +77,8 @@ class CalendrierDesCommissionsExportController extends AbstractController
     /**
      * Génère un fichier ICS mensuel pour une commission (export Outlook — mois complet).
      * Port direct de exportoutlookmoisAction().
-     *
-     * @Route("/commissions/calendrier/export-outlook-mois/{commId}/{mois}/{annee}", name="calendrier_des_commissions_export_outlook_mois", methods={"GET"}, requirements={"commId"="\d+", "mois"="\d+", "annee"="\d+"}, options={"expose"=true})
      */
+    #[Route(path: '/commissions/calendrier/export-outlook-mois/{commId}/{mois}/{annee}', name: 'calendrier_des_commissions_export_outlook_mois', methods: ['GET'], requirements: ['commId' => '\d+', 'mois' => '\d+', 'annee' => '\d+'], options: ['expose' => true])]
     public function exportOutlookMois(int $commId, int $mois, int $annee): Response
     {
         if ($mois < 1 || $mois > 12 || $annee < 1) {

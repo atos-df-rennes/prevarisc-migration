@@ -25,18 +25,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_prescriptions")
- */
+#[IsGranted('gestion_prescriptions')]
 class PrescriptionsTypesController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private PrescriptionCategorieRepository $prescriptionCategorieRepository, private PrescriptionTexteRepository $prescriptionTexteRepository, private PrescriptionArticleRepository $prescriptionArticleRepository, private PrescriptionTypeRepository $prescriptionTypeRepository, private Prescriptions $prescriptionsService, private FormHelper $formHelper)
     {
     }
 
-    /**
-     * @Route("/admin/prescriptions", name="admin_prescriptions")
-     */
+    #[Route(path: '/admin/prescriptions', name: 'admin_prescriptions')]
     public function index(): Response
     {
         return $this->render('prescriptions_types/index.html.twig', [
@@ -45,9 +41,7 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/changement-ordre", name="admin_prescriptions_types_changement_ordre", methods={"POST"}, options={"expose"=true})
-     */
+    #[Route(path: '/admin/prescriptions/changement-ordre', name: 'admin_prescriptions_types_changement_ordre', methods: ['POST'], options: ['expose' => true])]
     public function reOrder(Request $request): Response
     {
         $orders = $request->get('order');
@@ -73,9 +67,7 @@ class PrescriptionsTypesController extends AbstractController
         return $this->json([]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/ajouter", name="admin_prescriptions_types_categorie_ajouter")
-     */
+    #[Route(path: '/admin/prescriptions/categorie/ajouter', name: 'admin_prescriptions_types_categorie_ajouter')]
     public function categoryAdd(Request $request): Response
     {
         $form = $this->createForm(PrescriptionTypeCategorieType::class, null, [
@@ -108,9 +100,7 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes", name="admin_prescriptions_types_textes_voir")
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes', name: 'admin_prescriptions_types_textes_voir')]
     public function textsView(PrescriptionCategorie $categorie): Response
     {
         $textes = $this->prescriptionTexteRepository->findBy(['categorie' => $categorie], ['numero' => 'ASC']);
@@ -122,13 +112,10 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/ajouter", name="admin_prescriptions_types_textes_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/modifier", name="admin_prescriptions_types_textes_modifier")
-     *
-     * @ParamConverter("categorie", options={"id" = "categorie"})
-     * @ParamConverter("texte", options={"id" = "texte"})
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/ajouter', name: 'admin_prescriptions_types_textes_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/modifier', name: 'admin_prescriptions_types_textes_modifier')]
+    #[ParamConverter('categorie', options: ['id' => 'categorie'])]
+    #[ParamConverter('texte', options: ['id' => 'texte'])]
     public function textsForm(Request $request, PrescriptionCategorie $categorie, ?PrescriptionTexte $texte = null): Response
     {
         $actionUrl = $this->getCurrentUrl($request);
@@ -168,9 +155,7 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}", name="admin_prescriptions_types_texte_voir_articles")
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}', name: 'admin_prescriptions_types_texte_voir_articles')]
     public function categoryTextsArticles(PrescriptionCategorie $categorie, PrescriptionTexte $texte): Response
     {
         $articles = $this->prescriptionArticleRepository->findBy(['texte' => $texte], ['numero' => 'ASC']);
@@ -183,14 +168,11 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/ajouter", name="admin_prescriptions_types_article_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/modifier", name="admin_prescriptions_types_articles_modifier")
-     *
-     * @ParamConverter("categorie", options={"id" = "categorie"})
-     * @ParamConverter("texte", options={"id" = "texte"})
-     * @ParamConverter("article", options={"id" = "article"})
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/ajouter', name: 'admin_prescriptions_types_article_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/modifier', name: 'admin_prescriptions_types_articles_modifier')]
+    #[ParamConverter('categorie', options: ['id' => 'categorie'])]
+    #[ParamConverter('texte', options: ['id' => 'texte'])]
+    #[ParamConverter('article', options: ['id' => 'article'])]
     public function articlesForm(Request $request, PrescriptionCategorie $categorie, PrescriptionTexte $texte, ?PrescriptionArticle $article = null): Response
     {
         $actionUrl = $this->getCurrentUrl($request);
@@ -230,9 +212,7 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/article/{article}", name="admin_prescriptions_types_texte_voir_article_contenu")
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/article/{article}', name: 'admin_prescriptions_types_texte_voir_article_contenu')]
     public function articlesAssociation(PrescriptionCategorie $categorie, PrescriptionTexte $texte, PrescriptionArticle $article): Response
     {
         $associations = $this->prescriptionsService->showPrescriptionType($categorie->getId() ?? 0, $texte->getId() ?? 0, $article->getId() ?? 0);
@@ -247,19 +227,16 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/prescriptions-types/ajouter", name="admin_prescriptions_types_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_modifier")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/ajouter", name="admin_prescriptions_types_prescriptions_textes_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_prescriptions_texte_modifier")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/ajouter", name="admin_prescriptions_types_prescriptions_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_prescriptions_modifier")
-     *
-     * @ParamConverter("categorie", options={"id" = "categorie"})
-     * @ParamConverter("texte", options={"id" = "texte"})
-     * @ParamConverter("article", options={"id" = "article"})
-     * @ParamConverter("prescription", options={"id" = "prescription"})
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/prescriptions-types/ajouter', name: 'admin_prescriptions_types_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/modifier', name: 'admin_prescriptions_types_modifier')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/ajouter', name: 'admin_prescriptions_types_prescriptions_textes_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/modifier', name: 'admin_prescriptions_types_prescriptions_texte_modifier')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/ajouter', name: 'admin_prescriptions_types_prescriptions_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/modifier', name: 'admin_prescriptions_types_prescriptions_modifier')]
+    #[ParamConverter('categorie', options: ['id' => 'categorie'])]
+    #[ParamConverter('texte', options: ['id' => 'texte'])]
+    #[ParamConverter('article', options: ['id' => 'article'])]
+    #[ParamConverter('prescription', options: ['id' => 'prescription'])]
     public function articlesAssociationForm(
         Request $request,
         PrescriptionCategorie $categorie,
@@ -320,16 +297,13 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_supprimer")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_prescriptions_texte_supprimer")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_prescriptions_supprimer")
-     *
-     * @ParamConverter("categorie", options={"id" = "categorie"})
-     * @ParamConverter("texte", options={"id" = "texte"})
-     * @ParamConverter("article", options={"id" = "article"})
-     * @ParamConverter("prescription", options={"id" = "prescription"})
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/supprimer', name: 'admin_prescriptions_types_supprimer')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/supprimer', name: 'admin_prescriptions_types_prescriptions_texte_supprimer')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/supprimer', name: 'admin_prescriptions_types_prescriptions_supprimer')]
+    #[ParamConverter('categorie', options: ['id' => 'categorie'])]
+    #[ParamConverter('texte', options: ['id' => 'texte'])]
+    #[ParamConverter('article', options: ['id' => 'article'])]
+    #[ParamConverter('prescription', options: ['id' => 'prescription'])]
     public function prescriptionTypeRemove(
         Request $request,
         PrescriptionCategorie $categorie,

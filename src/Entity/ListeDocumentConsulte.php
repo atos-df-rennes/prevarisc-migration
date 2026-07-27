@@ -5,65 +5,35 @@ namespace App\Entity;
 use App\Repository\ListeDocumentConsulteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ListeDocumentConsulteRepository::class)
- *
- * @ORM\Table(name="listedocconsulte")
- */
+#[ORM\Entity(repositoryClass: ListeDocumentConsulteRepository::class)]
+#[ORM\Table(name: 'listedocconsulte')]
 class ListeDocumentConsulte
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_DOC", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_DOC', type: 'bigint')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_DOC", type="text", nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_DOC', type: 'text', nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="VISITE_DOC", type="boolean", nullable=false)
-     */
-    private $visite;
+    #[ORM\Column(name: 'VISITE_DOC', type: 'boolean', nullable: false)]
+    private ?bool $visite = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="ETUDE_DOC", type="boolean", nullable=false)
-     */
-    private $etude;
+    #[ORM\Column(name: 'ETUDE_DOC', type: 'boolean', nullable: false)]
+    private ?bool $etude = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="VISITERT_DOC", type="boolean", nullable=false)
-     */
-    private $receptionTravaux;
+    #[ORM\Column(name: 'VISITERT_DOC', type: 'boolean', nullable: false)]
+    private ?bool $receptionTravaux = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="VISITEVAO_DOC", type="boolean", nullable=false)
-     */
-    private $avantOuverture;
+    #[ORM\Column(name: 'VISITEVAO_DOC', type: 'boolean', nullable: false)]
+    private ?bool $avantOuverture = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="ORDRE_DOC", type="integer", nullable=false)
-     */
-    private $ordre;
+    #[ORM\Column(name: 'ORDRE_DOC', type: 'integer', nullable: false)]
+    private ?int $ordre = null;
 
     public function getId(): ?int
     {

@@ -5,35 +5,22 @@ namespace App\Entity;
 use App\Repository\ChangementRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ChangementRepository::class)
- */
+#[ORM\Entity(repositoryClass: ChangementRepository::class)]
 class Changement
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_CHANGEMENT", type="integer", options={"unsigned":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_CHANGEMENT', type: 'integer', options: ['unsigned' => true])]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_CHANGEMENT", type="string", length=255, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_CHANGEMENT', type: 'string', length: 255, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="MESSAGE_CHANGEMENT", type="text", nullable=true)
-     */
-    private $message;
+    #[ORM\Column(name: 'MESSAGE_CHANGEMENT', type: 'text', nullable: true)]
+    private ?string $message = null;
 
     public function getId(): ?int
     {

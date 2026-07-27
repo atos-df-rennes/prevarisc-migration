@@ -18,9 +18,8 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * Gestion des pièces jointes d'une date de commission.
  * Extrait de CalendrierDesCommissionsController (REF-CTL-01).
- *
- * @IsGranted("modification_odj")
  */
+#[IsGranted('modification_odj')]
 class CalendrierDesCommissionsPiecesJointesController extends AbstractController
 {
     public function __construct(private PieceJointeRepository $pieceJointeRepository, private DataStore $dataStore, private EntityManagerInterface $entityManager)
@@ -29,9 +28,8 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
 
     /**
      * Affiche les pièces jointes d'une date de commission dans la modale.
-     *
-     * @Route("/commissions/calendrier/pieces-jointes/{id}", name="calendrier_des_commissions_pieces_jointes", methods={"GET"}, requirements={"id"="\d+"}, options={"expose"=true})
      */
+    #[Route(path: '/commissions/calendrier/pieces-jointes/{id}', name: 'calendrier_des_commissions_pieces_jointes', methods: ['GET'], requirements: ['id' => '\d+'], options: ['expose' => true])]
     public function piecesJointes(DateCommission $dateCommission): Response
     {
         $piecesJointes = array_values(array_filter(
@@ -51,9 +49,8 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
 
     /**
      * Retourne le formulaire d'ajout de pièce jointe (chargé en AJAX dans la modale).
-     *
-     * @Route("/commissions/calendrier/pieces-jointes/{id}/formulaire", name="calendrier_des_commissions_pj_formulaire", methods={"GET"}, requirements={"id"="\d+"}, options={"expose"=true})
      */
+    #[Route(path: '/commissions/calendrier/pieces-jointes/{id}/formulaire', name: 'calendrier_des_commissions_pj_formulaire', methods: ['GET'], requirements: ['id' => '\d+'], options: ['expose' => true])]
     public function piecesJointesForm(DateCommission $dateCommission): Response
     {
         return $this->render('calendrier_des_commissions/pieces_jointes_form.html.twig', [
@@ -64,9 +61,8 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
     /**
      * Upload d'une pièce jointe pour une date de commission.
      * Retourne un JSON avec le HTML de la nouvelle ligne de tableau.
-     *
-     * @Route("/commissions/calendrier/pieces-jointes/{id}/ajouter", name="calendrier_des_commissions_pj_ajouter", methods={"POST"}, requirements={"id"="\d+"}, options={"expose"=true})
      */
+    #[Route(path: '/commissions/calendrier/pieces-jointes/{id}/ajouter', name: 'calendrier_des_commissions_pj_ajouter', methods: ['POST'], requirements: ['id' => '\d+'], options: ['expose' => true])]
     public function piecesJointesAdd(Request $request, DateCommission $dateCommission): JsonResponse
     {
         try {
@@ -122,9 +118,8 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
 
     /**
      * Supprime une pièce jointe d'une date de commission.
-     *
-     * @Route("/commissions/calendrier/pieces-jointes/{id}/supprimer/{idPj}", name="calendrier_des_commissions_pj_supprimer", methods={"DELETE", "POST"}, requirements={"id"="\d+", "idPj"="\d+"}, options={"expose"=true})
      */
+    #[Route(path: '/commissions/calendrier/pieces-jointes/{id}/supprimer/{idPj}', name: 'calendrier_des_commissions_pj_supprimer', methods: ['DELETE', 'POST'], requirements: ['id' => '\d+', 'idPj' => '\d+'], options: ['expose' => true])]
     public function piecesJointesDelete(Request $request, DateCommission $dateCommission, int $idPj): JsonResponse
     {
         try {

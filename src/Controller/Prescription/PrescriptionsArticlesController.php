@@ -14,18 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_prescriptions")
- */
+#[IsGranted('gestion_prescriptions')]
 class PrescriptionsArticlesController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private Prescriptions $servicePresc, private PrescriptionArticleListeRepository $prescriptionArticleListeRepository)
     {
     }
 
-    /**
-     * @Route("/admin/prescriptions/articles/", name="admin_prescriptions_articles")
-     */
+    #[Route(path: '/admin/prescriptions/articles/', name: 'admin_prescriptions_articles')]
     public function gestionArticles(): Response
     {
         $listeArticles = $this->servicePresc->getArticlesListe();
@@ -35,10 +31,8 @@ class PrescriptionsArticlesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/articles/ajouter", name="admin_prescriptions_articles_add")
-     * @Route("/admin/prescriptions/articles/modifier/{articleListe}", name="admin_prescriptions_articles_edit")
-     */
+    #[Route(path: '/admin/prescriptions/articles/ajouter', name: 'admin_prescriptions_articles_add')]
+    #[Route(path: '/admin/prescriptions/articles/modifier/{articleListe}', name: 'admin_prescriptions_articles_edit')]
     public function formArticle(Request $request, ?PrescriptionArticleListe $articleListe = null): Response
     {
         if (null === $articleListe) {
@@ -66,9 +60,7 @@ class PrescriptionsArticlesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/articles/suppression/{articleListe}", name="admin_prescriptions_articles_suppression")
-     */
+    #[Route(path: '/admin/prescriptions/articles/suppression/{articleListe}', name: 'admin_prescriptions_articles_suppression')]
     public function suppressionArticle(
         Request $request,
         PrescriptionArticleListe $articleListe

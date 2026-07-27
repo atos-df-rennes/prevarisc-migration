@@ -5,39 +5,24 @@ namespace App\Entity;
 use App\Repository\DossierDocumentUrbanismeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DossierDocumentUrbanismeRepository::class)
- *
- * @ORM\Table(name="dossierdocurba")
- */
+#[ORM\Entity(repositoryClass: DossierDocumentUrbanismeRepository::class)]
+#[ORM\Table(name: 'dossierdocurba')]
 class DossierDocumentUrbanisme
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_DOCURBA", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_DOCURBA', type: 'bigint')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="NUM_DOCURBA", type="string", length=100, nullable=false)
-     */
-    private $numero;
+    #[ORM\Column(name: 'NUM_DOCURBA', type: 'string', length: 100, nullable: false)]
+    private ?string $numero = null;
 
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="documentsUrbanisme")
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'documentsUrbanisme')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false)]
+    private ?Dossier $dossier = null;
 
     public function getId(): ?int
     {

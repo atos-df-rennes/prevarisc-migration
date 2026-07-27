@@ -5,69 +5,37 @@ namespace App\Entity;
 use App\Repository\DossierDocumentConsulteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DossierDocumentConsulteRepository::class)
- *
- * @ORM\Table(name="dossierdocconsulte")
- */
+#[ORM\Entity(repositoryClass: DossierDocumentConsulteRepository::class)]
+#[ORM\Table(name: 'dossierdocconsulte')]
 class DossierDocumentConsulte
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_DOSSIERDOCCONSULTE", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_DOSSIERDOCCONSULTE', type: 'bigint')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="REF_CONSULTE", type="string", length=255, nullable=false)
-     */
-    private $reference;
+    #[ORM\Column(name: 'REF_CONSULTE', type: 'string', length: 255, nullable: false)]
+    private ?string $reference = null;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_CONSULTE", type="date", nullable=false)
-     */
-    private $date;
+    #[ORM\Column(name: 'DATE_CONSULTE', type: 'date', nullable: false)]
+    private ?\DateTimeInterface $date = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="DOC_CONSULTE", type="boolean", nullable=false)
-     */
-    private $consulte;
+    #[ORM\Column(name: 'DOC_CONSULTE', type: 'boolean', nullable: false)]
+    private ?bool $consulte = null;
 
-    /**
-     * @var DossierNatureListe
-     *
-     * @ORM\ManyToOne(targetEntity=DossierNatureListe::class)
-     *
-     * @ORM\JoinColumn(name="ID_NATURE", referencedColumnName="ID_DOSSIERNATURE", nullable=false)
-     */
-    private $nature;
+    #[ORM\ManyToOne(targetEntity: DossierNatureListe::class)]
+    #[ORM\JoinColumn(name: 'ID_NATURE', referencedColumnName: 'ID_DOSSIERNATURE', nullable: false)]
+    private ?DossierNatureListe $nature = null;
 
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="documentsConsultes")
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'documentsConsultes')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false)]
+    private ?Dossier $dossier = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ID_DOC", type="bigint", nullable=false)
-     */
-    private $document;
+    #[ORM\Column(name: 'ID_DOC', type: 'bigint', nullable: false)]
+    private ?string $document = null;
 
     public function getId(): ?int
     {

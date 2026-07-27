@@ -39,9 +39,8 @@ class SearchController extends AbstractController
 
     /**
      * Recherche d'établissements.
-     *
-     * @Route("/rechercher/etablissement", name="search_etablissement", methods={"GET"})
      */
+    #[Route(path: '/rechercher/etablissement', name: 'search_etablissement', methods: ['GET'])]
     public function etablissement(Request $request): Response
     {
         $this->denyAccessUnlessGranted('search_ets');
@@ -244,9 +243,8 @@ class SearchController extends AbstractController
 
     /**
      * Recherche de dossiers.
-     *
-     * @Route("/rechercher/dossier", name="search_dossier", methods={"GET"})
      */
+    #[Route(path: '/rechercher/dossier', name: 'search_dossier', methods: ['GET'])]
     public function dossier(Request $request): Response
     {
         $this->denyAccessUnlessGranted('search_dossiers');
@@ -481,9 +479,8 @@ class SearchController extends AbstractController
 
     /**
      * AJAX : liste des établissements enfants d'un parent.
-     *
-     * @Route("/rechercher/display-ajax-search-etablissement", name="search_ajax_etablissement", methods={"POST"})
      */
+    #[Route(path: '/rechercher/display-ajax-search-etablissement', name: 'search_ajax_etablissement', methods: ['POST'])]
     public function ajaxEtablissement(Request $request): Response
     {
         $this->denyAccessUnlessGranted('search_ets');

@@ -26,18 +26,14 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @IsGranted("gestion_formulaires")
- */
+#[IsGranted('gestion_formulaires')]
 class FormulairesController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private CapsuleRubriqueRepository $capsuleRubriqueRepository, private FormFactoryInterface $formFactory, private SerializerInterface $serializer, private FormulairesImporter $formulairesImporter, private LoggerInterface $logger)
     {
     }
 
-    /**
-     * @Route("/admin/formulaires", name="admin_formulaires")
-     */
+    #[Route(path: '/admin/formulaires', name: 'admin_formulaires')]
     public function index(Request $request): Response
     {
         $formulaires = $this->capsuleRubriqueRepository->findAllInformations();
@@ -89,9 +85,7 @@ class FormulairesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/formulaires/modifier-nom-capsule-rubrique", name="admin_formulaires_edit_capsule_rubrique_nom")
-     */
+    #[Route(path: '/admin/formulaires/modifier-nom-capsule-rubrique', name: 'admin_formulaires_edit_capsule_rubrique_nom')]
     public function editCapsuleRubriqueNom(Request $request): JsonResponse
     {
         $idCapsuleRubrique = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
@@ -114,9 +108,7 @@ class FormulairesController extends AbstractController
         return $this->json(['status' => 'success']);
     }
 
-    /**
-     * @Route("/admin/formulaires/export", name="admin_formulaires_export")
-     */
+    #[Route(path: '/admin/formulaires/export', name: 'admin_formulaires_export')]
     public function export(): JsonResponse
     {
         $context = [
@@ -139,9 +131,7 @@ class FormulairesController extends AbstractController
         return $this->json($this->capsuleRubriqueRepository->findAll(), 200, ['Content-Disposition' => $dispositions], $context);
     }
 
-    /**
-     * @Route("/admin/formulaires/import", name="admin_formulaires_import")
-     */
+    #[Route(path: '/admin/formulaires/import', name: 'admin_formulaires_import')]
     public function import(
         Request $request
     ): Response {

@@ -18,21 +18,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_formulaires")
- */
+#[IsGranted('gestion_formulaires')]
 class RubriqueController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private RubriqueRepository $rubriqueRepository, private ChampValeurListeRepository $champValeurListeRepository)
     {
     }
 
-    /**
-     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier", name="admin_formulaires_edit_rubrique", methods={"GET", "POST"})
-     *
-     * @ParamConverter("formulaire", options={"id" = "formulaire"})
-     * @ParamConverter("rubrique", options={"id" = "rubrique"})
-     */
+    #[Route(path: '/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier', name: 'admin_formulaires_edit_rubrique', methods: ['GET', 'POST'])]
+    #[ParamConverter('formulaire', options: ['id' => 'formulaire'])]
+    #[ParamConverter('rubrique', options: ['id' => 'rubrique'])]
     public function edit(
         Request $request,
         CapsuleRubrique $formulaire,
@@ -79,9 +74,7 @@ class RubriqueController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/formulaires/rubriques/{id}/supprimer", name="admin_formulaires_delete_rubrique", methods={"DELETE"})
-     */
+    #[Route(path: '/admin/formulaires/rubriques/{id}/supprimer', name: 'admin_formulaires_delete_rubrique', methods: ['DELETE'])]
     public function delete(Rubrique $rubrique): JsonResponse
     {
         $this->entityManager->remove($rubrique);
@@ -90,9 +83,7 @@ class RubriqueController extends AbstractController
         return $this->json([]);
     }
 
-    /**
-     * @Route("/admin/formulaires/rubriques/{id}/index/{idx}", name="admin_formulaires_index_rubrique")
-     */
+    #[Route(path: '/admin/formulaires/rubriques/{id}/index/{idx}', name: 'admin_formulaires_index_rubrique')]
     public function index(Rubrique $rubrique, int $idx): JsonResponse
     {
         $rubrique->setIdx($idx);

@@ -5,14 +5,14 @@ namespace App\Tests\Functional;
 use App\Entity\Dossier;
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 41 (Fermeture).
- *
- * @group functional
  */
+#[Group('functional')]
 class DossierEditNature41Test extends WebTestCase
 {
     /**

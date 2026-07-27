@@ -8,69 +8,47 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=GroupeRepository::class)
- */
+#[ORM\Entity(repositoryClass: GroupeRepository::class)]
 class Groupe
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_GROUPE", type="bigint", options={"unsigned":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_GROUPE', type: 'bigint', options: ['unsigned' => true])]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank(message="Cette valeur ne doit pas être vide.")
-     *
-     * @ORM\Column(name="LIBELLE_GROUPE", type="string", length=255, nullable=false)
-     */
-    private $libelle;
+    #[Assert\NotBlank(message: 'Cette valeur ne doit pas être vide.')]
+    #[ORM\Column(name: 'LIBELLE_GROUPE', type: 'string', length: 255, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="DESC_GROUPE", type="text", nullable=true)
-     */
-    private $description;
+    #[ORM\Column(name: 'DESC_GROUPE', type: 'text', nullable: true)]
+    private ?string $description = null;
 
     /**
      * @var Collection<int, Utilisateur>
-     *
-     * @ORM\OneToMany(targetEntity=Utilisateur::class, mappedBy="groupe")
      */
-    private $utilisateurs;
+    #[ORM\OneToMany(targetEntity: Utilisateur::class, mappedBy: 'groupe')]
+    private ArrayCollection|array $utilisateurs;
 
     /**
      * @var Collection<int, Privileges>
-     *
-     * @ORM\JoinTable(name="`groupe-privileges`",
-     *   joinColumns={@ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", options={"unsigned":true})},
-     *   inverseJoinColumns={@ORM\JoinColumn(name="id_privilege", referencedColumnName="id_privilege", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Privileges::class, inversedBy="groupes")
      */
-    private $privileges;
+    #[ORM\JoinTable(name: '`groupe-privileges`')]
+    #[ORM\JoinColumn(name: 'ID_GROUPE', referencedColumnName: 'ID_GROUPE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'id_privilege', referencedColumnName: 'id_privilege', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: Privileges::class, inversedBy: 'groupes')]
+    private ArrayCollection|array $privileges;
 
     /**
      * @var Collection<int, News>
-     *
-     * @ORM\JoinTable(
-     *     name="newsgroupe",
-     *     joinColumns={@ORM\JoinColumn(name="ID_GROUPE", referencedColumnName="ID_GROUPE", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_NEWS", referencedColumnName="ID_NEWS", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=News::class)
      */
-    private $news;
+    #[ORM\JoinTable(name: 'newsgroupe')]
+    #[ORM\JoinColumn(name: 'ID_GROUPE', referencedColumnName: 'ID_GROUPE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_NEWS', referencedColumnName: 'ID_NEWS', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: News::class)]
+    private ArrayCollection|array $news;
 
     public function __construct()
     {

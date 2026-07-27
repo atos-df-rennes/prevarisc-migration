@@ -18,9 +18,7 @@ class DossierAjaxController extends AbstractController
     {
     }
 
-    /**
-     * @Route("/dossier/liste-enfants", name="dossier_liste_enfants")
-     */
+    #[Route(path: '/dossier/liste-enfants', name: 'dossier_liste_enfants')]
     public function getDossiersEnfants(Request $request): Response
     {
         $parentId = $request->request->getInt('parent');

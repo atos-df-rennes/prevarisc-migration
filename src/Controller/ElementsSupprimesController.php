@@ -16,18 +16,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-/**
- * @Security("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))")
- */
+#[Security("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))")]
 class ElementsSupprimesController extends AbstractController
 {
     public function __construct(private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private EtablissementService $etablissementService, private DossierService $dossierService, private TagAwareCacheInterface $searchCache)
     {
     }
 
-    /**
-     * @Route("/admin/elements-supprimes", name="admin_elements_supprimes")
-     */
+    #[Route(path: '/admin/elements-supprimes', name: 'admin_elements_supprimes')]
     public function index(): Response
     {
         $etablissementsSupprimes = $this->etablissementRepository->findDeleted();
@@ -39,11 +35,8 @@ class ElementsSupprimesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/elements-supprimes/dossier/restaurer/{id}", name="admin_elements_supprimes_restore_dossier", requirements={"id"="\d+"})
-     *
-     * @IsGranted("delete_dossier")
-     */
+    #[Route(path: '/admin/elements-supprimes/dossier/restaurer/{id}', name: 'admin_elements_supprimes_restore_dossier', requirements: ['id' => '\d+'])]
+    #[IsGranted('delete_dossier')]
     public function restoreDossier(Request $request, Dossier $id): Response
     {
         $this->dossierService->restore($id);
@@ -57,11 +50,8 @@ class ElementsSupprimesController extends AbstractController
         return $this->redirect($referer);
     }
 
-    /**
-     * @Route("/admin/elements-supprimes/etablissement/restaurer/{id}", name="admin_elements_supprimes_restore_etablissement", requirements={"id"="\d+"})
-     *
-     * @IsGranted("delete_etablissement")
-     */
+    #[Route(path: '/admin/elements-supprimes/etablissement/restaurer/{id}', name: 'admin_elements_supprimes_restore_etablissement', requirements: ['id' => '\d+'])]
+    #[IsGranted('delete_etablissement')]
     public function restoreEtablissement(Etablissement $id): Response
     {
         $this->etablissementService->restore($id);

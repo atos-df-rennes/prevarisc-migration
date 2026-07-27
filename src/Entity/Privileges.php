@@ -7,51 +7,32 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrivilegesRepository::class)
- */
+#[ORM\Entity(repositoryClass: PrivilegesRepository::class)]
 class Privileges
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="id_privilege", type="bigint", options={"unsigned":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'id_privilege', type: 'bigint', options: ['unsigned' => true])]
     private $id;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(type="string", length=45, nullable=true)
-     */
-    private $name;
+    #[ORM\Column(type: 'string', length: 45, nullable: true)]
+    private ?string $name = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(type="string", length=45, nullable=true)
-     */
-    private $text;
+    #[ORM\Column(type: 'string', length: 45, nullable: true)]
+    private ?string $text = null;
 
-    /**
-     * @var ?Resources
-     *
-     * @ORM\ManyToOne(targetEntity=Resources::class, inversedBy="privileges")
-     *
-     * @ORM\JoinColumn(name="id_resource", referencedColumnName="id_resource", nullable=false, options={"unsigned":true})
-     */
-    private $resource;
+    #[ORM\ManyToOne(targetEntity: Resources::class, inversedBy: 'privileges')]
+    #[ORM\JoinColumn(name: 'id_resource', referencedColumnName: 'id_resource', nullable: false, options: ['unsigned' => true])]
+    private ?Resources $resource = null;
 
     /**
      * @var Collection<int, Groupe>
-     *
-     * @ORM\ManyToMany(targetEntity=Groupe::class, mappedBy="privileges")
      */
-    private $groupes;
+    #[ORM\ManyToMany(targetEntity: Groupe::class, mappedBy: 'privileges')]
+    private ArrayCollection|array $groupes;
 
     public function __construct()
     {

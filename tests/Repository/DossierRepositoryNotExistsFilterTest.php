@@ -3,15 +3,15 @@
 namespace App\Tests\Repository;
 
 use App\Repository\DossierRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * Tests fonctionnels pour le filtrage NOT EXISTS (dossiers liés) dans DossierRepository.
  * Couvre les méthodes findLeveePresc, findAbsenceQuorum et findNpsp qui excluent
  * les dossiers possédant un dossier lié d'une nature ou d'un type donné.
- *
- * @group functional
  */
+#[Group('functional')]
 class DossierRepositoryNotExistsFilterTest extends KernelTestCase
 {
     /** @var DossierRepository */

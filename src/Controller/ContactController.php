@@ -26,9 +26,7 @@ class ContactController extends AbstractController
     {
     }
 
-    /**
-     * @Route("/contact/{id}/modifier", name="contact_edit", options={"expose"=true})
-     */
+    #[Route(path: '/contact/{id}/modifier', name: 'contact_edit', options: ['expose' => true])]
     public function edit(Request $request, UtilisateurInformations $contact, EntityManagerInterface $entityManager): Response
     {
         $elementLie = $request->query->get('elementLie');
@@ -114,9 +112,7 @@ class ContactController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/contacts/{search}", name="contact_autocomplete", options={"expose"=true})
-     */
+    #[Route(path: '/contacts/{search}', name: 'contact_autocomplete', options: ['expose' => true])]
     public function autocomplete(string $search): JsonResponse
     {
         return $this->json($this->utilisateurInformationsRepository->findByNameNotInUser($search));

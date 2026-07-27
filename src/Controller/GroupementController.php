@@ -22,20 +22,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route(requirements={"id"="\d+"})
- *
- * @IsGranted("groupement_communes")
- */
+#[Route(requirements: ['id' => '\d+'])]
+#[IsGranted('groupement_communes')]
 class GroupementController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private CommuneRepository $communeRepository, private GroupementTypeRepository $groupementTypeRepository, private GroupementCommunes $groupementCommunes, private Contact $contactService, private TagAwareAdapterInterface $searchCache)
     {
     }
 
-    /**
-     * @Route("/admin/groupements", name="admin_groupement")
-     */
+    #[Route(path: '/admin/groupements', name: 'admin_groupement')]
     public function index(Request $request): Response
     {
         $groupementTypes = $this->groupementTypeRepository->findAll();
@@ -55,9 +50,7 @@ class GroupementController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/creer", name="admin_groupement_creation")
-     */
+    #[Route(path: '/admin/groupements/creer', name: 'admin_groupement_creation')]
     public function create(Request $request): Response
     {
         $groupement = new Groupement();
@@ -82,9 +75,7 @@ class GroupementController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/form/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
-     */
+    #[Route(path: '/admin/groupements/{id}/form/{scope}', name: 'admin_groupement_form_scope', requirements: ['scope' => 'general|affectations|coordonnees'])]
     public function formByScope(Groupement $groupement, string $scope, Request $request): Response
     {
         $form = $this->createForm(GroupementFormType::class, $groupement, [
@@ -128,9 +119,7 @@ class GroupementController extends AbstractController
         return $this->render(sprintf('groupement/_form_%s.html.twig', $scope), $templateData);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/supprimer", name="admin_groupement_delete", methods={"GET", "POST"})
-     */
+    #[Route(path: '/admin/groupements/{id}/supprimer', name: 'admin_groupement_delete', methods: ['GET', 'POST'])]
     public function delete(Request $request, Groupement $groupement): Response
     {
         $form = $this->createFormBuilder()
@@ -163,9 +152,7 @@ class GroupementController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/groupement/{id}/informations", name="groupement_informations", methods={"GET"})
-     */
+    #[Route(path: '/groupement/{id}/informations', name: 'groupement_informations', methods: ['GET'])]
     public function informations(Groupement $groupement): Response
     {
         return $this->render('groupement/informations.html.twig', [
@@ -173,9 +160,7 @@ class GroupementController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/contacts", name="admin_groupement_contacts")
-     */
+    #[Route(path: '/admin/groupements/{id}/contacts', name: 'admin_groupement_contacts')]
     public function contacts(Groupement $groupement): Response
     {
         return $this->render('components/_contacts_panel.html.twig', [
@@ -189,9 +174,7 @@ class GroupementController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/contacts/ajouter", name="admin_groupement_contacts_add")
-     */
+    #[Route(path: '/admin/groupements/{id}/contacts/ajouter', name: 'admin_groupement_contacts_add')]
     public function addNewContact(Request $request, Groupement $groupement): Response
     {
         $contact = new UtilisateurInformations();
@@ -216,9 +199,7 @@ class GroupementController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/contacts/ajouter/existant", name="admin_groupement_contacts_add_existing")
-     */
+    #[Route(path: '/admin/groupements/{id}/contacts/ajouter/existant', name: 'admin_groupement_contacts_add_existing')]
     public function addExistingContact(
         Request $request,
         Groupement $groupement
@@ -249,12 +230,9 @@ class GroupementController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/contacts/{contact}/supprimer", name="admin_groupement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true})
-     *
-     * @ParamConverter("groupement", options={"id" = "id"})
-     * @ParamConverter("contact", options={"id" = "contact"})
-     */
+    #[Route(path: '/admin/groupements/{id}/contacts/{contact}/supprimer', name: 'admin_groupement_contacts_delete', methods: ['GET', 'DELETE'], options: ['expose' => true])]
+    #[ParamConverter('groupement', options: ['id' => 'id'])]
+    #[ParamConverter('contact', options: ['id' => 'contact'])]
     public function deleteContact(
         Request $request,
         Groupement $groupement,

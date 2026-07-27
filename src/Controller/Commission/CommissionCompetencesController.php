@@ -13,9 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_commissions")
- */
+#[IsGranted('gestion_commissions')]
 class CommissionCompetencesController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private CommissionRegleCompetenceService $competenceService, private EtablissementInformationsRepository $etablissementInformationsRepository)
@@ -24,9 +22,8 @@ class CommissionCompetencesController extends AbstractController
 
     /**
      * Onglet Compétences — édition des règles de compétence d'une commission.
-     *
-     * @Route("/admin/commissions/{id}/competences", name="admin_commissions_competences", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
+    #[Route(path: '/admin/commissions/{id}/competences', name: 'admin_commissions_competences', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function competences(Commission $commission, Request $request): Response
     {
         /*
@@ -58,9 +55,8 @@ class CommissionCompetencesController extends AbstractController
     /**
      * Applique les règles de compétence d'une commission à l'ensemble des établissements ERP et IGH.
      * Met à jour ID_COMMISSION sur les établissements correspondants, puis vide le cache legacy.
-     *
-     * @Route("/admin/commissions/{id}/competences/appliquer-regles", name="admin_commissions_apply_regles", requirements={"id"="\d+"}, methods={"POST"})
      */
+    #[Route(path: '/admin/commissions/{id}/competences/appliquer-regles', name: 'admin_commissions_apply_regles', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function applyRegles(Request $request, Commission $commission): Response
     {
         /** @var string $csrfToken */

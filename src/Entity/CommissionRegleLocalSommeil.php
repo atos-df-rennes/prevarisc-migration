@@ -5,32 +5,18 @@ namespace App\Entity;
 use App\Repository\CommissionRegleLocalSommeilRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CommissionRegleLocalSommeilRepository::class)
- *
- * @ORM\Table(name="commissionreglelocalsommeil")
- */
+#[ORM\Entity(repositoryClass: CommissionRegleLocalSommeilRepository::class)]
+#[ORM\Table(name: 'commissionreglelocalsommeil')]
 class CommissionRegleLocalSommeil
 {
-    /**
-     * @var ?CommissionRegle
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=CommissionRegle::class, inversedBy="localSommeil")
-     *
-     * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", nullable=false, options={"unsigned":true})
-     */
-    private $regle;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: CommissionRegle::class, inversedBy: 'localSommeil')]
+    #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', nullable: false, options: ['unsigned' => true])]
+    private ?CommissionRegle $regle = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="LOCALSOMMEIL", type="smallint", nullable=false)
-     */
-    private $localSommeil;
+    #[ORM\Id]
+    #[ORM\Column(name: 'LOCALSOMMEIL', type: 'smallint', nullable: false)]
+    private ?int $localSommeil = null;
 
     public function getRegle(): ?CommissionRegle
     {

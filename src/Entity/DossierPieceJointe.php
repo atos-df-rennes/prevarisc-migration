@@ -5,41 +5,22 @@ namespace App\Entity;
 use App\Repository\DossierPieceJointeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DossierPieceJointeRepository::class)
- *
- * @ORM\Table(name="dossierpj")
- */
+#[ORM\Entity(repositoryClass: DossierPieceJointeRepository::class)]
+#[ORM\Table(name: 'dossierpj')]
 class DossierPieceJointe
 {
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="PJ_COMMISSION", type="boolean", nullable=false)
-     */
-    private $pieceJointeCommission;
+    #[ORM\Column(name: 'PJ_COMMISSION', type: 'boolean', nullable: false)]
+    private ?bool $pieceJointeCommission = null;
 
-    /**
-     * @var PieceJointe
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=PieceJointe::class)
-     *
-     * @ORM\JoinColumn(name="ID_PIECEJOINTE", referencedColumnName="ID_PIECEJOINTE", nullable=false)
-     */
-    private $pieceJointe;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: PieceJointe::class)]
+    #[ORM\JoinColumn(name: 'ID_PIECEJOINTE', referencedColumnName: 'ID_PIECEJOINTE', nullable: false)]
+    private ?PieceJointe $pieceJointe = null;
 
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="piecesJointes")
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'piecesJointes')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false)]
+    private ?Dossier $dossier = null;
 
     public function isPieceJointeCommission(): ?bool
     {

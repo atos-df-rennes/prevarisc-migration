@@ -7,161 +7,94 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CommissionMembreRepository::class)
- *
- * @ORM\Table(name="commissionmembre")
- */
+#[ORM\Entity(repositoryClass: CommissionMembreRepository::class)]
+#[ORM\Table(name: 'commissionmembre')]
 class CommissionMembre
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_COMMISSIONMEMBRE", type="bigint", options={"unsigned":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_COMMISSIONMEMBRE', type: 'bigint', options: ['unsigned' => true])]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_COMMISSIONMEMBRE", type="string", length=255, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_COMMISSIONMEMBRE', type: 'string', length: 255, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="PRESENCE_COMMISSIONMEMBRE", type="integer", nullable=false)
-     */
-    private $presence;
+    #[ORM\Column(name: 'PRESENCE_COMMISSIONMEMBRE', type: 'integer', nullable: false)]
+    private ?int $presence = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="COURRIER_CONVOCATIONVISITE", type="string", length=255, nullable=true)
-     */
-    private $courrierConvocationVisite;
+    #[ORM\Column(name: 'COURRIER_CONVOCATIONVISITE', type: 'string', length: 255, nullable: true)]
+    private ?string $courrierConvocationVisite = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="COURRIER_CONVOCATIONSALLE", type="string", length=255, nullable=true)
-     */
-    private $courrierConvocationSalle;
+    #[ORM\Column(name: 'COURRIER_CONVOCATIONSALLE', type: 'string', length: 255, nullable: true)]
+    private ?string $courrierConvocationSalle = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="COURRIER_ODJ", type="string", length=255, nullable=true)
-     */
-    private $courrierOrdreDuJour;
+    #[ORM\Column(name: 'COURRIER_ODJ', type: 'string', length: 255, nullable: true)]
+    private ?string $courrierOrdreDuJour = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="COURRIER_PV", type="string", length=255, nullable=true)
-     */
-    private $courrierProcesVerbal;
+    #[ORM\Column(name: 'COURRIER_PV', type: 'string', length: 255, nullable: true)]
+    private ?string $courrierProcesVerbal = null;
 
-    /**
-     * @var ?Groupement
-     *
-     * @ORM\ManyToOne(targetEntity=Groupement::class)
-     *
-     * @ORM\JoinColumn(name="ID_GROUPEMENT", referencedColumnName="ID_GROUPEMENT", options={"unsigned":true})
-     */
-    private $groupement;
+    #[ORM\ManyToOne(targetEntity: Groupement::class)]
+    #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', options: ['unsigned' => true])]
+    private ?Groupement $groupement = null;
 
-    /**
-     * @var ?UtilisateurInformations
-     *
-     * @ORM\ManyToOne(targetEntity=UtilisateurInformations::class)
-     *
-     * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})
-     */
-    private $utilisateurInformations;
+    #[ORM\ManyToOne(targetEntity: UtilisateurInformations::class)]
+    #[ORM\JoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', options: ['unsigned' => true])]
+    private ?UtilisateurInformations $utilisateurInformations = null;
 
-    /**
-     * @var ?Commission
-     *
-     * @ORM\ManyToOne(targetEntity=Commission::class, inversedBy="membres")
-     *
-     * @ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", nullable=false, options={"unsigned":true})
-     */
-    private $commission;
+    #[ORM\ManyToOne(targetEntity: Commission::class, inversedBy: 'membres')]
+    #[ORM\JoinColumn(name: 'ID_COMMISSION', referencedColumnName: 'ID_COMMISSION', nullable: false, options: ['unsigned' => true])]
+    private ?Commission $commission = null;
 
     /**
      * @var Collection<int, EtablissementCategorie>
-     *
-     * @ORM\JoinTable(
-     *     name="commissionmembrecategorie",
-     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSIONMEMBRE", referencedColumnName="ID_COMMISSIONMEMBRE", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=EtablissementCategorie::class)
      */
-    private $categories;
+    #[ORM\JoinTable(name: 'commissionmembrecategorie')]
+    #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_CATEGORIE', referencedColumnName: 'ID_CATEGORIE', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: EtablissementCategorie::class)]
+    private ArrayCollection|array $categories;
 
     /**
      * @var Collection<int, EtablissementActivite>
-     *
-     * @ORM\JoinTable(
-     *     name="commissionmembretypeactivite",
-     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSIONMEMBRE", referencedColumnName="ID_COMMISSIONMEMBRE", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_TYPEACTIVITE", referencedColumnName="ID_TYPEACTIVITE", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=EtablissementActivite::class)
      */
-    private $types;
+    #[ORM\JoinTable(name: 'commissionmembretypeactivite')]
+    #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_TYPEACTIVITE', referencedColumnName: 'ID_TYPEACTIVITE', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: EtablissementActivite::class)]
+    private ArrayCollection|array $types;
 
     /**
      * @var Collection<int, IghClasse>
-     *
-     * @ORM\JoinTable(
-     *     name="commissionmembreclasse",
-     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSIONMEMBRE", referencedColumnName="ID_COMMISSIONMEMBRE", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_CLASSE", referencedColumnName="ID_CLASSE", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=IghClasse::class)
      */
-    private $classes;
+    #[ORM\JoinTable(name: 'commissionmembreclasse')]
+    #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_CLASSE', referencedColumnName: 'ID_CLASSE', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: IghClasse::class)]
+    private ArrayCollection|array $classes;
 
     /**
      * @var Collection<int, DossierNatureListe>
-     *
-     * @ORM\JoinTable(
-     *     name="commissionmembredossiernature",
-     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSIONMEMBRE", referencedColumnName="ID_COMMISSIONMEMBRE", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_DOSSIERNATURE", referencedColumnName="ID_DOSSIERNATURE")}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=DossierNatureListe::class)
      */
-    private $naturesDossier;
+    #[ORM\JoinTable(name: 'commissionmembredossiernature')]
+    #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_DOSSIERNATURE', referencedColumnName: 'ID_DOSSIERNATURE')]
+    #[ORM\ManyToMany(targetEntity: DossierNatureListe::class)]
+    private ArrayCollection|array $naturesDossier;
 
     /**
      * @var Collection<int, DossierType>
-     *
-     * @ORM\JoinTable(
-     *     name="commissionmembredossiertype",
-     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSIONMEMBRE", referencedColumnName="ID_COMMISSIONMEMBRE", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_DOSSIERTYPE", referencedColumnName="ID_DOSSIERTYPE", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=DossierType::class)
      */
-    private $typesDossier;
+    #[ORM\JoinTable(name: 'commissionmembredossiertype')]
+    #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_DOSSIERTYPE', referencedColumnName: 'ID_DOSSIERTYPE', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: DossierType::class)]
+    private ArrayCollection|array $typesDossier;
 
-    /**
-     * @ORM\Column(name="MANIFESTATION_COMMISSIONMEMBRE", type="boolean", nullable=false, options={"default":false})
-     */
+    #[ORM\Column(name: 'MANIFESTATION_COMMISSIONMEMBRE', type: 'boolean', nullable: false, options: ['default' => false])]
     private bool $manifestation;
 
     public function __construct()

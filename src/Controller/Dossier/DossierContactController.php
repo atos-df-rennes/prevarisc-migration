@@ -22,20 +22,16 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Gère les contacts d'un dossier.
- *
- * @Route(requirements={"id"="\d+"})
  */
+#[Route(requirements: ['id' => '\d+'])]
 class DossierContactController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private UtilisateurInformationsRepository $utilisateurInformationsRepository, private Contact $contactService)
     {
     }
 
-    /**
-     * @Route("/dossier/{id}/contacts", name="dossier_contacts", methods={"GET"})
-     *
-     * @IsGranted(DossierVoter::LECTURE, subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/contacts', name: 'dossier_contacts', methods: ['GET'])]
+    #[IsGranted(DossierVoter::LECTURE, subject: 'dossier')]
     public function contacts(Dossier $dossier): Response
     {
         $idDossier = $dossier->getId();
@@ -51,11 +47,8 @@ class DossierContactController extends AbstractController implements DossierLate
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/contacts/ajouter", name="dossier_contacts_add", methods={"GET", "POST"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted(DossierVoter::MODIFICATION, subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/contacts/ajouter', name: 'dossier_contacts_add', methods: ['GET', 'POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted(DossierVoter::MODIFICATION, subject: 'dossier')]
     public function addContact(Request $request, Dossier $dossier): Response
     {
         $contact = new UtilisateurInformations();
@@ -80,14 +73,8 @@ class DossierContactController extends AbstractController implements DossierLate
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/contacts/ajouter/existant",
-     *     name="dossier_contacts_add_existing",
-     *     methods={"POST"},
-     *     defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted(DossierVoter::MODIFICATION, subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/contacts/ajouter/existant', name: 'dossier_contacts_add_existing', methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted(DossierVoter::MODIFICATION, subject: 'dossier')]
     public function addExistingContact(Request $request, Dossier $dossier): Response
     {
         if (!is_string($request->request->get('token')) || !$this->isCsrfTokenValid('dossier_contacts_add_existing_'.$dossier->getId(), $request->request->get('token'))) {
@@ -123,14 +110,10 @@ class DossierContactController extends AbstractController implements DossierLate
         return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
     }
 
-    /**
-     * @Route("/dossier/{id}/contacts/{contact}/supprimer", name="dossier_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted(DossierVoter::MODIFICATION, subject="dossier")
-     *
-     * @ParamConverter("dossier", options={"id" = "id"})
-     * @ParamConverter("contact", options={"id" = "contact"})
-     */
+    #[Route(path: '/dossier/{id}/contacts/{contact}/supprimer', name: 'dossier_contacts_delete', methods: ['GET', 'DELETE'], options: ['expose' => true], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted(DossierVoter::MODIFICATION, subject: 'dossier')]
+    #[ParamConverter('dossier', options: ['id' => 'id'])]
+    #[ParamConverter('contact', options: ['id' => 'contact'])]
     public function deleteContact(
         Request $request,
         Dossier $dossier,

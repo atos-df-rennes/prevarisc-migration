@@ -5,30 +5,20 @@ namespace App\Entity;
 use App\Repository\IghClasseRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=IghClasseRepository::class)
- *
- * @ORM\Table(name="classe")
- */
+#[ORM\Entity(repositoryClass: IghClasseRepository::class)]
+#[ORM\Table(name: 'classe')]
 class IghClasse
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_CLASSE", type="integer", options={"unsigned":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_CLASSE', type: 'integer', options: ['unsigned' => true])]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_CLASSE", type="string", length=100, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_CLASSE', type: 'string', length: 100, nullable: false)]
+    private ?string $libelle = null;
 
     public function getId(): ?int
     {

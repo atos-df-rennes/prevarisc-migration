@@ -5,42 +5,22 @@ namespace App\Entity;
 use App\Repository\NewsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=NewsRepository::class)
- */
+#[ORM\Entity(repositoryClass: NewsRepository::class)]
 class News
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="ID_NEWS", type="bigint", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\Column(name: 'ID_NEWS', type: 'bigint', options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="TYPE_NEWS", type="string", length=100, nullable=false)
-     */
-    private $type;
+    #[ORM\Column(name: 'TYPE_NEWS', type: 'string', length: 100, nullable: false)]
+    private ?string $type = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="TEXTE_NEWS", type="text", nullable=false)
-     */
-    private $texte;
+    #[ORM\Column(name: 'TEXTE_NEWS', type: 'text', nullable: false)]
+    private ?string $texte = null;
 
-    /**
-     * @var Utilisateur
-     *
-     * @ORM\ManyToOne(targetEntity=Utilisateur::class)
-     *
-     * @ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", nullable=false, options={"unsigned":true})
-     */
-    private $utilisateur;
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
+    #[ORM\JoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', nullable: false, options: ['unsigned' => true])]
+    private ?Utilisateur $utilisateur = null;
 
     public function getId(): ?int
     {

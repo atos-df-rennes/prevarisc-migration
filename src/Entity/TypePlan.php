@@ -5,30 +5,20 @@ namespace App\Entity;
 use App\Repository\TypePlanRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=TypePlanRepository::class)
- *
- * @ORM\Table(name="typeplan")
- */
+#[ORM\Entity(repositoryClass: TypePlanRepository::class)]
+#[ORM\Table(name: 'typeplan')]
 class TypePlan
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_TYPEPLAN", type="integer")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_TYPEPLAN', type: 'integer')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_TYPEPLAN", type="string", length=100, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_TYPEPLAN', type: 'string', length: 100, nullable: false)]
+    private ?string $libelle = null;
 
     public function getId(): ?int
     {

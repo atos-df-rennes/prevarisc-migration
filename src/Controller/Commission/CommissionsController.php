@@ -13,18 +13,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_commissions")
- */
+#[IsGranted('gestion_commissions')]
 class CommissionsController extends AbstractController
 {
     public function __construct(private CommissionRepository $commissionRepository, private CommissionTypeRepository $commissionTypeRepository, private CommissionManagerService $commissionManagerService)
     {
     }
 
-    /**
-     * @Route("/admin/commissions", name="admin_commissions_index")
-     */
+    #[Route(path: '/admin/commissions', name: 'admin_commissions_index')]
     public function index(): Response
     {
         $commissionTypes = $this->commissionTypeRepository->findWithCommissions();
@@ -34,9 +30,7 @@ class CommissionsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/commissions/gerer", name="admin_commissions_manage")
-     */
+    #[Route(path: '/admin/commissions/gerer', name: 'admin_commissions_manage')]
     public function manage(Request $request): Response
     {
         $commissions = $this->commissionRepository->findAll();
@@ -73,9 +67,8 @@ class CommissionsController extends AbstractController
 
     /**
      * Redirige vers l'onglet compétences (point d'entrée générique par commission).
-     *
-     * @Route("/admin/commissions/{id}", name="admin_commissions_show", requirements={"id"="\d+"}, methods={"GET"})
      */
+    #[Route(path: '/admin/commissions/{id}', name: 'admin_commissions_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Commission $commission): Response
     {
         return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);

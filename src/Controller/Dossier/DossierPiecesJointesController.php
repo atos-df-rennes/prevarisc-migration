@@ -61,11 +61,9 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Liste des pièces jointes d'un dossier.
      *
      * Port direct de PieceJointeController::indexAction() (type=dossier).
-     *
-     * @Route("/dossier/{id}/pieces-jointes", name="dossier_pieces_jointes", methods={"GET"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/pieces-jointes', name: 'dossier_pieces_jointes', methods: ['GET'])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function index(Dossier $dossier): Response
     {
         $dossierPjs = $this->dossierPieceJointeRepository->findAllByDossier((int) $dossier->getId());
@@ -112,11 +110,9 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Formulaire d'ajout de pièce jointe (fragment AJAX, sans layout).
      *
      * Port direct de PieceJointeController::formAction() (type=dossier).
-     *
-     * @Route("/dossier/{id}/pieces-jointes/formulaire", name="dossier_pieces_jointes_form", methods={"GET"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("view_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/pieces-jointes/formulaire', name: 'dossier_pieces_jointes_form', methods: ['GET'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function form(Dossier $dossier): Response
     {
         return $this->render('dossier/pieces_jointes/form.html.twig', [
@@ -128,11 +124,9 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Ajout d'une pièce jointe (POST AJAX, upload fichier).
      *
      * Port direct de PieceJointeController::addAction() (type=dossier).
-     *
-     * @Route("/dossier/{id}/pieces-jointes/ajouter", name="dossier_pieces_jointes_add", methods={"POST"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/pieces-jointes/ajouter', name: 'dossier_pieces_jointes_add', methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function add(Dossier $dossier, Request $request): JsonResponse
     {
         $rawCsrfAdd = $request->request->get('_token');
@@ -230,13 +224,10 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Téléchargement d'une pièce jointe de dossier.
      *
      * Port direct de PieceJointeController::getAction() (type=dossier).
-     *
-     * @Route("/dossier/{id}/pieces-jointes/{idpj}/telecharger", name="dossier_pieces_jointes_get", methods={"GET"}, requirements={"idpj"="\d+"})
-     *
-     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/telecharger', name: 'dossier_pieces_jointes_get', methods: ['GET'], requirements: ['idpj' => '\d+'])]
+    #[ParamConverter('pj', class: PieceJointe::class, options: ['id' => 'idpj'])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function download(Dossier $dossier, PieceJointe $pj): Response
     {
         $dpj = $this->dossierPieceJointeRepository->findOneBy([
@@ -265,13 +256,10 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Suppression d'une pièce jointe de dossier (POST AJAX).
      *
      * Port direct de PieceJointeController::deleteAction() (type=dossier).
-     *
-     * @Route("/dossier/{id}/pieces-jointes/{idpj}/supprimer", name="dossier_pieces_jointes_delete", methods={"POST"}, requirements={"idpj"="\d+"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/supprimer', name: 'dossier_pieces_jointes_delete', methods: ['POST'], requirements: ['idpj' => '\d+'], defaults: ['_dossier_lateral_nav' => false])]
+    #[ParamConverter('pj', class: PieceJointe::class, options: ['id' => 'idpj'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function delete(Dossier $dossier, PieceJointe $pj, Request $request): JsonResponse
     {
         $rawTokenDelete = $request->request->get('_token');
@@ -308,13 +296,10 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Vérifie qu'une pièce jointe existe physiquement après upload (POST AJAX).
      *
      * Port direct de PieceJointeController::checkAction() (type=dossier).
-     *
-     * @Route("/dossier/{id}/pieces-jointes/{idpj}/verifier", name="dossier_pieces_jointes_check", methods={"POST"}, requirements={"idpj"="\d+"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/verifier', name: 'dossier_pieces_jointes_check', methods: ['POST'], requirements: ['idpj' => '\d+'], defaults: ['_dossier_lateral_nav' => false])]
+    #[ParamConverter('pj', class: PieceJointe::class, options: ['id' => 'idpj'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function check(Dossier $dossier, PieceJointe $pj, Request $request): JsonResponse
     {
         $rawToken = $request->request->get('_token');
@@ -350,11 +335,9 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Téléchargement de toutes les pièces jointes d'un dossier en ZIP.
      *
      * Port direct de DossierController::getZipAllPjAction().
-     *
-     * @Route("/dossier/{id}/pieces-jointes/telecharger-tout", name="dossier_pieces_jointes_zip", methods={"GET"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/pieces-jointes/telecharger-tout', name: 'dossier_pieces_jointes_zip', methods: ['GET'])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function downloadZip(Dossier $dossier): Response
     {
         $dossierPjs = $this->dossierPieceJointeRepository->findAllByDossier((int) $dossier->getId());
@@ -419,13 +402,10 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Renvoi d'une pièce jointe vers Plat'AU (POST AJAX).
      *
      * Port direct de PieceJointeController::retryExportPlatauAction().
-     *
-     * @Route("/dossier/{id}/pieces-jointes/{idpj}/renvoyer-platau", name="dossier_pieces_jointes_retry_platau", methods={"POST"}, requirements={"idpj"="\d+"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @ParamConverter("pj", class="App\Entity\PieceJointe", options={"id"="idpj"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/renvoyer-platau', name: 'dossier_pieces_jointes_retry_platau', methods: ['POST'], requirements: ['idpj' => '\d+'], defaults: ['_dossier_lateral_nav' => false])]
+    #[ParamConverter('pj', class: PieceJointe::class, options: ['id' => 'idpj'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function retryExportPlatau(Dossier $dossier, PieceJointe $pj, Request $request): JsonResponse
     {
         $rawTokenRetry = $request->request->get('_token');

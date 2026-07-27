@@ -22,9 +22,8 @@ class AdresseController extends AbstractController
 
     /**
      * Autocomplete des communes par nom ou code postal.
-     *
-     * @Route("/api/2.0/adresse/get_communes", name="api_adresse_get_communes", methods={"GET"})
      */
+    #[Route(path: '/api/2.0/adresse/get_communes', name: 'api_adresse_get_communes', methods: ['GET'])]
     public function getCommunes(Request $request): JsonResponse
     {
         $q = $this->extractString($request->query->get('q', ''));
@@ -53,9 +52,8 @@ class AdresseController extends AbstractController
     /**
      * Voies d'une commune pour autocomplete.
      * Accepte GET (autocomplete) et POST (dossier search via AJAX).
-     *
-     * @Route("/api/2.0/adresse/get_voies", name="api_adresse_get_voies", methods={"GET", "POST"})
      */
+    #[Route(path: '/api/2.0/adresse/get_voies', name: 'api_adresse_get_voies', methods: ['GET', 'POST'])]
     public function getVoies(Request $request): JsonResponse
     {
         $codeInsee = $this->extractString($request->get('code_insee', ''));
@@ -85,9 +83,8 @@ class AdresseController extends AbstractController
     /**
      * Numéros de rue pour une voie donnée.
      * Accepte GET et POST.
-     *
-     * @Route("/api/2.0/adresse/get_numeros", name="api_adresse_get_numeros", methods={"GET", "POST"})
      */
+    #[Route(path: '/api/2.0/adresse/get_numeros', name: 'api_adresse_get_numeros', methods: ['GET', 'POST'])]
     public function getNumeros(Request $request): JsonResponse
     {
         $idRue = $this->extractString($request->get('id_rue', ''));
@@ -108,9 +105,8 @@ class AdresseController extends AbstractController
     /**
      * Récupère le libellé d'une commune par code INSEE.
      * Port de Api_Service_Adresse::getLibelleCommune.
-     *
-     * @Route("/api/2.0/adresse/get_libelle_commune", name="api_adresse_get_libelle_commune", methods={"GET"})
      */
+    #[Route(path: '/api/2.0/adresse/get_libelle_commune', name: 'api_adresse_get_libelle_commune', methods: ['GET'])]
     public function getLibelleCommune(Request $request): JsonResponse
     {
         $codeInsee = $this->extractString($request->query->get('code_insee', ''));
@@ -135,9 +131,8 @@ class AdresseController extends AbstractController
     /**
      * Récupère le libellé d'une rue par son ID.
      * Port de Api_Service_Adresse::getLibelleRue.
-     *
-     * @Route("/api/2.0/adresse/get_libelle_rue", name="api_adresse_get_libelle_rue", methods={"GET"})
      */
+    #[Route(path: '/api/2.0/adresse/get_libelle_rue', name: 'api_adresse_get_libelle_rue', methods: ['GET'])]
     public function getLibelleRue(Request $request): JsonResponse
     {
         $idRue = $this->extractString($request->query->get('idRue', ''));

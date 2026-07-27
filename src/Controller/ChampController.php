@@ -20,22 +20,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_formulaires")
- */
+#[IsGranted('gestion_formulaires')]
 class ChampController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private FormFactoryInterface $formFactory, private ChampRepository $champRepository, private ChampValeurListeRepository $champValeurListeRepository, private TypeChampRepository $typeChampRepository)
     {
     }
 
-    /**
-     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/modifier", name="admin_formulaires_edit_champ", methods={"GET", "POST"})
-     *
-     * @ParamConverter("formulaire", options={"id" = "formulaire"})
-     * @ParamConverter("rubrique", options={"id" = "rubrique"})
-     * @ParamConverter("champ", options={"id" = "champ"})
-     */
+    #[Route(path: '/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/modifier', name: 'admin_formulaires_edit_champ', methods: ['GET', 'POST'])]
+    #[ParamConverter('formulaire', options: ['id' => 'formulaire'])]
+    #[ParamConverter('rubrique', options: ['id' => 'rubrique'])]
+    #[ParamConverter('champ', options: ['id' => 'champ'])]
     public function edit(
         Request $request,
         CapsuleRubrique $formulaire,
@@ -104,13 +99,10 @@ class ChampController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/supprimer", name="admin_formulaires_delete_champ", methods={"DELETE"})
-     *
-     * @ParamConverter("formulaire", options={"id" = "formulaire"})
-     * @ParamConverter("rubrique", options={"id" = "rubrique"})
-     * @ParamConverter("champ", options={"id" = "champ"})
-     */
+    #[Route(path: '/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/supprimer', name: 'admin_formulaires_delete_champ', methods: ['DELETE'])]
+    #[ParamConverter('formulaire', options: ['id' => 'formulaire'])]
+    #[ParamConverter('rubrique', options: ['id' => 'rubrique'])]
+    #[ParamConverter('champ', options: ['id' => 'champ'])]
     public function delete(CapsuleRubrique $formulaire, Rubrique $rubrique, Champ $champ): JsonResponse
     {
         $this->entityManager->remove($champ);
@@ -119,9 +111,7 @@ class ChampController extends AbstractController
         return $this->json([]);
     }
 
-    /**
-     * @Route("/admin/formulaires/champs/{id}/index/{idx}", name="admin_formulaires_index_champ")
-     */
+    #[Route(path: '/admin/formulaires/champs/{id}/index/{idx}', name: 'admin_formulaires_index_champ')]
     public function index(Champ $champ, int $idx): JsonResponse
     {
         $champ->setIdx($idx);

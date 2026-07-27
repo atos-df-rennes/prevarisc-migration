@@ -7,44 +7,29 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrescriptionCategorieRepository::class)
- *
- * @ORM\Table(name="prescriptioncat")
- */
+#[ORM\Entity(repositoryClass: PrescriptionCategorieRepository::class)]
+#[ORM\Table(name: 'prescriptioncat')]
 class PrescriptionCategorie
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_PRESCRIPTION_CAT", type="bigint")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_PRESCRIPTION_CAT', type: 'bigint')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_PRESCRIPTION_CAT", type="string", length=255, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_PRESCRIPTION_CAT', type: 'string', length: 255, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="NUM_PRESCRIPTION_CAT", type="integer", nullable=false)
-     */
-    private $numero;
+    #[ORM\Column(name: 'NUM_PRESCRIPTION_CAT', type: 'integer', nullable: false)]
+    private ?int $numero = null;
 
     /**
      * @var Collection<int, PrescriptionTexte>
-     *
-     * @ORM\OneToMany(targetEntity=PrescriptionTexte::class, mappedBy="categorie", orphanRemoval=true)
      */
-    private $textes;
+    #[ORM\OneToMany(targetEntity: PrescriptionTexte::class, mappedBy: 'categorie', orphanRemoval: true)]
+    private ArrayCollection|array $textes;
 
     public function __construct()
     {

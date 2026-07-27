@@ -5,46 +5,27 @@ namespace App\Entity;
 use App\Repository\UtilisateurPreferencesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=UtilisateurPreferencesRepository::class)
- *
- * @ORM\Table(name="utilisateurpreferences")
- */
+#[ORM\Entity(repositoryClass: UtilisateurPreferencesRepository::class)]
+#[ORM\Table(name: 'utilisateurpreferences')]
 class UtilisateurPreferences
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_UTILISATEURPREFERENCES", type="bigint", options={"unsigned":true})
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_UTILISATEURPREFERENCES', type: 'bigint', options: ['unsigned' => true])]
     private $id;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="DASHBOARD_BLOCS", type="string", length=500, nullable=true)
-     */
-    private $blocsDashboard;
+    #[ORM\Column(name: 'DASHBOARD_BLOCS', type: 'string', length: 500, nullable: true)]
+    private ?string $blocsDashboard = null;
 
-    /**
-     * @var Utilisateur
-     *
-     * @ORM\OneToOne(targetEntity=Utilisateur::class, inversedBy="preferences", cascade={"persist", "remove"})
-     *
-     * @ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", nullable=false, options={"unsigned":true})
-     */
-    private $utilisateur;
+    #[ORM\OneToOne(targetEntity: Utilisateur::class, inversedBy: 'preferences', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', nullable: false, options: ['unsigned' => true])]
+    private ?Utilisateur $utilisateur = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="DERNIERE_VERSION_VUE", type="string", length=50, nullable=true)
-     */
-    private $derniereVersionVue;
+    #[ORM\Column(name: 'DERNIERE_VERSION_VUE', type: 'string', length: 50, nullable: true)]
+    private ?string $derniereVersionVue = null;
 
     public function getId(): ?int
     {

@@ -7,67 +7,39 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=RubriqueRepository::class)
- */
+#[ORM\Entity(repositoryClass: RubriqueRepository::class)]
 class Rubrique
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_RUBRIQUE", type="integer")
      */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_RUBRIQUE', type: 'integer')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="NOM", type="string", length=255, nullable=false)
-     */
-    private $nom;
+    #[ORM\Column(name: 'NOM', type: 'string', length: 255, nullable: false)]
+    private ?string $nom = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="DEFAULT_DISPLAY", type="boolean", nullable=true)
-     */
-    private $defaultDisplay;
+    #[ORM\Column(name: 'DEFAULT_DISPLAY', type: 'boolean', nullable: true)]
+    private ?bool $defaultDisplay = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(type="integer", nullable=false)
-     */
-    private $idx;
+    #[ORM\Column(type: 'integer', nullable: false)]
+    private ?int $idx = null;
 
-    /**
-     * @var ?CapsuleRubrique
-     *
-     * @ORM\ManyToOne(targetEntity=CapsuleRubrique::class, inversedBy="rubriques")
-     *
-     * @ORM\JoinColumn(name="ID_CAPSULERUBRIQUE", referencedColumnName="ID_CAPSULERUBRIQUE", nullable=false)
-     */
-    private $capsuleRubrique;
+    #[ORM\ManyToOne(targetEntity: CapsuleRubrique::class, inversedBy: 'rubriques')]
+    #[ORM\JoinColumn(name: 'ID_CAPSULERUBRIQUE', referencedColumnName: 'ID_CAPSULERUBRIQUE', nullable: false)]
+    private ?CapsuleRubrique $capsuleRubrique = null;
 
     /**
      * @var Collection<int, Champ>
-     *
-     * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="rubrique", orphanRemoval=true, cascade={"persist"})
-     *
-     * @ORM\OrderBy({"idx" = "ASC", "id" = "ASC"})
      */
-    private $champs;
+    #[ORM\OneToMany(targetEntity: Champ::class, mappedBy: 'rubrique', orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\OrderBy(['idx' => 'ASC', 'id' => 'ASC'])]
+    private ArrayCollection|array $champs;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(type="boolean")
-     */
-    private $ouverte = false;
+    #[ORM\Column(type: 'boolean')]
+    private bool $ouverte = false;
 
     public function __construct()
     {

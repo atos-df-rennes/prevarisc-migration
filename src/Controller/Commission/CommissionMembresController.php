@@ -15,9 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("gestion_commissions")
- */
+#[IsGranted('gestion_commissions')]
 class CommissionMembresController extends AbstractController
 {
     public function __construct(private EntityManagerInterface $entityManager, private CommissionMembreRepository $membreRepository, private DossierNatureListeRepository $dossierNatureListeRepository, private CommissionMembreCourrierService $courrierService)
@@ -26,9 +24,8 @@ class CommissionMembresController extends AbstractController
 
     /**
      * Onglet Membres — gestion des membres d'une commission.
-     *
-     * @Route("/admin/commissions/{id}/membres", name="admin_commissions_membres", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
+    #[Route(path: '/admin/commissions/{id}/membres', name: 'admin_commissions_membres', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function membres(Commission $commission, Request $request): Response
     {
         // Pré-chargement des membres avec leurs relations pour éviter N+1
