@@ -104,25 +104,25 @@ class EtablissementInformations
     #[ORM\JoinColumn(name: 'ID_ETABLISSEMENTINFORMATIONS', referencedColumnName: 'ID_ETABLISSEMENTINFORMATIONS', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: Utilisateur::class)]
-    private ArrayCollection|array $preventionnistes;
+    private Collection $preventionnistes;
 
     /**
      * @var Collection<int, EtablissementInformationsPlan>
      */
     #[ORM\OneToMany(targetEntity: EtablissementInformationsPlan::class, mappedBy: 'etablissementInformations', orphanRemoval: true)]
-    private ArrayCollection|array $plans;
+    private Collection $plans;
 
     /**
      * @var Collection<int, EtablissementInformationsTypesActivitesSecondaires>
      */
     #[ORM\OneToMany(targetEntity: EtablissementInformationsTypesActivitesSecondaires::class, mappedBy: 'etablissementInformations', orphanRemoval: true)]
-    private ArrayCollection|array $typesActivitesSecondaires;
+    private Collection $typesActivitesSecondaires;
 
     /**
      * @var Collection<int, EtablissementInformationsRubriques>
      */
     #[ORM\OneToMany(targetEntity: EtablissementInformationsRubriques::class, mappedBy: 'etablissementInformations', orphanRemoval: true)]
-    private ArrayCollection|array $rubriquesIcpe;
+    private Collection $rubriquesIcpe;
 
     #[ORM\ManyToOne(targetEntity: EtablissementActivite::class)]
     #[ORM\JoinColumn(name: 'ID_TYPEACTIVITE', referencedColumnName: 'ID_TYPEACTIVITE', nullable: true, options: ['unsigned' => true])]

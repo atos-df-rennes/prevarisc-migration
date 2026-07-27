@@ -32,7 +32,7 @@ class Privileges
      * @var Collection<int, Groupe>
      */
     #[ORM\ManyToMany(targetEntity: Groupe::class, mappedBy: 'privileges')]
-    private ArrayCollection|array $groupes;
+    private Collection $groupes;
 
     public function __construct()
     {

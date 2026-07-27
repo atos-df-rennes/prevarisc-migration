@@ -38,13 +38,13 @@ class Commission
      * @var Collection<int, Utilisateur>
      */
     #[ORM\ManyToMany(targetEntity: Utilisateur::class, mappedBy: 'commissions')]
-    private ArrayCollection|array $utilisateurs;
+    private Collection $utilisateurs;
 
     /**
      * @var Collection<int, CommissionRegle>
      */
     #[ORM\OneToMany(targetEntity: CommissionRegle::class, mappedBy: 'commission', cascade: ['persist'], orphanRemoval: true)]
-    private ArrayCollection|array $regles;
+    private Collection $regles;
 
     /**
      * @var Collection<int, UtilisateurInformations>
@@ -53,20 +53,20 @@ class Commission
     #[ORM\JoinColumn(name: 'ID_COMMISSION', referencedColumnName: 'ID_COMMISSION', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: UtilisateurInformations::class)]
-    private ArrayCollection|array $contacts;
+    private Collection $contacts;
 
     /**
      * @var Collection<int, CommissionMembre>
      */
     #[ORM\OneToMany(targetEntity: CommissionMembre::class, mappedBy: 'commission', orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private ArrayCollection|array $membres;
+    private Collection $membres;
 
     // @todo: à quoi correspond cette propriété ?
     /**
      * @var Collection<int, DateCommission>
      */
     #[ORM\OneToMany(targetEntity: DateCommission::class, mappedBy: 'commission', orphanRemoval: true)]
-    private ArrayCollection|array $dateCommissions;
+    private Collection $dateCommissions;
 
     public function __construct()
     {

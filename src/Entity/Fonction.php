@@ -25,7 +25,7 @@ class Fonction
      * @var Collection<int, UtilisateurInformations>
      */
     #[ORM\OneToMany(targetEntity: UtilisateurInformations::class, mappedBy: 'fonction')]
-    private ArrayCollection|array $utilisateurInformations;
+    private Collection $utilisateurInformations;
 
     public function __construct()
     {

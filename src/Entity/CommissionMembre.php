@@ -56,7 +56,7 @@ class CommissionMembre
     #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_CATEGORIE', referencedColumnName: 'ID_CATEGORIE', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: EtablissementCategorie::class)]
-    private ArrayCollection|array $categories;
+    private Collection $categories;
 
     /**
      * @var Collection<int, EtablissementActivite>
@@ -65,7 +65,7 @@ class CommissionMembre
     #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_TYPEACTIVITE', referencedColumnName: 'ID_TYPEACTIVITE', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: EtablissementActivite::class)]
-    private ArrayCollection|array $types;
+    private Collection $types;
 
     /**
      * @var Collection<int, IghClasse>
@@ -74,7 +74,7 @@ class CommissionMembre
     #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_CLASSE', referencedColumnName: 'ID_CLASSE', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: IghClasse::class)]
-    private ArrayCollection|array $classes;
+    private Collection $classes;
 
     /**
      * @var Collection<int, DossierNatureListe>
@@ -83,7 +83,7 @@ class CommissionMembre
     #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_DOSSIERNATURE', referencedColumnName: 'ID_DOSSIERNATURE')]
     #[ORM\ManyToMany(targetEntity: DossierNatureListe::class)]
-    private ArrayCollection|array $naturesDossier;
+    private Collection $naturesDossier;
 
     /**
      * @var Collection<int, DossierType>
@@ -92,7 +92,7 @@ class CommissionMembre
     #[ORM\JoinColumn(name: 'ID_COMMISSIONMEMBRE', referencedColumnName: 'ID_COMMISSIONMEMBRE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_DOSSIERTYPE', referencedColumnName: 'ID_DOSSIERTYPE', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: DossierType::class)]
-    private ArrayCollection|array $typesDossier;
+    private Collection $typesDossier;
 
     #[ORM\Column(name: 'MANIFESTATION_COMMISSIONMEMBRE', type: 'boolean', nullable: false, options: ['default' => false])]
     private bool $manifestation;

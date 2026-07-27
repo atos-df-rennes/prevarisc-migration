@@ -92,7 +92,7 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
     #[ORM\JoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_COMMISSION', referencedColumnName: 'ID_COMMISSION', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: Commission::class, inversedBy: 'utilisateurs')]
-    private ArrayCollection|array $commissions;
+    private Collection $commissions;
 
     /**
      * @var Collection<int, Groupement>
@@ -101,7 +101,7 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
     #[ORM\JoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: Groupement::class, inversedBy: 'utilisateurs')]
-    private ArrayCollection|array $groupements;
+    private Collection $groupements;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $sso = null;

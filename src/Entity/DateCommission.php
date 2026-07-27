@@ -52,13 +52,13 @@ class DateCommission
     #[ORM\JoinColumn(name: 'ID_DATECOMMISSION', referencedColumnName: 'ID_DATECOMMISSION')]
     #[ORM\InverseJoinColumn(name: 'ID_PIECEJOINTE', referencedColumnName: 'ID_PIECEJOINTE')]
     #[ORM\ManyToMany(targetEntity: PieceJointe::class)]
-    private ArrayCollection|array $piecesJointes;
+    private Collection $piecesJointes;
 
     /**
      * @var Collection<int, DossierAffectation>
      */
     #[ORM\OneToMany(targetEntity: DossierAffectation::class, mappedBy: 'dateCommission', orphanRemoval: true)]
-    private ArrayCollection|array $dossierAffectations;
+    private Collection $dossierAffectations;
 
     public function __construct()
     {

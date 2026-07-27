@@ -50,7 +50,7 @@ class PrescriptionDossier
      * @var Collection<int, PrescriptionDossierAssociation>
      */
     #[ORM\OneToMany(targetEntity: PrescriptionDossierAssociation::class, mappedBy: 'prescriptionDossier', orphanRemoval: true, cascade: ['persist'])]
-    private ArrayCollection $associations;
+    private Collection $associations;
 
     public function __construct()
     {

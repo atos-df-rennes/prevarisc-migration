@@ -30,7 +30,7 @@ class Groupe
      * @var Collection<int, Utilisateur>
      */
     #[ORM\OneToMany(targetEntity: Utilisateur::class, mappedBy: 'groupe')]
-    private ArrayCollection|array $utilisateurs;
+    private Collection $utilisateurs;
 
     /**
      * @var Collection<int, Privileges>
@@ -39,7 +39,7 @@ class Groupe
     #[ORM\JoinColumn(name: 'ID_GROUPE', referencedColumnName: 'ID_GROUPE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'id_privilege', referencedColumnName: 'id_privilege', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: Privileges::class, inversedBy: 'groupes')]
-    private ArrayCollection|array $privileges;
+    private Collection $privileges;
 
     /**
      * @var Collection<int, News>
@@ -48,7 +48,7 @@ class Groupe
     #[ORM\JoinColumn(name: 'ID_GROUPE', referencedColumnName: 'ID_GROUPE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_NEWS', referencedColumnName: 'ID_NEWS', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: News::class)]
-    private ArrayCollection|array $news;
+    private Collection $news;
 
     public function __construct()
     {

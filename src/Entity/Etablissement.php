@@ -41,13 +41,13 @@ class Etablissement
      * @var Collection<int, Dossier>
      */
     #[ORM\ManyToMany(targetEntity: Dossier::class, mappedBy: 'etablissements')]
-    private ArrayCollection|array $dossiers;
+    private Collection $dossiers;
 
     /**
      * @var Collection<int, EtablissementAdresse>
      */
     #[ORM\OneToMany(targetEntity: EtablissementAdresse::class, mappedBy: 'etablissement', orphanRemoval: true)]
-    private ArrayCollection|array $adresses;
+    private Collection $adresses;
 
     #[ORM\Column(name: 'NUMEROID_ETABLISSEMENT', type: 'string', length: 50, nullable: true)]
     private ?string $numero = null;
@@ -74,7 +74,7 @@ class Etablissement
     #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_FILS_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: Etablissement::class, inversedBy: 'parents')]
-    private ArrayCollection|array $fils;
+    private Collection $fils;
 
     /**
      * @var Collection<int, Etablissement>
@@ -83,7 +83,7 @@ class Etablissement
     #[ORM\JoinColumn(name: 'ID_FILS_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: Etablissement::class, mappedBy: 'fils')]
-    private ArrayCollection|array $parents;
+    private Collection $parents;
 
     #[ORM\OneToOne(targetEntity: Dossier::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'ID_DOSSIER_DONNANT_AVIS', referencedColumnName: 'ID_DOSSIER', nullable: true)]
@@ -99,7 +99,7 @@ class Etablissement
      * @var Collection<int, EtablissementDisplayRubrique>
      */
     #[ORM\OneToMany(targetEntity: EtablissementDisplayRubrique::class, mappedBy: 'etablissement', orphanRemoval: true)]
-    private ArrayCollection|array $displayRubriques;
+    private Collection $displayRubriques;
 
     /**
      * @var Collection<int, Valeur>
@@ -117,7 +117,7 @@ class Etablissement
     #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: UtilisateurInformations::class)]
-    private ArrayCollection|array $contacts;
+    private Collection $contacts;
 
     /**
      * @var Collection<int, TexteApplicable>
@@ -126,13 +126,13 @@ class Etablissement
     #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_TEXTESAPPL', referencedColumnName: 'ID_TEXTESAPPL')]
     #[ORM\ManyToMany(targetEntity: TexteApplicable::class)]
-    private ArrayCollection|array $textesApplicables;
+    private Collection $textesApplicables;
 
     /**
      * @var Collection<int, EtablissementPieceJointe>
      */
     #[ORM\OneToMany(targetEntity: EtablissementPieceJointe::class, mappedBy: 'etablissement', orphanRemoval: true)]
-    private ArrayCollection|array $piecesJointes;
+    private Collection $piecesJointes;
 
     #[ORM\Column(name: 'DESCRIPTIF_ETABLISSEMENT', type: 'text', nullable: true)]
     private ?string $descriptif = null;

@@ -29,7 +29,7 @@ class PieceJointeStatut
      * @var Collection<int, PieceJointe>
      */
     #[ORM\OneToMany(targetEntity: PieceJointe::class, mappedBy: 'statut')]
-    private ArrayCollection|array $pieceJointes;
+    private Collection $pieceJointes;
 
     public function __construct()
     {

@@ -32,7 +32,7 @@ class PrescriptionReglementaire
      * @var Collection<int, PrescriptionReglementaireAssociation>
      */
     #[ORM\OneToMany(targetEntity: PrescriptionReglementaireAssociation::class, mappedBy: 'regle', orphanRemoval: true, cascade: ['persist'])]
-    private ArrayCollection $associations;
+    private Collection $associations;
 
     public function __construct()
     {

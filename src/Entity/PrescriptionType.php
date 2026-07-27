@@ -38,7 +38,7 @@ class PrescriptionType
      * @var Collection<int, PrescriptionTypeAssociation>
      */
     #[ORM\OneToMany(targetEntity: PrescriptionTypeAssociation::class, mappedBy: 'prescriptionType', orphanRemoval: true, cascade: ['persist'])]
-    private ArrayCollection $associations;
+    private Collection $associations;
 
     public function __construct()
     {

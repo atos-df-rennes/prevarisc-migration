@@ -29,7 +29,7 @@ class GroupementType
      */
     #[ORM\OneToMany(targetEntity: Groupement::class, mappedBy: 'type')]
     #[ORM\OrderBy(['libelle' => 'ASC'])]
-    private ArrayCollection|array $groupements;
+    private Collection $groupements;
 
     public function __construct()
     {

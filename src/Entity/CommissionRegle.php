@@ -38,7 +38,7 @@ class CommissionRegle
     #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_CATEGORIE', referencedColumnName: 'ID_CATEGORIE', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: EtablissementCategorie::class)]
-    private ArrayCollection|array $categories;
+    private Collection $categories;
 
     /**
      * @var Collection<int, IghClasse>
@@ -47,7 +47,7 @@ class CommissionRegle
     #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_CLASSE', referencedColumnName: 'ID_CLASSE', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: IghClasse::class)]
-    private ArrayCollection|array $classes;
+    private Collection $classes;
 
     /**
      * @var Collection<int, EtablissementType>
@@ -56,21 +56,21 @@ class CommissionRegle
     #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_TYPE', referencedColumnName: 'ID_TYPE', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: EtablissementType::class)]
-    private ArrayCollection|array $types;
+    private Collection $types;
 
     /**
      * @var Collection<int, CommissionRegleEtudeVisite>
      */
     #[ORM\OneToMany(targetEntity: CommissionRegleEtudeVisite::class, mappedBy: 'regle', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
-    private ArrayCollection|array $etudeVisite;
+    private Collection $etudeVisite;
 
     /**
      * @var Collection<int, CommissionRegleLocalSommeil>
      */
     #[ORM\OneToMany(targetEntity: CommissionRegleLocalSommeil::class, mappedBy: 'regle', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', options: ['unsigned' => true])]
-    private ArrayCollection|array $localSommeil;
+    private Collection $localSommeil;
 
     public function __construct()
     {

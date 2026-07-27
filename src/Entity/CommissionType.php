@@ -29,7 +29,7 @@ class CommissionType
      * @var Collection<int, Commission>
      */
     #[ORM\OneToMany(targetEntity: Commission::class, mappedBy: 'type')]
-    private ArrayCollection|array $commissions;
+    private Collection $commissions;
 
     public function __construct()
     {

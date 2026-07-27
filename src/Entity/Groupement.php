@@ -39,7 +39,7 @@ class Groupement
      * @var Collection<int, Utilisateur>
      */
     #[ORM\ManyToMany(targetEntity: Utilisateur::class, mappedBy: 'groupements')]
-    private ArrayCollection|array $utilisateurs;
+    private Collection $utilisateurs;
 
     /**
      * @var Collection<int, Commune>
@@ -48,7 +48,7 @@ class Groupement
     #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'NUMINSEE_COMMUNE', referencedColumnName: 'NUMINSEE_COMMUNE', options: ['fixed' => true])]
     #[ORM\ManyToMany(targetEntity: Commune::class, inversedBy: 'groupements')]
-    private ArrayCollection|array $communes;
+    private Collection $communes;
 
     /**
      * @var Collection<int, UtilisateurInformations>
@@ -57,7 +57,7 @@ class Groupement
     #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: UtilisateurInformations::class)]
-    private ArrayCollection|array $contacts;
+    private Collection $contacts;
 
     /*
      * La table de jointure contient plus de champs avec des dates
@@ -70,7 +70,7 @@ class Groupement
     #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', options: ['unsigned' => true])]
     #[ORM\InverseJoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: Utilisateur::class)]
-    private ArrayCollection|array $preventionnistes;
+    private Collection $preventionnistes;
 
     public function __construct()
     {

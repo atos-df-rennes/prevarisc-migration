@@ -47,20 +47,20 @@ class Champ
     #[MaxDepth(1)]
     #[ORM\OneToMany(targetEntity: Champ::class, mappedBy: 'parent', cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['idx' => 'ASC', 'id' => 'ASC'])]
-    private ArrayCollection|array $enfants;
+    private Collection $enfants;
 
     /**
      * @var Collection<int, ChampValeurListe>
      */
     #[ORM\OneToMany(targetEntity: ChampValeurListe::class, mappedBy: 'champ', orphanRemoval: true, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['idx' => 'ASC', 'id' => 'ASC'])]
-    private ArrayCollection|array $valeursListe;
+    private Collection $valeursListe;
 
     /**
      * @var Collection<int, Valeur>
      */
     #[ORM\OneToMany(targetEntity: Valeur::class, mappedBy: 'champ', orphanRemoval: true)]
-    private ArrayCollection|array $valeurs;
+    private Collection $valeurs;
 
     public function __construct()
     {

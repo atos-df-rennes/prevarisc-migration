@@ -170,7 +170,7 @@ class DossierDocumentsConsultesController extends AbstractController implements 
 
     #[Route(path: '/dossier/{id}/documents-ajoutes/ajouter', name: 'dossier_documents_ajoutes_add', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     #[Route(path: '/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/modifier', name: 'dossier_documents_ajoutes_edit', requirements: ['id' => '\d+', 'idDocumentAjoute' => '\d+'], methods: ['GET', 'POST'])]
-    #[ParamConverter('documentAjoute', options: ['id' => 'idDocumentAjoute'], isOptional: 'true')]
+    #[ParamConverter('documentAjoute', options: ['id' => 'idDocumentAjoute'], isOptional: true)]
     #[IsGranted('edit_doss', subject: 'dossier')]
     public function editDocumentAjoute(Request $request, Dossier $dossier, ?ListeDocumentAjoute $documentAjoute = null): Response
     {

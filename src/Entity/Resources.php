@@ -28,7 +28,7 @@ class Resources
      * @var Collection<int, Privileges>
      */
     #[ORM\OneToMany(targetEntity: Privileges::class, mappedBy: 'resource', orphanRemoval: true)]
-    private ArrayCollection|array $privileges;
+    private Collection $privileges;
 
     public function __construct()
     {

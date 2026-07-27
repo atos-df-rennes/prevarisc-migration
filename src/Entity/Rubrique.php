@@ -36,7 +36,7 @@ class Rubrique
      */
     #[ORM\OneToMany(targetEntity: Champ::class, mappedBy: 'rubrique', orphanRemoval: true, cascade: ['persist'])]
     #[ORM\OrderBy(['idx' => 'ASC', 'id' => 'ASC'])]
-    private ArrayCollection|array $champs;
+    private Collection $champs;
 
     #[ORM\Column(type: 'boolean')]
     private bool $ouverte = false;

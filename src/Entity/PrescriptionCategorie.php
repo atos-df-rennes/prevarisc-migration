@@ -29,7 +29,7 @@ class PrescriptionCategorie
      * @var Collection<int, PrescriptionTexte>
      */
     #[ORM\OneToMany(targetEntity: PrescriptionTexte::class, mappedBy: 'categorie', orphanRemoval: true)]
-    private ArrayCollection|array $textes;
+    private Collection $textes;
 
     public function __construct()
     {

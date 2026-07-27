@@ -30,7 +30,7 @@ class CapsuleRubrique
      */
     #[ORM\OneToMany(targetEntity: Rubrique::class, mappedBy: 'capsuleRubrique', orphanRemoval: true)]
     #[ORM\OrderBy(['idx' => 'ASC', 'id' => 'ASC'])]
-    private ArrayCollection|array $rubriques;
+    private Collection $rubriques;
 
     public function __construct()
     {

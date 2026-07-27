@@ -26,7 +26,7 @@ class EtablissementType
      * @var Collection<int, EtablissementActivite>
      */
     #[ORM\OneToMany(targetEntity: EtablissementActivite::class, mappedBy: 'type', orphanRemoval: true)]
-    private ArrayCollection|array $activites;
+    private Collection $activites;
 
     public function __construct()
     {

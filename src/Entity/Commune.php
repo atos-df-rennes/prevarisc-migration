@@ -32,13 +32,13 @@ class Commune
      * @var Collection<int, Utilisateur>
      */
     #[ORM\OneToMany(targetEntity: Utilisateur::class, mappedBy: 'commune')]
-    private ArrayCollection|array $utilisateurs;
+    private Collection $utilisateurs;
 
     /**
      * @var Collection<int, Groupement>
      */
     #[ORM\ManyToMany(targetEntity: Groupement::class, mappedBy: 'communes')]
-    private ArrayCollection|array $groupements;
+    private Collection $groupements;
 
     public function __construct()
     {

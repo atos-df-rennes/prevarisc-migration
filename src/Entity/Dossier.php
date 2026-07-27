@@ -71,7 +71,7 @@ class Dossier
     #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
     #[ORM\InverseJoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: Etablissement::class, inversedBy: 'dossiers')]
-    private ArrayCollection|array $etablissements;
+    private Collection $etablissements;
 
     #[ORM\ManyToOne(targetEntity: Avis::class)]
     #[ORM\JoinColumn(name: 'AVIS_DOSSIER_COMMISSION', referencedColumnName: 'ID_AVIS', nullable: true, options: ['unsigned' => true])]
@@ -101,7 +101,7 @@ class Dossier
      * @var Collection<int, AvisDerogations>
      */
     #[ORM\OneToMany(targetEntity: AvisDerogations::class, mappedBy: 'dossier', orphanRemoval: true)]
-    private ArrayCollection|array $avisDerogations;
+    private Collection $avisDerogations;
 
     #[ORM\Column(name: 'DIFFEREAVIS_DOSSIER', type: 'boolean', nullable: true)]
     private ?bool $avisDiffere = null;
@@ -110,7 +110,7 @@ class Dossier
      * @var Collection<int, DossierDisplayRubrique>
      */
     #[ORM\OneToMany(targetEntity: DossierDisplayRubrique::class, mappedBy: 'dossier', orphanRemoval: true)]
-    private ArrayCollection|array $displayRubriques;
+    private Collection $displayRubriques;
 
     /**
      * @var Collection<int, Valeur>
@@ -128,7 +128,7 @@ class Dossier
     #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
     #[ORM\InverseJoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: UtilisateurInformations::class)]
-    private ArrayCollection|array $contacts;
+    private Collection $contacts;
 
     /**
      * @var Collection<int, Dossier>
@@ -137,7 +137,7 @@ class Dossier
     #[ORM\JoinColumn(name: 'ID_DOSSIER1', referencedColumnName: 'ID_DOSSIER')]
     #[ORM\InverseJoinColumn(name: 'ID_DOSSIER2', referencedColumnName: 'ID_DOSSIER')]
     #[ORM\ManyToMany(targetEntity: Dossier::class, inversedBy: 'dossiersAyantLie')]
-    private ArrayCollection|array $dossiersLies;
+    private Collection $dossiersLies;
 
     /**
      * @var Collection<int, Dossier>
@@ -146,19 +146,19 @@ class Dossier
     #[ORM\JoinColumn(name: 'ID_DOSSIER2', referencedColumnName: 'ID_DOSSIER')]
     #[ORM\InverseJoinColumn(name: 'ID_DOSSIER1', referencedColumnName: 'ID_DOSSIER')]
     #[ORM\ManyToMany(targetEntity: Dossier::class, mappedBy: 'dossiersLies')]
-    private ArrayCollection|array $dossiersAyantLie;
+    private Collection $dossiersAyantLie;
 
     /**
      * @var Collection<int, DossierDocumentManquant>
      */
     #[ORM\OneToMany(targetEntity: DossierDocumentManquant::class, mappedBy: 'dossier', orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private ArrayCollection|array $documentsManquants;
+    private Collection $documentsManquants;
 
     /**
      * @var Collection<int, DossierDocumentUrbanisme>
      */
     #[ORM\OneToMany(targetEntity: DossierDocumentUrbanisme::class, mappedBy: 'dossier', orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private ArrayCollection|array $documentsUrbanisme;
+    private Collection $documentsUrbanisme;
 
     /**
      * @var Collection<int, Utilisateur>
@@ -167,7 +167,7 @@ class Dossier
     #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
     #[ORM\InverseJoinColumn(name: 'ID_PREVENTIONNISTE', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
     #[ORM\ManyToMany(targetEntity: Utilisateur::class)]
-    private ArrayCollection|array $preventionnistes;
+    private Collection $preventionnistes;
 
     /**
      * @var Collection<int, TexteApplicable>
@@ -176,31 +176,31 @@ class Dossier
     #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
     #[ORM\InverseJoinColumn(name: 'ID_TEXTESAPPL', referencedColumnName: 'ID_TEXTESAPPL')]
     #[ORM\ManyToMany(targetEntity: TexteApplicable::class)]
-    private ArrayCollection|array $textesApplicables;
+    private Collection $textesApplicables;
 
     /**
      * @var Collection<int, ListeDocumentAjoute>
      */
     #[ORM\OneToMany(targetEntity: ListeDocumentAjoute::class, mappedBy: 'dossier', orphanRemoval: true)]
-    private ArrayCollection|array $documentsAjoutes;
+    private Collection $documentsAjoutes;
 
     /**
      * @var Collection<int, DossierDocumentConsulte>
      */
     #[ORM\OneToMany(targetEntity: DossierDocumentConsulte::class, mappedBy: 'dossier', orphanRemoval: true)]
-    private ArrayCollection|array $documentsConsultes;
+    private Collection $documentsConsultes;
 
     /**
      * @var Collection<int, DossierPieceJointe>
      */
     #[ORM\OneToMany(targetEntity: DossierPieceJointe::class, mappedBy: 'dossier', orphanRemoval: true)]
-    private ArrayCollection|array $piecesJointes;
+    private Collection $piecesJointes;
 
     /**
      * @var Collection<int, PrescriptionDossier>
      */
     #[ORM\OneToMany(targetEntity: PrescriptionDossier::class, mappedBy: 'dossier', orphanRemoval: true)]
-    private ArrayCollection|array $prescriptions;
+    private Collection $prescriptions;
 
     #[ORM\Column(name: 'VERROU_DOSSIER', type: 'boolean', nullable: true)]
     private ?bool $verrou = null;
