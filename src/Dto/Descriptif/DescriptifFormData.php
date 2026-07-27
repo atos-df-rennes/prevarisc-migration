@@ -16,11 +16,18 @@ namespace App\Dto\Descriptif;
 class DescriptifFormData implements \ArrayAccess
 {
     /**
+     * Données des rubriques indexées par rubriqueId.
+     *
+     * @var array<int, RubriqueFormData>
+     */
+    private array $rubriques;
+
+    /**
      * @param array<int, RubriqueFormData> $rubriques
      */
-    public function __construct(
-        private array $rubriques = []
-    ) {
+    public function __construct(array $rubriques = [])
+    {
+        $this->rubriques = $rubriques;
     }
 
     /**
