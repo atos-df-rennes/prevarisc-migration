@@ -193,7 +193,7 @@ class PrescriptionDossier
 
     public function getEffectiveLibelle(): ?string
     {
-        return $this->prescriptionType ? $this->prescriptionType->getLibelle() : $this->libelle;
+        return $this->prescriptionType instanceof PrescriptionType ? $this->prescriptionType->getLibelle() : $this->libelle;
     }
 
     /**
@@ -201,6 +201,6 @@ class PrescriptionDossier
      */
     public function getEffectiveAssociations(): iterable
     {
-        return $this->prescriptionType ? $this->prescriptionType->getAssociations() : $this->associations;
+        return $this->prescriptionType instanceof PrescriptionType ? $this->prescriptionType->getAssociations() : $this->associations;
     }
 }
