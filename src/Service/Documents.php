@@ -7,7 +7,7 @@ use Symfony\Component\Finder\Finder;
 
 final class Documents
 {
-    public function __construct(private string $dataPath, private string $realDataPath)
+    public function __construct(private string $documentsDataPath, private string $documentsRealDataPath)
     {
     }
 
@@ -21,7 +21,7 @@ final class Documents
 
         $finder
             ->files()
-            ->in($this->realDataPath.$idCommission)
+            ->in($this->documentsRealDataPath.$idCommission)
             ->ignoreVCS(true)
             ->name('*.odt')
             ->sortByName();
@@ -33,7 +33,7 @@ final class Documents
         foreach ($finder as $file) {
             $documents[] = new Document(
                 $file->getFilename(),
-                $this->dataPath.$idCommission.DIRECTORY_SEPARATOR.$file->getFilename()
+                $this->documentsDataPath.$idCommission.DIRECTORY_SEPARATOR.$file->getFilename()
             );
         }
 
