@@ -12,11 +12,8 @@ use Psr\Log\LoggerInterface;
  */
 final class CommissionDatesTransformer
 {
-    private LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     /**
@@ -45,7 +42,7 @@ final class CommissionDatesTransformer
         foreach ($datesDto as $dateDto) {
             try {
                 $dateCommission = $this->createDateCommission($dateDto, $dto);
-            } catch (\InvalidArgumentException $exception) {
+            } catch (\InvalidArgumentException) {
                 continue;
             }
 

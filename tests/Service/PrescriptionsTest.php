@@ -153,7 +153,7 @@ final class PrescriptionsTest extends TestCase
      *
      * @throws \ReflectionException si la classe ou la méthode n'existent pas
      */
-    private function callBuildAssociationsFromRaw(array $items)
+    private function callBuildAssociationsFromRaw(array $items): mixed
     {
         $reflectionClass = new \ReflectionClass($this->prescriptions);
         $method = $reflectionClass->getMethod('buildAssociationsFromRaw');

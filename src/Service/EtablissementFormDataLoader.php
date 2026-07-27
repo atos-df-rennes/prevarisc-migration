@@ -25,60 +25,8 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  */
 final class EtablissementFormDataLoader
 {
-    private GenreRepository $genreRepository;
-
-    private EtablissementStatutRepository $statutRepository;
-
-    private EtablissementCategorieRepository $categorieRepository;
-
-    private EtablissementTypeRepository $typeRepository;
-
-    private EtablissementActiviteRepository $activiteRepository;
-
-    private CommissionRepository $commissionRepository;
-
-    private TypePlanRepository $typePlanRepository;
-
-    private FamilleRepository $familleRepository;
-
-    private IghClasseRepository $ighClasseRepository;
-
-    private ClassementRepository $classementRepository;
-
-    private CoucheCartoRepository $coucheCartoRepository;
-
-    private ParameterBagInterface $parameterBag;
-
-    private AuthorizationCheckerInterface $authorizationChecker;
-
-    public function __construct(
-        GenreRepository $genreRepository,
-        EtablissementStatutRepository $statutRepository,
-        EtablissementCategorieRepository $categorieRepository,
-        EtablissementTypeRepository $typeRepository,
-        EtablissementActiviteRepository $activiteRepository,
-        CommissionRepository $commissionRepository,
-        TypePlanRepository $typePlanRepository,
-        FamilleRepository $familleRepository,
-        IghClasseRepository $ighClasseRepository,
-        ClassementRepository $classementRepository,
-        CoucheCartoRepository $coucheCartoRepository,
-        ParameterBagInterface $parameterBag,
-        AuthorizationCheckerInterface $authorizationChecker
-    ) {
-        $this->genreRepository = $genreRepository;
-        $this->statutRepository = $statutRepository;
-        $this->categorieRepository = $categorieRepository;
-        $this->typeRepository = $typeRepository;
-        $this->activiteRepository = $activiteRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->typePlanRepository = $typePlanRepository;
-        $this->familleRepository = $familleRepository;
-        $this->ighClasseRepository = $ighClasseRepository;
-        $this->classementRepository = $classementRepository;
-        $this->coucheCartoRepository = $coucheCartoRepository;
-        $this->parameterBag = $parameterBag;
-        $this->authorizationChecker = $authorizationChecker;
+    public function __construct(private GenreRepository $genreRepository, private EtablissementStatutRepository $statutRepository, private EtablissementCategorieRepository $categorieRepository, private EtablissementTypeRepository $typeRepository, private EtablissementActiviteRepository $activiteRepository, private CommissionRepository $commissionRepository, private TypePlanRepository $typePlanRepository, private FamilleRepository $familleRepository, private IghClasseRepository $ighClasseRepository, private ClassementRepository $classementRepository, private CoucheCartoRepository $coucheCartoRepository, private ParameterBagInterface $parameterBag, private AuthorizationCheckerInterface $authorizationChecker)
+    {
     }
 
     /**

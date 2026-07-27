@@ -7,18 +7,15 @@ final class ClesTableauDesPeriodicites
     /** @var int */
     private $categorie;
 
-    private string $type;
-
     private bool $localSommeil;
 
-    private function __construct(string $categorie, string $type, string $localSommeil)
+    private function __construct(string $categorie, private string $type, string $localSommeil)
     {
         if (false === ($validatedCategorie = filter_var($categorie, FILTER_VALIDATE_INT))) {
             throw new \InvalidArgumentException("Le type de la catégorie n'est pas correct. Type attendu : entier.");
         }
 
         $this->categorie = $validatedCategorie;
-        $this->type = $type;
         $this->localSommeil = filter_var($localSommeil, FILTER_VALIDATE_BOOLEAN);
     }
 

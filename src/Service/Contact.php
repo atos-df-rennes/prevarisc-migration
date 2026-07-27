@@ -22,31 +22,16 @@ final class Contact
 
     public const COMMUNE = 'commune';
 
-    private EtablissementRepository $etablissementRepository;
-
-    private DossierRepository $dossierRepository;
-
-    private GroupementRepository $groupementRepository;
-
-    private CommissionRepository $commissionRepository;
-
-    private CommuneRepository $communeRepository;
-
     /** @var array<string, HasContacts> */
     private array $repositories;
 
     public function __construct(
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        GroupementRepository $groupementRepository,
-        CommissionRepository $commissionRepository,
-        CommuneRepository $communeRepository
+        private EtablissementRepository $etablissementRepository,
+        private DossierRepository $dossierRepository,
+        private GroupementRepository $groupementRepository,
+        private CommissionRepository $commissionRepository,
+        private CommuneRepository $communeRepository
     ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->groupementRepository = $groupementRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->communeRepository = $communeRepository;
         $this->repositories = [
             self::ETABLISSEMENT => $this->etablissementRepository,
             self::DOSSIER => $this->dossierRepository,

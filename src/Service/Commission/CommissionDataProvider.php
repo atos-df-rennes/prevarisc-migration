@@ -12,11 +12,8 @@ use Doctrine\DBAL\Connection;
  */
 class CommissionDataProvider
 {
-    private Connection $conn;
-
-    public function __construct(Connection $conn)
+    public function __construct(private Connection $conn)
     {
-        $this->conn = $conn;
     }
 
     /**

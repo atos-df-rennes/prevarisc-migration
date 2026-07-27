@@ -21,24 +21,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DossierCreationService
 {
-    private EntityManagerInterface $entityManager;
-
-    private DossierRepository $dossierRepository;
-
-    private DossierPrescriptionService $prescriptionService;
-
-    private Prescriptions $prescriptions;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierRepository $dossierRepository,
-        DossierPrescriptionService $prescriptionService,
-        Prescriptions $prescriptions
-    ) {
-        $this->entityManager = $entityManager;
-        $this->dossierRepository = $dossierRepository;
-        $this->prescriptionService = $prescriptionService;
-        $this->prescriptions = $prescriptions;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private DossierPrescriptionService $prescriptionService, private Prescriptions $prescriptions)
+    {
     }
 
     /**

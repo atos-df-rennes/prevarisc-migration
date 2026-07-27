@@ -8,38 +8,23 @@ namespace App\Service;
  */
 class ProxyConfigurationService
 {
-    private bool $proxyEnabled;
-
     // @fixme: La variable a pour valeur "HTTP", ce qui n'est pas correct mais fonctionne avec le legacy car (int) "HTTP" = 0
     // Modifier l'env var processor pour utiliser int après modification de la configuration chez tous les SDIS
     // + constructeur et suppression du cast (int)
     private int $proxyProtocol;
 
-    private int $proxyPort;
-
-    private string $proxyHost;
-
-    private string $proxyUsername;
-
-    private string $proxyPassword;
-
     /**
      * @param string $proxyProtocol Constante cURL : 0 = CURLPROXY_HTTP, 5 = CURLPROXY_SOCKS5 -> Legacy = "HTTP", à corriger
      */
     public function __construct(
-        bool $proxyEnabled,
+        private bool $proxyEnabled,
         string $proxyProtocol,
-        int $proxyPort,
-        string $proxyHost,
-        string $proxyUsername,
-        string $proxyPassword
+        private int $proxyPort,
+        private string $proxyHost,
+        private string $proxyUsername,
+        private string $proxyPassword
     ) {
-        $this->proxyEnabled = $proxyEnabled;
         $this->proxyProtocol = (int) $proxyProtocol;
-        $this->proxyPort = $proxyPort;
-        $this->proxyHost = $proxyHost;
-        $this->proxyUsername = $proxyUsername;
-        $this->proxyPassword = $proxyPassword;
     }
 
     public function isEnabled(): bool

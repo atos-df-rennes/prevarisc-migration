@@ -28,44 +28,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 final class Etablissement
 {
-    private EtablissementRepository $etablissementRepository;
-
-    private DossierRepository $dossierRepository;
-
-    private AvisDerogationsRepository $avisDerogationsRepository;
-
-    private ParameterBagInterface $parameterBag;
-
-    private LoggerInterface $logger;
-
-    private EntityManagerInterface $entityManager;
-
-    private TexteApplicable $texteApplicableService;
-
-    private EtablissementPersistenceService $persistenceService;
-
-    private EtablissementInformationsRepository $informationsRepository;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        AvisDerogationsRepository $avisDerogationsRepository,
-        ParameterBagInterface $parameterBag,
-        EntityManagerInterface $entityManager,
-        LoggerInterface $logger,
-        TexteApplicable $texteApplicableService,
-        EtablissementPersistenceService $persistenceService,
-        EtablissementInformationsRepository $informationsRepository
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->avisDerogationsRepository = $avisDerogationsRepository;
-        $this->parameterBag = $parameterBag;
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
-        $this->texteApplicableService = $texteApplicableService;
-        $this->persistenceService = $persistenceService;
-        $this->informationsRepository = $informationsRepository;
+    public function __construct(private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private AvisDerogationsRepository $avisDerogationsRepository, private ParameterBagInterface $parameterBag, private EntityManagerInterface $entityManager, private LoggerInterface $logger, private TexteApplicable $texteApplicableService, private EtablissementPersistenceService $persistenceService, private EtablissementInformationsRepository $informationsRepository)
+    {
     }
 
     /**
@@ -1001,7 +965,7 @@ final class Etablissement
      *
      * @return int|false Le type de changement (TypeChangement::STATUT ou TypeChangement::CLASSEMENT), ou false
      */
-    public function checkAlerte(EtablissementEntity $etablissement, array $postData)
+    public function checkAlerte(EtablissementEntity $etablissement, array $postData): int|false
     {
         $alerte = false;
         $informations = $etablissement->getLatestInformations();

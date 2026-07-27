@@ -18,19 +18,13 @@ class SimpleFileDataStore implements DataStore
     /** @var array|string[] */
     protected $types = [];
 
-    protected EtablissementRepository $etablissementRepository;
-
-    protected string $dataPath;
-
-    protected string $realDataPath;
-
     /**
      * @param array<string>|null $options
      */
     public function __construct(
-        EtablissementRepository $etablissementRepository,
-        string $dataPath,
-        string $realDataPath,
+        protected EtablissementRepository $etablissementRepository,
+        protected string $dataPath,
+        protected string $realDataPath,
         ?array $options = null
     ) {
         $this->types = [
@@ -46,10 +40,6 @@ class SimpleFileDataStore implements DataStore
         if (isset($options['fileFormat'])) {
             $this->format = $options['fileFormat'];
         }
-
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dataPath = $dataPath;
-        $this->realDataPath = $realDataPath;
     }
 
     public function getFilePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId, bool $createDirIfNotExists = false): string

@@ -25,23 +25,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ChampController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private FormFactoryInterface $formFactory;
-
-    private ChampRepository $champRepository;
-
-    private ChampValeurListeRepository $champValeurListeRepository;
-
-    private TypeChampRepository $typeChampRepository;
-
-    public function __construct(EntityManagerInterface $entityManager, FormFactoryInterface $formFactory, ChampRepository $champRepository, ChampValeurListeRepository $champValeurListeRepository, TypeChampRepository $typeChampRepository)
+    public function __construct(private EntityManagerInterface $entityManager, private FormFactoryInterface $formFactory, private ChampRepository $champRepository, private ChampValeurListeRepository $champValeurListeRepository, private TypeChampRepository $typeChampRepository)
     {
-        $this->entityManager = $entityManager;
-        $this->formFactory = $formFactory;
-        $this->champRepository = $champRepository;
-        $this->champValeurListeRepository = $champValeurListeRepository;
-        $this->typeChampRepository = $typeChampRepository;
     }
 
     /**

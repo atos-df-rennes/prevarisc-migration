@@ -30,7 +30,7 @@ final class CommissionDatesDto
     private ?CommissionTypeEvenement $typeEvenement = null;
 
     /**
-     * @var Collection<int, DateCommissionItemDto>
+     * @var ArrayCollection<int, DateCommissionItemDto>
      *
      * @Assert\Valid
      *
@@ -39,7 +39,7 @@ final class CommissionDatesDto
      *     minMessage="Au moins une date est requise"
      * )
      */
-    private $dates;
+    private ArrayCollection $dates;
 
     private bool $withPeriodicite = false;
 
@@ -103,9 +103,9 @@ final class CommissionDatesDto
     }
 
     /**
-     * @return Collection<int, DateCommissionItemDto>
+     * @return ArrayCollection<int, DateCommissionItemDto>
      */
-    public function getDates(): Collection
+    public function getDates(): ArrayCollection
     {
         return $this->dates;
     }

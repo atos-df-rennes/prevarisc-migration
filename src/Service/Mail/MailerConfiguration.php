@@ -10,22 +10,6 @@ namespace App\Service\Mail;
  */
 class MailerConfiguration
 {
-    private string $transport;
-
-    private string $host;
-
-    private string $port;
-
-    private string $username;
-
-    private string $password;
-
-    private string $sender;
-
-    private string $senderName;
-
-    private bool $enabled;
-
     /**
      * @param string $transport  Type transport (smtp, sendmail, mail)
      * @param string $host       Hôte SMTP ou chemin sendmail
@@ -36,24 +20,8 @@ class MailerConfiguration
      * @param string $senderName Nom expéditeur (optionnel)
      * @param bool   $enabled    Mail activé
      */
-    public function __construct(
-        string $transport,
-        string $host,
-        string $port,
-        string $username,
-        string $password,
-        string $sender,
-        string $senderName,
-        bool $enabled
-    ) {
-        $this->transport = $transport;
-        $this->host = $host;
-        $this->port = $port;
-        $this->username = $username;
-        $this->password = $password;
-        $this->sender = $sender;
-        $this->senderName = $senderName;
-        $this->enabled = $enabled;
+    public function __construct(private string $transport, private string $host, private string $port, private string $username, private string $password, private string $sender, private string $senderName, private bool $enabled)
+    {
     }
 
     /**
@@ -73,18 +41,12 @@ class MailerConfiguration
             return 'null://null';
         }
 
-        switch ($this->transport) {
-            case 'smtp':
-                return $this->buildSmtpDsn();
-
-            case 'sendmail':
-            case 'mail':
-                return 'sendmail://default';
-
-            default:
-                // Fallback : utilise null transport
-                return 'null://null';
-        }
+        return match ($this->transport) {
+            'smtp' => $this->buildSmtpDsn(),
+            'sendmail', 'mail' => 'sendmail://default',
+            // Fallback : utilise null transport
+            default => 'null://null',
+        };
     }
 
     /**

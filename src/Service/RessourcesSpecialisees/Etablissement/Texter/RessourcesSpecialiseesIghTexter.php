@@ -11,12 +11,8 @@ use App\ValueObject\EtablissementTexter;
  */
 class RessourcesSpecialiseesIghTexter implements RessourcesSpecialiseesEtablissementTexter
 {
-    private EtablissementTexter $etablissementTexter;
-
-    public function __construct(
-        EtablissementTexter $etablissementTexter
-    ) {
-        $this->etablissementTexter = $etablissementTexter;
+    public function __construct(private EtablissementTexter $etablissementTexter)
+    {
     }
 
     /**

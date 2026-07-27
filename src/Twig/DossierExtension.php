@@ -9,11 +9,8 @@ use Twig\TwigFilter;
 
 class DossierExtension extends AbstractExtension
 {
-    private DossierFields $dossierFieldsService;
-
-    public function __construct(DossierFields $dossierFieldsService)
+    public function __construct(private DossierFields $dossierFieldsService)
     {
-        $this->dossierFieldsService = $dossierFieldsService;
     }
 
     public function getFilters(): array

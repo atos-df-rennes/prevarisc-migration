@@ -33,26 +33,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class GroupeController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private GroupeRepository $groupeRepository;
-
-    private UtilisateurRepository $utilisateurRepository;
-
-    private ResourcesRepository $resourcesRepository;
-
-    private RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator;
-
-    private RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator;
-
-    public function __construct(EntityManagerInterface $entityManager, GroupeRepository $groupeRepository, UtilisateurRepository $utilisateurRepository, ResourcesRepository $resourcesRepository, RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
+    public function __construct(private EntityManagerInterface $entityManager, private GroupeRepository $groupeRepository, private UtilisateurRepository $utilisateurRepository, private ResourcesRepository $resourcesRepository, private RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, private RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
     {
-        $this->entityManager = $entityManager;
-        $this->groupeRepository = $groupeRepository;
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->resourcesRepository = $resourcesRepository;
-        $this->ressourcesSpecialiseesDossierTextGenerator = $ressourcesSpecialiseesDossierTextGenerator;
-        $this->ressourcesSpecialiseesEtablissementTextGenerator = $ressourcesSpecialiseesEtablissementTextGenerator;
     }
 
     /**

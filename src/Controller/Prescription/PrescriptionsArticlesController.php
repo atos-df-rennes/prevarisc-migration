@@ -19,17 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PrescriptionsArticlesController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private Prescriptions $servicePresc;
-
-    private PrescriptionArticleListeRepository $prescriptionArticleListeRepository;
-
-    public function __construct(EntityManagerInterface $entityManager, Prescriptions $servicePresc, PrescriptionArticleListeRepository $prescriptionArticleListeRepository)
+    public function __construct(private EntityManagerInterface $entityManager, private Prescriptions $servicePresc, private PrescriptionArticleListeRepository $prescriptionArticleListeRepository)
     {
-        $this->entityManager = $entityManager;
-        $this->servicePresc = $servicePresc;
-        $this->prescriptionArticleListeRepository = $prescriptionArticleListeRepository;
     }
 
     /**

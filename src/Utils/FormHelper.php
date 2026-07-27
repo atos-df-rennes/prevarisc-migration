@@ -9,11 +9,8 @@ use Symfony\Component\HttpFoundation\Session\Session;
 
 final class FormHelper
 {
-    private RequestStack $requestStack;
-
-    public function __construct(RequestStack $requestStack)
+    public function __construct(private RequestStack $requestStack)
     {
-        $this->requestStack = $requestStack;
     }
 
     public function addErrorsToFlashFromForm(FormInterface $form): void

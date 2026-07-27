@@ -23,16 +23,8 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
  */
 class LogoutHandler implements EventSubscriberInterface
 {
-    private LastActionUpdater $lastActionUpdater;
-
-    private bool $casEnabled;
-
-    public function __construct(
-        LastActionUpdater $lastActionUpdater,
-        bool $casEnabled
-    ) {
-        $this->lastActionUpdater = $lastActionUpdater;
-        $this->casEnabled = $casEnabled;
+    public function __construct(private LastActionUpdater $lastActionUpdater, private bool $casEnabled)
+    {
     }
 
     public function onLogout(LogoutEvent $logoutEvent): void

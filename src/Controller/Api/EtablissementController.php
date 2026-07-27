@@ -17,20 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class EtablissementController extends AbstractController
 {
-    private EtablissementRepository $etablissementRepository;
-
-    private PeriodiciteRepository $periodiciteRepository;
-
-    private EntityManagerInterface $em;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository,
-        PeriodiciteRepository $periodiciteRepository,
-        EntityManagerInterface $em
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->periodiciteRepository = $periodiciteRepository;
-        $this->em = $em;
+    public function __construct(private EtablissementRepository $etablissementRepository, private PeriodiciteRepository $periodiciteRepository, private EntityManagerInterface $em)
+    {
     }
 
     /**

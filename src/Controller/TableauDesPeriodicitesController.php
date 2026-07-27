@@ -21,32 +21,8 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  */
 class TableauDesPeriodicitesController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private PeriodiciteRepository $periodiciteRepository;
-
-    private EtablissementTypeRepository $etablissementTypeRepository;
-
-    private EtablissementCategorieRepository $etablissementCategorieRepository;
-
-    private IghClasseRepository $ighClasseRepository;
-
-    private TagAwareCacheInterface $searchCache;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        PeriodiciteRepository $periodiciteRepository,
-        EtablissementTypeRepository $etablissementTypeRepository,
-        EtablissementCategorieRepository $etablissementCategorieRepository,
-        IghClasseRepository $ighClasseRepository,
-        TagAwareCacheInterface $searchCache
-    ) {
-        $this->entityManager = $entityManager;
-        $this->periodiciteRepository = $periodiciteRepository;
-        $this->etablissementTypeRepository = $etablissementTypeRepository;
-        $this->etablissementCategorieRepository = $etablissementCategorieRepository;
-        $this->ighClasseRepository = $ighClasseRepository;
-        $this->searchCache = $searchCache;
+    public function __construct(private EntityManagerInterface $entityManager, private PeriodiciteRepository $periodiciteRepository, private EtablissementTypeRepository $etablissementTypeRepository, private EtablissementCategorieRepository $etablissementCategorieRepository, private IghClasseRepository $ighClasseRepository, private TagAwareCacheInterface $searchCache)
+    {
     }
 
     /**

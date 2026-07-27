@@ -21,14 +21,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UtilisateurType extends AbstractType
 {
-    private bool $enforceSecurity;
-
-    private Authentification $authentification;
-
-    public function __construct(bool $enforceSecurity, Authentification $authentification)
+    public function __construct(private bool $enforceSecurity, private Authentification $authentification)
     {
-        $this->enforceSecurity = $enforceSecurity;
-        $this->authentification = $authentification;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

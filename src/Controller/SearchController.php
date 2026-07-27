@@ -33,72 +33,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SearchController extends AbstractController
 {
-    private EtablissementSearchService $etablissementSearchService;
-
-    private DossierSearchService $dossierSearchService;
-
-    private GroupementRepository $groupementRepository;
-
-    private CommissionRepository $commissionRepository;
-
-    private DossierTypeRepository $dossierTypeRepository;
-
-    private GenreRepository $genreRepository;
-
-    private EtablissementStatutRepository $etablissementStatutRepository;
-
-    private EtablissementCategorieRepository $etablissementCategorieRepository;
-
-    private IghClasseRepository $ighClasseRepository;
-
-    private EtablissementActiviteRepository $etablissementActiviteRepository;
-
-    private FamilleRepository $familleRepository;
-
-    private CommuneRepository $communeRepository;
-
-    private AdresseRueRepository $adresseRueRepository;
-
-    private EtablissementAdresseRepository $etablissementAdresseRepository;
-
-    private SearchExport $searchExport;
-
-    private bool $deactivatePlatau;
-
-    public function __construct(
-        EtablissementSearchService $etablissementSearchService,
-        DossierSearchService $dossierSearchService,
-        GroupementRepository $groupementRepository,
-        CommissionRepository $commissionRepository,
-        DossierTypeRepository $dossierTypeRepository,
-        GenreRepository $genreRepository,
-        EtablissementStatutRepository $etablissementStatutRepository,
-        EtablissementCategorieRepository $etablissementCategorieRepository,
-        IghClasseRepository $ighClasseRepository,
-        EtablissementActiviteRepository $etablissementActiviteRepository,
-        FamilleRepository $familleRepository,
-        CommuneRepository $communeRepository,
-        AdresseRueRepository $adresseRueRepository,
-        EtablissementAdresseRepository $etablissementAdresseRepository,
-        bool $deactivatePlatau,
-        SearchExport $searchExport
-    ) {
-        $this->etablissementSearchService = $etablissementSearchService;
-        $this->dossierSearchService = $dossierSearchService;
-        $this->groupementRepository = $groupementRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->dossierTypeRepository = $dossierTypeRepository;
-        $this->genreRepository = $genreRepository;
-        $this->etablissementStatutRepository = $etablissementStatutRepository;
-        $this->etablissementCategorieRepository = $etablissementCategorieRepository;
-        $this->ighClasseRepository = $ighClasseRepository;
-        $this->etablissementActiviteRepository = $etablissementActiviteRepository;
-        $this->familleRepository = $familleRepository;
-        $this->communeRepository = $communeRepository;
-        $this->adresseRueRepository = $adresseRueRepository;
-        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
-        $this->deactivatePlatau = $deactivatePlatau;
-        $this->searchExport = $searchExport;
+    public function __construct(private EtablissementSearchService $etablissementSearchService, private DossierSearchService $dossierSearchService, private GroupementRepository $groupementRepository, private CommissionRepository $commissionRepository, private DossierTypeRepository $dossierTypeRepository, private GenreRepository $genreRepository, private EtablissementStatutRepository $etablissementStatutRepository, private EtablissementCategorieRepository $etablissementCategorieRepository, private IghClasseRepository $ighClasseRepository, private EtablissementActiviteRepository $etablissementActiviteRepository, private FamilleRepository $familleRepository, private CommuneRepository $communeRepository, private AdresseRueRepository $adresseRueRepository, private EtablissementAdresseRepository $etablissementAdresseRepository, private bool $deactivatePlatau, private SearchExport $searchExport)
+    {
     }
 
     /**

@@ -17,17 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ChangementController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private ChangementRepository $changementRepository;
-
-    private Changement $changement;
-
-    public function __construct(EntityManagerInterface $entityManager, ChangementRepository $changementRepository, Changement $changement)
+    public function __construct(private EntityManagerInterface $entityManager, private ChangementRepository $changementRepository, private Changement $changement)
     {
-        $this->entityManager = $entityManager;
-        $this->changementRepository = $changementRepository;
-        $this->changement = $changement;
     }
 
     /**

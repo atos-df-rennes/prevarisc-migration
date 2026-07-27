@@ -12,17 +12,8 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementCampingVoter extends EtablissementVoter
 {
-    private ResourcesRepository $resourcesRepository;
-
-    private PrivilegesRepository $privilegesRepository;
-
-    private LoggerInterface $logger;
-
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, LoggerInterface $logger)
+    public function __construct(private ResourcesRepository $resourcesRepository, private PrivilegesRepository $privilegesRepository, private LoggerInterface $logger)
     {
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
-        $this->logger = $logger;
     }
 
     protected function supports($attribute, $subject): bool
@@ -42,11 +33,11 @@ class EtablissementCampingVoter extends EtablissementVoter
 
         try {
             $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementCamping();
-        } catch (NoResultException $noResultException) {
+        } catch (NoResultException) {
             $this->logger->warning("Aucune règle trouvée pour les campings. Il est recommandé d'en ajouter une.");
 
             return false;
-        } catch (NonUniqueResultException $nonUniqueResultException) {
+        } catch (NonUniqueResultException) {
             $this->logger->warning('Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons.');
 
             return false;

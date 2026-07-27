@@ -18,24 +18,8 @@ use App\Repository\ValeurRepository;
 
 class Descriptif
 {
-    private CapsuleRubriqueRepository $capsuleRubriqueRepository;
-
-    private ValeurRepository $valeurRepository;
-
-    private DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository;
-
-    private EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository;
-
-    public function __construct(
-        CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        ValeurRepository $valeurRepository,
-        DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository,
-        EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository
-    ) {
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->valeurRepository = $valeurRepository;
-        $this->dossierDisplayRubriqueRepository = $dossierDisplayRubriqueRepository;
-        $this->etablissementDisplayRubriqueRepository = $etablissementDisplayRubriqueRepository;
+    public function __construct(private CapsuleRubriqueRepository $capsuleRubriqueRepository, private ValeurRepository $valeurRepository, private DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository)
+    {
     }
 
     /**

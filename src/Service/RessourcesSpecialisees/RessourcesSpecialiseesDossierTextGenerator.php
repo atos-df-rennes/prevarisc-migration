@@ -14,11 +14,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class RessourcesSpecialiseesDossierTextGenerator
 {
-    private DossierNatureListeRepository $naturesRepository;
-
-    public function __construct(DossierNatureListeRepository $naturesRepository)
+    public function __construct(private DossierNatureListeRepository $naturesRepository)
     {
-        $this->naturesRepository = $naturesRepository;
     }
 
     public function fromRequest(Request $request): string

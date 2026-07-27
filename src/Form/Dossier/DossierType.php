@@ -36,14 +36,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class DossierType extends AbstractType
 {
-    private Security $security;
-
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(Security $security, EntityManagerInterface $entityManager)
+    public function __construct(private Security $security, private EntityManagerInterface $entityManager)
     {
-        $this->security = $security;
-        $this->entityManager = $entityManager;
     }
 
     // Note : Possibilité future de séparer en plusieurs FormTypes selon le type de dossier

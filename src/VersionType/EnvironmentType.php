@@ -11,17 +11,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class EnvironmentType implements VersionType
 {
-    private HttpClientInterface $client;
-
-    private SerializerInterface $serializer;
-
-    private LoggerInterface $logger;
-
-    public function __construct(HttpClientInterface $client, SerializerInterface $serializer, LoggerInterface $logger)
+    public function __construct(private HttpClientInterface $client, private SerializerInterface $serializer, private LoggerInterface $logger)
     {
-        $this->client = $client;
-        $this->serializer = $serializer;
-        $this->logger = $logger;
     }
 
     public function version(): string

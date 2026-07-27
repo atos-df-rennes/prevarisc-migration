@@ -12,17 +12,8 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 final class CommissionFilesystem
 {
-    private string $documentsRealDataPath;
-
-    private LoggerInterface $logger;
-
-    private Filesystem $filesystem;
-
-    public function __construct(string $documentsRealDataPath, LoggerInterface $logger, Filesystem $filesystem)
+    public function __construct(private string $documentsRealDataPath, private LoggerInterface $logger, private Filesystem $filesystem)
     {
-        $this->documentsRealDataPath = $documentsRealDataPath;
-        $this->logger = $logger;
-        $this->filesystem = $filesystem;
     }
 
     public function createCommissionDirectory(int $commissionId): void

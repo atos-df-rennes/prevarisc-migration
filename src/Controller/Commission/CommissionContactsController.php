@@ -22,16 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CommissionContactsController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private Contact $contactService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        Contact $contactService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->contactService = $contactService;
+    public function __construct(private EntityManagerInterface $entityManager, private Contact $contactService)
+    {
     }
 
     /**

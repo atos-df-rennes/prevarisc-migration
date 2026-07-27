@@ -10,36 +10,8 @@ use App\Entity\DateCommission;
  */
 final class DateCommissionLieeDto
 {
-    private int $id;
-
-    private string $dateCommission;
-
-    private string $heureDebut;
-
-    private string $heureFin;
-
-    private ?string $libelle;
-
-    private int $idCommission;
-
-    private int $idTypeEvenement;
-
-    private function __construct(
-        int $id,
-        string $dateCommission,
-        string $heureDebut,
-        string $heureFin,
-        ?string $libelle,
-        int $idCommission,
-        int $idTypeEvenement
-    ) {
-        $this->id = $id;
-        $this->dateCommission = $dateCommission;
-        $this->heureDebut = $heureDebut;
-        $this->heureFin = $heureFin;
-        $this->libelle = $libelle;
-        $this->idCommission = $idCommission;
-        $this->idTypeEvenement = $idTypeEvenement;
+    private function __construct(private int $id, private string $dateCommission, private string $heureDebut, private string $heureFin, private ?string $libelle, private int $idCommission, private int $idTypeEvenement)
+    {
     }
 
     /**

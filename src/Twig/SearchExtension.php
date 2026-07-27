@@ -10,14 +10,8 @@ use Twig\TwigFunction;
 
 class SearchExtension extends AbstractExtension
 {
-    private PlatauTempsRestant $platauTempsRestant;
-
-    private DateDiffFormatterService $dateDiffFormatter;
-
-    public function __construct(PlatauTempsRestant $platauTempsRestant, DateDiffFormatterService $dateDiffFormatter)
+    public function __construct(private PlatauTempsRestant $platauTempsRestant, private DateDiffFormatterService $dateDiffFormatter)
     {
-        $this->platauTempsRestant = $platauTempsRestant;
-        $this->dateDiffFormatter = $dateDiffFormatter;
     }
 
     /**
@@ -74,7 +68,7 @@ class SearchExtension extends AbstractExtension
             $date = new \DateTime(substr($dateString, 0, 10));
 
             return $this->platauTempsRestant->calculate($date);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return '';
         }
     }
@@ -89,7 +83,7 @@ class SearchExtension extends AbstractExtension
             $date = new \DateTime(substr($dateString, 0, 10));
 
             return $this->platauTempsRestant->getCouleurTempsRestant($date);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return 'default';
         }
     }

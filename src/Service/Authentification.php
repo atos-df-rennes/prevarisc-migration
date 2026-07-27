@@ -4,17 +4,8 @@ namespace App\Service;
 
 final class Authentification
 {
-    private bool $casEnabled;
-
-    private bool $ntlmEnabled;
-
-    private bool $ldapEnabled;
-
-    public function __construct(bool $casEnabled, bool $ntlmEnabled, bool $ldapEnabled)
+    public function __construct(private bool $casEnabled, private bool $ntlmEnabled, private bool $ldapEnabled)
     {
-        $this->casEnabled = $casEnabled;
-        $this->ntlmEnabled = $ntlmEnabled;
-        $this->ldapEnabled = $ldapEnabled;
     }
 
     public function ssoEnabled(): bool

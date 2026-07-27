@@ -27,22 +27,13 @@ class DossierVoter extends Voter
 
     public const VERROUILLAGE = 'verrouillage_dossier';
 
-    private ResourcesRepository $resourcesRepository;
-
-    private PrivilegesRepository $privilegesRepository;
-
     /**
      * @var Resources[]
      */
     private array $resources = [];
 
-    private EtablissementCollectionAccessChecker $collectionAccessChecker;
-
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, EtablissementCollectionAccessChecker $collectionAccessChecker)
+    public function __construct(private ResourcesRepository $resourcesRepository, private PrivilegesRepository $privilegesRepository, private EtablissementCollectionAccessChecker $collectionAccessChecker)
     {
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
-        $this->collectionAccessChecker = $collectionAccessChecker;
     }
 
     protected function supports($attribute, $subject): bool

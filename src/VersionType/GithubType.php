@@ -22,18 +22,8 @@ final class GithubType implements VersionType
     /** @var string */
     private $revision;
 
-    private HttpClientInterface $client;
-
-    private SerializerInterface $serializer;
-
-    private LoggerInterface $logger;
-
-    public function __construct(string $srcDir, HttpClientInterface $client, SerializerInterface $serializer, LoggerInterface $logger)
+    public function __construct(string $srcDir, private HttpClientInterface $client, private SerializerInterface $serializer, private LoggerInterface $logger)
     {
-        $this->client = $client;
-        $this->serializer = $serializer;
-        $this->logger = $logger;
-
         $git = new Git(dirname($srcDir).'/prevarisc');
 
         $this->branch = $git->getCurrentBranch();

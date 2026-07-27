@@ -16,17 +16,8 @@ class DossierSearchService
 {
     public const MAX_LIMIT_PAGES_DOSSIERS = 100;
 
-    private Connection $connection;
-
-    private SearchQueryHelper $queryHelper;
-
-    private TagAwareCacheInterface $searchCache;
-
-    public function __construct(Connection $connection, SearchQueryHelper $queryHelper, TagAwareCacheInterface $searchCache)
+    public function __construct(private Connection $connection, private SearchQueryHelper $queryHelper, private TagAwareCacheInterface $searchCache)
     {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
-        $this->searchCache = $searchCache;
     }
 
     /**
@@ -148,7 +139,7 @@ class DossierSearchService
             // Critères : objet
             if (null !== $objet) {
                 $cleanObjet = trim($objet);
-                if ('#' === substr($cleanObjet, 0, 1)) {
+                if (str_starts_with($cleanObjet, '#')) {
                     $nbUrbaPattern = $this->queryHelper->safeQuote('%'.substr($cleanObjet, 1).'%');
                     $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
                     $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
@@ -575,7 +566,7 @@ class DossierSearchService
         // Critères : objet
         if (null !== $objet) {
             $cleanObjet = trim($objet);
-            if ('#' === substr($cleanObjet, 0, 1)) {
+            if (str_starts_with($cleanObjet, '#')) {
                 $havingConditions[] = 'NB_URBA LIKE '.$this->queryHelper->safeQuote('%'.substr($cleanObjet, 1).'%');
             } elseif (1 === preg_match('/^[0-9A-Z\.]+$/', $cleanObjet)) {
                 $havingConditions[] = 'NB_URBA LIKE '.$this->queryHelper->safeQuote('%'.$cleanObjet.'%');
@@ -684,7 +675,7 @@ class DossierSearchService
             // Critères : label établissement
             if (isset($criterias['label']) && is_string($criterias['label'])) {
                 $cleanLabel = trim($criterias['label']);
-                if ('#' === substr($cleanLabel, 0, 1)) {
+                if (str_starts_with($cleanLabel, '#')) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
                 } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $cleanLabel, false);

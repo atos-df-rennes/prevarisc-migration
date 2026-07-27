@@ -31,28 +31,8 @@ final class EtablissementTexter
 
     private ?string $useUserCommune = null;
 
-    private EtablissementActiviteRepository $etablissementActiviteRepository;
-
-    private EtablissementCategorieRepository $categorieRepository;
-
-    private FamilleRepository $familleRepository;
-
-    private IghClasseRepository $classeRepository;
-
-    private ClassementRepository $classementRepository;
-
-    public function __construct(
-        EtablissementActiviteRepository $etablissementActiviteRepository,
-        EtablissementCategorieRepository $categorieRepository,
-        FamilleRepository $familleRepository,
-        IghClasseRepository $classeRepository,
-        ClassementRepository $classementRepository
-    ) {
-        $this->etablissementActiviteRepository = $etablissementActiviteRepository;
-        $this->categorieRepository = $categorieRepository;
-        $this->familleRepository = $familleRepository;
-        $this->classeRepository = $classeRepository;
-        $this->classementRepository = $classementRepository;
+    public function __construct(private EtablissementActiviteRepository $etablissementActiviteRepository, private EtablissementCategorieRepository $categorieRepository, private FamilleRepository $familleRepository, private IghClasseRepository $classeRepository, private ClassementRepository $classementRepository)
+    {
     }
 
     /**

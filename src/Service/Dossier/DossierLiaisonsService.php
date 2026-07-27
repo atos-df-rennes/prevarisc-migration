@@ -9,20 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class DossierLiaisonsService
 {
-    private EntityManagerInterface $entityManager;
-
-    private DossierRepository $dossierRepository;
-
-    private DossierDonnantAvisService $dossierDonnantAvisService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierRepository $dossierRepository,
-        DossierDonnantAvisService $dossierDonnantAvisService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->dossierRepository = $dossierRepository;
-        $this->dossierDonnantAvisService = $dossierDonnantAvisService;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private DossierDonnantAvisService $dossierDonnantAvisService)
+    {
     }
 
     /**

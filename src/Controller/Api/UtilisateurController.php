@@ -14,11 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UtilisateurController extends AbstractController
 {
-    private UtilisateurRepository $utilisateurRepository;
-
-    public function __construct(UtilisateurRepository $utilisateurRepository)
+    public function __construct(private UtilisateurRepository $utilisateurRepository)
     {
-        $this->utilisateurRepository = $utilisateurRepository;
     }
 
     /**

@@ -12,11 +12,8 @@ use App\Enum\PlatauStatutAvisEnum;
  */
 final class PlatauConsultation
 {
-    private PlatauTempsRestant $platauTempsRestantService;
-
-    public function __construct(PlatauTempsRestant $platauTempsRestantService)
+    public function __construct(private PlatauTempsRestant $platauTempsRestantService)
     {
-        $this->platauTempsRestantService = $platauTempsRestantService;
     }
 
     /**

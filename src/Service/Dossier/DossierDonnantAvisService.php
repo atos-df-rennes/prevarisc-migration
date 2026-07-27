@@ -16,20 +16,8 @@ use Psr\Log\LoggerInterface;
  */
 class DossierDonnantAvisService
 {
-    private EntityManagerInterface $entityManager;
-
-    private LoggerInterface $logger;
-
-    private DossierRepository $dossierRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        LoggerInterface $logger,
-        DossierRepository $dossierRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
-        $this->dossierRepository = $dossierRepository;
+    public function __construct(private EntityManagerInterface $entityManager, private LoggerInterface $logger, private DossierRepository $dossierRepository)
+    {
     }
 
     /**
@@ -145,7 +133,7 @@ class DossierDonnantAvisService
             // Vérifier que l'enfant a des informations (relation avec statut)
             try {
                 $latestInfo = $enfant->getLatestInformations();
-            } catch (\OutOfBoundsException $e) {
+            } catch (\OutOfBoundsException) {
                 // Pas d'informations pour cet enfant, skip
                 continue;
             }

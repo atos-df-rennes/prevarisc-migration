@@ -14,11 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class GroupementController extends AbstractController
 {
-    private GroupementRepository $groupementRepository;
-
-    public function __construct(GroupementRepository $groupementRepository)
+    public function __construct(private GroupementRepository $groupementRepository)
     {
-        $this->groupementRepository = $groupementRepository;
     }
 
     /**

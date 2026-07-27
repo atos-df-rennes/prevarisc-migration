@@ -57,13 +57,11 @@ class PrescriptionReglementaireRepository extends ServiceEntityRepository
      */
     public function recupPrescRegl(string $type, ?bool $mode = null): array
     {
-        switch ($type) {
-            case 'etude': $typePresc = 1;
-                break;
-            case 'visite': $typePresc = 2;
-                break;
-            default: $typePresc = null;
-        }
+        $typePresc = match ($type) {
+            'etude' => 1,
+            'visite' => 2,
+            default => null,
+        };
 
         // Crée la requête QueryBuilder
         $qb = $this->createQueryBuilder('pre')

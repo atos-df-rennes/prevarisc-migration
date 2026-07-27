@@ -4,22 +4,10 @@ namespace App\Dto\Historique;
 
 class DonneeHistorique
 {
-    private ?int $date;
-
-    private ?string $valeur;
-
-    private ?Auteur $auteur;
-
     private ?int $fin = null;
 
-    public function __construct(
-        ?int $date,
-        ?string $valeur,
-        ?Auteur $auteur
-    ) {
-        $this->date = $date;
-        $this->valeur = $valeur;
-        $this->auteur = $auteur;
+    public function __construct(private ?int $date, private ?string $valeur, private ?Auteur $auteur)
+    {
     }
 
     public function getDate(): ?int

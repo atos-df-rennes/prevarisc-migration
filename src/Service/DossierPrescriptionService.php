@@ -19,24 +19,8 @@ use Symfony\Component\Security\Core\Security;
 
 class DossierPrescriptionService
 {
-    private PrescriptionDossierRepository $repository;
-
-    private EntityManagerInterface $em;
-
-    private LoggerInterface $logger;
-
-    private Security $security;
-
-    public function __construct(
-        PrescriptionDossierRepository $repository,
-        EntityManagerInterface $em,
-        LoggerInterface $logger,
-        Security $security
-    ) {
-        $this->repository = $repository;
-        $this->em = $em;
-        $this->logger = $logger;
-        $this->security = $security;
+    public function __construct(private PrescriptionDossierRepository $repository, private EntityManagerInterface $em, private LoggerInterface $logger, private Security $security)
+    {
     }
 
     /**

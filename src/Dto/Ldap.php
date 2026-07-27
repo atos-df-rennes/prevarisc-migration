@@ -4,24 +4,8 @@ namespace App\Dto;
 
 final class Ldap
 {
-    private bool $enabled;
-
-    private string $host;
-
-    private int $port;
-
-    private string $baseDn;
-
-    public function __construct(
-        bool $enabled,
-        string $host,
-        int $port,
-        string $baseDn
-    ) {
-        $this->enabled = $enabled;
-        $this->host = $host;
-        $this->port = $port;
-        $this->baseDn = $baseDn;
+    public function __construct(private bool $enabled, private string $host, private int $port, private string $baseDn)
+    {
     }
 
     public function enabled(): bool

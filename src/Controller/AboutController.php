@@ -11,11 +11,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AboutController extends AbstractController
 {
-    private Doc $docService;
-
-    public function __construct(Doc $docService)
+    public function __construct(private Doc $docService)
     {
-        $this->docService = $docService;
     }
 
     /**

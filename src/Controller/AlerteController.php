@@ -22,23 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AlerteController extends AbstractController
 {
-    private EtablissementRepository $etablissementRepository;
-
-    private ChangementRepository $changementRepository;
-
-    private AlerteService $alerteService;
-
-    private MailerInterface $mailer;
-
-    private MailerConfiguration $mailerConfig;
-
-    public function __construct(EtablissementRepository $etablissementRepository, ChangementRepository $changementRepository, AlerteService $alerteService, MailerInterface $mailer, MailerConfiguration $mailerConfig)
+    public function __construct(private EtablissementRepository $etablissementRepository, private ChangementRepository $changementRepository, private AlerteService $alerteService, private MailerInterface $mailer, private MailerConfiguration $mailerConfig)
     {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->changementRepository = $changementRepository;
-        $this->alerteService = $alerteService;
-        $this->mailer = $mailer;
-        $this->mailerConfig = $mailerConfig;
     }
 
     /**

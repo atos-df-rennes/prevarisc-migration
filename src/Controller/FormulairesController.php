@@ -31,26 +31,8 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class FormulairesController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private CapsuleRubriqueRepository $capsuleRubriqueRepository;
-
-    private FormFactoryInterface $formFactory;
-
-    private SerializerInterface $serializer;
-
-    private FormulairesImporter $formulairesImporter;
-
-    private LoggerInterface $logger;
-
-    public function __construct(EntityManagerInterface $entityManager, CapsuleRubriqueRepository $capsuleRubriqueRepository, FormFactoryInterface $formFactory, SerializerInterface $serializer, FormulairesImporter $formulairesImporter, LoggerInterface $logger)
+    public function __construct(private EntityManagerInterface $entityManager, private CapsuleRubriqueRepository $capsuleRubriqueRepository, private FormFactoryInterface $formFactory, private SerializerInterface $serializer, private FormulairesImporter $formulairesImporter, private LoggerInterface $logger)
     {
-        $this->entityManager = $entityManager;
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->formFactory = $formFactory;
-        $this->serializer = $serializer;
-        $this->formulairesImporter = $formulairesImporter;
-        $this->logger = $logger;
     }
 
     /**

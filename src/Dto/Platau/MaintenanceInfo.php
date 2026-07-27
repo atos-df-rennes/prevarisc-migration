@@ -8,28 +8,8 @@ namespace App\Dto\Platau;
  */
 final class MaintenanceInfo implements \JsonSerializable
 {
-    private bool $active;
-
-    private ?string $typeMaintenance;
-
-    private ?string $descMaintenance;
-
-    private ?string $prochaineMaintenance;
-
-    private ?string $descProchaineMaintenance;
-
-    public function __construct(
-        bool $active,
-        ?string $typeMaintenance,
-        ?string $descMaintenance,
-        ?string $prochaineMaintenance,
-        ?string $descProchaineMaintenance
-    ) {
-        $this->active = $active;
-        $this->typeMaintenance = $typeMaintenance;
-        $this->descMaintenance = $descMaintenance;
-        $this->prochaineMaintenance = $prochaineMaintenance;
-        $this->descProchaineMaintenance = $descProchaineMaintenance;
+    public function __construct(private bool $active, private ?string $typeMaintenance, private ?string $descMaintenance, private ?string $prochaineMaintenance, private ?string $descProchaineMaintenance)
+    {
     }
 
     /**
@@ -48,7 +28,7 @@ final class MaintenanceInfo implements \JsonSerializable
             try {
                 $date = new \DateTime($rawDate);
                 $prochaineMaintenance = $date->format('d/m/Y à H\hi');
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $prochaineMaintenance = $rawDate;
             }
         }

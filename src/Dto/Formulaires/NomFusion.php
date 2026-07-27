@@ -4,18 +4,11 @@ namespace App\Dto\Formulaires;
 
 final class NomFusion
 {
-    private string $valeur;
-
-    /** @var self[] */
-    private array $enfants;
-
     /**
      * @param self[] $enfants
      */
-    public function __construct(string $valeur, array $enfants = [])
+    public function __construct(private string $valeur, private array $enfants = [])
     {
-        $this->valeur = $valeur;
-        $this->enfants = $enfants;
     }
 
     public function valeur(): string

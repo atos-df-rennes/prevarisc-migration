@@ -11,16 +11,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class PieceJointeExportService
 {
-    private EntityManagerInterface $entityManager;
-
-    private PieceJointeStatutRepository $statutRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        PieceJointeStatutRepository $statutRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->statutRepository = $statutRepository;
+    public function __construct(private EntityManagerInterface $entityManager, private PieceJointeStatutRepository $statutRepository)
+    {
     }
 
     /**

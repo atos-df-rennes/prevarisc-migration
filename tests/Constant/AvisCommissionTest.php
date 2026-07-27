@@ -9,10 +9,8 @@ class AvisCommissionTest extends TestCase
 {
     /**
      * @dataProvider avisProvider
-     *
-     * @param int|string|null $code
      */
-    public function testGetLibelleRetourneLeLibelleCorrect($code, string $expected): void
+    public function testGetLibelleRetourneLeLibelleCorrect(int|string|null $code, string $expected): void
     {
         self::assertSame($expected, AvisCommission::getLibelle($code));
     }

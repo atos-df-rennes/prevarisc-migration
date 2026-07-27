@@ -16,11 +16,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ChampType extends AbstractType
 {
-    private TypeChampRepository $typeChampRepository;
-
-    public function __construct(TypeChampRepository $typeChampRepository)
+    public function __construct(private TypeChampRepository $typeChampRepository)
     {
-        $this->typeChampRepository = $typeChampRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

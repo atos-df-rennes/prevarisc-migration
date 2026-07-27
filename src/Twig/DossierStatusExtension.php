@@ -19,11 +19,8 @@ class DossierStatusExtension extends AbstractExtension
      */
     private const EXPLOITATION_NATURE_IDS = [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48];
 
-    private DateDiffFormatterService $dateDiffFormatter;
-
-    public function __construct(DateDiffFormatterService $dateDiffFormatter)
+    public function __construct(private DateDiffFormatterService $dateDiffFormatter)
     {
-        $this->dateDiffFormatter = $dateDiffFormatter;
     }
 
     /**

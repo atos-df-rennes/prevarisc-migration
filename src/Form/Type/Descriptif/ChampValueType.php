@@ -22,11 +22,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ChampValueType extends AbstractType
 {
-    private ChampRepository $champRepository;
-
-    public function __construct(ChampRepository $champRepository)
+    public function __construct(private ChampRepository $champRepository)
     {
-        $this->champRepository = $champRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

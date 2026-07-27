@@ -4,21 +4,11 @@ namespace App\Dto\FusionDesCommunes;
 
 final class FusionDeCommunes
 {
-    private string $nom;
-
-    private string $numinsee;
-
-    /** @var Commune[] */
-    private array $listeCommunes;
-
     /**
      * @param Commune[] $listeCommunes
      */
-    public function __construct(string $nom, string $numinsee, array $listeCommunes)
+    public function __construct(private string $nom, private string $numinsee, private array $listeCommunes)
     {
-        $this->nom = $nom;
-        $this->numinsee = $numinsee;
-        $this->listeCommunes = $listeCommunes;
     }
 
     public function nom(): string

@@ -12,12 +12,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AddExistingContactsType extends AbstractType
 {
-    private UtilisateurInformationsRepository $utilisateurInformationsRepository;
-
-    public function __construct(
-        UtilisateurInformationsRepository $utilisateurInformationsRepository
-    ) {
-        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
+    public function __construct(private UtilisateurInformationsRepository $utilisateurInformationsRepository)
+    {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

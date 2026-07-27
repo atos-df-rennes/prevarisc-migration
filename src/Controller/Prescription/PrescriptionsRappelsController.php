@@ -17,14 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PrescriptionsRappelsController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-
-    private Prescriptions $prescriptions;
-
-    public function __construct(EntityManagerInterface $entityManager, Prescriptions $prescriptions)
+    public function __construct(private EntityManagerInterface $entityManager, private Prescriptions $prescriptions)
     {
-        $this->entityManager = $entityManager;
-        $this->prescriptions = $prescriptions;
     }
 
     /**

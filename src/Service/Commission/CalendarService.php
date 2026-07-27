@@ -19,24 +19,8 @@ use Symfony\Component\HttpFoundation\Request;
  */
 final class CalendarService
 {
-    private DateCommissionRepository $dateCommissionRepository;
-
-    private CommissionTypeEvenementRepository $commissionTypeEvenementRepository;
-
-    private CommissionRepository $commissionRepository;
-
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(
-        DateCommissionRepository $dateCommissionRepository,
-        CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
-        CommissionRepository $commissionRepository,
-        EntityManagerInterface $entityManager
-    ) {
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->commissionTypeEvenementRepository = $commissionTypeEvenementRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->entityManager = $entityManager;
+    public function __construct(private DateCommissionRepository $dateCommissionRepository, private CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private CommissionRepository $commissionRepository, private EntityManagerInterface $entityManager)
+    {
     }
 
     /**

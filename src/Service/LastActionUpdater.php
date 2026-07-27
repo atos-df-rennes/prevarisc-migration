@@ -17,20 +17,8 @@ use Psr\Log\LoggerInterface;
  */
 class LastActionUpdater
 {
-    private EntityManagerInterface $entityManager;
-
-    private UtilisateurRepository $utilisateurRepository;
-
-    private LoggerInterface $logger;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        UtilisateurRepository $utilisateurRepository,
-        LoggerInterface $logger
-    ) {
-        $this->entityManager = $entityManager;
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->logger = $logger;
+    public function __construct(private EntityManagerInterface $entityManager, private UtilisateurRepository $utilisateurRepository, private LoggerInterface $logger)
+    {
     }
 
     /**

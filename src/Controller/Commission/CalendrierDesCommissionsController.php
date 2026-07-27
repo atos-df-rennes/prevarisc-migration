@@ -36,36 +36,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 // Pièces jointes → CalendrierDesCommissionsPiecesJointesController
 class CalendrierDesCommissionsController extends AbstractController
 {
-    private CalendarService $calendarService;
-
-    private DateCommissionRepository $dateCommissionRepository;
-
-    private CommissionDatesTransformer $commissionDatesTransformer;
-
-    private CommissionTypeEvenementRepository $commissionTypeEvenementRepository;
-
-    private CommissionRepository $commissionRepository;
-
-    private EntityManagerInterface $entityManager;
-
-    private DataStore $dataStore;
-
-    public function __construct(
-        CalendarService $calendarService,
-        DateCommissionRepository $dateCommissionRepository,
-        CommissionDatesTransformer $commissionDatesTransformer,
-        CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
-        CommissionRepository $commissionRepository,
-        EntityManagerInterface $entityManager,
-        DataStore $dataStore
-    ) {
-        $this->calendarService = $calendarService;
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->commissionDatesTransformer = $commissionDatesTransformer;
-        $this->commissionTypeEvenementRepository = $commissionTypeEvenementRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->entityManager = $entityManager;
-        $this->dataStore = $dataStore;
+    public function __construct(private CalendarService $calendarService, private DateCommissionRepository $dateCommissionRepository, private CommissionDatesTransformer $commissionDatesTransformer, private CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private CommissionRepository $commissionRepository, private EntityManagerInterface $entityManager, private DataStore $dataStore)
+    {
     }
 
     /**
@@ -426,7 +398,7 @@ class CalendrierDesCommissionsController extends AbstractController
                         }
                     }
                 }
-            } catch (\InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException) {
                 // Date invalide ou absente : on laisse le formulaire vide
             }
 
@@ -511,7 +483,7 @@ class CalendrierDesCommissionsController extends AbstractController
                 if ('' !== $path && $filesystem->exists($path)) {
                     try {
                         $filesystem->remove($path);
-                    } catch (IOException $e) {
+                    } catch (IOException) {
                         // Fichier non supprimable (permissions) : on continue la suppression de la commission
                     }
                 }
@@ -638,7 +610,7 @@ class CalendrierDesCommissionsController extends AbstractController
                 'success' => false,
                 'error' => $e->getMessage(),
             ], 404);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return $this->json([
                 'success' => false,
                 'error' => 'Erreur lors de la modification de l\'événement',
@@ -701,7 +673,7 @@ class CalendrierDesCommissionsController extends AbstractController
                 'success' => false,
                 'error' => $e->getMessage(),
             ], 404);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return $this->json([
                 'success' => false,
                 'error' => 'Erreur lors du déplacement de l\'événement',
@@ -743,7 +715,7 @@ class CalendrierDesCommissionsController extends AbstractController
             $datesCommission = $this->commissionDatesTransformer->transformToEntities($data);
             try {
                 $idAffectation = $this->calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
-            } catch (EntityNotFoundException $entityNotFoundException) {
+            } catch (EntityNotFoundException) {
                 return $this->json([
                     'success' => false,
                     'error' => "La date principale n'a pas pu être récupérée correctement",

@@ -16,24 +16,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DossierAffectationService
 {
-    private EntityManagerInterface $entityManager;
-
-    private DossierAffectationRepository $affectationRepository;
-
-    private DateCommissionRepository $dateCommissionRepository;
-
-    private DossierFields $dossierFieldsService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierAffectationRepository $affectationRepository,
-        DateCommissionRepository $dateCommissionRepository,
-        DossierFields $dossierFieldsService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->affectationRepository = $affectationRepository;
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->dossierFieldsService = $dossierFieldsService;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierAffectationRepository $affectationRepository, private DateCommissionRepository $dateCommissionRepository, private DossierFields $dossierFieldsService)
+    {
     }
 
     /**
@@ -102,7 +86,7 @@ class DossierAffectationService
     private function gererAffectation(
         Dossier $dossier,
         ?int $idDateCommission,
-        $typesEvenement,
+        int|array $typesEvenement,
         string $colonneDate
     ): void {
         // Récupérer affectation existante pour ce type

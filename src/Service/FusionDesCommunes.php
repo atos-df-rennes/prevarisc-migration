@@ -18,40 +18,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 final class FusionDesCommunes
 {
-    private SerializerInterface $serializer;
-
-    private LoggerInterface $logger;
-
-    private EntityManagerInterface $entityManager;
-
-    private CommuneRepository $communeRepository;
-
-    private EtablissementAdresseRepository $etablissementAdresseRepository;
-
-    private AdresseRueRepository $adresseRueRepository;
-
-    private UtilisateurRepository $utilisateurRepository;
-
-    private CommissionRegleRepository $commissionRegleRepository;
-
-    public function __construct(
-        SerializerInterface $serializer,
-        LoggerInterface $logger,
-        EntityManagerInterface $entityManager,
-        CommuneRepository $communeRepository,
-        EtablissementAdresseRepository $etablissementAdresseRepository,
-        AdresseRueRepository $adresseRueRepository,
-        UtilisateurRepository $utilisateurRepository,
-        CommissionRegleRepository $commissionRegleRepository
-    ) {
-        $this->serializer = $serializer;
-        $this->logger = $logger;
-        $this->entityManager = $entityManager;
-        $this->communeRepository = $communeRepository;
-        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
-        $this->adresseRueRepository = $adresseRueRepository;
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->commissionRegleRepository = $commissionRegleRepository;
+    public function __construct(private SerializerInterface $serializer, private LoggerInterface $logger, private EntityManagerInterface $entityManager, private CommuneRepository $communeRepository, private EtablissementAdresseRepository $etablissementAdresseRepository, private AdresseRueRepository $adresseRueRepository, private UtilisateurRepository $utilisateurRepository, private CommissionRegleRepository $commissionRegleRepository)
+    {
     }
 
     /**

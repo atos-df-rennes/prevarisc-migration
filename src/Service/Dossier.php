@@ -11,28 +11,8 @@ use Symfony\Component\Security\Core\Security;
 
 final class Dossier
 {
-    private EntityManagerInterface $entityManager;
-
-    private DossierRepository $dossierRepository;
-
-    private Security $security;
-
-    private PlatauTempsRestant $servicePlatauTempsRestant;
-
-    private TexteApplicable $texteApplicableService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierRepository $dossierRepository,
-        Security $security,
-        PlatauTempsRestant $servicePlatauTempsRestant,
-        TexteApplicable $texteApplicableService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->dossierRepository = $dossierRepository;
-        $this->security = $security;
-        $this->servicePlatauTempsRestant = $servicePlatauTempsRestant;
-        $this->texteApplicableService = $texteApplicableService;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private Security $security, private PlatauTempsRestant $servicePlatauTempsRestant, private TexteApplicable $texteApplicableService)
+    {
     }
 
     /**

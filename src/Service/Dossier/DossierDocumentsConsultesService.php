@@ -10,11 +10,8 @@ use App\Repository\ListeDocumentConsulteRepository;
 
 final class DossierDocumentsConsultesService
 {
-    private ListeDocumentConsulteRepository $listeDocumentConsulteRepository;
-
-    public function __construct(ListeDocumentConsulteRepository $listeDocumentConsulteRepository)
+    public function __construct(private ListeDocumentConsulteRepository $listeDocumentConsulteRepository)
     {
-        $this->listeDocumentConsulteRepository = $listeDocumentConsulteRepository;
     }
 
     /**

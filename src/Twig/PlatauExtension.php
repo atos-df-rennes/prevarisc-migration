@@ -26,18 +26,13 @@ class PlatauExtension extends AbstractExtension
 
     public function getPecClass(?string $statut): string
     {
-        switch ($statut) {
-            case PlatauStatutPecEnum::EN_ATTENTE:
-                return 'text-info';
-            case PlatauStatutPecEnum::PRISE_EN_COMPTE:
-                return 'text-success';
-            case PlatauStatutPecEnum::A_RENVOYER:
-                return 'text-warning';
-            case PlatauStatutPecEnum::EN_ERREUR:
-                return 'text-danger';
-            default:
-                return 'text-muted';
-        }
+        return match ($statut) {
+            PlatauStatutPecEnum::EN_ATTENTE => 'text-info',
+            PlatauStatutPecEnum::PRISE_EN_COMPTE => 'text-success',
+            PlatauStatutPecEnum::A_RENVOYER => 'text-warning',
+            PlatauStatutPecEnum::EN_ERREUR => 'text-danger',
+            default => 'text-muted',
+        };
     }
 
     public function getAvisLabel(?string $statut): string
@@ -47,17 +42,12 @@ class PlatauExtension extends AbstractExtension
 
     public function getAvisClass(?string $statut): string
     {
-        switch ($statut) {
-            case PlatauStatutAvisEnum::EN_COURS:
-                return 'text-info';
-            case PlatauStatutAvisEnum::TRAITE:
-                return 'text-success';
-            case PlatauStatutAvisEnum::A_RENVOYER:
-                return 'text-warning';
-            case PlatauStatutAvisEnum::EN_ERREUR:
-                return 'text-danger';
-            default:
-                return 'text-muted';
-        }
+        return match ($statut) {
+            PlatauStatutAvisEnum::EN_COURS => 'text-info',
+            PlatauStatutAvisEnum::TRAITE => 'text-success',
+            PlatauStatutAvisEnum::A_RENVOYER => 'text-warning',
+            PlatauStatutAvisEnum::EN_ERREUR => 'text-danger',
+            default => 'text-muted',
+        };
     }
 }
