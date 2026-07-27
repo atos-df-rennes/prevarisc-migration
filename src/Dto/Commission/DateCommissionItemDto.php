@@ -19,11 +19,6 @@ final class DateCommissionItemDto
      */
     private ?\DateTime $heureFin = null;
 
-    /**
-     * @param \DateTime|null $date La date de la commission
-     *
-     * @Assert\NotNull(message="La date est obligatoire")
-     */
     public function __construct(
         /**
          * @Assert\NotNull(message="La date est obligatoire")

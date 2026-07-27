@@ -56,6 +56,11 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
      */
     private static bool $casInitialized = false;
 
+    /**
+     * @param string    $ldapFilter      Filtre de recherche LDAP pour retrouver le DN d'un utilisateur (format sprintf avec %s pour le nom d'utilisateur : '(uid=%s)' pour OpenLDAP, '(sAMAccountName=%s)' pour Active Directory)
+     * @param string    $ldapAccountForm Format du compte LDAP pour le bind direct (fallback sans service-account, format sprintf avec %s : '%s@domain.tld' pour UPN, 'DOMAIN\%s' pour pre-Win2000, '' pour pas de transformation)
+     * @param Ldap|null $ldap            Instance LDAP partagée (connexion lazy, créée une seule fois par requête)
+     */
     public function __construct(
         private LoggerInterface $logger,
         private UserPasswordHasherInterface $passwordEncoder,
@@ -79,22 +84,9 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
         private string $ldapUsername,
         private string $ldapPassword,
         private string $ldapBaseDn,
-        /**
-         * Filtre de recherche LDAP pour retrouver le DN d'un utilisateur.
-         * Format sprintf avec %s pour le nom d'utilisateur.
-         * Exemples : '(uid=%s)' pour OpenLDAP, '(sAMAccountName=%s)' pour Active Directory.
-         */
         private string $ldapFilter,
-        /**
-         * Format du compte LDAP pour le bind direct (fallback sans service-account).
-         * Format sprintf avec %s pour le nom d'utilisateur.
-         * Exemples : '%s@domain.tld' (UPN), 'DOMAIN\%s' (pre-Win2000), '' (pas de transformation).
-         */
         private string $ldapAccountForm,
         private bool $enforceSecurity,
-        /**
-         * Instance LDAP partagée (connexion lazy, créée une seule fois par requête).
-         */
         private ?Ldap $ldap = null
     ) {
     }

@@ -188,7 +188,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segPreventionnistes);
-            } catch (OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             try {
