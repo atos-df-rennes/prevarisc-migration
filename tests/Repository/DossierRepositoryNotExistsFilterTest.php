@@ -67,9 +67,8 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
             $this->markTestSkipped('Aucun dossier avec levée de prescription en base.');
         }
 
-        foreach ($result as $row) {
-            self::assertArrayHasKey('id', $row);
-            self::assertNotNull($row['id']);
+        foreach ($result as $dto) {
+            self::assertNotNull($dto->ID_DOSSIER);
         }
     }
 
@@ -84,9 +83,8 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
             $this->markTestSkipped('Aucun dossier avec absence de quorum en base.');
         }
 
-        foreach ($result as $row) {
-            self::assertArrayHasKey('id', $row);
-            self::assertNotNull($row['id']);
+        foreach ($result as $dto) {
+            self::assertNotNull($dto->ID_DOSSIER);
         }
     }
 
@@ -101,9 +99,8 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
             $this->markTestSkipped('Aucun dossier NPSP en base.');
         }
 
-        foreach ($result as $row) {
-            self::assertArrayHasKey('id', $row);
-            self::assertNotNull($row['id']);
+        foreach ($result as $dto) {
+            self::assertNotNull($dto->ID_DOSSIER);
         }
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
+use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,7 +46,7 @@ final class DossierEditNature21Test extends WebTestCase
 
         // Récupérer l'utilisateur root
         $utilisateur = $this->entityManager
-            ->getRepository('App:Utilisateur')
+            ->getRepository(Utilisateur::class)
             ->findOneBy(['username' => 'root']);
 
         if (!$utilisateur) {
@@ -114,7 +115,7 @@ final class DossierEditNature21Test extends WebTestCase
 
         // Récupérer l'utilisateur root
         $utilisateur = $this->entityManager
-            ->getRepository('App:Utilisateur')
+            ->getRepository(Utilisateur::class)
             ->findOneBy(['username' => 'root']);
 
         if (!$utilisateur) {
