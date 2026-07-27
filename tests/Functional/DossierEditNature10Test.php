@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 10 (Suivi organisme formation SSIAP).
+ *
  * @group functional
  */
 class DossierEditNature10Test extends WebTestCase

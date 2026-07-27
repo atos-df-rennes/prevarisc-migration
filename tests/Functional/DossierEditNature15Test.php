@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 15 (Permis de démolir).
+ *
  * @group functional
  */
 class DossierEditNature15Test extends WebTestCase

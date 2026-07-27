@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 39 (Inter. div.).
+ *
  * @group functional
  */
 class DossierEditNature39Test extends WebTestCase

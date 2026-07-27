@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 18 (Utilisation exceptionnelle de locaux).
+ *
  * @group functional
  */
 class DossierEditNature18Test extends WebTestCase

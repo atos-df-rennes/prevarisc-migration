@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 61 (Autorisation d\'une ICPE).
+ *
  * @group functional
  */
 class DossierEditNature61Test extends WebTestCase

@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 14 (Permis d'aménager).
+ *
  * @group functional
  */
 class DossierEditNature14Test extends WebTestCase

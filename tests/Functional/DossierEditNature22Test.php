@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 22 (Chantier).
+ *
  * @group functional
  */
 class DossierEditNature22Test extends WebTestCase
