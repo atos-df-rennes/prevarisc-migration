@@ -25,7 +25,6 @@
         "apereo/phpcas": "^1.6",
         "composer/semver": "^3.4",
         "cybermonde/odtphp": "^2.1",
-        "doctrine/annotations": "^2.0",
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^2.20",
