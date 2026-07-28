@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('generation_doc_com')]
 class CalendrierDesCommissionsGenerationController extends AbstractController
 {
-    public function __construct(private CommissionDocumentGenerationService $generationService)
+    public function __construct(private readonly CommissionDocumentGenerationService $generationService)
     {
     }
 

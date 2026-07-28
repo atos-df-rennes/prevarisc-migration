@@ -4,7 +4,7 @@ namespace App\Service;
 
 final class Authentification
 {
-    public function __construct(private bool $casEnabled, private bool $ntlmEnabled, private bool $ldapEnabled)
+    public function __construct(private readonly bool $casEnabled, private readonly bool $ntlmEnabled, private readonly bool $ldapEnabled)
     {
     }
 

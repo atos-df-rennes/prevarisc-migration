@@ -22,11 +22,11 @@ class PlatauHealthcheckService
 {
     private const HEALTHCHECK_ENDPOINT = 'healthcheck';
 
-    private string $platauConfigFilePath;
+    private readonly string $platauConfigFilePath;
 
-    private string $platauServiceFilePath;
+    private readonly string $platauServiceFilePath;
 
-    private string $varDir;
+    private readonly string $varDir;
 
     /** @var string|null */
     private $pisteClientId;
@@ -37,9 +37,9 @@ class PlatauHealthcheckService
     public function __construct(
         string $platauConfigFile,
         string $projectDir,
-        private string $appEnv,
-        private LoggerInterface $logger,
-        private ProxyConfigurationService $proxyConfiguration
+        private readonly string $appEnv,
+        private readonly LoggerInterface $logger,
+        private readonly ProxyConfigurationService $proxyConfiguration
     ) {
         $platauPath = (string) (getenv('PREVARISC_PLATAU_PATH') ?: dirname($projectDir).DIRECTORY_SEPARATOR.'prevarisc-passerelle-platau');
         $this->platauConfigFilePath = $platauPath.DIRECTORY_SEPARATOR.$platauConfigFile;

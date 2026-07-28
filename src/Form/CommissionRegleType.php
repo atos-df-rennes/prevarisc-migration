@@ -23,7 +23,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommissionRegleType extends AbstractType
 {
-    public function __construct(private int $commissionCommunaleType)
+    public function __construct(private readonly int $commissionCommunaleType)
     {
     }
 
@@ -122,8 +122,8 @@ class CommissionRegleType extends AbstractType
         // Local Sommeil et Étude/Visite : champs non mappés, pré-remplis via PRE_SET_DATA,
         // synchronisés vers la collection de l'entité via POST_SUBMIT.
         $builder
-            ->addEventListener(FormEvents::PRE_SET_DATA, [$this, 'onPreSetData'])
-            ->addEventListener(FormEvents::POST_SUBMIT, [$this, 'onPostSubmit'])
+            ->addEventListener(FormEvents::PRE_SET_DATA, $this->onPreSetData(...))
+            ->addEventListener(FormEvents::POST_SUBMIT, $this->onPostSubmit(...))
         ;
     }
 

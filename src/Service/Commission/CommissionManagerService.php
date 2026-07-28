@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 final class CommissionManagerService
 {
-    public function __construct(private EntityManagerInterface $entityManager, private CommissionFilesystem $commissionFilesystem, private CommissionMembreCourrierService $courrierService, private Contact $contactService)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommissionFilesystem $commissionFilesystem, private readonly CommissionMembreCourrierService $courrierService, private readonly Contact $contactService)
     {
     }
 

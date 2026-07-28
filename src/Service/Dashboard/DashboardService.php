@@ -24,7 +24,7 @@ use App\Service\NotificationService;
  */
 class DashboardService
 {
-    public function __construct(private DashboardBlocConfig $blocConfig, private DateCommissionRepository $dateCommissionRepository, private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private FeedService $feedService, private NotificationService $notificationService)
+    public function __construct(private readonly DashboardBlocConfig $blocConfig, private readonly DateCommissionRepository $dateCommissionRepository, private readonly EtablissementRepository $etablissementRepository, private readonly DossierRepository $dossierRepository, private readonly FeedService $feedService, private readonly NotificationService $notificationService)
     {
     }
 

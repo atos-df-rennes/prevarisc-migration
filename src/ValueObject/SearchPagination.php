@@ -8,12 +8,12 @@ namespace App\ValueObject;
  */
 class SearchPagination
 {
-    private int $currentPage;
+    private readonly int $currentPage;
 
     /**
      * @param array<int|string, mixed> $items
      */
-    public function __construct(private array $items, private int $totalCount, int $currentPage, private int $itemsPerPage)
+    public function __construct(private readonly array $items, private readonly int $totalCount, int $currentPage, private readonly int $itemsPerPage)
     {
         $this->currentPage = max(1, $currentPage);
     }

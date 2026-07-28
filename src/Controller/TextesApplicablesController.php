@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('gestion_textes_applicables')]
 class TextesApplicablesController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private TexteApplicableRepository $texteApplicableRepository, private \App\Service\TexteApplicable $serviceTexteApplicable)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly TexteApplicableRepository $texteApplicableRepository, private readonly \App\Service\TexteApplicable $serviceTexteApplicable)
     {
     }
 

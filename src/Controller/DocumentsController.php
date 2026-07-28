@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('docs')]
 class DocumentsController extends AbstractController
 {
-    public function __construct(private LoggerInterface $logger, private CommissionRepository $commissionRepository, private CommissionDocumentBuilder $commissionDocumentBuilder, private Filesystem $filesystem)
+    public function __construct(private readonly LoggerInterface $logger, private readonly CommissionRepository $commissionRepository, private readonly CommissionDocumentBuilder $commissionDocumentBuilder, private readonly Filesystem $filesystem)
     {
     }
 

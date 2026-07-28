@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DossierAjaxController extends AbstractController
 {
-    public function __construct(private DossierRepository $dossierRepository, private ServiceDossier $dossierService)
+    public function __construct(private readonly DossierRepository $dossierRepository, private readonly ServiceDossier $dossierService)
     {
     }
 

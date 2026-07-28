@@ -21,11 +21,11 @@ final class HealthcheckResult implements \JsonSerializable
      * @param MaintenanceInfo|null $maintenanceInfo Informations de maintenance si disponibles
      */
     private function __construct(
-        private bool $success,
-        private ?int $errorSource,
-        private ?string $message,
-        private ?VersionInfo $versionInfo,
-        private ?MaintenanceInfo $maintenanceInfo
+        private readonly bool $success,
+        private readonly ?int $errorSource,
+        private readonly ?string $message,
+        private readonly ?VersionInfo $versionInfo,
+        private readonly ?MaintenanceInfo $maintenanceInfo
     ) {
     }
 

@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('gestion_prescriptions')]
 class PrescriptionsRappelsController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private Prescriptions $prescriptions)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly Prescriptions $prescriptions)
     {
     }
 

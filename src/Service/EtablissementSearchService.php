@@ -15,7 +15,7 @@ class EtablissementSearchService
 {
     public const MAX_LIMIT_PAGES_ETABLISSEMENTS = 1000;
 
-    public function __construct(private Connection $connection, private SearchQueryHelper $queryHelper, private TagAwareCacheInterface $searchCache)
+    public function __construct(private readonly Connection $connection, private readonly SearchQueryHelper $queryHelper, private readonly TagAwareCacheInterface $searchCache)
     {
     }
 

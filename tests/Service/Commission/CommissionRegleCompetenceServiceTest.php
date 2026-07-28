@@ -357,7 +357,6 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
     {
         $commune = new Commune();
         $prop = new \ReflectionProperty(Commune::class, 'id');
-        $prop->setAccessible(true);
         $prop->setValue($commune, $numInsee);
 
         return $commune;
@@ -367,7 +366,6 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
     {
         $type = new EtablissementType();
         $prop = new \ReflectionProperty(EtablissementType::class, 'id');
-        $prop->setAccessible(true);
         $prop->setValue($type, $id);
 
         return $type;
@@ -377,7 +375,6 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
     {
         $categorie = new EtablissementCategorie();
         $prop = new \ReflectionProperty(EtablissementCategorie::class, 'id');
-        $prop->setAccessible(true);
         $prop->setValue($categorie, $id);
 
         return $categorie;
@@ -387,7 +384,6 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
     {
         $classe = new IghClasse();
         $prop = new \ReflectionProperty(IghClasse::class, 'id');
-        $prop->setAccessible(true);
         $prop->setValue($classe, $id);
 
         return $classe;

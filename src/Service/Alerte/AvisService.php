@@ -19,7 +19,7 @@ class AvisService
     /**
      * @param DossierRepository $dossierRepository Pour vérifier avis différé
      */
-    public function __construct(private DossierRepository $dossierRepository)
+    public function __construct(private readonly DossierRepository $dossierRepository)
     {
     }
 

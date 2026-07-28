@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('groupement_communes')]
 class GroupementController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private CommuneRepository $communeRepository, private GroupementTypeRepository $groupementTypeRepository, private GroupementCommunes $groupementCommunes, private Contact $contactService, private TagAwareAdapterInterface $searchCache)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommuneRepository $communeRepository, private readonly GroupementTypeRepository $groupementTypeRepository, private readonly GroupementCommunes $groupementCommunes, private readonly Contact $contactService, private readonly TagAwareAdapterInterface $searchCache)
     {
     }
 

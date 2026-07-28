@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('gestion_formulaires')]
 class ChampController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private FormFactoryInterface $formFactory, private ChampRepository $champRepository, private ChampValeurListeRepository $champValeurListeRepository, private TypeChampRepository $typeChampRepository)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly FormFactoryInterface $formFactory, private readonly ChampRepository $champRepository, private readonly ChampValeurListeRepository $champValeurListeRepository, private readonly TypeChampRepository $typeChampRepository)
     {
     }
 

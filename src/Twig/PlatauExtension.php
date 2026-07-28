@@ -12,10 +12,10 @@ class PlatauExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('platau_pec_label', [$this, 'getPecLabel']),
-            new TwigFilter('platau_pec_class', [$this, 'getPecClass']),
-            new TwigFilter('platau_avis_label', [$this, 'getAvisLabel']),
-            new TwigFilter('platau_avis_class', [$this, 'getAvisClass']),
+            new TwigFilter('platau_pec_label', $this->getPecLabel(...)),
+            new TwigFilter('platau_pec_class', $this->getPecClass(...)),
+            new TwigFilter('platau_avis_label', $this->getAvisLabel(...)),
+            new TwigFilter('platau_avis_class', $this->getAvisClass(...)),
         ];
     }
 

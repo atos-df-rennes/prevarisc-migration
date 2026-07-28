@@ -6,7 +6,7 @@ class DonneeHistorique
 {
     private ?int $fin = null;
 
-    public function __construct(private ?int $date, private ?string $valeur, private ?Auteur $auteur)
+    public function __construct(private readonly ?int $date, private readonly ?string $valeur, private readonly ?Auteur $auteur)
     {
     }
 

@@ -32,7 +32,7 @@ class AlerteService
         TypeChangement::CLASSEMENT => 'alerte_classement',
     ];
 
-    public function __construct(private UtilisateurRepository $utilisateurRepository, private ObjetService $objetService, private MessageService $messageService)
+    public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly ObjetService $objetService, private readonly MessageService $messageService)
     {
     }
 

@@ -184,8 +184,8 @@ class CommissionMembreType extends AbstractType
         ]);
 
         $builder
-            ->addEventListener(FormEvents::PRE_SET_DATA, [$this, 'onPreSetData'])
-            ->addEventListener(FormEvents::POST_SUBMIT, [$this, 'onPostSubmit']);
+            ->addEventListener(FormEvents::PRE_SET_DATA, $this->onPreSetData(...))
+            ->addEventListener(FormEvents::POST_SUBMIT, $this->onPostSubmit(...));
     }
 
     public function onPreSetData(FormEvent $event): void

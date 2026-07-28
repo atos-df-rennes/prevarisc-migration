@@ -157,7 +157,6 @@ final class PrescriptionsTest extends TestCase
     {
         $reflectionClass = new \ReflectionClass($this->prescriptions);
         $method = $reflectionClass->getMethod('buildAssociationsFromRaw');
-        $method->setAccessible(true);
 
         return $method->invoke($this->prescriptions, $items);
     }

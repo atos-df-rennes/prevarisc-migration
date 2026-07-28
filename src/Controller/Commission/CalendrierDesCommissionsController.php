@@ -36,7 +36,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 // Pièces jointes → CalendrierDesCommissionsPiecesJointesController
 class CalendrierDesCommissionsController extends AbstractController
 {
-    public function __construct(private CalendarService $calendarService, private DateCommissionRepository $dateCommissionRepository, private CommissionDatesTransformer $commissionDatesTransformer, private CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private CommissionRepository $commissionRepository, private EntityManagerInterface $entityManager, private DataStore $dataStore)
+    public function __construct(private readonly CalendarService $calendarService, private readonly DateCommissionRepository $dateCommissionRepository, private readonly CommissionDatesTransformer $commissionDatesTransformer, private readonly CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private readonly CommissionRepository $commissionRepository, private readonly EntityManagerInterface $entityManager, private readonly DataStore $dataStore)
     {
     }
 

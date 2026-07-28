@@ -266,7 +266,6 @@ final class DescriptifTest extends TestCase
 
         // Force l'enfant dans la collection rubrique->champs, comme Doctrine le ferait via la FK
         $champsRef = new \ReflectionProperty(Rubrique::class, 'champs');
-        $champsRef->setAccessible(true);
         $champsRef->getValue($rubrique)->add($enfant);
 
         $dossier = new Dossier();
@@ -428,7 +427,6 @@ final class DescriptifTest extends TestCase
     private function setEntityId(Rubrique|TypeChamp|Champ $entity, int $id): void
     {
         $ref = new \ReflectionProperty($entity::class, 'id');
-        $ref->setAccessible(true);
         $ref->setValue($entity, $id);
     }
 

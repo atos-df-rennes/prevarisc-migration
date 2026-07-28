@@ -7,7 +7,7 @@ use App\Repository\EtablissementInformationsRepository;
 
 final class GroupementCommunes
 {
-    public function __construct(private EtablissementInformationsRepository $etablissementInformationsRepository)
+    public function __construct(private readonly EtablissementInformationsRepository $etablissementInformationsRepository)
     {
     }
 

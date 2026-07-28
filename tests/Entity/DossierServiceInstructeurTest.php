@@ -30,7 +30,6 @@ class DossierServiceInstructeurTest extends TestCase
         // Simuler valeur legacy "0" en base
         $reflection = new \ReflectionClass($this->dossier);
         $property = $reflection->getProperty('serviceInstructeur');
-        $property->setAccessible(true);
         $property->setValue($this->dossier, '0');
 
         // Vérifier normalisation
@@ -48,7 +47,6 @@ class DossierServiceInstructeurTest extends TestCase
         // Simuler valeur legacy "" en base
         $reflection = new \ReflectionClass($this->dossier);
         $property = $reflection->getProperty('serviceInstructeur');
-        $property->setAccessible(true);
         $property->setValue($this->dossier, '');
 
         // Vérifier normalisation

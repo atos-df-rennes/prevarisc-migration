@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
  */
 final class UniqueUtilisateurValidator extends ConstraintValidator
 {
-    public function __construct(private UtilisateurRepository $utilisateurRepository)
+    public function __construct(private readonly UtilisateurRepository $utilisateurRepository)
     {
     }
 

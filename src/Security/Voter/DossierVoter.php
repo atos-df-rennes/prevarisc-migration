@@ -32,7 +32,7 @@ class DossierVoter extends Voter
      */
     private array $resources = [];
 
-    public function __construct(private ResourcesRepository $resourcesRepository, private PrivilegesRepository $privilegesRepository, private EtablissementCollectionAccessChecker $collectionAccessChecker)
+    public function __construct(private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository, private readonly EtablissementCollectionAccessChecker $collectionAccessChecker)
     {
     }
 

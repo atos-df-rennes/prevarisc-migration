@@ -20,7 +20,7 @@ class MailerConfiguration
      * @param string $senderName Nom expéditeur (optionnel)
      * @param bool   $enabled    Mail activé
      */
-    public function __construct(private string $transport, private string $host, private string $port, private string $username, private string $password, private string $sender, private string $senderName, private bool $enabled)
+    public function __construct(private readonly string $transport, private readonly string $host, private readonly string $port, private readonly string $username, private readonly string $password, private readonly string $sender, private readonly string $senderName, private readonly bool $enabled)
     {
     }
 

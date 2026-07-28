@@ -19,7 +19,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[IsGranted('admin')]
 class CouchesCartographiquesController extends AbstractController
 {
-    public function __construct(private CouchesCarto $couchesCarto, private SerializerInterface $serializer, private LoggerInterface $logger, private CoucheCartoRepository $coucheCartoRepository)
+    public function __construct(private readonly CouchesCarto $couchesCarto, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger, private readonly CoucheCartoRepository $coucheCartoRepository)
     {
     }
 

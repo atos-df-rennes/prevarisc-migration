@@ -119,7 +119,7 @@ class DateCommissionRepository extends ServiceEntityRepository
 
         if ([] !== $commissionIds) {
             $select .= ' AND d.COMMISSION_CONCERNE IN (:commissionIds)';
-            $params['commissionIds'] = array_map('intval', $commissionIds);
+            $params['commissionIds'] = array_map(intval(...), $commissionIds);
             $types['commissionIds'] = Connection::PARAM_INT_ARRAY;
         }
 
@@ -128,7 +128,7 @@ class DateCommissionRepository extends ServiceEntityRepository
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($select, $params, $types);
 
-        return array_map(static fn (array $row): NextCommissionDto => NextCommissionDto::fromArray($row), $rows);
+        return array_map(NextCommissionDto::fromArray(...), $rows);
     }
 
     /**
@@ -152,7 +152,7 @@ class DateCommissionRepository extends ServiceEntityRepository
 
         if ([] !== $commissionIds) {
             $sql .= ' AND d.COMMISSION_CONCERNE IN (:commissionIds)';
-            $params['commissionIds'] = array_map('intval', $commissionIds);
+            $params['commissionIds'] = array_map(intval(...), $commissionIds);
             $types['commissionIds'] = Connection::PARAM_INT_ARRAY;
         }
 
@@ -193,7 +193,7 @@ class DateCommissionRepository extends ServiceEntityRepository
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
 
-        return array_map(static fn (array $row): DossierAffectationDto => DossierAffectationDto::fromArray($row), $rows);
+        return array_map(DossierAffectationDto::fromArray(...), $rows);
     }
 
     /**
@@ -229,7 +229,7 @@ class DateCommissionRepository extends ServiceEntityRepository
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
 
-        return array_map(static fn (array $row): DossierAffectationDto => DossierAffectationDto::fromArray($row), $rows);
+        return array_map(DossierAffectationDto::fromArray(...), $rows);
     }
 
     /**

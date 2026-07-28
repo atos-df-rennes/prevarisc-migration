@@ -13,7 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DescriptifOriginalType extends AbstractType
 {
-    public function __construct(private string $risquesNaturelsExemples, private string $risquesTechnologiquesExemples)
+    public function __construct(private readonly string $risquesNaturelsExemples, private readonly string $risquesTechnologiquesExemples)
     {
     }
 

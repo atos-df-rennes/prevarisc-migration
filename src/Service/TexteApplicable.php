@@ -8,7 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TexteApplicable
 {
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
     }
 

@@ -31,7 +31,7 @@ class PrivilegeVoter implements VoterInterface
         EtablissementVoter::MODIFICATION,
     ];
 
-    public function __construct(private PrivilegesRepository $privilegesRepository)
+    public function __construct(private readonly PrivilegesRepository $privilegesRepository)
     {
     }
 

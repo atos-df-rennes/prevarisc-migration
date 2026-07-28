@@ -12,7 +12,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AddExistingContactsType extends AbstractType
 {
-    public function __construct(private UtilisateurInformationsRepository $utilisateurInformationsRepository)
+    public function __construct(private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository)
     {
     }
 

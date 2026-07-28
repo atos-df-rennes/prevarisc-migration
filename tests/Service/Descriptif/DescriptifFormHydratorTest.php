@@ -276,7 +276,6 @@ class DescriptifFormHydratorTest extends TestCase
         // Pas de setter pour l'ID en général dans Doctrine (clé auto), on utilise la réflexion
         $ref = new \ReflectionClass($valeur);
         $prop = $ref->getProperty('id');
-        $prop->setAccessible(true);
         $prop->setValue($valeur, $id);
 
         return $valeur;

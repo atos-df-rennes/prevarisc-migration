@@ -20,7 +20,7 @@ class Md5SaltedEncoder implements LegacyPasswordHasherInterface
     /**
      * @param string $globalSalt La valeur de PREVARISC_SECURITY_SALT
      */
-    public function __construct(private string $globalSalt)
+    public function __construct(private readonly string $globalSalt)
     {
     }
 

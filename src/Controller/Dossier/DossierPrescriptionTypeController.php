@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierPrescriptionTypeController extends AbstractController
 {
-    public function __construct(private DossierPrescriptionService $service, private PrescriptionCategorieRepository $categorieRepo, private PrescriptionTypeRepository $prescriptionTypeRepo, private PrescriptionTexteRepository $texteRepo, private PrescriptionArticleRepository $articleRepo, private LoggerInterface $logger)
+    public function __construct(private readonly DossierPrescriptionService $service, private readonly PrescriptionCategorieRepository $categorieRepo, private readonly PrescriptionTypeRepository $prescriptionTypeRepo, private readonly PrescriptionTexteRepository $texteRepo, private readonly PrescriptionArticleRepository $articleRepo, private readonly LoggerInterface $logger)
     {
     }
 

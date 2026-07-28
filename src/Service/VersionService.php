@@ -4,7 +4,7 @@ namespace App\Service;
 
 final class VersionService
 {
-    public function __construct(private string $srcDir)
+    public function __construct(private readonly string $srcDir)
     {
     }
 

@@ -198,7 +198,6 @@ final class CommissionDatesTransformerTest extends TestCase
                     // On utilise Reflection pour forcer la valeur à null sans passer par le setter
                     $reflection = new \ReflectionClass($dateItem);
                     $property = $reflection->getProperty('date');
-                    $property->setAccessible(true);
                     $property->setValue($dateItem, null);
                 },
                 'date',
@@ -207,7 +206,6 @@ final class CommissionDatesTransformerTest extends TestCase
                 function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
                     $reflection = new \ReflectionClass($dateItem);
                     $property = $reflection->getProperty('heureDebut');
-                    $property->setAccessible(true);
                     $property->setValue($dateItem, null);
                 },
                 'heure_debut',
@@ -216,7 +214,6 @@ final class CommissionDatesTransformerTest extends TestCase
                 function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
                     $reflection = new \ReflectionClass($dateItem);
                     $property = $reflection->getProperty('heureFin');
-                    $property->setAccessible(true);
                     $property->setValue($dateItem, null);
                 },
                 'heure_fin',
@@ -225,7 +222,6 @@ final class CommissionDatesTransformerTest extends TestCase
                 function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
                     $reflection = new \ReflectionClass($dto);
                     $property = $reflection->getProperty('typeEvenement');
-                    $property->setAccessible(true);
                     $property->setValue($dto, null);
                 },
                 'type_evenement',

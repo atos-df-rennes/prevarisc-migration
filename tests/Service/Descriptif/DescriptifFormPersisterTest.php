@@ -463,7 +463,6 @@ class DescriptifFormPersisterTest extends TestCase
     {
         $ref = new \ReflectionClass($valeur);
         $prop = $ref->getProperty('id');
-        $prop->setAccessible(true);
         $prop->setValue($valeur, $id);
     }
 }

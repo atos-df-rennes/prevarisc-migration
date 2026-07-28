@@ -18,7 +18,7 @@ use App\Repository\ValeurRepository;
 
 class Descriptif
 {
-    public function __construct(private CapsuleRubriqueRepository $capsuleRubriqueRepository, private ValeurRepository $valeurRepository, private DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository)
+    public function __construct(private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly ValeurRepository $valeurRepository, private readonly DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private readonly EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository)
     {
     }
 

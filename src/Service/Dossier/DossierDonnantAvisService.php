@@ -16,7 +16,7 @@ use Psr\Log\LoggerInterface;
  */
 class DossierDonnantAvisService
 {
-    public function __construct(private EntityManagerInterface $entityManager, private LoggerInterface $logger, private DossierRepository $dossierRepository)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly LoggerInterface $logger, private readonly DossierRepository $dossierRepository)
     {
     }
 

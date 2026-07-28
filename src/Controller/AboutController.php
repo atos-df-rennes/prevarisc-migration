@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AboutController extends AbstractController
 {
-    public function __construct(private Doc $docService)
+    public function __construct(private readonly Doc $docService)
     {
     }
 

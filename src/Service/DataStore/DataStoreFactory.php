@@ -8,7 +8,7 @@ use App\Repository\EtablissementRepository;
 
 class DataStoreFactory
 {
-    public function __construct(private EtablissementRepository $etablissementRepository, private string $adapter, protected string $dataPath, protected string $realDataPath)
+    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly string $adapter, protected string $dataPath, protected string $realDataPath)
     {
     }
 

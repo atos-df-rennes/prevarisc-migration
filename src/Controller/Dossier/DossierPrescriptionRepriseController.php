@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierPrescriptionRepriseController extends AbstractController
 {
-    public function __construct(private DossierPrescriptionService $service, private DossierRepository $dossierRepo, private LoggerInterface $logger)
+    public function __construct(private readonly DossierPrescriptionService $service, private readonly DossierRepository $dossierRepo, private readonly LoggerInterface $logger)
     {
     }
 

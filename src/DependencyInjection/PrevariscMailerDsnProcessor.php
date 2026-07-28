@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\EnvVarProcessorInterface;
  */
 class PrevariscMailerDsnProcessor implements EnvVarProcessorInterface
 {
-    public function __construct(private MailerConfiguration $mailerConfiguration)
+    public function __construct(private readonly MailerConfiguration $mailerConfiguration)
     {
     }
 

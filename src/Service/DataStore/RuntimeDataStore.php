@@ -20,7 +20,7 @@ class RuntimeDataStore implements DataStore
 {
     private ?DataStore $dataStore = null;
 
-    public function __construct(private DataStoreFactory $factory)
+    public function __construct(private readonly DataStoreFactory $factory)
     {
     }
 

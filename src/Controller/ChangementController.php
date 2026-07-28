@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Security("is_granted('alerte_statut') or is_granted('alerte_avis') or is_granted('alerte_classement')")]
 class ChangementController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private ChangementRepository $changementRepository, private Changement $changement)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly ChangementRepository $changementRepository, private readonly Changement $changement)
     {
     }
 

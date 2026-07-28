@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PieceJointeController extends AbstractController
 {
-    public function __construct(private DataStore $dataStore, private EtablissementPieceJointeRepository $etablissementPieceJointeRepository, private PieceJointeRepository $pieceJointeRepository, private DateCommissionRepository $dateCommissionRepository)
+    public function __construct(private readonly DataStore $dataStore, private readonly EtablissementPieceJointeRepository $etablissementPieceJointeRepository, private readonly PieceJointeRepository $pieceJointeRepository, private readonly DateCommissionRepository $dateCommissionRepository)
     {
     }
 

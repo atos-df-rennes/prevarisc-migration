@@ -9,7 +9,7 @@ final class CommissionDocument
     /**
      * @param Document[]|null $documents
      */
-    public function __construct(private int $id, private string $nom, private string $type, private ?array $documents)
+    public function __construct(private readonly int $id, private readonly string $nom, private readonly string $type, private readonly ?array $documents)
     {
     }
 

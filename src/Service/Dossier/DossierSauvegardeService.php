@@ -20,7 +20,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierSauvegardeService
 {
-    public function __construct(private DossierDonnantAvisService $dossierDonnantAvisService, private AlerteService $alerteService, private AuthorizationCheckerInterface $authorizationChecker, private FlashBagInterface $flashBag, private UrlGeneratorInterface $urlGenerator, private DossierFields $dossierFields, private TagAwareCacheInterface $searchCache)
+    public function __construct(private readonly DossierDonnantAvisService $dossierDonnantAvisService, private readonly AlerteService $alerteService, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly FlashBagInterface $flashBag, private readonly UrlGeneratorInterface $urlGenerator, private readonly DossierFields $dossierFields, private readonly TagAwareCacheInterface $searchCache)
     {
     }
 

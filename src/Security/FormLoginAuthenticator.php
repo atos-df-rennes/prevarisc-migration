@@ -137,7 +137,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
                 $credentials['username'],
                 fn (string $identifier): UserInterface => $this->loadUserByIdentifier($identifier)
             ),
-            new CustomCredentials([$this, 'checkCredentials'], $credentials)
+            new CustomCredentials($this->checkCredentials(...), $credentials)
         );
     }
 

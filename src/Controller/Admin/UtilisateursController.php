@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('admin')]
 class UtilisateursController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private UtilisateurRepository $utilisateurRepository, private GroupeRepository $groupeRepository, private Avatar $avatar, private Image $image, private UtilisateurManager $utilisateurManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly UtilisateurRepository $utilisateurRepository, private readonly GroupeRepository $groupeRepository, private readonly Avatar $avatar, private readonly Image $image, private readonly UtilisateurManager $utilisateurManager)
     {
     }
 

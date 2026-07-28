@@ -51,7 +51,6 @@ class EtablissementSaveTest extends TestCase
             if ($entity instanceof Etablissement) {
                 $r = new \ReflectionClass($entity);
                 $p = $r->getProperty('id');
-                $p->setAccessible(true);
                 $p->setValue($entity, 1);
             }
         });

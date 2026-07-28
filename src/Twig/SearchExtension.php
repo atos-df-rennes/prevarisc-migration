@@ -10,7 +10,7 @@ use Twig\TwigFunction;
 
 class SearchExtension extends AbstractExtension
 {
-    public function __construct(private PlatauTempsRestant $platauTempsRestant, private DateDiffFormatterService $dateDiffFormatter)
+    public function __construct(private readonly PlatauTempsRestant $platauTempsRestant, private readonly DateDiffFormatterService $dateDiffFormatter)
     {
     }
 
@@ -20,7 +20,7 @@ class SearchExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('replace_ci', [$this, 'replaceCaseInsensitive']),
+            new TwigFilter('replace_ci', $this->replaceCaseInsensitive(...)),
         ];
     }
 
@@ -30,9 +30,9 @@ class SearchExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('format_date_diff', [$this, 'formatDateDiff']),
-            new TwigFunction('platau_temps_restant', [$this, 'platauTempsRestant']),
-            new TwigFunction('platau_couleur_temps_restant', [$this, 'platauCouleurTempsRestant']),
+            new TwigFunction('format_date_diff', $this->formatDateDiff(...)),
+            new TwigFunction('platau_temps_restant', $this->platauTempsRestant(...)),
+            new TwigFunction('platau_couleur_temps_restant', $this->platauCouleurTempsRestant(...)),
         ];
     }
 

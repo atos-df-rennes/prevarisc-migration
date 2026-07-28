@@ -76,10 +76,7 @@ class RubriqueFormData implements \ArrayAccess
         return null !== $this->getChamp($this->parseChampId($offset));
     }
 
-    /**
-     * @return ChampValueData|null
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?ChampValueData
     {
         if (!is_string($offset)) {
             return null;

@@ -22,7 +22,7 @@ final class GithubType implements VersionType
     /** @var string */
     private $revision;
 
-    public function __construct(string $srcDir, private HttpClientInterface $client, private SerializerInterface $serializer, private LoggerInterface $logger)
+    public function __construct(string $srcDir, private readonly HttpClientInterface $client, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger)
     {
         $git = new Git(dirname($srcDir).'/prevarisc');
 

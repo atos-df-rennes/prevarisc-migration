@@ -21,7 +21,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UtilisateurType extends AbstractType
 {
-    public function __construct(private bool $enforceSecurity, private Authentification $authentification)
+    public function __construct(private readonly bool $enforceSecurity, private readonly Authentification $authentification)
     {
     }
 

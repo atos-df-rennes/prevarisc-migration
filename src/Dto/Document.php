@@ -4,7 +4,7 @@ namespace App\Dto;
 
 final class Document
 {
-    public function __construct(private string $filename, private string $filepath)
+    public function __construct(private readonly string $filename, private readonly string $filepath)
     {
     }
 

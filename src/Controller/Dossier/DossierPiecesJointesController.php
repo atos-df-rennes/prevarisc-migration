@@ -34,7 +34,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 {
     private const FORBIDDEN_EXTENSIONS = ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'];
 
-    public function __construct(private DataStore $dataStore, private DossierPieceJointeRepository $dossierPieceJointeRepository, private PieceJointeStatutRepository $pieceJointeStatutRepository, private EntityManagerInterface $entityManager, private NotificationService $notificationService, private ValidatorInterface $validator, private Filesystem $filesystem, private string $realDataPath)
+    public function __construct(private readonly DataStore $dataStore, private readonly DossierPieceJointeRepository $dossierPieceJointeRepository, private readonly PieceJointeStatutRepository $pieceJointeStatutRepository, private readonly EntityManagerInterface $entityManager, private readonly NotificationService $notificationService, private readonly ValidatorInterface $validator, private readonly Filesystem $filesystem, private readonly string $realDataPath)
     {
     }
 
