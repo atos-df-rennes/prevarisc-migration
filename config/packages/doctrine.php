@@ -23,6 +23,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                     'alias' => 'App',
                 ],
             ],
+            'enable_lazy_ghost_objects' => true,
             'filters' => [
                 'dossier_non_supprime' => [
                     'class' => \App\Doctrine\DossierSupprimeFilter::class,
