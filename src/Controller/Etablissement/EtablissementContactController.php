@@ -2,6 +2,8 @@
 
 namespace App\Controller\Etablissement;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
@@ -10,13 +12,11 @@ use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Gère les contacts d'un établissement.
@@ -63,7 +63,7 @@ class EtablissementContactController extends AbstractController implements Etabl
         }
 
         return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -148,7 +148,7 @@ class EtablissementContactController extends AbstractController implements Etabl
         }
 
         return $this->render('etablissement/_form_delete_contact.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'etablissement' => $etablissement,
             'contact' => $contact,
         ]);

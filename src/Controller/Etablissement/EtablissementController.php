@@ -2,6 +2,8 @@
 
 namespace App\Controller\Etablissement;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Constant\DossierType;
 use App\Constant\GenreEtablissement;
 use App\Constant\NomInterneCapsule;
@@ -35,14 +37,12 @@ use App\Service\EtablissementPieceJointeService;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -304,7 +304,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         }
 
         return $this->render('etablissement/edit_textes_applicables.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'etablissement' => $etablissement,
         ]);
     }
@@ -591,7 +591,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         return $this->render('etablissement/edit_descriptif_original.html.twig', [
             'etablissement' => $etablissement,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -628,7 +628,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             'etablissement' => $etablissement,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -666,7 +666,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             'etablissement' => $etablissement,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\EventSubscriber;
 
+use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\Utilisateur;
 use App\EventSubscriber\LastActionSubscriber;
 use App\Service\LastActionUpdater;
@@ -13,7 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 final class LastActionSubscriberTest extends TestCase

@@ -2,6 +2,7 @@
 
 namespace App\Form\Dossier;
 
+use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\Avis;
 use App\Entity\Commission;
 use App\Entity\CommissionType;
@@ -31,7 +32,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class DossierType extends AbstractType

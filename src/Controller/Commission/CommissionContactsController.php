@@ -2,18 +2,18 @@
 
 namespace App\Controller\Commission;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Commission;
 use App\Entity\UtilisateurInformations;
 use App\Form\AddExistingContactsType;
 use App\Form\ContactType;
 use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Gère l'onglet "Contacts" d'une commission.
@@ -59,7 +59,7 @@ class CommissionContactsController extends AbstractController
         }
 
         return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -88,7 +88,7 @@ class CommissionContactsController extends AbstractController
         }
 
         return $this->render('components/_form_contact_existant.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -133,7 +133,7 @@ class CommissionContactsController extends AbstractController
         }
 
         return $this->render('components/_form_delete_contact.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'contact' => $contact,
             'entity_article' => 'de la commission',
             'entity_libelle' => $commission->getLibelle(),

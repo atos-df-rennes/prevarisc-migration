@@ -10,8 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  */
 class PrescriptionTypeRepositoryTest extends KernelTestCase
 {
-    /** @var PrescriptionTypeRepository */
-    private $repository;
+    private ?object $repository;
 
     protected function setUp(): void
     {

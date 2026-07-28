@@ -2,12 +2,12 @@
 
 namespace App\Service;
 
+use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\Dossier as DossierEntity;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\Utilisateur;
 use App\Repository\DossierRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
 
 final class Dossier
 {

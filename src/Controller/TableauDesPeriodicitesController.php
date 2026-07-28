@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Periodicite;
 use App\Repository\EtablissementCategorieRepository;
 use App\Repository\EtablissementTypeRepository;
@@ -9,11 +11,9 @@ use App\Repository\IghClasseRepository;
 use App\Repository\PeriodiciteRepository;
 use App\ValueObject\ClesTableauDesPeriodicites;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[IsGranted('periodicites')]

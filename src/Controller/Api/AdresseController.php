@@ -2,11 +2,11 @@
 
 namespace App\Controller\Api;
 
+use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * API d'autocomplétion des adresses.

@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Groupement;
 use App\Entity\UtilisateurInformations;
 use App\Form\AddExistingContactsType;
@@ -12,7 +14,6 @@ use App\Repository\GroupementTypeRepository;
 use App\Service\Contact;
 use App\Service\GroupementCommunes;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -20,7 +21,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(requirements: ['id' => '\d+'])]
 #[IsGranted('groupement_communes')]
@@ -71,7 +71,7 @@ class GroupementController extends AbstractController
         }
 
         return $this->render('groupement/_form_ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -147,7 +147,7 @@ class GroupementController extends AbstractController
         }
 
         return $this->render('groupement/_form_delete.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'groupement' => $groupement,
         ]);
     }
@@ -195,7 +195,7 @@ class GroupementController extends AbstractController
         }
 
         return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -226,7 +226,7 @@ class GroupementController extends AbstractController
         }
 
         return $this->render('components/_form_contact_existant.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -271,7 +271,7 @@ class GroupementController extends AbstractController
         }
 
         return $this->render('components/_form_delete_contact.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'contact' => $contact,
             'entity_article' => 'du groupement',
             'entity_libelle' => $groupement->getLibelle(),

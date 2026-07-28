@@ -2,18 +2,18 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\Dossier as DossierService;
 use App\Service\Etablissement as EtablissementService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[Security("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))")]

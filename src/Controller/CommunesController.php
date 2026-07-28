@@ -2,17 +2,17 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Constant\Fonction;
 use App\Entity\Commune;
 use App\Form\CommuneType;
 use App\Repository\CommuneRepository;
 use App\Repository\FonctionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(requirements: ['id' => '\d+'])]
 #[IsGranted('communes')]
@@ -59,7 +59,7 @@ class CommunesController extends AbstractController
         }
 
         return $this->render('communes/_informations.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'commune' => $commune,
         ]);
     }

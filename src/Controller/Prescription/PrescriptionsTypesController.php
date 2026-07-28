@@ -2,6 +2,8 @@
 
 namespace App\Controller\Prescription;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionCategorie;
 use App\Entity\PrescriptionTexte;
@@ -17,13 +19,11 @@ use App\Repository\PrescriptionTypeRepository;
 use App\Service\Prescriptions;
 use App\Utils\FormHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('gestion_prescriptions')]
 class PrescriptionsTypesController extends AbstractController
@@ -96,7 +96,7 @@ class PrescriptionsTypesController extends AbstractController
         }
 
         return $this->render('prescriptions_types/ajout_categorie.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -151,7 +151,7 @@ class PrescriptionsTypesController extends AbstractController
         return $this->render('prescriptions_types/form_texte.html.twig', [
             'categorie' => $categorie,
             'texte' => $texte,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -208,7 +208,7 @@ class PrescriptionsTypesController extends AbstractController
         return $this->render('prescriptions_types/form_article.html.twig', [
             'texte' => $texte,
             'article' => $article,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -293,7 +293,7 @@ class PrescriptionsTypesController extends AbstractController
             'texte' => $texte,
             'article' => $article,
             'prescription' => $prescription,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -324,7 +324,7 @@ class PrescriptionsTypesController extends AbstractController
         }
 
         return $this->render('prescriptions_types/remove_prescription.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 

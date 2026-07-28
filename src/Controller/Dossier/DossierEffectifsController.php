@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\Routing\Attribute\Route;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Dto\Descriptif\DescriptifFormData;
@@ -20,7 +21,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Gère les actions liées aux effectifs et dégagements d'un dossier.
@@ -269,7 +269,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
             'dossier' => $dossier,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 }

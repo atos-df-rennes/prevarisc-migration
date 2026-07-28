@@ -2,17 +2,17 @@
 
 namespace App\Controller\Prescription;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\PrescriptionTexteListe;
 use App\Form\PrescriptionTexteListeType;
 use App\Form\ReplacePrescriptionTexteListeType;
 use App\Repository\PrescriptionTexteListeRepository;
 use App\Service\Prescriptions;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('gestion_prescriptions')]
 class PrescriptionsTextesController extends AbstractController
@@ -56,7 +56,7 @@ class PrescriptionsTextesController extends AbstractController
         }
 
         return $this->render('prescriptions_textes/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -86,7 +86,7 @@ class PrescriptionsTextesController extends AbstractController
         }
 
         return $this->render('prescriptions_textes/replacement_form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 }

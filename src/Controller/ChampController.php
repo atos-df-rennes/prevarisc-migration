@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Form\FormInterface;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
@@ -11,14 +14,12 @@ use App\Repository\ChampValeurListeRepository;
 use App\Repository\TypeChampRepository;
 use App\Service\Formulaires\Fusion\ChampCreator;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('gestion_formulaires')]
 class ChampController extends AbstractController
@@ -92,10 +93,10 @@ class ChampController extends AbstractController
             'formulaire' => $formulaire,
             'rubrique' => $rubrique,
             'champ' => $champ,
-            'form_champ' => $formChamp->createView(),
+            'form_champ' => $formChamp,
             'valeur_champ_fusion' => ChampCreator::make($formulaire, $rubrique, $champ),
             'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
-            'form_champ_enfant' => $formChampEnfant ? $formChampEnfant->createView() : null
+            'form_champ_enfant' => $formChampEnfant instanceof FormInterface ? $formChampEnfant->createView() : null
         ]);
     }
 

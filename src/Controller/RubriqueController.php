@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
@@ -10,13 +12,11 @@ use App\Form\RubriqueType;
 use App\Repository\ChampValeurListeRepository;
 use App\Repository\RubriqueRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('gestion_formulaires')]
 class RubriqueController extends AbstractController
@@ -68,8 +68,8 @@ class RubriqueController extends AbstractController
         return $this->render('formulaires/rubrique/modification.html.twig', [
             'formulaire' => $formulaire,
             'rubrique' => $rubrique,
-            'form_rubrique' => $formRubrique->createView(),
-            'form_champ' => $formChamp->createView(),
+            'form_rubrique' => $formRubrique,
+            'form_champ' => $formChamp,
             'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
         ]);
     }

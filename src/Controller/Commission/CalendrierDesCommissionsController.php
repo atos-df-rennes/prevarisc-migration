@@ -2,6 +2,8 @@
 
 namespace App\Controller\Commission;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Dto\Commission\CalendarEventDto;
 use App\Dto\Commission\CommissionDatesDto;
 use App\Dto\Commission\DateCommissionItemDto;
@@ -18,14 +20,12 @@ use App\Service\DataStore\DataStore;
 use App\Utils\Date;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 // Routes du calendrier des commissions migrées vers Symfony.
@@ -401,7 +401,7 @@ class CalendrierDesCommissionsController extends AbstractController
             ]);
 
             return $this->render('calendrier_des_commissions/form_date.html.twig', [
-                'form' => $form->createView(),
+                'form' => $form,
                 'show_footer' => false,
             ]);
         }
@@ -710,7 +710,7 @@ class CalendrierDesCommissionsController extends AbstractController
         }
 
         return $this->render('calendrier_des_commissions/form_date.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             // Par défaut : pas de footer si requête AJAX (calendrier principal gère ses propres boutons via jQuery UI dialog).
             // Le contexte dossier passe show_footer=1 pour afficher les boutons dans la modale Bootstrap.
             'show_footer' => (bool) $request->query->get('show_footer', !$request->isXmlHttpRequest()),

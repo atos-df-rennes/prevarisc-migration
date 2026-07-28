@@ -2,6 +2,8 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
 use App\Constant\NomInterneCapsule;
@@ -45,13 +47,11 @@ use App\Service\PlatauConsultation;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierController extends AbstractController implements DossierLateralNavigationInterface
@@ -215,7 +215,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/new.html.twig', [
             'dossier' => $dossier,
-            'form' => $form->createView(),
+            'form' => $form,
             'dossierTypes' => $dossierTypes,
             'avis' => $avis,
             'commissionsParType' => $commissionsParType,
@@ -430,7 +430,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/edit.html.twig', [
             'dossier' => $dossier,
-            'form' => $form->createView(),
+            'form' => $form,
             'dossierTypes' => $dossierTypes,
             'avis' => $avis,
             'commissionsParType' => $commissionsParType,
@@ -521,7 +521,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/descriptif/edit_descriptif.html.twig', [
             'dossier' => $dossier,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -566,7 +566,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/textes_applicables/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -620,7 +620,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             'dossier' => $dossier,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 

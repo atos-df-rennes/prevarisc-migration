@@ -2,18 +2,18 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Dto\Commission\CommissionOdtDto;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Repository\CommissionRepository;
 use App\Service\DossierRapportOdtService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Onglet Rapport du dossier : affichage du formulaire de génération et génération ODT.

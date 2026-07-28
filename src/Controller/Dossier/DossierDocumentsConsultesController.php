@@ -2,6 +2,8 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierDocumentConsulte;
@@ -11,12 +13,10 @@ use App\Form\Dossier\DossierDocumentConsulteType;
 use App\Form\Dossier\ListeDocumentAjouteType;
 use App\Service\Dossier\DossierDocumentsConsultesService;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 class DossierDocumentsConsultesController extends AbstractController implements DossierLateralNavigationInterface
 {
@@ -88,7 +88,7 @@ class DossierDocumentsConsultesController extends AbstractController implements 
             'dossier' => $dossier,
             'documentConsulte' => $documentConsulte,
             'libelle' => $documentConsultable->getLibelle(),
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -142,7 +142,7 @@ class DossierDocumentsConsultesController extends AbstractController implements 
             'dossier' => $dossier,
             'documentConsulte' => $documentConsulte,
             'libelle' => $libelle,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -201,7 +201,7 @@ class DossierDocumentsConsultesController extends AbstractController implements 
         return $this->render('dossier/documents_consultes/edit_documents_ajoutes.html.twig', [
             'dossier' => $dossier,
             'documentAjoute' => $documentAjoute,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 }

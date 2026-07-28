@@ -2,6 +2,7 @@
 
 namespace App\Controller\Commission;
 
+use Symfony\Component\Routing\Attribute\Route;
 use App\Dto\Repository\DossierAffectationDto;
 use App\Repository\CommissionRepository;
 use App\Repository\DateCommissionRepository;
@@ -9,7 +10,6 @@ use Sabre\VObject\Component\VCalendar;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Export ICS (Outlook) des dates de commission.

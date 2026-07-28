@@ -2,6 +2,8 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Constant\TypePrescription;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionType;
@@ -11,12 +13,10 @@ use App\Repository\PrescriptionTexteRepository;
 use App\Repository\PrescriptionTypeRepository;
 use App\Service\DossierPrescriptionService;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 class DossierPrescriptionTypeController extends AbstractController
 {

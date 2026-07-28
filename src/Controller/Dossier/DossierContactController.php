@@ -2,6 +2,8 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\UtilisateurInformations;
@@ -12,13 +14,11 @@ use App\Security\Voter\DossierVoter;
 use App\Service\Contact;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Gère les contacts d'un dossier.
@@ -69,7 +69,7 @@ class DossierContactController extends AbstractController implements DossierLate
         }
 
         return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -152,7 +152,7 @@ class DossierContactController extends AbstractController implements DossierLate
         }
 
         return $this->render('dossier/contacts/_form_delete_contact.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'dossier' => $dossier,
             'contact' => $contact,
         ]);

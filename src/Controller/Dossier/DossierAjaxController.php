@@ -2,12 +2,12 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\DossierRepository;
 use App\Service\Dossier as ServiceDossier;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Pourrait aussi être rapatrié dans DossierController avec _dossier_lateral_nav: false.

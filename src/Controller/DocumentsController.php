@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Dto\FormDocument;
 use App\Form\DocumentType;
 use App\Repository\CommissionRepository;
@@ -9,7 +11,6 @@ use App\Service\Commission\CommissionDocumentBuilder;
 use App\Service\Documents;
 use App\Utils\File;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -17,7 +18,6 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('docs')]
 class DocumentsController extends AbstractController
@@ -103,7 +103,7 @@ class DocumentsController extends AbstractController
         }
 
         return $this->render('documents/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 

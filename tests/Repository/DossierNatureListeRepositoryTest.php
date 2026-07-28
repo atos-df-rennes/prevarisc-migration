@@ -9,11 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class DossierNatureListeRepositoryTest extends KernelTestCase
 {
-    /** @var DossierNatureListeRepository */
-    private $repository;
+    private ?object $repository;
 
-    /** @var DossierTypeRepository */
-    private $dossierTypeRepository;
+    private ?object $dossierTypeRepository;
 
     protected function setUp(): void
     {

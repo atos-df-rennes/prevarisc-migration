@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\ChangementRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\Alerte\AlerteService;
@@ -13,7 +14,6 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Controller pour la gestion des alertes email.

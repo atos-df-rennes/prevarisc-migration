@@ -2,6 +2,8 @@
 
 namespace App\Controller\Admin;
 
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Groupe;
 use App\Entity\Privileges;
 use App\Entity\Resources;
@@ -19,12 +21,10 @@ use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierTextGenerato
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementNameGenerator;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(requirements: ['id' => '\d+'])]
 #[IsGranted('admin')]
@@ -65,7 +65,7 @@ class GroupeController extends AbstractController
         }
 
         return $this->render('groupe/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
         ]);
     }
@@ -85,7 +85,7 @@ class GroupeController extends AbstractController
         }
 
         return $this->render('groupe/modification.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
             'groupe_id' => $groupe->getId(),
         ]);
@@ -135,7 +135,7 @@ class GroupeController extends AbstractController
         }
 
         return $this->render('groupe/matrice_droits.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -152,8 +152,8 @@ class GroupeController extends AbstractController
         return $this->render('groupe/ressources_specialisees/index.html.twig', [
             'ressources_dossier' => $this->resourcesRepository->findRessourcesSpecialiseesDossier(),
             'ressources_etablissement' => $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(),
-            'form_dossier' => $ressourceDossierForm->createView(),
-            'form_etablissement' => $ressourceEtablissementForm->createView(),
+            'form_dossier' => $ressourceDossierForm,
+            'form_etablissement' => $ressourceEtablissementForm,
         ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Tests\Service;
 
+use Symfony\Bundle\SecurityBundle\Security;
 use App\Constant\TypePrescription;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionDossier;
@@ -13,7 +14,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\Security;
 
 final class DossierPrescriptionServiceTest extends TestCase
 {
@@ -49,6 +49,7 @@ final class DossierPrescriptionServiceTest extends TestCase
                     $this->assertSame($dossier, $d);
                     $this->assertSame($idsAutres, $ids);
                 }
+
                 return null;
             });
 

@@ -7,8 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AlerteServiceTest extends KernelTestCase
 {
-    /** @var AlerteService */
-    private $alerteService;
+    private ?object $alerteService;
 
     protected function setUp(): void
     {
