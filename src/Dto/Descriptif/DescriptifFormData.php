@@ -63,10 +63,7 @@ class DescriptifFormData implements \ArrayAccess
         return null !== $this->getRubrique($this->parseRubriqueId($offset));
     }
 
-    /**
-     * @return RubriqueFormData|null
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?RubriqueFormData
     {
         if (!is_string($offset)) {
             return null;
