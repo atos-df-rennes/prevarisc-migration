@@ -11,9 +11,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class GithubType implements VersionType
 {
-    private string $branch;
+    private readonly string $branch;
 
-    private string $revision;
+    private readonly string $revision;
 
     public function __construct(string $srcDir, private readonly HttpClientInterface $client, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger)
     {
