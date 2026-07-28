@@ -19,7 +19,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 #[Security("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))")]
 class ElementsSupprimesController extends AbstractController
 {
-    public function __construct(private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private EtablissementService $etablissementService, private DossierService $dossierService, private TagAwareCacheInterface $searchCache)
+    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly DossierRepository $dossierRepository, private readonly EtablissementService $etablissementService, private readonly DossierService $dossierService, private readonly TagAwareCacheInterface $searchCache)
     {
     }
 

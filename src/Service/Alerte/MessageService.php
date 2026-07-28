@@ -18,7 +18,7 @@ class MessageService
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis
      */
-    public function __construct(private AvisService $avisService)
+    public function __construct(private readonly AvisService $avisService)
     {
     }
 

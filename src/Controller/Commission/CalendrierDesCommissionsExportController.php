@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CalendrierDesCommissionsExportController extends AbstractController
 {
-    public function __construct(private DateCommissionRepository $dateCommissionRepository, private CommissionRepository $commissionRepository)
+    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly CommissionRepository $commissionRepository)
     {
     }
 

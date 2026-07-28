@@ -11,7 +11,7 @@ use Twig\TwigFunction;
  */
 class ParameterExtension extends AbstractExtension
 {
-    public function __construct(private ParameterBagInterface $parameterBag)
+    public function __construct(private readonly ParameterBagInterface $parameterBag)
     {
     }
 
@@ -21,7 +21,7 @@ class ParameterExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('parameter', [$this, 'parameter']),
+            new TwigFunction('parameter', $this->parameter(...)),
         ];
     }
 

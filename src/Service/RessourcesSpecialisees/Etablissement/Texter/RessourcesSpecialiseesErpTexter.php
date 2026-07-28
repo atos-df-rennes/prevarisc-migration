@@ -11,7 +11,7 @@ use App\ValueObject\EtablissementTexter;
  */
 class RessourcesSpecialiseesErpTexter implements RessourcesSpecialiseesEtablissementTexter
 {
-    public function __construct(private EtablissementTexter $etablissementTexter)
+    public function __construct(private readonly EtablissementTexter $etablissementTexter)
     {
     }
 

@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class DossierType extends AbstractType
 {
-    public function __construct(private Security $security, private EntityManagerInterface $entityManager)
+    public function __construct(private readonly Security $security, private readonly EntityManagerInterface $entityManager)
     {
     }
 

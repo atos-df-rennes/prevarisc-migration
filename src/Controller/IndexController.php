@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class IndexController extends AbstractController
 {
-    public function __construct(private VersionBuilder $versionBuilder, private DashboardBlocConfig $dashboardBlocConfig, private DashboardService $dashboardService, private FeedService $feedService, private GroupeRepository $groupeRepository, private NotificationService $notificationService, private PlatauHealthcheckService $platauHealthcheckService, private bool $deactivatePlatau, private bool $platauNoHealthcheck, private LoggerInterface $logger)
+    public function __construct(private readonly VersionBuilder $versionBuilder, private readonly DashboardBlocConfig $dashboardBlocConfig, private readonly DashboardService $dashboardService, private readonly FeedService $feedService, private readonly GroupeRepository $groupeRepository, private readonly NotificationService $notificationService, private readonly PlatauHealthcheckService $platauHealthcheckService, private readonly bool $deactivatePlatau, private readonly bool $platauNoHealthcheck, private readonly LoggerInterface $logger)
     {
     }
 

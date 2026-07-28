@@ -29,7 +29,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[IsGranted('gestion_formulaires')]
 class FormulairesController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private CapsuleRubriqueRepository $capsuleRubriqueRepository, private FormFactoryInterface $formFactory, private SerializerInterface $serializer, private FormulairesImporter $formulairesImporter, private LoggerInterface $logger)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly FormFactoryInterface $formFactory, private readonly SerializerInterface $serializer, private readonly FormulairesImporter $formulairesImporter, private readonly LoggerInterface $logger)
     {
     }
 

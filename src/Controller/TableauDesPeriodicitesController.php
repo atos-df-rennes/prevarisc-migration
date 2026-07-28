@@ -19,7 +19,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 #[IsGranted('periodicites')]
 class TableauDesPeriodicitesController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private PeriodiciteRepository $periodiciteRepository, private EtablissementTypeRepository $etablissementTypeRepository, private EtablissementCategorieRepository $etablissementCategorieRepository, private IghClasseRepository $ighClasseRepository, private TagAwareCacheInterface $searchCache)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PeriodiciteRepository $periodiciteRepository, private readonly EtablissementTypeRepository $etablissementTypeRepository, private readonly EtablissementCategorieRepository $etablissementCategorieRepository, private readonly IghClasseRepository $ighClasseRepository, private readonly TagAwareCacheInterface $searchCache)
     {
     }
 

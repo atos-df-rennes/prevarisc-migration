@@ -207,7 +207,6 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = new CommissionMembre();
         $reflection = new \ReflectionClass($membre);
         $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
         $property->setValue($membre, $id);
 
         return $membre;

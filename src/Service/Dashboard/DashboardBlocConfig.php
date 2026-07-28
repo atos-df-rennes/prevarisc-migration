@@ -127,10 +127,10 @@ class DashboardBlocConfig
     ];
 
     public function __construct(
-        private bool $deactivatePlatau,
-        private int $nextCommissionsDays,
-        private int $dossiersSansAvisDays,
-        private int $courrierSansReponseDays
+        private readonly bool $deactivatePlatau,
+        private readonly int $nextCommissionsDays,
+        private readonly int $dossiersSansAvisDays,
+        private readonly int $courrierSansReponseDays
     ) {
         if (!$this->deactivatePlatau) {
             $this->blocsConfig['dossierPlatau'] = [

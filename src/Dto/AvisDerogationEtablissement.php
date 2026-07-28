@@ -4,7 +4,7 @@ namespace App\Dto;
 
 final class AvisDerogationEtablissement
 {
-    public function __construct(private int $idDossier, private int $id, private string $titre, private string $type, private bool $leve, private ?string $debut, private ?int $typeDossier)
+    public function __construct(private readonly int $idDossier, private readonly int $id, private readonly string $titre, private readonly string $type, private readonly bool $leve, private readonly ?string $debut, private readonly ?int $typeDossier)
     {
     }
 

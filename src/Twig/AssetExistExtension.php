@@ -8,7 +8,7 @@ use Twig\TwigFunction;
 
 class AssetExistExtension extends AbstractExtension
 {
-    public function __construct(private Packages $packages, private string $srcDir)
+    public function __construct(private readonly Packages $packages, private readonly string $srcDir)
     {
     }
 
@@ -18,7 +18,7 @@ class AssetExistExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('asset_exist', [$this, 'assetExist']),
+            new TwigFunction('asset_exist', $this->assetExist(...)),
         ];
     }
 

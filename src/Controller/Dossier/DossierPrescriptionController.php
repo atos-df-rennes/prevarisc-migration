@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierPrescriptionController extends AbstractController implements DossierLateralNavigationInterface
 {
-    public function __construct(private DossierPrescriptionService $service)
+    public function __construct(private readonly DossierPrescriptionService $service)
     {
     }
 
@@ -47,8 +47,8 @@ class DossierPrescriptionController extends AbstractController implements Dossie
         $rawIdsRegl = $request->request->get('idsRegl');
         $rawIdsAutres = $request->request->get('idsAutres');
 
-        $idsRegl = array_filter(array_map('intval', explode(',', is_string($rawIdsRegl) ? $rawIdsRegl : '')));
-        $idsAutres = array_filter(array_map('intval', explode(',', is_string($rawIdsAutres) ? $rawIdsAutres : '')));
+        $idsRegl = array_filter(array_map(intval(...), explode(',', is_string($rawIdsRegl) ? $rawIdsRegl : '')));
+        $idsAutres = array_filter(array_map(intval(...), explode(',', is_string($rawIdsAutres) ? $rawIdsAutres : '')));
 
         $this->service->reordonner($dossier, array_values($idsRegl), array_values($idsAutres));
 

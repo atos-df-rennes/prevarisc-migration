@@ -12,7 +12,7 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 final class CommissionFilesystem
 {
-    public function __construct(private string $documentsRealDataPath, private LoggerInterface $logger, private Filesystem $filesystem)
+    public function __construct(private readonly string $documentsRealDataPath, private readonly LoggerInterface $logger, private readonly Filesystem $filesystem)
     {
     }
 

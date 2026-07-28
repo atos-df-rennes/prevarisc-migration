@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('gestion_commissions')]
 class CommissionContactsController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private Contact $contactService)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly Contact $contactService)
     {
     }
 

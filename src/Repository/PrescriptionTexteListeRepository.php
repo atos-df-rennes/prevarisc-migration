@@ -20,9 +20,9 @@ class PrescriptionTexteListeRepository extends ServiceEntityRepository
 {
     public function __construct(
         ManagerRegistry $registry,
-        private PrescriptionDossierAssociationRepository $prescriptionDossierAssociationRepository,
-        private PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository,
-        private PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository
+        private readonly PrescriptionDossierAssociationRepository $prescriptionDossierAssociationRepository,
+        private readonly PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository,
+        private readonly PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository
     ) {
         parent::__construct($registry, PrescriptionTexteListe::class);
     }

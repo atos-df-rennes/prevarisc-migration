@@ -47,7 +47,6 @@ final class EtablissementHistoriqueServiceTest extends TestCase
         // Use reflection to set the private libelle property
         $reflectionClass = new \ReflectionClass($avis);
         $property = $reflectionClass->getProperty('libelle');
-        $property->setAccessible(true);
         $property->setValue($avis, $avisLibelle);
 
         $dossier = $this->createMock(Dossier::class);

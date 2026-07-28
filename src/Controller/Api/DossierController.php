@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DossierController extends AbstractController
 {
-    public function __construct(private DossierNatureListeRepository $dossierNatureListeRepository)
+    public function __construct(private readonly DossierNatureListeRepository $dossierNatureListeRepository)
     {
     }
 

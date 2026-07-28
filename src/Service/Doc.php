@@ -6,7 +6,7 @@ use Psr\Log\LoggerInterface;
 
 final class Doc
 {
-    public function __construct(private string $srcDir, private LoggerInterface $logger)
+    public function __construct(private readonly string $srcDir, private readonly LoggerInterface $logger)
     {
     }
 

@@ -30,7 +30,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('admin')]
 class GroupeController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private GroupeRepository $groupeRepository, private UtilisateurRepository $utilisateurRepository, private ResourcesRepository $resourcesRepository, private RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, private RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly GroupeRepository $groupeRepository, private readonly UtilisateurRepository $utilisateurRepository, private readonly ResourcesRepository $resourcesRepository, private readonly RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, private readonly RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
     {
     }
 

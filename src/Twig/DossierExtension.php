@@ -9,14 +9,14 @@ use Twig\TwigFilter;
 
 class DossierExtension extends AbstractExtension
 {
-    public function __construct(private DossierFields $dossierFieldsService)
+    public function __construct(private readonly DossierFields $dossierFieldsService)
     {
     }
 
     public function getFilters(): array
     {
         return [
-            new TwigFilter('should_display_field', [$this, 'shouldDisplayField']),
+            new TwigFilter('should_display_field', $this->shouldDisplayField(...)),
         ];
     }
 

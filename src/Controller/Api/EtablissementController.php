@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class EtablissementController extends AbstractController
 {
-    public function __construct(private EtablissementRepository $etablissementRepository, private PeriodiciteRepository $periodiciteRepository, private EntityManagerInterface $em)
+    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly PeriodiciteRepository $periodiciteRepository, private readonly EntityManagerInterface $em)
     {
     }
 
@@ -183,7 +183,7 @@ class EtablissementController extends AbstractController
                 if (null !== $type) {
                     /** @var string $localSommeilTypesParam */
                     $localSommeilTypesParam = $this->getParameter('app.local_sommeil_types');
-                    $localSommeilTypes = array_map('intval', explode(';', $localSommeilTypesParam));
+                    $localSommeilTypes = array_map(intval(...), explode(';', $localSommeilTypesParam));
 
                     if (in_array($type, $localSommeilTypes, true)) {
                         $results['local_sommeil'] = true;

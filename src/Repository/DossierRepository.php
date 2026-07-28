@@ -437,7 +437,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->getQuery()
             ->getArrayResult();
 
-        $idsWithAlerte = array_map('intval', array_column($rows, 'id'));
+        $idsWithAlerte = array_map(intval(...), array_column($rows, 'id'));
 
         $map = [];
         foreach ($dossierIds as $id) {
@@ -475,7 +475,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->getQuery()
             ->getArrayResult();
 
-        $idsWithEcheancier = array_map('intval', array_column($rows, 'id'));
+        $idsWithEcheancier = array_map(intval(...), array_column($rows, 'id'));
 
         $map = [];
         foreach ($dossierIds as $id) {
@@ -796,7 +796,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0)';
 
         if ([] !== $idsCommission) {
-            $inList = implode(',', array_map('intval', $idsCommission));
+            $inList = implode(',', array_map(intval(...), $idsCommission));
             $sql .= ' AND datecommission.COMMISSION_CONCERNE IN ('.$inList.')';
         }
 
@@ -809,7 +809,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static fn (array $row): DossierDateCommissionEchuDto => DossierDateCommissionEchuDto::fromArray($row), $rows);
+        return array_map(DossierDateCommissionEchuDto::fromArray(...), $rows);
     }
 
     /**
@@ -826,7 +826,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $sql = $this->buildSearchDossierBaseSql();
 
         if ([] !== $idsCommission) {
-            $inList = implode(',', array_map('intval', $idsCommission));
+            $inList = implode(',', array_map(intval(...), $idsCommission));
             $sql .= ' AND d.COMMISSION_DOSSIER IN ('.$inList.')';
         }
 
@@ -837,7 +837,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static fn (array $row): DossierDashboardDto => DossierDashboardDto::fromArray($row), $rows);
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -864,7 +864,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static fn (array $row): DossierDashboardDto => DossierDashboardDto::fromArray($row), $rows);
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -911,7 +911,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static fn (array $row): DossierDashboardDto => DossierDashboardDto::fromArray($row), $dossiers);
+        return array_map(DossierDashboardDto::fromArray(...), $dossiers);
     }
 
     /**
@@ -935,7 +935,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static fn (array $row): DossierDashboardDto => DossierDashboardDto::fromArray($row), $dossiers);
+        return array_map(DossierDashboardDto::fromArray(...), $dossiers);
     }
 
     /**
@@ -959,7 +959,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static fn (array $row): DossierDashboardDto => DossierDashboardDto::fromArray($row), $dossiers);
+        return array_map(DossierDashboardDto::fromArray(...), $dossiers);
     }
 
     /**
@@ -1021,7 +1021,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static fn (array $row): DossierDashboardDto => DossierDashboardDto::fromArray($row), $rows);
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -1045,7 +1045,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static fn (array $row): DossierDashboardDto => DossierDashboardDto::fromArray($row), $rows);
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -1070,7 +1070,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static fn (array $row): DossierDashboardDto => DossierDashboardDto::fromArray($row), $rows);
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -1190,7 +1190,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static fn (array $row): DossierPlatauDto => DossierPlatauDto::fromArray($row), $rows);
+        return array_map(DossierPlatauDto::fromArray(...), $rows);
     }
 
     /**
@@ -1221,7 +1221,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static fn (array $row): DossierPlatauDto => DossierPlatauDto::fromArray($row), $rows);
+        return array_map(DossierPlatauDto::fromArray(...), $rows);
     }
 
     /**
@@ -1257,7 +1257,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static fn (array $row): DossierPlatauDto => DossierPlatauDto::fromArray($row), $rows);
+        return array_map(DossierPlatauDto::fromArray(...), $rows);
     }
 
     /**

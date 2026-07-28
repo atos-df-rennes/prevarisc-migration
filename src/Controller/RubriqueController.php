@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('gestion_formulaires')]
 class RubriqueController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private RubriqueRepository $rubriqueRepository, private ChampValeurListeRepository $champValeurListeRepository)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly RubriqueRepository $rubriqueRepository, private readonly ChampValeurListeRepository $champValeurListeRepository)
     {
     }
 

@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class EtablissementPieceJointeService
 {
-    public function __construct(private EtablissementPieceJointeRepository $etablissementPJRepository, private DataStore $dataStore, private LoggerInterface $datastoreLogger, private EntityManagerInterface $entityManager, private PieceJointeRepository $pieceJointeRepository, private Image $imageService, private Filesystem $filesystem)
+    public function __construct(private readonly EtablissementPieceJointeRepository $etablissementPJRepository, private readonly DataStore $dataStore, private readonly LoggerInterface $datastoreLogger, private readonly EntityManagerInterface $entityManager, private readonly PieceJointeRepository $pieceJointeRepository, private readonly Image $imageService, private readonly Filesystem $filesystem)
     {
     }
 
@@ -142,7 +142,7 @@ final class EtablissementPieceJointeService
 
         $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId());
 
-        $this->filesystem->remove(array_filter([$filePath, $miniaturePath], 'file_exists'));
+        $this->filesystem->remove(array_filter([$filePath, $miniaturePath], file_exists(...)));
 
         $this->entityManager->remove($etablissementPJ);
         $this->entityManager->remove($pieceJointe);

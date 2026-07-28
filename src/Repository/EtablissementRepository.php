@@ -428,7 +428,7 @@ SQL;
         }
 
         if (null !== $commissionIds && [] !== $commissionIds) {
-            $inList = implode(',', array_map('intval', $commissionIds));
+            $inList = implode(',', array_map(intval(...), $commissionIds));
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
@@ -444,7 +444,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, $params);
 
-        return array_map(static fn (array $row): EtablissementDashboardDto => EtablissementDashboardDto::fromArray($row), $rows);
+        return array_map(EtablissementDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -499,7 +499,7 @@ SQL;
 
         $params = [];
         if ([] !== $commissionsUser) {
-            $inList = implode(',', array_map('intval', $commissionsUser));
+            $inList = implode(',', array_map(intval(...), $commissionsUser));
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
@@ -514,7 +514,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, $params);
 
-        return array_map(static fn (array $row): EtablissementDashboardDto => EtablissementDashboardDto::fromArray($row), $rows);
+        return array_map(EtablissementDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -539,7 +539,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, []);
 
-        return array_map(static fn (array $row): EtablissementDashboardDto => EtablissementDashboardDto::fromArray($row), $rows);
+        return array_map(EtablissementDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -569,7 +569,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idUtilisateur' => $idUtilisateur]);
 
-        return array_map(static fn (array $row): EtablissementDashboardDto => EtablissementDashboardDto::fromArray($row), $rows);
+        return array_map(EtablissementDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -651,7 +651,7 @@ SQL;
 
         $params = [];
         if ([] !== $commissionsUser) {
-            $inList = implode(',', array_map('intval', $commissionsUser));
+            $inList = implode(',', array_map(intval(...), $commissionsUser));
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
@@ -714,7 +714,7 @@ SQL;
         }
 
         if (null !== $commissionIds && [] !== $commissionIds) {
-            $inList = implode(',', array_map('intval', $commissionIds));
+            $inList = implode(',', array_map(intval(...), $commissionIds));
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 

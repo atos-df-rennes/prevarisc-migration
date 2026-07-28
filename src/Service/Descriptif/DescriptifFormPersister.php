@@ -32,7 +32,7 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DescriptifFormPersister
 {
-    public function __construct(private ValeurRepository $valeurRepository, private ChampRepository $champRepository, private DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository, private EntityManagerInterface $entityManager)
+    public function __construct(private readonly ValeurRepository $valeurRepository, private readonly ChampRepository $champRepository, private readonly DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private readonly EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository, private readonly EntityManagerInterface $entityManager)
     {
     }
 

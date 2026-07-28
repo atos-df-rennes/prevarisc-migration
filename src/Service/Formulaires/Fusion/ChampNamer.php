@@ -17,7 +17,7 @@ final class ChampNamer
         $params = [];
         $params[] = $capsuleRubrique;
 
-        $options = array_map(fn (string $option): string => ChampNamer::formatFusionName($option), $options);
+        $options = array_map(ChampNamer::formatFusionName(...), $options);
 
         $params = array_merge($params, $options);
 

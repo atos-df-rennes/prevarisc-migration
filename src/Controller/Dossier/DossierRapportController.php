@@ -23,16 +23,16 @@ class DossierRapportController extends AbstractController implements DossierLate
     /**
      * Chemin URL des documents de commission (pour les liens de téléchargement).
      */
-    private string $documentsDataPath;
+    private readonly string $documentsDataPath;
 
     /**
      * Chemin réel (filesystem) des documents de commission (pour lister les fichiers).
      */
-    private string $documentsRealDataPath;
+    private readonly string $documentsRealDataPath;
 
     public function __construct(
-        private CommissionRepository $commissionRepository,
-        private DossierRapportOdtService $odtService,
+        private readonly CommissionRepository $commissionRepository,
+        private readonly DossierRapportOdtService $odtService,
         string $documentsDataPath,
         string $documentsRealDataPath
     ) {

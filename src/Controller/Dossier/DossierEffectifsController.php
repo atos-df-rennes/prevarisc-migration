@@ -28,7 +28,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(requirements: ['id' => '\d+'])]
 class DossierEffectifsController extends AbstractController implements DossierLateralNavigationInterface
 {
-    public function __construct(private DescriptifService $descriptifService, private DescriptifInspector $descriptifInspector, private DescriptifCopier $descriptifCopier, private DossierRepository $dossierRepository, private EffectifsDegagementsRepriseValidator $repriseValidator, private LoggerInterface $logger, private DescriptifFormHydrator $descriptifFormHydrator, private DescriptifFormBuilder $descriptifFormBuilder, private DescriptifFormPersister $descriptifFormPersister, private FormFactoryInterface $formFactory)
+    public function __construct(private readonly DescriptifService $descriptifService, private readonly DescriptifInspector $descriptifInspector, private readonly DescriptifCopier $descriptifCopier, private readonly DossierRepository $dossierRepository, private readonly EffectifsDegagementsRepriseValidator $repriseValidator, private readonly LoggerInterface $logger, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly FormFactoryInterface $formFactory)
     {
     }
 

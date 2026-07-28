@@ -8,7 +8,7 @@ use App\Repository\DateCommissionRepository;
 
 final class DateCommission
 {
-    public function __construct(private DateCommissionRepository $dateCommissionRepository)
+    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository)
     {
     }
 

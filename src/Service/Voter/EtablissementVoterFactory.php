@@ -21,7 +21,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  */
 class EtablissementVoterFactory
 {
-    public function __construct(private EtablissementErpVoter $erpVoter, private EtablissementCelluleVoter $celluleVoter, private EtablissementHabitationVoter $habitationVoter, private EtablissementIghVoter $ighVoter, private EtablissementBupVoter $bupVoter, private EtablissementCampingVoter $campingVoter, private EtablissementManifestationTemporaireVoter $manifestationTemporaireVoter, private EtablissementIopVoter $iopVoter, private EtablissementZoneVoter $zoneVoter)
+    public function __construct(private readonly EtablissementErpVoter $erpVoter, private readonly EtablissementCelluleVoter $celluleVoter, private readonly EtablissementHabitationVoter $habitationVoter, private readonly EtablissementIghVoter $ighVoter, private readonly EtablissementBupVoter $bupVoter, private readonly EtablissementCampingVoter $campingVoter, private readonly EtablissementManifestationTemporaireVoter $manifestationTemporaireVoter, private readonly EtablissementIopVoter $iopVoter, private readonly EtablissementZoneVoter $zoneVoter)
     {
     }
 

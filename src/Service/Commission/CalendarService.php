@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 final class CalendarService
 {
-    public function __construct(private DateCommissionRepository $dateCommissionRepository, private CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private CommissionRepository $commissionRepository, private EntityManagerInterface $entityManager)
+    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private readonly CommissionRepository $commissionRepository, private readonly EntityManagerInterface $entityManager)
     {
     }
 

@@ -10,7 +10,7 @@ final class AvatarExtension extends AbstractExtension
 {
     private ?string $imageTag = null;
 
-    public function __construct(private string $dataPath, private string $realDataPath)
+    public function __construct(private readonly string $dataPath, private readonly string $realDataPath)
     {
     }
 
@@ -20,7 +20,7 @@ final class AvatarExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('avatar', [$this, 'avatar']),
+            new TwigFunction('avatar', $this->avatar(...)),
         ];
     }
 

@@ -17,7 +17,7 @@ class DateExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('date_fr', [$this, 'formatDateFr']),
+            new TwigFilter('date_fr', $this->formatDateFr(...)),
         ];
     }
 

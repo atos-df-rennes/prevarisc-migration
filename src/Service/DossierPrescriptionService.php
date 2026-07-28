@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\Security;
 
 class DossierPrescriptionService
 {
-    public function __construct(private PrescriptionDossierRepository $repository, private EntityManagerInterface $em, private LoggerInterface $logger, private Security $security)
+    public function __construct(private readonly PrescriptionDossierRepository $repository, private readonly EntityManagerInterface $em, private readonly LoggerInterface $logger, private readonly Security $security)
     {
     }
 

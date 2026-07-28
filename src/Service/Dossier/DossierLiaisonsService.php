@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class DossierLiaisonsService
 {
-    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private DossierDonnantAvisService $dossierDonnantAvisService)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierRepository $dossierRepository, private readonly DossierDonnantAvisService $dossierDonnantAvisService)
     {
     }
 

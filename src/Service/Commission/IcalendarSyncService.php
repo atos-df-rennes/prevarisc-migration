@@ -27,7 +27,7 @@ use Sabre\VObject\Component\VCalendar;
  */
 class IcalendarSyncService
 {
-    public function __construct(private DateCommissionRepository $dateCommissionRepository)
+    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository)
     {
     }
 

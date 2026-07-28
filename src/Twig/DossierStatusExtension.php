@@ -19,7 +19,7 @@ class DossierStatusExtension extends AbstractExtension
      */
     private const EXPLOITATION_NATURE_IDS = [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48];
 
-    public function __construct(private DateDiffFormatterService $dateDiffFormatter)
+    public function __construct(private readonly DateDiffFormatterService $dateDiffFormatter)
     {
     }
 
@@ -29,7 +29,7 @@ class DossierStatusExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('dossier_avis_badge', [$this, 'renderAvisBadge'], ['is_safe' => ['html']]),
+            new TwigFilter('dossier_avis_badge', $this->renderAvisBadge(...), ['is_safe' => ['html']]),
         ];
     }
 

@@ -14,7 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PrescriptionDossierAssociationType extends AbstractType
 {
-    public function __construct(private PrescriptionArticleListeRepository $prescriptionArticleListeRepository, private PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
+    public function __construct(private readonly PrescriptionArticleListeRepository $prescriptionArticleListeRepository, private readonly PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
     {
     }
 

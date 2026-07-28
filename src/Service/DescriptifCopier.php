@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
  */
 class DescriptifCopier
 {
-    public function __construct(private EntityManagerInterface $entityManager, private LoggerInterface $logger)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly LoggerInterface $logger)
     {
     }
 

@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProxyController extends AbstractController
 {
-    public function __construct(private ProxyConfigurationService $proxyConfiguration, private LoggerInterface $logger, private bool $debugEnabled)
+    public function __construct(private readonly ProxyConfigurationService $proxyConfiguration, private readonly LoggerInterface $logger, private readonly bool $debugEnabled)
     {
     }
 

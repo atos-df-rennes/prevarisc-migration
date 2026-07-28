@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('modification_odj')]
 class CalendrierDesCommissionsPiecesJointesController extends AbstractController
 {
-    public function __construct(private PieceJointeRepository $pieceJointeRepository, private DataStore $dataStore, private EntityManagerInterface $entityManager)
+    public function __construct(private readonly PieceJointeRepository $pieceJointeRepository, private readonly DataStore $dataStore, private readonly EntityManagerInterface $entityManager)
     {
     }
 

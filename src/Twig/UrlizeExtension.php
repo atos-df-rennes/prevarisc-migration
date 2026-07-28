@@ -17,7 +17,7 @@ final class UrlizeExtension extends AbstractExtension
     public function getFilters(): array
     {
         return [
-            new TwigFilter('urlize', [$this, 'urlize'], ['is_safe' => ['html']]),
+            new TwigFilter('urlize', $this->urlize(...), ['is_safe' => ['html']]),
         ];
     }
 

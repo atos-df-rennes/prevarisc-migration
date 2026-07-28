@@ -7,7 +7,7 @@ final class NomFusion
     /**
      * @param self[] $enfants
      */
-    public function __construct(private string $valeur, private array $enfants = [])
+    public function __construct(private readonly string $valeur, private readonly array $enfants = [])
     {
     }
 

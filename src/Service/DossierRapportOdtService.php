@@ -38,7 +38,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class DossierRapportOdtService
 {
-    public function __construct(private EntityManagerInterface $em, private Connection $conn, private DataStore $dataStore, private DossierPrescriptionService $prescriptionService, private DossierAffectationRepository $dossierAffectationRepository, private DateCommissionRepository $dateCommissionRepository, private Descriptif $descriptifService, private ListeDocumentConsulteRepository $listeDocRepository, private DossierRepository $dossierRepository, private UrlGeneratorInterface $urlGenerator, private OdtWriter $odtWriter, private string $realDataPath, private LoggerInterface $rapportLogger)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger)
     {
     }
 

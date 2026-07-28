@@ -604,7 +604,6 @@ final class DescriptifCopierTest extends TestCase
     private function setEntityId(Champ|Rubrique|TypeChamp $entity, int $id): void
     {
         $ref = new \ReflectionProperty($entity::class, 'id');
-        $ref->setAccessible(true);
         $ref->setValue($entity, $id);
     }
 

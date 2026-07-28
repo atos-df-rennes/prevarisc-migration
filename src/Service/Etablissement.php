@@ -28,7 +28,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 final class Etablissement
 {
-    public function __construct(private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private AvisDerogationsRepository $avisDerogationsRepository, private ParameterBagInterface $parameterBag, private EntityManagerInterface $entityManager, private LoggerInterface $logger, private TexteApplicable $texteApplicableService, private EtablissementPersistenceService $persistenceService, private EtablissementInformationsRepository $informationsRepository)
+    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly DossierRepository $dossierRepository, private readonly AvisDerogationsRepository $avisDerogationsRepository, private readonly ParameterBagInterface $parameterBag, private readonly EntityManagerInterface $entityManager, private readonly LoggerInterface $logger, private readonly TexteApplicable $texteApplicableService, private readonly EtablissementPersistenceService $persistenceService, private readonly EtablissementInformationsRepository $informationsRepository)
     {
     }
 

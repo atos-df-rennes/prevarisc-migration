@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('communes')]
 class FusionDesCommunesController extends AbstractController
 {
-    public function __construct(private FusionDesCommunes $fusionDesCommunes)
+    public function __construct(private readonly FusionDesCommunes $fusionDesCommunes)
     {
     }
 

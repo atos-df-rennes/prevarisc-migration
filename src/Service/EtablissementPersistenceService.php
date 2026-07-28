@@ -27,7 +27,7 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 final class EtablissementPersistenceService
 {
-    public function __construct(private EtablissementRepository $etablissementRepository)
+    public function __construct(private readonly EtablissementRepository $etablissementRepository)
     {
     }
 

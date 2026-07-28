@@ -19,7 +19,7 @@ use App\Repository\PrescriptionTypeRepository;
 
 final class Prescriptions
 {
-    public function __construct(private PrescriptionTypeRepository $prescriptionTypeRepository, private PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository, private PrescriptionTexteListeRepository $prescriptionTexteListeRepository, private PrescriptionArticleListeRepository $prescriptionArticleListeRepository, private PrescriptionReglementaireRepository $prescriptionReglementaireRepository, private PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository)
+    public function __construct(private readonly PrescriptionTypeRepository $prescriptionTypeRepository, private readonly PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository, private readonly PrescriptionTexteListeRepository $prescriptionTexteListeRepository, private readonly PrescriptionArticleListeRepository $prescriptionArticleListeRepository, private readonly PrescriptionReglementaireRepository $prescriptionReglementaireRepository, private readonly PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository)
     {
     }
 

@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('communes')]
 class CommunesController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private CommuneRepository $communeRepository, private FonctionRepository $fonctionRepository)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommuneRepository $communeRepository, private readonly FonctionRepository $fonctionRepository)
     {
     }
 

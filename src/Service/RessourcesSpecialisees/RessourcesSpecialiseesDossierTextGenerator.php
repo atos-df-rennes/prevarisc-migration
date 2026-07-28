@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class RessourcesSpecialiseesDossierTextGenerator
 {
-    public function __construct(private DossierNatureListeRepository $naturesRepository)
+    public function __construct(private readonly DossierNatureListeRepository $naturesRepository)
     {
     }
 

@@ -31,7 +31,7 @@ final class EtablissementTexter
 
     private ?string $useUserCommune = null;
 
-    public function __construct(private EtablissementActiviteRepository $etablissementActiviteRepository, private EtablissementCategorieRepository $categorieRepository, private FamilleRepository $familleRepository, private IghClasseRepository $classeRepository, private ClassementRepository $classementRepository)
+    public function __construct(private readonly EtablissementActiviteRepository $etablissementActiviteRepository, private readonly EtablissementCategorieRepository $categorieRepository, private readonly FamilleRepository $familleRepository, private readonly IghClasseRepository $classeRepository, private readonly ClassementRepository $classementRepository)
     {
     }
 

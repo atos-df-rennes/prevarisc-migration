@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('gestion_commissions')]
 class CommissionDocumentsController extends AbstractController
 {
-    public function __construct(private CommissionDocumentCrService $commissionDocumentCrService, private CommissionMembreCourrierService $commissionMembreCourrierService, private CommissionMembreRepository $commissionMembreRepository, private string $documentsCommissionDataPath, private string $courriersMembresDataPath)
+    public function __construct(private readonly CommissionDocumentCrService $commissionDocumentCrService, private readonly CommissionMembreCourrierService $commissionMembreCourrierService, private readonly CommissionMembreRepository $commissionMembreRepository, private readonly string $documentsCommissionDataPath, private readonly string $courriersMembresDataPath)
     {
     }
 

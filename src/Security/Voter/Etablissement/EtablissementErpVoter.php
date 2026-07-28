@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementErpVoter extends EtablissementVoter
 {
-    public function __construct(private ResourcesRepository $resourcesRepository, private PrivilegesRepository $privilegesRepository, private VoterUtils $voterUtils)
+    public function __construct(private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository, private readonly VoterUtils $voterUtils)
     {
     }
 
@@ -54,8 +54,8 @@ class EtablissementErpVoter extends EtablissementVoter
                 continue;
             }
 
-            $typesActivites = array_map('intval', explode('-', $parts[2]));
-            $categories = array_map('intval', explode('-', $parts[3]));
+            $typesActivites = array_map(intval(...), explode('-', $parts[2]));
+            $categories = array_map(intval(...), explode('-', $parts[3]));
             $useUserCommissions = (int) $parts[4];
             $useUserGroupements = (int) $parts[5];
             $useUserCommune = (int) $parts[6];

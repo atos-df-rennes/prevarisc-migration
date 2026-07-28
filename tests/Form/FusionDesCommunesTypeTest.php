@@ -55,7 +55,7 @@ final class FusionDesCommunesTypeTest extends TestCase
         $constraints = $addedFields['fichier']['options']['constraints'] ?? [];
         self::assertNotEmpty($constraints, 'fichier field should have validation constraints');
 
-        $constraintTypes = array_map('get_class', $constraints);
+        $constraintTypes = array_map(get_class(...), $constraints);
         self::assertContains(NotBlank::class, $constraintTypes, 'Should have NotBlank constraint');
         self::assertContains(File::class, $constraintTypes, 'Should have File constraint');
     }

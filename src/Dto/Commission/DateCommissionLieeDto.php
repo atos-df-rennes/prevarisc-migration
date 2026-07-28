@@ -10,7 +10,7 @@ use App\Entity\DateCommission;
  */
 final class DateCommissionLieeDto
 {
-    private function __construct(private int $id, private string $dateCommission, private string $heureDebut, private string $heureFin, private ?string $libelle, private int $idCommission, private int $idTypeEvenement)
+    private function __construct(private readonly int $id, private readonly string $dateCommission, private readonly string $heureDebut, private readonly string $heureFin, private readonly ?string $libelle, private readonly int $idCommission, private readonly int $idTypeEvenement)
     {
     }
 

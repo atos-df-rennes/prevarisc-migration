@@ -24,8 +24,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 final class CommissionMembreCourrierService extends AbstractOdtDocumentService
 {
     public function __construct(
-        private string $courriersMembresRealDataPath,
-        private EntityManagerInterface $entityManager,
+        private readonly string $courriersMembresRealDataPath,
+        private readonly EntityManagerInterface $entityManager,
         Filesystem $filesystem,
         LoggerInterface $logger
     ) {

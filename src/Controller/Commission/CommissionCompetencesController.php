@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('gestion_commissions')]
 class CommissionCompetencesController extends AbstractController
 {
-    public function __construct(private EntityManagerInterface $entityManager, private CommissionRegleCompetenceService $competenceService, private EtablissementInformationsRepository $etablissementInformationsRepository)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommissionRegleCompetenceService $competenceService, private readonly EtablissementInformationsRepository $etablissementInformationsRepository)
     {
     }
 

@@ -8,7 +8,7 @@ namespace App\Dto;
  */
 final class PlatauTempsRestantInfo
 {
-    public function __construct(private ?string $tempsRestant, private ?string $couleur)
+    public function __construct(private readonly ?string $tempsRestant, private readonly ?string $couleur)
     {
     }
 

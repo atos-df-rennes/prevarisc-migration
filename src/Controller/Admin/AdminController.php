@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('admin')]
 class AdminController extends AbstractController
 {
-    public function __construct(private UtilisateurRepository $utilisateurRepository, private VersionBuilder $versionBuilder)
+    public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly VersionBuilder $versionBuilder)
     {
     }
 

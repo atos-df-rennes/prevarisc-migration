@@ -7,7 +7,7 @@ use App\Security\Md5SaltedEncoder;
 
 class UtilisateurManager
 {
-    public function __construct(private Md5SaltedEncoder $encoder)
+    public function __construct(private readonly Md5SaltedEncoder $encoder)
     {
     }
 

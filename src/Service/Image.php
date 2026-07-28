@@ -8,7 +8,7 @@ use Imagine\Image\ImageInterface;
 
 final class Image
 {
-    private Imagine $imagine;
+    private readonly Imagine $imagine;
 
     public function __construct()
     {

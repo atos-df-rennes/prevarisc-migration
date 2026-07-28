@@ -243,7 +243,6 @@ final class DescriptifInspectorTest extends TestCase
     {
         $type = new TypeChamp();
         $ref = new \ReflectionProperty(TypeChamp::class, 'id');
-        $ref->setAccessible(true);
         $ref->setValue($type, $typeId);
 
         $champ = new Champ();

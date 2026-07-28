@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ChangelogController extends AbstractController
 {
-    public function __construct(private VersionService $versionService, private UtilisateurPreferencesRepository $prefsRepository)
+    public function __construct(private readonly VersionService $versionService, private readonly UtilisateurPreferencesRepository $prefsRepository)
     {
     }
 

@@ -7,7 +7,7 @@ use Twig\TwigFunction;
 
 class IconeTypeEtablissementExtension extends AbstractExtension
 {
-    public function __construct(private string $srcDir)
+    public function __construct(private readonly string $srcDir)
     {
     }
 
@@ -17,7 +17,7 @@ class IconeTypeEtablissementExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('icone_type_etablissement_exists', [$this, 'iconeTypeEtablissementExists']),
+            new TwigFunction('icone_type_etablissement_exists', $this->iconeTypeEtablissementExists(...)),
         ];
     }
 
