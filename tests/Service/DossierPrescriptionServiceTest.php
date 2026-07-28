@@ -37,12 +37,20 @@ final class DossierPrescriptionServiceTest extends TestCase
         $idsRegl = [3, 1, 2];
         $idsAutres = [5, 4];
 
+        $callCount = 0;
         $this->repository->expects($this->exactly(2))
             ->method('renumeroterParIds')
-            ->withConsecutive(
-                [$dossier, $idsRegl],
-                [$dossier, $idsAutres]
-            );
+            ->willReturnCallback(function ($d, $ids) use ($dossier, $idsRegl, $idsAutres, &$callCount) {
+                $callCount++;
+                if (1 === $callCount) {
+                    $this->assertSame($dossier, $d);
+                    $this->assertSame($idsRegl, $ids);
+                } else {
+                    $this->assertSame($dossier, $d);
+                    $this->assertSame($idsAutres, $ids);
+                }
+                return null;
+            });
 
         $this->service->reordonner($dossier, $idsRegl, $idsAutres);
     }

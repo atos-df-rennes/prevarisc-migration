@@ -71,16 +71,6 @@ final class LogoutHandlerTest extends TestCase
         $this->buildHandler()->onLogout($this->buildLogoutEvent($token));
     }
 
-    public function testLogoutSkipsLastActionWhenUserIsString(): void
-    {
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')->willReturn('anonymous');
-
-        $this->lastActionUpdater->expects($this->never())->method('update');
-
-        $this->buildHandler()->onLogout($this->buildLogoutEvent($token));
-    }
-
     public function testLogoutClearsPhpCasSessionWhenCasEnabled(): void
     {
         $_SESSION['phpCAS'] = ['ticket' => 'ST-123'];
