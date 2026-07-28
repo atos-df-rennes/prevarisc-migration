@@ -9,18 +9,11 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-/**
- * @phpstan-type GitRevision array{
- *   sha1: string,
- * }
- */
 final class GithubType implements VersionType
 {
-    /** @var string */
-    private $branch;
+    private string $branch;
 
-    /** @var string */
-    private $revision;
+    private string $revision;
 
     public function __construct(string $srcDir, private readonly HttpClientInterface $client, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger)
     {
