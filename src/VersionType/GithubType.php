@@ -5,38 +5,48 @@ namespace App\VersionType;
 use App\Builder\VersionBuilder;
 use App\Dto\GithubApi;
 use Psr\Log\LoggerInterface;
-use SebastianBergmann\Git\Git;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-/**
- * @phpstan-type GitRevision array{
- *   sha1: string,
- * }
- */
 final class GithubType implements VersionType
 {
-    /** @var string */
-    private $branch;
+    private readonly string $branch;
 
-    /** @var string */
-    private $revision;
+    private readonly string $revision;
 
     public function __construct(string $srcDir, private readonly HttpClientInterface $client, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger)
     {
-        $git = new Git(dirname($srcDir).'/prevarisc');
+        $gitDir = dirname($srcDir).'/prevarisc';
 
-        $this->branch = $git->getCurrentBranch();
+        $this->branch = $this->getCurrentBranch($gitDir);
+        $this->revision = $this->getLastRevision($gitDir);
+    }
 
-        /** @var GitRevision[] */
-        $revisions = $git->getRevisions();
-        $lastRevision = end($revisions);
+    private function getCurrentBranch(string $gitDir): string
+    {
+        try {
+            $process = new Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $gitDir);
+            $process->mustRun();
+            $branch = trim($process->getOutput());
 
-        if (false === $lastRevision) {
-            throw new \Exception('Aucune révision trouvée.');
+            return '' !== $branch ? $branch : 'indisponible';
+        } catch (\Exception) {
+            return 'indisponible';
         }
+    }
 
-        $this->revision = $lastRevision['sha1'];
+    private function getLastRevision(string $gitDir): string
+    {
+        try {
+            $process = new Process(['git', 'rev-list', '--all', '--max-count=1'], $gitDir);
+            $process->mustRun();
+            $sha1 = trim($process->getOutput());
+
+            return '' !== $sha1 ? $sha1 : 'indisponible';
+        } catch (\Exception) {
+            return 'indisponible';
+        }
     }
 
     public function version(): string
