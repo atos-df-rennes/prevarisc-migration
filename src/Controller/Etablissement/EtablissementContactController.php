@@ -2,8 +2,6 @@
 
 namespace App\Controller\Etablissement;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
@@ -12,11 +10,13 @@ use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gère les contacts d'un établissement.
@@ -108,12 +108,10 @@ class EtablissementContactController extends AbstractController implements Etabl
 
     #[Route(path: 'etablissement/{id}/contacts/{contact}/supprimer', name: 'etablissement_contacts_delete', methods: ['GET', 'DELETE'], options: ['expose' => true], defaults: ['_etablissement_lateral_nav' => false])]
     #[IsGranted('edit_ets', subject: 'etablissement')]
-    #[ParamConverter('etablissement', options: ['id' => 'id'])]
-    #[ParamConverter('contact', options: ['id' => 'contact'])]
     public function deleteContact(
         Request $request,
-        Etablissement $etablissement,
-        UtilisateurInformations $contact
+        #[MapEntity(id: 'id')] Etablissement $etablissement,
+        #[MapEntity(id: 'contact')] UtilisateurInformations $contact
     ): Response {
         $form = $this->createFormBuilder()
             ->setMethod(Request::METHOD_DELETE)

@@ -2,8 +2,6 @@
 
 namespace App\Controller\Prescription;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionCategorie;
 use App\Entity\PrescriptionTexte;
@@ -19,11 +17,13 @@ use App\Repository\PrescriptionTypeRepository;
 use App\Service\Prescriptions;
 use App\Utils\FormHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_prescriptions')]
 class PrescriptionsTypesController extends AbstractController
@@ -114,9 +114,7 @@ class PrescriptionsTypesController extends AbstractController
 
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/ajouter', name: 'admin_prescriptions_types_textes_ajouter')]
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/modifier', name: 'admin_prescriptions_types_textes_modifier')]
-    #[ParamConverter('categorie', options: ['id' => 'categorie'])]
-    #[ParamConverter('texte', options: ['id' => 'texte'])]
-    public function textsForm(Request $request, PrescriptionCategorie $categorie, ?PrescriptionTexte $texte = null): Response
+    public function textsForm(Request $request, #[MapEntity(id: 'categorie')] PrescriptionCategorie $categorie, #[MapEntity(id: 'texte')] ?PrescriptionTexte $texte = null): Response
     {
         $actionUrl = $this->getCurrentUrl($request);
 
@@ -170,10 +168,7 @@ class PrescriptionsTypesController extends AbstractController
 
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/ajouter', name: 'admin_prescriptions_types_article_ajouter')]
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/modifier', name: 'admin_prescriptions_types_articles_modifier')]
-    #[ParamConverter('categorie', options: ['id' => 'categorie'])]
-    #[ParamConverter('texte', options: ['id' => 'texte'])]
-    #[ParamConverter('article', options: ['id' => 'article'])]
-    public function articlesForm(Request $request, PrescriptionCategorie $categorie, PrescriptionTexte $texte, ?PrescriptionArticle $article = null): Response
+    public function articlesForm(Request $request, #[MapEntity(id: 'categorie')] PrescriptionCategorie $categorie, #[MapEntity(id: 'texte')] PrescriptionTexte $texte, #[MapEntity(id: 'article')] ?PrescriptionArticle $article = null): Response
     {
         $actionUrl = $this->getCurrentUrl($request);
 
@@ -233,16 +228,12 @@ class PrescriptionsTypesController extends AbstractController
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/modifier', name: 'admin_prescriptions_types_prescriptions_texte_modifier')]
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/ajouter', name: 'admin_prescriptions_types_prescriptions_ajouter')]
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/modifier', name: 'admin_prescriptions_types_prescriptions_modifier')]
-    #[ParamConverter('categorie', options: ['id' => 'categorie'])]
-    #[ParamConverter('texte', options: ['id' => 'texte'])]
-    #[ParamConverter('article', options: ['id' => 'article'])]
-    #[ParamConverter('prescription', options: ['id' => 'prescription'])]
     public function articlesAssociationForm(
         Request $request,
-        PrescriptionCategorie $categorie,
-        ?PrescriptionTexte $texte = null,
-        ?PrescriptionArticle $article = null,
-        ?PrescriptionType $prescription = null
+        #[MapEntity(id: 'categorie')] PrescriptionCategorie $categorie,
+        #[MapEntity(id: 'texte')] ?PrescriptionTexte $texte = null,
+        #[MapEntity(id: 'article')] ?PrescriptionArticle $article = null,
+        #[MapEntity(id: 'prescription')] ?PrescriptionType $prescription = null
     ): Response {
         $actionUrl = $this->getCurrentUrl($request);
 
@@ -300,16 +291,12 @@ class PrescriptionsTypesController extends AbstractController
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/supprimer', name: 'admin_prescriptions_types_supprimer')]
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/supprimer', name: 'admin_prescriptions_types_prescriptions_texte_supprimer')]
     #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/supprimer', name: 'admin_prescriptions_types_prescriptions_supprimer')]
-    #[ParamConverter('categorie', options: ['id' => 'categorie'])]
-    #[ParamConverter('texte', options: ['id' => 'texte'])]
-    #[ParamConverter('article', options: ['id' => 'article'])]
-    #[ParamConverter('prescription', options: ['id' => 'prescription'])]
     public function prescriptionTypeRemove(
         Request $request,
-        PrescriptionCategorie $categorie,
-        PrescriptionType $prescription,
-        ?PrescriptionTexte $texte = null,
-        ?PrescriptionArticle $article = null
+        #[MapEntity(id: 'categorie')] PrescriptionCategorie $categorie,
+        #[MapEntity(id: 'prescription')] PrescriptionType $prescription,
+        #[MapEntity(id: 'texte')] ?PrescriptionTexte $texte = null,
+        #[MapEntity(id: 'article')] ?PrescriptionArticle $article = null
     ): Response {
         $form = $this->createFormBuilder(null, [
             'action' => $this->getCurrentUrl($request),

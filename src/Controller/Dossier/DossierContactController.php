@@ -2,8 +2,6 @@
 
 namespace App\Controller\Dossier;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\UtilisateurInformations;
@@ -14,11 +12,13 @@ use App\Security\Voter\DossierVoter;
 use App\Service\Contact;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gère les contacts d'un dossier.
@@ -112,12 +112,10 @@ class DossierContactController extends AbstractController implements DossierLate
 
     #[Route(path: '/dossier/{id}/contacts/{contact}/supprimer', name: 'dossier_contacts_delete', methods: ['GET', 'DELETE'], options: ['expose' => true], defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted(DossierVoter::MODIFICATION, subject: 'dossier')]
-    #[ParamConverter('dossier', options: ['id' => 'id'])]
-    #[ParamConverter('contact', options: ['id' => 'contact'])]
     public function deleteContact(
         Request $request,
-        Dossier $dossier,
-        UtilisateurInformations $contact
+        #[MapEntity(id: 'id')] Dossier $dossier,
+        #[MapEntity(id: 'contact')] UtilisateurInformations $contact
     ): Response {
         if (!$dossier->getContacts()->contains($contact)) {
             $this->addFlash('warning', "Le contact n'appartient pas à ce dossier.");

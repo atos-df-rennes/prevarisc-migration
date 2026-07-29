@@ -2,8 +2,6 @@
 
 namespace App\Controller\Dossier;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Constant\TypePrescription;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionType;
@@ -13,10 +11,12 @@ use App\Repository\PrescriptionTexteRepository;
 use App\Repository\PrescriptionTypeRepository;
 use App\Service\DossierPrescriptionService;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class DossierPrescriptionTypeController extends AbstractController
 {
@@ -125,9 +125,8 @@ class DossierPrescriptionTypeController extends AbstractController
      * Retourne le fragment HTML de la prescription ajoutée.
      */
     #[Route(path: '/dossier/{id}/prescriptions/{idPrescType}/ajouter-type', name: 'dossier_prescriptions_ajouter_type', requirements: ['id' => '\d+', 'idPrescType' => '\d+'], methods: ['POST'], options: ['expose' => true])]
-    #[ParamConverter('prescriptionType', options: ['id' => 'idPrescType'])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function ajouterDepuisType(Request $request, Dossier $dossier, PrescriptionType $prescriptionType): Response
+    public function ajouterDepuisType(Request $request, Dossier $dossier, #[MapEntity(id: 'idPrescType')] PrescriptionType $prescriptionType): Response
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
