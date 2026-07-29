@@ -2,8 +2,6 @@
 
 namespace App\Controller\Etablissement;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Constant\DossierType;
 use App\Constant\GenreEtablissement;
 use App\Constant\NomInterneCapsule;
@@ -37,12 +35,13 @@ use App\Service\EtablissementPieceJointeService;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -310,7 +309,8 @@ class EtablissementController extends AbstractController implements Etablissemen
     }
 
     #[Route(path: '/etablissement/{id}/avis-derogations', name: 'etablissement_avis_derogations')]
-    #[Security("is_granted('avis_derogations') and is_granted('view_ets', etablissement)")]
+    #[IsGranted('avis_derogations')]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function avisDerogations(Etablissement $etablissement): Response
     {
         $historiqueAvisDerogations = $this->etablissementService->getAvisDerogations($etablissement);
@@ -636,7 +636,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      * Affiche et traite le formulaire d'édition des effectifs et dégagements de l'établissement.
      */
     #[Route(path: '/etablissement/{id}/effectifs-degagements/modifier', name: 'etablissement_effectifs_degagements_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('effectifs_degagements_ets') and is_granted('edit_ets', etablissement)")]
+    #[IsGranted('effectifs_degagements_ets')]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function editEffectifsDegagements(Etablissement $etablissement, Request $request): Response
     {
         $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);
@@ -674,7 +675,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      * Affiche l'onglet Effectifs et Dégagements de l'établissement.
      */
     #[Route(path: '/etablissement/{id}/effectifs-degagements', name: 'etablissement_effectifs_degagements', methods: ['GET'])]
-    #[Security("is_granted('effectifs_degagements_ets') and is_granted('view_ets', etablissement)")]
+    #[IsGranted('effectifs_degagements_ets')]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function effectifsDegagements(Etablissement $etablissement): Response
     {
         $data = $this->descriptifService->getForEtablissement($etablissement, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT);

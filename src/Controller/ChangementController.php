@@ -2,17 +2,18 @@
 
 namespace App\Controller;
 
-use Symfony\Component\Routing\Attribute\Route;
 use App\Form\MessagesAlerteType;
 use App\Repository\ChangementRepository;
 use App\Service\Changement;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Security("is_granted('alerte_statut') or is_granted('alerte_avis') or is_granted('alerte_classement')")]
+#[IsGranted(new Expression("is_granted('alerte_statut') or is_granted('alerte_avis') or is_granted('alerte_classement')"))]
 class ChangementController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly ChangementRepository $changementRepository, private readonly Changement $changement)

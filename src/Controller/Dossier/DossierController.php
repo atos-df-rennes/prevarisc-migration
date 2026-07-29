@@ -2,8 +2,6 @@
 
 namespace App\Controller\Dossier;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
 use App\Constant\NomInterneCapsule;
@@ -47,11 +45,12 @@ use App\Service\PlatauConsultation;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierController extends AbstractController implements DossierLateralNavigationInterface
@@ -574,7 +573,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Affiche l'onglet Vérifications techniques du dossier.
      */
     #[Route(path: '/dossier/{id}/verifications-techniques', name: 'dossier_verifications_techniques', methods: ['GET'])]
-    #[Security("is_granted('verifications_techniques') and is_granted('view_doss', dossier)")]
+    #[IsGranted('verifications_techniques')]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function verificationsTechniques(Dossier $dossier): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
@@ -590,7 +590,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Affiche et traite le formulaire d'édition des vérifications techniques du dossier.
      */
     #[Route(path: '/dossier/{id}/verifications-techniques/modifier', name: 'dossier_verifications_techniques_edit', methods: ['GET', 'POST'])]
-    #[Security("is_granted('verifications_techniques') and is_granted('edit_doss_ignore_verrou', dossier)")]
+    #[IsGranted('verifications_techniques')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function editVerificationsTechniques(Dossier $dossier, Request $request): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
@@ -628,7 +629,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Affiche et gère les avis et dérogations d'un dossier.
      */
     #[Route(path: '/dossier/{id}/avis-et-derogations', name: 'dossier_avis_et_derogations', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    #[Security("is_granted('avis_derogations') and is_granted('view_doss', dossier)")]
+    #[IsGranted('avis_derogations')]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function avisEtDerogations(Request $request, Dossier $dossier): Response
     {
         $listeAvis = $this->avisRepository->findAll();
@@ -713,7 +715,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Édite un avis ou une dérogation.
      */
     #[Route(path: '/dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier', name: 'dossier_avis_et_derogations_edit', requirements: ['id' => '\d+', 'avisDerogationId' => '\d+'], methods: ['GET', 'POST'])]
-    #[Security("is_granted('avis_derogations') and is_granted('edit_doss_ignore_verrou', dossier)")]
+    #[IsGranted('avis_derogations')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function avisEtDerogationsEdit(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
         $avisDerogation = $this->avisDerogationsRepository->findOneBy(['id' => $avisDerogationId, 'dossier' => $dossier]);
@@ -798,7 +801,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Supprime un avis ou une dérogation (appel AJAX POST).
      */
     #[Route(path: '/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer', name: 'dossier_avis_et_derogations_delete', requirements: ['id' => '\d+', 'avisDerogationId' => '\d+'], methods: ['POST'])]
-    #[Security("is_granted('avis_derogations') and is_granted('edit_doss_ignore_verrou', dossier)")]
+    #[IsGranted('avis_derogations')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function avisEtDerogationsDelete(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
         /** @var string $csrfToken */
@@ -825,7 +829,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * recalcul du dossier donnant avis pour les établissements concernés, invalidation du cache.
      */
     #[Route(path: '/dossier/{id}/supprimer', name: 'dossier_supprimer', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
-    #[Security("is_granted('delete_dossier') and is_granted('view_doss', dossier)")]
+    #[IsGranted('delete_dossier')]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function supprimer(Request $request, Dossier $dossier): Response
     {
         /** @var string $csrfToken */
