@@ -14,12 +14,6 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
-###> symfony/phpunit-bridge ###
-.phpunit
-.phpunit.result.cache
-/phpunit.xml
-###< symfony/phpunit-bridge ###
-
 ###> FOSJSRoutingBundle ###
 public/js/fos_js_routes.js
 ###< FOSJSRoutingBundle ###
@@ -28,6 +22,7 @@ public/js/fos_js_routes.js
 /tools/vendor/
 .php-cs-fixer.cache
 .twig-cs-fixer.cache
+.phpunit.result.cache
 ###< tools ###
 
 ###> Cypress ###

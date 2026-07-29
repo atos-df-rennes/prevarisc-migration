@@ -71,7 +71,6 @@
         "symfony/css-selector": "6.4.*",
         "symfony/debug-bundle": "6.4.*",
         "symfony/maker-bundle": "^1.0",
-        "symfony/phpunit-bridge": "6.4.*",
         "symfony/stopwatch": "6.4.*",
         "symfony/web-profiler-bundle": "6.4.*"
     },
@@ -120,7 +119,7 @@
         "generate-baseline": "tools/vendor/bin/phpstan --generate-baseline",
         "refacto": "tools/vendor/bin/rector",
         "cs-fix": "tools/vendor/bin/php-cs-fixer fix",
-        "test": "bin/phpunit --testdox",
+        "test": "vendor/bin/phpunit --testdox",
         "test-coverage": "@test --coverage-html tests/coverage/ --whitelist application/",
         "changelog": "tools/vendor/bin/conventional-changelog",
         "release": "tools/vendor/bin/conventional-changelog --commit"
