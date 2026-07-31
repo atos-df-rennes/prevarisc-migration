@@ -24,7 +24,7 @@ final class Version20260401090000 extends AbstractMigration
             ->from('privileges')
             ->where('name = :name')
             ->setParameter('name', 'view_doss_incomplets')
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
         $this->skipIf($count > 0, 'Privilège view_doss_incomplets déjà existant.');
 
@@ -40,7 +40,7 @@ final class Version20260401090000 extends AbstractMigration
             ->from('privileges')
             ->where('name = :name')
             ->setParameter('name', 'view_doss_incomplets')
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
         $this->skipIf(0 === $count, 'Privilège view_doss_incomplets déjà supprimé.');
 
