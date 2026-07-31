@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Ldap\Entry;
 use Symfony\Component\Ldap\Ldap;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -108,7 +107,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
             // supports() — le token est chargé paresseusement et getToken() retourne null même
             // si le token existe en session. On vérifie donc la session directement en complément.
             $token = $this->tokenStorage->getToken();
-            if (null !== $token && $token->isAuthenticated()) {
+            if (null !== $token && null !== $token->getUser()) {
                 return false;
             }
 
@@ -117,7 +116,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
 
         if ($this->ntlmEnabled && isset($_SERVER['REMOTE_USER'])) {
             $token = $this->tokenStorage->getToken();
-            if (null !== $token && $token->isAuthenticated()) {
+            if (null !== $token && null !== $token->getUser()) {
                 return false;
             }
 
@@ -295,10 +294,9 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
                         $ldap->bind($this->ldapUsername, $this->ldapPassword);
                         $escapedUser = str_replace(['\\', '*', '(', ')', "\0"], ['\\5c', '\\2a', '\\28', '\\29', '\\00'], $credentials['username']);
                         $query = $ldap->query($this->ldapBaseDn, sprintf($this->ldapFilter, $escapedUser));
-                        /** @var Entry[] $results */
-                        $results = $query->execute();
+                        $results = $query->execute()->toArray();
 
-                        if (count($results) > 0) {
+                        if ([] !== $results) {
                             $entry = $results[0];
                             $ldap->bind($entry->getDn(), (string) $credentials['password']);
                             $this->logger->info(sprintf("Auth LDAP (service-account): succès pour '%s'", $credentials['username']));

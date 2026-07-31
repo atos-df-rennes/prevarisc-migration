@@ -28,7 +28,7 @@ final class DossierObjetValidator extends ConstraintValidator
      */
     private const NATURES_SANS_OBJET = [21, 26];
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof DossierObjet) {
             throw new UnexpectedTypeException($constraint, DossierObjet::class);

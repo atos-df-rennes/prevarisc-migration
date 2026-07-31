@@ -14,6 +14,7 @@ use App\Entity\DossierNatureListe;
 use App\Service\Alerte\AlerteService;
 use App\Service\DossierFields;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -85,6 +86,10 @@ class DossierSauvegardeService
             );
 
             $session = $this->requestStack->getSession();
+            if (!$session instanceof FlashBagAwareSessionInterface) {
+                continue;
+            }
+
             $session->getFlashBag()->add('warning', sprintf(
                 '<strong>Avertissement</strong><br>'.
                 'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
@@ -134,6 +139,10 @@ class DossierSauvegardeService
             $lienAlerter = $this->alerteService->getLink(TypeChangement::AVIS, $etablissementId);
 
             $session = $this->requestStack->getSession();
+            if (!$session instanceof FlashBagAwareSessionInterface) {
+                continue;
+            }
+
             $session->getFlashBag()->add('success', sprintf(
                 '<p>L\'établissement %s a bien été mis à jour.</p>%s',
                 htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8'),
