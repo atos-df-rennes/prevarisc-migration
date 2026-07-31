@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -16,7 +17,7 @@ final class Version20260511000000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
         $this->skipIf($schema->getTable('commissionmembre')->hasColumn('MANIFESTATION_COMMISSIONMEMBRE'), 'Flag manifestation déjà présent dans les règles de commission.');
 
         $this->addSql('ALTER TABLE `commissionmembre` ADD `MANIFESTATION_COMMISSIONMEMBRE` TINYINT(1) NOT NULL DEFAULT 0');
@@ -24,7 +25,7 @@ final class Version20260511000000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
         $this->skipIf(!$schema->getTable('commissionmembre')->hasColumn('MANIFESTATION_COMMISSIONMEMBRE'), 'Flag manifestation déjà supprimé des règles de commission.');
 
         $this->addSql('ALTER TABLE `commissionmembre` DROP `MANIFESTATION_COMMISSIONMEMBRE`');
