@@ -324,7 +324,7 @@ final class DescriptifTest extends TestCase
     /**
      * @return array<string, array{?bool, ?bool, bool}>
      */
-    public function displayPreferenceProvider(): array
+    public static function displayPreferenceProvider(): array
     {
         return [
             'pref utilisateur true surpasse defaultDisplay false' => [true, false, true],

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -23,7 +24,7 @@ final class Version20250211103328 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
         $this->skipIf($schema->hasTable('avis'), 'La base de données Prevarisc est déjà initialisée.');
 
         $this->addSql('CREATE TABLE adressecommune (NUMINSEE_COMMUNE CHAR(5) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, LIBELLE_COMMUNE VARCHAR(60) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, CODEPOSTAL_COMMUNE VARCHAR(5) CHARACTER SET utf8 NOT NULL COLLATE `utf8_general_ci`, ID_UTILISATEURINFORMATIONS BIGINT NOT NULL, PRIMARY KEY(NUMINSEE_COMMUNE)) DEFAULT CHARACTER SET utf8 COLLATE `utf8_unicode_ci` ENGINE = InnoDB COMMENT = \'\' ');
@@ -2584,7 +2585,7 @@ final class Version20250211103328 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('DROP TABLE adressecommune');
 

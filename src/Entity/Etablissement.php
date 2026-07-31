@@ -8,6 +8,7 @@ use App\Repository\EtablissementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use Doctrine\Common\Collections\Selectable;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -380,8 +381,8 @@ class Etablissement
      */
     public static function createLatestInformationsCriteria(): Criteria
     {
-        return Criteria::create()
-            ->orderBy(['id' => Criteria::DESC])
+        return Criteria::create(true)
+            ->orderBy(['id' => Order::Descending])
             ->setMaxResults(1);
     }
 

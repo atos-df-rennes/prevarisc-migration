@@ -22,7 +22,6 @@ public/js/fos_js_routes.js
 /tools/vendor/
 .php-cs-fixer.cache
 .twig-cs-fixer.cache
-.phpunit.result.cache
 ###< tools ###
 
 ###> Cypress ###
@@ -33,3 +32,8 @@ public/js/fos_js_routes.js
 
 # Rapports de revue de code (usage local uniquement)
 REVIEW_REPORT.md
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###

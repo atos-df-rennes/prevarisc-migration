@@ -26,7 +26,7 @@ class HighlightExtensionTest extends TestCase
         $this->assertSame($expected, $result);
     }
 
-    public function highlightProvider(): array
+    public static function highlightProvider(): array
     {
         return [
             'empty keywords returns subject unchanged' => [

@@ -190,7 +190,7 @@ final class CommissionDatesTransformerTest extends TestCase
      *
      * @return array<string, array<int, mixed>>
      */
-    public function provideMissingInformation(): array
+    public static function provideMissingInformation(): array
     {
         return [
             'date manquante' => [

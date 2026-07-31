@@ -26,7 +26,7 @@ class PlatauTempsRestantTest extends TestCase
         $this->assertSame($expectedResult, $result);
     }
 
-    public function calculateProvider(): array
+    public static function calculateProvider(): array
     {
         return [
             'future limit date days' => ['now +5 days', '5 jours'],
@@ -51,7 +51,7 @@ class PlatauTempsRestantTest extends TestCase
         $this->assertSame($expectedColor, $result);
     }
 
-    public function getCouleurTempsRestantProvider(): array
+    public static function getCouleurTempsRestantProvider(): array
     {
         return [
             'past date returns default' => ['now -1 day', 'default'],

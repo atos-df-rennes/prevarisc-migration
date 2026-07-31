@@ -71,7 +71,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
     /**
      * @return array<string, array{string, string}>
      */
-    public function uploadTypesProvider(): array
+    public static function uploadTypesProvider(): array
     {
         return [
             'convocation visite' => [CommissionMembreCourrierType::CONVOCATIONVISITE, 'getCourrierConvocationVisite'],

@@ -1,5 +1,13 @@
 # Upgrade Roadmap — Version 3.0.0-rc.1
 
+> **Note (statut réel constaté) :** l'application `prevarisc-migration/` tourne déjà en **PHP 8.4** et **Symfony 6.4.\***
+> avec MariaDB (11.8.8), en avance sur la séquence détaillée ci-dessous. Une passe de résorption des dépréciations
+> Symfony 6.4 a été effectuée (sans utiliser d'API 7.x) afin de préparer un futur passage à Symfony 7.x :
+> `castor symfony:analyse`, `castor symfony:cs`, `castor symfony:test` sont verts et l'application ne génère plus
+> de dépréciation en usage normal (`var/log/dev-*.log`) ni en tests (`symfony/phpunit-bridge` réintégré avec succès,
+> compatible avec PHPUnit 10 ; `SYMFONY_DEPRECATIONS_HELPER=max[total]=0`). Le statut des tâches `sf-7x`/`sf-8x`
+> ci-dessous reste inchangé : aucun bump de version composer n'a été fait dans le cadre de ce nettoyage.
+
 ## Overview
 
 The functional migration from Zend 1.12 to Symfony 4.4 was completed in v2.10.0. The Symfony 4.4 / PHP 7.1 application (`prevarisc-migration/`) is now the main entry point. However, it remains coupled to the legacy Zend application via a **Strangler Pattern**: `public/index.php` requires the legacy `prevarisc/public/index.php` in-process when no Symfony route matches (404 without `X-Symfony-Route-Found` header).

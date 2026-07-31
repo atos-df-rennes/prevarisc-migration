@@ -18,7 +18,7 @@ class AvisCommissionTest extends TestCase
     /**
      * @return array<string, array{0: int|string|null, 1: string}>
      */
-    public function avisProvider(): array
+    public static function avisProvider(): array
     {
         return [
             'favorable' => [1, 'Favorable'],
