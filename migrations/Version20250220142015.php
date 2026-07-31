@@ -25,7 +25,7 @@ final class Version20250220142015 extends AbstractMigration
             ->from('utilisateur', 'u')
             ->where($queryBuilder->expr()->eq('u.USERNAME_UTILISATEUR', ':username'))
             ->setParameter('username', 'platau')
-            ->execute()
+            ->executeQuery()
         ;
         $hasPlatauUser = $hasPlatauUserQuery->fetchAssociative();
 
@@ -44,7 +44,7 @@ final class Version20250220142015 extends AbstractMigration
             ->from('utilisateur', 'u')
             ->where($queryBuilder->expr()->eq('u.USERNAME_UTILISATEUR', ':username'))
             ->setParameter('username', 'platau')
-            ->execute()
+            ->executeQuery()
         ;
         $hasPlatauUser = $hasPlatauUserQuery->fetchAssociative();
 

@@ -31,7 +31,7 @@ final class BooleanStringTransformerTest extends TestCase
     /**
      * @return array<string, array<mixed>>
      */
-    public function transformProvider(): array
+    public static function transformProvider(): array
     {
         return [
             'true → "1"' => [true, '1'],
@@ -54,7 +54,7 @@ final class BooleanStringTransformerTest extends TestCase
     /**
      * @return array<string, array<mixed>>
      */
-    public function reverseTransformProvider(): array
+    public static function reverseTransformProvider(): array
     {
         return [
             '"1" → true' => ['1', true],

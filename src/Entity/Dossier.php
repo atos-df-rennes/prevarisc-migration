@@ -484,7 +484,7 @@ class Dossier
      */
     public function getEtablissements(): Collection
     {
-        $criteria = Criteria::create()->andWhere(Criteria::expr()->isNull('dateSuppression'));
+        $criteria = Criteria::create(true)->andWhere(Criteria::expr()->isNull('dateSuppression'));
 
         // PHPStan n'a pas l'extension Doctrine et n'est donc pas au courant que ça fonctionne bien.
         /* @phpstan-ignore-next-line */

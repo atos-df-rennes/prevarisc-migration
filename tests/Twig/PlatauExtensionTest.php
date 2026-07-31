@@ -26,7 +26,7 @@ class PlatauExtensionTest extends TestCase
         $this->assertSame($expectedLabel, $result);
     }
 
-    public function getPecLabelProvider(): array
+    public static function getPecLabelProvider(): array
     {
         return [
             'null returns inconnu' => [null, 'Statut inconnu'],
@@ -48,7 +48,7 @@ class PlatauExtensionTest extends TestCase
         $this->assertSame($expectedClass, $result);
     }
 
-    public function getPecClassProvider(): array
+    public static function getPecClassProvider(): array
     {
         return [
             'null returns text-muted' => [null, 'text-muted'],
@@ -70,7 +70,7 @@ class PlatauExtensionTest extends TestCase
         $this->assertSame($expectedLabel, $result);
     }
 
-    public function getAvisLabelProvider(): array
+    public static function getAvisLabelProvider(): array
     {
         return [
             'null returns inconnu' => [null, 'Statut inconnu'],
@@ -92,7 +92,7 @@ class PlatauExtensionTest extends TestCase
         $this->assertSame($expectedClass, $result);
     }
 
-    public function getAvisClassProvider(): array
+    public static function getAvisClassProvider(): array
     {
         return [
             'null returns text-muted' => [null, 'text-muted'],

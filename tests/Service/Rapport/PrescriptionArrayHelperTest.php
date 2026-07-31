@@ -189,7 +189,7 @@ final class PrescriptionArrayHelperTest extends TestCase
     /**
      * @return array<string, array<mixed>>
      */
-    public function segmentNameProvider(): array
+    public static function segmentNameProvider(): array
     {
         return [
             'reglementaire all' => [TypePrescription::REGLEMENTAIRE, 'all',       'listeReg'],

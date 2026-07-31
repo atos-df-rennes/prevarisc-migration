@@ -77,7 +77,7 @@ final class SearchQueryHelperTest extends TestCase
     /**
      * @return array<string, array<mixed>>
      */
-    public function buildCriteriaExactProvider(): array
+    public static function buildCriteriaExactProvider(): array
     {
         return [
             'valeur string simple' => ['mon_champ', 'valeur', 'valeur', "(mon_champ='valeur')"],
