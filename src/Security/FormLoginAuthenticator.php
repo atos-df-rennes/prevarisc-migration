@@ -107,7 +107,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
             // supports() — le token est chargé paresseusement et getToken() retourne null même
             // si le token existe en session. On vérifie donc la session directement en complément.
             $token = $this->tokenStorage->getToken();
-            if (null !== $token && null !== $token->getUser()) {
+            if (null !== $token?->getUser()) {
                 return false;
             }
 
@@ -116,7 +116,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
 
         if ($this->ntlmEnabled && isset($_SERVER['REMOTE_USER'])) {
             $token = $this->tokenStorage->getToken();
-            if (null !== $token && null !== $token->getUser()) {
+            if (null !== $token?->getUser()) {
                 return false;
             }
 
