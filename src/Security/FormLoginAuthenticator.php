@@ -101,20 +101,14 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
      */
     public function supports(Request $request): ?bool
     {
-        if ($this->casEnabled) {
+        if (
+            $this->casEnabled
+            || ($this->ntlmEnabled && isset($_SERVER['REMOTE_USER']))
+        ) {
             // Ne pas relancer le pipeline d'auth si un token Symfony existe déjà en session.
             // Note : avec un firewall lazy, le tokenStorage n'est pas encore peuplé lors de
             // supports() — le token est chargé paresseusement et getToken() retourne null même
             // si le token existe en session. On vérifie donc la session directement en complément.
-            $token = $this->tokenStorage->getToken();
-            if (null !== $token?->getUser()) {
-                return false;
-            }
-
-            return !$request->getSession()->has('_security_main');
-        }
-
-        if ($this->ntlmEnabled && isset($_SERVER['REMOTE_USER'])) {
             $token = $this->tokenStorage->getToken();
             if (null !== $token?->getUser()) {
                 return false;
