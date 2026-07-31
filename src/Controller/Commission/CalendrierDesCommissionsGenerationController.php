@@ -4,12 +4,13 @@ namespace App\Controller\Commission;
 
 use App\Entity\DateCommission;
 use App\Service\Commission\CommissionDocumentGenerationService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Génération des documents de commission (convocation, ODJ, PV, compte-rendu).
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('generation_doc_com')]
 class CalendrierDesCommissionsGenerationController extends AbstractController
 {
-    public function __construct(private readonly CommissionDocumentGenerationService $generationService)
+    public function __construct(private readonly CommissionDocumentGenerationService $generationService, private readonly ManagerRegistry $managerRegistry)
     {
     }
 
@@ -104,7 +105,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
         }
 
         /** @var DateCommission|null $dateCommission */
-        $dateCommission = $this->getDoctrine()->getManager()->find(DateCommission::class, $dateCommId);
+        $dateCommission = $this->managerRegistry->getManager()->find(DateCommission::class, $dateCommId);
         if (null === $dateCommission) {
             return new JsonResponse([
                 'success' => false,

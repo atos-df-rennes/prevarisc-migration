@@ -7,11 +7,11 @@ use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Service\Commission\CommissionManagerService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_commissions')]
 class CommissionsController extends AbstractController
@@ -61,7 +61,7 @@ class CommissionsController extends AbstractController
         }
 
         return $this->render('commissions/manage.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 

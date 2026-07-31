@@ -11,11 +11,11 @@ use App\Repository\EtablissementRepository;
 use App\Service\Dossier\DossierLiaisonsService;
 use App\Service\Dossier\DossierSauvegardeService;
 use Doctrine\Common\Collections\Collection;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class DossierLiaisonsController extends AbstractController implements DossierLateralNavigationInterface
 {
@@ -38,7 +38,7 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
             'dossier' => $dossier,
             'liaisons' => $this->dossierLiaisonsService->getLiaisons($dossier),
             'etablissements' => $dossier->getEtablissements()->toArray(),
-            'formAjouterEtab' => $formAjouterEtab->createView(),
+            'formAjouterEtab' => $formAjouterEtab,
         ]);
     }
 
@@ -69,7 +69,7 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
 
         return $this->render('dossier/liaisons/dossiers.html.twig', [
             'dossier' => $dossier,
-            'form' => $form->createView(),
+            'form' => $form,
             'grouped' => $grouped,
         ]);
     }
@@ -147,7 +147,7 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
         return $this->render('dossier/liaisons/etab_supprimer.html.twig', [
             'dossier' => $dossier,
             'etablissement' => $etablissement,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -193,7 +193,7 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
         return $this->render('dossier/liaisons/supprimer.html.twig', [
             'dossier' => $dossier,
             'dossierLie' => $dossierLie,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 }

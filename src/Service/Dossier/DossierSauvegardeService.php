@@ -13,14 +13,15 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Service\Alerte\AlerteService;
 use App\Service\DossierFields;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierSauvegardeService
 {
-    public function __construct(private readonly DossierDonnantAvisService $dossierDonnantAvisService, private readonly AlerteService $alerteService, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly FlashBagInterface $flashBag, private readonly UrlGeneratorInterface $urlGenerator, private readonly DossierFields $dossierFields, private readonly TagAwareCacheInterface $searchCache)
+    public function __construct(private readonly DossierDonnantAvisService $dossierDonnantAvisService, private readonly AlerteService $alerteService, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly RequestStack $requestStack, private readonly UrlGeneratorInterface $urlGenerator, private readonly DossierFields $dossierFields, private readonly TagAwareCacheInterface $searchCache)
     {
     }
 
@@ -84,7 +85,12 @@ class DossierSauvegardeService
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
 
-            $this->flashBag->add('warning', sprintf(
+            $session = $this->requestStack->getSession();
+            if (!$session instanceof FlashBagAwareSessionInterface) {
+                continue;
+            }
+
+            $session->getFlashBag()->add('warning', sprintf(
                 '<strong>Avertissement</strong><br>'.
                 'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
                 '<a title="Ouvrir" href="%s">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
@@ -132,7 +138,12 @@ class DossierSauvegardeService
             $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
             $lienAlerter = $this->alerteService->getLink(TypeChangement::AVIS, $etablissementId);
 
-            $this->flashBag->add('success', sprintf(
+            $session = $this->requestStack->getSession();
+            if (!$session instanceof FlashBagAwareSessionInterface) {
+                continue;
+            }
+
+            $session->getFlashBag()->add('success', sprintf(
                 '<p>L\'établissement %s a bien été mis à jour.</p>%s',
                 htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8'),
                 $lienAlerter

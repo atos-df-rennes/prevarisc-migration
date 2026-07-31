@@ -13,7 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final class DossierPrescriptionServiceTest extends TestCase
 {
@@ -37,12 +37,21 @@ final class DossierPrescriptionServiceTest extends TestCase
         $idsRegl = [3, 1, 2];
         $idsAutres = [5, 4];
 
+        $callCount = 0;
         $this->repository->expects($this->exactly(2))
             ->method('renumeroterParIds')
-            ->withConsecutive(
-                [$dossier, $idsRegl],
-                [$dossier, $idsAutres]
-            );
+            ->willReturnCallback(function ($d, $ids) use ($dossier, $idsRegl, $idsAutres, &$callCount) {
+                ++$callCount;
+                if (1 === $callCount) {
+                    $this->assertSame($dossier, $d);
+                    $this->assertSame($idsRegl, $ids);
+                } else {
+                    $this->assertSame($dossier, $d);
+                    $this->assertSame($idsAutres, $ids);
+                }
+
+                return null;
+            });
 
         $this->service->reordonner($dossier, $idsRegl, $idsAutres);
     }

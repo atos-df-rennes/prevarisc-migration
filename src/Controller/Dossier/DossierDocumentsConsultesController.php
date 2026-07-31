@@ -11,12 +11,12 @@ use App\Form\Dossier\DossierDocumentConsulteType;
 use App\Form\Dossier\ListeDocumentAjouteType;
 use App\Service\Dossier\DossierDocumentsConsultesService;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class DossierDocumentsConsultesController extends AbstractController implements DossierLateralNavigationInterface
 {
@@ -61,9 +61,8 @@ class DossierDocumentsConsultesController extends AbstractController implements 
     }
 
     #[Route(path: '/dossier/{id}/documents-consultes/{idDocumentConsultable}/ajouter', name: 'dossier_documents_consultes_add', methods: ['GET', 'POST'])]
-    #[ParamConverter('documentConsultable', options: ['id' => 'idDocumentConsultable'])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function addDocumentConsulte(Request $request, Dossier $dossier, ListeDocumentConsulte $documentConsultable): Response
+    public function addDocumentConsulte(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentConsultable')] ListeDocumentConsulte $documentConsultable): Response
     {
         $documentConsulte = new DossierDocumentConsulte();
         $documentConsulte->setDossier($dossier);
@@ -88,14 +87,13 @@ class DossierDocumentsConsultesController extends AbstractController implements 
             'dossier' => $dossier,
             'documentConsulte' => $documentConsulte,
             'libelle' => $documentConsultable->getLibelle(),
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
     #[Route(path: '/dossier/{id}/documents-consultes/{idDocumentConsulte}/supprimer', name: 'dossier_documents_consultes_delete', requirements: ['id' => '\d+', 'idDocumentConsulte' => '\d+'], methods: ['DELETE'], options: ['_dossier_lateral_nav' => false])]
-    #[ParamConverter('documentConsulte', options: ['id' => 'idDocumentConsulte'])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function deleteDocumentConsulte(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
+    public function deleteDocumentConsulte(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentConsulte')] DossierDocumentConsulte $documentConsulte): Response
     {
         if ($documentConsulte->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
@@ -115,9 +113,8 @@ class DossierDocumentsConsultesController extends AbstractController implements 
     }
 
     #[Route(path: '/dossier/{id}/documents-consultes/{idDocumentConsulte}/modifier', name: 'dossier_documents_consultes_edit', requirements: ['id' => '\d+', 'idDocumentConsulte' => '\d+'], methods: ['GET', 'POST'])]
-    #[ParamConverter('documentConsulte', options: ['id' => 'idDocumentConsulte'])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function editDocumentConsulte(Request $request, Dossier $dossier, DossierDocumentConsulte $documentConsulte): Response
+    public function editDocumentConsulte(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentConsulte')] DossierDocumentConsulte $documentConsulte): Response
     {
         if ($documentConsulte->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
@@ -142,14 +139,13 @@ class DossierDocumentsConsultesController extends AbstractController implements 
             'dossier' => $dossier,
             'documentConsulte' => $documentConsulte,
             'libelle' => $libelle,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
     #[Route(path: '/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/supprimer', name: 'dossier_documents_ajoutes_delete', requirements: ['id' => '\d+', 'idDocumentAjoute' => '\d+'], methods: ['DELETE'], options: ['_dossier_lateral_nav' => false])]
-    #[ParamConverter('documentAjoute', options: ['id' => 'idDocumentAjoute'])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function deleteDocumentAjoute(Request $request, Dossier $dossier, ListeDocumentAjoute $documentAjoute): Response
+    public function deleteDocumentAjoute(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentAjoute')] ListeDocumentAjoute $documentAjoute): Response
     {
         if ($documentAjoute->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
@@ -170,9 +166,8 @@ class DossierDocumentsConsultesController extends AbstractController implements 
 
     #[Route(path: '/dossier/{id}/documents-ajoutes/ajouter', name: 'dossier_documents_ajoutes_add', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     #[Route(path: '/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/modifier', name: 'dossier_documents_ajoutes_edit', requirements: ['id' => '\d+', 'idDocumentAjoute' => '\d+'], methods: ['GET', 'POST'])]
-    #[ParamConverter('documentAjoute', options: ['id' => 'idDocumentAjoute'], isOptional: true)]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function editDocumentAjoute(Request $request, Dossier $dossier, ?ListeDocumentAjoute $documentAjoute = null): Response
+    public function editDocumentAjoute(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentAjoute')] ?ListeDocumentAjoute $documentAjoute = null): Response
     {
         $isNew = null === $documentAjoute;
 
@@ -201,7 +196,7 @@ class DossierDocumentsConsultesController extends AbstractController implements 
         return $this->render('dossier/documents_consultes/edit_documents_ajoutes.html.twig', [
             'dossier' => $dossier,
             'documentAjoute' => $documentAjoute,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 }

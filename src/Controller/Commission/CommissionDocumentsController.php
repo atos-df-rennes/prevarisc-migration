@@ -9,12 +9,12 @@ use App\Form\CommissionMembreCourrierUploadType;
 use App\Repository\CommissionMembreRepository;
 use App\Service\Commission\CommissionDocumentCrService;
 use App\Service\Commission\CommissionMembreCourrierService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gère les onglets "Courriers types" et "Document type" d'une commission.
@@ -188,7 +188,7 @@ class CommissionDocumentsController extends AbstractController
             'active_tab' => 'documents',
             'documentsCommissionDataPath' => $this->documentsCommissionDataPath,
             'documentCrExists' => $this->commissionDocumentCrService->documentCrExists($commission),
-            'uploadForm' => $form->createView(),
+            'uploadForm' => $form,
         ]);
     }
 

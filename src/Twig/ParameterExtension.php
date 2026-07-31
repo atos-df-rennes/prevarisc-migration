@@ -32,7 +32,7 @@ class ParameterExtension extends AbstractExtension
      *
      * @return array|bool|string|int|float|null valeur du paramètre
      */
-    public function parameter(string $parameterName) // @phpstan-ignore-line
+    public function parameter(string $parameterName): bool|string|int|float|\UnitEnum|array|null // @phpstan-ignore-line
     {
         return $this->parameterBag->get($parameterName);
     }

@@ -11,14 +11,15 @@ use App\Repository\ChampValeurListeRepository;
 use App\Repository\TypeChampRepository;
 use App\Service\Formulaires\Fusion\ChampCreator;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_formulaires')]
 class ChampController extends AbstractController
@@ -28,14 +29,11 @@ class ChampController extends AbstractController
     }
 
     #[Route(path: '/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/modifier', name: 'admin_formulaires_edit_champ', methods: ['GET', 'POST'])]
-    #[ParamConverter('formulaire', options: ['id' => 'formulaire'])]
-    #[ParamConverter('rubrique', options: ['id' => 'rubrique'])]
-    #[ParamConverter('champ', options: ['id' => 'champ'])]
     public function edit(
         Request $request,
-        CapsuleRubrique $formulaire,
-        Rubrique $rubrique,
-        Champ $champ
+        #[MapEntity(id: 'formulaire')] CapsuleRubrique $formulaire,
+        #[MapEntity(id: 'rubrique')] Rubrique $rubrique,
+        #[MapEntity(id: 'champ')] Champ $champ
     ): Response {
         $champ = $this->champRepository->findAllInformations($champ);
         $formChamp = $this->createForm(ChampType::class, $champ, [
@@ -92,19 +90,19 @@ class ChampController extends AbstractController
             'formulaire' => $formulaire,
             'rubrique' => $rubrique,
             'champ' => $champ,
-            'form_champ' => $formChamp->createView(),
+            'form_champ' => $formChamp,
             'valeur_champ_fusion' => ChampCreator::make($formulaire, $rubrique, $champ),
             'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
-            'form_champ_enfant' => $formChampEnfant ? $formChampEnfant->createView() : null
+            'form_champ_enfant' => $formChampEnfant instanceof FormInterface ? $formChampEnfant->createView() : null
         ]);
     }
 
     #[Route(path: '/admin/formulaires/{formulaire}/rubriques/{rubrique}/champs/{champ}/supprimer', name: 'admin_formulaires_delete_champ', methods: ['DELETE'])]
-    #[ParamConverter('formulaire', options: ['id' => 'formulaire'])]
-    #[ParamConverter('rubrique', options: ['id' => 'rubrique'])]
-    #[ParamConverter('champ', options: ['id' => 'champ'])]
-    public function delete(CapsuleRubrique $formulaire, Rubrique $rubrique, Champ $champ): JsonResponse
-    {
+    public function delete(
+        #[MapEntity(id: 'formulaire')] CapsuleRubrique $formulaire,
+        #[MapEntity(id: 'rubrique')] Rubrique $rubrique,
+        #[MapEntity(id: 'champ')] Champ $champ
+    ): JsonResponse {
         $this->entityManager->remove($champ);
         $this->entityManager->flush();
 

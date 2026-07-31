@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
  */
 final class DossierDocumentsManquantsValidator extends ConstraintValidator
 {
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof DossierDocumentsManquants) {
             throw new UnexpectedTypeException($constraint, DossierDocumentsManquants::class);

@@ -9,11 +9,11 @@ use App\Repository\CoucheCartoRepository;
 use App\Service\CouchesCarto;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[IsGranted('admin')]
@@ -63,7 +63,7 @@ class CouchesCartographiquesController extends AbstractController
         }
 
         return $this->render('couches_cartographiques/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
         ]);
     }
@@ -128,7 +128,7 @@ class CouchesCartographiquesController extends AbstractController
         }
 
         return $this->render('couches_cartographiques/change_order.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
@@ -147,7 +147,7 @@ class CouchesCartographiquesController extends AbstractController
         }
 
         return $this->render('couches_cartographiques/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
             'couche_id' => $coucheCarto->getId(),
         ]);

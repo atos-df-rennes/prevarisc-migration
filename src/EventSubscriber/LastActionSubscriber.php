@@ -4,9 +4,9 @@ namespace App\EventSubscriber;
 
 use App\Entity\Utilisateur;
 use App\Service\LastActionUpdater;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
-use Symfony\Component\Security\Core\Security;
 
 /**
  * Met à jour la date de dernière action de l'utilisateur connecté.

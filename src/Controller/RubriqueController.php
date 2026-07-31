@@ -10,13 +10,13 @@ use App\Form\RubriqueType;
 use App\Repository\ChampValeurListeRepository;
 use App\Repository\RubriqueRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_formulaires')]
 class RubriqueController extends AbstractController
@@ -26,12 +26,10 @@ class RubriqueController extends AbstractController
     }
 
     #[Route(path: '/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier', name: 'admin_formulaires_edit_rubrique', methods: ['GET', 'POST'])]
-    #[ParamConverter('formulaire', options: ['id' => 'formulaire'])]
-    #[ParamConverter('rubrique', options: ['id' => 'rubrique'])]
     public function edit(
         Request $request,
-        CapsuleRubrique $formulaire,
-        Rubrique $rubrique
+        #[MapEntity(id: 'formulaire')] CapsuleRubrique $formulaire,
+        #[MapEntity(id: 'rubrique')] Rubrique $rubrique
     ): Response {
         $rubrique = $this->rubriqueRepository->findAllInformations($rubrique);
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
@@ -68,8 +66,8 @@ class RubriqueController extends AbstractController
         return $this->render('formulaires/rubrique/modification.html.twig', [
             'formulaire' => $formulaire,
             'rubrique' => $rubrique,
-            'form_rubrique' => $formRubrique->createView(),
-            'form_champ' => $formChamp->createView(),
+            'form_rubrique' => $formRubrique,
+            'form_champ' => $formChamp,
             'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
         ]);
     }

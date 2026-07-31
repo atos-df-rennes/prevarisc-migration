@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Ldap\Ldap;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
@@ -30,7 +29,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
         ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
         ->bind('$debugEnabled', '%app.debug%')
-        ->bind(FlashBagInterface::class, service('session.flash_bag'))
         ->bind('$searchCache', service('cache.search'))
     ;
 

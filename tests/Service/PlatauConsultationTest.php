@@ -10,8 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class PlatauConsultationTest extends KernelTestCase
 {
-    /** @var PlatauConsultation */
-    private $service;
+    private PlatauConsultation $service;
 
     protected function setUp(): void
     {

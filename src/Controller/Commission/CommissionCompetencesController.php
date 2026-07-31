@@ -7,11 +7,11 @@ use App\Form\CommissionReglesCollectionType;
 use App\Repository\EtablissementInformationsRepository;
 use App\Service\Commission\CommissionRegleCompetenceService;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_commissions')]
 class CommissionCompetencesController extends AbstractController
@@ -48,7 +48,7 @@ class CommissionCompetencesController extends AbstractController
         return $this->render('commissions/edit.html.twig', [
             'commission' => $commission,
             'active_tab' => 'competences',
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 

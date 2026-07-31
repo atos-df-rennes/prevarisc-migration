@@ -174,6 +174,17 @@
                                                 // Formulaire avec erreurs de validation
                                                 $('#dialogComm').html(result);
                                             }
+                                        },
+                                        error: function (jqXHR) {
+                                            // Symfony renvoie désormais un statut HTTP 422 (au lieu de 200)
+                                            // lorsque le formulaire soumis est invalide, ce qui fait passer
+                                            // jQuery par ce callback "error" plutôt que "success".
+                                            if (422 === jqXHR.status && 'string' === typeof jqXHR.responseText) {
+                                                // Formulaire avec erreurs de validation
+                                                $('#dialogComm').html(jqXHR.responseText);
+                                            } else {
+                                                $.toast.error('Erreur lors de l\'enregistrement de la date.');
+                                            }
                                         }
                                     });
                                 }
