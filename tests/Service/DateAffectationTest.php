@@ -13,7 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 // @todo: Mettre des fixtures avec une base de test au lieu des mocks.
 final class DateAffectationTest extends KernelTestCase
 {
-    private ?object $dateAffectation;
+    private DateAffectation $dateAffectation;
 
     protected function setUp(): void
     {

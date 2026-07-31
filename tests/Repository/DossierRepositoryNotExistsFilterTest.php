@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  */
 class DossierRepositoryNotExistsFilterTest extends KernelTestCase
 {
-    private ?object $repository;
+    private DossierRepository $repository;
 
     protected function setUp(): void
     {
