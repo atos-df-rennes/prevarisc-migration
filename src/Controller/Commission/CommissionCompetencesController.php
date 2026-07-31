@@ -2,8 +2,6 @@
 
 namespace App\Controller\Commission;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Commission;
 use App\Form\CommissionReglesCollectionType;
 use App\Repository\EtablissementInformationsRepository;
@@ -12,6 +10,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_commissions')]
 class CommissionCompetencesController extends AbstractController

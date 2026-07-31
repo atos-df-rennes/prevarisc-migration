@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 final class LogoutHandlerTest extends TestCase
@@ -65,6 +66,21 @@ final class LogoutHandlerTest extends TestCase
     {
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
+
+        $this->lastActionUpdater->expects($this->never())->method('update');
+
+        $this->buildHandler()->onLogout($this->buildLogoutEvent($token));
+    }
+
+    public function testLogoutSkipsLastActionWhenUserIsNotUtilisateurInstance(): void
+    {
+        // TokenInterface::getUser() is now strictly typed as ?UserInterface (Symfony 6.4),
+        // so a string return is no longer possible. This exercises the equivalent branch:
+        // a UserInterface implementation that is not an App\Entity\Utilisateur.
+        $otherUser = $this->createMock(UserInterface::class);
+
+        $token = $this->createMock(TokenInterface::class);
+        $token->method('getUser')->willReturn($otherUser);
 
         $this->lastActionUpdater->expects($this->never())->method('update');
 

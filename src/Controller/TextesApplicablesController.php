@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\TexteApplicable;
 use App\Form\TexteApplicableType;
 use App\Repository\TexteApplicableRepository;
@@ -12,6 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_textes_applicables')]
 class TextesApplicablesController extends AbstractController

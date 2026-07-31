@@ -2,7 +2,6 @@
 
 namespace App\Tests\Service;
 
-use Symfony\Bundle\SecurityBundle\Security;
 use App\Constant\TypePrescription;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionDossier;
@@ -14,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final class DossierPrescriptionServiceTest extends TestCase
 {
@@ -41,7 +41,7 @@ final class DossierPrescriptionServiceTest extends TestCase
         $this->repository->expects($this->exactly(2))
             ->method('renumeroterParIds')
             ->willReturnCallback(function ($d, $ids) use ($dossier, $idsRegl, $idsAutres, &$callCount) {
-                $callCount++;
+                ++$callCount;
                 if (1 === $callCount) {
                     $this->assertSame($dossier, $d);
                     $this->assertSame($idsRegl, $ids);

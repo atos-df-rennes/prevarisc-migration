@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\EventSubscriber;
 
-use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\Utilisateur;
 use App\EventSubscriber\LastActionSubscriber;
 use App\Service\LastActionUpdater;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;

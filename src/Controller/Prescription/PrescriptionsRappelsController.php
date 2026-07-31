@@ -2,8 +2,6 @@
 
 namespace App\Controller\Prescription;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\PrescriptionReglementaire;
 use App\Form\PrescriptionReglementaireType;
 use App\Service\Prescriptions;
@@ -11,6 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_prescriptions')]
 class PrescriptionsRappelsController extends AbstractController

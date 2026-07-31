@@ -2,8 +2,6 @@
 
 namespace App\Controller\Admin;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\Groupe;
 use App\Entity\Privileges;
 use App\Entity\Resources;
@@ -25,6 +23,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(requirements: ['id' => '\d+'])]
 #[IsGranted('admin')]

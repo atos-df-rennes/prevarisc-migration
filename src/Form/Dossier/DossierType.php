@@ -2,7 +2,6 @@
 
 namespace App\Form\Dossier;
 
-use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\Avis;
 use App\Entity\Commission;
 use App\Entity\CommissionType;
@@ -18,6 +17,7 @@ use App\Repository\DossierPieceJointeRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

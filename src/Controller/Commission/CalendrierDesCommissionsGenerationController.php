@@ -2,15 +2,15 @@
 
 namespace App\Controller\Commission;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\DateCommission;
 use App\Service\Commission\CommissionDocumentGenerationService;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Génération des documents de commission (convocation, ODJ, PV, compte-rendu).

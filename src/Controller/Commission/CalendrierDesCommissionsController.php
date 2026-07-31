@@ -2,8 +2,6 @@
 
 namespace App\Controller\Commission;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Dto\Commission\CalendarEventDto;
 use App\Dto\Commission\CommissionDatesDto;
 use App\Dto\Commission\DateCommissionItemDto;
@@ -26,7 +24,9 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 // Routes du calendrier des commissions migrées vers Symfony.
 // URL principale : /commissions/calendrier (≠ legacy /calendrier-des-commissions).

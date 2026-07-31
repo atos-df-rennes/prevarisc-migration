@@ -2,8 +2,6 @@
 
 namespace App\Controller\Commission;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Entity\DateCommission;
 use App\Entity\PieceJointe;
 use App\Repository\PieceJointeRepository;
@@ -14,6 +12,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gestion des pièces jointes d'une date de commission.

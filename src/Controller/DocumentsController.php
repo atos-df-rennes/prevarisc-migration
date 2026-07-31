@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Dto\FormDocument;
 use App\Form\DocumentType;
 use App\Repository\CommissionRepository;
@@ -18,6 +16,8 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('docs')]
 class DocumentsController extends AbstractController

@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use Symfony\Bundle\SecurityBundle\Security;
 use App\Constant\TypePrescription;
 use App\Dto\Prescriptions\PrescriptionsReprises;
 use App\Entity\Dossier;
@@ -16,6 +15,7 @@ use App\Repository\PrescriptionDossierRepository;
 use App\Security\Voter\DossierVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class DossierPrescriptionService
 {

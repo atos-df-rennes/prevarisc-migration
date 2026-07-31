@@ -2,9 +2,9 @@
 
 namespace App\EventSubscriber;
 
-use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\Utilisateur;
 use App\Service\LastActionUpdater;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 

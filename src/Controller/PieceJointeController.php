@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Repository\DateCommissionRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\PieceJointeRepository;
@@ -12,6 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Port direct de PieceJointeController (Zend).

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
-use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Utilisateur;
 use App\Repository\UtilisateurRepository;
 use App\Service\Commission\IcalendarSyncService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Endpoint de synchronisation webcal pour les clients calendrier (Outlook, Google Calendar…).
