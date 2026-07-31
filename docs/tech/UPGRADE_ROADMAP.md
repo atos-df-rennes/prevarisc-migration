@@ -264,7 +264,7 @@ Parallel to Phases 3–4 after Phase 1 completion.
 
 | Task | Description | Target |
 |------|-------------|--------|
-| **infra-mariadb** | Migrate MySQL 5.6 → MariaDB LTS: dump/restore, `my.cnf`, charset `utf8mb4`, Doctrine platform, `compose.*.yaml` | MariaDB 11.x LTS |
+| **infra-mariadb** | Migrate MySQL 5.6 → MariaDB LTS: dump/restore, `my.cnf`, charset `utf8mb4`, Doctrine platform, `compose.*.yaml`. Runbook: [`docs/MySQL_MariaDB/MARIADB_MIGRATION.md`](../../../docs/MySQL_MariaDB/MARIADB_MIGRATION.md) | MariaDB 11.8 LTS |
 | **infra-apache-debian12** | Upgrade Docker image, Apache 2.4, `php.ini`, opcache, install extensions, Apache configs | PHP 8.5-apache on Debian 12 |
 | **infra-compose-topology** | Simplify `compose.*.yaml`, finalize legacy Zend removal (platau container remains for now per Phase 1 adjustments) | Single-app topology |
 | **infra-docs** | Update `docs/exploitation.md`, `docs/documentation_installation.md` | Latest prod setup |
