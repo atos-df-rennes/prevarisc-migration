@@ -265,7 +265,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
                     'dossier_id' => $dossier->getId(),
                     'exception' => $e->getMessage(),
                 ]);
-                $this->addFlash('error', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
+                $this->addFlash('danger', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
             }
 
             return $this->redirectToRoute('dossier_effectifs_degagements', ['id' => $dossier->getId()]);

@@ -9,9 +9,9 @@ use App\Repository\DossierRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
-final class Dossier
+final readonly class Dossier
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierRepository $dossierRepository, private readonly Security $security, private readonly PlatauTempsRestant $servicePlatauTempsRestant, private readonly TexteApplicable $texteApplicableService)
+    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private Security $security, private PlatauTempsRestant $servicePlatauTempsRestant, private TexteApplicable $texteApplicableService)
     {
     }
 

@@ -10,7 +10,7 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
 
-final class Contact
+final readonly class Contact
 {
     public const ETABLISSEMENT = 'etablissement';
 
@@ -23,14 +23,14 @@ final class Contact
     public const COMMUNE = 'commune';
 
     /** @var array<string, HasContacts> */
-    private readonly array $repositories;
+    private array $repositories;
 
     public function __construct(
-        private readonly EtablissementRepository $etablissementRepository,
-        private readonly DossierRepository $dossierRepository,
-        private readonly GroupementRepository $groupementRepository,
-        private readonly CommissionRepository $commissionRepository,
-        private readonly CommuneRepository $communeRepository
+        private EtablissementRepository $etablissementRepository,
+        private DossierRepository $dossierRepository,
+        private GroupementRepository $groupementRepository,
+        private CommissionRepository $commissionRepository,
+        private CommuneRepository $communeRepository
     ) {
         $this->repositories = [
             self::ETABLISSEMENT => $this->etablissementRepository,

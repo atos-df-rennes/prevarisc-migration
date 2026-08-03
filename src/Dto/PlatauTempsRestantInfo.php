@@ -6,9 +6,9 @@ namespace App\Dto;
  * Value Object représentant les informations de temps restant pour une consultation Plat'AU.
  * Encapsule le temps restant et la couleur associée (Bootstrap label).
  */
-final class PlatauTempsRestantInfo
+final readonly class PlatauTempsRestantInfo
 {
-    public function __construct(private readonly ?string $tempsRestant, private readonly ?string $couleur)
+    public function __construct(private ?string $tempsRestant, private ?string $couleur)
     {
     }
 

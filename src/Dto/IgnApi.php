@@ -2,13 +2,13 @@
 
 namespace App\Dto;
 
-final class IgnApi
+final readonly class IgnApi
 {
-    private readonly bool $transparent;
+    private bool $transparent;
 
-    private readonly bool $baseLayer;
+    private bool $baseLayer;
 
-    public function __construct(private readonly string $nom, private readonly string $url, private readonly string $type, private readonly string $layers, private readonly string $format)
+    public function __construct(private string $nom, private string $url, private string $type, private string $layers, private string $format)
     {
         $this->transparent = false;
         $this->baseLayer = false;

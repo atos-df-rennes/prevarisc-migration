@@ -16,9 +16,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-final class FusionDesCommunes
+final readonly class FusionDesCommunes
 {
-    public function __construct(private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger, private readonly EntityManagerInterface $entityManager, private readonly CommuneRepository $communeRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly AdresseRueRepository $adresseRueRepository, private readonly UtilisateurRepository $utilisateurRepository, private readonly CommissionRegleRepository $commissionRegleRepository)
+    public function __construct(private SerializerInterface $serializer, private LoggerInterface $logger, private EntityManagerInterface $entityManager, private CommuneRepository $communeRepository, private EtablissementAdresseRepository $etablissementAdresseRepository, private AdresseRueRepository $adresseRueRepository, private UtilisateurRepository $utilisateurRepository, private CommissionRegleRepository $commissionRegleRepository)
     {
     }
 

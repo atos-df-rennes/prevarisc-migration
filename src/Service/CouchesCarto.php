@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class CouchesCarto
+final readonly class CouchesCarto
 {
     public const WMTS = 'wmts';
 
@@ -20,7 +20,7 @@ final class CouchesCarto
 
     public const FORMATS = [self::WMTS, self::WMS_RASTER, self::WMS_VECTEUR];
 
-    public function __construct(private readonly HttpClientInterface $client, private readonly LoggerInterface $logger, private readonly CacheItemPoolInterface $cache)
+    public function __construct(private HttpClientInterface $client, private LoggerInterface $logger, private CacheItemPoolInterface $cache)
     {
     }
 

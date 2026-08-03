@@ -10,9 +10,9 @@ use App\Enum\PlatauStatutAvisEnum;
  * Service métier pour la gestion des consultations Plat'AU.
  * Centralise la logique d'affichage et de traitement.
  */
-final class PlatauConsultation
+final readonly class PlatauConsultation
 {
-    public function __construct(private readonly PlatauTempsRestant $platauTempsRestantService)
+    public function __construct(private PlatauTempsRestant $platauTempsRestantService)
     {
     }
 

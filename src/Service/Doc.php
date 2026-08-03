@@ -4,9 +4,9 @@ namespace App\Service;
 
 use Psr\Log\LoggerInterface;
 
-final class Doc
+final readonly class Doc
 {
-    public function __construct(private readonly string $srcDir, private readonly LoggerInterface $logger)
+    public function __construct(private string $srcDir, private LoggerInterface $logger)
     {
     }
 

@@ -2,9 +2,9 @@
 
 namespace App\Dto;
 
-final class Document
+final readonly class Document
 {
-    public function __construct(private readonly string $filename, private readonly string $filepath)
+    public function __construct(private string $filename, private string $filepath)
     {
     }
 

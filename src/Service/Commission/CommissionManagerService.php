@@ -12,9 +12,9 @@ use Doctrine\ORM\EntityManagerInterface;
  * Service de gestion des commissions : création, mise à jour et suppression,
  * avec synchronisation du filesystem associé.
  */
-final class CommissionManagerService
+final readonly class CommissionManagerService
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommissionFilesystem $commissionFilesystem, private readonly CommissionMembreCourrierService $courrierService, private readonly Contact $contactService)
+    public function __construct(private EntityManagerInterface $entityManager, private CommissionFilesystem $commissionFilesystem, private CommissionMembreCourrierService $courrierService, private Contact $contactService)
     {
     }
 

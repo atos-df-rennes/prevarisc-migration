@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
-final class Avatar
+final readonly class Avatar
 {
-    private readonly string $basePath;
+    private string $basePath;
 
     public const SMALL_DIRECTORY = 'small';
 

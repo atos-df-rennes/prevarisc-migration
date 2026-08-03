@@ -6,9 +6,9 @@ use Imagine\Gd\Imagine;
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
 
-final class Image
+final readonly class Image
 {
-    private readonly Imagine $imagine;
+    private Imagine $imagine;
 
     public function __construct()
     {

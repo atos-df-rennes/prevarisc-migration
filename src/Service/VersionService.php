@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
-final class VersionService
+final readonly class VersionService
 {
-    public function __construct(private readonly string $srcDir)
+    public function __construct(private string $srcDir)
     {
     }
 

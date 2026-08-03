@@ -7,9 +7,9 @@ use App\Entity\Etablissement;
 use App\Repository\DossierRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class DossierLiaisonsService
+final readonly class DossierLiaisonsService
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierRepository $dossierRepository, private readonly DossierDonnantAvisService $dossierDonnantAvisService)
+    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private DossierDonnantAvisService $dossierDonnantAvisService)
     {
     }
 

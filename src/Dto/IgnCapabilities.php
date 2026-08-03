@@ -2,9 +2,9 @@
 
 namespace App\Dto;
 
-final class IgnCapabilities
+final readonly class IgnCapabilities
 {
-    public function __construct(private readonly ?string $url, private readonly ?string $error)
+    public function __construct(private ?string $url, private ?string $error)
     {
     }
 

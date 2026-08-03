@@ -23,9 +23,9 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * Ce service centralise le chargement de données communes aux actions add() et edit()
  * du contrôleur, évitant la duplication de code.
  */
-final class EtablissementFormDataLoader
+final readonly class EtablissementFormDataLoader
 {
-    public function __construct(private readonly GenreRepository $genreRepository, private readonly EtablissementStatutRepository $statutRepository, private readonly EtablissementCategorieRepository $categorieRepository, private readonly EtablissementTypeRepository $typeRepository, private readonly EtablissementActiviteRepository $activiteRepository, private readonly CommissionRepository $commissionRepository, private readonly TypePlanRepository $typePlanRepository, private readonly FamilleRepository $familleRepository, private readonly IghClasseRepository $ighClasseRepository, private readonly ClassementRepository $classementRepository, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly ParameterBagInterface $parameterBag, private readonly AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private GenreRepository $genreRepository, private EtablissementStatutRepository $statutRepository, private EtablissementCategorieRepository $categorieRepository, private EtablissementTypeRepository $typeRepository, private EtablissementActiviteRepository $activiteRepository, private CommissionRepository $commissionRepository, private TypePlanRepository $typePlanRepository, private FamilleRepository $familleRepository, private IghClasseRepository $ighClasseRepository, private ClassementRepository $classementRepository, private CoucheCartoRepository $coucheCartoRepository, private ParameterBagInterface $parameterBag, private AuthorizationCheckerInterface $authorizationChecker)
     {
     }
 

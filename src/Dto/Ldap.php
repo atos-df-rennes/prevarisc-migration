@@ -2,9 +2,9 @@
 
 namespace App\Dto;
 
-final class Ldap
+final readonly class Ldap
 {
-    public function __construct(private readonly bool $enabled, private readonly string $host, private readonly int $port, private readonly string $baseDn)
+    public function __construct(private bool $enabled, private string $host, private int $port, private string $baseDn)
     {
     }
 

@@ -2,12 +2,12 @@
 
 namespace App\Dto\Formulaires;
 
-final class NomFusion
+final readonly class NomFusion
 {
     /**
      * @param self[] $enfants
      */
-    public function __construct(private readonly string $valeur, private readonly array $enfants = [])
+    public function __construct(private string $valeur, private array $enfants = [])
     {
     }
 

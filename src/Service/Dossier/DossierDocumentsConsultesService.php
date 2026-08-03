@@ -8,9 +8,9 @@ use App\Entity\Dossier as DossierEntity;
 use App\Entity\ListeDocumentConsulte;
 use App\Repository\ListeDocumentConsulteRepository;
 
-final class DossierDocumentsConsultesService
+final readonly class DossierDocumentsConsultesService
 {
-    public function __construct(private readonly ListeDocumentConsulteRepository $listeDocumentConsulteRepository)
+    public function __construct(private ListeDocumentConsulteRepository $listeDocumentConsulteRepository)
     {
     }
 

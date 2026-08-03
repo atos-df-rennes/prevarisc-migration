@@ -583,7 +583,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                     'etablissement_id' => $etablissement->getId(),
                     'exception' => $e->getMessage(),
                 ]);
-                $this->addFlash('error', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
+                $this->addFlash('danger', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
             }
 
             return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
@@ -618,7 +618,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                     'etablissement_id' => $etablissement->getId(),
                     'exception' => $e->getMessage(),
                 ]);
-                $this->addFlash('error', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
+                $this->addFlash('danger', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
             }
 
             return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
@@ -657,7 +657,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                     'etablissement_id' => $etablissement->getId(),
                     'exception' => $e->getMessage(),
                 ]);
-                $this->addFlash('error', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
+                $this->addFlash('danger', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
             }
 
             return $this->redirectToRoute('etablissement_effectifs_degagements', ['id' => $etablissement->getId()]);

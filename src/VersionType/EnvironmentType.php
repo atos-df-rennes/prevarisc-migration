@@ -9,9 +9,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class EnvironmentType implements VersionType
+final readonly class EnvironmentType implements VersionType
 {
-    public function __construct(private readonly HttpClientInterface $client, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger)
+    public function __construct(private HttpClientInterface $client, private SerializerInterface $serializer, private LoggerInterface $logger)
     {
     }
 
