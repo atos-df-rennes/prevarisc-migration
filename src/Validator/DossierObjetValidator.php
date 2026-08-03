@@ -26,7 +26,7 @@ final class DossierObjetValidator extends ConstraintValidator
      *
      * @var int[]
      */
-    private const NATURES_SANS_OBJET = [21, 26];
+    private const array NATURES_SANS_OBJET = [21, 26];
 
     public function validate(mixed $value, Constraint $constraint): void
     {

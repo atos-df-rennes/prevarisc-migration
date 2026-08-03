@@ -17,6 +17,7 @@ final class AvatarExtension extends AbstractExtension
     /**
      * @return TwigFunction[]
      */
+    #[\Override]
     public function getFunctions(): array
     {
         return [

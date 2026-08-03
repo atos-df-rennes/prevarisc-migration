@@ -24,6 +24,7 @@ final class UniqueUtilisateur extends Constraint
     /**
      * La contrainte s'applique à la classe entière (pas à une propriété).
      */
+    #[\Override]
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;

@@ -8,10 +8,10 @@ namespace App\Constant\Platau;
 final class HealthcheckErrorSource
 {
     /** Erreur interne Prevarisc : configuration, réseau, token PISTE indisponible. */
-    public const PREVARISC = 0;
+    public const int PREVARISC = 0;
 
     /** Erreur côté Plat'AU : état dégradé, maintenance, code HTTP non-2xx. */
-    public const PLATAU = 1;
+    public const int PLATAU = 1;
 
     private function __construct()
     {

@@ -16,6 +16,7 @@ class EtablissementSiteVoter extends EtablissementVoter
     {
     }
 
+    #[\Override]
     protected function supports($attribute, $subject): bool
     {
         return parent::supports($attribute, $subject)
@@ -30,6 +31,7 @@ class EtablissementSiteVoter extends EtablissementVoter
      * En modification, le privilège 'add_etablissement' accorde l'accès à tout site (vide ou non),
      * aligné sur le comportement legacy (ACL.php:275 — ressource editsite + privilège add_etablissement).
      */
+    #[\Override]
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {

@@ -231,6 +231,7 @@ class CommissionMembreType extends AbstractType
         }
     }
 
+    #[\Override]
     public function getBlockPrefix(): string
     {
         return 'commission_membre';

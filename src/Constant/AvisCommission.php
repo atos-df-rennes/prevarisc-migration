@@ -9,11 +9,11 @@ namespace App\Constant;
  */
 final class AvisCommission
 {
-    public const FAVORABLE = 1;
+    public const int FAVORABLE = 1;
 
-    public const DEFAVORABLE = 2;
+    public const int DEFAVORABLE = 2;
 
-    public const FAVORABLE_AVEC_PRESCRIPTIONS = 3;
+    public const int FAVORABLE_AVEC_PRESCRIPTIONS = 3;
 
     /**
      * Retourne le libellé d'un code d'avis.

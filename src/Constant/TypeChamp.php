@@ -9,19 +9,19 @@ namespace App\Constant;
  */
 final class TypeChamp
 {
-    public const TEXT = 1;
+    public const int TEXT = 1;
 
-    public const TEXTAREA = 2;
+    public const int TEXTAREA = 2;
 
-    public const SELECT = 3;
+    public const int SELECT = 3;
 
-    public const NUMBER = 4;
+    public const int NUMBER = 4;
 
-    public const CHECKBOX = 5;
+    public const int CHECKBOX = 5;
 
-    public const PARENT = 6;
+    public const int PARENT = 6;
 
-    public const DATE = 7;
+    public const int DATE = 7;
 
     /**
      * Empêche l'instanciation de la classe.

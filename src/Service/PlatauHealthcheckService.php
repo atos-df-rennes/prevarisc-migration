@@ -20,7 +20,7 @@ use Psr\Log\LoggerInterface;
  */
 class PlatauHealthcheckService
 {
-    private const HEALTHCHECK_ENDPOINT = 'healthcheck';
+    private const string HEALTHCHECK_ENDPOINT = 'healthcheck';
 
     private readonly string $platauConfigFilePath;
 

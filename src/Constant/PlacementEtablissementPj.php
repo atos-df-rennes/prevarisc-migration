@@ -7,13 +7,13 @@ namespace App\Constant;
  */
 final class PlacementEtablissementPj
 {
-    public const LISTE = null;
+    public const null LISTE = null;
 
-    public const DIAPORAMA = 1;
+    public const int DIAPORAMA = 1;
 
-    public const PLANS = 0;
+    public const int PLANS = 0;
 
-    public const MISES_EN_AVANT = [self::DIAPORAMA, self::PLANS];
+    public const array MISES_EN_AVANT = [self::DIAPORAMA, self::PLANS];
 
     private function __construct()
     {

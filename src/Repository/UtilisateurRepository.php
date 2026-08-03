@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  */
 class UtilisateurRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
-    private const FONCTION_PREVENTIONNISTE = 13;
+    private const int FONCTION_PREVENTIONNISTE = 13;
 
     public function __construct(ManagerRegistry $registry)
     {

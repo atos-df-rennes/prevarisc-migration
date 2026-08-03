@@ -16,11 +16,13 @@ class EtablissementIghVoter extends EtablissementVoter
     {
     }
 
+    #[\Override]
     protected function supports($attribute, $subject): bool
     {
         return parent::supports($attribute, $subject) && parent::isSubjectGenreAllowed($subject, GenreEtablissement::IGH);
     }
 
+    #[\Override]
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {

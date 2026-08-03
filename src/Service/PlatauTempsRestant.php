@@ -4,9 +4,9 @@ namespace App\Service;
 
 final class PlatauTempsRestant
 {
-    public const SEUIL_OK = 6;
+    public const int SEUIL_OK = 6;
 
-    public const SEUIL_WARN = 3;
+    public const int SEUIL_WARN = 3;
 
     public function calculate(\DateTimeInterface $limitDate): string
     {

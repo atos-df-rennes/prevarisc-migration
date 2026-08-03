@@ -30,6 +30,7 @@ class HashedFileDataStore extends SimpleFileDataStore
         $this->format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
     }
 
+    #[\Override]
     public function getBasePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId): string
     {
         if (in_array($linkedObjectType, $this->nonHashedTypes)) {
@@ -43,6 +44,7 @@ class HashedFileDataStore extends SimpleFileDataStore
         return implode(DIRECTORY_SEPARATOR, [$this->realDataPath, 'uploads', $type, substr($hash, 0, 2), substr($hash, 2, 2), $linkedObjectId]);
     }
 
+    #[\Override]
     public function getURLPath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId): ?string
     {
         $type = $this->types[$linkedObjectType] ?? $linkedObjectType;

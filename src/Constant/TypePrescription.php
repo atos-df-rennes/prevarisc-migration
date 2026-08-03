@@ -4,13 +4,13 @@ namespace App\Constant;
 
 final class TypePrescription
 {
-    public const REGLEMENTAIRE = 0;
+    public const int REGLEMENTAIRE = 0;
 
-    public const EXPLOITATION = 1;
+    public const int EXPLOITATION = 1;
 
-    public const AMELIORATION = 2;
+    public const int AMELIORATION = 2;
 
-    public const ALL = [
+    public const array ALL = [
         self::REGLEMENTAIRE,
         self::EXPLOITATION,
         self::AMELIORATION,

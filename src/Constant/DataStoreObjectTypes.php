@@ -11,44 +11,44 @@ final class DataStoreObjectTypes
     /**
      * Type pour les établissements.
      */
-    public const ETABLISSEMENT = 'etablissement';
+    public const string ETABLISSEMENT = 'etablissement';
 
     /**
      * Type pour les miniatures d'établissements.
      */
-    public const ETABLISSEMENT_MINIATURE = 'etablissement_miniature';
+    public const string ETABLISSEMENT_MINIATURE = 'etablissement_miniature';
 
     /**
      * Type pour les dossiers.
      */
-    public const DOSSIER = 'dossier';
+    public const string DOSSIER = 'dossier';
 
     /**
      * Type pour les dates de commission.
      */
-    public const DATE_COMMISSION = 'dateCommission';
+    public const string DATE_COMMISSION = 'dateCommission';
 
     /**
      * Type pour les documents.
      */
-    public const DOCUMENT = 'document';
+    public const string DOCUMENT = 'document';
 
     /**
      * Type pour les courriers.
      */
-    public const COURRIER = 'courrier';
+    public const string COURRIER = 'courrier';
 
     /**
      * Type pour les avatars.
      */
-    public const AVATAR = 'avatar';
+    public const string AVATAR = 'avatar';
 
     /**
      * Types qui ne doivent pas être hashés (utilisés par HashedFileDataStore).
      *
      * @var string[]
      */
-    public const NON_HASHED_TYPES = [
+    public const array NON_HASHED_TYPES = [
         self::DOCUMENT,
         self::COURRIER,
         self::AVATAR,
@@ -59,7 +59,7 @@ final class DataStoreObjectTypes
      *
      * @var string[]
      */
-    public const ALL_TYPES = [
+    public const array ALL_TYPES = [
         self::ETABLISSEMENT,
         self::ETABLISSEMENT_MINIATURE,
         self::DOSSIER,

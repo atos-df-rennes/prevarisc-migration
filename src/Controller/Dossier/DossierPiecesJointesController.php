@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class DossierPiecesJointesController extends AbstractController implements DossierLateralNavigationInterface
 {
-    private const FORBIDDEN_EXTENSIONS = ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'];
+    private const array FORBIDDEN_EXTENSIONS = ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'];
 
     public function __construct(private readonly DataStore $dataStore, private readonly DossierPieceJointeRepository $dossierPieceJointeRepository, private readonly PieceJointeStatutRepository $pieceJointeStatutRepository, private readonly EntityManagerInterface $entityManager, private readonly NotificationService $notificationService, private readonly ValidatorInterface $validator, private readonly Filesystem $filesystem, private readonly string $realDataPath)
     {
