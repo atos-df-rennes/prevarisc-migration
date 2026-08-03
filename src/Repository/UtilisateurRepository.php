@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Constant\Fonction;
 use App\Entity\Utilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -19,8 +20,6 @@ use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
  */
 class UtilisateurRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
-    private const int FONCTION_PREVENTIONNISTE = 13;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Utilisateur::class);
@@ -138,7 +137,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->innerJoin('u.informations', 'i')
             ->innerJoin('i.fonction', 'f')
             ->where('f.id = :fonction')
-            ->setParameter('fonction', self::FONCTION_PREVENTIONNISTE)
+            ->setParameter('fonction', Fonction::PREVENTIONNISTE)
             ->orderBy('i.nom', 'ASC')
             ->addOrderBy('i.prenom', 'ASC');
     }
@@ -165,7 +164,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->innerJoin('u.informations', 'i')
             ->innerJoin('i.fonction', 'f')
             ->where('f.id = :fonction')
-            ->setParameter('fonction', self::FONCTION_PREVENTIONNISTE)
+            ->setParameter('fonction', Fonction::PREVENTIONNISTE)
             ->andWhere('u.id IN (:submittedIds)')
             ->setParameter('submittedIds', $submittedIds)
             ->orderBy('i.nom', 'ASC')

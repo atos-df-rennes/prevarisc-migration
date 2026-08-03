@@ -3,6 +3,7 @@
 namespace App\Twig;
 
 use App\Constant\Avis;
+use App\Constant\DossierNature;
 use App\Constant\DossierType;
 use App\Dto\Repository\AbstractDossierResultDto;
 use App\Service\DateDiffFormatterService;
@@ -11,14 +12,6 @@ use Twig\TwigFilter;
 
 class DossierStatusExtension extends AbstractExtension
 {
-    /**
-     * IDs de natures de dossier correspondant à une nature d'exploitation.
-     * Union des deux templates legacy, normalisée.
-     *
-     * @var int[]
-     */
-    private const array EXPLOITATION_NATURE_IDS = [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48];
-
     public function __construct(private readonly DateDiffFormatterService $dateDiffFormatter)
     {
     }
@@ -85,7 +78,7 @@ class DossierStatusExtension extends AbstractExtension
     private function isExploitationNature(AbstractDossierResultDto $item): bool
     {
         return null !== $item->ID_DOSSIERNATURE
-            && in_array($this->mixedToInt($item->ID_DOSSIERNATURE), self::EXPLOITATION_NATURE_IDS, true);
+            && in_array($this->mixedToInt($item->ID_DOSSIERNATURE), DossierNature::NATURES_DONNANT_AVIS, true);
     }
 
     /**

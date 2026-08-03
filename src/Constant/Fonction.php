@@ -17,6 +17,8 @@ final class Fonction
 
     public const int RESPONSABLE_DE_SECURITE = 9;
 
+    public const int PREVENTIONNISTE = 13;
+
     public const int PROPRIETAIRE = 17;
 
     public const array FONCTIONS_COPIE_CONTACTS = [
