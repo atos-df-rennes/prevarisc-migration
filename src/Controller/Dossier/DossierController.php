@@ -611,7 +611,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                     'dossier_id' => $dossier->getId(),
                     'exception' => $e->getMessage(),
                 ]);
-                $this->addFlash('error', 'Les vérifications techniques n\'ont pas été mises à jour. Veuillez réessayer.');
+                $this->addFlash('danger', 'Les vérifications techniques n\'ont pas été mises à jour. Veuillez réessayer.');
             }
 
             return $this->redirectToRoute('dossier_verifications_techniques', ['id' => $dossier->getId()]);

@@ -112,7 +112,7 @@ class SearchController extends AbstractController
                     );
 
                     if ($search['search_metadata']['count'] > 10000) {
-                        $this->addFlash('error', 'L\'export Calc est limité à 10 000 éléments. Votre sélection en contient '.$search['search_metadata']['count'].'.');
+                        $this->addFlash('danger', 'L\'export Calc est limité à 10 000 éléments. Votre sélection en contient '.$search['search_metadata']['count'].'.');
 
                         return $this->redirectToRoute('search_etablissement', $request->query->all());
                     }
@@ -127,7 +127,7 @@ class SearchController extends AbstractController
                         'Content-Disposition' => HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, $filename),
                     ]);
                 } catch (\Exception $e) {
-                    $this->addFlash('error', 'L\'export a rencontré un problème. Veuillez rééssayez. ('.$e->getMessage().')');
+                    $this->addFlash('danger', 'L\'export a rencontré un problème. Veuillez rééssayez. ('.$e->getMessage().')');
                 }
             }
 
@@ -221,7 +221,7 @@ class SearchController extends AbstractController
                     50
                 );
             } catch (\Exception $e) {
-                $this->addFlash('error', 'La recherche n\'a pas été effectuée correctement. Veuillez réessayer. ('.$e->getMessage().')');
+                $this->addFlash('danger', 'La recherche n\'a pas été effectuée correctement. Veuillez réessayer. ('.$e->getMessage().')');
             }
         }
 
@@ -345,7 +345,7 @@ class SearchController extends AbstractController
                     $search = $this->dossierSearchService->extractionDossiers($types, $objet, $num_doc_urba, null, null, $criteresRecherche);
 
                     if ($search['search_metadata']['count'] > 10000) {
-                        $this->addFlash('error', 'L\'export Calc est limité à 10 000 éléments. Votre sélection en contient '.$search['search_metadata']['count'].'.');
+                        $this->addFlash('danger', 'L\'export Calc est limité à 10 000 éléments. Votre sélection en contient '.$search['search_metadata']['count'].'.');
 
                         return $this->redirectToRoute('search_dossier', $request->query->all());
                     }
@@ -362,7 +362,7 @@ class SearchController extends AbstractController
                         'Content-Disposition' => HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, $filename),
                     ]);
                 } catch (\Exception $e) {
-                    $this->addFlash('error', 'L\'export a rencontré un problème. Veuillez rééssayez. ('.$e->getMessage().')');
+                    $this->addFlash('danger', 'L\'export a rencontré un problème. Veuillez rééssayez. ('.$e->getMessage().')');
                 }
             }
 
@@ -458,7 +458,7 @@ class SearchController extends AbstractController
                     50
                 );
             } catch (\Exception $e) {
-                $this->addFlash('error', 'La recherche n\'a pas été effectuée correctement. Veuillez réessayer. ('.$e->getMessage().')');
+                $this->addFlash('danger', 'La recherche n\'a pas été effectuée correctement. Veuillez réessayer. ('.$e->getMessage().')');
             }
         }
 
