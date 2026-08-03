@@ -1564,7 +1564,7 @@ class DossierRapportOdtService
                      WHERE ed.ID_ETABLISSEMENT IN (?)
                      AND ad.DISPLAY_HISTORIQUE = 1',
                     [$etabIds],
-                    [Connection::PARAM_INT_ARRAY]
+                    [ArrayParameterType::INTEGER]
                 );
             } else {
                 /** @var array<int, array<string, string|null>> $rows */
