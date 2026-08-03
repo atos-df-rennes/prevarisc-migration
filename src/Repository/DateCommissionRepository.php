@@ -7,6 +7,7 @@ use App\Dto\Repository\NextCommissionDto;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
