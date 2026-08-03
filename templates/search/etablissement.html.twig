@@ -51,7 +51,7 @@
                     <select name='statuts[]' multiple onchange="masquerBoutonExportCalc()">
                         {% for statut in DB_statut %}
                             <option value='{{ statut.ID_STATUT }}'
-                                {% if app.request.query.get('statuts') is not null and statut.ID_STATUT in app.request.query.get('statuts') %}selected{% endif %}>
+                                {% if app.request.query.all('statuts') is not null and statut.ID_STATUT in app.request.query.all('statuts') %}selected{% endif %}>
                                 {{ statut.LIBELLE_STATUT }}
                             </option>
                         {% endfor %}
@@ -59,21 +59,21 @@
                     </div>
                     <div class="col-sm-3 form-group">
                     <select name='presences_local_sommeil[]' multiple onchange="masquerBoutonExportCalc()">
-                        <option value='true' {% if app.request.query.get('presences_local_sommeil') is not null and 'true' in app.request.query.get('presences_local_sommeil') %}selected{% endif %}>Avec</option>
-                        <option value='false' {% if app.request.query.get('presences_local_sommeil') is not null and 'false' in app.request.query.get('presences_local_sommeil') %}selected{% endif %}>Sans</option>
+                        <option value='true' {% if app.request.query.all('presences_local_sommeil') is not null and 'true' in app.request.query.all('presences_local_sommeil') %}selected{% endif %}>Avec</option>
+                        <option value='false' {% if app.request.query.all('presences_local_sommeil') is not null and 'false' in app.request.query.all('presences_local_sommeil') %}selected{% endif %}>Sans</option>
                     </select>
                     </div>
                     <div class="col-sm-3 form-group">
                     <select name='avis[]' multiple onchange="masquerBoutonExportCalc()">
-                        <option value='true' {% if app.request.query.get('avis') is not null and 'true' in app.request.query.get('avis') %}selected{% endif %}>Favorable</option>
-                        <option value='false' {% if app.request.query.get('avis') is not null and 'false' in app.request.query.get('avis') %}selected{% endif %}>Défavorable</option>
+                        <option value='true' {% if app.request.query.all('avis') is not null and 'true' in app.request.query.all('avis') %}selected{% endif %}>Favorable</option>
+                        <option value='false' {% if app.request.query.all('avis') is not null and 'false' in app.request.query.all('avis') %}selected{% endif %}>Défavorable</option>
                     </select>
                     </div>
                     <div class="col-sm-3 form-group">
                     <select name='commissions[]' multiple onchange="masquerBoutonExportCalc()">
                         {% for commission in DB_commission %}
                             <option value='{{ commission.ID_COMMISSION }}'
-                                {% if app.request.query.get('commissions') is not null and commission.ID_COMMISSION in app.request.query.get('commissions') %}selected{% endif %}>
+                                {% if app.request.query.all('commissions') is not null and commission.ID_COMMISSION in app.request.query.all('commissions') %}selected{% endif %}>
                                 {{ commission.LIBELLE_COMMISSION }}
                             </option>
                         {% endfor %}
@@ -88,7 +88,7 @@
                     <select name='genres[]' multiple onchange="masquerBoutonExportCalc()">
                         {% for genre in DB_genre %}
                             <option value='{{ genre.ID_GENRE }}'
-                                {% if app.request.query.get('genres') is not null and genre.ID_GENRE in app.request.query.get('genres') %}selected{% endif %}>
+                                {% if app.request.query.all('genres') is not null and genre.ID_GENRE in app.request.query.all('genres') %}selected{% endif %}>
                                 {{ genre.LIBELLE_GENRE }}
                             </option>
                         {% endfor %}
@@ -98,7 +98,7 @@
                         <select name='categories[]' multiple onchange="masquerBoutonExportCalc()">
                             {% for categorie in DB_categorie %}
                                 <option value='{{ categorie.ID_CATEGORIE }}'
-                                    {% if app.request.query.get('categories') is not null and categorie.ID_CATEGORIE in app.request.query.get('categories') %}selected{% endif %}>
+                                    {% if app.request.query.all('categories') is not null and categorie.ID_CATEGORIE in app.request.query.all('categories') %}selected{% endif %}>
                                     {{ categorie.LIBELLE_CATEGORIE }}
                                 </option>
                             {% endfor %}
@@ -108,7 +108,7 @@
                         <select name='classes[]' multiple onchange="masquerBoutonExportCalc()">
                             {% for classe in DB_classe %}
                                 <option value='{{ classe.ID_CLASSE }}'
-                                    {% if app.request.query.get('classes') is not null and classe.ID_CLASSE in app.request.query.get('classes') %}selected{% endif %}>
+                                    {% if app.request.query.all('classes') is not null and classe.ID_CLASSE in app.request.query.all('classes') %}selected{% endif %}>
                                     {{ classe.LIBELLE_CLASSE }}
                                 </option>
                             {% endfor %}
@@ -118,7 +118,7 @@
                         <select name='familles[]' multiple onchange="masquerBoutonExportCalc()">
                             {% for famille in DB_famille %}
                                 <option value='{{ famille.ID_FAMILLE }}'
-                                    {% if app.request.query.get('familles') is not null and famille.ID_FAMILLE in app.request.query.get('familles') %}selected{% endif %}>
+                                    {% if app.request.query.all('familles') is not null and famille.ID_FAMILLE in app.request.query.all('familles') %}selected{% endif %}>
                                     {{ famille.LIBELLE_FAMILLE }}
                                 </option>
                             {% endfor %}
@@ -134,7 +134,7 @@
                                     {% set current_type = activite.LIBELLE_TYPE %}
                                 {% endif %}
                                 <option value='{{ activite.ID_TYPEACTIVITE }}'
-                                    {% if app.request.query.get('types_activites') is not null and activite.ID_TYPEACTIVITE in app.request.query.get('types_activites') %}selected{% endif %}>
+                                    {% if app.request.query.all('types_activites') is not null and activite.ID_TYPEACTIVITE in app.request.query.all('types_activites') %}selected{% endif %}>
                                     {{ activite.LIBELLE_ACTIVITE }}
                                 </option>
                             {% endfor %}
@@ -158,7 +158,7 @@
                                     {% endfor %}
                                 {% endif %}
                                 <option value='{{ groupement.ID_GROUPEMENT }}'
-                                    {% if (app.request.query.get('groupements_territoriaux') is not null and groupement.ID_GROUPEMENT in app.request.query.get('groupements_territoriaux')) or selected %}selected{% endif %}>
+                                    {% if (app.request.query.all('groupements_territoriaux') is not null and groupement.ID_GROUPEMENT in app.request.query.all('groupements_territoriaux')) or selected %}selected{% endif %}>
                                     {{ groupement.LIBELLE_GROUPEMENT }}
                                 </option>
                             {% endfor %}
