@@ -18,11 +18,13 @@ final class DossierDocumentsManquants extends Constraint
     /** @var string */
     public $messageChampsManquants = 'Chaque document manquant doit avoir une date d\'incomplétude et un contenu renseignés.';
 
+    #[\Override]
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;
     }
 
+    #[\Override]
     public function validatedBy(): string
     {
         return DossierDocumentsManquantsValidator::class;

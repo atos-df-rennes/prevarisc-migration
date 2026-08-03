@@ -13,6 +13,7 @@ class DossierExtension extends AbstractExtension
     {
     }
 
+    #[\Override]
     public function getFilters(): array
     {
         return [

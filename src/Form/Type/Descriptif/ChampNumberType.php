@@ -19,6 +19,7 @@ class ChampNumberType extends AbstractType
         ]);
     }
 
+    #[\Override]
     public function getParent(): string
     {
         return IntegerType::class;

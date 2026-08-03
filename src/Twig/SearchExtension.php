@@ -17,6 +17,7 @@ class SearchExtension extends AbstractExtension
     /**
      * @return TwigFilter[]
      */
+    #[\Override]
     public function getFilters(): array
     {
         return [
@@ -27,6 +28,7 @@ class SearchExtension extends AbstractExtension
     /**
      * @return TwigFunction[]
      */
+    #[\Override]
     public function getFunctions(): array
     {
         return [

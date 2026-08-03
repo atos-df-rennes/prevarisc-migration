@@ -10,16 +10,16 @@ namespace App\Enum;
  */
 final class CommissionMembreCourrierType
 {
-    public const CONVOCATIONVISITE = 'CONVOCATIONVISITE';
+    public const string CONVOCATIONVISITE = 'CONVOCATIONVISITE';
 
-    public const CONVOCATIONSALLE = 'CONVOCATIONSALLE';
+    public const string CONVOCATIONSALLE = 'CONVOCATIONSALLE';
 
-    public const ODJ = 'ODJ';
+    public const string ODJ = 'ODJ';
 
-    public const PV = 'PV';
+    public const string PV = 'PV';
 
     /** @var string[] */
-    public const ALL = [
+    public const array ALL = [
         self::CONVOCATIONVISITE,
         self::CONVOCATIONSALLE,
         self::ODJ,

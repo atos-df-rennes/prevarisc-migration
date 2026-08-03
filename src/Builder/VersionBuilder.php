@@ -11,9 +11,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class VersionBuilder
 {
-    public const REPO_URL = 'https://github.com/atos-df-rennes/prevarisc';
+    public const string REPO_URL = 'https://github.com/atos-df-rennes/prevarisc';
 
-    public const REPO_API_URL = 'https://api.github.com/repos/atos-df-rennes/prevarisc';
+    public const string REPO_API_URL = 'https://api.github.com/repos/atos-df-rennes/prevarisc';
 
     public function __construct(
         private string $srcDir,

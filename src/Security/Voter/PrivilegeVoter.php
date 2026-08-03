@@ -22,7 +22,7 @@ class PrivilegeVoter implements VoterInterface
      */
     private $privilegesIndex;
 
-    private const EXCLUDED_ATTRIBUTES = [
+    private const array EXCLUDED_ATTRIBUTES = [
         DossierVoter::LECTURE,
         DossierVoter::MODIFICATION,
         DossierVoter::MODIFICATION_IGNORE_VERROU,

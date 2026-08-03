@@ -7,7 +7,7 @@ use App\Dto\Repository\NextCommissionDto;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -120,7 +120,7 @@ class DateCommissionRepository extends ServiceEntityRepository
         if ([] !== $commissionIds) {
             $select .= ' AND d.COMMISSION_CONCERNE IN (:commissionIds)';
             $params['commissionIds'] = array_map(intval(...), $commissionIds);
-            $types['commissionIds'] = Connection::PARAM_INT_ARRAY;
+            $types['commissionIds'] = ArrayParameterType::INTEGER;
         }
 
         $select .= ' ORDER BY DATE_COMMISSION, HEUREDEB_COMMISSION';
@@ -153,7 +153,7 @@ class DateCommissionRepository extends ServiceEntityRepository
         if ([] !== $commissionIds) {
             $sql .= ' AND d.COMMISSION_CONCERNE IN (:commissionIds)';
             $params['commissionIds'] = array_map(intval(...), $commissionIds);
-            $types['commissionIds'] = Connection::PARAM_INT_ARRAY;
+            $types['commissionIds'] = ArrayParameterType::INTEGER;
         }
 
         $count = $conn->fetchOne($sql, $params, $types);
@@ -317,13 +317,13 @@ class DateCommissionRepository extends ServiceEntityRepository
             $conn->executeStatement(
                 'UPDATE dossier SET DATECOMM_DOSSIER = :date WHERE ID_DOSSIER IN (:ids)',
                 ['date' => $dateCommission, 'ids' => $dossierIds],
-                ['ids' => Connection::PARAM_INT_ARRAY]
+                ['ids' => ArrayParameterType::INTEGER]
             );
         } elseif (in_array($idTypeEvenement, [2, 3], true)) {
             $conn->executeStatement(
                 'UPDATE dossier SET DATEVISITE_DOSSIER = :date WHERE ID_DOSSIER IN (:ids)',
                 ['date' => $dateCommission, 'ids' => $dossierIds],
-                ['ids' => Connection::PARAM_INT_ARRAY]
+                ['ids' => ArrayParameterType::INTEGER]
             );
         }
     }

@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\AvisDerogations;
 use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -48,7 +48,7 @@ class AvisDerogationsRepository extends ServiceEntityRepository
             ->leftJoin('dl.type', 't')
             ->where('e.id IN (:ids)')
             ->andWhere('a.displayHistorique = 1')
-            ->setParameter('ids', $idsEtablissements, Connection::PARAM_INT_ARRAY)
+            ->setParameter('ids', $idsEtablissements, ArrayParameterType::INTEGER)
             ->getQuery()
             ->getResult()
         ;

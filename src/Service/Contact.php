@@ -12,15 +12,15 @@ use App\Repository\GroupementRepository;
 
 final readonly class Contact
 {
-    public const ETABLISSEMENT = 'etablissement';
+    public const string ETABLISSEMENT = 'etablissement';
 
-    public const DOSSIER = 'dossier';
+    public const string DOSSIER = 'dossier';
 
-    public const GROUPEMENT = 'groupement';
+    public const string GROUPEMENT = 'groupement';
 
-    public const COMMISSION = 'commission';
+    public const string COMMISSION = 'commission';
 
-    public const COMMUNE = 'commune';
+    public const string COMMUNE = 'commune';
 
     /** @var array<string, HasContacts> */
     private array $repositories;

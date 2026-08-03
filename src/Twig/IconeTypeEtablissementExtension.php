@@ -14,6 +14,7 @@ class IconeTypeEtablissementExtension extends AbstractExtension
     /**
      * @return TwigFunction[]
      */
+    #[\Override]
     public function getFunctions(): array
     {
         return [

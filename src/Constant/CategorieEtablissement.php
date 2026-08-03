@@ -9,7 +9,7 @@ namespace App\Constant;
  */
 final class CategorieEtablissement
 {
-    public const CINQUIEME = 5;
+    public const int CINQUIEME = 5;
 
     /**
      * Empêche l'instanciation de la classe.

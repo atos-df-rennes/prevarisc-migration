@@ -22,6 +22,7 @@ use App\Service\DataStore\DataStore;
 use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Odtphp\Exceptions\OdfException;
@@ -1564,7 +1565,7 @@ class DossierRapportOdtService
                      WHERE ed.ID_ETABLISSEMENT IN (?)
                      AND ad.DISPLAY_HISTORIQUE = 1',
                     [$etabIds],
-                    [Connection::PARAM_INT_ARRAY]
+                    [ArrayParameterType::INTEGER]
                 );
             } else {
                 /** @var array<int, array<string, string|null>> $rows */

@@ -16,6 +16,7 @@ class EtablissementHabitationVoter extends EtablissementVoter
     {
     }
 
+    #[\Override]
     protected function supports($attribute, $subject): bool
     {
         if (!parent::supports($attribute, $subject)) {
@@ -25,6 +26,7 @@ class EtablissementHabitationVoter extends EtablissementVoter
         return parent::isSubjectGenreAllowed($subject, GenreEtablissement::HABITATION);
     }
 
+    #[\Override]
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {

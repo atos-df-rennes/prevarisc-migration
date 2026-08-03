@@ -2,6 +2,7 @@
 
 namespace App\Validator;
 
+use App\Constant\DossierNature;
 use App\Entity\Dossier;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -18,16 +19,6 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
  */
 final class DossierObjetValidator extends ConstraintValidator
 {
-    /**
-     * IDs des natures pour lesquelles OBJET n'est PAS requis.
-     *
-     * - Nature 21 : Visite périodique
-     * - Nature 26 : Groupe visite périodique
-     *
-     * @var int[]
-     */
-    private const NATURES_SANS_OBJET = [21, 26];
-
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof DossierObjet) {
@@ -48,7 +39,7 @@ final class DossierObjetValidator extends ConstraintValidator
         $natureId = $nature->getId();
 
         // Si la nature est dans la liste des natures sans objet, pas de validation
-        if (in_array($natureId, self::NATURES_SANS_OBJET, true)) {
+        if (in_array($natureId, DossierNature::VISITE_PERIODIQUE, true)) {
             return;
         }
 

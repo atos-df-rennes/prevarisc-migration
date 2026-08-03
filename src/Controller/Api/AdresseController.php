@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class AdresseController extends AbstractController
 {
-    private const LONGUEUR_CODE_POSTAL = 5;
+    private const int LONGUEUR_CODE_POSTAL = 5;
 
     public function __construct(private readonly Connection $connection)
     {

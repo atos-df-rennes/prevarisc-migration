@@ -7,15 +7,15 @@ namespace App\Constant;
  */
 final class AboutDocument
 {
-    public const ABOUT = 'about';
+    public const string ABOUT = 'about';
 
-    public const DEVELOPERS = 'dev';
+    public const string DEVELOPERS = 'dev';
 
-    public const SUPPORT = 'support';
+    public const string SUPPORT = 'support';
 
-    public const TERMS_OF_SERVICE = 'tos';
+    public const string TERMS_OF_SERVICE = 'tos';
 
-    public const ALL = [
+    public const array ALL = [
         self::ABOUT,
         self::DEVELOPERS,
         self::SUPPORT,
