@@ -13,9 +13,9 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use Psr\Log\LoggerInterface;
 
-final class EtablissementHistoriqueService
+final readonly class EtablissementHistoriqueService
 {
-    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly DossierRepository $dossierRepository, private readonly LoggerInterface $logger)
+    public function __construct(private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private LoggerInterface $logger)
     {
     }
 

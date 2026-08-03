@@ -40,7 +40,7 @@ final class DossierPrescriptionServiceTest extends TestCase
         $callCount = 0;
         $this->repository->expects($this->exactly(2))
             ->method('renumeroterParIds')
-            ->willReturnCallback(function ($d, $ids) use ($dossier, $idsRegl, $idsAutres, &$callCount) {
+            ->willReturnCallback(function ($d, $ids) use ($dossier, $idsRegl, $idsAutres, &$callCount): null {
                 ++$callCount;
                 if (1 === $callCount) {
                     $this->assertSame($dossier, $d);

@@ -10,9 +10,9 @@ use Psr\Log\LoggerInterface;
 /**
  * Service pour transformer un DTO CommissionDates en entités DateCommission.
  */
-final class CommissionDatesTransformer
+final readonly class CommissionDatesTransformer
 {
-    public function __construct(private readonly LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
     }
 

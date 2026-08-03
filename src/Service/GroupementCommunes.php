@@ -5,9 +5,9 @@ namespace App\Service;
 use App\Entity\Groupement;
 use App\Repository\EtablissementInformationsRepository;
 
-final class GroupementCommunes
+final readonly class GroupementCommunes
 {
-    public function __construct(private readonly EtablissementInformationsRepository $etablissementInformationsRepository)
+    public function __construct(private EtablissementInformationsRepository $etablissementInformationsRepository)
     {
     }
 

@@ -5,9 +5,9 @@ namespace App\Dto\Platau;
 /**
  * Informations de version retournées par le healthcheck Plat'AU.
  */
-final class VersionInfo implements \JsonSerializable
+final readonly class VersionInfo implements \JsonSerializable
 {
-    public function __construct(private readonly ?string $version, private readonly ?string $versionModel, private readonly ?string $versionNomenclature)
+    public function __construct(private ?string $version, private ?string $versionModel, private ?string $versionNomenclature)
     {
     }
 

@@ -5,9 +5,9 @@ namespace App\Service;
 use App\Dto\Document;
 use Symfony\Component\Finder\Finder;
 
-final class Documents
+final readonly class Documents
 {
-    public function __construct(private readonly string $documentsDataPath, private readonly string $documentsRealDataPath)
+    public function __construct(private string $documentsDataPath, private string $documentsRealDataPath)
     {
     }
 

@@ -10,9 +10,9 @@ use Symfony\Component\Filesystem\Filesystem;
  * Service de gestion du filesystem pour les commissions.
  * Gère la création et suppression des dossiers de documents.
  */
-final class CommissionFilesystem
+final readonly class CommissionFilesystem
 {
-    public function __construct(private readonly string $documentsRealDataPath, private readonly LoggerInterface $logger, private readonly Filesystem $filesystem)
+    public function __construct(private string $documentsRealDataPath, private LoggerInterface $logger, private Filesystem $filesystem)
     {
     }
 

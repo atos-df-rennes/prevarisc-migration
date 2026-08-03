@@ -4,9 +4,9 @@ namespace App\Dto;
 
 use App\Dto\GithubApi\GithubObject;
 
-final class GithubApi
+final readonly class GithubApi
 {
-    public function __construct(private readonly string $ref, private readonly GithubObject $object)
+    public function __construct(private string $ref, private GithubObject $object)
     {
     }
 

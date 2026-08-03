@@ -9,13 +9,13 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class GithubType implements VersionType
+final readonly class GithubType implements VersionType
 {
-    private readonly string $branch;
+    private string $branch;
 
-    private readonly string $revision;
+    private string $revision;
 
-    public function __construct(string $srcDir, private readonly HttpClientInterface $client, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger)
+    public function __construct(string $srcDir, private HttpClientInterface $client, private SerializerInterface $serializer, private LoggerInterface $logger)
     {
         $gitDir = dirname($srcDir).'/prevarisc';
 

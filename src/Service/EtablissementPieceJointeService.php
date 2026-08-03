@@ -14,9 +14,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-final class EtablissementPieceJointeService
+final readonly class EtablissementPieceJointeService
 {
-    public function __construct(private readonly EtablissementPieceJointeRepository $etablissementPJRepository, private readonly DataStore $dataStore, private readonly LoggerInterface $datastoreLogger, private readonly EntityManagerInterface $entityManager, private readonly PieceJointeRepository $pieceJointeRepository, private readonly Image $imageService, private readonly Filesystem $filesystem)
+    public function __construct(private EtablissementPieceJointeRepository $etablissementPJRepository, private DataStore $dataStore, private LoggerInterface $datastoreLogger, private EntityManagerInterface $entityManager, private PieceJointeRepository $pieceJointeRepository, private Image $imageService, private Filesystem $filesystem)
     {
     }
 

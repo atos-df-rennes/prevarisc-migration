@@ -9,17 +9,17 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class VersionBuilder
+final readonly class VersionBuilder
 {
     public const REPO_URL = 'https://github.com/atos-df-rennes/prevarisc';
 
     public const REPO_API_URL = 'https://api.github.com/repos/atos-df-rennes/prevarisc';
 
     public function __construct(
-        private readonly string $srcDir,
-        private readonly HttpClientInterface $client,
-        private readonly SerializerInterface $serializer,
-        private readonly LoggerInterface $logger
+        private string $srcDir,
+        private HttpClientInterface $client,
+        private SerializerInterface $serializer,
+        private LoggerInterface $logger
     ) {
     }
 

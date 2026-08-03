@@ -2,12 +2,12 @@
 
 namespace App\Dto\FusionDesCommunes;
 
-final class FusionDeCommunes
+final readonly class FusionDeCommunes
 {
     /**
      * @param Commune[] $listeCommunes
      */
-    public function __construct(private readonly string $nom, private readonly string $numinsee, private readonly array $listeCommunes)
+    public function __construct(private string $nom, private string $numinsee, private array $listeCommunes)
     {
     }
 

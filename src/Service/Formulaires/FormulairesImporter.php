@@ -12,9 +12,9 @@ use App\Repository\TypeChampRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-final class FormulairesImporter
+final readonly class FormulairesImporter
 {
-    public function __construct(private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly TypeChampRepository $typeChampRepository, private readonly LoggerInterface $logger)
+    public function __construct(private CapsuleRubriqueRepository $capsuleRubriqueRepository, private TypeChampRepository $typeChampRepository, private LoggerInterface $logger)
     {
     }
 

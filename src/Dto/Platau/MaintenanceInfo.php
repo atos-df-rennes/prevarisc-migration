@@ -6,9 +6,9 @@ namespace App\Dto\Platau;
  * Informations de maintenance retournées par le healthcheck Plat'AU.
  * Couvre la maintenance en cours ET la prochaine maintenance programmée.
  */
-final class MaintenanceInfo implements \JsonSerializable
+final readonly class MaintenanceInfo implements \JsonSerializable
 {
-    public function __construct(private readonly bool $active, private readonly ?string $typeMaintenance, private readonly ?string $descMaintenance, private readonly ?string $prochaineMaintenance, private readonly ?string $descProchaineMaintenance)
+    public function __construct(private bool $active, private ?string $typeMaintenance, private ?string $descMaintenance, private ?string $prochaineMaintenance, private ?string $descProchaineMaintenance)
     {
     }
 

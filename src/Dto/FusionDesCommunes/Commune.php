@@ -2,9 +2,9 @@
 
 namespace App\Dto\FusionDesCommunes;
 
-final class Commune
+final readonly class Commune
 {
-    public function __construct(private readonly string $nom, private readonly string $numinsee)
+    public function __construct(private string $nom, private string $numinsee)
     {
     }
 

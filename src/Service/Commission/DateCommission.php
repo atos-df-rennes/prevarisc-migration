@@ -6,9 +6,9 @@ use App\Entity\DateCommission as DateCommissionEntity;
 use App\Entity\Dossier;
 use App\Repository\DateCommissionRepository;
 
-final class DateCommission
+final readonly class DateCommission
 {
-    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository)
+    public function __construct(private DateCommissionRepository $dateCommissionRepository)
     {
     }
 
