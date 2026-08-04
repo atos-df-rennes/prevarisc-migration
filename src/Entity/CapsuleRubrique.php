@@ -42,6 +42,17 @@ class CapsuleRubrique
         return $this->id;
     }
 
+    public function getIdOrFail(): int
+    {
+        if ($this->id === null) {
+            throw new \LogicException(sprintf(
+                '%s must be persisted before accessing ID',
+                self::class
+            ));
+        }
+        return $this->id;
+    }
+
     public function getNomInterne(): ?string
     {
         return $this->nomInterne;

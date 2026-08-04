@@ -143,7 +143,7 @@ final readonly class Dossier
         foreach ($dossiers as $dossierEntity) {
             $donneeUtile = [];
             $donneeUtile['nbDossiersLies'] = count($dossierEntity->getDossiersLies());
-            $id = $dossierEntity->getId();
+            $id = $dossierEntity->getIdOrFail();
             $donneeUtile['alerteReceptionTravaux'] = $alertes[$id] ?? false;
             $donneeUtile['echeancierTravaux'] = $echeanciers[$id] ?? false;
 

@@ -27,7 +27,7 @@ final readonly class DossierLiaisonsService
 
         $unique = [];
         foreach ($lies as $lie) {
-            $unique[$lie->getId()] = $lie;
+            $unique[$lie->getIdOrFail()] = $lie;
         }
 
         return array_values($unique);
@@ -90,7 +90,7 @@ final readonly class DossierLiaisonsService
         foreach ($this->getDossiersDisponiblesGroupesParEtablissement($dossier) as $group) {
             foreach (['visites', 'etudes', 'autres'] as $key) {
                 foreach ($group[$key] as $d) {
-                    $disponibles[$d->getId()] = $d;
+                    $disponibles[$d->getIdOrFail()] = $d;
                 }
             }
         }
