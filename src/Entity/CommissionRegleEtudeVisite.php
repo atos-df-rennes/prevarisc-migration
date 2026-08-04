@@ -16,7 +16,7 @@ class CommissionRegleEtudeVisite
 
     #[ORM\Id]
     #[ORM\Column(name: 'ETUDEVISITE', type: 'smallint', nullable: false)]
-    private ?int $etudeVisite = null;
+    private int $etudeVisite;
 
     public function getRegle(): ?CommissionRegle
     {
@@ -30,7 +30,7 @@ class CommissionRegleEtudeVisite
         return $this;
     }
 
-    public function getEtudeVisite(): ?int
+    public function getEtudeVisite(): int
     {
         return $this->etudeVisite;
     }

@@ -16,7 +16,7 @@ class CommissionRegleLocalSommeil
 
     #[ORM\Id]
     #[ORM\Column(name: 'LOCALSOMMEIL', type: 'smallint', nullable: false)]
-    private ?int $localSommeil = null;
+    private int $localSommeil;
 
     public function getRegle(): ?CommissionRegle
     {
@@ -30,7 +30,7 @@ class CommissionRegleLocalSommeil
         return $this;
     }
 
-    public function getLocalSommeil(): ?int
+    public function getLocalSommeil(): int
     {
         return $this->localSommeil;
     }

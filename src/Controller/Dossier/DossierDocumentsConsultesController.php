@@ -120,10 +120,7 @@ class DossierDocumentsConsultesController extends AbstractController implements 
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
         }
 
-        $libelle = '';
-        if (null !== $documentConsulte->getDocument() && 0 !== intval($documentConsulte->getDocument())) {
-            $libelle = $this->documentsConsultesService->getLibelleDocumentConsulte($documentConsulte->getDocument());
-        }
+        $libelle = $this->documentsConsultesService->getLibelleDocumentConsulte($documentConsulte->getDocument());
 
         $form = $this->createForm(DossierDocumentConsulteType::class, $documentConsulte);
         $form->handleRequest($request);

@@ -57,6 +57,6 @@ final readonly class DossierDocumentsConsultesService
     {
         $documentConsulte = $this->listeDocumentConsulteRepository->findOneBy(['id' => $idDocument]);
 
-        return $documentConsulte ? $documentConsulte->getLibelle() : null;
+        return $documentConsulte?->getLibelle();
     }
 }

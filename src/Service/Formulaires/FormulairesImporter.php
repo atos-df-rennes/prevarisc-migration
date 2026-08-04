@@ -187,12 +187,6 @@ final readonly class FormulairesImporter
         $entityManager->persist($champ);
 
         foreach ($exportedChamp->getValeursListe() as $exportedValeurListe) {
-            if (null === $exportedValeurListe->getValeur()) {
-                $this->logger->warning('La valeur de la liste doit être renseignée.');
-
-                continue;
-            }
-
             $valeurListe = new ChampValeurListe();
             $valeurListe->setValeur($exportedValeurListe->getValeur());
             $valeurListe->setChamp($champ);
@@ -220,10 +214,7 @@ final readonly class FormulairesImporter
         $map = [];
 
         foreach ($typeChamps as $typeChamp) {
-            $id = $typeChamp->getId();
-            if (null !== $id) {
-                $map[$typeChamp->getType()] = $id;
-            }
+            $map[$typeChamp->getType()] = $typeChamp->getIdOrFail();
         }
 
         return $map;

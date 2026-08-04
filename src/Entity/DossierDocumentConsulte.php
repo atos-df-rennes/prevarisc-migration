@@ -35,7 +35,7 @@ class DossierDocumentConsulte
     private ?Dossier $dossier = null;
 
     #[ORM\Column(name: 'ID_DOC', type: 'bigint', nullable: false)]
-    private ?string $document = null;
+    private string $document;
 
     public function getId(): ?int
     {
@@ -102,7 +102,7 @@ class DossierDocumentConsulte
         return $this;
     }
 
-    public function getDocument(): ?string
+    public function getDocument(): string
     {
         return $this->document;
     }

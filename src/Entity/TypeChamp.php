@@ -18,14 +18,25 @@ class TypeChamp
     private $id;
 
     #[ORM\Column(name: 'TYPE', type: 'string', length: 50, nullable: false)]
-    private ?string $type = null;
+    private string $type;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getType(): ?string
+    public function getIdOrFail(): int
+    {
+        if ($this->id === null) {
+            throw new \LogicException(sprintf(
+                '%s must be persisted before accessing ID',
+                self::class
+            ));
+        }
+        return $this->id;
+    }
+
+    public function getType(): string
     {
         return $this->type;
     }
