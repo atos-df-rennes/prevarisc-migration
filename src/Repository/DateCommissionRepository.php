@@ -337,8 +337,8 @@ class DateCommissionRepository extends ServiceEntityRepository
     public function findByMonthAndCommission(int $mois, int $annee, int $idCommission): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $start = (new \DateTime(sprintf('%04d-%02d-01', $annee, $mois)))->format('Y-m-d');
-        $end = (new \DateTime(sprintf('%04d-%02d-01', $annee, $mois)))->modify('+1 month')->format('Y-m-d');
+        $start = new \DateTime(sprintf('%04d-%02d-01', $annee, $mois))->format('Y-m-d');
+        $end = new \DateTime(sprintf('%04d-%02d-01', $annee, $mois))->modify('+1 month')->format('Y-m-d');
 
         $sql = 'SELECT * FROM datecommission
             WHERE DATE_COMMISSION >= :start

@@ -783,15 +783,7 @@ class CommissionDocumentGenerationService
 
             /** @var string $numInsee */
             $numInsee = $adresse['NUMINSEE_COMMUNE'] ?? '';
-
-            $existe = false;
-            foreach ($tabCommune as $value) {
-                if ($value[0] === $libelleCommune) {
-                    $existe = true;
-
-                    break;
-                }
-            }
+            $existe = array_any($tabCommune, fn ($value): bool => $value[0] === $libelleCommune);
 
             if (!$existe) {
                 $tabCommune[] = [$libelleCommune, $this->dataProvider->getCommuneContactInfo($numInsee)];
@@ -1835,8 +1827,6 @@ class CommissionDocumentGenerationService
             if ($avisDerogationsRaw instanceof Segment) {
                 $avisDerogations = $avisDerogationsRaw;
             }
-
-            // @phpstan-ignore-next-line
         } catch (\Exception) {
         }
 
@@ -1855,8 +1845,6 @@ class CommissionDocumentGenerationService
             if ($avisDerogationsEtabRaw instanceof Segment) {
                 $avisDerogationsEtablissement = $avisDerogationsEtabRaw;
             }
-
-            // @phpstan-ignore-next-line
         } catch (\Exception) {
         }
 
@@ -1966,8 +1954,6 @@ class CommissionDocumentGenerationService
             if ($prescriptionRaw instanceof Segment) {
                 $prescription = $prescriptionRaw;
             }
-
-            // @phpstan-ignore-next-line
         } catch (\Exception) {
         }
 

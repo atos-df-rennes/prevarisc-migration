@@ -53,7 +53,7 @@ final class CalendarServiceTest extends TestCase
         return [
             'timestamp valide (millisecondes)' => [
                 '1642611600000', // 19 janvier 2022 15:00:00 UTC
-                (new \DateTime())->setTimestamp(1642611600),
+                new \DateTime()->setTimestamp(1642611600),
             ],
             'timestamp invalide (zeros)' => [
                 '0000000000000',

@@ -19,7 +19,7 @@ class PlatauTempsRestantTest extends TestCase
      */
     public function testCalculate(string $dateModifier, string $expectedResult): void
     {
-        $limitDate = new \DateTime((new \DateTime($dateModifier))->format('Y-m-d'));
+        $limitDate = new \DateTime(new \DateTime($dateModifier)->format('Y-m-d'));
 
         $result = $this->service->calculate($limitDate);
 
@@ -44,7 +44,7 @@ class PlatauTempsRestantTest extends TestCase
      */
     public function testGetCouleurTempsRestant(string $dateModifier, string $expectedColor): void
     {
-        $limitDate = new \DateTime((new \DateTime($dateModifier))->format('Y-m-d'));
+        $limitDate = new \DateTime(new \DateTime($dateModifier)->format('Y-m-d'));
 
         $result = $this->service->getCouleurTempsRestant($limitDate);
 

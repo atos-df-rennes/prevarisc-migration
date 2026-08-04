@@ -267,7 +267,7 @@ class IcalendarSyncService
         $derniereVisiteStr = 'Aucune date.';
         if (\is_string($derniereVisite) && '' !== $derniereVisite) {
             try {
-                $derniereVisiteStr = (new \DateTime($derniereVisite))->format('d/m/Y');
+                $derniereVisiteStr = new \DateTime($derniereVisite)->format('d/m/Y');
             } catch (\Exception) {
                 $derniereVisiteStr = $derniereVisite;
             }

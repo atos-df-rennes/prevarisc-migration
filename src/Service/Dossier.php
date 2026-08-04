@@ -40,7 +40,7 @@ final readonly class Dossier
      */
     public function deleteByEtablissement(EtablissementEntity $etablissement, Utilisateur $user): void
     {
-        $date = (new \DateTime())->format('Y-m-d');
+        $date = new \DateTime()->format('Y-m-d');
         $conn = $this->entityManager->getConnection();
         $etabId = $etablissement->getId();
         $userId = $user->getId();

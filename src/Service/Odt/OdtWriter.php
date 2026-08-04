@@ -180,7 +180,7 @@ class OdtWriter
         $segmentTableau = null;
         try {
             $segmentTableau = $segment->$segName;
-        } catch (\Exception) { // @phpstan-ignore catch.neverThrown
+        } catch (\Exception) {
             // Segment absent du template
         }
 

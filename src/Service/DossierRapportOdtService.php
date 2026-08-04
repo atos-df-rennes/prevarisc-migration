@@ -395,7 +395,7 @@ class DossierRapportOdtService
         ?string $numInsee
     ): void {
         // --- dateDuJour ---
-        $this->addChamp($odf, 'dateDuJour', (new \DateTime())->format('d/m/Y'));
+        $this->addChamp($odf, 'dateDuJour', new \DateTime()->format('d/m/Y'));
 
         // --- Type et nature dossier ---
         $this->addChamp($odf, 'typeDossier', $typeDossierLabel);
@@ -1146,8 +1146,8 @@ class DossierRapportOdtService
             "Rapport de l'établissement %s (%s) généré le %s à %s",
             $rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '',
             $rawEtab['NUMEROID_ETABLISSEMENT'] ?? '',
-            (new \DateTime())->format('d/m/Y'),
-            (new \DateTime())->format('H:i')
+            new \DateTime()->format('d/m/Y'),
+            new \DateTime()->format('H:i')
         ));
         $pj->setDate(new \DateTime());
 
