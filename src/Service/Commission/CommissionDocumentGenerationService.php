@@ -1835,8 +1835,6 @@ class CommissionDocumentGenerationService
             if ($avisDerogationsRaw instanceof Segment) {
                 $avisDerogations = $avisDerogationsRaw;
             }
-
-            // @phpstan-ignore-next-line
         } catch (\Exception) {
         }
 
@@ -1855,8 +1853,6 @@ class CommissionDocumentGenerationService
             if ($avisDerogationsEtabRaw instanceof Segment) {
                 $avisDerogationsEtablissement = $avisDerogationsEtabRaw;
             }
-
-            // @phpstan-ignore-next-line
         } catch (\Exception) {
         }
 
@@ -1966,8 +1962,6 @@ class CommissionDocumentGenerationService
             if ($prescriptionRaw instanceof Segment) {
                 $prescription = $prescriptionRaw;
             }
-
-            // @phpstan-ignore-next-line
         } catch (\Exception) {
         }
 
