@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "23e2d854f6dfa69d4d81ec2ee09e721a",
+    "content-hash": "fded75f86bea516d2e214d64597591f9",
     "packages": [
         {
             "name": "apereo/phpcas",
@@ -232,21 +232,21 @@
         },
         {
             "name": "cybermonde/odtphp",
-            "version": "v2.5.0",
+            "version": "v2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/atos-df-rennes/odtphp.git",
-                "reference": "4b0801b72cf928efc2014446376afa3529f5bb5e"
+                "reference": "3a8b8500de13145758fd1412847093471a2ca08a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/atos-df-rennes/odtphp/zipball/4b0801b72cf928efc2014446376afa3529f5bb5e",
-                "reference": "4b0801b72cf928efc2014446376afa3529f5bb5e",
+                "url": "https://api.github.com/repos/atos-df-rennes/odtphp/zipball/3a8b8500de13145758fd1412847093471a2ca08a",
+                "reference": "3a8b8500de13145758fd1412847093471a2ca08a",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
-                "php": ">=7.4,<8.5"
+                "php": "^7.4|^8.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.22",
@@ -308,10 +308,10 @@
                 "php"
             ],
             "support": {
-                "source": "https://github.com/atos-df-rennes/odtphp/tree/v2.5.0",
+                "source": "https://github.com/atos-df-rennes/odtphp/tree/v2.6.0",
                 "issues": "https://github.com/atos-df-rennes/odtphp/issues"
             },
-            "time": "2026-08-04T06:29:28+00:00"
+            "time": "2026-08-04T08:21:43+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -11038,7 +11038,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.4.0",
+        "php": "^8.5.0",
         "ext-simplexml": "*",
         "ext-ctype": "*",
         "ext-dom": "*",
