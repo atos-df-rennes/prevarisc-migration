@@ -70,7 +70,6 @@ class ProxyController extends AbstractController
 
         if (false === $data) {
             $error = curl_error($ch);
-            curl_close($ch);
             $this->logger->error('ProxyController: curl_exec() failed', ['error' => $error, 'url' => $targetUrl]);
 
             return new Response($error, Response::HTTP_BAD_GATEWAY);
@@ -82,8 +81,6 @@ class ProxyController extends AbstractController
         $headerBlock = substr($dataStr, 0, $headerSize);
         $headers = explode("\r\n", $headerBlock);
         $body = substr($dataStr, $headerSize);
-
-        curl_close($ch);
 
         $contentType = null;
         foreach ($headers as $header) {

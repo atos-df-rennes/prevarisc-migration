@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\TypeChampRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'listetypechamprubrique')]
 class TypeChamp
 {
+    use GetIdOrFailTrait;
+
     /**
      * @var int
      */
@@ -18,14 +21,14 @@ class TypeChamp
     private $id;
 
     #[ORM\Column(name: 'TYPE', type: 'string', length: 50, nullable: false)]
-    private ?string $type = null;
+    private string $type;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->type;
     }

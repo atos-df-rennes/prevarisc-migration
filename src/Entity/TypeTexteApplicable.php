@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\TypeTexteApplicableRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'typetextesappl')]
 class TypeTexteApplicable
 {
+    use GetIdOrFailTrait;
+
     /**
      * @var int
      */

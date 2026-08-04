@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Constant\DossierNature;
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\DossierRepository;
 use App\Validator\DossierDocumentsManquants;
 use App\Validator\DossierObjet;
@@ -22,6 +23,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(columns: ['DATESUPPRESSION_DOSSIER'])]
 class Dossier
 {
+    use GetIdOrFailTrait;
+
     /**
      * @var int
      */

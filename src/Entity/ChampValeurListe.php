@@ -18,7 +18,7 @@ class ChampValeurListe
     private $id;
 
     #[ORM\Column(name: 'VALEUR', type: 'string', length: 255, nullable: false)]
-    private ?string $valeur = null;
+    private string $valeur;
 
     #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'valeursListe')]
     #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false)]
@@ -32,7 +32,7 @@ class ChampValeurListe
         return $this->id;
     }
 
-    public function getValeur(): ?string
+    public function getValeur(): string
     {
         return $this->valeur;
     }

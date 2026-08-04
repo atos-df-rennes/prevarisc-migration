@@ -197,7 +197,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         $commissionsParType = [];
         foreach ($this->commissionTypeRepository->findAll() as $type) {
-            $commissionsParType[$type->getId()] = [
+            $commissionsParType[$type->getIdOrFail()] = [
                 'libelle' => $type->getLibelle(),
                 'commissions' => $this->commissionRepository->findBy(['type' => $type]),
             ];
@@ -379,7 +379,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         // Récupération des commissions par type
         $commissionsParType = [];
         foreach ($this->commissionTypeRepository->findAll() as $type) {
-            $commissionsParType[$type->getId()] = [
+            $commissionsParType[$type->getIdOrFail()] = [
                 'libelle' => $type->getLibelle(),
                 'commissions' => $this->commissionRepository->findBy(['type' => $type]),
             ];

@@ -240,12 +240,9 @@ class PlatauHealthcheckService
 
         if ('' !== ($error = curl_error($curlHandle))) {
             $this->logger->error($error);
-            curl_close($curlHandle);
 
             return null;
         }
-
-        curl_close($curlHandle);
 
         if (!is_string($data)) {
             return null;
@@ -304,13 +301,11 @@ class PlatauHealthcheckService
 
         if ('' !== ($error = curl_error($curlHandle))) {
             $this->logger->error($error);
-            curl_close($curlHandle);
 
             return ['body' => null, 'httpCode' => 0];
         }
 
         $httpCode = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
-        curl_close($curlHandle);
 
         if (!is_string($data) || '' === $data) {
             $this->logger->error("Le healthcheck n'a rien renvoyé. Vérifiez que l'URL de Plat'AU est correctement renseignée.");

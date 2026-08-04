@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\CommissionTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,6 +13,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'commissiontype')]
 class CommissionType
 {
+    use GetIdOrFailTrait;
+
     /**
      * @var int
      */

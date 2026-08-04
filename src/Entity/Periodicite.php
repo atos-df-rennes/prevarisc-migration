@@ -10,20 +10,20 @@ class Periodicite
 {
     #[ORM\Id]
     #[ORM\Column(name: 'LOCALSOMMEIL_PERIODICITE', type: 'boolean', nullable: false)]
-    private ?bool $localSommeil = null;
+    private bool $localSommeil;
 
     #[ORM\Column(name: 'PERIODICITE_PERIODICITE', type: 'integer', nullable: false, options: ['unsigned' => true])]
     private ?int $periodicite = null;
 
     #[ORM\Id]
     #[ORM\Column(name: 'ID_CATEGORIE', type: 'integer', nullable: false, options: ['unsigned' => true])]
-    private ?int $categorie = null;
+    private int $categorie;
 
     #[ORM\Id]
     #[ORM\Column(name: 'ID_TYPE', type: 'string', length: 10, nullable: false)]
-    private ?string $type = null;
+    private string $type;
 
-    public function getLocalSommeil(): ?bool
+    public function getLocalSommeil(): bool
     {
         return $this->localSommeil;
     }
@@ -47,7 +47,7 @@ class Periodicite
         return $this;
     }
 
-    public function getCategorie(): ?int
+    public function getCategorie(): int
     {
         return $this->categorie;
     }
@@ -59,7 +59,7 @@ class Periodicite
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->type;
     }

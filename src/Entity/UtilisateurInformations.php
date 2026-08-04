@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\UtilisateurInformationsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,6 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'utilisateurinformations')]
 class UtilisateurInformations
 {
+    use GetIdOrFailTrait;
+
     /**
      * @var int
      */

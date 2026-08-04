@@ -88,7 +88,7 @@ class Descriptif
         $result = [];
 
         foreach ($capsule->getRubriques() as $rubrique) {
-            $display = $displayPrefs[$rubrique->getId()] ?? $rubrique->getDefaultDisplay() ?? true;
+            $display = $displayPrefs[$rubrique->getIdOrFail()] ?? $rubrique->getDefaultDisplay() ?? true;
 
             $champs = [];
             foreach ($rubrique->getRootChamps() as $champ) {
@@ -197,7 +197,7 @@ class Descriptif
      */
     private function resolveValeur(Champ $champ, array $valeurs): ?Valeur
     {
-        $champValeurs = $valeurs[$champ->getId()] ?? [];
+        $champValeurs = $valeurs[$champ->getIdOrFail()] ?? [];
 
         return $champValeurs[0] ?? null;
     }

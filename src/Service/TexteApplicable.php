@@ -46,12 +46,12 @@ class TexteApplicable
             if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
                 // @fixme: Créer un DTO pour corriger l'erreur PHPStan
                 /* @phpstan-ignore-next-line */
-                $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
+                $textesApplicables[$texteApplicable->getType()->getIdOrFail()]['textes'][] = $texteApplicable->getLibelle();
 
                 continue;
             }
 
-            $textesApplicables[$texteApplicable->getType()->getId()] = [
+            $textesApplicables[$texteApplicable->getType()->getIdOrFail()] = [
                 'titre' => $texteApplicable->getType()->getLibelle(),
                 'textes' => [$texteApplicable->getLibelle()]
             ];

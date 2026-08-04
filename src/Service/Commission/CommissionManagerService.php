@@ -74,7 +74,7 @@ final readonly class CommissionManagerService
 
             // Capture les membres avant que Doctrine ne les supprime en cascade
             foreach ($commission->getMembres() as $membre) {
-                $membresOdtToClean[$membre->getId()] = $membre;
+                $membresOdtToClean[$membre->getIdOrFail()] = $membre;
             }
 
             // Supprime les contacts de la commission :
