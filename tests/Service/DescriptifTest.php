@@ -85,7 +85,7 @@ final class DescriptifTest extends TestCase
         // Arrange
         $champ = $this->buildSimpleChamp(10);
         $rubrique = $this->buildRubriqueWithChamps(1, $champ);
-        $valeur = (new Valeur())->setStr('texte libre');
+        $valeur = new Valeur()->setStr('texte libre');
 
         $dossier = new Dossier();
         $this->capsuleRepo->method('findByNomInterneWithFullData')
@@ -136,8 +136,8 @@ final class DescriptifTest extends TestCase
         $champParent->addEnfant($enfant2);
 
         $rubrique = $this->buildRubriqueWithChamps(1, $champParent);
-        $valeurEnfant1 = (new Valeur())->setStr('val1');
-        $valeurEnfant2 = (new Valeur())->setNumber(42);
+        $valeurEnfant1 = new Valeur()->setStr('val1');
+        $valeurEnfant2 = new Valeur()->setNumber(42);
 
         $dossier = new Dossier();
         $this->capsuleRepo->method('findByNomInterneWithFullData')
@@ -176,8 +176,8 @@ final class DescriptifTest extends TestCase
         $champParent->addEnfant($colonne2);
 
         $rubrique = $this->buildRubriqueWithChamps(1, $champParent);
-        $ligne1col1 = (new Valeur())->setStr('A')->setIdx(1);
-        $ligne1col2 = (new Valeur())->setStr('B')->setIdx(1);
+        $ligne1col1 = new Valeur()->setStr('A')->setIdx(1);
+        $ligne1col2 = new Valeur()->setStr('B')->setIdx(1);
 
         $dossier = new Dossier();
         $this->capsuleRepo->method('findByNomInterneWithFullData')
@@ -208,8 +208,8 @@ final class DescriptifTest extends TestCase
         $champParent->addEnfant($colonne);
 
         $rubrique = $this->buildRubriqueWithChamps(1, $champParent);
-        $valeurIdx2 = (new Valeur())->setStr('deuxieme')->setIdx(2);
-        $valeurIdx1 = (new Valeur())->setStr('premier')->setIdx(1);
+        $valeurIdx2 = new Valeur()->setStr('deuxieme')->setIdx(2);
+        $valeurIdx1 = new Valeur()->setStr('premier')->setIdx(1);
 
         $dossier = new Dossier();
         $this->capsuleRepo->method('findByNomInterneWithFullData')
@@ -302,7 +302,7 @@ final class DescriptifTest extends TestCase
         $displayPrefs = [];
         if (null !== $prefUtilisateur) {
             $displayPrefs = [
-                (new DossierDisplayRubrique())
+                new DossierDisplayRubrique()
                     ->setRubrique($rubrique)
                     ->setUserDisplay($prefUtilisateur),
             ];

@@ -214,7 +214,7 @@ class DossierDonnantAvisService
         if (null !== $natureId && in_array($natureId, DossierNature::NATURES_VISITES_COMMISSION, true)) {
             // Visites → dateVisite en priorité
             if (null !== $dossier->getDateVisite()) {
-                return (new \DateTime($dossier->getDateVisite()->format('Y-m-d')))->setTime(0, 0, 0);
+                return new \DateTime($dossier->getDateVisite()->format('Y-m-d'))->setTime(0, 0, 0);
             }
         } elseif (null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission()) {
             // Études et groupes → dateCommission en priorité
@@ -226,7 +226,7 @@ class DossierDonnantAvisService
 
         // Fallback : dateInsert (toujours définie à la création)
         if (null !== $dossier->getDateInsert()) {
-            return (new \DateTime($dossier->getDateInsert()->format('Y-m-d')))->setTime(0, 0, 0);
+            return new \DateTime($dossier->getDateInsert()->format('Y-m-d'))->setTime(0, 0, 0);
         }
 
         // Ne devrait jamais arriver (dateInsert est requis)

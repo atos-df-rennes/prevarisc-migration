@@ -121,8 +121,8 @@ final class DescriptifCopierTest extends TestCase
     {
         $this->entityManager->expects(self::never())->method('persist');
 
-        $sourceValeur = (new Valeur())->setStr('texte source');
-        $targetValeur = (new Valeur())->setStr('ancien texte');
+        $sourceValeur = new Valeur()->setStr('texte source');
+        $targetValeur = new Valeur()->setStr('ancien texte');
         $targetChamp = $this->buildSimpleChamp(20, 'Largeur');
 
         $sourceRubriques = [
@@ -151,7 +151,7 @@ final class DescriptifCopierTest extends TestCase
         $this->entityManager->expects(self::once())->method('persist')
             ->with(self::isInstanceOf(Valeur::class));
 
-        $sourceValeur = (new Valeur())->setStr('texte source');
+        $sourceValeur = new Valeur()->setStr('texte source');
         $targetChamp = $this->buildSimpleChamp(20, 'Largeur');
 
         $sourceRubriques = [
@@ -181,7 +181,7 @@ final class DescriptifCopierTest extends TestCase
     public function testApplySourceCopieTousLesChamps(): void
     {
         $date = new \DateTimeImmutable('2025-01-15');
-        $sourceValeur = (new Valeur())
+        $sourceValeur = new Valeur()
             ->setStr('texte')
             ->setLongStr('long texte')
             ->setNumber(42)
@@ -221,7 +221,7 @@ final class DescriptifCopierTest extends TestCase
 
         $sourceRubriques = [
             $this->buildRubriqueItem('Rubrique Absente', [
-                ['champ' => $this->buildSimpleChamp(10, 'Champ'), 'valeur' => (new Valeur())->setStr('v')],
+                ['champ' => $this->buildSimpleChamp(10, 'Champ'), 'valeur' => new Valeur()->setStr('v')],
             ]),
         ];
         $targetRubriques = [
@@ -243,7 +243,7 @@ final class DescriptifCopierTest extends TestCase
 
         $sourceRubriques = [
             $this->buildRubriqueItem('Rubrique Absente', [
-                ['champ' => $this->buildSimpleChamp(10, 'Champ'), 'valeur' => (new Valeur())->setStr('v')],
+                ['champ' => $this->buildSimpleChamp(10, 'Champ'), 'valeur' => new Valeur()->setStr('v')],
             ]),
         ];
 
@@ -260,7 +260,7 @@ final class DescriptifCopierTest extends TestCase
 
         $sourceRubriques = [
             $this->buildRubriqueItem('Accès', [
-                ['champ' => $this->buildSimpleChamp(10, 'Champ Absent'), 'valeur' => (new Valeur())->setStr('v')],
+                ['champ' => $this->buildSimpleChamp(10, 'Champ Absent'), 'valeur' => new Valeur()->setStr('v')],
             ]),
         ];
         $targetRubriques = [
@@ -282,7 +282,7 @@ final class DescriptifCopierTest extends TestCase
 
         $sourceRubriques = [
             $this->buildRubriqueItem('Accès', [
-                ['champ' => $this->buildSimpleChamp(10, 'Champ Absent'), 'valeur' => (new Valeur())->setStr('v')],
+                ['champ' => $this->buildSimpleChamp(10, 'Champ Absent'), 'valeur' => new Valeur()->setStr('v')],
             ]),
         ];
         $targetRubriques = [
@@ -302,7 +302,7 @@ final class DescriptifCopierTest extends TestCase
     {
         $this->entityManager->expects(self::once())->method('persist');
 
-        $sourceValeur = (new Valeur())->setStr('valeur enfant');
+        $sourceValeur = new Valeur()->setStr('valeur enfant');
         $targetChampEnfant = $this->buildSimpleChamp(21, 'Sous-champ A');
 
         $sourceParent = $this->buildParentChamp(10, 'ParentChamp', false);
@@ -360,7 +360,7 @@ final class DescriptifCopierTest extends TestCase
                     'champ' => $sourceParent,
                     'valeur' => null,
                     'sous_champs' => [
-                        ['champ' => $sourceEnfant, 'valeur' => (new Valeur())->setStr('v')],
+                        ['champ' => $sourceEnfant, 'valeur' => new Valeur()->setStr('v')],
                     ],
                 ],
             ]),
@@ -430,8 +430,8 @@ final class DescriptifCopierTest extends TestCase
         $targetEnfantA = $this->buildSimpleChamp(21, 'Col A');
         $targetParent->addEnfant($targetEnfantA);
 
-        $valeurLigne1 = (new Valeur())->setStr('ligne 1')->setIdx(1);
-        $valeurLigne2 = (new Valeur())->setStr('ligne 2')->setIdx(2);
+        $valeurLigne1 = new Valeur()->setStr('ligne 1')->setIdx(1);
+        $valeurLigne2 = new Valeur()->setStr('ligne 2')->setIdx(2);
         $this->setEntityId($sourceEnfantA, 11);
 
         $sourceRubriques = [
@@ -482,7 +482,7 @@ final class DescriptifCopierTest extends TestCase
                 [
                     'champ' => $sourceParent,
                     'valeur' => null,
-                    'lignes' => [[11 => (new Valeur())->setStr('val')]],
+                    'lignes' => [[11 => new Valeur()->setStr('val')]],
                 ],
             ]),
         ];
@@ -506,7 +506,7 @@ final class DescriptifCopierTest extends TestCase
     {
         $this->entityManager->expects(self::once())->method('persist');
 
-        $sourceValeur = (new Valeur())->setStr('valeur établissement');
+        $sourceValeur = new Valeur()->setStr('valeur établissement');
         $targetChamp = $this->buildSimpleChamp(20, 'Champ A');
 
         $sourceRubriques = [
@@ -535,7 +535,7 @@ final class DescriptifCopierTest extends TestCase
     {
         $this->entityManager->expects(self::once())->method('persist');
 
-        $sourceValeur = (new Valeur())->setStr('valeur dossier source');
+        $sourceValeur = new Valeur()->setStr('valeur dossier source');
         $targetChamp = $this->buildSimpleChamp(30, 'Champ A');
 
         $sourceRubriques = [
@@ -560,7 +560,7 @@ final class DescriptifCopierTest extends TestCase
     {
         $this->entityManager->expects(self::once())->method('persist');
 
-        $sourceValeur = (new Valeur())->setStr('valeur originale');
+        $sourceValeur = new Valeur()->setStr('valeur originale');
         $targetChamp = $this->buildSimpleChamp(31, 'Champ A');
 
         $sourceRubriques = [

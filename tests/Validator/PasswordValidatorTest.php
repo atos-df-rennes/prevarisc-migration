@@ -60,9 +60,9 @@ final class PasswordValidatorTest extends ConstraintValidatorTestCase
 
     public static function passwordIsValid(): iterable
     {
-        yield 'SSO' => [(new Utilisateur())->setSso(true)];
-        yield 'No SSO and valid password' => [(new Utilisateur())->setSso(false)->setPlainPassword('M3g4S3cur3P4ssw0rd.')];
-        yield 'No SSO, no password and no login' => [(new Utilisateur())->setSso(false)];
+        yield 'SSO' => [new Utilisateur()->setSso(true)];
+        yield 'No SSO and valid password' => [new Utilisateur()->setSso(false)->setPlainPassword('M3g4S3cur3P4ssw0rd.')];
+        yield 'No SSO, no password and no login' => [new Utilisateur()->setSso(false)];
     }
 
     public static function provideInvalidConstraints(): iterable

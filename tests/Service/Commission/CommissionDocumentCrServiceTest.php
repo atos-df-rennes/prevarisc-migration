@@ -44,7 +44,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        (new Filesystem())->remove($this->tmpDir);
+        new Filesystem()->remove($this->tmpDir);
     }
 
     public function testUploadFichierOdtValide(): void

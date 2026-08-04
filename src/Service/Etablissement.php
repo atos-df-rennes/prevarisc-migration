@@ -269,7 +269,7 @@ final readonly class Etablissement
 
         // Site (genre 1)
         if (1 === $genreId) {
-            $dureeVisiteTotal = (new \DateTime())->setTime(0, 0, 0);
+            $dureeVisiteTotal = new \DateTime()->setTime(0, 0, 0);
 
             foreach ($etablissement->getFils() as $enfant) {
                 $dureeVisite = $enfant->getDureeVisite();

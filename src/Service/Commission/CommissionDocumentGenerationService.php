@@ -783,15 +783,7 @@ class CommissionDocumentGenerationService
 
             /** @var string $numInsee */
             $numInsee = $adresse['NUMINSEE_COMMUNE'] ?? '';
-
-            $existe = false;
-            foreach ($tabCommune as $value) {
-                if ($value[0] === $libelleCommune) {
-                    $existe = true;
-
-                    break;
-                }
-            }
+            $existe = array_any($tabCommune, fn ($value): bool => $value[0] === $libelleCommune);
 
             if (!$existe) {
                 $tabCommune[] = [$libelleCommune, $this->dataProvider->getCommuneContactInfo($numInsee)];

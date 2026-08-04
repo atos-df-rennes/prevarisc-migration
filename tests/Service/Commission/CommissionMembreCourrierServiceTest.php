@@ -45,7 +45,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 
     protected function tearDown(): void
     {
-        (new Filesystem())->remove($this->tmpDir);
+        new Filesystem()->remove($this->tmpDir);
     }
 
     /**
