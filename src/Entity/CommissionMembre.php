@@ -114,12 +114,10 @@ class CommissionMembre
 
     public function getIdOrFail(): int
     {
-        if ($this->id === null) {
-            throw new \LogicException(sprintf(
-                '%s must be persisted before accessing ID',
-                self::class
-            ));
+        if (null === $this->id) {
+            throw new \LogicException(sprintf('%s must be persisted before accessing ID', self::class));
         }
+
         return $this->id;
     }
 

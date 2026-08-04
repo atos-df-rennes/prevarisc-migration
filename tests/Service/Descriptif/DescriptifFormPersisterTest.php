@@ -232,7 +232,7 @@ class DescriptifFormPersisterTest extends TestCase
         $valeurs = array_filter($persisted, static fn ($obj): bool => $obj instanceof Valeur);
         self::assertNotEmpty($valeurs);
 
-        $created = array_values($valeurs)[0];
+        $created = array_first($valeurs);
         self::assertInstanceOf(Valeur::class, $created);
         self::assertSame('ligne1', $created->getStr());
         self::assertSame(1, $created->getIdx()); // idx = position 1-based
