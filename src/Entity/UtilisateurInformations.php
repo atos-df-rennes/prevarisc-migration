@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\UtilisateurInformationsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -10,6 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'utilisateurinformations')]
 class UtilisateurInformations
 {
+    use GetIdOrFailTrait;
+
     /**
      * @var int
      */
@@ -92,15 +95,6 @@ class UtilisateurInformations
 
     public function getId(): ?int
     {
-        return $this->id;
-    }
-
-    public function getIdOrFail(): int
-    {
-        if (null === $this->id) {
-            throw new \LogicException(sprintf('%s must be persisted before accessing ID', self::class));
-        }
-
         return $this->id;
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\TypeChampRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'listetypechamprubrique')]
 class TypeChamp
 {
+    use GetIdOrFailTrait;
+
     /**
      * @var int
      */
@@ -22,15 +25,6 @@ class TypeChamp
 
     public function getId(): ?int
     {
-        return $this->id;
-    }
-
-    public function getIdOrFail(): int
-    {
-        if (null === $this->id) {
-            throw new \LogicException(sprintf('%s must be persisted before accessing ID', self::class));
-        }
-
         return $this->id;
     }
 

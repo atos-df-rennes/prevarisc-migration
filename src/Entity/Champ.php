@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\ChampRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,6 +12,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ORM\Entity(repositoryClass: ChampRepository::class)]
 class Champ
 {
+    use GetIdOrFailTrait;
+
     /**
      * @var int
      */
@@ -71,15 +74,6 @@ class Champ
 
     public function getId(): ?int
     {
-        return $this->id;
-    }
-
-    public function getIdOrFail(): int
-    {
-        if (null === $this->id) {
-            throw new \LogicException(sprintf('%s must be persisted before accessing ID', self::class));
-        }
-
         return $this->id;
     }
 

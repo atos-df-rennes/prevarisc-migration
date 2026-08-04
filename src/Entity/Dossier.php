@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Constant\DossierNature;
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\DossierRepository;
 use App\Validator\DossierDocumentsManquants;
 use App\Validator\DossierObjet;
@@ -22,6 +23,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(columns: ['DATESUPPRESSION_DOSSIER'])]
 class Dossier
 {
+    use GetIdOrFailTrait;
+
     /**
      * @var int
      */
@@ -368,15 +371,6 @@ class Dossier
 
     public function getId(): ?int
     {
-        return $this->id;
-    }
-
-    public function getIdOrFail(): int
-    {
-        if (null === $this->id) {
-            throw new \LogicException(sprintf('%s must be persisted before accessing ID', self::class));
-        }
-
         return $this->id;
     }
 
