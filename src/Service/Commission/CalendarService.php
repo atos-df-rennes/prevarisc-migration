@@ -234,14 +234,12 @@ final readonly class CalendarService
 
         // Ajout des dates suivantes si sélection multiple.
         $numberOfAdditionalDates = $dateStart->diff($dateEnd)->days;
-        if (\is_int($numberOfAdditionalDates)) {
-            for ($i = 1; $i <= $numberOfAdditionalDates; ++$i) {
-                $date = clone $dateStart;
-                $date->modify(\sprintf('+%d days', $i));
+        for ($i = 1; $i <= $numberOfAdditionalDates; ++$i) {
+            $date = clone $dateStart;
+            $date->modify(\sprintf('+%d days', $i));
 
-                $dateCommissionItem = new DateCommissionItemDto($date);
-                $dateCommissionDto->addDate($dateCommissionItem);
-            }
+            $dateCommissionItem = new DateCommissionItemDto($date);
+            $dateCommissionDto->addDate($dateCommissionItem);
         }
 
         return $dateCommissionDto;

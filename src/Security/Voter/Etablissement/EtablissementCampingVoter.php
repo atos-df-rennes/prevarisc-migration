@@ -17,7 +17,7 @@ class EtablissementCampingVoter extends EtablissementVoter
     }
 
     #[\Override]
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (!parent::supports($attribute, $subject)) {
             return false;

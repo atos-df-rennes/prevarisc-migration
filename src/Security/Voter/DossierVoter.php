@@ -36,7 +36,7 @@ class DossierVoter extends Voter
     {
     }
 
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::MODIFICATION_IGNORE_VERROU, self::VERROUILLAGE], true)) {
             return false;

@@ -20,7 +20,7 @@ abstract class EtablissementVoter extends Voter
      */
     public const CREATE = 'add_etablissement';
 
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION], true)) {
             return false;

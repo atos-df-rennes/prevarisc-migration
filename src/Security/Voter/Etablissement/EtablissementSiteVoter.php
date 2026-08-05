@@ -17,7 +17,7 @@ class EtablissementSiteVoter extends EtablissementVoter
     }
 
     #[\Override]
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return parent::supports($attribute, $subject)
             && parent::isSubjectGenreAllowed($subject, GenreEtablissement::SITE);
