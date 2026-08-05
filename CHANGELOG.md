@@ -4,6 +4,37 @@
 
 <!--- END HEADER -->
 
+## [3.0.0-rc.1](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.0...v3.0.0-rc.1) (05-08-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
+
+* Utilisation du fork OdtPHP (#358) ([6affb9](https://github.com/atos-df-rennes/prevarisc-migration/commit/6affb9396bcaf4a225f9d60c264102023b571e75))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="20" height="20"> Migration
+
+* Mise à jour vers Symfony 7.4 (#372) ([168906](https://github.com/atos-df-rennes/prevarisc-migration/commit/16890699435fb4dd08b94bdfc69f941463149a2c))
+* Mise à jour vers PHP 8.5 (#370) ([c956ed](https://github.com/atos-df-rennes/prevarisc-migration/commit/c956eddaf7c8993500b8a2efaa893881a0b88fc8))
+* Mise à jour vers PHP 8.4 (#369) ([c40329](https://github.com/atos-df-rennes/prevarisc-migration/commit/c403298b33c2ceeb3886e70cbac31c9fc3044db8))
+* Mise à jour vers PHP 8.3 (#368) ([a34f17](https://github.com/atos-df-rennes/prevarisc-migration/commit/a34f17f8dde24d6a25b93c0f6a42377272fe20fb))
+* Mise à jour vers PHP 8.2 (#367) ([d241a1](https://github.com/atos-df-rennes/prevarisc-migration/commit/d241a1be91b2b9d6eff44f6be981fb01206fefd7))
+* Passage sur MariaDB LTS (#365) ([7e6f22](https://github.com/atos-df-rennes/prevarisc-migration/commit/7e6f225e43c0b0182fd8830031db3d32297af5c8))
+* Mise à jour vers Symfony 6.4 (#364) ([0585e1](https://github.com/atos-df-rennes/prevarisc-migration/commit/0585e13d2f0057e71f6988ad302dc8255682923d))
+* Mise à jour vers PHP 8.1 (#362) ([89f50c](https://github.com/atos-df-rennes/prevarisc-migration/commit/89f50c9aa2791c6fe420aa323e62e421b80dcc7f))
+* Utilisation des attributs au lieu des annotations (#361) ([bcb92b](https://github.com/atos-df-rennes/prevarisc-migration/commit/bcb92b5ecbe3c3201a2d676505ecdcdfb10634d9))
+* Mise à jour vers PHP 8.0 (#360) ([6f15ba](https://github.com/atos-df-rennes/prevarisc-migration/commit/6f15ba3ae61247dfd8c3a32deacc4117767a9efc))
+* Mise à jour vers Symfony 5.4 (#357) ([9f4302](https://github.com/atos-df-rennes/prevarisc-migration/commit/9f4302048120f50520888685f94a69ecc4c32d86))
+* Mise à jour vers PHP 7.4 (#356) ([1666c8](https://github.com/atos-df-rennes/prevarisc-migration/commit/1666c8d83d86f77d169fb86c6b27dee3b5fefddf))
+* Mise à jour vers PHP 7.3 (#355) ([c93e43](https://github.com/atos-df-rennes/prevarisc-migration/commit/c93e43a727fa205c0f7e6cb55d062c3da2186d51))
+* Mise à jour vers PHP 7.2 (#354) ([69f420](https://github.com/atos-df-rennes/prevarisc-migration/commit/69f4208ddd031e8cc3fe9a7c1288f1b69b27de7a))
+* Retrait de l'authentification Zend et des redirections pour vidage de cache Zend (#352) ([cc981d](https://github.com/atos-df-rennes/prevarisc-migration/commit/cc981d1639eb57353698deddd4ff9b0099e13ba2))
+
+##### Calendrier-des-commissions
+
+* Téléchargement des pièces jointes (#228) ([5cc6ce](https://github.com/atos-df-rennes/prevarisc-migration/commit/5cc6ce2c8480881e83a439ba3a670f67f31092b6))
+
+
+---
+
 ## [2.10.0](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.19...v2.10.0) (08-07-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
