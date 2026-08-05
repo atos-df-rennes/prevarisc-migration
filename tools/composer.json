@@ -8,7 +8,8 @@
         "phpstan/phpstan-symfony": "^2.0",
         "phpmetrics/phpmetrics": "^2.9",
         "tombenevides/dump-linter": "^1.0",
-        "vincentlanglet/twig-cs-fixer": "^3.10"
+        "vincentlanglet/twig-cs-fixer": "^3.10",
+        "rector/jack": "^1.0"
     },
     "autoload": {
       "psr-4": {
