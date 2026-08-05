@@ -132,7 +132,13 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
 
     public function getUserIdentifier(): string
     {
-        return $this->getUsername();
+        $username = $this->getUsername();
+
+        if ('' === $username) {
+            throw new \LogicException('Utilisateur::getUserIdentifier() ne peut pas retourner une chaîne vide.');
+        }
+
+        return $username;
     }
 
     public function setUsername(string $username): self
@@ -208,8 +214,16 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
     }
 
     /**
+     * Retirée du cycle d'authentification Symfony (AuthenticatorManager) depuis
+     * la dépréciation de eraseCredentials() en 7.3 : à l'authentification, l'entité
+     * est toujours fraîchement rechargée par le UserProvider, donc plainPassword
+     * y est déjà null. Cette méthode ne reste utile que pour le flux de
+     * création/édition via formulaire (hors authentification), d'où l'attribut
+     * #[\Deprecated] qui signale à Symfony de ne plus l'invoquer automatiquement.
+     *
      * @see UserInterface
      */
+    #[\Deprecated]
     public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here

@@ -9,6 +9,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EtablissementIopVoter extends EtablissementVoter
 {
@@ -17,7 +18,7 @@ class EtablissementIopVoter extends EtablissementVoter
     }
 
     #[\Override]
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (!parent::supports($attribute, $subject)) {
             return false;
@@ -27,7 +28,7 @@ class EtablissementIopVoter extends EtablissementVoter
     }
 
     #[\Override]
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;

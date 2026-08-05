@@ -4,11 +4,12 @@ namespace App\Tests\Service;
 
 use App\Dto\Ldap;
 use App\Service\Informations;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class InformationsTest extends TestCase
 {
-    /** @dataProvider dbProvider */
+    #[DataProvider('dbProvider')]
     public function testDbUrl(string $dbHost, int $dbPort, string $expected): void
     {
         $this->assertSame($expected, Informations::dbUrl($dbHost, $dbPort));
@@ -25,7 +26,7 @@ final class InformationsTest extends TestCase
         ];
     }
 
-    /** @dataProvider cacheProvider */
+    #[DataProvider('cacheProvider')]
     public function testCacheUrl(string $cacheHost, int $cachePort, string $expected): void
     {
         $this->assertSame($expected, Informations::cacheUrl($cacheHost, $cachePort));
@@ -57,7 +58,7 @@ final class InformationsTest extends TestCase
         ];
     }
 
-    /** @dataProvider ignKeysProvider */
+    #[DataProvider('ignKeysProvider')]
     public function testIgnKeys(string $ignKeys, array $expected): void
     {
         $this->assertSame($expected, Informations::ignKeys($ignKeys));
@@ -81,7 +82,7 @@ final class InformationsTest extends TestCase
         ];
     }
 
-    /** @dataProvider thirdPartyPluginsProvider */
+    #[DataProvider('thirdPartyPluginsProvider')]
     public function testThirdPartyPlugins(string $thirdPartyPlugins, string $expected): void
     {
         $this->assertSame($expected, Informations::thirdPartyPlugins($thirdPartyPlugins));
@@ -105,7 +106,7 @@ final class InformationsTest extends TestCase
         ];
     }
 
-    /** @dataProvider authentificationProvider */
+    #[DataProvider('authentificationProvider')]
     public function testAuthentification(bool $casEnabled, bool $ntlmEnabled, Ldap $ldapInformations, string $expected): void
     {
         $this->assertSame($expected, Informations::authentification($casEnabled, $ntlmEnabled, $ldapInformations));

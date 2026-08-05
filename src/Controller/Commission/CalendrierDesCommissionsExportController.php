@@ -67,7 +67,7 @@ class CalendrierDesCommissionsExportController extends AbstractController
 
         $response = new Response($calendar->serialize());
         $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');
-        /** @var string $disposition */
+
         $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'calendar.ics');
         $response->headers->set('Content-Disposition', $disposition);
 
@@ -145,7 +145,7 @@ class CalendrierDesCommissionsExportController extends AbstractController
 
         $response = new Response($calendar->serialize());
         $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');
-        /** @var string $disposition */
+
         $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $filename);
         $response->headers->set('Content-Disposition', $disposition);
 

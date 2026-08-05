@@ -15,6 +15,7 @@ use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
 use App\Repository\ValeurRepository;
 use App\Service\Descriptif;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -285,10 +286,7 @@ final class DescriptifTest extends TestCase
     // -------------------------------------------------------------------------
     // Chaîne de résolution de la préférence d'affichage
     // -------------------------------------------------------------------------
-
-    /**
-     * @dataProvider displayPreferenceProvider
-     */
+    #[DataProvider('displayPreferenceProvider')]
     public function testResolutionDePreferenceAffichage(
         ?bool $prefUtilisateur,
         ?bool $defaultDisplay,

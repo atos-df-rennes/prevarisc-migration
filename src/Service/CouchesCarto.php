@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Dto\IgnApi;
 use App\Dto\IgnCapabilities;
-use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DomCrawler\Crawler;
@@ -198,7 +197,6 @@ final readonly class CouchesCarto
 
     private function getCrawler(IgnCapabilities $capabilities, string $format): ?Crawler
     {
-        /** @var CacheItemInterface $cacheIgn */
         $cacheIgn = $this->cache->getItem(str_replace(' ', '_', $format));
 
         if ($cacheIgn->isHit()) {

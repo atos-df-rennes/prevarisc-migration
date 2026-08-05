@@ -7,29 +7,18 @@ use App\Constant\DossierNature;
 use App\Constant\DossierType;
 use App\Dto\Repository\AbstractDossierResultDto;
 use App\Service\DateDiffFormatterService;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
+use Twig\Attribute\AsTwigFilter;
 
-class DossierStatusExtension extends AbstractExtension
+class DossierStatusExtension
 {
     public function __construct(private readonly DateDiffFormatterService $dateDiffFormatter)
     {
     }
 
     /**
-     * @return TwigFilter[]
-     */
-    #[\Override]
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('dossier_avis_badge', $this->renderAvisBadge(...), ['is_safe' => ['html']]),
-        ];
-    }
-
-    /**
      * Retourne le badge HTML d'avis pour un dossier dans les résultats de recherche.
      */
+    #[AsTwigFilter(name: 'dossier_avis_badge', isSafe: ['html'])]
     public function renderAvisBadge(AbstractDossierResultDto $item): string
     {
         // INCOMPLET prioritaire

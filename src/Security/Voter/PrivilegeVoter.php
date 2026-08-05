@@ -7,6 +7,7 @@ use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class PrivilegeVoter implements VoterInterface
@@ -35,11 +36,11 @@ class PrivilegeVoter implements VoterInterface
     {
     }
 
-    public function vote(TokenInterface $token, $subject, array $attributes): int
+    public function vote(TokenInterface $token, $subject, array $attributes, ?Vote $vote = null): int
     {
         $attribute = $attributes[0];
 
-        if (!is_string($attribute) || in_array($attribute, self::EXCLUDED_ATTRIBUTES)) {
+        if (!is_string($attribute) || in_array($attribute, self::EXCLUDED_ATTRIBUTES, true)) {
             return self::ACCESS_ABSTAIN;
         }
 

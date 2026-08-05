@@ -7,6 +7,7 @@ use App\Entity\Etablissement;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EtablissementZoneVoter extends EtablissementVoter
 {
@@ -15,14 +16,14 @@ class EtablissementZoneVoter extends EtablissementVoter
     }
 
     #[\Override]
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return parent::supports($attribute, $subject)
             && parent::isSubjectGenreAllowed($subject, GenreEtablissement::ZONE);
     }
 
     #[\Override]
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;

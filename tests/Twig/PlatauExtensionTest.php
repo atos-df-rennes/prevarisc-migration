@@ -5,6 +5,7 @@ namespace App\Tests\Twig;
 use App\Enum\PlatauStatutAvisEnum;
 use App\Enum\PlatauStatutPecEnum;
 use App\Twig\PlatauExtension;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PlatauExtensionTest extends TestCase
@@ -16,9 +17,7 @@ class PlatauExtensionTest extends TestCase
         $this->extension = new PlatauExtension();
     }
 
-    /**
-     * @dataProvider getPecLabelProvider
-     */
+    #[DataProvider('getPecLabelProvider')]
     public function testGetPecLabel(?string $statut, string $expectedLabel): void
     {
         $result = $this->extension->getPecLabel($statut);
@@ -38,9 +37,7 @@ class PlatauExtensionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getPecClassProvider
-     */
+    #[DataProvider('getPecClassProvider')]
     public function testGetPecClass(?string $statut, string $expectedClass): void
     {
         $result = $this->extension->getPecClass($statut);
@@ -60,9 +57,7 @@ class PlatauExtensionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getAvisLabelProvider
-     */
+    #[DataProvider('getAvisLabelProvider')]
     public function testGetAvisLabel(?string $statut, string $expectedLabel): void
     {
         $result = $this->extension->getAvisLabel($statut);
@@ -82,9 +77,7 @@ class PlatauExtensionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getAvisClassProvider
-     */
+    #[DataProvider('getAvisClassProvider')]
     public function testGetAvisClass(?string $statut, string $expectedClass): void
     {
         $result = $this->extension->getAvisClass($statut);

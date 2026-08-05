@@ -9,6 +9,7 @@ use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EtablissementSiteVoter extends EtablissementVoter
 {
@@ -17,7 +18,7 @@ class EtablissementSiteVoter extends EtablissementVoter
     }
 
     #[\Override]
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return parent::supports($attribute, $subject)
             && parent::isSubjectGenreAllowed($subject, GenreEtablissement::SITE);
@@ -32,7 +33,7 @@ class EtablissementSiteVoter extends EtablissementVoter
      * aligné sur le comportement legacy (ACL.php:275 — ressource editsite + privilège add_etablissement).
      */
     #[\Override]
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;

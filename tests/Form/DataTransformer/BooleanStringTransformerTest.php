@@ -3,6 +3,7 @@
 namespace App\Tests\Form\DataTransformer;
 
 use App\Form\DataTransformer\BooleanStringTransformer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -20,9 +21,7 @@ final class BooleanStringTransformerTest extends TestCase
     // =========================================================================
     // transform (bool → string)
     // =========================================================================
-    /**
-     * @dataProvider transformProvider
-     */
+    #[DataProvider('transformProvider')]
     public function testTransform(?bool $input, ?string $expected): void
     {
         self::assertSame($expected, $this->transformer->transform($input));
@@ -43,9 +42,7 @@ final class BooleanStringTransformerTest extends TestCase
     // =========================================================================
     // reverseTransform (string → bool)
     // =========================================================================
-    /**
-     * @dataProvider reverseTransformProvider
-     */
+    #[DataProvider('reverseTransformProvider')]
     public function testReverseTransform(?string $input, bool $expected): void
     {
         self::assertSame($expected, $this->transformer->reverseTransform($input));

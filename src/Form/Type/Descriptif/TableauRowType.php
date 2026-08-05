@@ -7,6 +7,7 @@ use App\Dto\Descriptif\TableauRowData;
 use App\Entity\Champ;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -59,7 +60,7 @@ class TableauRowType extends AbstractType
     /**
      * Retourne le FQCN du FormType feuille correspondant au TypeChamp.
      *
-     * @return string FQCN
+     * @return class-string<FormTypeInterface> FQCN
      */
     private function resolveLeafType(?int $typeId): string
     {

@@ -2,30 +2,19 @@
 
 namespace App\Twig;
 
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
+use Twig\Attribute\AsTwigFilter;
 
 /**
  * Filtre Twig urlize : convertit les URLs en liens cliquables.
  * Port direct de la regex utilisée dans la vue feeds du legacy.
  */
-final class UrlizeExtension extends AbstractExtension
+final class UrlizeExtension
 {
-    /**
-     * @return TwigFilter[]
-     */
-    #[\Override]
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('urlize', $this->urlize(...), ['is_safe' => ['html']]),
-        ];
-    }
-
     /**
      * Convertit les URLs et adresses www dans le texte en liens HTML cliquables.
      * Port direct de la logique preg_replace du legacy (index/partials/feeds.phtml).
      */
+    #[AsTwigFilter(name: 'urlize', isSafe: ['html'])]
     public function urlize(string $text): string
     {
         $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');

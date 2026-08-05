@@ -3,27 +3,15 @@
 namespace App\Twig;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
+use Twig\Attribute\AsTwigFunction;
 
 /**
  * Extension pour ajouter des fonctions personnalisées Twig permettant d'accéder aux paramètres du parameterBag.
  */
-class ParameterExtension extends AbstractExtension
+class ParameterExtension
 {
     public function __construct(private readonly ParameterBagInterface $parameterBag)
     {
-    }
-
-    /**
-     * @return TwigFunction[]
-     */
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('parameter', $this->parameter(...)),
-        ];
     }
 
     /**
@@ -33,7 +21,8 @@ class ParameterExtension extends AbstractExtension
      *
      * @return array|bool|string|int|float|null valeur du paramètre
      */
-    public function parameter(string $parameterName): bool|string|int|float|\UnitEnum|array|null // @phpstan-ignore-line
+    #[AsTwigFunction(name: 'parameter')] // @phpstan-ignore-line
+    public function parameter(string $parameterName): bool|string|int|float|\UnitEnum|array|null
     {
         return $this->parameterBag->get($parameterName);
     }

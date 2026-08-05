@@ -22,12 +22,9 @@ class CommissionMembreCourrierUploadType extends AbstractType
             'label' => false,
             'required' => true,
             'constraints' => [
-                new File([
-                    'mimeTypes' => [
-                        'application/vnd.oasis.opendocument.text',
-                    ],
-                    'mimeTypesMessage' => 'Seuls les fichiers ODT (.odt) sont acceptés.',
-                ]),
+                new File(mimeTypes: [
+                    'application/vnd.oasis.opendocument.text',
+                ], mimeTypesMessage: 'Seuls les fichiers ODT (.odt) sont acceptés.'),
             ],
         ]);
     }

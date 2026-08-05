@@ -9,10 +9,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class DocumentManquantController extends AbstractController
 {
-    #[Route(path: '/api/document-manquant/liste', name: 'api_document_manquant_liste', methods: ['GET'])]
-    public function liste(DocumentManquantRepository $repository): JsonResponse
+    public function __construct(private readonly DocumentManquantRepository $repository)
     {
-        $documents = $repository->findAll();
+    }
+
+    #[Route(path: '/api/document-manquant/liste', name: 'api_document_manquant_liste', methods: ['GET'])]
+    public function liste(): JsonResponse
+    {
+        $documents = $this->repository->findAll();
 
         return $this->json($documents);
     }

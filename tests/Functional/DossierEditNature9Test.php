@@ -5,14 +5,14 @@ namespace App\Tests\Functional;
 use App\Entity\Dossier;
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test fonctionnel pour l'édition d'un dossier de nature 9 (Changement de DUS).
- *
- * @group functional
  */
+#[Group('functional')]
 class DossierEditNature9Test extends WebTestCase
 {
     /**

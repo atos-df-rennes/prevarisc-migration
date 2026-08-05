@@ -8,6 +8,7 @@ use App\Entity\Commission;
 use App\Entity\CommissionTypeEvenement;
 use App\Entity\DateCommission;
 use App\Service\Commission\CommissionDatesTransformer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -100,9 +101,7 @@ final class CommissionDatesTransformerTest extends TestCase
         $this->assertEquals(new \DateTime('2026-01-22 16:00:00'), $result[2]->getHeureFin());
     }
 
-    /**
-     * @dataProvider providePeriodicityValues
-     */
+    #[DataProvider('providePeriodicityValues')]
     public function testTransformToEntitiesWithPeriodicityWeekly(int $periodiciteWeeks, int $expectedCount): void
     {
         $dto = $this->createValidDto();
@@ -153,9 +152,7 @@ final class CommissionDatesTransformerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideMissingInformation
-     */
+    #[DataProvider('provideMissingInformation')]
     public function testTransformToEntitiesWithMissingInformation(callable $dtoModifier, string $expectedErrorContext): void
     {
         $dto = $this->createValidDto();

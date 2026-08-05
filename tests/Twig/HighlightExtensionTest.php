@@ -3,6 +3,7 @@
 namespace App\Tests\Twig;
 
 use App\Twig\HighlightExtension;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class HighlightExtensionTest extends TestCase
@@ -15,10 +16,9 @@ class HighlightExtensionTest extends TestCase
     }
 
     /**
-     * @dataProvider highlightProvider
-     *
      * @param string[] $keywords
      */
+    #[DataProvider('highlightProvider')]
     public function testHighlight(string $subject, array $keywords, string $expected): void
     {
         $result = $this->extension->highlight($subject, $keywords);

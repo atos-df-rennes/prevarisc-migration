@@ -127,12 +127,6 @@ class CommissionRegleType extends AbstractType
         ;
     }
 
-    #[\Override]
-    public function getBlockPrefix(): string
-    {
-        return 'commission_regle';
-    }
-
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([

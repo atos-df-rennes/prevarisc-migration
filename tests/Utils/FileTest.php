@@ -3,13 +3,12 @@
 namespace App\Tests\Utils;
 
 use App\Utils\File;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class FileTest extends TestCase
 {
-    /**
-     * @dataProvider sanitizeSuccessProvider
-     */
+    #[DataProvider('sanitizeSuccessProvider')]
     public function testSanitizeSuccess(string $input, string $expected): void
     {
         $this->assertSame($expected, File::sanitize($input));
@@ -69,9 +68,7 @@ final class FileTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider sanitizeExceptionProvider
-     */
+    #[DataProvider('sanitizeExceptionProvider')]
     public function testSanitizeException(string $input): void
     {
         $this->expectException(\InvalidArgumentException::class);

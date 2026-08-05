@@ -3,26 +3,15 @@
 namespace App\Twig;
 
 use Symfony\Component\Asset\Packages;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
+use Twig\Attribute\AsTwigFunction;
 
-class AssetExistExtension extends AbstractExtension
+class AssetExistExtension
 {
     public function __construct(private readonly Packages $packages, private readonly string $srcDir)
     {
     }
 
-    /**
-     * @return TwigFunction[]
-     */
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('asset_exist', $this->assetExist(...)),
-        ];
-    }
-
+    #[AsTwigFunction(name: 'asset_exist')]
     public function assetExist(string $assetPath): bool
     {
         $filepath = $this->packages->getUrl($assetPath);

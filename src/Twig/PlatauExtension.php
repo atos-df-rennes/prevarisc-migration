@@ -4,27 +4,17 @@ namespace App\Twig;
 
 use App\Enum\PlatauStatutAvisEnum;
 use App\Enum\PlatauStatutPecEnum;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
+use Twig\Attribute\AsTwigFilter;
 
-class PlatauExtension extends AbstractExtension
+class PlatauExtension
 {
-    #[\Override]
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('platau_pec_label', $this->getPecLabel(...)),
-            new TwigFilter('platau_pec_class', $this->getPecClass(...)),
-            new TwigFilter('platau_avis_label', $this->getAvisLabel(...)),
-            new TwigFilter('platau_avis_class', $this->getAvisClass(...)),
-        ];
-    }
-
+    #[AsTwigFilter(name: 'platau_pec_label')]
     public function getPecLabel(?string $statut): string
     {
         return PlatauStatutPecEnum::getLabel($statut);
     }
 
+    #[AsTwigFilter(name: 'platau_pec_class')]
     public function getPecClass(?string $statut): string
     {
         return match ($statut) {
@@ -36,11 +26,13 @@ class PlatauExtension extends AbstractExtension
         };
     }
 
+    #[AsTwigFilter(name: 'platau_avis_label')]
     public function getAvisLabel(?string $statut): string
     {
         return PlatauStatutAvisEnum::getLabel($statut);
     }
 
+    #[AsTwigFilter(name: 'platau_avis_class')]
     public function getAvisClass(?string $statut): string
     {
         return match ($statut) {

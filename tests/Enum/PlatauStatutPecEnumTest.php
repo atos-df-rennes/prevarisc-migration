@@ -3,11 +3,12 @@
 namespace App\Tests\Enum;
 
 use App\Enum\PlatauStatutPecEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PlatauStatutPecEnumTest extends TestCase
 {
-    /** @dataProvider labelProvider */
+    #[DataProvider('labelProvider')]
     public function testGetLabelReturnsCorrectValueForStatus(?string $status, string $expected): void
     {
         $this->assertSame($expected, PlatauStatutPecEnum::getLabel($status));
@@ -24,7 +25,7 @@ class PlatauStatutPecEnumTest extends TestCase
         yield 'invalide' => ['invalid_status', 'Statut inconnu'];
     }
 
-    /** @dataProvider constantProvider */
+    #[DataProvider('constantProvider')]
     public function testConstantValues(string $constant, string $expected): void
     {
         $this->assertSame($expected, $constant);

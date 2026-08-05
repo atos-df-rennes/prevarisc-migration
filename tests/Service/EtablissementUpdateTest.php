@@ -21,6 +21,7 @@ use App\Service\TexteApplicable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -28,10 +29,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * Tests unitaires pour EtablissementService::update() et EtablissementService::checkAlerte().
- *
- * @covers \App\Service\Etablissement::update
- * @covers \App\Service\Etablissement::checkAlerte
  */
+#[CoversMethod(EtablissementService::class, 'update')]
+#[CoversMethod(EtablissementService::class, 'checkAlerte')]
 class EtablissementUpdateTest extends TestCase
 {
     /**

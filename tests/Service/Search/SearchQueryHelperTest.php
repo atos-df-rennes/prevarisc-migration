@@ -4,12 +4,12 @@ namespace App\Tests\Service\Search;
 
 use App\Service\Search\SearchQueryHelper;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \App\Service\Search\SearchQueryHelper
- */
+#[CoversClass(SearchQueryHelper::class)]
 final class SearchQueryHelperTest extends TestCase
 {
     /** @var Connection|MockObject */
@@ -61,10 +61,9 @@ final class SearchQueryHelperTest extends TestCase
     // buildCriteria — mode exact (=)
     // ─────────────────────────────────────────────────────────────────────────
     /**
-     * @dataProvider buildCriteriaExactProvider
-     *
      * @param array<int|string, bool|int|string>|bool|float|int|string $value
      */
+    #[DataProvider('buildCriteriaExactProvider')]
     public function testBuildCriteriaExactProduitConditionEgalite(string $key, string|int|bool $value, string $quoteInput, string $expected): void
     {
         $this->connection->method('quote')

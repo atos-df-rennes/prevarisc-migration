@@ -7,6 +7,7 @@ use App\Entity\DossierNatureListe;
 use App\Entity\DossierType;
 use App\Validator\DossierObjet;
 use App\Validator\DossierObjetValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
@@ -38,9 +39,8 @@ final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
     /**
      * Test avec une nature requérant OBJET mais objet vide ou null.
      * Une violation doit être levée.
-     *
-     * @dataProvider provideObjetVideOuNull
      */
+    #[DataProvider('provideObjetVideOuNull')]
     public function testValidateAvecObjetRequisMaisVide(?string $objet): void
     {
         $dossier = $this->createDossier(1, $objet);
@@ -69,9 +69,8 @@ final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
     /**
      * Test avec des natures NE requérant PAS OBJET (21, 26).
      * Aucune violation ne doit être levée même si objet est vide.
-     *
-     * @dataProvider provideNaturesSansObjet
      */
+    #[DataProvider('provideNaturesSansObjet')]
     public function testValidateAvecNatureSansObjet(int $natureId): void
     {
         $dossier = $this->createDossier($natureId, '');

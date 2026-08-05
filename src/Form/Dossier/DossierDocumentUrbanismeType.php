@@ -25,7 +25,7 @@ class DossierDocumentUrbanismeType extends AbstractType
                     'class' => 'col-sm-10',
                 ],
                 'constraints' => [
-                    new Assert\Length(['max' => 100]),
+                    new Assert\Length(max: 100),
                 ],
             ]);
     }

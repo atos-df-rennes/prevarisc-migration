@@ -2,22 +2,10 @@
 
 namespace App\Twig;
 
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
+use Twig\Attribute\AsTwigFilter;
 
-class HighlightExtension extends AbstractExtension
+class HighlightExtension
 {
-    /**
-     * @return TwigFilter[]
-     */
-    #[\Override]
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('highlight', $this->highlight(...), ['is_safe' => ['html']]),
-        ];
-    }
-
     /**
      * Entoure les occurrences des mots-clés dans le sujet HTML avec une balise <span class="highlight">.
      * Le sujet doit être préalablement échappé en HTML. La casse du texte d'origine est préservée
@@ -25,6 +13,7 @@ class HighlightExtension extends AbstractExtension
      *
      * @param string[] $keywords
      */
+    #[AsTwigFilter(name: 'highlight', isSafe: ['html'])]
     public function highlight(string $subject, array $keywords): string
     {
         foreach ($keywords as $keyword) {

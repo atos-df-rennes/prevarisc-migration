@@ -3,13 +3,12 @@
 namespace App\Tests\Constant;
 
 use App\Constant\AvisCommission;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class AvisCommissionTest extends TestCase
 {
-    /**
-     * @dataProvider avisProvider
-     */
+    #[DataProvider('avisProvider')]
     public function testGetLibelleRetourneLeLibelleCorrect(int|string|null $code, string $expected): void
     {
         self::assertSame($expected, AvisCommission::getLibelle($code));

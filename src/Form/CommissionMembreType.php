@@ -38,7 +38,7 @@ class CommissionMembreType extends AbstractType
             // @todo REF-FORM-02: libelle est NOT NULL en DB (commissionmembre.LIBELLE_COMMISSIONMEMBRE) mais
             // le champ est required=false dans le formulaire — vérifier si NotBlank doit être ajouté selon le legacy
             'constraints' => [
-                new Assert\Length(['max' => 255]),
+                new Assert\Length(max: 255),
             ],
         ]);
 
@@ -229,12 +229,6 @@ class CommissionMembreType extends AbstractType
         if (1 !== $typeMembre) {
             $membre->setGroupement(null);
         }
-    }
-
-    #[\Override]
-    public function getBlockPrefix(): string
-    {
-        return 'commission_membre';
     }
 
     public function configureOptions(OptionsResolver $resolver): void
