@@ -3,7 +3,6 @@
         "phpstan/phpstan": "^2.1.40",
         "rector/rector": "^2.3.8",
         "friendsofphp/php-cs-fixer": "^3.94",
-        "ramsey/conventional-commits": "^1.5",
         "marcocesarato/php-conventional-changelog": "^1.17",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-symfony": "^2.0",
@@ -16,39 +15,11 @@
         "App\\Linter\\": "../linter/"
       }
     },
-  "minimum-stability": "dev",
+    "minimum-stability": "dev",
     "prefer-stable": true,
-    "extra": {
-        "ramsey/conventional-commits": {
-            "config": {
-                "typeCase": "lower",
-                "types": ["adaptation", "chore", "docs", "test", "style", "refactor", "tech", "migration"],
-                "scopeCase": "kebab",
-                "scopes": [
-                    "deps",
-                    "carto",
-                    "dossier",
-                    "etablissement",
-                    "rapports",
-                    "calendrier",
-                    "platau",
-                    "unitaire",
-                    "fonctionnel",
-                    "dashboard",
-                    "prescriptions",
-                    "effectifs-degagements",
-                    "pieces-jointes",
-                    "formulaires"
-                ]
-            }
-        }
-    },
     "config": {
         "allow-plugins": {
             "phpstan/extension-installer": true
         }
-    },
-    "require-dev": {
-        "symplify/config-transformer": "^12.4"
     }
 }
