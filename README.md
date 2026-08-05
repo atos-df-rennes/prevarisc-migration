@@ -1,5 +1,6 @@
-![Static Badge](https://img.shields.io/badge/status-ready-dark--green)
-![Static Badge](https://img.shields.io/badge/php-7.1-blue)
+![Static Badge](https://img.shields.io/badge/status-rc-orange)
+![Static Badge](https://img.shields.io/badge/php-8.5-blue)
+![Static Badge](https://img.shields.io/badge/symfony-7.4-green)
 ![Static Badge](https://img.shields.io/badge/license-CeCILL--B-yellow)
 
 # Prevarisc
@@ -20,24 +21,24 @@ Consultez la [documentation dédiée](docs/guide.md).
 
 ## Technologies utilisées
 
-- **PHP** : Utilisé en version 7.1 avec le framework [Symfony 4](https://symfony.com/doc/4.x/index.html)
-- **MySQL**: Utilisé en version 5.6 pour les migrations
-- **JavaScript** : Utilisé avec [jQuery](https://jquery.com/)
-- **Bootstrap** : Utilisé en [version 3](https://getbootstrap.com/docs/3.4/)
+- **PHP** : Utilisé en version 8.5+ avec le framework [Symfony 7.4 LTS](https://symfony.com/doc/7.4/index.html)
+- **MySQL**: Utilisé en version 5.6+ pour les migrations (version recommandée : 8.0+)
+- **JavaScript** : Framework JavaScript moderne pour l'interface utilisateur
+- **Bootstrap** : Utilisé en [version 5](https://getbootstrap.com/docs/5.3/)
 - **LibreOffice** : Utilisé en version 7.x pour l'édition des documents (Les dernières versions ne sont actuellement pas compatibles)
 
 ## Installation
 
-Cette version est destinée à co-exister avec la version actuelle de Prevarisc. Pour l'installer, suivez les étapes ci-dessous :
+Prevarisc 3.0 est une refonte complète utilisant Symfony 7.4 LTS et PHP 8.5. Pour l'installer, suivez les étapes ci-dessous :
 
-1. Clonez le dépôt à côté du dépôt existant :
+1. Clonez le dépôt :
 ```sh
-$ git clone https://github.com/atos-df-rennes/prevarisc-migration.git
+$ git clone https://github.com/atos-df-rennes/prevarisc.git
+$ cd prevarisc
+$ git checkout release/3.0
 ```
 > [!NOTE]
-> L'architecture attendue est la suivante :\
-/home/prv/prevarisc\
-/home/prv/prevarisc-migration
+> Prevarisc 3.0 utilise la branche `release/3.0`. Les versions précédentes (2.8, 2.10) restent sur leurs branches respectives.
 
 2. Copiez le fichier de variables d'environnement d'exemple et renseignez les valeurs suivant votre configuration :
 ```sh
@@ -58,7 +59,7 @@ PREVARISC_PATH=/chemin/absolu/vers/Prevarisc
 > [!TIP]
 > Si l'un des paramètres de la variable DATABASE_URL contient des caractères spéciaux, ils doivent être encodés : + => %2B, @ => %40, $ => %24, # => %23, / => %2F, : => %3A, * => %2A, ! => %21
 
-3. Installez les dépendances :
+3. Installez les dépendances (Composer 2.x requis) :
 ```sh
 $ composer install --no-dev --classmap-authoritative
 ```
@@ -87,39 +88,46 @@ $ find . -type f -exec chmod 0644 {} \;
 $ chmod -R 755 vendor/bin
 ```
 
-Vous devez ensuite modifier le Virtualhost pour définir ce dossier comme étant le principale avec le dossier *prevarisc/* celui de secours.\
-Pour cela, configurer le VirtualHost comme suit :
-```
+7. Configurez votre serveur web (Apache 2.4+ ou Nginx recommandé) :
+
+**Apache VirtualHost** :
+```apache
 <VirtualHost *:80>
-    ServerName prevarisc.sdisxx.fr
-    DocumentRoot /var/www/html/prevarisc-migration/public
-    SetEnv [CLE DE CONFIGURATION] [VALEUR]
-    <Directory /var/www/html/prevarisc-migration/public>
+    ServerName prevarisc.local
+    DocumentRoot /var/www/html/prevarisc/public
+    <Directory /var/www/html/prevarisc/public>
         DirectoryIndex index.php
         AllowOverride all
         Order allow,deny
         Allow from all
-
         <IfModule rewrite_module>
             Options +FollowSymlinks
             RewriteEngine On
-
-            RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
-            RewriteRule ^(.*) - [E=BASE:%1]
-
-            RewriteCond %{ENV:REDIRECT_STATUS} ^$
-            RewriteRule ^index\.php(?:/(.*)|$) %{ENV:BASE}/$1 [R=301,L]
-
-            RewriteRule ^index\.php - [L]
-
-            RewriteCond %{REQUEST_FILENAME} -f
             RewriteCond %{REQUEST_FILENAME} !^.+\.php$
-            RewriteRule ^ - [L]
-
-            RewriteRule ^ %{ENV:BASE}/index.php [L]
-	    </IfModule>
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteRule ^ index.php [L]
+        </IfModule>
     </Directory>
 </VirtualHost>
+```
+
+**Nginx** :
+```nginx
+server {
+    listen 80;
+    server_name prevarisc.local;
+    root /var/www/html/prevarisc/public;
+    location / {
+        try_files $uri /index.php$is_args$args;
+    }
+    location ~ ^/index\.php(/|$) {
+        fastcgi_pass unix:/run/php-fpm.sock;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+    }
+}
 ```
 
 ## Exploitation
