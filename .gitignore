@@ -3,6 +3,10 @@
 .vscode
 ###< Config IDE ###
 
+###> symfony/config (php reference helper) ###
+/config/reference.php
+###< symfony/config (php reference helper) ###
+
 ###> symfony/framework-bundle ###
 /.env
 /.env.local

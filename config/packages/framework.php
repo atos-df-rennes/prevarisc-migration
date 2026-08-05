@@ -22,9 +22,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             'throw' => false,
         ],
         'http_method_override' => true,
-        'annotations' => [
-            'enabled' => false,
-        ],
         'handle_all_throwables' => true,
     ]);
 };

@@ -21,7 +21,7 @@ class RessourcesSpecialiseesDossierTextGenerator
     public function fromRequest(Request $request): string
     {
         /** @var FormData $formData */
-        $formData = $request->request->get('ressource_specialisee_dossier');
+        $formData = $request->request->all('ressource_specialisee_dossier');
         $formText = $formData['text'];
 
         if ('' !== $formText) {

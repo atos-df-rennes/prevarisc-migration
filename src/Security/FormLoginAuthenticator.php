@@ -225,11 +225,11 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
      *   3. Anti-brute-force si ENFORCE_SECURITY + IP différente
      *   4. LDAP si activé (fallback sur dbtable si échec)
      *   5. Vérification dbtable via passwordEncoder (gère migrate_from MD5→bcrypt)
-     *
-     * @param array{username: string, password: string|null, sso_type: string|null} $credentials
      */
-    public function checkCredentials($credentials, UserInterface $user): bool
+    public function checkCredentials(mixed $credentials, UserInterface $user): bool
     {
+        /** @var array{username: string, password: string|null, sso_type: string|null} $credentials */
+
         /** @var Utilisateur $utilisateur */
         $utilisateur = $user;
 
