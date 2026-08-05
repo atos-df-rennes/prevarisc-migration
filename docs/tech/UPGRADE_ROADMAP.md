@@ -1,12 +1,16 @@
 # Upgrade Roadmap — Version 3.0.0-rc.1
 
-> **Note (statut réel constaté) :** l'application `prevarisc-migration/` tourne déjà en **PHP 8.4** et **Symfony 6.4.\***
-> avec MariaDB (11.8.8), en avance sur la séquence détaillée ci-dessous. Une passe de résorption des dépréciations
-> Symfony 6.4 a été effectuée (sans utiliser d'API 7.x) afin de préparer un futur passage à Symfony 7.x :
-> `castor symfony:analyse`, `castor symfony:cs`, `castor symfony:test` sont verts et l'application ne génère plus
-> de dépréciation en usage normal (`var/log/dev-*.log`) ni en tests (`symfony/phpunit-bridge` réintégré avec succès,
-> compatible avec PHPUnit 10 ; `SYMFONY_DEPRECATIONS_HELPER=max[total]=0`). Le statut des tâches `sf-7x`/`sf-8x`
-> ci-dessous reste inchangé : aucun bump de version composer n'a été fait dans le cadre de ce nettoyage.
+> **Note (statut réel constaté) :** l'application `prevarisc-migration/` tourne désormais en **PHP 8.5.9** et
+> **Symfony 7.4.15 LTS** avec MariaDB (11.8.8) — la tâche **`sf-7x` est terminée** (SF 6.4 → 7.4, flex 2,
+> `symfony/runtime`, PHPUnit 11, recettes à jour, modernisation Rector). `castor symfony:analyse`,
+> `castor symfony:cs`, `castor symfony:test` sont verts. L'application ne génère plus de dépréciation en usage
+> normal ni en tests, à l'exception de 3 occurrences runtime "Since symfony/var-exporter 7.3: LazyGhostTrait...
+> is deprecated" déclenchées par `enable_lazy_ghost_objects: true` dans `config/packages/doctrine.php` : ce
+> réglage est un compromis délibéré, Doctrine ORM 2.x émettant sa propre dépréciation si on le désactive
+> (conflit amont ORM 2.x / Symfony 7.3+, cf. doctrine/orm#10837, non résolvable sans upgrade ORM 3.x — Doctrine
+> reste hors périmètre de cette migration). Les 43 tests fonctionnels `DossierEditNature*Test` échouent
+> (pré-existant, authentification legacy `$_SESSION['Zend_Auth']` morte, sans lien avec cette montée de version
+> et volontairement laissés en l'état).
 
 ## Overview
 
@@ -247,7 +251,7 @@ Starting: PHP 7.1, Symfony 4.4
 | 8 | **php-81** | PHP | 3–4h | Enums, readonly properties, fibers (if applicable) |
 | 9 | **sf-64** | SF | 4–5h | SF 5.4 → 6.4 LTS + Attributes conversion (decision point reached); also move tools to main container |
 | 10 | **php-82** | PHP | 3–4h | Disjunctive normal form types, readonly classes |
-| 11 | **sf-7x** | SF | 3–5h | SF 6.4 → 7.x LTS (decision point reached) |
+| 11 | **sf-7x** | SF | 3–5h | ✅ **Terminé** — SF 6.4 → 7.4 LTS (flex 2, symfony/runtime, PHPUnit 11, recettes, Rector) |
 | 12 | **php-83** | PHP | 3–4h | Typed class constants |
 | 13 | **php-84** | PHP | 3–4h | Property hooks, asymmetric visibility |
 | 14 | **sf-8x** | SF | 3–5h | SF 7.x → 8.x LTS (decision point reached) |
