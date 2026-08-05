@@ -21,6 +21,13 @@ if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 return function (array $context) {
+    // Ensure cache/log directories are group-writable (prv:prv created with 0775, readable by www-data in prv group)
+    // Required for deployment via .tar.gz with bash scripts: bin/console cache:clear runs as prv user
+    // See: https://github.com/atos-df-rennes/prevarisc-infra/issues/97
+    if (!($context['APP_DEBUG'] ?? false)) {
+        umask(0o002);
+    }
+
     $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
 
     return new Application($kernel);
