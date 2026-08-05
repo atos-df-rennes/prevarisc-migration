@@ -3,6 +3,7 @@
 namespace App\Tests\Service;
 
 use App\Service\PlatauTempsRestant;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PlatauTempsRestantTest extends TestCase
@@ -14,9 +15,7 @@ class PlatauTempsRestantTest extends TestCase
         $this->service = new PlatauTempsRestant();
     }
 
-    /**
-     * @dataProvider calculateProvider
-     */
+    #[DataProvider('calculateProvider')]
     public function testCalculate(string $dateModifier, string $expectedResult): void
     {
         $limitDate = new \DateTime(new \DateTime($dateModifier)->format('Y-m-d'));
@@ -39,9 +38,7 @@ class PlatauTempsRestantTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getCouleurTempsRestantProvider
-     */
+    #[DataProvider('getCouleurTempsRestantProvider')]
     public function testGetCouleurTempsRestant(string $dateModifier, string $expectedColor): void
     {
         $limitDate = new \DateTime(new \DateTime($dateModifier)->format('Y-m-d'));

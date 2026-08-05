@@ -7,6 +7,7 @@ use App\Repository\CommissionTypeEvenementRepository;
 use App\Repository\DateCommissionRepository;
 use App\Service\Commission\CalendarService;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class CalendarServiceTest extends TestCase
@@ -28,9 +29,7 @@ final class CalendarServiceTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideTimestampData
-     */
+    #[DataProvider('provideTimestampData')]
     public function testParseTimestamp(string $timestamp, ?\DateTimeInterface $expectedResult): void
     {
         $result = $this->calendarService->parseTimestamp($timestamp);
@@ -67,10 +66,9 @@ final class CalendarServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider provideJavaScriptDateToTimeData
-     *
      * @param string $expectedTime Format H:i:s
      */
+    #[DataProvider('provideJavaScriptDateToTimeData')]
     public function testParseJavaScriptDateToTime(string $dateString, string $expectedTime, bool $shouldThrowException = false): void
     {
         if ($shouldThrowException) {
@@ -119,10 +117,9 @@ final class CalendarServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider provideJavaScriptDateData
-     *
      * @param string $expectedDate Format Y-m-d H:i:s
      */
+    #[DataProvider('provideJavaScriptDateData')]
     public function testParseJavaScriptDate(string $dateString, string $expectedDate, bool $shouldThrowException = false): void
     {
         if ($shouldThrowException) {

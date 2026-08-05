@@ -7,15 +7,15 @@ namespace App\Tests\Functional;
 use App\Entity\Dossier;
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Test simple pour l'édition de la nature 21 (Visite périodique).
  * Vérifie uniquement l'affichage des labels de formulaire.
- *
- * @group functional
  */
+#[Group('functional')]
 final class DossierEditNature21Test extends WebTestCase
 {
     /** @var EntityManagerInterface */

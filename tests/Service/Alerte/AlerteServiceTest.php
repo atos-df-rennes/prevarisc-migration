@@ -3,6 +3,7 @@
 namespace App\Tests\Service\Alerte;
 
 use App\Service\Alerte\AlerteService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class AlerteServiceTest extends KernelTestCase
@@ -19,9 +20,7 @@ class AlerteServiceTest extends KernelTestCase
         $this->alerteService = $container->get(AlerteService::class);
     }
 
-    /**
-     * @dataProvider alerteProvider
-     */
+    #[DataProvider('alerteProvider')]
     public function testGetLink(int $idTypeChangement, ?int $idEtablissement, string $expected): void
     {
         $link = $this->alerteService->getLink($idTypeChangement, $idEtablissement);

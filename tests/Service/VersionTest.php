@@ -3,13 +3,12 @@
 namespace App\Tests\Service;
 
 use App\Builder\VersionBuilder;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class VersionTest extends KernelTestCase
 {
-    /**
-     * @dataProvider envProvider
-     */
+    #[DataProvider('envProvider')]
     public function testFromEnv(string $branch, string $revision, array $expected): void
     {
         self::bootKernel();

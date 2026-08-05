@@ -3,13 +3,12 @@
 namespace App\Tests\Service\Formulaires\Fusion;
 
 use App\Service\Formulaires\Fusion\ChampNamer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ChampNamerTest extends TestCase
 {
-    /**
-     * @dataProvider fusionNameProvider
-     */
+    #[DataProvider('fusionNameProvider')]
     public function testGetDescriptifFieldFusionName(string $baseObject, array $options, string $expected): void
     {
         $this->assertSame($expected, ChampNamer::getFullFusionName($baseObject, $options));
@@ -24,9 +23,7 @@ class ChampNamerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider loopNameProvider
-     */
+    #[DataProvider('loopNameProvider')]
     public function testGetDescriptifLoopName(string $initialName, string $expected): void
     {
         $this->assertSame($expected, ChampNamer::getLoopName($initialName));

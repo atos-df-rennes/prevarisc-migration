@@ -16,7 +16,7 @@ return RectorConfig::configure()
     ->withTypeCoverageLevel(50)
     ->withDeadCodeLevel(50)
     ->withCodeQualityLevel(50)
-    ->withAttributesSets(phpunit: false)
+    ->withAttributesSets(phpunit: true)
     ->withImportNames(removeUnusedImports: true, importShortClasses: false)
     ->withPreparedSets(
         codingStyle: true,

@@ -9,6 +9,7 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
 use App\Service\Contact;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -110,9 +111,8 @@ final class ContactTest extends TestCase
     /**
      * Vérifie que le minimalValidCount est correct pour chaque type d'entité.
      * Un contact lié uniquement à l'entité courante doit retourner false.
-     *
-     * @dataProvider provideElementLieAvecSonRepository
      */
+    #[DataProvider('provideElementLieAvecSonRepository')]
     public function testContactSeulementSurEntiteCouranteRetourneFalsePourChaqueType(
         string $elementLie,
         string $repositoryProperty

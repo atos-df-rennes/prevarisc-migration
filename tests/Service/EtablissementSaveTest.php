@@ -15,6 +15,7 @@ use App\Service\EtablissementPersistenceService;
 use App\Service\TexteApplicable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -25,9 +26,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  *
  * Ces tests vérifient la logique de validation des genres (fils/père)
  * sans nécessiter de base de données.
- *
- * @covers \App\Service\Etablissement::save
  */
+#[CoversMethod(EtablissementService::class, 'save')]
 class EtablissementSaveTest extends TestCase
 {
     /**

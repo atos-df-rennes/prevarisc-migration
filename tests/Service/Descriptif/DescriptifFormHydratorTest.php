@@ -12,11 +12,10 @@ use App\Entity\Rubrique;
 use App\Entity\TypeChamp as TypeChampEntity;
 use App\Entity\Valeur;
 use App\Service\Descriptif\DescriptifFormHydrator;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \App\Service\Descriptif\DescriptifFormHydrator
- */
+#[CoversClass(DescriptifFormHydrator::class)]
 class DescriptifFormHydratorTest extends TestCase
 {
     private DescriptifFormHydrator $hydrator;

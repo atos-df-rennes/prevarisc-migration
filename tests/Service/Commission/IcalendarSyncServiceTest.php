@@ -6,6 +6,7 @@ namespace App\Tests\Service\Commission;
 
 use App\Repository\DateCommissionRepository;
 use App\Service\Commission\IcalendarSyncService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class IcalendarSyncServiceTest extends TestCase
@@ -16,10 +17,9 @@ final class IcalendarSyncServiceTest extends TestCase
     }
 
     /**
-     * @dataProvider provideGenerateFeedData
-     *
      * @param array<string, mixed> $rows
      */
+    #[DataProvider('provideGenerateFeedData')]
     public function testGenerateFeedContainsExpectedDescriptionSections(
         array $rows,
         string $expectedFragment

@@ -20,12 +20,11 @@ use App\Repository\ValeurRepository;
 use App\Service\Descriptif\DescriptifFormPersister;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \App\Service\Descriptif\DescriptifFormPersister
- */
+#[CoversClass(DescriptifFormPersister::class)]
 class DescriptifFormPersisterTest extends TestCase
 {
     /** @var ValeurRepository|MockObject */

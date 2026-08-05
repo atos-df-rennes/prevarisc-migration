@@ -4,6 +4,7 @@ namespace App\Tests\Service\Rapport;
 
 use App\Constant\TypePrescription;
 use App\Service\Rapport\PrescriptionArrayHelper;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class PrescriptionArrayHelperTest extends TestCase
@@ -177,10 +178,7 @@ final class PrescriptionArrayHelperTest extends TestCase
     // =========================================================================
     // getPrescriptionSegmentName
     // =========================================================================
-
-    /**
-     * @dataProvider segmentNameProvider
-     */
+    #[DataProvider('segmentNameProvider')]
     public function testGetPrescriptionSegmentName(int $type, string $contenu, string $expected): void
     {
         self::assertSame($expected, PrescriptionArrayHelper::getPrescriptionSegmentName($type, $contenu));

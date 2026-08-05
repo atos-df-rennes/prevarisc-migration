@@ -7,12 +7,13 @@ use App\Entity\Dossier;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\EtablissementHistoriqueService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 final class EtablissementHistoriqueServiceTest extends TestCase
 {
-    /** @dataProvider lastAvisLibelleProvider */
+    #[DataProvider('lastAvisLibelleProvider')]
     public function testGetLastAvisLibelle(array $dossiersDataParams, string $expected): void
     {
         $etablissementRepository = $this->createMock(EtablissementRepository::class);

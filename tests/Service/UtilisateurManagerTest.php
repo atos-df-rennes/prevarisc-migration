@@ -5,6 +5,7 @@ namespace App\Tests\Service;
 use App\Entity\Utilisateur;
 use App\Security\Md5SaltedEncoder;
 use App\Service\UtilisateurManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class UtilisateurManagerTest extends TestCase
@@ -29,9 +30,7 @@ final class UtilisateurManagerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider providePasswordCases
-     */
+    #[DataProvider('providePasswordCases')]
     public function testProcessPasswordBeforePersist(?string $initialPassword, bool $sso, ?string $plainPassword, ?string $expectedDesc): void
     {
         $encoder = new Md5SaltedEncoder($this->globalSalt);

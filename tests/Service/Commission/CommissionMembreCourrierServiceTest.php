@@ -6,6 +6,7 @@ use App\Entity\CommissionMembre;
 use App\Enum\CommissionMembreCourrierType;
 use App\Service\Commission\CommissionMembreCourrierService;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -48,9 +49,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         new Filesystem()->remove($this->tmpDir);
     }
 
-    /**
-     * @dataProvider uploadTypesProvider
-     */
+    #[DataProvider('uploadTypesProvider')]
     public function testUploadCourrierValide(string $type, string $getter): void
     {
         $tmpFile = $this->tmpDir.'source.odt';
