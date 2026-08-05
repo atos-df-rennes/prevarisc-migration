@@ -5,7 +5,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
-return function (array $context) {
+return static function (array $context) {
     if ($trustedProxies = $context['TRUSTED_PROXIES'] ?? false) {
         Request::setTrustedProxies(
             explode(',', $trustedProxies),
