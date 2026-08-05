@@ -1,15 +1,15 @@
 {
     "require": {
-        "phpstan/phpstan": "^2.1.40",
-        "rector/rector": "^2.3.8",
-        "friendsofphp/php-cs-fixer": "^3.94",
+        "phpstan/phpstan": "^2.2",
+        "rector/rector": "^2.6",
+        "friendsofphp/php-cs-fixer": "^3.95",
         "marcocesarato/php-conventional-changelog": "^1.17",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-symfony": "^2.0",
-        "phpmetrics/phpmetrics": "^2.9",
+        "phpmetrics/phpmetrics": "^2.10",
         "tombenevides/dump-linter": "^1.0",
-        "vincentlanglet/twig-cs-fixer": "^3.10",
-        "rector/jack": "^1.0"
+        "vincentlanglet/twig-cs-fixer": "^3.14",
+        "rector/jack": "^1.1"
     },
     "autoload": {
       "psr-4": {
