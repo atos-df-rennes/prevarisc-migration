@@ -26,7 +26,7 @@ final readonly class DossierDocumentsConsultesService
             return [];
         }
 
-        $isVisite = in_array($type->getId(), DossierType::TYPES_VISITE);
+        $isVisite = in_array($type->getId(), DossierType::TYPES_VISITE, true);
         $isEtude = DossierType::ETUDE === $type->getId();
 
         if (!$isVisite && !$isEtude) {
@@ -34,11 +34,11 @@ final readonly class DossierDocumentsConsultesService
         }
 
         if ($isVisite) {
-            if (in_array($nature->getId(), DossierNature::RECEPTIONS_TRAVAUX)) {
+            if (in_array($nature->getId(), DossierNature::RECEPTIONS_TRAVAUX, true)) {
                 return $this->listeDocumentConsulteRepository->getDocVisiteRT();
             }
 
-            if (in_array($nature->getId(), DossierNature::VISITE_AVANT_OUVERTURE)) {
+            if (in_array($nature->getId(), DossierNature::VISITE_AVANT_OUVERTURE, true)) {
                 return $this->listeDocumentConsulteRepository->getDocVisiteVAO();
             }
 
@@ -46,7 +46,7 @@ final readonly class DossierDocumentsConsultesService
         }
 
         // Cas étude : certaines natures utilisent les docs de visite (levées)
-        if (in_array($nature->getId(), DossierNature::LEVEES)) {
+        if (in_array($nature->getId(), DossierNature::LEVEES, true)) {
             return $this->listeDocumentConsulteRepository->getDocVisite();
         }
 

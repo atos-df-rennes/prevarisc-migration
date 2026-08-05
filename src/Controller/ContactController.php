@@ -22,19 +22,19 @@ use Symfony\Component\Routing\RouterInterface;
 
 class ContactController extends AbstractController
 {
-    public function __construct(private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly RouterInterface $router)
+    public function __construct(private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly RouterInterface $router, private readonly EntityManagerInterface $entityManager)
     {
     }
 
     #[Route(path: '/contact/{id}/modifier', name: 'contact_edit', options: ['expose' => true])]
-    public function edit(Request $request, UtilisateurInformations $contact, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, UtilisateurInformations $contact): Response
     {
         $elementLie = $request->query->get('elementLie');
         $elementId = $request->query->getInt('elementId');
 
         switch ($elementLie) {
             case Contact::ETABLISSEMENT:
-                $entity = $entityManager->find(Etablissement::class, $elementId);
+                $entity = $this->entityManager->find(Etablissement::class, $elementId);
                 if (null === $entity) {
                     throw $this->createNotFoundException('Établissement non trouvé.');
                 }
@@ -44,7 +44,7 @@ class ContactController extends AbstractController
 
                 break;
             case Contact::GROUPEMENT:
-                $entity = $entityManager->find(Groupement::class, $elementId);
+                $entity = $this->entityManager->find(Groupement::class, $elementId);
                 if (null === $entity) {
                     throw $this->createNotFoundException('Groupement non trouvé.');
                 }
@@ -54,7 +54,7 @@ class ContactController extends AbstractController
 
                 break;
             case Contact::DOSSIER:
-                $entity = $entityManager->find(Dossier::class, $elementId);
+                $entity = $this->entityManager->find(Dossier::class, $elementId);
                 if (null === $entity) {
                     throw $this->createNotFoundException('Dossier non trouvé.');
                 }
@@ -71,7 +71,7 @@ class ContactController extends AbstractController
 
                 break;
             case Contact::COMMISSION:
-                $entity = $entityManager->find(Commission::class, $elementId);
+                $entity = $this->entityManager->find(Commission::class, $elementId);
                 if (null === $entity) {
                     throw $this->createNotFoundException('Commission non trouvée.');
                 }
@@ -99,7 +99,7 @@ class ContactController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Le contact a bien été modifié.');
 

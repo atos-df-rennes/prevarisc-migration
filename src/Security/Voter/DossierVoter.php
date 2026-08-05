@@ -10,6 +10,7 @@ use App\Repository\ResourcesRepository;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class DossierVoter extends Voter
@@ -52,7 +53,7 @@ class DossierVoter extends Voter
         return $subject instanceof Dossier;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
 

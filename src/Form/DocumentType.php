@@ -26,12 +26,9 @@ class DocumentType extends AbstractType
             ->add('file', FileType::class, [
                 'label' => 'Fichier à envoyer',
                 'constraints' => [
-                    new File([
-                        'mimeTypes' => [
-                            'application/vnd.oasis.opendocument.text',
-                        ],
-                        'mimeTypesMessage' => "Le document n'est pas un document ODT.",
-                    ])
+                    new File(mimeTypes: [
+                        'application/vnd.oasis.opendocument.text',
+                    ], mimeTypesMessage: "Le document n'est pas un document ODT.")
                 ],
             ])
             ->add('close', ButtonType::class, [

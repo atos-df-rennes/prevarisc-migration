@@ -17,7 +17,7 @@ class PrescriptionTypePrescriptionType extends AbstractType
         $builder
             ->add('libelle', null, [
                 'constraints' => [
-                    new NotBlank(['message' => 'Le contenu de la prescription type ne peut pas être vide.']),
+                    new NotBlank(message: 'Le contenu de la prescription type ne peut pas être vide.'),
                 ],
             ])
             ->add('associations', CollectionType::class, [
@@ -27,10 +27,7 @@ class PrescriptionTypePrescriptionType extends AbstractType
                 'allow_delete' => true,
                 'delete_empty' => true,
                 'constraints' => [
-                    new Count([
-                        'min' => 1,
-                        'minMessage' => 'Une prescription type doit comporter au moins une association texte/article.',
-                    ]),
+                    new Count(min: 1, minMessage: 'Une prescription type doit comporter au moins une association texte/article.'),
                 ],
             ])
         ;

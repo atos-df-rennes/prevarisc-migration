@@ -2,26 +2,15 @@
 
 namespace App\Twig;
 
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
+use Twig\Attribute\AsTwigFunction;
 
-class IconeTypeEtablissementExtension extends AbstractExtension
+class IconeTypeEtablissementExtension
 {
     public function __construct(private readonly string $srcDir)
     {
     }
 
-    /**
-     * @return TwigFunction[]
-     */
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('icone_type_etablissement_exists', $this->iconeTypeEtablissementExists(...)),
-        ];
-    }
-
+    #[AsTwigFunction(name: 'icone_type_etablissement_exists')]
     public function iconeTypeEtablissementExists(string $typeEtablissement): bool
     {
         $filepath = implode(DIRECTORY_SEPARATOR, [

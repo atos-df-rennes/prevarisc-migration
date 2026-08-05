@@ -51,12 +51,12 @@ final readonly class EtablissementPieceJointeService
     {
         $extension = strtolower('.'.$file->getClientOriginalExtension());
 
-        if (in_array($extension, ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'])) {
+        if (in_array($extension, ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'], true)) {
             throw new \Exception("Ce type de fichier n'est pas autorisé en upload");
         }
 
         $imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-        $placement = in_array($mise_en_avant, PlacementEtablissementPj::MISES_EN_AVANT) && in_array($extension, $imageExtensions)
+        $placement = in_array($mise_en_avant, PlacementEtablissementPj::MISES_EN_AVANT, true) && in_array($extension, $imageExtensions, true)
             ? $mise_en_avant
             : PlacementEtablissementPj::LISTE;
 
@@ -87,7 +87,7 @@ final readonly class EtablissementPieceJointeService
             $this->entityManager->flush();
 
             if (
-                in_array($extension, $imageExtensions)
+                in_array($extension, $imageExtensions, true)
                 && in_array($placement, PlacementEtablissementPj::MISES_EN_AVANT, true)
             ) {
                 $miniaturePjHelper = clone $pieceJointe;
@@ -187,7 +187,7 @@ final readonly class EtablissementPieceJointeService
             if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
                 $path = $store->getURLPath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
 
-                if (in_array($pj->getPieceJointe()->getExtension(), $imageExtensions)) {
+                if (in_array($pj->getPieceJointe()->getExtension(), $imageExtensions, true)) {
                     $miniaturePjHelper = clone $pj->getPieceJointe();
                     $miniaturePjHelper->setExtension('.jpg');
                     $miniatureUrl = $store->getURLPath($miniaturePjHelper, 'etablissement_miniature', $pj->getEtablissement()->getId());

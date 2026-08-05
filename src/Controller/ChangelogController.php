@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class ChangelogController extends AbstractController
 {
-    public function __construct(private readonly VersionService $versionService, private readonly UtilisateurPreferencesRepository $prefsRepository)
+    public function __construct(private readonly VersionService $versionService, private readonly UtilisateurPreferencesRepository $prefsRepository, private readonly EntityManagerInterface $em)
     {
     }
 
@@ -71,8 +71,7 @@ class ChangelogController extends AbstractController
 
     #[Route(path: '/api/changelog/dismiss', name: 'changelog_dismiss', methods: ['POST'])]
     public function dismiss(
-        Request $request,
-        EntityManagerInterface $em
+        Request $request
     ): JsonResponse {
         /** @var Utilisateur|null $user */
         $user = $this->getUser();
@@ -91,11 +90,11 @@ class ChangelogController extends AbstractController
         if (null === $prefs) {
             $prefs = new UtilisateurPreferences();
             $prefs->setUtilisateur($user);
-            $em->persist($prefs);
+            $this->em->persist($prefs);
         }
 
         $prefs->setDerniereVersionVue($this->versionService->getCurrentVersion());
-        $em->flush();
+        $this->em->flush();
 
         return new JsonResponse(['success' => true]);
     }

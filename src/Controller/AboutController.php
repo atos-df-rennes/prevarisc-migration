@@ -18,7 +18,7 @@ class AboutController extends AbstractController
     #[Route(path: '/about/{doc}', name: 'about')]
     public function index(string $doc = AboutDocument::ABOUT): Response
     {
-        if (!in_array($doc, AboutDocument::ALL)) {
+        if (!in_array($doc, AboutDocument::ALL, true)) {
             throw $this->createNotFoundException("Le document que vous avez demandé n'a pas été trouvé.");
         }
 

@@ -9,6 +9,7 @@ use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Service\Voter\VoterUtils;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EtablissementBupVoter extends EtablissementVoter
 {
@@ -23,7 +24,7 @@ class EtablissementBupVoter extends EtablissementVoter
     }
 
     #[\Override]
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;

@@ -18,16 +18,11 @@ class FusionDesCommunesType extends AbstractType
                 'help' => 'Format JSON.',
                 'required' => true,
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Un fichier est requis.',
-                    ]),
-                    new File([
-                        'mimeTypes' => [
-                            'application/json',
-                            'text/plain',
-                        ],
-                        'mimeTypesMessage' => 'Le fichier doit être au format JSON.',
-                    ]),
+                    new NotBlank(message: 'Un fichier est requis.'),
+                    new File(mimeTypes: [
+                        'application/json',
+                        'text/plain',
+                    ], mimeTypesMessage: 'Le fichier doit être au format JSON.'),
                 ],
             ])
         ;

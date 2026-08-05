@@ -3,10 +3,9 @@
 namespace App\Twig;
 
 use App\Service\Avatar;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
+use Twig\Attribute\AsTwigFunction;
 
-final class AvatarExtension extends AbstractExtension
+final class AvatarExtension
 {
     private ?string $imageTag = null;
 
@@ -15,19 +14,9 @@ final class AvatarExtension extends AbstractExtension
     }
 
     /**
-     * @return TwigFunction[]
-     */
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('avatar', $this->avatar(...)),
-        ];
-    }
-
-    /**
      * Retourne l'avatar d'un utilisateur.
      */
+    #[AsTwigFunction(name: 'avatar')]
     public function avatar(?int $id = null, string $size = Avatar::SMALL_DIRECTORY, ?string $styleAttributes = null): void
     {
         $src = $this->dataPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, [

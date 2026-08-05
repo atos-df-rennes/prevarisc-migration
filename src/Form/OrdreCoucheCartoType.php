@@ -23,7 +23,7 @@ class OrdreCoucheCartoType extends AbstractType
                 'label' => false,
                 'required' => true,
                 'constraints' => [
-                    new GreaterThanOrEqual(['value' => 1, 'message' => 'L\'ordre doit être au minimum 1.']),
+                    new GreaterThanOrEqual(value: 1, message: 'L\'ordre doit être au minimum 1.'),
                 ],
                 'attr' => [
                     'min' => 1,

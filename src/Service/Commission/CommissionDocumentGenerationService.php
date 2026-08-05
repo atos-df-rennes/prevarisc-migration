@@ -1969,7 +1969,7 @@ class CommissionDocumentGenerationService
 
                 // Port direct : num et libelle viennent du premier élément du groupe
                 /** @var array<string, string|null> $firstAssoc */
-                $firstAssoc = reset($prescRow) ?: [];
+                $firstAssoc = reset($prescRow);
                 $this->addChamp($prescription, 'num', (string) ($firstAssoc['NUM_PRESCRIPTION_DOSSIER'] ?? ''));
                 if ('' === (string) ($firstAssoc['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '')) {
                     $this->addChamp($prescription, 'libelle', (string) ($firstAssoc['PRESCRIPTIONTYPE_LIBELLE'] ?? ''));

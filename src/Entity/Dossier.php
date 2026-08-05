@@ -251,7 +251,7 @@ class Dossier
     private ?\DateTimeInterface $dateReponse = null;
 
     #[ORM\Column(name: 'HORSDELAI_DOSSIER', type: 'boolean', nullable: true, options: ['default' => 0])]
-    private ?bool $horsDelai = null;
+    private ?bool $horsDelai;
 
     #[ORM\Column(name: 'ABSQUORUM_DOSSIER', type: 'boolean', nullable: true)]
     private ?bool $absenceDeQuorum = null;
@@ -263,7 +263,7 @@ class Dossier
     private ?\DateTimeInterface $echeancierTravaux = null;
 
     #[ORM\Column(name: 'INCOMPLET_DOSSIER', type: 'boolean', nullable: true, options: ['default' => 0])]
-    private ?bool $incomplet = null;
+    private ?bool $incomplet;
 
     #[ORM\Column(name: 'DATEINCOMPLET_DOSSIER', type: 'date', nullable: true)]
     private ?\DateTimeInterface $dateIncomplet = null;

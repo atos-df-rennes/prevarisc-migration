@@ -9,6 +9,7 @@ use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EtablissementSiteVoter extends EtablissementVoter
 {
@@ -32,7 +33,7 @@ class EtablissementSiteVoter extends EtablissementVoter
      * aligné sur le comportement legacy (ACL.php:275 — ressource editsite + privilège add_etablissement).
      */
     #[\Override]
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;

@@ -139,7 +139,7 @@ class DossierType extends AbstractType
                     ]),
                 ],
                 'constraints' => [
-                    new Assert\Length(['max' => 255]),
+                    new Assert\Length(max: 255),
                 ],
             ])
             ->add('incomplet', ChoiceType::class, [

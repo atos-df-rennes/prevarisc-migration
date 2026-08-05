@@ -55,7 +55,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierController extends AbstractController implements DossierLateralNavigationInterface
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PlatauConsultation $platauConsultationService, private readonly DateCommission $dateCommissionService, private readonly DossierTypeRepository $dossierTypeRepository, private readonly AvisRepository $avisRepository, private readonly AvisDerogationsRepository $avisDerogationsRepository, private readonly CommissionTypeRepository $commissionTypeRepository, private readonly CommissionRepository $commissionRepository, private readonly EtablissementRepository $etablissementRepository, private readonly UtilisateurRepository $utilisateurRepository, private readonly DossierFields $dossierFieldsService, private readonly DossierDocumentManquantService $documentManquantService, private readonly PieceJointeExportService $pieceJointeExportService, private readonly DossierAffectationService $dossierAffectationService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly LoggerInterface $logger, private readonly DossierService $dossierService, private readonly DossierRepository $dossierRepository, private readonly DossierCreationService $dossierCreationService, private readonly DossierSauvegardeService $dossierSauvegardeService, private readonly DossierSuppressionService $dossierSuppressionService, private readonly TagAwareCacheInterface $searchCache, private readonly DescriptifService $descriptifService, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly FormFactoryInterface $formFactory, private readonly EtablissementHistoriqueService $etablissementHistoriqueService, private readonly bool $deactivatePlatau = false)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PlatauConsultation $platauConsultationService, private readonly DateCommission $dateCommissionService, private readonly DossierTypeRepository $dossierTypeRepository, private readonly AvisRepository $avisRepository, private readonly AvisDerogationsRepository $avisDerogationsRepository, private readonly CommissionTypeRepository $commissionTypeRepository, private readonly CommissionRepository $commissionRepository, private readonly EtablissementRepository $etablissementRepository, private readonly UtilisateurRepository $utilisateurRepository, private readonly DossierFields $dossierFieldsService, private readonly DossierDocumentManquantService $documentManquantService, private readonly PieceJointeExportService $pieceJointeExportService, private readonly DossierAffectationService $dossierAffectationService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly LoggerInterface $logger, private readonly DossierService $dossierService, private readonly DossierRepository $dossierRepository, private readonly DossierCreationService $dossierCreationService, private readonly DossierSauvegardeService $dossierSauvegardeService, private readonly DossierSuppressionService $dossierSuppressionService, private readonly TagAwareCacheInterface $searchCache, private readonly DescriptifService $descriptifService, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly FormFactoryInterface $formFactory, private readonly EtablissementHistoriqueService $etablissementHistoriqueService, private readonly DocumentConsulteTransferService $documentConsulteTransferService, private readonly bool $deactivatePlatau = false)
     {
     }
 
@@ -237,7 +237,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
     public function edit(
         Request $request,
         Dossier $dossier,
-        DocumentConsulteTransferService $documentConsulteTransferService,
         bool $mailEnabled
     ): Response {
         // Vérification Plat'AU désactivé
@@ -299,7 +298,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $nouvelleNature = $dossier->getNature();
 
                 if ($nouveauType && ($ancienType !== $nouveauType || $ancienneNature !== $nouvelleNature)) {
-                    $documentConsulteTransferService->transfertOuSupprimeDocumentsConsultes(
+                    $this->documentConsulteTransferService->transfertOuSupprimeDocumentsConsultes(
                         $dossier,
                         $nouveauType,
                         $nouvelleNature

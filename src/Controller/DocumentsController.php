@@ -22,17 +22,17 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('docs')]
 class DocumentsController extends AbstractController
 {
-    public function __construct(private readonly LoggerInterface $logger, private readonly CommissionRepository $commissionRepository, private readonly CommissionDocumentBuilder $commissionDocumentBuilder, private readonly Filesystem $filesystem)
+    public function __construct(private readonly LoggerInterface $logger, private readonly CommissionRepository $commissionRepository, private readonly CommissionDocumentBuilder $commissionDocumentBuilder, private readonly Filesystem $filesystem, private readonly Documents $documents)
     {
     }
 
     #[Route(path: '/admin/documents', name: 'admin_documents')]
-    public function index(Documents $documents): Response
+    public function index(): Response
     {
         $commissions = $this->commissionRepository->findAll();
 
         return $this->render('documents/index.html.twig', [
-            'visibles_apres_verrouillage' => $documents->findForCommission(0),
+            'visibles_apres_verrouillage' => $this->documents->findForCommission(0),
             'commissions' => $this->commissionDocumentBuilder->buildWithCommissions($commissions),
         ]);
     }
