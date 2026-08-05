@@ -22,9 +22,9 @@ Consultez la [documentation dédiée](docs/guide.md).
 ## Technologies utilisées
 
 - **PHP** : Utilisé en version 8.5+ avec le framework [Symfony 7.4 LTS](https://symfony.com/doc/7.4/index.html)
-- **MySQL**: Utilisé en version 5.6+ pour les migrations (version recommandée : 8.0+)
+- **MariaDB**: Utilisé en version 11.8+ pour les migrations
 - **JavaScript** : Framework JavaScript moderne pour l'interface utilisateur
-- **Bootstrap** : Utilisé en [version 5](https://getbootstrap.com/docs/5.3/)
+- **Bootstrap** : Utilisé en [version 3](https://getbootstrap.com/docs/3.4/)
 - **LibreOffice** : Utilisé en version 7.x pour l'édition des documents (Les dernières versions ne sont actuellement pas compatibles)
 
 ## Installation
@@ -33,8 +33,8 @@ Prevarisc 3.0 est une refonte complète utilisant Symfony 7.4 LTS et PHP 8.5. Po
 
 1. Clonez le dépôt :
 ```sh
-$ git clone https://github.com/atos-df-rennes/prevarisc.git
-$ cd prevarisc
+$ git clone https://github.com/atos-df-rennes/prevarisc-migration.git
+$ cd prevarisc-migration
 $ git checkout release/3.0
 ```
 > [!NOTE]
@@ -94,8 +94,8 @@ $ chmod -R 755 vendor/bin
 ```apache
 <VirtualHost *:80>
     ServerName prevarisc.local
-    DocumentRoot /var/www/html/prevarisc/public
-    <Directory /var/www/html/prevarisc/public>
+    DocumentRoot /var/www/html/prevarisc-migration/public
+    <Directory /var/www/html/prevarisc-migration/public>
         DirectoryIndex index.php
         AllowOverride all
         Order allow,deny
