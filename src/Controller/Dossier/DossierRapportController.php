@@ -14,6 +14,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Psr\Log\LoggerInterface;
 
 /**
  * Onglet Rapport du dossier : affichage du formulaire de génération et génération ODT.
@@ -44,16 +45,23 @@ class DossierRapportController extends AbstractController implements DossierLate
      */
     private $documentsRealDataPath;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         CommissionRepository $commissionRepository,
         DossierRapportOdtService $odtService,
         string $documentsDataPath,
-        string $documentsRealDataPath
+        string $documentsRealDataPath,
+        LoggerInterface $logger
     ) {
         $this->commissionRepository = $commissionRepository;
         $this->odtService = $odtService;
         $this->documentsDataPath = rtrim($documentsDataPath, '/');
         $this->documentsRealDataPath = rtrim($documentsRealDataPath, '/');
+        $this->logger = $logger;
     }
 
     /**
@@ -126,13 +134,18 @@ class DossierRapportController extends AbstractController implements DossierLate
      */
     public function generationRapport(Dossier $dossier, Request $request): Response
     {
+        $idDossier = (int) $dossier->getId();
+
         // B2 : protection CSRF
         $csrfToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_rapport_'.$dossier->getId(), is_string($csrfToken) ? $csrfToken : '')) {
+            $this->logger->error('CSRF token validation failed for rapport generation.', [
+                'dossier_id' => $idDossier,
+                'token_provided' => !empty($csrfToken),
+            ]);
+
             return new Response('', Response::HTTP_FORBIDDEN);
         }
-
-        $idDossier = (int) $dossier->getId();
 
         // B1 : reconstruire le chemin depuis l'identifiant relatif et valider qu'il reste sous documentsRealDataPath
         $rawFichier = $request->request->get('file', '');
@@ -143,6 +156,13 @@ class DossierRapportController extends AbstractController implements DossierLate
             || 0 !== strpos($resolvedPath, $this->documentsRealDataPath.DIRECTORY_SEPARATOR)
             || 'odt' !== strtolower(pathinfo($resolvedPath, PATHINFO_EXTENSION))
         ) {
+            $this->logger->error('Invalid file path for rapport generation.', [
+                'dossier_id' => $idDossier,
+                'requested_file' => $relativeFile,
+                'resolved_path' => $resolvedPath,
+                'documents_path' => $this->documentsRealDataPath,
+            ]);
+
             return new Response('', Response::HTTP_BAD_REQUEST);
         }
 
@@ -163,8 +183,19 @@ class DossierRapportController extends AbstractController implements DossierLate
         }));
 
         $html = '';
-        foreach ($idEtabList as $etablissementId) {
-            $html .= $this->odtService->generer($idDossier, (int) $etablissementId, $fichierSelect, $repriseCC);
+        try {
+            foreach ($idEtabList as $etablissementId) {
+                $html .= $this->odtService->generer($idDossier, (int) $etablissementId, $fichierSelect, $repriseCC);
+            }
+        } catch (\Exception $exception) {
+            $this->logger->error('Erreur lors de la génération du rapport dans le contrôleur.', [
+                'dossier_id' => $idDossier,
+                'file' => $fichierSelect,
+                'exception_message' => $exception->getMessage(),
+                'exception_code' => $exception->getCode(),
+            ]);
+
+            throw $exception;
         }
 
         return new Response($html);
