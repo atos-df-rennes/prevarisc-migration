@@ -187,8 +187,12 @@ final class Dossier
                 : null;
 
             if (null !== $donneeUtile['objet']) {
-                if (strlen($donneeUtile['objet']) > 70) {
-                    $donneeUtile['objet'] = substr($donneeUtile['objet'], 0, 70).'(...)';
+                // mb_* utilisé pour tronquer par caractère (et non par octet) : sinon, un
+                // caractère accentué UTF-8 multi-octets (ex : "à" = 0xC3 0xA0) peut être coupé
+                // en son milieu, produisant une séquence UTF-8 invalide qui fait échouer
+                // l'échappement Twig (Twig\Error\RuntimeError: "not a valid UTF-8 string").
+                if (mb_strlen($donneeUtile['objet'], 'UTF-8') > 70) {
+                    $donneeUtile['objet'] = mb_substr($donneeUtile['objet'], 0, 70, 'UTF-8').'(...)';
                 }
 
                 if (!$dossierEntity->getDocumentsUrbanisme()->isEmpty()) {
