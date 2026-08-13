@@ -6,6 +6,7 @@ use App\Entity\Dossier as DossierEntity;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\Utilisateur;
 use App\Repository\DossierRepository;
+use App\Utils\StringHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -187,13 +188,7 @@ final class Dossier
                 : null;
 
             if (null !== $donneeUtile['objet']) {
-                // mb_* utilisé pour tronquer par caractère (et non par octet) : sinon, un
-                // caractère accentué UTF-8 multi-octets (ex : "à" = 0xC3 0xA0) peut être coupé
-                // en son milieu, produisant une séquence UTF-8 invalide qui fait échouer
-                // l'échappement Twig (Twig\Error\RuntimeError: "not a valid UTF-8 string").
-                if (mb_strlen($donneeUtile['objet'], 'UTF-8') > 70) {
-                    $donneeUtile['objet'] = mb_substr($donneeUtile['objet'], 0, 70, 'UTF-8').'(...)';
-                }
+                $donneeUtile['objet'] = StringHelper::truncate($donneeUtile['objet'], 70);
 
                 if (!$dossierEntity->getDocumentsUrbanisme()->isEmpty()) {
                     $donneeUtile['objet'] .= ' - '.$dossierEntity->getNumerosUrbanisme();
