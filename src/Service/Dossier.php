@@ -6,6 +6,7 @@ use App\Entity\Dossier as DossierEntity;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\Utilisateur;
 use App\Repository\DossierRepository;
+use App\Utils\StringHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -187,9 +188,7 @@ final class Dossier
                 : null;
 
             if (null !== $donneeUtile['objet']) {
-                if (strlen($donneeUtile['objet']) > 70) {
-                    $donneeUtile['objet'] = substr($donneeUtile['objet'], 0, 70).'(...)';
-                }
+                $donneeUtile['objet'] = StringHelper::truncate($donneeUtile['objet'], 70);
 
                 if (!$dossierEntity->getDocumentsUrbanisme()->isEmpty()) {
                     $donneeUtile['objet'] .= ' - '.$dossierEntity->getNumerosUrbanisme();
