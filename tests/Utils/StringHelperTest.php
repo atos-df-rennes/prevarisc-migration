@@ -3,13 +3,12 @@
 namespace App\Tests\Utils;
 
 use App\Utils\StringHelper;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class StringHelperTest extends TestCase
 {
-    /**
-     * @dataProvider truncateProvider
-     */
+    #[DataProvider('truncateProvider')]
     public function testTruncate(string $input, int $length, string $expected): void
     {
         self::assertSame($expected, StringHelper::truncate($input, $length));
@@ -48,9 +47,7 @@ final class StringHelperTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider truncateProducesValidUtf8Provider
-     */
+    #[DataProvider('truncateProducesValidUtf8Provider')]
     public function testTruncateAlwaysProducesValidUtf8(string $input, int $length): void
     {
         $result = StringHelper::truncate($input, $length);
