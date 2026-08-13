@@ -8,6 +8,8 @@ use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Repository\CommissionRepository;
 use App\Service\DossierRapportOdtService;
+use App\Utils\PathNormalizer;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Finder;
@@ -44,16 +46,23 @@ class DossierRapportController extends AbstractController implements DossierLate
      */
     private $documentsRealDataPath;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         CommissionRepository $commissionRepository,
         DossierRapportOdtService $odtService,
         string $documentsDataPath,
-        string $documentsRealDataPath
+        string $documentsRealDataPath,
+        LoggerInterface $logger
     ) {
         $this->commissionRepository = $commissionRepository;
         $this->odtService = $odtService;
-        $this->documentsDataPath = rtrim($documentsDataPath, '/');
-        $this->documentsRealDataPath = rtrim($documentsRealDataPath, '/');
+        $this->documentsDataPath = $documentsDataPath;
+        $this->documentsRealDataPath = $documentsRealDataPath;
+        $this->logger = $logger;
     }
 
     /**
@@ -68,14 +77,14 @@ class DossierRapportController extends AbstractController implements DossierLate
         $idDossier = (int) $dossier->getId();
 
         // Fichiers disponibles après verrouillage (commission 0)
-        $fichierVer = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.'0');
+        $fichierVer = $this->listFiles(PathNormalizer::join($this->documentsRealDataPath, '0'));
 
         // Liste des commissions avec leur type et leurs fichiers ODT
         /** @var CommissionOdtDto[] $listeCommissions */
         $listeCommissions = [];
         foreach ($this->commissionRepository->findAllWithType() as $commission) {
             $idCommission = (int) $commission->getId();
-            $fichiers = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$idCommission);
+            $fichiers = $this->listFiles(PathNormalizer::join($this->documentsRealDataPath, (string) $idCommission));
             $listeCommissions[] = new CommissionOdtDto(
                 $idCommission,
                 $commission->getLibelle(),
@@ -126,23 +135,35 @@ class DossierRapportController extends AbstractController implements DossierLate
      */
     public function generationRapport(Dossier $dossier, Request $request): Response
     {
+        $idDossier = (int) $dossier->getId();
+
         // B2 : protection CSRF
         $csrfToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_rapport_'.$dossier->getId(), is_string($csrfToken) ? $csrfToken : '')) {
+            $this->logger->error('CSRF token validation failed for rapport generation.', [
+                'dossier_id' => $idDossier,
+                'token_provided' => !empty($csrfToken),
+            ]);
+
             return new Response('', Response::HTTP_FORBIDDEN);
         }
-
-        $idDossier = (int) $dossier->getId();
 
         // B1 : reconstruire le chemin depuis l'identifiant relatif et valider qu'il reste sous documentsRealDataPath
         $rawFichier = $request->request->get('file', '');
         $relativeFile = is_scalar($rawFichier) ? (string) $rawFichier : '';
-        $resolvedPath = realpath($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$relativeFile);
+        $resolvedPath = realpath(PathNormalizer::join($this->documentsRealDataPath, $relativeFile));
         if (
             false === $resolvedPath
-            || 0 !== strpos($resolvedPath, $this->documentsRealDataPath.DIRECTORY_SEPARATOR)
+            || 0 !== strpos($resolvedPath, PathNormalizer::normalize($this->documentsRealDataPath))
             || 'odt' !== strtolower(pathinfo($resolvedPath, PATHINFO_EXTENSION))
         ) {
+            $this->logger->error('Invalid file path for rapport generation.', [
+                'dossier_id' => $idDossier,
+                'requested_file' => $relativeFile,
+                'resolved_path' => $resolvedPath,
+                'documents_path' => $this->documentsRealDataPath,
+            ]);
+
             return new Response('', Response::HTTP_BAD_REQUEST);
         }
 
@@ -163,8 +184,19 @@ class DossierRapportController extends AbstractController implements DossierLate
         }));
 
         $html = '';
-        foreach ($idEtabList as $etablissementId) {
-            $html .= $this->odtService->generer($idDossier, (int) $etablissementId, $fichierSelect, $repriseCC);
+        try {
+            foreach ($idEtabList as $etablissementId) {
+                $html .= $this->odtService->generer($idDossier, (int) $etablissementId, $fichierSelect, $repriseCC);
+            }
+        } catch (\Exception $exception) {
+            $this->logger->error('Erreur lors de la génération du rapport dans le contrôleur.', [
+                'dossier_id' => $idDossier,
+                'file' => $fichierSelect,
+                'exception_message' => $exception->getMessage(),
+                'exception_code' => $exception->getCode(),
+            ]);
+
+            throw $exception;
         }
 
         return new Response($html);

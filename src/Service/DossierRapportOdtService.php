@@ -22,6 +22,7 @@ use App\Service\DataStore\DataStore;
 use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
+use App\Utils\PathNormalizer;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -1197,50 +1198,70 @@ class DossierRapportOdtService
         array $rawEtab,
         int $idDossier
     ): string {
-        // =====================================================================
-        // CRÉATION PIÈCE JOINTE + SAUVEGARDE ODT
-        // =====================================================================
-        $pj = new PieceJointe();
-        $pj->setNom(substr(basename($fichierSelect), 0, strlen(basename($fichierSelect)) - 4));
-        $pj->setExtension('.odt');
-        $pj->setDescription(sprintf(
-            "Rapport de l'établissement %s (%s) généré le %s à %s",
-            $rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '',
-            $rawEtab['NUMEROID_ETABLISSEMENT'] ?? '',
-            (new \DateTime())->format('d/m/Y'),
-            (new \DateTime())->format('H:i')
-        ));
-        $pj->setDate(new \DateTime());
+        try {
+            // =====================================================================
+            // CRÉATION PIÈCE JOINTE + SAUVEGARDE ODT
+            // =====================================================================
+            $pj = new PieceJointe();
+            $pj->setNom(substr(basename($fichierSelect), 0, strlen(basename($fichierSelect)) - 4));
+            $pj->setExtension('.odt');
+            $pj->setDescription(sprintf(
+                "Rapport de l'établissement %s (%s) généré le %s à %s",
+                $rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '',
+                $rawEtab['NUMEROID_ETABLISSEMENT'] ?? '',
+                (new \DateTime())->format('d/m/Y'),
+                (new \DateTime())->format('H:i')
+            ));
+            $pj->setDate(new \DateTime());
 
-        $this->em->persist($pj);
-        $this->em->flush();
+            $this->em->persist($pj);
+            $this->em->flush();
 
-        $dpj = new DossierPieceJointe();
-        $dpj->setPieceJointe($pj);
-        $dpj->setDossier($dossier);
-        $dpj->setPieceJointeCommission(false);
+            $dpj = new DossierPieceJointe();
+            $dpj->setPieceJointe($pj);
+            $dpj->setDossier($dossier);
+            $dpj->setPieceJointeCommission(false);
 
-        $this->em->persist($dpj);
-        $this->em->flush();
+            $this->em->persist($dpj);
+            $this->em->flush();
 
-        // Lien HTML construit AVANT la sauvegarde (comportement legacy)
-        $url = $this->urlGenerator->generate('dossier_pieces_jointes_get', [
-            'id' => $idDossier,
-            'idpj' => $pj->getId(),
-        ]);
-        $libelle = htmlspecialchars($rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '', ENT_QUOTES);
-        $lien = "<a href='".$url."'>Ouvrir le rapport de l'établissement : ".$libelle.'</a>';
+            // Lien HTML construit AVANT la sauvegarde (comportement legacy)
+            $url = $this->urlGenerator->generate('dossier_pieces_jointes_get', [
+                'id' => $idDossier,
+                'idpj' => $pj->getId(),
+            ]);
+            $libelle = htmlspecialchars($rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '', ENT_QUOTES);
+            $lien = "<a href='".$url."'>Ouvrir le rapport de l'établissement : ".$libelle.'</a>';
 
-        // Sauvegarde ODT
-        if (!empty($rawDossier['ID_PLATAU'])) {
-            $chemin = $this->realDataPath.'/uploads/pieces-jointes/'.$pj->getId().$pj->getExtension();
-        } else {
-            $chemin = $this->dataStore->getFilePath($pj, 'dossier', $idDossier, true);
+            // Sauvegarde ODT
+            if (!empty($rawDossier['ID_PLATAU'])) {
+                $chemin = PathNormalizer::join($this->realDataPath, 'uploads/pieces-jointes', $pj->getId().$pj->getExtension());
+            } else {
+                $chemin = $this->dataStore->getFilePath($pj, 'dossier', $idDossier, true);
+            }
+
+            $this->rapportLogger->debug('Sauvegarde du fichier ODT.', [
+                'dossier_id' => $idDossier,
+                'chemin' => $chemin,
+                'pj_id' => $pj->getId(),
+            ]);
+
+            $odf->saveToDisk($chemin);
+
+            $this->rapportLogger->info('Rapport ODT sauvegardé avec succès.', [
+                'dossier_id' => $idDossier,
+                'pj_id' => $pj->getId(),
+            ]);
+
+            return $lien;
+        } catch (\Exception $exception) {
+            $this->rapportLogger->error('Erreur lors de la persistence de la pièce jointe.', [
+                'dossier_id' => $idDossier,
+                'exception_message' => $exception->getMessage(),
+                'exception_code' => $exception->getCode(),
+            ]);
+            throw $exception;
         }
-
-        $odf->saveToDisk($chemin);
-
-        return $lien;
     }
 
     // =========================================================================
