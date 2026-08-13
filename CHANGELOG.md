@@ -4,6 +4,15 @@
 
 <!--- END HEADER -->
 
+## [2.10.1](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.0...v2.10.1) (13-08-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Crash applicatif sur une troncature au milieu d'un caractère accentué (#375) ([6c001d](https://github.com/atos-df-rennes/prevarisc-migration/commit/6c001daf351e66142438a2ec198cbd8055237aec))
+
+
+---
+
 ## [2.10.0](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.8.19...v2.10.0) (08-07-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
