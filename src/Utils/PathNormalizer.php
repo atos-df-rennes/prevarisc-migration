@@ -7,6 +7,8 @@ namespace App\Utils;
 /**
  * Normalizes file paths to handle configuration with or without trailing slashes.
  * Works consistently on both Windows and Unix systems by normalizing to forward slashes.
+ *
+ * @todo: use Symfony's Path Component instead.
  */
 final class PathNormalizer
 {
