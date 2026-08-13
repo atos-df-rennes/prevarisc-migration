@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Utils\PathNormalizer;
+
 final readonly class Avatar
 {
     private string $basePath;
@@ -20,11 +22,11 @@ final readonly class Avatar
 
     public function __construct(string $realDataPath)
     {
-        $this->basePath = $realDataPath.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'avatars';
+        $this->basePath = PathNormalizer::join($realDataPath, 'uploads', 'avatars');
     }
 
     public function path(string $directory, int $userId): string
     {
-        return $this->basePath.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.$userId.'.jpg';
+        return PathNormalizer::join($this->basePath, $directory, $userId.'.jpg');
     }
 }

@@ -8,6 +8,7 @@ use App\Repository\CommissionRepository;
 use App\Service\Commission\CommissionDocumentBuilder;
 use App\Service\Documents;
 use App\Utils\File;
+use App\Utils\PathNormalizer;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -79,7 +80,7 @@ class DocumentsController extends AbstractController
 
                 try {
                     // @todo: Générer un nom de fichier plus sûr
-                    $fichier->move($documentsRealDataPath.$commission->id(), File::sanitize($fichier->getClientOriginalName()));
+                    $fichier->move(PathNormalizer::join($documentsRealDataPath, (string) $commission->id()), File::sanitize($fichier->getClientOriginalName()));
 
                     $this->addFlash('success', 'Le document a bien été ajouté.');
                 } catch (FileException $fileException) {
@@ -130,7 +131,7 @@ class DocumentsController extends AbstractController
             return $this->json([], 400);
         }
 
-        $filepath = $documentsRealDataPath.$idCommission.DIRECTORY_SEPARATOR.$nomFichier;
+        $filepath = PathNormalizer::join($documentsRealDataPath, (string) $idCommission, $nomFichier);
 
         $this->logger->debug('Suppression du document.', ['chemin' => $filepath]);
 

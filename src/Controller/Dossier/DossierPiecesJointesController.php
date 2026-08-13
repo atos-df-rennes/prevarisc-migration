@@ -11,6 +11,7 @@ use App\Repository\DossierPieceJointeRepository;
 use App\Repository\PieceJointeStatutRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\NotificationService;
+use App\Utils\PathNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,7 +47,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
     private function resolvePjFilePath(PieceJointe $pj, Dossier $dossier, bool $createDir = false): string
     {
         if (null !== $dossier->getConsultationPlatau()) {
-            $path = $this->realDataPath.'/uploads/pieces-jointes/'.$pj->getId().$pj->getExtension();
+            $path = PathNormalizer::join($this->realDataPath, 'uploads/pieces-jointes', $pj->getId().$pj->getExtension());
             if ($createDir) {
                 $this->filesystem->mkdir(dirname($path));
             }

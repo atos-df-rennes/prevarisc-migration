@@ -3,6 +3,7 @@
 namespace App\Twig;
 
 use App\Service\Avatar;
+use App\Utils\PathNormalizer;
 use Twig\Attribute\AsTwigFunction;
 
 final class AvatarExtension
@@ -19,17 +20,8 @@ final class AvatarExtension
     #[AsTwigFunction(name: 'avatar')]
     public function avatar(?int $id = null, string $size = Avatar::SMALL_DIRECTORY, ?string $styleAttributes = null): void
     {
-        $src = $this->dataPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, [
-            'uploads',
-            'avatars',
-            $size
-        ]);
-        $filePath = $this->realDataPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, [
-            'uploads',
-            'avatars',
-            $size,
-            $id.'.jpg'
-        ]);
+        $src = PathNormalizer::join($this->dataPath, 'uploads', 'avatars', $size);
+        $filePath = PathNormalizer::join($this->realDataPath, 'uploads', 'avatars', $size, ($id ?? 0).'.jpg');
 
         $this->imageTag = '<img ';
         $this->addSrc($src, $filePath, $id);
@@ -45,7 +37,7 @@ final class AvatarExtension
 
         $imgId = file_exists($filePath) ? $id : 'default';
 
-        $this->imageTag .= DIRECTORY_SEPARATOR.$imgId.'.jpg"';
+        $this->imageTag .= '/'.$imgId.'.jpg"';
     }
 
     private function addStyle(?string $styleAttributes): void

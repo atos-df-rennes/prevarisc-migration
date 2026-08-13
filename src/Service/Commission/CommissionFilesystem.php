@@ -2,6 +2,7 @@
 
 namespace App\Service\Commission;
 
+use App\Utils\PathNormalizer;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -18,7 +19,7 @@ final readonly class CommissionFilesystem
 
     public function createCommissionDirectory(int $commissionId): void
     {
-        $commissionDir = $this->documentsRealDataPath.$commissionId;
+        $commissionDir = PathNormalizer::join($this->documentsRealDataPath, (string) $commissionId);
 
         try {
             $this->filesystem->mkdir($commissionDir);
@@ -33,7 +34,7 @@ final readonly class CommissionFilesystem
 
     public function removeCommissionDirectory(int $commissionId): void
     {
-        $commissionDir = $this->documentsRealDataPath.$commissionId;
+        $commissionDir = PathNormalizer::join($this->documentsRealDataPath, (string) $commissionId);
 
         try {
             $this->filesystem->remove($commissionDir);

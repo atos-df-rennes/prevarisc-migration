@@ -8,6 +8,8 @@ use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Repository\CommissionRepository;
 use App\Service\DossierRapportOdtService;
+use App\Utils\PathNormalizer;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,25 +22,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  */
 class DossierRapportController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /**
-     * Chemin URL des documents de commission (pour les liens de téléchargement).
-     */
-    private readonly string $documentsDataPath;
-
-    /**
-     * Chemin réel (filesystem) des documents de commission (pour lister les fichiers).
-     */
-    private readonly string $documentsRealDataPath;
-
     public function __construct(
         private readonly CommissionRepository $commissionRepository,
         private readonly DossierRapportOdtService $odtService,
-        string $documentsDataPath,
-        string $documentsRealDataPath
-    ) {
-        $this->documentsDataPath = rtrim($documentsDataPath, '/');
-        $this->documentsRealDataPath = rtrim($documentsRealDataPath, '/');
-    }
+        private readonly string $documentsDataPath,
+        private readonly string $documentsRealDataPath,
+        private readonly LoggerInterface $logger
+    ) {}
 
     /**
      * Affiche l'onglet Rapport du dossier.
@@ -50,14 +40,14 @@ class DossierRapportController extends AbstractController implements DossierLate
         $idDossier = (int) $dossier->getId();
 
         // Fichiers disponibles après verrouillage (commission 0)
-        $fichierVer = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.'0');
+        $fichierVer = $this->listFiles(PathNormalizer::join($this->documentsRealDataPath, '0'));
 
         // Liste des commissions avec leur type et leurs fichiers ODT
         /** @var CommissionOdtDto[] $listeCommissions */
         $listeCommissions = [];
         foreach ($this->commissionRepository->findAllWithType() as $commission) {
             $idCommission = (int) $commission->getId();
-            $fichiers = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$idCommission);
+            $fichiers = $this->listFiles(PathNormalizer::join($this->documentsRealDataPath, (string) $idCommission));
             $listeCommissions[] = new CommissionOdtDto(
                 $idCommission,
                 $commission->getLibelle(),
@@ -106,22 +96,34 @@ class DossierRapportController extends AbstractController implements DossierLate
     #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function generationRapport(Dossier $dossier, Request $request): Response
     {
+        $idDossier = (int) $dossier->getId();
+
         // B2 : protection CSRF
         $csrfToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_rapport_'.$dossier->getId(), is_string($csrfToken) ? $csrfToken : '')) {
+            $this->logger->error('CSRF token validation failed for rapport generation.', [
+                'dossier_id' => $idDossier,
+                'token_provided' => !empty($csrfToken),
+            ]);
+
             return new Response('', Response::HTTP_FORBIDDEN);
         }
 
-        $idDossier = (int) $dossier->getId();
-
         // B1 : reconstruire le chemin depuis l'identifiant relatif et valider qu'il reste sous documentsRealDataPath
         $relativeFile = (string) $request->request->get('file', '');
-        $resolvedPath = realpath($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$relativeFile);
+        $resolvedPath = realpath(PathNormalizer::join($this->documentsRealDataPath, $relativeFile));
         if (
             false === $resolvedPath
-            || !str_starts_with($resolvedPath, $this->documentsRealDataPath.DIRECTORY_SEPARATOR)
+            || !str_starts_with($resolvedPath, PathNormalizer::normalize($this->documentsRealDataPath))
             || 'odt' !== strtolower(pathinfo($resolvedPath, PATHINFO_EXTENSION))
         ) {
+            $this->logger->error('Invalid file path for rapport generation.', [
+                'dossier_id' => $idDossier,
+                'requested_file' => $relativeFile,
+                'resolved_path' => $resolvedPath,
+                'documents_path' => $this->documentsRealDataPath,
+            ]);
+
             return new Response('', Response::HTTP_BAD_REQUEST);
         }
 
@@ -142,8 +144,19 @@ class DossierRapportController extends AbstractController implements DossierLate
         $idEtabList = array_values(array_filter($idEtabList, fn (int $id): bool => in_array($id, $allowedIds, true)));
 
         $html = '';
-        foreach ($idEtabList as $etablissementId) {
-            $html .= $this->odtService->generer($idDossier, $etablissementId, $fichierSelect, $repriseCC);
+        try {
+            foreach ($idEtabList as $etablissementId) {
+                $html .= $this->odtService->generer($idDossier, $etablissementId, $fichierSelect, $repriseCC);
+            }
+        } catch (\Exception $exception) {
+            $this->logger->error('Erreur lors de la génération du rapport dans le contrôleur.', [
+                'dossier_id' => $idDossier,
+                'file' => $fichierSelect,
+                'exception_message' => $exception->getMessage(),
+                'exception_code' => $exception->getCode(),
+            ]);
+
+            throw $exception;
         }
 
         return new Response($html);

@@ -19,6 +19,7 @@ use App\Service\DossierPrescriptionService;
 use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
+use App\Utils\PathNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Odtphp\Odf;
 use Odtphp\Segment;
@@ -145,7 +146,7 @@ class CommissionDocumentGenerationService
                 continue;
             }
 
-            $templatePath = $this->courriersMembresRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
+            $templatePath = PathNormalizer::join($this->courriersMembresRealDataPath, $nomFichier);
 
             if (!file_exists($templatePath)) {
                 $results[] = [
@@ -260,7 +261,7 @@ class CommissionDocumentGenerationService
             /** @var string|null $courrierOdjRaw */
             $courrierOdjRaw = $membreFile['COURRIER_ODJ'] ?? '';
             $nomFichier = $membreIdOdjRaw.'ODJ_'.($courrierOdjRaw ?? '');
-            $templatePath = $this->courriersMembresRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
+            $templatePath = PathNormalizer::join($this->courriersMembresRealDataPath, $nomFichier);
 
             if (!file_exists($templatePath)) {
                 $results[] = [
@@ -394,7 +395,7 @@ class CommissionDocumentGenerationService
             /** @var string|null $courrierPvRaw */
             $courrierPvRaw = $membre['COURRIER_PV'] ?? '';
             $nomFichier = $membreIdPvRaw2.'PV_'.($courrierPvRaw ?? '');
-            $templatePath = $this->courriersMembresRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
+            $templatePath = PathNormalizer::join($this->courriersMembresRealDataPath, $nomFichier);
 
             if (!file_exists($templatePath)) {
                 $results[] = [
@@ -486,7 +487,7 @@ class CommissionDocumentGenerationService
             return $results;
         }
 
-        $templatePath = $this->documentsCommissionRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
+        $templatePath = PathNormalizer::join($this->documentsCommissionRealDataPath, $nomFichier);
 
         if (!file_exists($templatePath)) {
             $results[] = [
