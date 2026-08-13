@@ -10,10 +10,9 @@ use PHPUnit\Framework\TestCase;
 class PathNormalizerTest extends TestCase
 {
     /**
-     * @test
      * @dataProvider provideNormalizationCases
      */
-    public function normalize_handles_various_input_formats(string $input, string $expected): void
+    public function testNormalizationHandlesVariousInputFormats(string $input, string $expected): void
     {
         $result = PathNormalizer::normalize($input);
 
@@ -21,10 +20,9 @@ class PathNormalizerTest extends TestCase
     }
 
     /**
-     * @test
      * @dataProvider provideJoinCases
      */
-    public function join_combines_path_segments_correctly(array $parts, string $expected): void
+    public function testJoinCombinesPathSegmentsCorrectly(array $parts, string $expected): void
     {
         $result = PathNormalizer::join(...$parts);
 
@@ -191,3 +189,4 @@ class PathNormalizerTest extends TestCase
         ];
     }
 }
+
