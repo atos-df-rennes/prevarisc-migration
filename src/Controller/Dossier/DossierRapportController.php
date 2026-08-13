@@ -60,8 +60,8 @@ class DossierRapportController extends AbstractController implements DossierLate
     ) {
         $this->commissionRepository = $commissionRepository;
         $this->odtService = $odtService;
-        $this->documentsDataPath = rtrim($documentsDataPath, '/');
-        $this->documentsRealDataPath = rtrim($documentsRealDataPath, '/');
+        $this->documentsDataPath = $documentsDataPath;
+        $this->documentsRealDataPath = $documentsRealDataPath;
         $this->logger = $logger;
     }
 
