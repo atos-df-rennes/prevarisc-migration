@@ -8,6 +8,7 @@ use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Repository\CommissionRepository;
 use App\Service\DossierRapportOdtService;
+use App\Utils\PathNormalizer;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -76,14 +77,14 @@ class DossierRapportController extends AbstractController implements DossierLate
         $idDossier = (int) $dossier->getId();
 
         // Fichiers disponibles après verrouillage (commission 0)
-        $fichierVer = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.'0');
+        $fichierVer = $this->listFiles(PathNormalizer::join($this->documentsRealDataPath, '0'));
 
         // Liste des commissions avec leur type et leurs fichiers ODT
         /** @var CommissionOdtDto[] $listeCommissions */
         $listeCommissions = [];
         foreach ($this->commissionRepository->findAllWithType() as $commission) {
             $idCommission = (int) $commission->getId();
-            $fichiers = $this->listFiles($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$idCommission);
+            $fichiers = $this->listFiles(PathNormalizer::join($this->documentsRealDataPath, (string) $idCommission));
             $listeCommissions[] = new CommissionOdtDto(
                 $idCommission,
                 $commission->getLibelle(),
@@ -150,10 +151,10 @@ class DossierRapportController extends AbstractController implements DossierLate
         // B1 : reconstruire le chemin depuis l'identifiant relatif et valider qu'il reste sous documentsRealDataPath
         $rawFichier = $request->request->get('file', '');
         $relativeFile = is_scalar($rawFichier) ? (string) $rawFichier : '';
-        $resolvedPath = realpath($this->documentsRealDataPath.DIRECTORY_SEPARATOR.$relativeFile);
+        $resolvedPath = realpath(PathNormalizer::join($this->documentsRealDataPath, $relativeFile));
         if (
             false === $resolvedPath
-            || 0 !== strpos($resolvedPath, $this->documentsRealDataPath.DIRECTORY_SEPARATOR)
+            || 0 !== strpos($resolvedPath, PathNormalizer::normalize($this->documentsRealDataPath))
             || 'odt' !== strtolower(pathinfo($resolvedPath, PATHINFO_EXTENSION))
         ) {
             $this->logger->error('Invalid file path for rapport generation.', [

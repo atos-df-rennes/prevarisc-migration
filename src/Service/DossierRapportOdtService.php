@@ -22,6 +22,7 @@ use App\Service\DataStore\DataStore;
 use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
+use App\Utils\PathNormalizer;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -1234,7 +1235,7 @@ class DossierRapportOdtService
 
             // Sauvegarde ODT
             if (!empty($rawDossier['ID_PLATAU'])) {
-                $chemin = $this->realDataPath.'/uploads/pieces-jointes/'.$pj->getId().$pj->getExtension();
+                $chemin = PathNormalizer::join($this->realDataPath, 'uploads/pieces-jointes', $pj->getId().$pj->getExtension());
             } else {
                 $chemin = $this->dataStore->getFilePath($pj, 'dossier', $idDossier, true);
             }
