@@ -33,7 +33,7 @@ final class PathNormalizer
         $path = (string) preg_replace('#/+#', '/', $path);
 
         // Ensure trailing slash
-        return rtrim($path, '/') . '/';
+        return rtrim($path, '/').'/';
     }
 
     /**

@@ -28,6 +28,6 @@ final class Avatar
 
     public function path(string $directory, int $userId): string
     {
-        return PathNormalizer::join($this->basePath, $directory, (string) $userId.'.jpg');
+        return PathNormalizer::join($this->basePath, $directory, $userId.'.jpg');
     }
 }
