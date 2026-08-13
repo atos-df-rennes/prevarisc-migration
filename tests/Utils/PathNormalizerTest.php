@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Utils;
 
 use App\Utils\PathNormalizer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PathNormalizerTest extends TestCase
 {
-    /**
-     * @dataProvider provideNormalizationCases
-     */
+    #[DataProvider('provideNormalizationCases')]
     public function testNormalizationHandlesVariousInputFormats(string $input, string $expected): void
     {
         $result = PathNormalizer::normalize($input);
@@ -19,9 +18,7 @@ class PathNormalizerTest extends TestCase
         $this->assertSame($expected, $result);
     }
 
-    /**
-     * @dataProvider provideJoinCases
-     */
+    #[DataProvider('provideJoinCases')]
     public function testJoinCombinesPathSegmentsCorrectly(array $parts, string $expected): void
     {
         $result = PathNormalizer::join(...$parts);
