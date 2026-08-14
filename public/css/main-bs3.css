@@ -104,7 +104,9 @@ body > .navbar {
   margin-right: 0;
 }
 
-#nav-main-search-field:focus {
+/* TomSelect remplace le <select> original par un wrapper (.ts-wrapper) qui reçoit
+   la classe .focus au focus : le sélecteur ci-dessus ne matche donc plus. */
+#nav-main-search-form .ts-wrapper.focus {
   width: 300px;
 }
 

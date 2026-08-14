@@ -5,6 +5,9 @@ namespace App\Controller\Api;
 use App\Constant\GenreEtablissement;
 use App\Repository\EtablissementRepository;
 use App\Repository\PeriodiciteRepository;
+use App\Service\EtablissementSearchService;
+use App\Service\Search\EtablissementAutocompleteNormalizer;
+use App\Service\Search\SearchQueryHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,6 +20,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class EtablissementController extends AbstractController
 {
+    /**
+     * Nombre minimum de caractères pour déclencher une recherche (parité legacy minChars: 3).
+     */
+    private const SEARCH_MIN_LENGTH = 3;
+
+    /**
+     * Nombre de résultats par défaut (parité legacy Api_Service_Search::etablissements($count = 10)).
+     */
+    private const SEARCH_DEFAULT_LIMIT = 10;
+
+    private const SEARCH_MAX_LIMIT = 50;
+
     /** @var EtablissementRepository */
     private $etablissementRepository;
 
@@ -26,14 +41,29 @@ class EtablissementController extends AbstractController
     /** @var EntityManagerInterface */
     private $em;
 
+    /** @var EtablissementSearchService */
+    private $etablissementSearchService;
+
+    /** @var EtablissementAutocompleteNormalizer */
+    private $autocompleteNormalizer;
+
+    /** @var SearchQueryHelper */
+    private $searchQueryHelper;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         PeriodiciteRepository $periodiciteRepository,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        EtablissementSearchService $etablissementSearchService,
+        EtablissementAutocompleteNormalizer $autocompleteNormalizer,
+        SearchQueryHelper $searchQueryHelper
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->periodiciteRepository = $periodiciteRepository;
         $this->em = $em;
+        $this->etablissementSearchService = $etablissementSearchService;
+        $this->autocompleteNormalizer = $autocompleteNormalizer;
+        $this->searchQueryHelper = $searchQueryHelper;
     }
 
     /**
@@ -72,39 +102,70 @@ class EtablissementController extends AbstractController
     }
 
     /**
-     * Recherche d'établissements par libellé pour autocomplete.
+     * Recherche d'établissements pour autocomplétion.
+     *
+     * Route API commune à tous les écrans (recherche navbar, liaisons dossier,
+     * établissements père/enfants). Délègue à EtablissementSearchService, comme le
+     * legacy Api_Service_Search::etablissements() déléguait à Service_Search::etablissements() :
+     * seul le libellé est transmis, ce qui permet de bénéficier de la recherche par
+     * identifiant (« #123 » ou « E12/34 ») en plus de la recherche par libellé. Le
+     * découpage label/identifiant reproduit celui effectué par SearchController (page de
+     * recherche), via SearchQueryHelper::splitLabelAndIdentifiant().
      *
      * @Route("/api/etablissements/search", name="api_etablissements_search", methods={"GET"})
      */
     public function search(Request $request): JsonResponse
     {
-        $query = $request->query->get('q', '');
+        // « q » est le paramètre utilisé par les autocomplétions, « label » est le nom legacy
+        $rawQuery = $request->query->get('q', $request->query->get('label', ''));
+        $query = is_scalar($rawQuery) ? trim((string) $rawQuery) : '';
 
-        if (!is_string($query) || strlen($query) < 2) {
+        // Seuil legacy : l'autocomplétion ne se déclenche qu'à partir de 3 caractères
+        if (mb_strlen($query) < self::SEARCH_MIN_LENGTH) {
             return new JsonResponse([]);
         }
 
-        $limit = filter_var($request->query->get('limit', 20), FILTER_VALIDATE_INT);
+        $limit = filter_var($request->query->get('limit', self::SEARCH_DEFAULT_LIMIT), FILTER_VALIDATE_INT);
         if (false === $limit) {
-            $limit = 20;
+            $limit = self::SEARCH_DEFAULT_LIMIT;
         }
 
-        $limit = max(1, min(50, $limit));
+        $limit = max(1, min(self::SEARCH_MAX_LIMIT, $limit));
 
-        $etablissements = $this->etablissementRepository->searchByLibelle($query, $limit);
-
-        $results = [];
-        foreach ($etablissements as $etab) {
-            $info = $etab->getLatestInformations();
-            $genre = null !== $info->getGenre() ? $info->getGenre()->getLibelle() : null;
-            $results[] = [
-                'id' => $etab->getId(),
-                'libelle' => $info->getLibelle(),
-                'genre' => $genre,
-            ];
+        $page = filter_var($request->query->get('page', 1), FILTER_VALIDATE_INT);
+        if (false === $page) {
+            $page = 1;
         }
 
-        return new JsonResponse($results, Response::HTTP_OK);
+        $page = max(1, $page);
+
+        [$label, $identifiant] = $this->searchQueryHelper->splitLabelAndIdentifiant($query);
+
+        $search = $this->etablissementSearchService->etablissements(
+            $label,
+            $identifiant,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $limit,
+            $page
+        );
+
+        return new JsonResponse($this->autocompleteNormalizer->normalize($search['results']), Response::HTTP_OK);
     }
 
     /**
