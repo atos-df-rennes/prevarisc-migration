@@ -36,9 +36,10 @@
             </ul>
             <ul class='nav navbar-nav navbar-right'>
                 <li class="li-searched">
-                    <form class="navbar-search navbar-form" action="{{ path('search_etablissement') }}" method="get">
+                    <form class="navbar-search navbar-form" action="{{ path('search_etablissement') }}" method="get" id="nav-main-search-form">
                         <div class="input-group">
-                            <input name="label" class="form-control" id="nav-main-search-field" type="text" placeholder="Rechercher ..." />
+                            <select id="nav-main-search-field" class="form-control"></select>
+                            <input name="label" id="nav-main-search-label" type="hidden" value="" />
                             <input name="page" type="hidden" value="1" />
                             <input name="Rechercher" type="hidden" value="Rechercher"  />
                             <div class="input-group-btn">
@@ -55,50 +56,32 @@
     </div>
 </div>
 
-<script>
-    $(document).ready(function() {
-        $("#nav-main-search-field").autocomplete("/api/1.0/search/etablissements?format=json", {
-            extraParams: {
-                label: function() {
-                    return $("#nav-main-search-field").val().trim();
+<script type="module">
+    import { initTomSelectEtablissement } from '{{ asset('js/modules/tom-select-etablissement.js') }}';
+
+    const labelField = document.getElementById('nav-main-search-label');
+    const searchForm = document.getElementById('nav-main-search-form');
+
+    const navSearch = initTomSelectEtablissement(
+        '#nav-main-search-field',
+        '{{ path('api_etablissements_search') }}',
+        {
+            placeholder: 'Rechercher ...',
+            // Le texte saisi alimente le champ « label » : une soumission sans sélection
+            // bascule vers la page de recherche avancée, comme le legacy.
+            onType: (str) => { labelField.value = str; },
+            onSelect: (value) => {
+                if (value) {
+                    window.location.href = Routing.generate('etablissement_informations', {id: value});
                 }
             },
-            minChars: 3,
-            cacheLength: 0,
-            width: 500,
-            parse: function(data) {
-                return $.map(data["response"]["results"], function(row) {
-                    return {
-                        data: row,
-                        value: row.LIBELLE_ETABLISSEMENTINFORMATIONS,
-                        result: row.LIBELLE_ETABLISSEMENTINFORMATIONS
-                    }
-                });
-            },
-            formatItem: function(item) {
-                var LIBELLE_COMMUNE = "non localisée";
-                switch(item.ID_GENRE) {
-                    case "1":
-                        LIBELLE_COMMUNE = item.LIBELLE_COMMUNE_ADRESSE_SITE;
-                        break;
+        }
+    );
 
-                    case "3":
-                        LIBELLE_COMMUNE = item.LIBELLE_COMMUNE_ADRESSE_CELLULE;
-                        break;
-
-                    default:
-                        LIBELLE_COMMUNE = item.LIBELLE_COMMUNE_ADRESSE_DEFAULT;
-                }
-
-                if (LIBELLE_COMMUNE) {
-                    return "[" + item.LIBELLE_GENRE + "] " + item.LIBELLE_ETABLISSEMENTINFORMATIONS + " (" + LIBELLE_COMMUNE + ")";
-                }
-                else {
-                    return "[" + item.LIBELLE_GENRE + "] " + item.LIBELLE_ETABLISSEMENTINFORMATIONS;
-                }
-            }
-        }).result(function(e, item) {
-            window.location.href = Routing.generate('etablissement_informations', {id: item.ID_ETABLISSEMENT});
-        });
+    // Sans sélection, on soumet le formulaire avec le texte saisi.
+    searchForm.addEventListener('submit', function () {
+        if (!navSearch.getValue()) {
+            labelField.value = navSearch.control_input.value.trim();
+        }
     });
 </script>
