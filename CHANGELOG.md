@@ -10,6 +10,10 @@
 
 * La génération des documents ne fonctionnait pas si la variable PREVARISC_REAL_DATA_PATH contenait un slash de fin (#376) ([dce73d](https://github.com/atos-df-rennes/prevarisc-migration/commit/dce73d171aff52537e00ffc765af05728eac4da6))
 
+##### Etablissement
+
+* Affiche le bon libellé sur la liste des dossiers en fonction de leur date de création (#380) ([33c994](https://github.com/atos-df-rennes/prevarisc-migration/commit/33c9942d07cbdb08864c779e9fb2de05270f1454))
+
 ##### Rapport
 
 * Certaines balises avait toujours une chaîne vide pour valeur (#378) ([4d36d6](https://github.com/atos-df-rennes/prevarisc-migration/commit/4d36d6343ae6ec523ae89cb17894f3b67053dfb0))
