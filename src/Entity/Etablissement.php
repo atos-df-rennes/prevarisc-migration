@@ -662,6 +662,7 @@ class Etablissement
         $this->contacts = new ArrayCollection();
         $this->textesApplicables = new ArrayCollection();
         $this->piecesJointes = new ArrayCollection();
+        $this->informations = new ArrayCollection();
     }
 
     // @fixme: il faudra le passer nullable quand on migrera l'ajout d'un établissement
@@ -741,6 +742,46 @@ class Etablissement
         $latest = $result->first();
 
         return $latest;
+    }
+
+    /**
+     * Retourne la fiche d'informations en vigueur à une date donnée (iso-legacy Search.php) :
+     * - la fiche la plus récente dont la date est antérieure ou égale à $date, si elle existe ;
+     * - sinon, la fiche la plus ancienne de tout l'historique (fallback legacy) ;
+     * - null si l'établissement n'a aucune fiche d'informations.
+     */
+    public function getInformationsAtDate(\DateTimeInterface $date): ?EtablissementInformations
+    {
+        assert($this->informations instanceof Selectable);
+
+        $anterieures = $this->informations->matching(
+            Criteria::create()
+                ->where(Criteria::expr()->lte('date', $date))
+                ->orderBy(['date' => Criteria::DESC])
+                ->setMaxResults(1)
+        );
+
+        if (!$anterieures->isEmpty()) {
+            /** @var EtablissementInformations $result */
+            $result = $anterieures->first();
+
+            return $result;
+        }
+
+        $plusAncienne = $this->informations->matching(
+            Criteria::create()
+                ->orderBy(['date' => Criteria::ASC])
+                ->setMaxResults(1)
+        );
+
+        if ($plusAncienne->isEmpty()) {
+            return null;
+        }
+
+        /** @var EtablissementInformations $result */
+        $result = $plusAncienne->first();
+
+        return $result;
     }
 
     public function addInformations(EtablissementInformations $informations): self
