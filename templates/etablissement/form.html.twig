@@ -458,67 +458,6 @@
             }
         });
 
-        // ——— TomSelect établissement père ———
-        var tsPere = new TomSelect('#pere_autocomplete', {
-            valueField: 'id',
-            labelField: 'libelle',
-            searchField: 'libelle',
-            create: false,
-            maxItems: 1,
-            placeholder: 'Libellé de l\'établissement père…',
-            shouldLoad: function(q) { return q.length >= 2; },
-            load: function(query, callback) {
-                fetch('{{ path('api_etablissements_search') }}?q=' + encodeURIComponent(query))
-                    .then(function(r) { return r.json(); })
-                    .then(function(json) {
-                        callback(json.map(function(item) {
-                            return { id: item.id, libelle: item.libelle + ' (' + (item.genre || '?') + ')' };
-                        }));
-                    }).catch(function() { callback(); });
-            },
-            onChange: function(value) {
-                $('input[name="ID_PERE"]').val(value);
-            }
-        });
-
-        // ——— TomSelect établissement enfant ———
-        var tsEnfant = new TomSelect('#etablissement_autocomplete', {
-            valueField: 'id',
-            labelField: 'libelle',
-            searchField: 'libelle',
-            create: false,
-            maxItems: 1,
-            placeholder: 'Libellé d\'un établissement enfant…',
-            shouldLoad: function(q) { return q.length >= 2; },
-            load: function(query, callback) {
-                fetch('{{ path('api_etablissements_search') }}?q=' + encodeURIComponent(query))
-                    .then(function(r) { return r.json(); })
-                    .then(function(json) {
-                        callback(json.map(function(item) {
-                            return { id: item.id, libelle: item.libelle + ' (' + (item.genre || '?') + ')' };
-                        }));
-                    }).catch(function() { callback(); });
-            },
-            onItemAdd: function(value) {
-                var label = tsEnfant.options[value] ? tsEnfant.options[value].libelle : value;
-                var ts = Date.now();
-                var $proto = $('#prototype_enfant').clone()
-                    .removeAttr('id')
-                    .removeClass('hide prototype');
-                $proto.find('input[type="hidden"]').val(value);
-                $proto.find('.enfant_libelle').text(label);
-                $proto.find('input, select').each(function() {
-                    var name = $(this).attr('name');
-                    if (name) {
-                        $(this).attr('name', name.replace(/-1/gi, ts));
-                    }
-                });
-                $('#enfants_tbody tr:last').before($proto);
-                tsEnfant.clear();
-                tsEnfant.clearOptions();
-            }
-        });
-
         // ——— Autocomplete commune (modales adresse) ———
         $("input[name='commune_ac']").autocomplete('{{ path('api_adresse_get_communes') }}', {
             minChars: 2,
@@ -838,5 +777,39 @@
         {% endif %}
 
     });
+    </script>
+    <script type="module">
+        import { initTomSelectEtablissement } from '{{ asset('js/modules/tom-select-etablissement.js') }}';
+
+        const searchUrl = '{{ path('api_etablissements_search') }}';
+
+        // ——— TomSelect établissement père ———
+        initTomSelectEtablissement('#pere_autocomplete', searchUrl, {
+            placeholder: 'Libellé de l\'établissement père…',
+            onChange: (value) => { $('input[name="ID_PERE"]').val(value || ''); },
+        });
+
+        // ——— TomSelect établissement enfant ———
+        const tsEnfant = initTomSelectEtablissement('#etablissement_autocomplete', searchUrl, {
+            placeholder: 'Libellé d\'un établissement enfant…',
+            onSelect: (value, option) => {
+                const label = option ? option.libelle : value;
+                const ts = Date.now();
+                const $proto = $('#prototype_enfant').clone()
+                    .removeAttr('id')
+                    .removeClass('hide prototype');
+                $proto.find('input[type="hidden"]').val(value);
+                $proto.find('.enfant_libelle').text(label);
+                $proto.find('input, select').each(function() {
+                    const name = $(this).attr('name');
+                    if (name) {
+                        $(this).attr('name', name.replace(/-1/gi, ts));
+                    }
+                });
+                $('#enfants_tbody tr:last').before($proto);
+                tsEnfant.clear();
+                tsEnfant.clearOptions();
+            },
+        });
     </script>
 {% endblock %}

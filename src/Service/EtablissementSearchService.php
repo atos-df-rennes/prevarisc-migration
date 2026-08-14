@@ -146,9 +146,9 @@ class EtablissementSearchService
             if (null !== $label) {
                 $cleanLabel = trim($label);
                 if (str_starts_with($cleanLabel, '#')) {
-                    $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
+                    $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
                 } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
-                    $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $cleanLabel, false);
+                    $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $cleanLabel, false);
                 } else {
                     $whereConditions[] = $this->queryHelper->buildCriteria('LIBELLE_ETABLISSEMENTINFORMATIONS', $cleanLabel, false);
                 }
@@ -158,7 +158,7 @@ class EtablissementSearchService
 
             // Critères : identifiant
             if (null !== $identifiant) {
-                $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $identifiant);
+                $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $identifiant);
                 $hasAdditionalConditions = true;
             }
 

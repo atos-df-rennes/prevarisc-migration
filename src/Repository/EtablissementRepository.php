@@ -302,34 +302,6 @@ SQL;
     }
 
     /**
-     * Recherche des établissements par libellé (dernières informations) pour autocomplete.
-     *
-     * @return Etablissement[]
-     */
-    public function searchByLibelle(string $query, int $limit = 50): array
-    {
-        return $this->createQueryBuilder('e')
-            ->innerJoin(
-                'e.informations',
-                'info',
-                'WITH',
-                'info.id = (
-                    SELECT MAX(info_sub.id)
-                    FROM App\Entity\EtablissementInformations info_sub
-                    WHERE info_sub.etablissement = e
-                )'
-            )
-            ->addSelect('info')
-            ->where('info.libelle LIKE :query')
-            ->setParameter('query', '%'.$query.'%')
-            ->andWhere('e.dateSuppression IS NULL')
-            ->orderBy('info.libelle', 'ASC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
      * Construit le SQL de base pour la recherche d'établissements (port de Model_DbTable_Search::setItem('etablissement')).
      * Sélectionne tous les champs attendus par les templates de tableau de bord.
      */
