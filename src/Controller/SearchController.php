@@ -18,6 +18,7 @@ use App\Repository\GroupementRepository;
 use App\Repository\IghClasseRepository;
 use App\Service\DossierSearchService;
 use App\Service\EtablissementSearchService;
+use App\Service\Search\SearchQueryHelper;
 use App\Service\SearchExport;
 use App\ValueObject\SearchPagination;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,7 +34,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class SearchController extends AbstractController
 {
-    public function __construct(private readonly EtablissementSearchService $etablissementSearchService, private readonly DossierSearchService $dossierSearchService, private readonly GroupementRepository $groupementRepository, private readonly CommissionRepository $commissionRepository, private readonly DossierTypeRepository $dossierTypeRepository, private readonly GenreRepository $genreRepository, private readonly EtablissementStatutRepository $etablissementStatutRepository, private readonly EtablissementCategorieRepository $etablissementCategorieRepository, private readonly IghClasseRepository $ighClasseRepository, private readonly EtablissementActiviteRepository $etablissementActiviteRepository, private readonly FamilleRepository $familleRepository, private readonly CommuneRepository $communeRepository, private readonly AdresseRueRepository $adresseRueRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly bool $deactivatePlatau, private readonly SearchExport $searchExport)
+    public function __construct(private readonly EtablissementSearchService $etablissementSearchService, private readonly DossierSearchService $dossierSearchService, private readonly GroupementRepository $groupementRepository, private readonly CommissionRepository $commissionRepository, private readonly DossierTypeRepository $dossierTypeRepository, private readonly GenreRepository $genreRepository, private readonly EtablissementStatutRepository $etablissementStatutRepository, private readonly EtablissementCategorieRepository $etablissementCategorieRepository, private readonly IghClasseRepository $ighClasseRepository, private readonly EtablissementActiviteRepository $etablissementActiviteRepository, private readonly FamilleRepository $familleRepository, private readonly CommuneRepository $communeRepository, private readonly AdresseRueRepository $adresseRueRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly bool $deactivatePlatau, private readonly SearchExport $searchExport, private readonly SearchQueryHelper $searchQueryHelper)
     {
     }
 
@@ -105,8 +106,10 @@ class SearchController extends AbstractController
                     $preventionniste = null !== $preventionnisteRaw ? (int) $preventionnisteRaw : null;
                     $groupements_territoriaux = $this->getArrayQueryParam($request, 'groupements_territoriaux');
 
+                    [$label, $identifiant] = $this->searchQueryHelper->splitLabelAndIdentifiant($label);
+
                     $search = $this->etablissementSearchService->extractionEtablissements(
-                        $label, null, $genres, $categories, $classes, $familles, $types_activites,
+                        $label, $identifiant, $genres, $categories, $classes, $familles, $types_activites,
                         $avis_favorable, $statuts, $local_sommeil, null, null, null,
                         $city, $street, $number, $commissions, $groupements_territoriaux, $preventionniste
                     );
@@ -135,6 +138,7 @@ class SearchController extends AbstractController
                 $page = max(1, $request->query->getInt('page', 1));
 
                 $label = $this->getStringQueryParam($request, 'label');
+                [$label, $identifiant] = $this->searchQueryHelper->splitLabelAndIdentifiant($label);
 
                 $genres = $this->getArrayQueryParam($request, 'genres');
                 $categories = $this->getArrayQueryParam($request, 'categories');
@@ -190,7 +194,7 @@ class SearchController extends AbstractController
 
                 $search = $this->etablissementSearchService->etablissements(
                     $label,
-                    null,
+                    $identifiant,
                     $genres,
                     $categories,
                     $classes,

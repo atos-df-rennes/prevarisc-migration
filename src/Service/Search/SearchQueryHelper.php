@@ -41,6 +41,30 @@ class SearchQueryHelper
     }
 
     /**
+     * Sépare un paramètre de recherche "label" en couple [label, identifiant].
+     *
+     * Reproduit le comportement legacy (SDIS62 SearchController::etablissementAction()) :
+     * si le label commence par '#', il s'agit d'une recherche par identifiant exact
+     * (NUMEROID_ETABLISSEMENT) et non d'une recherche textuelle libre. Le '#' est retiré
+     * et la valeur restante est renvoyée comme identifiant, le label devenant null.
+     * Sinon, le label est renvoyé tel quel et l'identifiant est null.
+     *
+     * @return array{0: string|null, 1: string|null} [label, identifiant]
+     */
+    public function splitLabelAndIdentifiant(?string $label): array
+    {
+        if (null === $label || '' === $label) {
+            return [$label, null];
+        }
+
+        if ('#' === substr($label, 0, 1)) {
+            return [null, substr($label, 1)];
+        }
+
+        return [$label, null];
+    }
+
+    /**
      * Enveloppe Connection::quote() pour garantir un retour string (DBAL 2.x non typé).
      */
     public function safeQuote(string $value): string
