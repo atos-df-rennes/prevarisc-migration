@@ -204,8 +204,10 @@ final readonly class Dossier
             }
 
             $donneeUtile['objet'] = $libelle;
-            if ($dossierEntity->getEtablissements()->first()) {
-                $donneeUtile['etablissement'] = $dossierEntity->getEtablissements()->first()->getLatestInformations()->getLibelle();
+            $etablissement = $dossierEntity->getEtablissements()->first();
+            if (false !== $etablissement) {
+                $informationsAtDate = $etablissement->getInformationsAtDate($this->getDateReferenceLibelleEtablissement($dossierEntity));
+                $donneeUtile['etablissement'] = null !== $informationsAtDate ? $informationsAtDate->getLibelle() : null;
             } else {
                 $donneeUtile['etablissement'] = null;
             }
@@ -243,6 +245,26 @@ final readonly class Dossier
         }
 
         return $donneesUtiles;
+    }
+
+    /**
+     * Détermine la date de référence utilisée pour résoudre le libellé établissement en vigueur.
+     *
+     * Iso-legacy (Search.php, jointure etablissementinformations) : quand DATECOMM_DOSSIER est
+     * renseignée, le legacy compare en réalité à DATEINSERT_DOSSIER (et non DATECOMM_DOSSIER) —
+     * quirk historique volontairement reproduit à l'identique.
+     */
+    private function getDateReferenceLibelleEtablissement(DossierEntity $dossier): \DateTimeInterface
+    {
+        if (null !== $dossier->getDateCommission()) {
+            return $dossier->getDateInsert() ?? new \DateTime();
+        }
+
+        if (null !== $dossier->getDateVisite()) {
+            return $dossier->getDateVisite();
+        }
+
+        return $dossier->getDateInsert() ?? new \DateTime();
     }
 
     /**
