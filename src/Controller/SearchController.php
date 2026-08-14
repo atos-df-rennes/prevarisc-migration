@@ -18,6 +18,7 @@ use App\Repository\GroupementRepository;
 use App\Repository\IghClasseRepository;
 use App\Service\DossierSearchService;
 use App\Service\EtablissementSearchService;
+use App\Service\Search\SearchQueryHelper;
 use App\Service\SearchExport;
 use App\ValueObject\SearchPagination;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -78,6 +79,9 @@ class SearchController extends AbstractController
     /** @var SearchExport */
     private $searchExport;
 
+    /** @var SearchQueryHelper */
+    private $searchQueryHelper;
+
     /** @var bool */
     private $deactivatePlatau;
 
@@ -97,7 +101,8 @@ class SearchController extends AbstractController
         AdresseRueRepository $adresseRueRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
         bool $deactivatePlatau,
-        SearchExport $searchExport
+        SearchExport $searchExport,
+        SearchQueryHelper $searchQueryHelper
     ) {
         $this->etablissementSearchService = $etablissementSearchService;
         $this->dossierSearchService = $dossierSearchService;
@@ -115,6 +120,7 @@ class SearchController extends AbstractController
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
         $this->deactivatePlatau = $deactivatePlatau;
         $this->searchExport = $searchExport;
+        $this->searchQueryHelper = $searchQueryHelper;
     }
 
     /**
@@ -186,8 +192,10 @@ class SearchController extends AbstractController
                     $preventionniste = null !== $preventionnisteRaw ? (int) $preventionnisteRaw : null;
                     $groupements_territoriaux = $this->getArrayQueryParam($request, 'groupements_territoriaux');
 
+                    [$label, $identifiant] = $this->searchQueryHelper->splitLabelAndIdentifiant($label);
+
                     $search = $this->etablissementSearchService->extractionEtablissements(
-                        $label, null, $genres, $categories, $classes, $familles, $types_activites,
+                        $label, $identifiant, $genres, $categories, $classes, $familles, $types_activites,
                         $avis_favorable, $statuts, $local_sommeil, null, null, null,
                         $city, $street, $number, $commissions, $groupements_territoriaux, $preventionniste
                     );
@@ -216,6 +224,7 @@ class SearchController extends AbstractController
                 $page = max(1, $request->query->getInt('page', 1));
 
                 $label = $this->getStringQueryParam($request, 'label');
+                [$label, $identifiant] = $this->searchQueryHelper->splitLabelAndIdentifiant($label);
 
                 $genres = $this->getArrayQueryParam($request, 'genres');
                 $categories = $this->getArrayQueryParam($request, 'categories');
@@ -271,7 +280,7 @@ class SearchController extends AbstractController
 
                 $search = $this->etablissementSearchService->etablissements(
                     $label,
-                    null,
+                    $identifiant,
                     $genres,
                     $categories,
                     $classes,

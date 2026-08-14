@@ -59,6 +59,37 @@ final class SearchQueryHelperTest extends TestCase
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // splitLabelAndIdentifiant
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * @dataProvider splitLabelAndIdentifiantProvider
+     *
+     * @param array{0: string|null, 1: string|null} $expected
+     */
+    public function testSplitLabelAndIdentifiant(?string $label, array $expected): void
+    {
+        self::assertSame($expected, $this->helper->splitLabelAndIdentifiant($label));
+    }
+
+    /**
+     * @return array<string, array{0: string|null, 1: array{0: string|null, 1: string|null}}>
+     */
+    public function splitLabelAndIdentifiantProvider(): array
+    {
+        return [
+            'label null' => [null, [null, null]],
+            'label vide' => ['', ['', null]],
+            'label sans dièse' => ['mairie', ['mairie', null]],
+            'label numerique sans dièse' => ['101', ['101', null]],
+            'label avec dièse simple' => ['#101', [null, '101']],
+            'label avec dièse et suffixe' => ['#101A', [null, '101A']],
+            'label uniquement dièse' => ['#', [null, '']],
+            'dièse pas en première position' => ['ab#101', ['ab#101', null]],
+        ];
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // buildCriteria — mode exact (=)
     // ─────────────────────────────────────────────────────────────────────────
     /**
