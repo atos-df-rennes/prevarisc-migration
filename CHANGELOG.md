@@ -4,6 +4,24 @@
 
 <!--- END HEADER -->
 
+## [2.10.2](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.1...v2.10.2) (14-08-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* La génération des documents ne fonctionnait pas si la variable PREVARISC_REAL_DATA_PATH contenait un slash de fin (#376) ([dce73d](https://github.com/atos-df-rennes/prevarisc-migration/commit/dce73d171aff52537e00ffc765af05728eac4da6))
+
+##### Rapport
+
+* Certaines balises avait toujours une chaîne vide pour valeur (#378) ([4d36d6](https://github.com/atos-df-rennes/prevarisc-migration/commit/4d36d6343ae6ec523ae89cb17894f3b67053dfb0))
+
+##### Recherche
+
+* Rétablissement de la recherche par numéro d'identifiant d'établissement et harmonisation sur tous les usages à travers l'application (#379) ([100d64](https://github.com/atos-df-rennes/prevarisc-migration/commit/100d64bc6dc84c653a5d3c4630268336548e4e88))
+* Renvoie uniquement l'établissement correspondant à l'identifiant renseigné (#377) ([94ef91](https://github.com/atos-df-rennes/prevarisc-migration/commit/94ef91404b7970ee48dd967502d5dd502e2a7363))
+
+
+---
+
 ## [2.10.1](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.0...v2.10.1) (13-08-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
