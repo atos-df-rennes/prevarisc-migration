@@ -64,10 +64,17 @@ export function initTomSelectEtablissement(selector, searchUrl, options) {
         placeholder: settings.placeholder,
         loadThrottle: LOAD_THROTTLE,
         shouldLoad: (query) => query.trim().length >= MIN_QUERY_LENGTH,
-        load: (query, callback) => {
+        load: function (query, callback) {
+            const self = this;
+
             fetch(searchUrl + '?q=' + encodeURIComponent(query.trim()))
                 .then((response) => (response.ok ? response.json() : []))
                 .then((items) => {
+                    // Le serveur filtre déjà les résultats (score désactivé ci-dessous) : on
+                    // retire les options d'une recherche précédente pour ne garder que les
+                    // résultats courants (clearOptions conserve automatiquement la sélection en cours).
+                    self.clearOptions();
+
                     // Transform API response to add display label, avoiding TomSelect render bug
                     return items.map((item) => ({
                         ...item,
@@ -77,6 +84,7 @@ export function initTomSelectEtablissement(selector, searchUrl, options) {
                 .then(callback)
                 .catch(() => callback());
         },
+        score: () => () => 1,
         onType: (str) => {
             if (settings.onType) {
                 settings.onType(str);

@@ -7,6 +7,7 @@ use App\Repository\EtablissementRepository;
 use App\Repository\PeriodiciteRepository;
 use App\Service\EtablissementSearchService;
 use App\Service\Search\EtablissementAutocompleteNormalizer;
+use App\Service\Search\SearchQueryHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -46,18 +47,23 @@ class EtablissementController extends AbstractController
     /** @var EtablissementAutocompleteNormalizer */
     private $autocompleteNormalizer;
 
+    /** @var SearchQueryHelper */
+    private $searchQueryHelper;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         PeriodiciteRepository $periodiciteRepository,
         EntityManagerInterface $em,
         EtablissementSearchService $etablissementSearchService,
-        EtablissementAutocompleteNormalizer $autocompleteNormalizer
+        EtablissementAutocompleteNormalizer $autocompleteNormalizer,
+        SearchQueryHelper $searchQueryHelper
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->periodiciteRepository = $periodiciteRepository;
         $this->em = $em;
         $this->etablissementSearchService = $etablissementSearchService;
         $this->autocompleteNormalizer = $autocompleteNormalizer;
+        $this->searchQueryHelper = $searchQueryHelper;
     }
 
     /**
@@ -102,7 +108,9 @@ class EtablissementController extends AbstractController
      * établissements père/enfants). Délègue à EtablissementSearchService, comme le
      * legacy Api_Service_Search::etablissements() déléguait à Service_Search::etablissements() :
      * seul le libellé est transmis, ce qui permet de bénéficier de la recherche par
-     * identifiant (« #123 » ou « E12/34 ») en plus de la recherche par libellé.
+     * identifiant (« #123 » ou « E12/34 ») en plus de la recherche par libellé. Le
+     * découpage label/identifiant reproduit celui effectué par SearchController (page de
+     * recherche), via SearchQueryHelper::splitLabelAndIdentifiant().
      *
      * @Route("/api/etablissements/search", name="api_etablissements_search", methods={"GET"})
      */
@@ -131,9 +139,11 @@ class EtablissementController extends AbstractController
 
         $page = max(1, $page);
 
+        [$label, $identifiant] = $this->searchQueryHelper->splitLabelAndIdentifiant($query);
+
         $search = $this->etablissementSearchService->etablissements(
-            $query,
-            null,
+            $label,
+            $identifiant,
             null,
             null,
             null,
