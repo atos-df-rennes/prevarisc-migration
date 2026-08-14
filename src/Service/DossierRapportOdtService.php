@@ -496,7 +496,7 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'objetDossier', $rawDossier['OBJET_DOSSIER'] ?? '');
 
         // --- analyseRisque ---
-        $this->addChamp($odf, 'analyseRisque', $rawDossier['ANALYSERISQUE_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'analyseRisque', $rawDossier['ANOMALIE_DOSSIER'] ?? '');
 
         // --- observationDossier ---
         $this->addChamp($odf, 'observationDossier', $rawDossier['OBSERVATION_DOSSIER'] ?? '');
@@ -505,7 +505,7 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'descriptifDossier', $rawDossier['DESCRIPTIF_DOSSIER'] ?? '');
 
         // --- criticite ---
-        $this->addChamp($odf, 'criticite', $rawDossier['CRITICITE_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'criticite', $rawDossier['FACTDANGE_DOSSIER'] ?? '');
 
         // --- horsDelai ---
         $horsDelai = ('1' === $rawDossier['HORSDELAI_DOSSIER']) ? 'Oui' : 'Non';
@@ -547,8 +547,8 @@ class DossierRapportOdtService
         $servInstructeurPrenomContact = '';
         $servInstructeurNomContact = '';
         $servInstructeurMail = '';
-        if (!empty($rawDossier['SERVINSTRUCTEUR_DOSSIER'])) {
-            $servInstructeur = $rawDossier['SERVINSTRUCTEUR_DOSSIER'];
+        if (!empty($rawDossier['SERVICEINSTRUC_DOSSIER'])) {
+            $servInstructeur = $rawDossier['SERVICEINSTRUC_DOSSIER'];
             /** @var array<string, string|null>|false $groupRowFetch */
             $groupRowFetch = $this->conn->fetchAssociative(
                 'SELECT g.LIBELLE_GROUPEMENT, ui.PRENOM_UTILISATEURINFORMATIONS, ui.NOM_UTILISATEURINFORMATIONS, ui.MAIL_UTILISATEURINFORMATIONS
@@ -556,7 +556,7 @@ class DossierRapportOdtService
                  INNER JOIN groupementtype gt ON g.ID_GROUPEMENTTYPE = gt.ID_GROUPEMENTTYPE
                  LEFT JOIN utilisateurinformations ui ON ui.ID_UTILISATEURINFORMATIONS = g.ID_UTILISATEURINFORMATIONS
                  WHERE g.LIBELLE_GROUPEMENT = :libelle LIMIT 1',
-                ['libelle' => $rawDossier['SERVINSTRUCTEUR_DOSSIER']]
+                ['libelle' => $rawDossier['SERVICEINSTRUC_DOSSIER']]
             );
             if (false !== $groupRowFetch) {
                 $servInstructeurPrenomContact = $groupRowFetch['PRENOM_UTILISATEURINFORMATIONS'] ?? '';
@@ -585,10 +585,10 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'servInstructeurMail', $servInstructeurMail);
 
         // --- Dérogations dossier ---
-        $this->addChamp($odf, 'reglesDerog', $rawDossier['REGLES_DOSSIER'] ?? '');
-        $this->addChamp($odf, 'justificationDerog', $rawDossier['JUSTIFICATION_DOSSIER'] ?? '');
-        $this->addChamp($odf, 'mesuresCompensatoiresDerog', $rawDossier['MESURESCOMPENSATOIRES_DOSSIER'] ?? '');
-        $this->addChamp($odf, 'mesuresComplementairesDerog', $rawDossier['MESURESCOMPLEMENTAIRES_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'reglesDerog', $rawDossier['REGLEDEROG_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'justificationDerog', $rawDossier['JUSTIFDEROG_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'mesuresCompensatoiresDerog', $rawDossier['MESURESCOMPENS_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'mesuresComplementairesDerog', $rawDossier['MESURESCOMPLE_DOSSIER'] ?? '');
     }
 
     /**
@@ -611,8 +611,8 @@ class DossierRapportOdtService
 
         // --- dateDelaipresc ---
         $dateDelaipresc = 'Pas de date';
-        if (!empty($rawDossier['DATEDELAIPRESC_DOSSIER'])) {
-            $dtDelai = \DateTime::createFromFormat('Y-m-d', substr($rawDossier['DATEDELAIPRESC_DOSSIER'], 0, 10));
+        if (!empty($rawDossier['DELAIPRESC_DOSSIER'])) {
+            $dtDelai = \DateTime::createFromFormat('Y-m-d', substr($rawDossier['DELAIPRESC_DOSSIER'], 0, 10));
             if ($dtDelai instanceof \DateTime) {
                 $dateDelaipresc = DateFormatterFr::formatLong($dtDelai);
             }
