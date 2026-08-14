@@ -53,11 +53,13 @@ class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
         $ancienne = new EtablissementInformations();
         $ancienne->setDate(new \DateTime('2010-01-01'));
         $ancienne->setLibelle('Ancien nom');
+
         $etablissement->addInformations($ancienne);
 
         $recente = new EtablissementInformations();
         $recente->setDate(new \DateTime('2022-01-01'));
         $recente->setLibelle('Nom actuel');
+
         $etablissement->addInformations($recente);
 
         return $etablissement;

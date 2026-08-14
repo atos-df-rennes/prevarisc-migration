@@ -21,6 +21,7 @@ class EtablissementGetInformationsAtDateTest extends TestCase
         $informations = new EtablissementInformations();
         $informations->setDate(new \DateTime($date));
         $informations->setLibelle($libelle);
+
         $etablissement->addInformations($informations);
 
         return $informations;
