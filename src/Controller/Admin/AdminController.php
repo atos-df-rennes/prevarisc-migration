@@ -6,6 +6,7 @@ use App\Builder\VersionBuilder;
 use App\Dto\Ldap;
 use App\Repository\UtilisateurRepository;
 use App\Service\Informations;
+use App\Utils\PathNormalizer;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -45,7 +46,7 @@ class AdminController extends AbstractController
             'controller_name' => 'AdminController',
             'db_name' => $this->getParameter('app.db_name'),
             'db_url' => Informations::dbUrl($this->getParameter('app.db_host'), $this->getParameter('app.db_port')),
-            'files_path' => $this->getParameter('app.files_path'),
+            'files_path' => PathNormalizer::normalize($this->getParameter('app.files_path')),
             'cache_enabled' => $this->getParameter('app.cache_lifetime') > 0,
             'cache_adapter' => $this->getParameter('app.cache_adapter'),
             'cache_url' => Informations::cacheUrl($this->getParameter('app.cache_host'), $this->getParameter('app.cache_port')),
