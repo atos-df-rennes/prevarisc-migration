@@ -88,7 +88,7 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                     },
                     
                     load: function(query, callback) {
-                        const groupementsPromise = fetch('/api/groupements/search?q=' + encodeURIComponent(query) + '&limit=50')
+                        const groupementsPromise = fetch(Routing.generate('api_groupements_search', {q: query, limit: 50}))
                             .then(response => response.json())
                             .then(json => json.map(item => ({
                                 libelle: item.libelle,
@@ -96,11 +96,11 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                             })))
                             .catch(() => []);
 
-                        const communesPromise = fetch('/api/2.0/adresse/get_communes?q=' + encodeURIComponent(query) + '&limit=50')
+                        const communesPromise = fetch(Routing.generate('api_adresse_get_communes', {q: query, limit: 50}))
                             .then(response => response.json())
                             .then(json => (json.response || []).map(row => ({
                                 libelle: row.LIBELLE_COMMUNE,
-                                type: 'commune',
+                                type: 'Commune',
                             })))
                             .catch(() => []);
 
@@ -164,7 +164,7 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                             return;
                         }
 
-                        fetch('/api/utilisateurs/search?q=' + encodeURIComponent(query) + '&limit=100')
+                        fetch(Routing.generate('api_utilisateurs_search', {q: query, limit: 100}))
                             .then(response => response.json())
                             .then(json => {
                                 // Transformer le format API vers format compatible avec valueField/labelField
