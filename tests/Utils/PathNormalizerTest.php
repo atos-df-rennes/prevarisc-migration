@@ -104,6 +104,24 @@ class PathNormalizerTest extends TestCase
             'C:/',
             'C:/',
         ];
+
+        // UNC network paths (Windows file server mounts)
+        yield 'windows UNC path without trailing slash' => [
+            '\\\\192.168.1.1\\Prevention\\prevarisc-test\\uploads\\documents',
+            '//192.168.1.1/Prevention/prevarisc-test/uploads/documents/',
+        ];
+        yield 'windows UNC path with trailing slash' => [
+            '\\\\192.168.1.1\\Prevention\\prevarisc-test\\uploads\\documents\\',
+            '//192.168.1.1/Prevention/prevarisc-test/uploads/documents/',
+        ];
+        yield 'windows UNC path mixed with forward slashes' => [
+            '\\\\192.168.1.1\\Prevention/prevarisc-test/uploads/documents',
+            '//192.168.1.1/Prevention/prevarisc-test/uploads/documents/',
+        ];
+        yield 'unc path already using forward slashes' => [
+            '//192.168.1.1/Prevention/prevarisc-test/uploads/documents',
+            '//192.168.1.1/Prevention/prevarisc-test/uploads/documents/',
+        ];
     }
 
     public static function provideJoinCases(): iterable
@@ -186,6 +204,16 @@ class PathNormalizerTest extends TestCase
         yield 'join with multiple parts including numbers' => [
             ['/data', '0', '123', 'file.txt'],
             '/data/0/123/file.txt',
+        ];
+
+        // UNC network paths (Windows file server mounts, e.g. SDIS mounted drives)
+        yield 'join UNC commission directory' => [
+            ['\\\\192.168.1.1\\Prevention\\prevarisc-test\\uploads\\documents', '0'],
+            '//192.168.1.1/Prevention/prevarisc-test/uploads/documents/0',
+        ];
+        yield 'join UNC commission directory with trailing slash' => [
+            ['\\\\192.168.1.1\\Prevention\\prevarisc-test\\uploads\\documents\\', '0'],
+            '//192.168.1.1/Prevention/prevarisc-test/uploads/documents/0',
         ];
     }
 }
