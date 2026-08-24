@@ -2,6 +2,8 @@
 
 namespace App\Service\Commission;
 
+use App\Entity\EtablissementAdresse;
+use App\Repository\EtablissementAdresseRepository;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -15,9 +17,13 @@ class CommissionDataProvider
     /** @var Connection */
     private $conn;
 
-    public function __construct(Connection $conn)
+    /** @var EtablissementAdresseRepository */
+    private $etablissementAdresseRepository;
+
+    public function __construct(Connection $conn, EtablissementAdresseRepository $etablissementAdresseRepository)
     {
         $this->conn = $conn;
+        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
     }
 
     /**
@@ -203,21 +209,29 @@ class CommissionDataProvider
             $informationsMap[(int) $infoEtabId] = $info;
         }
 
-        // Adresses
-        $adressesRows = $this->conn->fetchAllAssociative(
-            'SELECT ea.ID_ETABLISSEMENT, ea.NUMERO_ADRESSE, ar.LIBELLE_RUE, ac.LIBELLE_COMMUNE,
-                    ac.CODEPOSTAL_COMMUNE, ac.NUMINSEE_COMMUNE
-             FROM etablissementadresse ea
-             JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE
-             JOIN adressecommune ac ON ea.NUMINSEE_COMMUNE = ac.NUMINSEE_COMMUNE
-             WHERE ea.ID_ETABLISSEMENT IN ('.$placeholders.')',
-            $uniqueIds
-        );
+        // Adresses : résolution par genre d'établissement (site => enfant à l'effectif max,
+        // cellule => établissement parent direct, cf. EtablissementAdresseRepository::get()),
+        // comme le fait Service_Etablissement::get() dans le legacy.
         $adressesMap = [];
-        foreach ($adressesRows as $adr) {
-            /** @var int|string $adrEtabId */
-            $adrEtabId = $adr['ID_ETABLISSEMENT'] ?? 0;
-            $adressesMap[(int) $adrEtabId][] = $adr;
+        foreach ($uniqueIds as $etabId) {
+            /** @var array<int, EtablissementAdresse> $etablissementAdresses */
+            $etablissementAdresses = $this->etablissementAdresseRepository->get($etabId);
+            foreach ($etablissementAdresses as $adresse) {
+                $rue = $adresse->getRue();
+                if (null === $rue) {
+                    continue;
+                }
+
+                $commune = $adresse->getCommune();
+                $adressesMap[$etabId][] = [
+                    'ID_ETABLISSEMENT' => $etabId,
+                    'NUMERO_ADRESSE' => $adresse->getNumero(),
+                    'LIBELLE_RUE' => $rue->getLibelle(),
+                    'LIBELLE_COMMUNE' => null !== $commune ? $commune->getLibelle() : null,
+                    'CODEPOSTAL_COMMUNE' => null !== $commune ? $commune->getCodePostal() : null,
+                    'NUMINSEE_COMMUNE' => null !== $commune ? $commune->getId() : null,
+                ];
+            }
         }
 
         // Parents
