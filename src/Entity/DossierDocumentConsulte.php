@@ -24,16 +24,16 @@ class DossierDocumentConsulte
     private $id;
 
     /**
-     * @var string
+     * @var ?string
      *
-     * @ORM\Column(name="REF_CONSULTE", type="string", length=255, nullable=false)
+     * @ORM\Column(name="REF_CONSULTE", type="string", length=255, nullable=true)
      */
     private $reference;
 
     /**
-     * @var \DateTimeInterface
+     * @var ?\DateTimeInterface
      *
-     * @ORM\Column(name="DATE_CONSULTE", type="date", nullable=false)
+     * @ORM\Column(name="DATE_CONSULTE", type="date", nullable=true)
      */
     private $date;
 
@@ -79,7 +79,7 @@ class DossierDocumentConsulte
         return $this->reference;
     }
 
-    public function setReference(string $reference): self
+    public function setReference(?string $reference): self
     {
         $this->reference = $reference;
 
@@ -91,7 +91,7 @@ class DossierDocumentConsulte
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
 
