@@ -180,8 +180,6 @@ class CalendrierDesCommissionsOdjController extends AbstractController
             $informations = isset($infosEtab['informations']) ? (array) $infosEtab['informations'] : [];
             /** @var array<int, array<string, mixed>> $adresses */
             $adresses = isset($infosEtab['adresses']) ? (array) $infosEtab['adresses'] : [];
-            /** @var array<int, array<string, mixed>> $parents */
-            $parents = isset($infosEtab['parents']) ? (array) $infosEtab['parents'] : [];
 
             // Extraction typée des champs scalaires
             $idDossier = (int) $dossierAffect->ID_DOSSIER;
@@ -192,12 +190,10 @@ class CalendrierDesCommissionsOdjController extends AbstractController
             $libelleEtab = isset($informations['LIBELLE_ETABLISSEMENTINFORMATIONS']) && is_string($informations['LIBELLE_ETABLISSEMENTINFORMATIONS'])
                 ? $informations['LIBELLE_ETABLISSEMENTINFORMATIONS'] : '';
 
-            $affichage = '';
-            if (isset($parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS']) && is_string($parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
-                $affichage .= $parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS'].' - ';
-            }
-
-            $affichage .= $libelleEtab;
+            // Note : le libellé du parent n'est volontairement pas préfixé à l'affichage
+            // (cf. legacy CalendrierDesCommissionsController::gestionodjAction() où le préfixe
+            // calculé est écrasé par une ré-affectation de $affichage juste après).
+            $affichage = $libelleEtab;
 
             $nbAdresse = count($adresses);
             if (0 !== $nbAdresse) {
