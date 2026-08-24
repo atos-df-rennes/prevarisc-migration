@@ -13,10 +13,13 @@ class DossierDocumentConsulteType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('reference')
+            ->add('reference', null, [
+                'required' => false,
+            ])
             ->add('date', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date',
+                'required' => false,
             ])
         ;
     }
