@@ -88,13 +88,25 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                     },
                     
                     load: function(query, callback) {
-                        fetch('/api/groupements/search?q=' + encodeURIComponent(query) + '&limit=50')
+                        const groupementsPromise = fetch('/api/groupements/search?q=' + encodeURIComponent(query) + '&limit=50')
                             .then(response => response.json())
-                            .then(json => {
-                                callback(json.map(item => ({
-                                    libelle: item.libelle,
-                                    type: item.type.libelle || '',
-                                })));
+                            .then(json => json.map(item => ({
+                                libelle: item.libelle,
+                                type: item.type.libelle || '',
+                            })))
+                            .catch(() => []);
+
+                        const communesPromise = fetch('/api/2.0/adresse/get_communes?q=' + encodeURIComponent(query) + '&limit=50')
+                            .then(response => response.json())
+                            .then(json => (json.response || []).map(row => ({
+                                libelle: row.LIBELLE_COMMUNE,
+                                type: 'commune',
+                            })))
+                            .catch(() => []);
+
+                        Promise.all([groupementsPromise, communesPromise])
+                            .then(([groupements, communes]) => {
+                                callback(groupements.concat(communes));
                             })
                             .catch(() => {
                                 callback();

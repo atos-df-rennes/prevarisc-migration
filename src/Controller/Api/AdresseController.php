@@ -37,16 +37,24 @@ class AdresseController extends AbstractController
             return new JsonResponse(['response' => []]);
         }
 
+        $limit = filter_var($request->query->get('limit', 50), FILTER_VALIDATE_INT);
+
+        if (false === $limit) {
+            $limit = 50;
+        }
+
+        $limit = max(1, min(50, $limit));
+
         if (self::LONGUEUR_CODE_POSTAL === strlen($q) && is_numeric($q)) {
             /** @var array<int, array<string, mixed>> $rows */
             $rows = $this->connection->executeQuery(
-                'SELECT * FROM adressecommune WHERE CODEPOSTAL_COMMUNE = ?',
+                'SELECT * FROM adressecommune WHERE CODEPOSTAL_COMMUNE = ? LIMIT '.$limit,
                 [$q]
             )->fetchAllAssociative();
         } else {
             /** @var array<int, array<string, mixed>> $rows */
             $rows = $this->connection->executeQuery(
-                'SELECT * FROM adressecommune WHERE LIBELLE_COMMUNE LIKE ? ORDER BY LENGTH(LIBELLE_COMMUNE)',
+                'SELECT * FROM adressecommune WHERE LIBELLE_COMMUNE LIKE ? ORDER BY LENGTH(LIBELLE_COMMUNE) LIMIT '.$limit,
                 ['%'.$q.'%']
             )->fetchAllAssociative();
         }
