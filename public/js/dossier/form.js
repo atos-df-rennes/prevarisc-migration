@@ -88,13 +88,25 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                     },
                     
                     load: function(query, callback) {
-                        fetch('/api/groupements/search?q=' + encodeURIComponent(query) + '&limit=50')
+                        const groupementsPromise = fetch(Routing.generate('api_groupements_search', {q: query, limit: 50}))
                             .then(response => response.json())
-                            .then(json => {
-                                callback(json.map(item => ({
-                                    libelle: item.libelle,
-                                    type: item.type.libelle || '',
-                                })));
+                            .then(json => json.map(item => ({
+                                libelle: item.libelle,
+                                type: item.type.libelle || '',
+                            })))
+                            .catch(() => []);
+
+                        const communesPromise = fetch(Routing.generate('api_adresse_get_communes', {q: query, limit: 50}))
+                            .then(response => response.json())
+                            .then(json => (json.response || []).map(row => ({
+                                libelle: row.LIBELLE_COMMUNE,
+                                type: 'Commune',
+                            })))
+                            .catch(() => []);
+
+                        Promise.all([groupementsPromise, communesPromise])
+                            .then(([groupements, communes]) => {
+                                callback(groupements.concat(communes));
                             })
                             .catch(() => {
                                 callback();
@@ -152,7 +164,7 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                             return;
                         }
 
-                        fetch('/api/utilisateurs/search?q=' + encodeURIComponent(query) + '&limit=100')
+                        fetch(Routing.generate('api_utilisateurs_search', {q: query, limit: 100}))
                             .then(response => response.json())
                             .then(json => {
                                 // Transformer le format API vers format compatible avec valueField/labelField
