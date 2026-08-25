@@ -45,7 +45,7 @@
                     <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
                 </a>
             {% endif %}
-            <a href="{{ path('dossier_index', {id: dossier.id}) }}" title="{{ fulltext|e('html_attr') }}">
+            <a href="{{ path('dossier_index', {id: item.ID_DOSSIER}) }}" title="{{ fulltext|e('html_attr') }}">
                 {% if item.LIBELLE_ETABLISSEMENTINFORMATIONS is not empty %}
                     [{{ item.LIBELLE_ETABLISSEMENTINFORMATIONS }}]&nbsp;
                 {% endif %}
