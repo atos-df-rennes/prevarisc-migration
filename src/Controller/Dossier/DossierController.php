@@ -295,6 +295,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
             $anciensAvis[$etablissement->getId()] = $dossierDonnantAvis
                 ? $dossierDonnantAvis->getAvisCommission()
                 : null;
+
+            // Pré-sélection de la commission de l'établissement (cf. legacy)
+            $informationsEtablissement = $etablissement->getLatestInformationsOrNull();
+            if (null !== $informationsEtablissement) {
+                $dossier->setCommission($informationsEtablissement->getCommission());
+            }
         }
 
         // Définir le créateur (utilisateur connecté)
