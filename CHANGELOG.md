@@ -4,6 +4,46 @@
 
 <!--- END HEADER -->
 
+## [2.10.3](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.2...v2.10.3) (25-08-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Aligne le format des dates dans les documents générés (#387) ([c5af22](https://github.com/atos-df-rennes/prevarisc-migration/commit/c5af2211f48880f6be306784f2f67751d53b5a42))
+
+##### Administration
+
+* Affiche le chemin vers les fichiers tel qu'utilisé ([aaea7c](https://github.com/atos-df-rennes/prevarisc-migration/commit/aaea7c642ae4d246d98afa48ebb08c1b78f14f9e))
+
+##### Adresse
+
+* Affiche la bonne adresse d'une cellule sur sa fiche, dans l'odj et lors de la génération des documents de commission (#384) ([a8564d](https://github.com/atos-df-rennes/prevarisc-migration/commit/a8564d6c34d2e056ec057e0a694a0805fe82189d))
+
+##### Assets
+
+* Utilise le numéro de version applicatif pour invalider la mise en cache (#390) ([fd8309](https://github.com/atos-df-rennes/prevarisc-migration/commit/fd8309fba853c7bec06121ffa5412a149f92325a))
+
+##### Documents
+
+* Préserve les chemins d'accès UNC Windows (#381) ([c6d49c](https://github.com/atos-df-rennes/prevarisc-migration/commit/c6d49cba74e1583bec4238d2e64f24602e7fc758))
+
+##### Documents-consultes
+
+* Les champs référence et date ne sont pas obligatoires (#382) ([6d7ddf](https://github.com/atos-df-rennes/prevarisc-migration/commit/6d7ddfabd50052e171f54f966d1958a99f564c31))
+
+##### Dossier
+
+* Utilise les bonnes permissions pour accéder aux pièces jointes (#388) ([0a8746](https://github.com/atos-df-rennes/prevarisc-migration/commit/0a8746dee1d77a6703e92cc33262a5b7f89ba32c))
+* Vérifie correctement les permissions d'accès aux dossiers d'un site (#386) ([323ef0](https://github.com/atos-df-rennes/prevarisc-migration/commit/323ef0c71bb78d945a41f55d2104ffd6c1821e59))
+* Présélectionne la commission de l'établissement à la création (#385) ([fb0722](https://github.com/atos-df-rennes/prevarisc-migration/commit/fb07224480f154b0b18db05baa491ad4a2f46ff6))
+* Permet la sélection d'une commune comme service instructeur (#383) ([9cb874](https://github.com/atos-df-rennes/prevarisc-migration/commit/9cb874ca40cae13d905a2af8b9dc58f37ccbc320))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/palette.svg" width="20" height="20"> Style
+
+* Aligne le visuel du TomSelect de navigation globale avec les autres éléments (#389) ([f579da](https://github.com/atos-df-rennes/prevarisc-migration/commit/f579dad0d15d4259f00ac1499a1c5210adc43d63))
+
+
+---
+
 ## [2.10.2](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.1...v2.10.2) (14-08-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
