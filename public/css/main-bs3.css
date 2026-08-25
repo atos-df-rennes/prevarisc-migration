@@ -112,10 +112,15 @@ body > .navbar {
 
 /* Le wrapper TomSelect impose une min-height de 36px et hérite de la taille
    de police 14px de .form-control, ce qui le rend plus haut que les boutons
-   voisins (loupe et "Avancée", en 12px comme le reste de la navbar). On
-   aligne sa taille de police et sa hauteur minimale sur celles des boutons. */
+   voisins (loupe et "Avancée", en 12px comme le reste de la navbar). Plutôt
+   que d'essayer de faire correspondre police/line-height (peu fiable), on
+   fixe une hauteur identique à celle des .btn-default (34px, cf. Bootstrap
+   .btn : padding 6px 12px + line-height 1.42857 + bordures) en box-sizing
+   border-box, et on centre le contenu verticalement avec flex. */
 #nav-main-search-form .ts-wrapper {
   min-height: 0;
+  height: 34px;
+  box-sizing: border-box;
 }
 
 #nav-main-search-form .ts-control {
@@ -124,10 +129,28 @@ body > .navbar {
   border-color: #ccc;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 #nav-main-search-form .ts-control input {
   font-size: 12px;
+}
+
+/* .input-group-btn est une cellule de tableau (Bootstrap) qui adopte déjà les
+   34px de la cellule TomSelect, mais les <button>/<a> qu'elle contient
+   gardent leur hauteur intrinsèque (~33.6px) et restent simplement centrés
+   verticalement dedans : d'où l'écart résiduel. On leur donne la même
+   hauteur explicite qu'au champ de recherche (height:100% ne se résout pas
+   de façon fiable sur un <button> dans une cellule de tableau). */
+#nav-main-search-form .input-group-btn .btn {
+  box-sizing: border-box;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Le caret natif de TomSelect (menu déroulant) n'apporte rien dans ce champ
