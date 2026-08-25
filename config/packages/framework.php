@@ -21,5 +21,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             'throw' => false,
         ],
         'http_method_override' => true,
+        'assets' => [
+            'version' => 'v2.10.3',
+        ],
     ]);
 };
