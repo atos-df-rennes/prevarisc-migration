@@ -6,6 +6,7 @@ namespace App\Controller\Sdis29;
 
 use App\Entity\Etablissement;
 use App\Security\Voter\Etablissement\EtablissementVoter;
+use App\Security\Voter\Sdis29\Sdis29Voter;
 use App\Service\Sdis29\NumeroIdGenerator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,25 +18,18 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Endpoints spécifiques à SDIS29, actifs uniquement quand
- * PREVARISC_THIRDPARTY_PLUGINS contient "Plugin_SDIS29" (cf. $sdis29CustomEnabled,
+ * PREVARISC_THIRDPARTY_PLUGINS contient "Plugin_SDIS29" (cf. Sdis29Voter,
  * lié à app.sdis29_custom_enabled).
  *
  * Le même artefact applicatif étant déployé pour tous les SDIS, ce garde-fou
- * évite d'exposer ces routes chez les autres clients.
+ * évite d'exposer ces routes chez les autres clients (404, comme si la route
+ * n'existait pas).
  *
  * Portage de SDIS29_EtablissementController (legacy Zend, module "sdis29",
  * modules/sdis29/controllers/EtablissementController.php).
  */
 class EtablissementController extends AbstractController
 {
-    /** @var bool */
-    private $sdis29CustomEnabled;
-
-    public function __construct(bool $sdis29CustomEnabled)
-    {
-        $this->sdis29CustomEnabled = $sdis29CustomEnabled;
-    }
-
     /**
      * Export KML (marqueur unique) d'un établissement, consommé par le
      * visualiseur Géobretagne (sviewer) en pièce jointe de carte.
@@ -47,12 +41,11 @@ class EtablissementController extends AbstractController
      *
      * @Route("/sdis29/etablissement/{id}/kml", name="sdis29_etablissement_kml", methods={"GET"})
      *
+     * @IsGranted(Sdis29Voter::ENABLED, statusCode=404)
      * @IsGranted("view_ets", subject="etablissement")
      */
     public function kml(Etablissement $etablissement, Request $request): Response
     {
-        $this->denyAccessUnlessSdis29Enabled();
-
         $adresse = $etablissement->getAdresses()->first();
         if (false === $adresse || null === $adresse->getLongitude() || null === $adresse->getLatitude()) {
             throw new NotFoundHttpException("Cet établissement n'a pas d'adresse géolocalisée.");
@@ -79,12 +72,11 @@ class EtablissementController extends AbstractController
      *
      * @Route("/sdis29/etablissement/generateID", name="sdis29_etablissement_generate_id", methods={"POST"})
      *
+     * @IsGranted(Sdis29Voter::ENABLED, statusCode=404)
      * @IsGranted(EtablissementVoter::CREATE)
      */
     public function generateId(Request $request, NumeroIdGenerator $numeroIdGenerator): JsonResponse
     {
-        $this->denyAccessUnlessSdis29Enabled();
-
         $arrondissement = (string) $request->request->get('arrondissement', '');
         $idGenre = (string) ($request->request->get('idgenre') ?: '1');
         $rawIdPere = $request->request->get('idpere');
@@ -97,12 +89,5 @@ class EtablissementController extends AbstractController
         }
 
         return new JsonResponse($identifiant);
-    }
-
-    private function denyAccessUnlessSdis29Enabled(): void
-    {
-        if (!$this->sdis29CustomEnabled) {
-            throw new NotFoundHttpException();
-        }
     }
 }

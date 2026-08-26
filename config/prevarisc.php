@@ -110,11 +110,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.security_key', '%env(string:PREVARISC_SECURITY_KEY)%');
 
-    $parameters->set('env(PREVARISC_THIRDPARTY_PLUGINS)', '');
-
     // Active les portions de code Symfony équivalentes au plugin legacy Plugin_SDIS29
-    // (cf. PREVARISC_THIRDPARTY_PLUGINS côté legacy Zend), un seul flag pour tout le
-    // périmètre du portage (footer, JS d'aide à la saisie, endpoints /sdis29/...).
+    // (cf. PREVARISC_THIRDPARTY_PLUGINS côté legacy Zend, déjà déclaré plus bas pour
+    // app.third_party_plugins), un seul flag pour tout le périmètre du portage
+    // (footer, JS d'aide à la saisie, endpoints /sdis29/...).
     $parameters->set('app.sdis29_custom_enabled', '%env(sdis29_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
 
     $parameters->set('env(PREVARISC_PLUGIN_GEOBRETAGNE)', '');
