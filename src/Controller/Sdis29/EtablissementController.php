@@ -78,8 +78,10 @@ class EtablissementController extends AbstractController
      */
     public function generateId(Request $request, NumeroIdGenerator $numeroIdGenerator): JsonResponse
     {
-        $arrondissement = (string) $request->request->get('arrondissement', '');
-        $idGenre = (string) ($request->request->get('idgenre') ?: '1');
+        $rawArrondissement = $request->request->get('arrondissement', '');
+        $arrondissement = is_scalar($rawArrondissement) ? (string) $rawArrondissement : '';
+        $rawIdGenre = $request->request->get('idgenre') ?: '1';
+        $idGenre = is_scalar($rawIdGenre) ? (string) $rawIdGenre : '1';
         $rawIdPere = $request->request->get('idpere');
         $idPere = (is_string($rawIdPere) || is_int($rawIdPere)) && '' !== (string) $rawIdPere ? (int) $rawIdPere : null;
 

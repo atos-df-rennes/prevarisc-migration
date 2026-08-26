@@ -35,6 +35,7 @@ final class DossierDocumentManquantServiceTest extends TestCase
 
         $documentExistant = new DossierDocumentManquant();
         $documentExistant->setNumero('3');
+
         $dossier->addDocumentsManquant($documentExistant);
 
         $nouveauDocument = new DossierDocumentManquant();

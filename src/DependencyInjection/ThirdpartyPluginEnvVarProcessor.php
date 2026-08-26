@@ -36,7 +36,8 @@ class ThirdpartyPluginEnvVarProcessor implements EnvVarProcessorInterface
      */
     public function getEnv($prefix, $name, \Closure $getEnv): bool
     {
-        $rawValue = (string) $getEnv($name);
+        $rawValue = $getEnv($name);
+        $rawValue = is_scalar($rawValue) ? (string) $rawValue : '';
 
         if ('' === $rawValue) {
             return false;
