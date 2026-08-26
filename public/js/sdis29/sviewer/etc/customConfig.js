@@ -41,68 +41,22 @@ customConfig = {
             source: new ol.source.XYZ({
                 attributions: [new ol.Attribution({ html: 'carte <a href="http://geobretagne.fr/geonetwork/apps/georchestra/?uuid=3303a14b-44af-4950-b067-f43ddc0f483f">GéoBretagne</a>,'
                 + 'données contributeurs <a href="http://www.openstreetmap.org/">OpenStreetMap</a> <a href="http://www.openstreetmap.org/copyright">ODbL</a>' })],
-                url: 'http://osm.geobretagne.fr/gwc01/service/tms/1.0.0/osm:map@EPSG%3A3857@jpeg/{z}/{x}/{-y}.png',
+                url: 'https://tile.geobretagne.fr/osm/tms/1.0.0/osm:default/EPSG3857/{z}/{x}/{-y}.png',
             })
         }),
 
-        // photo simple
+        // routes
+        // NOTE: the legacy "satellite" background layer (NASA/PlanetObserver imagery
+        // via tile.geobretagne.fr/service/wmts) has been decommissioned by GeoBretagne
+        // and has no direct modern replacement (the only remaining "satellite" layer,
+        // photo:satellite-ancien, is 1949-52 B&W historical aerial photography limited
+        // to Brittany) — removed rather than pointing at broken/inappropriate content.
         new ol.layer.Tile({
-            source: new ol.source.WMTS({
-                attributions: [new ol.Attribution({ html: 'rendu <a href="http://geobretagne.fr/geonetwork/apps/georchestra/?uuid=3a0ac2e3-7af1-4dec-9f36-dae6b5a8c731">GéoBretagne</a>, données &copy NASA, PlanetObserver, IGN, e-Megalis et collectivités' })],
-                url: 'http://tile.geobretagne.fr/service/wmts',
-                layer: 'satellite',
-                matrixSet: 'EPSG:3857',
-                format: 'image/png',
-                projection: projection,
-                tileGrid: new ol.tilegrid.WMTS({
-                    origin: ol.extent.getTopLeft(projectionExtent),
-                    resolutions: resolutions,
-                    matrixIds: matrixIds
-                }),
-                extent: projectionExtent,
-                style: 'default'
+            source: new ol.source.XYZ({
+                attributions: [new ol.Attribution({ html: 'carte <a href="http://geobretagne.fr/geonetwork/apps/georchestra/?uuid=3303a14b-44af-4950-b067-f43ddc0f483f">GéoBretagne</a>,'
+                + 'données contributeurs <a href="http://www.openstreetmap.org/">OpenStreetMap</a> <a href="http://www.openstreetmap.org/copyright">ODbL</a>' })],
+                url: 'https://tile.geobretagne.fr/osm/tms/1.0.0/osm:roads/EPSG3857/{z}/{x}/{-y}.png',
             })
-        }),
-
-        // photo & routes
-        new ol.layer.Group({
-            layers: [
-                new ol.layer.Tile({
-                    source: new ol.source.WMTS({
-                        attributions: [new ol.Attribution({ html: 'rendu <a href="http://geobretagne.fr/geonetwork/apps/georchestra/?uuid=3a0ac2e3-7af1-4dec-9f36-dae6b5a8c731">GéoBretagne</a>, données &copy NASA, PlanetObserver, IGN, e-Megalis et collectivités' })],
-                        url: 'http://tile.geobretagne.fr/service/wmts',
-                        layer: 'satellite',
-                        matrixSet: 'EPSG:3857',
-                        format: 'image/png',
-                        projection: projection,
-                        tileGrid: new ol.tilegrid.WMTS({
-                            origin: ol.extent.getTopLeft(projectionExtent),
-                            resolutions: resolutions,
-                            matrixIds: matrixIds
-                        }),
-                        extent: projectionExtent,
-                        style: 'default'
-                    })
-                }),
-                new ol.layer.Tile({
-                    source: new ol.source.WMTS({
-                        attributions: [new ol.Attribution({ html: 'carte <a href="http://geobretagne.fr/geonetwork/apps/georchestra/?uuid=3303a14b-44af-4950-b067-f43ddc0f483f">GéoBretagne</a>,'
-                        + 'données contributeurs <a href="http://www.openstreetmap.org/">OpenStreetMap</a> <a href="http://www.openstreetmap.org/copyright">ODbL</a>' })],
-                        url: 'http://osm.geobretagne.fr/service/wmts',
-                        layer: 'osm:roads',
-                        matrixSet: 'EPSG:3857',
-                        format: 'image/png',
-                        projection: projection,
-                        tileGrid: new ol.tilegrid.WMTS({
-                            origin: ol.extent.getTopLeft(projectionExtent),
-                            resolutions: resolutions,
-                            matrixIds: matrixIds
-                        }),
-                        extent: projectionExtent,
-                        style: 'default'
-                    })
-                })
-            ]
         }),
 
         // mapquest
