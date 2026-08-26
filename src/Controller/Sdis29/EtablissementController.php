@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
+// @todo: faire un package chargé uniquement par le/les SDIS concernés
 /**
  * Endpoints spécifiques à SDIS29, actifs uniquement quand
  * PREVARISC_THIRDPARTY_PLUGINS contient "Plugin_SDIS29" (cf. Sdis29Voter,
