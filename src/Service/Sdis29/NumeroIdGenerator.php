@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Sdis29;
 
+use App\Constant\GenreEtablissement;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -69,7 +70,7 @@ class NumeroIdGenerator
         $numeroid = $conn->fetchOne($sql, ['minId' => $minId, 'maxId' => $maxId]);
         $numeroid = str_pad((string) $numeroid, 5, '0', STR_PAD_LEFT);
 
-        return self::GENRE_CELLULE === $idGenre ? $numeroid.'.00' : $numeroid;
+        return (string) GenreEtablissement::CELLULE === $idGenre ? $numeroid.'.00' : $numeroid;
     }
 
     private function generateEnfant(int $idPere, string $idGenre): string
@@ -83,7 +84,7 @@ class NumeroIdGenerator
 
         // Genre "Cellule" (3) : on cherche parmi les enfants partageant le numéro complet du père,
         // les autres genres : uniquement sur les 5 premiers caractères (racine commune).
-        $numeroSearch = self::GENRE_CELLULE === $idGenre ? $numeroPere : substr($numeroPere, 0, 5);
+        $numeroSearch = (string) GenreEtablissement::CELLULE === $idGenre ? $numeroPere : substr($numeroPere, 0, 5);
         $length = strlen($numeroSearch);
 
         $rows = $conn->fetchAllAssociative(
@@ -92,7 +93,7 @@ class NumeroIdGenerator
             ['length' => $length, 'numeroSearch' => $numeroSearch]
         );
 
-        if (self::GENRE_CELLULE === $idGenre) {
+        if ((string) GenreEtablissement::CELLULE === $idGenre) {
             return $this->nextCelluleSuffix($rows, $numeroPere);
         }
 

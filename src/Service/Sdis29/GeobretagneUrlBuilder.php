@@ -41,7 +41,7 @@ class GeobretagneUrlBuilder
     ): ?string {
         $premiereAdresse = $etablissement->getAdresses()->first();
 
-        if (false === $premiereAdresse || !$premiereAdresse instanceof EtablissementAdresse) {
+        if (!$premiereAdresse instanceof EtablissementAdresse) {
             return null;
         }
 
