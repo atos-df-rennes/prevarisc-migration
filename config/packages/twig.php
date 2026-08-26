@@ -13,5 +13,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'form_themes' => [
             'bootstrap_3_layout.html.twig',
         ],
+        'globals' => [
+            // Portage Symfony du plugin legacy Plugin_SDIS29 (cf. PREVARISC_THIRDPARTY_PLUGINS)
+            'sdis29_custom_enabled' => '%app.sdis29_custom_enabled%',
+            'geobretagne_url' => '%app.geobretagne_url%',
+        ],
     ]);
 };

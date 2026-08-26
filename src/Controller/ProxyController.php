@@ -39,6 +39,7 @@ class ProxyController extends AbstractController
      * Retransmet le header Content-Type et le status HTTP de la réponse externe.
      *
      * @Route("/proxy/index", name="proxy_index", methods={"GET"})
+     * @Route("/proxy/", name="proxy_index_root", methods={"GET"})
      */
     public function index(Request $request): Response
     {

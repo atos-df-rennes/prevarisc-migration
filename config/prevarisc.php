@@ -110,6 +110,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.security_key', '%env(string:PREVARISC_SECURITY_KEY)%');
 
+    // Active les portions de code Symfony équivalentes au plugin legacy Plugin_SDIS29
+    // (cf. PREVARISC_THIRDPARTY_PLUGINS côté legacy Zend, déjà déclaré plus bas pour
+    // app.third_party_plugins), un seul flag pour tout le périmètre du portage
+    // (footer, JS d'aide à la saisie, endpoints /sdis29/...).
+    $parameters->set('app.sdis29_custom_enabled', '%env(sdis29_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    $parameters->set('env(PREVARISC_PLUGIN_GEOBRETAGNE)', '');
+
+    // URL du visualiseur cartographique Géobretagne (sviewer), utilisée par les portages SDIS29.
+    $parameters->set('app.geobretagne_url', '%env(string:PREVARISC_PLUGIN_GEOBRETAGNE)%');
+
     $parameters->set('env(PREVARISC_MAIL_ENABLED)', 0);
 
     $parameters->set('app.mail_enabled', '%env(bool:PREVARISC_MAIL_ENABLED)%');

@@ -44,6 +44,18 @@
             var infoDiv = document.getElementById("info");
             infoDiv.innerHTML = "<h6><p><i>SDK version " + Gp.sdkVersion + " (" + Gp.sdkDate + ")</i></p></h6>";
         </script>
+
+        {% if sdis29_custom_enabled and geobretagne_url is not empty %}
+            {% set sdis29_geobretagne_admin_url = sdis29_geobretagne_admin_url(geobretagne_url) %}
+            {% if sdis29_geobretagne_admin_url is not null %}
+                <script type="text/javascript">
+                    document.getElementById('geoportail-container').innerHTML =
+                        '<iframe scrolling="no" allowTransparency="true" ' +
+                        'style="overflow: hidden; border: 0 none; height: 100%; width: 100%; max-width: 100%; max-height: 100%;" ' +
+                        'src="{{ sdis29_geobretagne_admin_url|e('js') }}" frameborder="no"></iframe>';
+                </script>
+            {% endif %}
+        {% endif %}
     {% elseif geoconcept_url is not null %}
         <div id='geoconcept-container'  style="height: 350px; max-height: 350px;width: 100%"></div>
 

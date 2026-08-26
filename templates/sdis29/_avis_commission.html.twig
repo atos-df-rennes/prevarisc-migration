@@ -1,0 +1,64 @@
+{# Portage de Plugin_SDIS29::changerAvisCommission() (legacy Zend).
+   Affiche/masque les champs Avis / Avis de la commission / Date de commission
+   selon le type de dossier et l'état des cases "sans avis" (incomplet, hors
+   délai, avis différé, absence de quorum, ne peut se prononcer).
+
+   @fixme(sdis29): les sélecteurs ci-dessous supposent la nomenclature Symfony
+   par défaut ("dossier_<champ>") et les mêmes identifiants de type de dossier
+   (1/2/3) qu'en legacy. À vérifier en recette avant mise en production. #}
+<script type="text/javascript">
+    $(document).ready(function () {
+        var $type = $('#dossier_type');
+        var $avis = $('#field-avis');
+        var $avisCommission = $('#field-avisCommission');
+        var $commission = $('#dossier_commission');
+
+        function hideavisChecked() {
+            var checked = false;
+            $('#dossier_horsDelai, #dossier_avisDiffere, #dossier_absenceDeQuorum, #dossier_nePeutSePrononcer').each(function () {
+                if ($(this).is(':checked')) {
+                    checked = true;
+                }
+            });
+            // Champ "incomplet" : rendu en choix (radio), pas en case à cocher simple.
+            if ($('#field-incomplet input.incomplet:checked').filter(function () {
+                return /incomplet/i.test($(this).closest('label').text() || $('label[for="' + this.id + '"]').text());
+            }).length > 0) {
+                checked = true;
+            }
+
+            return checked;
+        }
+
+        function nomAvisSDIS() {
+            var commission = $commission.val();
+            if (commission === null || commission === '' || commission === '0') {
+                $avisCommission.find('.left.libelle').text('Avis du SDIS');
+            } else {
+                $avisCommission.find('.left.libelle').text('Avis de la commission');
+            }
+        }
+
+        function afficherCacherAvis() {
+            var typeDossier = $type.val();
+
+            if (!hideavisChecked()) {
+                if (typeDossier == 1 || typeDossier == 2 || typeDossier == 3) {
+                    $avis.show();
+                    $avisCommission.show();
+                    nomAvisSDIS();
+                }
+            } else {
+                $avis.hide();
+                $avisCommission.hide();
+            }
+        }
+
+        $commission.on('change', afficherCacherAvis);
+        $type.on('change', afficherCacherAvis);
+        $('#dossier_horsDelai, #dossier_avisDiffere, #dossier_absenceDeQuorum, #dossier_nePeutSePrononcer, #field-incomplet input.incomplet')
+            .on('change', afficherCacherAvis);
+
+        afficherCacherAvis();
+    });
+</script>

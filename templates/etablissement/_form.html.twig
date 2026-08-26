@@ -93,14 +93,19 @@
             <dl class="dl-horizontal">
                 <dt>Genre</dt>
                 <dd>
-                    <select name="ID_GENRE" id="ID_GENRE" class="form-control">
-                        {% for genre in genres %}
-                            <option value="{{ genre.id }}"
-                                {{ (not add and etablissement.latestInformations.genre.id == genre.id) ? 'selected' : '' }}>
-                                {{ genre.libelle }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                    <div class="{{ (sdis29_custom_enabled and add) ? 'input-group' : '' }}">
+                        <select name="ID_GENRE" id="ID_GENRE" class="form-control">
+                            {% for genre in genres %}
+                                <option value="{{ genre.id }}"
+                                    {{ (not add and etablissement.latestInformations.genre.id == genre.id) ? 'selected' : '' }}>
+                                    {{ genre.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if sdis29_custom_enabled and add %}
+                            {{ include('sdis29/_generer_identifiant.html.twig') }}
+                        {% endif %}
+                    </div>
                 </dd>
 
                 <dt class="champ_icpe champs">ICPE ?</dt>
