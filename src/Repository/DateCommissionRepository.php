@@ -97,6 +97,30 @@ class DateCommissionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Retourne le groupe complet de dates de commission liées à la date passée en paramètre,
+     * en incluant celle-ci (contrairement à {@see self::findDatesLiees()}).
+     *
+     * Port direct de Model_DbTable_DateCommission::getCommissionsDateLieesMaster() : une visite
+     * peut être répartie sur plusieurs dates/créneaux liés (ex: VP/VR sur plusieurs jours), il faut
+     * donc agréger l'ensemble du groupe pour reconstituer les dates et heures de convocation.
+     *
+     * @return DateCommission[]
+     */
+    public function findGroupeDatesLiees(DateCommission $dateCommission): array
+    {
+        $idPrincipale = $dateCommission->getDateCommissionLiees() ?? $dateCommission->getId();
+
+        return $this->createQueryBuilder('dc')
+            ->where('dc.id = :idPrincipale')
+            ->orWhere('dc.dateCommissionLiees = :idPrincipale')
+            ->setParameter('idPrincipale', $idPrincipale)
+            ->orderBy('dc.date', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
      * Retourne les prochaines séances de commission pour le tableau de bord.
      * Port direct de Model_DbTable_DateCommission::getNextCommission().
      *
