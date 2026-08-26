@@ -25,9 +25,6 @@ class NumeroIdGenerator
         'Châteaulin' => [90000, 99999],
     ];
 
-    /** Genre "Cellule" : suffixe numérique (ex : 12345.02). */
-    private const GENRE_CELLULE = '3';
-
     /** @var EntityManagerInterface */
     private $entityManager;
 
