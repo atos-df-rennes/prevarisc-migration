@@ -101,6 +101,9 @@
                             </option>
                         {% endfor %}
                     </select>
+                    {% if sdis29_custom_enabled and add %}
+                        {{ include('sdis29/_generer_identifiant.html.twig') }}
+                    {% endif %}
                 </dd>
 
                 <dt class="champ_icpe champs">ICPE ?</dt>

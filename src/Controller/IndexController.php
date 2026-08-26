@@ -50,6 +50,9 @@ class IndexController extends AbstractController
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var bool */
+    private $sdis29CustomEnabled;
+
     public function __construct(
         VersionBuilder $versionBuilder,
         DashboardBlocConfig $dashboardBlocConfig,
@@ -60,7 +63,8 @@ class IndexController extends AbstractController
         PlatauHealthcheckService $platauHealthcheckService,
         bool $deactivatePlatau,
         bool $platauNoHealthcheck,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        bool $sdis29CustomEnabled
     ) {
         $this->versionBuilder = $versionBuilder;
         $this->dashboardBlocConfig = $dashboardBlocConfig;
@@ -72,6 +76,7 @@ class IndexController extends AbstractController
         $this->deactivatePlatau = $deactivatePlatau;
         $this->platauNoHealthcheck = $platauNoHealthcheck;
         $this->logger = $logger;
+        $this->sdis29CustomEnabled = $sdis29CustomEnabled;
     }
 
     /**
@@ -278,7 +283,8 @@ class IndexController extends AbstractController
     public function footer(): Response
     {
         $versionService = $this->versionBuilder->build();
-        $response = $this->render('_footer.html.twig', [
+        $template = $this->sdis29CustomEnabled ? 'sdis29/_footer.html.twig' : '_footer.html.twig';
+        $response = $this->render($template, [
             'link' => $versionService->link(),
             'version' => $versionService->version(),
         ]);

@@ -30,6 +30,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
         ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
         ->bind('$debugEnabled', '%app.debug%')
+        ->bind('$sdis29CustomEnabled', '%app.sdis29_custom_enabled%')
+        ->bind('$geobretagneUrl', '%app.geobretagne_url%')
         ->bind(FlashBagInterface::class, ref('session.flash_bag'))
         ->bind('$searchCache', ref('cache.search'))
     ;
@@ -47,6 +49,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Environment Variable Processor pour construire MAILER_DSN depuis PREVARISC_MAIL_*
     $services->set('App\DependencyInjection\PrevariscMailerDsnProcessor')
+        ->tag('container.env_var_processor');
+
+    // Environment Variable Processor pour détecter si Plugin_SDIS29 est actif (PREVARISC_THIRDPARTY_PLUGINS)
+    $services->set('App\DependencyInjection\ThirdpartyPluginEnvVarProcessor')
         ->tag('container.env_var_processor');
 
     $services->set('App\Controller\Etablissement\EtablissementController')

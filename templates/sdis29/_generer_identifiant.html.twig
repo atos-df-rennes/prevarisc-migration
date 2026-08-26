@@ -1,0 +1,35 @@
+{# Portage de Plugin_SDIS29::genererIdentifiant() (legacy Zend). #}
+<div class="btn-group" style="margin-bottom:10px" id="sdis29-generateID">
+    <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+        Générer un identifiant
+    </button>
+    <ul class="dropdown-menu" role="menu">
+        <li><a href="#">Brest</a></li>
+        <li><a href="#">Quimper</a></li>
+        <li><a href="#">Morlaix</a></li>
+        <li><a href="#">Châteaulin</a></li>
+    </ul>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#sdis29-generateID li').click(function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: '{{ path('sdis29_etablissement_generate_id') }}',
+                data: {
+                    arrondissement: $(this).text(),
+                    idpere: $('input[name="ID_PERE"]').val(),
+                    idgenre: $('select[name="ID_GENRE"]').val()
+                },
+                type: 'POST',
+                success: function (result) {
+                    $('#NUMEROID_INPUT').val(result);
+                },
+                error: function () {
+                    return false;
+                }
+            });
+        });
+    });
+</script>

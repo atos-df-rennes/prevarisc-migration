@@ -480,5 +480,9 @@
     {{ form_end(form) }}
 
     {{ include('calendrier_des_commissions/_modal_creation_date.html.twig') }}
+
+    {% if sdis29_custom_enabled %}
+        {{ include('sdis29/_avis_commission.html.twig') }}
+    {% endif %}
 </div>
 {% endblock %}
