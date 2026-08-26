@@ -17,10 +17,10 @@ class DossierDocumentConsulte
     #[ORM\Column(name: 'ID_DOSSIERDOCCONSULTE', type: 'bigint')]
     private $id;
 
-    #[ORM\Column(name: 'REF_CONSULTE', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'REF_CONSULTE', type: 'string', length: 255, nullable: true)]
     private ?string $reference = null;
 
-    #[ORM\Column(name: 'DATE_CONSULTE', type: 'date', nullable: false)]
+    #[ORM\Column(name: 'DATE_CONSULTE', type: 'date', nullable: true)]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(name: 'DOC_CONSULTE', type: 'boolean', nullable: false)]
@@ -47,7 +47,7 @@ class DossierDocumentConsulte
         return $this->reference;
     }
 
-    public function setReference(string $reference): self
+    public function setReference(?string $reference): self
     {
         $this->reference = $reference;
 
@@ -59,7 +59,7 @@ class DossierDocumentConsulte
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
 

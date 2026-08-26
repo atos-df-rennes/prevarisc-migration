@@ -5,6 +5,7 @@ namespace App\Service\Voter;
 use App\Entity\Etablissement;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 /**
@@ -15,7 +16,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  */
 class EtablissementCollectionAccessChecker
 {
-    public function __construct(private readonly EtablissementVoterFactory $voterFactory, private readonly LoggerInterface $logger)
+    public function __construct(private readonly EtablissementVoterFactory $voterFactory, private readonly LoggerInterface $logger, private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
     }
 
@@ -55,10 +56,18 @@ class EtablissementCollectionAccessChecker
 
             $voter = $this->voterFactory->getVoterForGenre($genreId);
             if (null === $voter) {
-                $this->logger->warning('Aucun voter trouvé pour le genre', [
+                // Certains genres (ex. Site, genre 1) n'ont pas de voter dédié dans la factory
+                // (pour éviter une dépendance circulaire Factory -> EtablissementSiteVoter -> ce service).
+                // On délègue à la chaîne de voters Symfony complète via l'authorization checker.
+                $this->logger->info('Aucun voter dédié dans la factory pour le genre, délégation à l\'authorization checker', [
                     'etablissement_id' => $etablissement->getId(),
                     'genre_id' => $genreId,
                 ]);
+
+                if ($this->authorizationChecker->isGranted($attribute, $etablissement)) {
+                    return true;
+                }
+
                 continue;
             }
 

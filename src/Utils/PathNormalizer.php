@@ -31,8 +31,17 @@ final class PathNormalizer
         // Convert any backslashes to forward slashes (for Windows consistency)
         $path = str_replace('\\', '/', $path);
 
+        // Preserve a leading double slash, which denotes a UNC network path
+        // (e.g. \\server\share, turned into //server/share above). Collapsing
+        // it to a single slash would break access to the mounted file server.
+        $isUncPath = 0 === strncmp($path, '//', 2);
+
         // Remove multiple consecutive slashes
         $path = (string) preg_replace('#/+#', '/', $path);
+
+        if ($isUncPath) {
+            $path = '/'.$path;
+        }
 
         // Ensure trailing slash
         return rtrim($path, '/').'/';

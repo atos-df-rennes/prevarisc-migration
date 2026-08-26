@@ -23,5 +23,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ],
         'http_method_override' => true,
         'handle_all_throwables' => true,
+        'assets' => [
+            'version' => 'v3.0.0-rc.1',
+        ],
     ]);
 };

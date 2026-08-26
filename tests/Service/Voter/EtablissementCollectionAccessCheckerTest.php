@@ -11,6 +11,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class EtablissementCollectionAccessCheckerTest extends TestCase
@@ -21,13 +22,17 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
     /** @var MockObject&LoggerInterface */
     private MockObject $logger;
 
+    /** @var MockObject&AuthorizationCheckerInterface */
+    private MockObject $authorizationChecker;
+
     private EtablissementCollectionAccessChecker $checker;
 
     protected function setUp(): void
     {
         $this->factory = $this->createMock(EtablissementVoterFactory::class);
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->checker = new EtablissementCollectionAccessChecker($this->factory, $this->logger);
+        $this->authorizationChecker = $this->createMock(AuthorizationCheckerInterface::class);
+        $this->checker = new EtablissementCollectionAccessChecker($this->factory, $this->logger, $this->authorizationChecker);
     }
 
     /**
@@ -123,19 +128,39 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
     }
 
     /**
-     * Test : établissement sans voter disponible → ignoré (log warning), résultat false si aucun autre.
+     * Test : établissement sans voter dédié dans la factory (ex. genre inconnu) → délégation à
+     * l'authorization checker ; si celui-ci refuse également, résultat false.
      */
-    public function testEtablissementSansVoterEstIgnoreAvecWarning(): void
+    public function testEtablissementSansVoterDedieDelegueAAuthorizationCheckerEtRefuse(): void
     {
         $token = $this->createMock(TokenInterface::class);
         $etablissement = $this->createMockEtablissement(999);
 
         $this->factory->method('getVoterForGenre')->with(999)->willReturn(null);
-        $this->logger->expects($this->once())->method('warning');
+        $this->authorizationChecker->method('isGranted')->with('view_ets', $etablissement)->willReturn(false);
 
         $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 
         $this->assertFalse($result);
+    }
+
+    /**
+     * Test : établissement de genre Site (1), qui n'a pas de voter dédié dans la factory
+     * (pour éviter une dépendance circulaire) → délégation à l'authorization checker qui
+     * invoque EtablissementSiteVoter via la chaîne de voters Symfony ; si celui-ci accorde
+     * l'accès, résultat true. Couvre la régression d'accès au dossier d'un site (genre 1).
+     */
+    public function testEtablissementGenreSiteDelegueAAuthorizationCheckerEtAccorde(): void
+    {
+        $token = $this->createMock(TokenInterface::class);
+        $etablissement = $this->createMockEtablissement(1);
+
+        $this->factory->method('getVoterForGenre')->with(1)->willReturn(null);
+        $this->authorizationChecker->method('isGranted')->with('view_ets', $etablissement)->willReturn(true);
+
+        $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
+
+        $this->assertTrue($result);
     }
 
     /**
