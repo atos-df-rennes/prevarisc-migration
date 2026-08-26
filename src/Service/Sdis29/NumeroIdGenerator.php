@@ -54,7 +54,7 @@ class NumeroIdGenerator
         [$minId, $maxId] = self::RANGES[$arrondissement];
 
         $conn = $this->entityManager->getConnection();
-        $sql = "SELECT CAST(SUBSTRING(e.NUMEROID_ETABLISSEMENT, 1, 5) AS UNSIGNED) + 1 AS numeroid
+        $sql = 'SELECT CAST(SUBSTRING(e.NUMEROID_ETABLISSEMENT, 1, 5) AS UNSIGNED) + 1 AS numeroid
             FROM etablissement e
             WHERE CAST(SUBSTRING(e.NUMEROID_ETABLISSEMENT, 1, 5) AS UNSIGNED) + 1 BETWEEN :minId AND :maxId
             AND LENGTH(SUBSTRING(e.NUMEROID_ETABLISSEMENT, 1, 5)) = 5
@@ -62,10 +62,10 @@ class NumeroIdGenerator
                 SELECT CAST(SUBSTRING(e2.NUMEROID_ETABLISSEMENT, 1, 5) AS UNSIGNED) FROM etablissement AS e2
             )
             ORDER BY 1 ASC
-            LIMIT 1";
+            LIMIT 1';
 
-        $numeroid = $conn->fetchOne($sql, ['minId' => $minId, 'maxId' => $maxId]);
-        $numeroid = str_pad((string) $numeroid, 5, '0', STR_PAD_LEFT);
+        $rawNumeroid = $conn->fetchOne($sql, ['minId' => $minId, 'maxId' => $maxId]);
+        $numeroid = str_pad(is_scalar($rawNumeroid) ? (string) $rawNumeroid : '', 5, '0', STR_PAD_LEFT);
 
         return (string) GenreEtablissement::CELLULE === $idGenre ? $numeroid.'.00' : $numeroid;
     }
@@ -74,10 +74,11 @@ class NumeroIdGenerator
     {
         $conn = $this->entityManager->getConnection();
 
-        $numeroPere = (string) $conn->fetchOne(
+        $rawNumeroPere = $conn->fetchOne(
             'SELECT NUMEROID_ETABLISSEMENT AS numeroid FROM etablissement WHERE ID_ETABLISSEMENT = :idPere',
             ['idPere' => $idPere]
         );
+        $numeroPere = is_scalar($rawNumeroPere) ? (string) $rawNumeroPere : '';
 
         // Genre "Cellule" (3) : on cherche parmi les enfants partageant le numéro complet du père,
         // les autres genres : uniquement sur les 5 premiers caractères (racine commune).
@@ -104,7 +105,8 @@ class NumeroIdGenerator
     {
         $compteur = 0;
         foreach ($rows as $row) {
-            $parts = explode('.', (string) $row['numeroid']);
+            $numeroid = is_scalar($row['numeroid']) ? (string) $row['numeroid'] : '';
+            $parts = explode('.', $numeroid);
             $suffix = end($parts);
             if (2 === strlen($suffix) && (int) $suffix > $compteur) {
                 $compteur = (int) $suffix;
@@ -121,7 +123,8 @@ class NumeroIdGenerator
     {
         $compteur = \ord('A') - 1;
         foreach ($rows as $row) {
-            $parts = explode('.', (string) $row['numeroid']);
+            $numeroid = is_scalar($row['numeroid']) ? (string) $row['numeroid'] : '';
+            $parts = explode('.', $numeroid);
             $suffix = end($parts);
             if (1 === strlen($suffix) && \ord($suffix) > $compteur) {
                 $compteur = \ord($suffix);

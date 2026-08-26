@@ -23,6 +23,7 @@ class GeobretagneUrlBuilder
      * (centre approximatif du département du Finistère), identiques au legacy.
      */
     private const ADMIN_SAMPLE_LONGITUDE = -4.080290;
+
     private const ADMIN_SAMPLE_LATITUDE = 47.976387;
 
     /**
@@ -83,7 +84,7 @@ class GeobretagneUrlBuilder
 
     /**
      * @param array{longitude: float, latitude: float} $coordinates
-     * @param CoucheCarto[]                             $couchesCartographiques
+     * @param CoucheCarto[]                            $couchesCartographiques
      */
     private function buildUrl(string $geobretagneBaseUrl, array $coordinates, array $couchesCartographiques, string $title, ?string $kmlUrl): string
     {

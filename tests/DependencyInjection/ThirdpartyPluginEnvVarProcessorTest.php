@@ -27,7 +27,7 @@ final class ThirdpartyPluginEnvVarProcessorTest extends TestCase
         $result = $this->processor->getEnv(
             'sdis29_plugin_enabled',
             'PREVARISC_THIRDPARTY_PLUGINS',
-            static function () use ($rawValue) {
+            static function () use ($rawValue): string {
                 return $rawValue;
             }
         );
