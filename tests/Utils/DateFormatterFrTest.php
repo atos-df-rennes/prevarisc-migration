@@ -31,7 +31,7 @@ final class DateFormatterFrTest extends TestCase
 
     public function provideFormatShort(): iterable
     {
-        yield 'jour sur un chiffre n\'ajoute pas de zero' => ['2024-01-05', '5 janv. 2024'];
+        yield "jour sur un chiffre n'ajoute pas de zero" => ['2024-01-05', '5 janv. 2024'];
         yield 'jour sur deux chiffres' => ['2024-06-15', '15 juin 2024'];
         yield 'date avec heure' => ['2024-01-05 10:30:00', '5 janv. 2024'];
         yield 'retourne vide si null' => [null, ''];

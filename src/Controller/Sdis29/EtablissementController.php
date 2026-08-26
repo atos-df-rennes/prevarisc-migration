@@ -32,6 +32,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class EtablissementController extends AbstractController
 {
     /**
+     * @var NumeroIdGenerator
+     */
+    private $numeroIdGenerator;
+
+    public function __construct(NumeroIdGenerator $numeroIdGenerator)
+    {
+        $this->numeroIdGenerator = $numeroIdGenerator;
+    }
+
+    /**
      * Export KML (marqueur unique) d'un établissement, consommé par le
      * visualiseur Géobretagne (sviewer) en pièce jointe de carte.
      *
@@ -76,7 +86,7 @@ class EtablissementController extends AbstractController
      * @IsGranted(Sdis29Voter::ENABLED, statusCode=404)
      * @IsGranted(EtablissementVoter::CREATE)
      */
-    public function generateId(Request $request, NumeroIdGenerator $numeroIdGenerator): JsonResponse
+    public function generateId(Request $request): JsonResponse
     {
         $rawArrondissement = $request->request->get('arrondissement', '');
         $arrondissement = is_scalar($rawArrondissement) ? (string) $rawArrondissement : '';
@@ -86,9 +96,9 @@ class EtablissementController extends AbstractController
         $idPere = (is_string($rawIdPere) || is_int($rawIdPere)) && '' !== (string) $rawIdPere ? (int) $rawIdPere : null;
 
         try {
-            $identifiant = $numeroIdGenerator->generate($arrondissement, $idGenre, $idPere);
-        } catch (\InvalidArgumentException $e) {
-            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            $identifiant = $this->numeroIdGenerator->generate($arrondissement, $idGenre, $idPere);
+        } catch (\InvalidArgumentException $invalidArgumentException) {
+            return new JsonResponse(['error' => $invalidArgumentException->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
         return new JsonResponse($identifiant);
