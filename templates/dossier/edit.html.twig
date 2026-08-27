@@ -37,6 +37,7 @@
     {# Autres scripts (sans modules ES6) #}
     <script src="{{ asset('js/dossier/gestion-incomplet.js') }}"></script>
     <script src="{{ asset('js/dossier/commission.js') }}"></script>
+    <script src="{{ asset('js/dossier/date-clear.js') }}"></script>
     <script src="{{ asset('js/dossier/platau.js') }}"></script>
 
     {# FullCalendar v1 (legacy) pour sélection dates commission/visite #}
@@ -156,11 +157,20 @@
             {# (gérés dans sections séparées ou obsolètes) #}
 
             {% set has_commission = form.commission.vars.value is not empty %}
+            {% set has_date_visite = form.dateVisite.vars.value is not empty %}
             <li class="row" id="field-dateVisite">
                 <div class='left libelle col-md-3'>{{ form_label(form.dateVisite) }}</div>
                 <div class="right form col-md-9">
                     {{ form_widget(form.dateVisite) }}
 
+                    <button type='button'
+                            class='btn btn-default clearDate{% if not has_date_visite %} hidden{% endif %}'
+                            data-clear-field='dossier_dateVisite'
+                            data-affectation-field='dossier_idAffectationDossierVisite'
+                            data-calendar-type='visite'
+                    >
+                        <span class='glyphicon glyphicon-remove' aria-hidden='true'></span> Effacer la date
+                    </button>
                     <button type='button'
                             class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
                             data-calendar-target='calendarVisite'
@@ -217,11 +227,20 @@
             {# Champs spécifiques visites - date réception RVRAT #}
             {{ include('components/date_field_with_today.html.twig', {form_field: form.dateReceptionRvrat}) }}
 
+            {% set has_date_commission = form.dateCommission.vars.value is not empty %}
             <li class="row" id="field-dateCommission">
                 <div class='left libelle col-md-3'>{{ form_label(form.dateCommission) }}</div>
                 <div class="right form col-md-9">
                     {{ form_widget(form.dateCommission) }}
 
+                    <button type='button'
+                            class='btn btn-default clearDate{% if not has_date_commission %} hidden{% endif %}'
+                            data-clear-field='dossier_dateCommission'
+                            data-affectation-field='dossier_idAffectationDossierCommission'
+                            data-calendar-type='commission'
+                    >
+                        <span class='glyphicon glyphicon-remove' aria-hidden='true'></span> Effacer la date
+                    </button>
                     <button type='button'
                             class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
                             data-calendar-target='calendar'
