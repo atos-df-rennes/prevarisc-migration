@@ -193,11 +193,19 @@
                     </li>
                 {% endif %}
 
-                {% if dossier.facteurDangerosite > 0 %}
+                {% set facteur_criticite_affiche = dossier.facteurDangerosite is not null and (
+                    (facteur_criticite_custom_enabled and dossier.avisCommission and dossier.avisCommission.id == constant('App\\Constant\\AvisCommission::DEFAVORABLE'))
+                    or dossier.facteurDangerosite > 0
+                ) %}
+                {% if facteur_criticite_affiche %}
                     <li class="row">
                         <div class="left libelle col-md-3">{{ facteur_criticite_custom_enabled ? 'Signalement' : 'Facteur de criticité' }}</div>
                         <div class="right value col-md-9">
-                            {{ dossier.facteurDangerosite }}
+                            {% if facteur_criticite_custom_enabled %}
+                                {{ dossier.facteurDangerosite == 0 ? 'Non' : 'Oui' }}
+                            {% else %}
+                                {{ dossier.facteurDangerosite }}
+                            {% endif %}
                         </div>
                     </li>
                 {% endif %}

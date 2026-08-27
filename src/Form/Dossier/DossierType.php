@@ -42,10 +42,14 @@ class DossierType extends AbstractType
     /** @var EntityManagerInterface */
     private $entityManager;
 
-    public function __construct(Security $security, EntityManagerInterface $entityManager)
+    /** @var bool */
+    private $facteurCriticiteCustomEnabled;
+
+    public function __construct(Security $security, EntityManagerInterface $entityManager, bool $facteurCriticiteCustomEnabled)
     {
         $this->security = $security;
         $this->entityManager = $entityManager;
+        $this->facteurCriticiteCustomEnabled = $facteurCriticiteCustomEnabled;
     }
 
     // Note : Possibilité future de séparer en plusieurs FormTypes selon le type de dossier
@@ -261,9 +265,12 @@ class DossierType extends AbstractType
                 'attr' => ['class' => 'form-check-input absquorum hideavis'],
             ])
             ->add('facteurDangerosite', ChoiceType::class, [
-                'label' => 'Facteur de criticité',
+                'label' => $this->facteurCriticiteCustomEnabled ? 'Signalement' : 'Facteur de criticité',
                 'required' => false,
-                'choices' => [
+                'choices' => $this->facteurCriticiteCustomEnabled ? [
+                    'Non' => 0,
+                    'Oui' => 1,
+                ] : [
                     1 => 1,
                     2 => 2,
                     3 => 3,
