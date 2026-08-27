@@ -57,13 +57,12 @@ describe('Établissement — modification par genre', () => {
         cy.url().then(editUrl => {
             const siteId = editUrl.match(/\/etablissement\/(\d+)\/modifier/)[1]
 
-            cy.get('#add_etablissement')
+            cy.contains('a', 'Créer un établissement enfant')
                 .should('be.visible')
-                .and('contain', 'Créer un établissement enfant')
                 .and('have.attr', 'href')
                 .and('include', '/etablissement/ajouter')
 
-            cy.get('#add_etablissement').invoke('attr', 'href')
+            cy.contains('a', 'Créer un établissement enfant').invoke('attr', 'href')
                 .should('include', `pere=${siteId}`)
         })
     })

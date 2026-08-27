@@ -125,10 +125,8 @@ describe('Établissement — ajout par genre', () => {
         cy.get('input[name="LIBELLE_ETABLISSEMENTINFORMATIONS"]').type(libelle)
         cy.get('select[name="ID_GENRE"]').select('1')
 
-        // Aucun enfant rattaché : la table des enfants ne contient que la ligne de recherche
-        cy.get('#enfants_tbody input[type="hidden"][name^="ID_FILS_ETABLISSEMENT"]')
-            .should('have.length', 1)
-            .should('have.value', '')
+        // Aucun enfant rattaché : aucune ligne visible sous la section « Enfants »
+        cy.contains('dt', 'Enfants').next('dd').find('.enfant_libelle:visible').should('have.length', 0)
 
         cy.intercept('POST', '**/defaults_values*').as('defaultsValues')
         cy.window().then(win => {
@@ -136,13 +134,13 @@ describe('Établissement — ajout par genre', () => {
                 win.$(this).find('input[type="submit"]').trigger('click')
             })
         })
-        cy.get("form#etablissement input[type='submit']").click()
+        cy.contains('input[type="submit"]', "Ajouter l'établissement").click()
         cy.wait('@defaultsValues')
 
         // Redirection vers la page d'édition (et non les informations), avec un avertissement
         cy.url({ timeout: 15000 }).should('include', '/modifier')
-        cy.get('.alert-warning').should('contain', 'Les droits d\'accès au site sont déterminés')
-        cy.get('.alert-success').should('not.exist')
+        cy.contains("Les droits d'accès au site sont déterminés").should('be.visible')
+        cy.contains("L'établissement a bien été ajouté").should('not.exist')
     })
 
     // ——————————————————————————————————————————————————————————
@@ -585,15 +583,17 @@ describe('Établissement — ajout par genre', () => {
         // (un Site ne peut avoir comme enfant qu'un ERP/Habitation/IGH/BUP/Camping/Manifestation/IOP,
         // cf. EtablissementPersistenceService::persistEtablissementsLies)
         tomSelectSearch('etablissement_autocomplete', 'ERP E2E')
-        cy.get('#enfants_tbody input[type="hidden"][name^="ID_FILS_ETABLISSEMENT"]')
-            .filter((_, el) => '' !== el.value)
+
+        // La ligne visible sous « Enfants » confirme le rattachement du bon établissement
+        cy.contains('dt', 'Enfants').next('dd').find('.enfant_libelle:visible')
             .should('have.length', 1)
+            .and('contain', 'ERP E2E')
 
         cy.submitEstablishment(libelle)
 
         // Redirection vers les informations (et non l'édition), avec un succès et sans avertissement
         cy.url().should('include', '/informations')
-        cy.get('.alert-success').should('exist')
-        cy.get('.alert-warning').should('not.exist')
+        cy.contains("L'établissement a bien été ajouté").should('be.visible')
+        cy.contains("Les droits d'accès au site sont déterminés").should('not.exist')
     })
 })
