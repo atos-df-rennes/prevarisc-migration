@@ -336,7 +336,16 @@
             </table>
 
             {# Établissements liés #}
-            <h4 class="h4_subtitle etablissements_lies">Établissements liés</h4>
+            <h4 class="h4_subtitle etablissements_lies">
+                Établissements liés
+                {% if not add %}
+                    <a id="add_etablissement"
+                       href="{{ path('etablissement_ajouter', {pere: etablissement.id, libelle: etablissement.latestInformations.libelle|default('')}) }}"
+                       class="edit" style="font-size: 0.85em; float: right; font-weight: normal;">
+                        Créer un établissement enfant
+                    </a>
+                {% endif %}
+            </h4>
             <dl class="dl-horizontal etablissements_lies">
                 <dt class="etablissement_pere">Père</dt>
                 <dd class="etablissement_pere">
@@ -354,7 +363,8 @@
                         <tbody id="enfants_tbody">
                             {{ include('etablissement/_partial_etablissement_enfant.html.twig', {prototype: true}) }}
                             {% if not add %}
-                                {% for fils in etablissement.fils %}
+                                {# Aligné sur le legacy : on n'affiche que les établissements fils non supprimés #}
+                                {% for fils in etablissement.filsActifs %}
                                     {{ include('etablissement/_partial_etablissement_enfant.html.twig', {fils: fils}) }}
                                 {% endfor %}
                             {% endif %}
