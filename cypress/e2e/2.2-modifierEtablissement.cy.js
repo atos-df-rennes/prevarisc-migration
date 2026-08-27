@@ -46,6 +46,28 @@ describe('Établissement — modification par genre', () => {
         cy.contains('0299000099').should('exist')
     })
 
+    // ——————————————————————————————————————————————————————————
+    // Test complémentaire : lien de création rapide d'un établissement enfant
+    // Bug corrigé : ce lien (présent dans le legacy) avait disparu de la migration,
+    // empêchant de créer un nouvel établissement déjà rattaché au site en cours d'édition.
+    // ——————————————————————————————————————————————————————————
+    it('Genre Site — lien "Créer un établissement enfant" disponible en modification', () => {
+        naviguerVersEdition('Site E2E')
+
+        cy.url().then(editUrl => {
+            const siteId = editUrl.match(/\/etablissement\/(\d+)\/modifier/)[1]
+
+            cy.get('#add_etablissement')
+                .should('be.visible')
+                .and('contain', 'Créer un établissement enfant')
+                .and('have.attr', 'href')
+                .and('include', '/etablissement/ajouter')
+
+            cy.get('#add_etablissement').invoke('attr', 'href')
+                .should('include', `pere=${siteId}`)
+        })
+    })
+
     /**
      * Helper : sélectionne un élément dans un TomSelect.
      * TomSelect remplace l'input natif par un .ts-control wrapper.

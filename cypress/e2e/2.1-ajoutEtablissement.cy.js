@@ -113,6 +113,39 @@ describe('Établissement — ajout par genre', () => {
     })
 
     // ——————————————————————————————————————————————————————————
+    // Test complémentaire : Site créé sans enfant
+    // Bug corrigé : les droits d'accès à un site dépendent de ses établissements fils.
+    // Un site créé sans aucun enfant rattaché doit renvoyer vers l'édition avec une alerte,
+    // pour inciter l'utilisateur à rattacher un établissement (cf. EtablissementController::add).
+    // ——————————————————————————————————————————————————————————
+    it('Genre Site — sans aucun enfant : retour sur l\'édition avec message d\'alerte', () => {
+        const libelle = `Site Sans Enfant E2E ${Date.now()}`
+
+        cy.visit('/etablissement/ajouter')
+        cy.get('input[name="LIBELLE_ETABLISSEMENTINFORMATIONS"]').type(libelle)
+        cy.get('select[name="ID_GENRE"]').select('1')
+
+        // Aucun enfant rattaché : la table des enfants ne contient que la ligne de recherche
+        cy.get('#enfants_tbody input[type="hidden"][name^="ID_FILS_ETABLISSEMENT"]')
+            .should('have.length', 1)
+            .should('have.value', '')
+
+        cy.intercept('POST', '**/defaults_values*').as('defaultsValues')
+        cy.window().then(win => {
+            win.$('#confirm-modal').on('shown.bs.modal', function () {
+                win.$(this).find('input[type="submit"]').trigger('click')
+            })
+        })
+        cy.get("form#etablissement input[type='submit']").click()
+        cy.wait('@defaultsValues')
+
+        // Redirection vers la page d'édition (et non les informations), avec un avertissement
+        cy.url({ timeout: 15000 }).should('include', '/modifier')
+        cy.get('.alert-warning').should('contain', 'Les droits d\'accès au site sont déterminés')
+        cy.get('.alert-success').should('not.exist')
+    })
+
+    // ——————————————————————————————————————————————————————————
     // Genre 2 : ERP (Établissement Recevant du Public)
     // ——————————————————————————————————————————————————————————
     it('Genre ERP — création complète avec types, effectifs, plans, adresse, commission', () => {
@@ -535,5 +568,32 @@ describe('Établissement — ajout par genre', () => {
         ajouterAdresse('Louviers', 'SAINT-JEAN', '12', '')
 
         cy.submitEstablishment(libelle)
+    })
+
+    // ——————————————————————————————————————————————————————————
+    // Test complémentaire : Site créé avec un enfant existant (rattaché via TomSelect)
+    // Dépend de « Genre ERP — création complète… » exécuté plus haut (établissement "ERP E2E").
+    // ——————————————————————————————————————————————————————————
+    it('Genre Site — avec un enfant existant : création réussie sans alerte', () => {
+        const libelle = `Site Avec Enfant E2E ${Date.now()}`
+
+        cy.visit('/etablissement/ajouter')
+        cy.get('input[name="LIBELLE_ETABLISSEMENTINFORMATIONS"]').type(libelle)
+        cy.get('select[name="ID_GENRE"]').select('1')
+
+        // Rattacher l'établissement ERP créé par le test « Genre ERP — création complète… »
+        // (un Site ne peut avoir comme enfant qu'un ERP/Habitation/IGH/BUP/Camping/Manifestation/IOP,
+        // cf. EtablissementPersistenceService::persistEtablissementsLies)
+        tomSelectSearch('etablissement_autocomplete', 'ERP E2E')
+        cy.get('#enfants_tbody input[type="hidden"][name^="ID_FILS_ETABLISSEMENT"]')
+            .filter((_, el) => '' !== el.value)
+            .should('have.length', 1)
+
+        cy.submitEstablishment(libelle)
+
+        // Redirection vers les informations (et non l'édition), avec un succès et sans avertissement
+        cy.url().should('include', '/informations')
+        cy.get('.alert-success').should('exist')
+        cy.get('.alert-warning').should('not.exist')
     })
 })
