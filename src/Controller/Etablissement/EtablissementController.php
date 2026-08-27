@@ -234,14 +234,18 @@ class EtablissementController extends AbstractController implements Etablissemen
                 $user = $this->getUser();
                 $idEtablissement = $this->etablissementService->save($idGenre, $post, $user);
 
-                // Cas particulier : site avec un seul fils → rediriger vers édition
-                if (GenreEtablissement::SITE === $idGenre
-                    && isset($post['ID_FILS_ETABLISSEMENT'])
-                    && is_array($post['ID_FILS_ETABLISSEMENT'])
-                    && 1 === count(array_filter($post['ID_FILS_ETABLISSEMENT'], static function ($v): bool {
+                // Cas particulier : site sans aucun établissement fils → rediriger vers édition
+                // (les droits d'accès au site dépendent de ceux de ses fils, un site sans fils
+                // n'est accessible à personne). Le champ ID_FILS_ETABLISSEMENT contient toujours
+                // une entrée "prototype" vide (cf. _partial_etablissement_enfant.html.twig), donc
+                // on ne doit compter que les identifiants réels (> 0).
+                $filsIds = isset($post['ID_FILS_ETABLISSEMENT']) && is_array($post['ID_FILS_ETABLISSEMENT'])
+                    ? array_filter($post['ID_FILS_ETABLISSEMENT'], static function ($v): bool {
                         return is_scalar($v) && (int) $v > 0;
-                    }))
-                ) {
+                    })
+                    : [];
+
+                if (GenreEtablissement::SITE === $idGenre && [] === $filsIds) {
                     $this->addFlash(
                         'warning',
                         "Les droits d'accès au site sont déterminés par les droits d'accès aux établissements qui le compose. Veillez à ajouter des établissements afin de garantir l'accès au site dans Prevarisc."
