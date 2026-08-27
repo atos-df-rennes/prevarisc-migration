@@ -116,6 +116,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // (footer, JS d'aide à la saisie, endpoints /sdis29/...).
     $parameters->set('app.sdis29_custom_enabled', '%env(sdis29_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
 
+    // Active les portages Symfony des plugins legacy de personnalisation de libellés
+    // (Plugin_FacteurCriticite, Plugin_LibelleDossierObservations, Plugin_LibelleDossierPrescriptions),
+    // pilotés par la même variable PREVARISC_THIRDPARTY_PLUGINS que le legacy Zend.
+    $parameters->set('app.facteur_criticite_custom_enabled', '%env(facteur_criticite_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    $parameters->set('app.libelle_dossier_observations_custom_enabled', '%env(libelle_dossier_observations_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    $parameters->set('app.libelle_dossier_prescriptions_custom_enabled', '%env(libelle_dossier_prescriptions_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
     $parameters->set('env(PREVARISC_PLUGIN_GEOBRETAGNE)', '');
 
     // URL du visualiseur cartographique Géobretagne (sviewer), utilisée par les portages SDIS29.

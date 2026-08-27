@@ -195,7 +195,7 @@
 
                 {% if dossier.facteurDangerosite > 0 %}
                     <li class="row">
-                        <div class="left libelle col-md-3">Facteur de criticité</div>
+                        <div class="left libelle col-md-3">{{ facteur_criticite_custom_enabled ? 'Signalement' : 'Facteur de criticité' }}</div>
                         <div class="right value col-md-9">
                             {{ dossier.facteurDangerosite }}
                         </div>
@@ -220,7 +220,7 @@
                     </li>
                 {% endif %}
 
-                {{ dm.champ_texte(dossier, 'observations', 'Observations', true) }}
+                {{ dm.champ_texte(dossier, 'observations', libelle_dossier_observations_custom_enabled ? 'Observations introduction' : 'Observations', true) }}
                 {{ dm.champ_date(dossier, 'datePrefecture', 'Date réception préfecture') }}
                 {{ dm.champ_date(dossier, 'dateReponse', 'Date de réponse') }}
                 {{ dm.champ_date(dossier, 'dateTransfertCommission', 'Date de transfert à la commission compétente') }}
