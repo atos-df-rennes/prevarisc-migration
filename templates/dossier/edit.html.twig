@@ -171,37 +171,40 @@
                     >
                         <span class='glyphicon glyphicon-remove' aria-hidden='true'></span> Effacer la date
                     </button>
-                    <button type='button'
-                            class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
-                            data-calendar-target='calendarVisite'
-                            data-calendar-type='visite'
-                            data-calendar-affectation="idAffectationDossierVisite"
-                    >
-                        <span class='glyphicon glyphicon-chevron-down' aria-hidden='true'></span> Afficher le calendrier
-                    </button>
-                    <button type='button'
-                            class='btn btn-default hideCalendar hidden'
-                            data-calendar-target='calendarVisite'
-                            data-calendar-type='visite'
-                    >
-                        <span class='glyphicon glyphicon-chevron-up' aria-hidden='true'></span> Cacher le calendrier
-                    </button>
-                    Afficher
-                    <label for="month_visite" class="sr-only">Sélectionner le mois à afficher</label>
-                    <select id='month_visite' class="form-control calendrier__select-month">
-                        {% set mois_actuel = 'now'|date('m') %}
-                        {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
-                        {% for i in 0..11 %}
-                            <option value='{{ i }}' {% if mois_actuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
-                        {% endfor %}
-                    </select>
-                    <label for="year_visite" class="sr-only">Sélectionner l'année à afficher</label>
-                    <select id='year_visite' class="form-control calendrier__select-year">
-                        {% set annee_actuelle = 'now'|date('Y') %}
-                        {% for i in (annee_actuelle + 2)..(1990) %}
-                            <option value='{{ i }}' {% if annee_actuelle == i %}selected{% endif %}>{{ i }}</option>
-                        {% endfor %}
-                    </select>
+
+                    <div class="mt-2">
+                        <button type='button'
+                                class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
+                                data-calendar-target='calendarVisite'
+                                data-calendar-type='visite'
+                                data-calendar-affectation="idAffectationDossierVisite"
+                        >
+                            <span class='glyphicon glyphicon-chevron-down' aria-hidden='true'></span> Afficher le calendrier
+                        </button>
+                        <button type='button'
+                                class='btn btn-default hideCalendar hidden'
+                                data-calendar-target='calendarVisite'
+                                data-calendar-type='visite'
+                        >
+                            <span class='glyphicon glyphicon-chevron-up' aria-hidden='true'></span> Cacher le calendrier
+                        </button>
+                        Afficher
+                        <label for="month_visite" class="sr-only">Sélectionner le mois à afficher</label>
+                        <select id='month_visite' class="form-control calendrier__select-month">
+                            {% set mois_actuel = 'now'|date('m') %}
+                            {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                            {% for i in 0..11 %}
+                                <option value='{{ i }}' {% if mois_actuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="year_visite" class="sr-only">Sélectionner l'année à afficher</label>
+                        <select id='year_visite' class="form-control calendrier__select-year">
+                            {% set annee_actuelle = 'now'|date('Y') %}
+                            {% for i in (annee_actuelle + 2)..(1990) %}
+                                <option value='{{ i }}' {% if annee_actuelle == i %}selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
                     {{ form_errors(form.dateVisite) }}
                 </div>
@@ -241,37 +244,40 @@
                     >
                         <span class='glyphicon glyphicon-remove' aria-hidden='true'></span> Effacer la date
                     </button>
-                    <button type='button'
-                            class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
-                            data-calendar-target='calendar'
-                            data-calendar-type='commission'
-                            data-calendar-affectation="idAffectationDossierCommission"
-                    >
-                        <span class='glyphicon glyphicon-chevron-down' aria-hidden='true'></span> Afficher le calendrier
-                    </button>
-                    <button type='button'
-                            class='btn btn-default hideCalendar hidden'
-                            data-calendar-target='calendar'
-                            data-calendar-type='commission'
-                    >
-                        <span class='glyphicon glyphicon-chevron-up' aria-hidden='true'></span> Cacher le calendrier
-                    </button>
-                    Afficher
-                    <label for="month_comm" class="sr-only">Sélectionner le mois à afficher</label>
-                    <select id='month_comm' class="form-control calendrier__select-month">
-                        {% set mois_actuel = 'now'|date('m') %}
-                        {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
-                        {% for i in 0..11 %}
-                            <option value='{{ i }}' {% if mois_actuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
-                        {% endfor %}
-                    </select>
-                    <label for="year_comm" class="sr-only">Sélectionner l'année à afficher</label>
-                    <select id='year_comm' class="form-control calendrier__select-year">
-                        {% set annee_actuelle = 'now'|date('Y') %}
-                        {% for i in (annee_actuelle + 2)..(1990) %}
-                            <option value='{{ i }}' {% if annee_actuelle == i %}selected{% endif %}>{{ i }}</option>
-                        {% endfor %}
-                    </select>
+
+                    <div class="mt-2">
+                        <button type='button'
+                                class='btn btn-default showCalendar{% if not has_commission %} hidden{% endif %}'
+                                data-calendar-target='calendar'
+                                data-calendar-type='commission'
+                                data-calendar-affectation="idAffectationDossierCommission"
+                        >
+                            <span class='glyphicon glyphicon-chevron-down' aria-hidden='true'></span> Afficher le calendrier
+                        </button>
+                        <button type='button'
+                                class='btn btn-default hideCalendar hidden'
+                                data-calendar-target='calendar'
+                                data-calendar-type='commission'
+                        >
+                            <span class='glyphicon glyphicon-chevron-up' aria-hidden='true'></span> Cacher le calendrier
+                        </button>
+                        Afficher
+                        <label for="month_comm" class="sr-only">Sélectionner le mois à afficher</label>
+                        <select id='month_comm' class="form-control calendrier__select-month">
+                            {% set mois_actuel = 'now'|date('m') %}
+                            {% set mois = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'] %}
+                            {% for i in 0..11 %}
+                                <option value='{{ i }}' {% if mois_actuel - 1 == i %}selected{% endif %}>{{ mois[i] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="year_comm" class="sr-only">Sélectionner l'année à afficher</label>
+                        <select id='year_comm' class="form-control calendrier__select-year">
+                            {% set annee_actuelle = 'now'|date('Y') %}
+                            {% for i in (annee_actuelle + 2)..(1990) %}
+                                <option value='{{ i }}' {% if annee_actuelle == i %}selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
                     {{ form_errors(form.dateCommission) }}
                 </div>
