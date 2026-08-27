@@ -44,6 +44,9 @@
         if (affectationCommission) affectationCommission.value = '';
         if (affectationVisite) affectationVisite.value = '';
 
+        // Masquer les boutons "Effacer la date" devenus inutiles (dates déjà vidées)
+        document.querySelectorAll('.clearDate').forEach(button => button.classList.add('hidden'));
+
         // Déclencher masquage des calendriers via événement custom
         // calendar-init.js écoute cet événement et gère le masquage proprement
         // Les boutons "Afficher" ne sont pas encore visibles à ce stade (showShowButton=false)

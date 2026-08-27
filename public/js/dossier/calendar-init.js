@@ -119,6 +119,8 @@
             : 'dossier_idAffectationDossierCommission';
         $('#' + affectationFieldId).val(event.id);
 
+        showClearButton(calendarType);
+
         /**
          * @fixme: La condition && (dossierType === '2' || dossierType === '3') est en théorie inutile
          * car le champ dateVisite ne s'affiche que pour des dossiers de type 2 ou 3.
@@ -348,6 +350,7 @@
                         
                         options.dateField.val(formatDateISO(start, end))
                         $('#dossier_' + options.inputAffectation).val(response.idAffectation)
+                        showClearButton(options.calendarType)
                         hideCalendar(options.calendarType)
                     } else {
                         const errorMsg = (response && response.error) ? response.error : 'Erreur lors de la création des dates';
@@ -374,6 +377,14 @@
 
         $('[data-calendar-type="' + type + '"].showCalendar').addClass('hidden');
         $('[data-calendar-type="' + type + '"].hideCalendar').removeClass('hidden');
+    }
+
+    /**
+     * Affiche le bouton "Effacer la date" associé à un type de calendrier,
+     * une fois qu'une date a été sélectionnée
+     */
+    function showClearButton(type) {
+        $('[data-calendar-type="' + type + '"].clearDate').removeClass('hidden');
     }
 
     /**
@@ -456,7 +467,9 @@
             }
 
             const commissionNom = $('#dossier_nature option:selected').text().trim() + ' - ' + nomEtab;
-            const $dateField = $(this).prev();
+            // Ne pas se baser sur l'ordre des éléments DOM (fragile depuis l'ajout du bouton "Effacer la date")
+            const dateFieldId = (calendarType === 'visite') ? 'dossier_dateVisite' : 'dossier_dateCommission';
+            const $dateField = $('#' + dateFieldId);
 
             if (!commissionId) {
                 alert('Veuillez sélectionner une commission');
