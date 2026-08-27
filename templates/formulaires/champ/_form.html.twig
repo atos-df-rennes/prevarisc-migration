@@ -65,6 +65,6 @@
 
 <datalist id="{{ enfant is defined ? 'champ-valeurs-liste-enfant' : 'champ-valeurs-liste' }}">
     {% for champ_valeur_liste in champ_valeurs_liste %}
-        <option value="{{ champ_valeur_liste.valeur }}"></option>
+        <option value="{{ champ_valeur_liste }}"></option>
     {% endfor %}
 </datalist>

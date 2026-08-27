@@ -225,6 +225,58 @@ class DateCommissionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Version batchée de findDossierAffectForCommission() : retourne les dossiers affectés
+     * pour plusieurs dates de commission en une seule requête, regroupés par ID_DATECOMMISSION_AFFECT.
+     * Évite le N+1 lors de l'affichage de l'ODJ de plusieurs commissions (ex : tableau de bord).
+     *
+     * @param int[] $idDateCommissions
+     *
+     * @return array<int, DossierAffectationDto[]> Indexé par ID_DATECOMMISSION_AFFECT
+     */
+    public function findDossierAffectForCommissions(array $idDateCommissions): array
+    {
+        if ([] === $idDateCommissions) {
+            return [];
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS, GROUP_CONCAT(dossierdocurba.NUM_DOCURBA SEPARATOR \', \') AS NUM_DOCURBA
+            FROM dossier doss
+            JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
+            JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
+            JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
+            JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
+            JOIN dossiertype dossType ON doss.TYPE_DOSSIER = dossType.ID_DOSSIERTYPE
+            LEFT JOIN etablissementdossier e ON doss.ID_DOSSIER = e.ID_DOSSIER
+            LEFT JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
+                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
+                    FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                )
+            LEFT JOIN dossierdocurba ON doss.ID_DOSSIER = dossierdocurba.ID_DOSSIER
+            WHERE dateComm.ID_DATECOMMISSION IN (:idDateCommissions)
+            AND dossAffect.HEURE_DEB_AFFECT IS NOT NULL
+            AND dossAffect.HEURE_FIN_AFFECT IS NOT NULL
+            GROUP BY doss.ID_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative(
+            $sql,
+            ['idDateCommissions' => array_map('intval', $idDateCommissions)],
+            ['idDateCommissions' => Connection::PARAM_INT_ARRAY]
+        );
+
+        $result = [];
+        foreach ($rows as $row) {
+            $dto = DossierAffectationDto::fromArray($row);
+            $result[(int) $dto->ID_DATECOMMISSION_AFFECT][] = $dto;
+        }
+
+        return $result;
+    }
+
+    /**
      * Retourne les dossiers non-affectés (sans horaire précisé) à une date de commission (ODJ).
      * Port direct de Model_DbTable_DossierAffectation::getDossierNonAffect().
      *
@@ -260,6 +312,59 @@ class DateCommissionRepository extends ServiceEntityRepository
         return array_map(static function (array $row): DossierAffectationDto {
             return DossierAffectationDto::fromArray($row);
         }, $rows);
+    }
+
+    /**
+     * Version batchée de findDossierNonAffectForCommission() : retourne les dossiers non-affectés
+     * pour plusieurs dates de commission en une seule requête, regroupés par ID_DATECOMMISSION_AFFECT.
+     * Évite le N+1 lors de l'affichage de l'ODJ de plusieurs commissions (ex : tableau de bord).
+     *
+     * @param int[] $idDateCommissions
+     *
+     * @return array<int, DossierAffectationDto[]> Indexé par ID_DATECOMMISSION_AFFECT
+     */
+    public function findDossierNonAffectForCommissions(array $idDateCommissions): array
+    {
+        if ([] === $idDateCommissions) {
+            return [];
+        }
+
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS, GROUP_CONCAT(dossierdocurba.NUM_DOCURBA SEPARATOR \', \') AS NUM_DOCURBA
+            FROM dossier doss
+            JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
+            JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
+            JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
+            JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
+            JOIN dossiertype dossType ON doss.TYPE_DOSSIER = dossType.ID_DOSSIERTYPE
+            LEFT JOIN etablissementdossier e ON doss.ID_DOSSIER = e.ID_DOSSIER
+            LEFT JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
+                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
+                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
+                    FROM etablissementinformations ei
+                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                )
+            LEFT JOIN dossierdocurba ON doss.ID_DOSSIER = dossierdocurba.ID_DOSSIER
+            WHERE dateComm.ID_DATECOMMISSION IN (:idDateCommissions)
+            AND dossAffect.HEURE_DEB_AFFECT IS NULL
+            AND dossAffect.HEURE_FIN_AFFECT IS NULL
+            GROUP BY doss.ID_DOSSIER
+            ORDER BY dossAffect.NUM_DOSSIER';
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $conn->fetchAllAssociative(
+            $sql,
+            ['idDateCommissions' => array_map('intval', $idDateCommissions)],
+            ['idDateCommissions' => Connection::PARAM_INT_ARRAY]
+        );
+
+        $result = [];
+        foreach ($rows as $row) {
+            $dto = DossierAffectationDto::fromArray($row);
+            $result[(int) $dto->ID_DATECOMMISSION_AFFECT][] = $dto;
+        }
+
+        return $result;
     }
 
     /**

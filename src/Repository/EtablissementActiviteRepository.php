@@ -48,6 +48,26 @@ class EtablissementActiviteRepository extends ServiceEntityRepository
     }
 
     /**
+     * Retourne toutes les activités avec leur type (eager load), triées par type puis libellé.
+     *
+     * @return EtablissementActivite[]
+     */
+    public function findAllWithType(): array
+    {
+        /** @var EtablissementActivite[] $result */
+        $result = $this->createQueryBuilder('a')
+            ->addSelect('t')
+            ->innerJoin('a.type', 't')
+            ->orderBy('t.libelle', 'ASC')
+            ->addOrderBy('a.libelle', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+
+        return $result;
+    }
+
+    /**
      * @return array<int, array{ID_TYPEACTIVITE: int, LIBELLE_ACTIVITE: string, LIBELLE_TYPE: string}>
      */
     public function findAllWithTypeForSearch(): array

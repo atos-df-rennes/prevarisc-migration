@@ -235,6 +235,12 @@ class DashboardService
         );
 
         $commissions = [];
+        $idDateCommissions = array_map(static function (NextCommissionDto $c): int {
+            return (int) $c->ID_DATECOMMISSION;
+        }, $prochainesCommissions);
+        $dossiersNonAffectByCommission = $this->dateCommissionRepository->findDossierNonAffectForCommissions($idDateCommissions);
+        $dossiersAffectByCommission = $this->dateCommissionRepository->findDossierAffectForCommissions($idDateCommissions);
+
         foreach ($prochainesCommissions as $commissiondujour) {
             $heureDebut = is_string($commissiondujour->HEUREDEB_COMMISSION) ? $commissiondujour->HEUREDEB_COMMISSION : '';
             $heureFin = is_string($commissiondujour->HEUREFIN_COMMISSION) ? $commissiondujour->HEUREFIN_COMMISSION : '';
@@ -248,7 +254,10 @@ class DashboardService
                 'HEUREDEB_COMMISSION' => $heureDebut,
                 'HEUREFIN_COMMISSION' => $heureFin,
                 'heure' => substr($heureDebut, 0, 5).' - '.substr($heureFin, 0, 5),
-                'odj' => $this->getCommissionOdj($commissiondujour),
+                'odj' => $this->getCommissionOdj(
+                    $dossiersNonAffectByCommission[(int) $commissiondujour->ID_DATECOMMISSION] ?? [],
+                    $dossiersAffectByCommission[(int) $commissiondujour->ID_DATECOMMISSION] ?? []
+                ),
             ];
         }
 
@@ -265,14 +274,13 @@ class DashboardService
     }
 
     /**
+     * @param DossierAffectationDto[] $dossiersNonAffect
+     * @param DossierAffectationDto[] $dossiersAffect
+     *
      * @return DossierAffectationDto[]
      */
-    private function getCommissionOdj(NextCommissionDto $commission): array
+    private function getCommissionOdj(array $dossiersNonAffect, array $dossiersAffect): array
     {
-        $idDateCommission = (int) $commission->ID_DATECOMMISSION;
-        $dossiersNonAffect = $this->dateCommissionRepository->findDossierNonAffectForCommission($idDateCommission);
-        $dossiersAffect = $this->dateCommissionRepository->findDossierAffectForCommission($idDateCommission);
-
         /** @var array<int, DossierAffectationDto> $indexed */
         $indexed = [];
         foreach ($dossiersNonAffect as $d) {
