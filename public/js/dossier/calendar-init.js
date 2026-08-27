@@ -467,7 +467,9 @@
             }
 
             const commissionNom = $('#dossier_nature option:selected').text().trim() + ' - ' + nomEtab;
-            const $dateField = $(this).prev();
+            // Ne pas se baser sur l'ordre des éléments DOM (fragile depuis l'ajout du bouton "Effacer la date")
+            const dateFieldId = (calendarType === 'visite') ? 'dossier_dateVisite' : 'dossier_dateCommission';
+            const $dateField = $('#' + dateFieldId);
 
             if (!commissionId) {
                 alert('Veuillez sélectionner une commission');
