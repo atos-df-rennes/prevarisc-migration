@@ -163,9 +163,16 @@
                                 à l'exploitation
                             {% endif %}
 
-                            {# @todo: Il manque le plugin signalement au lieu de criticité #}
-                            {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(2) and etablissement.dossierDonnantAvis.facteurDangerosite > 0 %}
-                                - Facteur de criticité : {{ etablissement.dossierDonnantAvis.facteurDangerosite }}
+                            {% if etablissement.dossierDonnantAvis.avisCommission.id is same as(2) %}
+                                {% if facteur_criticite_custom_enabled %}
+                                    {% if etablissement.dossierDonnantAvis.facteurDangerosite is same as(0) %}
+                                        - Signalement : Non
+                                    {% elseif etablissement.dossierDonnantAvis.facteurDangerosite > 0 %}
+                                        - Signalement : Oui
+                                    {% endif %}
+                                {% elseif etablissement.dossierDonnantAvis.facteurDangerosite > 0 %}
+                                    - Facteur de criticité : {{ etablissement.dossierDonnantAvis.facteurDangerosite }}
+                                {% endif %}
                             {% endif %}
                         </span>
                     {% else %}

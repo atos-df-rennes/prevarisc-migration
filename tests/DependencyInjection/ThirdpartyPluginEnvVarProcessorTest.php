@@ -6,8 +6,9 @@ use App\DependencyInjection\ThirdpartyPluginEnvVarProcessor;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Teste la détection de "Plugin_SDIS29" dans PREVARISC_THIRDPARTY_PLUGINS
- * (liste de classes Zend séparées par ';').
+ * Teste la détection des plugins legacy (Plugin_SDIS29, Plugin_FacteurCriticite,
+ * Plugin_LibelleDossierObservations, Plugin_LibelleDossierPrescriptions) dans
+ * PREVARISC_THIRDPARTY_PLUGINS (liste de classes Zend séparées par ';').
  */
 final class ThirdpartyPluginEnvVarProcessorTest extends TestCase
 {
@@ -22,10 +23,10 @@ final class ThirdpartyPluginEnvVarProcessorTest extends TestCase
     /**
      * @dataProvider getEnvProvider
      */
-    public function testGetEnv(string $rawValue, bool $expected): void
+    public function testGetEnv(string $prefix, string $rawValue, bool $expected): void
     {
         $result = $this->processor->getEnv(
-            'sdis29_plugin_enabled',
+            $prefix,
             'PREVARISC_THIRDPARTY_PLUGINS',
             static function () use ($rawValue): string {
                 return $rawValue;
@@ -41,9 +42,16 @@ final class ThirdpartyPluginEnvVarProcessorTest extends TestCase
     public function getEnvProvider(): array
     {
         return [
-            'Plugin_SDIS29 présent parmi d\'autres' => ['Plugin_Foo;Plugin_SDIS29;Plugin_Bar', true],
-            'Plugin_SDIS29 absent' => ['Plugin_Foo;Plugin_Bar', false],
-            'variable vide' => ['', false],
+            'Plugin_SDIS29 présent parmi d\'autres' => ['sdis29_plugin_enabled', 'Plugin_Foo;Plugin_SDIS29;Plugin_Bar', true],
+            'Plugin_SDIS29 absent' => ['sdis29_plugin_enabled', 'Plugin_Foo;Plugin_Bar', false],
+            'variable vide' => ['sdis29_plugin_enabled', '', false],
+            'Plugin_FacteurCriticite présent' => ['facteur_criticite_plugin_enabled', 'Plugin_FacteurCriticite;Plugin_SDIS29', true],
+            'Plugin_FacteurCriticite absent' => ['facteur_criticite_plugin_enabled', 'Plugin_SDIS29', false],
+            'Plugin_LibelleDossierObservations présent' => ['libelle_dossier_observations_plugin_enabled', 'Plugin_LibelleDossierObservations', true],
+            'Plugin_LibelleDossierObservations absent' => ['libelle_dossier_observations_plugin_enabled', 'Plugin_LibelleDossierPrescriptions', false],
+            'Plugin_LibelleDossierPrescriptions présent' => ['libelle_dossier_prescriptions_plugin_enabled', 'Plugin_LibelleDossierPrescriptions', true],
+            'Plugin_LibelleDossierPrescriptions absent' => ['libelle_dossier_prescriptions_plugin_enabled', '', false],
+            'préfixe inconnu' => ['unknown_plugin_enabled', 'Plugin_SDIS29', false],
         ];
     }
 }

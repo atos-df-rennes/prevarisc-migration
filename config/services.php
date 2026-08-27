@@ -32,6 +32,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$debugEnabled', '%app.debug%')
         ->bind('$sdis29CustomEnabled', '%app.sdis29_custom_enabled%')
         ->bind('$geobretagneUrl', '%app.geobretagne_url%')
+        ->bind('$facteurCriticiteCustomEnabled', '%app.facteur_criticite_custom_enabled%')
         ->bind(FlashBagInterface::class, ref('session.flash_bag'))
         ->bind('$searchCache', ref('cache.search'))
     ;
