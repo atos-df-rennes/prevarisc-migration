@@ -939,6 +939,19 @@ class Etablissement
         return $this->fils;
     }
 
+    /**
+     * Établissements fils non supprimés, alignés sur le legacy (Model_DbTable_Search::setItem('etablissement'))
+     * qui exclut systématiquement les établissements avec DATESUPPRESSION_ETABLISSEMENT renseignée.
+     *
+     * @return Collection<int, self>
+     */
+    public function getFilsActifs(): Collection
+    {
+        return $this->fils->filter(static function (self $fils): bool {
+            return null === $fils->getDateSuppression();
+        });
+    }
+
     public function addFils(self $fils): self
     {
         if (!$this->fils->contains($fils)) {

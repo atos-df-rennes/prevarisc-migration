@@ -363,7 +363,8 @@
                         <tbody id="enfants_tbody">
                             {{ include('etablissement/_partial_etablissement_enfant.html.twig', {prototype: true}) }}
                             {% if not add %}
-                                {% for fils in etablissement.fils %}
+                                {# Aligné sur le legacy : on n'affiche que les établissements fils non supprimés #}
+                                {% for fils in etablissement.filsActifs %}
                                     {{ include('etablissement/_partial_etablissement_enfant.html.twig', {fils: fils}) }}
                                 {% endfor %}
                             {% endif %}

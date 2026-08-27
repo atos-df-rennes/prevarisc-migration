@@ -295,6 +295,9 @@ SQL;
             )
             ->addSelect('info')
             ->where('parent = :parent')
+            // Aligné sur le legacy (Model_DbTable_Search::setItem('etablissement')) qui exclut
+            // systématiquement les établissements supprimés de la liste des établissements liés.
+            ->andWhere('fils.dateSuppression IS NULL')
             ->orderBy('info.libelle', 'ASC')
             ->setParameter('parent', $etablissement)
             ->getQuery()
