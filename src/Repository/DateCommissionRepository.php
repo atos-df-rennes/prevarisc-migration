@@ -235,45 +235,7 @@ class DateCommissionRepository extends ServiceEntityRepository
      */
     public function findDossierAffectForCommissions(array $idDateCommissions): array
     {
-        if ([] === $idDateCommissions) {
-            return [];
-        }
-
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS, GROUP_CONCAT(dossierdocurba.NUM_DOCURBA SEPARATOR \', \') AS NUM_DOCURBA
-            FROM dossier doss
-            JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
-            JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
-            JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
-            JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
-            JOIN dossiertype dossType ON doss.TYPE_DOSSIER = dossType.ID_DOSSIERTYPE
-            LEFT JOIN etablissementdossier e ON doss.ID_DOSSIER = e.ID_DOSSIER
-            LEFT JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
-                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei
-                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                )
-            LEFT JOIN dossierdocurba ON doss.ID_DOSSIER = dossierdocurba.ID_DOSSIER
-            WHERE dateComm.ID_DATECOMMISSION IN (:idDateCommissions)
-            AND dossAffect.HEURE_DEB_AFFECT IS NOT NULL
-            AND dossAffect.HEURE_FIN_AFFECT IS NOT NULL
-            GROUP BY doss.ID_DOSSIER';
-
-        /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative(
-            $sql,
-            ['idDateCommissions' => array_map('intval', $idDateCommissions)],
-            ['idDateCommissions' => Connection::PARAM_INT_ARRAY]
-        );
-
-        $result = [];
-        foreach ($rows as $row) {
-            $dto = DossierAffectationDto::fromArray($row);
-            $result[(int) $dto->ID_DATECOMMISSION_AFFECT][] = $dto;
-        }
-
-        return $result;
+        return $this->findDossiersAffectationForCommissions($idDateCommissions, true);
     }
 
     /**
@@ -325,15 +287,72 @@ class DateCommissionRepository extends ServiceEntityRepository
      */
     public function findDossierNonAffectForCommissions(array $idDateCommissions): array
     {
+        return $this->findDossiersAffectationForCommissions($idDateCommissions, false);
+    }
+
+    /**
+     * Implémentation commune de findDossierAffectForCommissions()/findDossierNonAffectForCommissions().
+     *
+     * Requête en 2 temps pour limiter le GROUP BY sur la ligne "dossier" complète (~80 colonnes) :
+     *   1) une requête étroite (colonnes indexées uniquement) trouve/déduplique les couples
+     *      (ID_DOSSIER, ID_DATECOMMISSION_AFFECT) pour tout le lot de dates de commission
+     *      (GROUP BY sur ce couple, pas seulement sur ID_DOSSIER : un même dossier peut être
+     *      affecté à plusieurs dates différentes du lot, il faut donc conserver une ligne par
+     *      date, pas une seule ligne par dossier) ; la table temporaire MySQL reste minuscule,
+     *      même sur un gros lot de dates ;
+     *   2) une deuxième requête va chercher les colonnes larges (doss.*, libellés, etc.) mais
+     *      uniquement pour les ID_DOSSIER distincts déjà filtrés (au lieu de tout le produit des
+     *      jointures de l'étape 1). Un GROUP BY doss.ID_DOSSIER reste nécessaire ici car
+     *      etablissementdossier est une relation N-N (un dossier peut être lié à plusieurs
+     *      établissements) ; il porte désormais sur un ensemble bien plus petit et borné (les
+     *      seuls ID_DOSSIER distincts de l'étape 1, sans duplication par date).
+     * Le NUM_DOCURBA passe d'une jointure génératrice de doublons + GROUP_CONCAT à une sous-requête
+     * scalaire corrélée, qui n'est plus dans la voie du GROUP BY principal.
+     *
+     * @param int[] $idDateCommissions
+     *
+     * @return array<int, DossierAffectationDto[]> Indexé par ID_DATECOMMISSION_AFFECT
+     */
+    private function findDossiersAffectationForCommissions(array $idDateCommissions, bool $affected): array
+    {
         if ([] === $idDateCommissions) {
             return [];
         }
 
         $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS, GROUP_CONCAT(dossierdocurba.NUM_DOCURBA SEPARATOR \', \') AS NUM_DOCURBA
+        $heureCondition = $affected
+            ? 'dossAffect.HEURE_DEB_AFFECT IS NOT NULL AND dossAffect.HEURE_FIN_AFFECT IS NOT NULL'
+            : 'dossAffect.HEURE_DEB_AFFECT IS NULL AND dossAffect.HEURE_FIN_AFFECT IS NULL';
+
+        // Étape 1 : ID_DOSSIER concernés (colonnes étroites, GROUP BY peu coûteux).
+        $narrowSql = "SELECT doss.ID_DOSSIER, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT
             FROM dossier doss
             JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
             JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
+            WHERE dateComm.ID_DATECOMMISSION IN (:idDateCommissions)
+            AND {$heureCondition}
+            GROUP BY doss.ID_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT
+            ORDER BY dossAffect.NUM_DOSSIER";
+
+        /** @var array<int, array<string, mixed>> $affectationRows */
+        $affectationRows = $conn->fetchAllAssociative(
+            $narrowSql,
+            ['idDateCommissions' => array_map('intval', $idDateCommissions)],
+            ['idDateCommissions' => Connection::PARAM_INT_ARRAY]
+        );
+
+        if ([] === $affectationRows) {
+            return [];
+        }
+
+        $dossierIds = array_values(array_unique(array_map(static function (array $row): int {
+            return (int) $row['ID_DOSSIER'];
+        }, $affectationRows)));
+
+        // Étape 2 : colonnes larges pour ces ID_DOSSIER, par clé primaire, GROUP BY nécessaire (voir ci-dessus).
+        $wideSql = 'SELECT doss.*, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS,
+                (SELECT GROUP_CONCAT(dc.NUM_DOCURBA SEPARATOR \', \') FROM dossierdocurba dc WHERE dc.ID_DOSSIER = doss.ID_DOSSIER) AS NUM_DOCURBA
+            FROM dossier doss
             JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
             JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
             JOIN dossiertype dossType ON doss.TYPE_DOSSIER = dossType.ID_DOSSIERTYPE
@@ -344,23 +363,31 @@ class DateCommissionRepository extends ServiceEntityRepository
                     FROM etablissementinformations ei
                     WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
                 )
-            LEFT JOIN dossierdocurba ON doss.ID_DOSSIER = dossierdocurba.ID_DOSSIER
-            WHERE dateComm.ID_DATECOMMISSION IN (:idDateCommissions)
-            AND dossAffect.HEURE_DEB_AFFECT IS NULL
-            AND dossAffect.HEURE_FIN_AFFECT IS NULL
-            GROUP BY doss.ID_DOSSIER
-            ORDER BY dossAffect.NUM_DOSSIER';
+            WHERE doss.ID_DOSSIER IN (:dossierIds)
+            GROUP BY doss.ID_DOSSIER';
 
-        /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative(
-            $sql,
-            ['idDateCommissions' => array_map('intval', $idDateCommissions)],
-            ['idDateCommissions' => Connection::PARAM_INT_ARRAY]
+        /** @var array<int, array<string, mixed>> $wideRows */
+        $wideRows = $conn->fetchAllAssociative(
+            $wideSql,
+            ['dossierIds' => $dossierIds],
+            ['dossierIds' => Connection::PARAM_INT_ARRAY]
         );
 
+        /** @var array<int, array<string, mixed>> $wideRowsById */
+        $wideRowsById = [];
+        foreach ($wideRows as $wideRow) {
+            $wideRowsById[(int) $wideRow['ID_DOSSIER']] = $wideRow;
+        }
+
         $result = [];
-        foreach ($rows as $row) {
-            $dto = DossierAffectationDto::fromArray($row);
+        foreach ($affectationRows as $affectationRow) {
+            $idDossier = (int) $affectationRow['ID_DOSSIER'];
+            if (!isset($wideRowsById[$idDossier])) {
+                continue;
+            }
+
+            $mergedRow = $wideRowsById[$idDossier] + $affectationRow;
+            $dto = DossierAffectationDto::fromArray($mergedRow);
             $result[(int) $dto->ID_DATECOMMISSION_AFFECT][] = $dto;
         }
 
