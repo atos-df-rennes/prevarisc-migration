@@ -1,11 +1,17 @@
-// Login using credentials from Cypress.env() (overridable with CYPRESS_username / CYPRESS_password)
-Cypress.Commands.add('login', (username = Cypress.env('username'), password = Cypress.env('password')) => {
-    cy.session([username, password], () => {
-        cy.visit('/session/login')
-        cy.get('[name=_username]').type(username)
-        cy.get('[name=_password]').type(password)
-        cy.contains('button', 'Connexion').click()
-        cy.title().should('eq', 'Tableau de bord')
+// Login using credentials from cy.env() (overridable with CYPRESS_username / CYPRESS_password)
+// Cypress.env() is deprecated since Cypress 15.10; cy.env() is the safer, non-browser-exposed replacement
+Cypress.Commands.add('login', (username, password) => {
+    cy.env(['username', 'password']).then((envCredentials) => {
+        const resolvedUsername = username || envCredentials.username
+        const resolvedPassword = password || envCredentials.password
+
+        cy.session([resolvedUsername, resolvedPassword], () => {
+            cy.visit('/session/login')
+            cy.get('[name=_username]').type(resolvedUsername)
+            cy.get('[name=_password]').type(resolvedPassword)
+            cy.contains('button', 'Connexion').click()
+            cy.title().should('eq', 'Tableau de bord')
+        })
     })
 })
 
