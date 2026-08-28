@@ -27,7 +27,7 @@ class Sdis29Voter implements VoterInterface
         $this->sdis29CustomEnabled = $sdis29CustomEnabled;
     }
 
-    public function vote(TokenInterface $token, $subject, array $attributes)
+    public function vote(TokenInterface $token, $subject, array $attributes): int
     {
         if (!in_array(self::ENABLED, $attributes, true)) {
             return self::ACCESS_ABSTAIN;
