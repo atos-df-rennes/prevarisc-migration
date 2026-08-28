@@ -20,8 +20,7 @@ class ApiEtablissementSearchTest extends WebTestCase
 {
     private const string ROUTE = '/api/etablissements/search';
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     protected function setUp(): void
     {

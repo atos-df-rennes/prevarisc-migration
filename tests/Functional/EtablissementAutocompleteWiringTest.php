@@ -24,8 +24,7 @@ class EtablissementAutocompleteWiringTest extends WebTestCase
 
     private const string API_ROUTE = '/api/etablissements/search';
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     protected function setUp(): void
     {

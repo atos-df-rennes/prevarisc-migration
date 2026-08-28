@@ -27,8 +27,7 @@ use Symfony\Component\Security\Core\Security;
  */
 class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
 {
-    /** @var Dossier */
-    private $service;
+    private Dossier $service;
 
     protected function setUp(): void
     {
