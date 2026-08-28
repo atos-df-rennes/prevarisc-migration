@@ -19,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -60,12 +61,9 @@ class EtablissementController extends AbstractController
      * Port de Api_Service_Etablissement::getAdresse.
      */
     #[Route(path: '/api/2.0/etablissement/get_adresse', name: 'api_etablissement_get_adresse', methods: ['GET'])]
-    public function getAdresse(Request $request): JsonResponse
+    public function getAdresse(#[MapQueryParameter] string $id = ''): JsonResponse
     {
-        /** @var string|null $id */
-        $id = $request->query->get('id');
-
-        if (null === $id || '' === $id) {
+        if ('' === $id) {
             return new JsonResponse(['response' => null]);
         }
 
@@ -96,11 +94,9 @@ class EtablissementController extends AbstractController
      * aussi rubriques, plans, diaporama, historique de dossiers, données pratiques, dates de visite, etc.).
      */
     #[Route(path: '/api/2.0/etablissement/apercu', name: 'api_etablissement_apercu', methods: ['GET'], options: ['expose' => true])]
-    public function apercu(Request $request): JsonResponse
+    public function apercu(#[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $id = null): JsonResponse
     {
-        $id = filter_var($request->query->get('id'), FILTER_VALIDATE_INT);
-
-        if (false === $id) {
+        if (null === $id) {
             return new JsonResponse(['response' => null]);
         }
 
@@ -246,30 +242,23 @@ class EtablissementController extends AbstractController
      * recherche), via SearchQueryHelper::splitLabelAndIdentifiant().
      */
     #[Route(path: '/api/etablissements/search', name: 'api_etablissements_search', methods: ['GET'])]
-    public function search(Request $request): JsonResponse
-    {
+    public function search(
+        #[MapQueryParameter] string $q = '',
+        #[MapQueryParameter] string $label = '',
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $limit = self::SEARCH_DEFAULT_LIMIT,
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $page = 1,
+    ): JsonResponse {
         // « q » est le paramètre utilisé par les autocomplétions, « label » est le nom legacy
-        $rawQuery = $request->query->get('q', $request->query->get('label', ''));
-        $query = is_scalar($rawQuery) ? trim((string) $rawQuery) : '';
+        $query = trim('' !== $q ? $q : $label);
 
         // Seuil legacy : l'autocomplétion ne se déclenche qu'à partir de 3 caractères
         if (mb_strlen($query) < self::SEARCH_MIN_LENGTH) {
             return new JsonResponse([]);
         }
 
-        $limit = filter_var($request->query->get('limit', self::SEARCH_DEFAULT_LIMIT), FILTER_VALIDATE_INT);
-        if (false === $limit) {
-            $limit = self::SEARCH_DEFAULT_LIMIT;
-        }
+        $limit = max(1, min(self::SEARCH_MAX_LIMIT, $limit ?? self::SEARCH_DEFAULT_LIMIT));
 
-        $limit = max(1, min(self::SEARCH_MAX_LIMIT, $limit));
-
-        $page = filter_var($request->query->get('page', 1), FILTER_VALIDATE_INT);
-        if (false === $page) {
-            $page = 1;
-        }
-
-        $page = max(1, $page);
+        $page = max(1, $page ?? 1);
 
         [$label, $identifiant] = $this->searchQueryHelper->splitLabelAndIdentifiant($query);
 
