@@ -68,7 +68,7 @@ class RubriqueController extends AbstractController
             'rubrique' => $rubrique,
             'form_rubrique' => $formRubrique,
             'form_champ' => $formChamp,
-            'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
+            'champ_valeurs_liste' => $this->champValeurListeRepository->findDistinctValeurs(),
         ]);
     }
 

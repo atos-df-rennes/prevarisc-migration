@@ -4,6 +4,44 @@
 
 <!--- END HEADER -->
 
+## [2.10.4](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.3...v2.10.4) (28-08-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gauge-high.svg" width="20" height="20"> Performances
+
+* Diverses optimisations de chargement de liste (#398) ([c005b3](https://github.com/atos-df-rennes/prevarisc-migration/commit/c005b3506cf00986b32ad8a2e56b1087422ab640))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Dashboard
+
+* Erreur de chargement sur certains blocs (#399) ([fab5dc](https://github.com/atos-df-rennes/prevarisc-migration/commit/fab5dc906404187500b73adb501a5738055b24d9))
+
+##### Dossier
+
+* Le champ "Objet" n'est pas obligatoire pour certaines natures (#395) ([9063b8](https://github.com/atos-df-rennes/prevarisc-migration/commit/9063b83d8d7cd7c5a378230c3f57208636fbdfad))
+* Bouton pour effacer les dates de visite/commission (#394) ([623363](https://github.com/atos-df-rennes/prevarisc-migration/commit/623363d08d87cbb06f0133cf4ad2d02e50a23e73))
+* Crash lors d'une indication d'incomplétude (#392) ([8a6de0](https://github.com/atos-df-rennes/prevarisc-migration/commit/8a6de07cee16ec7946a0d268e0c0ce1a6e515814))
+
+##### Etablissement
+
+* Lien de création d'un établissement enfant manquant (#396) ([e0ca06](https://github.com/atos-df-rennes/prevarisc-migration/commit/e0ca06fe9596397c935a8a442273f09568e589bc))
+
+##### Rapport
+
+* Aggrège les dates et heures de visite du dossier (#393) ([0a9bd3](https://github.com/atos-df-rennes/prevarisc-migration/commit/0a9bd31be9488425f507443b91923a460e81e2f1))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="20" height="20"> Migration
+
+
+##### Modules
+
+* Changement de libellés prescriptions et facteur de criticité (#397) ([8e508a](https://github.com/atos-df-rennes/prevarisc-migration/commit/8e508acae907b1df7ab95f6cc29a2daf2198f5b8))
+* Port des modules personnalisés (#391) ([fd9237](https://github.com/atos-df-rennes/prevarisc-migration/commit/fd92371dcb12883f70bc290464ef8eace52920d9))
+
+
+---
+
 ## [2.10.3](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.2...v2.10.3) (25-08-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections

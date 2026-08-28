@@ -40,4 +40,5 @@ REVIEW_REPORT.md
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
 /phpunit.xml
+/bin/.phpunit/
 ###< symfony/phpunit-bridge ###

@@ -106,6 +106,26 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.security_key', '%env(string:PREVARISC_SECURITY_KEY)%');
 
+    // Active les portions de code Symfony équivalentes au plugin legacy Plugin_SDIS29
+    // (cf. PREVARISC_THIRDPARTY_PLUGINS côté legacy Zend, déjà déclaré plus bas pour
+    // app.third_party_plugins), un seul flag pour tout le périmètre du portage
+    // (footer, JS d'aide à la saisie, endpoints /sdis29/...).
+    $parameters->set('app.sdis29_custom_enabled', '%env(sdis29_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    // Active les portages Symfony des plugins legacy de personnalisation de libellés
+    // (Plugin_FacteurCriticite, Plugin_LibelleDossierObservations, Plugin_LibelleDossierPrescriptions),
+    // pilotés par la même variable PREVARISC_THIRDPARTY_PLUGINS que le legacy Zend.
+    $parameters->set('app.facteur_criticite_custom_enabled', '%env(facteur_criticite_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    $parameters->set('app.libelle_dossier_observations_custom_enabled', '%env(libelle_dossier_observations_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    $parameters->set('app.libelle_dossier_prescriptions_custom_enabled', '%env(libelle_dossier_prescriptions_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    $parameters->set('env(PREVARISC_PLUGIN_GEOBRETAGNE)', '');
+
+    // URL du visualiseur cartographique Géobretagne (sviewer), utilisée par les portages SDIS29.
+    $parameters->set('app.geobretagne_url', '%env(string:PREVARISC_PLUGIN_GEOBRETAGNE)%');
+
     $parameters->set('env(PREVARISC_MAIL_ENABLED)', 0);
 
     $parameters->set('app.mail_enabled', '%env(bool:PREVARISC_MAIL_ENABLED)%');

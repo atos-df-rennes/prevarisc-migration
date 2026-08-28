@@ -45,7 +45,7 @@
     </div>
 
     <section>
-        <h3 id="prescRappelRegTitle">Rappels réglementaires</h3>
+        <h3 id="prescRappelRegTitle">{{ libelle_dossier_prescriptions_custom_enabled ? 'Essais réalisés' : 'Rappels réglementaires' }}</h3>
         <div class="row">
             <div class="col-xs-12">
                 <ul id="prescRappelReg" class="listePrescriptions list-unstyled">
@@ -62,7 +62,7 @@
     </section>
 
     <section>
-        <h3>Prescriptions liées à l'exploitation</h3>
+        <h3>{{ libelle_dossier_prescriptions_custom_enabled ? 'Prescriptions' : "Prescriptions liées à l'exploitation" }}</h3>
         <div class="row">
             <div class="col-xs-12">
                 <ul id="prescExploitation" class="listePrescriptions list-unstyled">
@@ -79,7 +79,7 @@
     </section>
 
     <section>
-        <h3>Recommandations liées à l'amélioration du niveau de sécurité</h3>
+        <h3>{{ libelle_dossier_prescriptions_custom_enabled ? 'Conclusions types' : 'Recommandations liées à l\'amélioration du niveau de sécurité' }}</h3>
         <div class="row">
             <div class="col-xs-12">
                 <ul id="prescAmelioration" class="listePrescriptions list-unstyled">

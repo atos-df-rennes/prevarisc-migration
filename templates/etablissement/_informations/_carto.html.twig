@@ -1,6 +1,7 @@
 {% set key_ign = parameter('app.ign_key') %}
 {% set key_googlemap = parameter('app.google_map_key') %}
 {% set geoconcept_url = parameter('app.geoconcept_url') %}
+{% set sdis29_geobretagne_url = (sdis29_custom_enabled and geobretagne_url is not empty) ? sdis29_geobretagne_etablissement_url(geobretagne_url, etablissement) : null %}
 
 <!-- Cartes et diaporama -->
 <ul id="menu_nav" class="nav nav-tabs" style="margin: 0; padding: 0; border-bottom: none;">
@@ -19,9 +20,19 @@
     {% if adresses|length > 0 and geoconcept_url is not empty and adresses[0].latitude is not null and adresses[0].longitude is not null %}
         <li class="tabs-right"><a href="#geoconcept" data-toggle="tab">Carte GeoConcept</a></li>
     {% endif %}
+    {% if sdis29_geobretagne_url is not null %}
+        <li class="tabs-right"><a href="#geobretagne" data-toggle="tab">Géobretagne</a></li>
+    {% endif %}
 </ul>
 <div id="reponse-modal" class="modal fade"></div>
 <div class="tab-content">
+    {% if sdis29_geobretagne_url is not null %}
+        <div id="geobretagne" class="tab-pane" style="height: 350px; max-height: 350px;">
+            <iframe scrolling="no" allowTransparency="true"
+                    style="overflow: hidden; border: 0 none; height: 100%; width: 100%; max-width: 100%; max-height: 100%;"
+                    src="{{ sdis29_geobretagne_url }}" frameborder="no"></iframe>
+        </div>
+    {% endif %}
     <!-- Carte IGN -->
     {% if adresses|length > 0 and key_ign is not empty and adresses[0].latitude is not null and adresses[0].longitude is not null %}
         <div id="geoportail" class="tab-pane active" style="height: 350px; max-height: 350px;">

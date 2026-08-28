@@ -2,7 +2,6 @@
 
 namespace App\Validator;
 
-use App\Constant\DossierNature;
 use App\Entity\Dossier;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -13,12 +12,23 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
  * Validator pour le champ OBJET du dossier.
  *
  * Le champ OBJET est obligatoire pour toutes les natures de dossier
- * SAUF les natures 21 et 26 (visites périodiques).
+ * SAUF les natures 21, 26, 40, 41, 42 et 44 (visites périodiques et arrêtés).
  *
- * @see prevarisc/application/controllers/DossierController.php ligne 901-903
+ * @see prevarisc/application/views/scripts/dossier/index.phtml fonction verifDossier()
  */
 final class DossierObjetValidator extends ConstraintValidator
 {
+    /**
+     * IDs des natures pour lesquelles OBJET n'est PAS requis.
+     *
+     * - Nature 21 : Visite périodique
+     * - Nature 26 : Groupe visite périodique
+     * - Nature 40, 41, 42, 44 : Arrêtés
+     *
+     * @var int[]
+     */
+    private const NATURES_SANS_OBJET = [21, 26, 40, 41, 42, 44];
+
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof DossierObjet) {
@@ -39,7 +49,7 @@ final class DossierObjetValidator extends ConstraintValidator
         $natureId = $nature->getId();
 
         // Si la nature est dans la liste des natures sans objet, pas de validation
-        if (in_array($natureId, DossierNature::VISITE_PERIODIQUE, true)) {
+        if (in_array($natureId, self::NATURES_SANS_OBJET, true)) {
             return;
         }
 

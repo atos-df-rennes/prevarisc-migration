@@ -372,7 +372,9 @@
 
         // ——— Changement de type principal (libellé effectif public) ———
         $("select[name='ID_TYPE']").on('change', function() {
-            if ($(this).val() == 16) {
+            {# @sdis29: legacy Plugin_SDIS29::changerTypeParking() renommait ce libellé
+               pour ID_TYPE == 20 (valeur spécifique SDIS29, distincte du 16 générique). #}
+            if ($(this).val() == 16{% if sdis29_custom_enabled %} || $(this).val() == 20{% endif %}) {
                 $('dt.effectif_public').html('Places de stationnement');
             } else {
                 $('dt.effectif_public').html('Public');

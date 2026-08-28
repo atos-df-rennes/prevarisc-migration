@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class DossierType extends AbstractType
 {
-    public function __construct(private readonly Security $security, private readonly EntityManagerInterface $entityManager)
+    public function __construct(private readonly Security $security, private readonly EntityManagerInterface $entityManager, private readonly bool $facteurCriticiteCustomEnabled)
     {
     }
 
@@ -253,9 +253,12 @@ class DossierType extends AbstractType
                 'attr' => ['class' => 'form-check-input absquorum hideavis'],
             ])
             ->add('facteurDangerosite', ChoiceType::class, [
-                'label' => 'Facteur de criticité',
+                'label' => $this->facteurCriticiteCustomEnabled ? 'Signalement' : 'Facteur de criticité',
                 'required' => false,
-                'choices' => [
+                'choices' => $this->facteurCriticiteCustomEnabled ? [
+                    'Non' => 0,
+                    'Oui' => 1,
+                ] : [
                     1 => 1,
                     2 => 2,
                     3 => 3,
