@@ -60,8 +60,8 @@ class AdresseController extends AbstractController
     #[Route(path: '/api/2.0/adresse/get_voies', name: 'api_adresse_get_voies', methods: ['GET', 'POST'])]
     public function getVoies(Request $request): JsonResponse
     {
-        $codeInsee = $this->extractString($request->get('code_insee', ''));
-        $q = $this->extractString($request->get('q', ''));
+        $codeInsee = $this->extractString($request->query->get('code_insee') ?? $request->request->get('code_insee', ''));
+        $q = $this->extractString($request->query->get('q') ?? $request->request->get('q', ''));
 
         if ('' === $codeInsee) {
             return new JsonResponse(['response' => []]);
@@ -91,7 +91,7 @@ class AdresseController extends AbstractController
     #[Route(path: '/api/2.0/adresse/get_numeros', name: 'api_adresse_get_numeros', methods: ['GET', 'POST'])]
     public function getNumeros(Request $request): JsonResponse
     {
-        $idRue = $this->extractString($request->get('id_rue', ''));
+        $idRue = $this->extractString($request->query->get('id_rue') ?? $request->request->get('id_rue', ''));
 
         if ('' === $idRue) {
             return new JsonResponse(['response' => []]);
@@ -135,7 +135,7 @@ class AdresseController extends AbstractController
      * Port de Api_Service_Adresse::getLibelleRue.
      */
     #[Route(path: '/api/2.0/adresse/get_libelle_rue', name: 'api_adresse_get_libelle_rue', methods: ['GET'])]
-    public function getLibelleRue(#[MapQueryParameter(name: 'idRue')] string $idRue = ''): JsonResponse
+    public function getLibelleRue(#[MapQueryParameter] string $idRue = ''): JsonResponse
     {
         if ('' === $idRue) {
             return new JsonResponse(['response' => null]);

@@ -92,7 +92,7 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/commissionselection', name: 'calendrier_des_commissions_commissionselection', methods: ['GET'], options: ['expose' => true])]
     #[IsGranted('lecture_commission')]
-    public function commissionSelection(#[MapQueryParameter(name: 'q')] string $q = ''): JsonResponse
+    public function commissionSelection(#[MapQueryParameter] string $q = ''): JsonResponse
     {
         if ('' === $q) {
             return $this->json([]);

@@ -243,8 +243,8 @@ class EtablissementController extends AbstractController
      */
     #[Route(path: '/api/etablissements/search', name: 'api_etablissements_search', methods: ['GET'])]
     public function search(
-        #[MapQueryParameter(name: 'q')] string $q = '',
-        #[MapQueryParameter(name: 'label')] string $label = '',
+        #[MapQueryParameter] string $q = '',
+        #[MapQueryParameter] string $label = '',
         #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $limit = self::SEARCH_DEFAULT_LIMIT,
         #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $page = 1,
     ): JsonResponse {
