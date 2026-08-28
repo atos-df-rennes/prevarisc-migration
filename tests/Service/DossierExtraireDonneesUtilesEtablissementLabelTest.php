@@ -13,7 +13,7 @@ use App\Service\PlatauTempsRestant;
 use App\Service\TexteApplicable;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * Tests pour Dossier::extraireDonneesUtiles() - résolution du libellé établissement historique.
@@ -72,7 +72,15 @@ class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
         $dossier->setNature(new DossierNatureListe());
         $dossier->setDateInsert(new \DateTime('2015-06-01'));
 
+        $this->setEntityId($dossier, 1);
+
         return $dossier;
+    }
+
+    private function setEntityId(DossierEntity $entity, int $id): void
+    {
+        $ref = new \ReflectionProperty($entity::class, 'id');
+        $ref->setValue($entity, $id);
     }
 
     public function testDateCommissionRenseigneeUtiliseDateInsertIsoLegacyQuirk(): void
