@@ -37,6 +37,7 @@
         "sabre/vobject": "^4.3",
         "sabre/xml": "^4.0",
         "symfony/asset": "7.4.*",
+        "symfony/asset-mapper": "7.4.*",
         "symfony/console": "7.4.*",
         "symfony/dom-crawler": "7.4.*",
         "symfony/dotenv": "7.4.*",
@@ -111,7 +112,8 @@
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd",
             "fos:js-routing:dump --format=js --target=public/js/fos_js_routes.js": "symfony-cmd",
-            "requirements-checker": "script"
+            "requirements-checker": "script",
+            "importmap:install": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"

@@ -90,7 +90,7 @@ class EtablissementController extends AbstractController
     /**
      * Aperçu d'un établissement pour la bulle popover (bindEtsPopup, hover sur un lien établissement).
      * Port allégé de Api_Service_Etablissement::get() / Service_Etablissement::get() : ne recalcule que
-     * les champs effectivement consommés par public/js/main-bs3.js (contrairement au legacy qui calculait
+     * les champs effectivement consommés par assets/main-bs3.js (contrairement au legacy qui calculait
      * aussi rubriques, plans, diaporama, historique de dossiers, données pratiques, dates de visite, etc.).
      */
     #[Route(path: '/api/2.0/etablissement/apercu', name: 'api_etablissement_apercu', methods: ['GET'], options: ['expose' => true])]
