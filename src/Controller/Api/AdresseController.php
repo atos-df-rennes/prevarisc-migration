@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -24,20 +25,15 @@ class AdresseController extends AbstractController
      * Autocomplete des communes par nom ou code postal.
      */
     #[Route(path: '/api/2.0/adresse/get_communes', name: 'api_adresse_get_communes', methods: ['GET'], options: ['expose' => true])]
-    public function getCommunes(Request $request): JsonResponse
-    {
-        $q = $this->extractString($request->query->get('q', ''));
-
+    public function getCommunes(
+        #[MapQueryParameter] string $q = '',
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $limit = 50,
+    ): JsonResponse {
         if ('' === $q) {
             return new JsonResponse(['response' => []]);
         }
 
-        $limit = filter_var($request->query->get('limit', 50), FILTER_VALIDATE_INT);
-
-        if (false === $limit) {
-            $limit = 50;
-        }
-
+        $limit ??= 50;
         $limit = max(1, min(50, $limit));
 
         if (self::LONGUEUR_CODE_POSTAL === strlen($q) && is_numeric($q)) {
@@ -115,10 +111,8 @@ class AdresseController extends AbstractController
      * Port de Api_Service_Adresse::getLibelleCommune.
      */
     #[Route(path: '/api/2.0/adresse/get_libelle_commune', name: 'api_adresse_get_libelle_commune', methods: ['GET'])]
-    public function getLibelleCommune(Request $request): JsonResponse
+    public function getLibelleCommune(#[MapQueryParameter(name: 'code_insee')] string $codeInsee = ''): JsonResponse
     {
-        $codeInsee = $this->extractString($request->query->get('code_insee', ''));
-
         if ('' === $codeInsee) {
             return new JsonResponse(['response' => null]);
         }
@@ -141,10 +135,8 @@ class AdresseController extends AbstractController
      * Port de Api_Service_Adresse::getLibelleRue.
      */
     #[Route(path: '/api/2.0/adresse/get_libelle_rue', name: 'api_adresse_get_libelle_rue', methods: ['GET'])]
-    public function getLibelleRue(Request $request): JsonResponse
+    public function getLibelleRue(#[MapQueryParameter(name: 'idRue')] string $idRue = ''): JsonResponse
     {
-        $idRue = $this->extractString($request->query->get('idRue', ''));
-
         if ('' === $idRue) {
             return new JsonResponse(['response' => null]);
         }

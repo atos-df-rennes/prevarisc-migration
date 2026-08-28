@@ -24,6 +24,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -45,12 +46,8 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier', name: 'calendrier_des_commissions_index', methods: ['GET'], options: ['expose' => true])]
     #[IsGranted('lecture_commission')]
-    public function index(Request $request): Response
+    public function index(Request $request, #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $idComm = null): Response
     {
-        /** @var string|null $rawIdComm */
-        $rawIdComm = $request->query->get('idComm');
-        $idComm = null !== $rawIdComm && '' !== $rawIdComm ? (int) $rawIdComm : null;
-
         $arrayCommissions = $this->commissionRepository->getCommissionsAndTypes();
 
         $isAdmin = $this->isGranted('gestion_commissions');
@@ -95,11 +92,8 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/commissionselection', name: 'calendrier_des_commissions_commissionselection', methods: ['GET'], options: ['expose' => true])]
     #[IsGranted('lecture_commission')]
-    public function commissionSelection(Request $request): JsonResponse
+    public function commissionSelection(#[MapQueryParameter(name: 'q')] string $q = ''): JsonResponse
     {
-        /** @var string $q */
-        $q = $request->query->get('q', '');
-
         if ('' === $q) {
             return $this->json([]);
         }
@@ -489,17 +483,12 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/recupevenement', name: 'calendrier_des_commissions_recuperer_evenements', methods: ['GET'], options: ['expose' => true])]
     #[IsGranted('lecture_commission')]
-    public function getCalendarEvents(Request $request): JsonResponse
-    {
-        /** @var string|null $start */
-        $start = $request->query->get('start');
-        /** @var string|null $end */
-        $end = $request->query->get('end');
-        /** @var string|null $idCommission */
-        $idCommission = $request->query->get('idComm');
-        /** @var string|null $type */
-        $type = $request->query->get('type');
-
+    public function getCalendarEvents(
+        #[MapQueryParameter] ?string $start = null,
+        #[MapQueryParameter] ?string $end = null,
+        #[MapQueryParameter(name: 'idComm')] ?string $idCommission = null,
+        #[MapQueryParameter] ?string $type = null,
+    ): JsonResponse {
         if (null === $start || null === $end) {
             return $this->json(['items' => []]);
         }
@@ -534,11 +523,9 @@ class CalendrierDesCommissionsController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/recuperer-dates-liees', name: 'calendrier_des_commissions_recuperer_dates_liees', methods: ['GET'], options: ['expose' => true])]
     #[IsGranted('lecture_commission')]
-    public function getLinkedDates(Request $request): JsonResponse
+    public function getLinkedDates(#[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $idDate = null): JsonResponse
     {
-        $idDate = filter_var($request->query->get('idDate'), FILTER_VALIDATE_INT);
-
-        if (false === $idDate) {
+        if (null === $idDate) {
             return $this->json([]);
         }
 
@@ -664,7 +651,8 @@ class CalendrierDesCommissionsController extends AbstractController
     #[Route(path: '/commissions/calendrier/creer-date', name: 'calendrier_des_commissions_creer_date', methods: ['GET', 'POST'], options: ['expose' => true])]
     #[IsGranted('creation_commission')]
     public function creerDate(
-        Request $request
+        Request $request,
+        #[MapQueryParameter(name: 'show_footer', flags: \FILTER_NULL_ON_FAILURE)] ?bool $showFooter = null,
     ): Response {
         $dateCommissionDto = new CommissionDatesDto();
 
@@ -711,7 +699,7 @@ class CalendrierDesCommissionsController extends AbstractController
             'form' => $form,
             // Par défaut : pas de footer si requête AJAX (calendrier principal gère ses propres boutons via jQuery UI dialog).
             // Le contexte dossier passe show_footer=1 pour afficher les boutons dans la modale Bootstrap.
-            'show_footer' => (bool) $request->query->get('show_footer', !$request->isXmlHttpRequest()),
+            'show_footer' => $showFooter ?? !$request->isXmlHttpRequest(),
         ]);
     }
 }

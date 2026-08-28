@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -25,7 +26,7 @@ class ProxyController extends AbstractController
      */
     #[Route(path: '/proxy/index', name: 'proxy_index', methods: ['GET'])]
     #[Route(path: '/proxy/', name: 'proxy_index_root', methods: ['GET'])]
-    public function index(Request $request): Response
+    public function index(Request $request, #[MapQueryParameter] string $url = ''): Response
     {
         // On forme la chaîne de paramètres en excluant les paramètres de routage
         $excluded = ['url', 'controller', 'action', 'module'];
@@ -40,7 +41,7 @@ class ProxyController extends AbstractController
         $queryString = !empty($filteredParams) ? '?'.http_build_query($filteredParams) : '';
 
         // URL cible
-        $targetUrl = $request->query->get('url', '').$queryString;
+        $targetUrl = $url.$queryString;
 
         if ('' === $targetUrl) {
             return new Response('URL parameter required', Response::HTTP_BAD_REQUEST);

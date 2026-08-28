@@ -19,6 +19,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -31,22 +32,16 @@ class GroupementController extends AbstractController
     }
 
     #[Route(path: '/admin/groupements', name: 'admin_groupement')]
-    public function index(Request $request): Response
+    public function index(#[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $id = null): Response
     {
         $groupementTypes = $this->groupementTypeRepository->findAll();
         $communes = $this->communeRepository->findAll();
-
-        // Récupérer l'ID du groupement à présélectionner (peut être string ou int)
-        $selectedGroupementId = $request->query->get('id');
-        if (is_numeric($selectedGroupementId)) {
-            $selectedGroupementId = (int) $selectedGroupementId;
-        }
 
         return $this->render('groupement/index.html.twig', [
             'title' => 'Groupements de communes',
             'admin_groupement_types' => $groupementTypes,
             'communes' => $communes,
-            'selected_groupement_id' => $selectedGroupementId,
+            'selected_groupement_id' => $id,
         ]);
     }
 

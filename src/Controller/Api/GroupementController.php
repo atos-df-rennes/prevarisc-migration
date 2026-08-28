@@ -5,8 +5,8 @@ namespace App\Controller\Api;
 use App\Repository\GroupementRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -23,16 +23,11 @@ class GroupementController extends AbstractController
      * Filtre uniquement les groupements de type "Service Instructeur" (ID 10).
      */
     #[Route(path: '/api/groupements/search', name: 'api_groupements_search', methods: ['GET'], options: ['expose' => true])]
-    public function search(Request $request): JsonResponse
-    {
-        $query = (string) $request->query->get('q', '');
-
-        $limit = filter_var($request->query->get('limit', 50), FILTER_VALIDATE_INT);
-
-        if (false === $limit) {
-            $limit = 50;
-        }
-
+    public function search(
+        #[MapQueryParameter(name: 'q')] string $query = '',
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $limit = 50,
+    ): JsonResponse {
+        $limit ??= 50;
         $limit = max(1, min(50, $limit));
 
         // Filtrer uniquement les groupements de type "Service Instructeur" (ID 10).

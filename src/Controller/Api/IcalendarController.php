@@ -8,8 +8,8 @@ use App\Entity\Utilisateur;
 use App\Repository\UtilisateurRepository;
 use App\Service\Commission\IcalendarSyncService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -35,26 +35,25 @@ class IcalendarController extends AbstractController
      * - commission (int|null)    : Filtre par commission (optionnel)
      */
     #[Route(path: '/api/commissions/icalendar', name: 'api_icalendar_sync', methods: ['GET'])]
-    public function sync(Request $request): Response
-    {
+    public function sync(
+        #[MapQueryParameter] string $key = '',
+        #[MapQueryParameter] string $userid = '',
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $commission = null,
+    ): Response {
         // Vérification de la clé de sécurité
-        $key = (string) $request->query->get('key', '');
         $securityKey = (string) (getenv('PREVARISC_SECURITY_KEY') ?: '');
 
         if ('' === $securityKey || !hash_equals($securityKey, $key)) {
             return new Response('Accès refusé', Response::HTTP_FORBIDDEN);
         }
 
-        $rawUserId = (string) $request->query->get('userid', '');
-        if ('' === $rawUserId) {
+        if ('' === $userid) {
             return new Response('Paramètre userid requis', Response::HTTP_BAD_REQUEST);
         }
 
-        $userId = (int) $rawUserId;
+        $userId = (int) $userid;
 
-        /** @var string|null $rawCommissionId */
-        $rawCommissionId = $request->query->get('commission');
-        $commissionId = null !== $rawCommissionId && '' !== $rawCommissionId ? (int) $rawCommissionId : null;
+        $commissionId = $commission;
 
         // Vérification du privilège calendar_view_all : si l'utilisateur peut tout voir,
         // on retourne tout sans filtre utilisateur (userId=null).

@@ -17,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -27,10 +28,13 @@ class ContactController extends AbstractController
     }
 
     #[Route(path: '/contact/{id}/modifier', name: 'contact_edit', options: ['expose' => true])]
-    public function edit(Request $request, UtilisateurInformations $contact): Response
-    {
-        $elementLie = $request->query->get('elementLie');
-        $elementId = $request->query->getInt('elementId');
+    public function edit(
+        Request $request,
+        UtilisateurInformations $contact,
+        #[MapQueryParameter] ?string $elementLie = null,
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $elementId = 0,
+    ): Response {
+        $elementId ??= 0;
 
         switch ($elementLie) {
             case Contact::ETABLISSEMENT:
