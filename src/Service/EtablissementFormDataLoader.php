@@ -36,7 +36,7 @@ final readonly class EtablissementFormDataLoader
      */
     public function load(): array
     {
-        $activites = $this->activiteRepository->findAll();
+        $activites = $this->activiteRepository->findAllWithType();
 
         // JSON des activités au format legacy pour le JS du formulaire
         $activitesJson = [];
@@ -52,7 +52,7 @@ final readonly class EtablissementFormDataLoader
         // Commissions groupées par type pour les optgroups du select
         /** @var array<int, array{libelle: string, items: Commission[]}> $commissionsData */
         $commissionsData = [];
-        foreach ($this->commissionRepository->findAll() as $commission) {
+        foreach ($this->commissionRepository->findAllWithType() as $commission) {
             $type = $commission->getType();
             $typeId = $type ? (int) $type->getId() : 0;
             $typeLibelle = $type ? (string) $type->getLibelle() : '';

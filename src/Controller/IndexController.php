@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class IndexController extends AbstractController
 {
-    public function __construct(private readonly VersionBuilder $versionBuilder, private readonly DashboardBlocConfig $dashboardBlocConfig, private readonly DashboardService $dashboardService, private readonly FeedService $feedService, private readonly GroupeRepository $groupeRepository, private readonly NotificationService $notificationService, private readonly PlatauHealthcheckService $platauHealthcheckService, private readonly bool $deactivatePlatau, private readonly bool $platauNoHealthcheck, private readonly LoggerInterface $logger)
+    public function __construct(private readonly VersionBuilder $versionBuilder, private readonly DashboardBlocConfig $dashboardBlocConfig, private readonly DashboardService $dashboardService, private readonly FeedService $feedService, private readonly GroupeRepository $groupeRepository, private readonly NotificationService $notificationService, private readonly PlatauHealthcheckService $platauHealthcheckService, private readonly bool $deactivatePlatau, private readonly bool $platauNoHealthcheck, private readonly LoggerInterface $logger, private readonly bool $sdis29CustomEnabled)
     {
     }
 
@@ -218,7 +218,8 @@ class IndexController extends AbstractController
     public function footer(): Response
     {
         $versionService = $this->versionBuilder->build();
-        $response = $this->render('_footer.html.twig', [
+        $template = $this->sdis29CustomEnabled ? 'sdis29/_footer.html.twig' : '_footer.html.twig';
+        $response = $this->render($template, [
             'link' => $versionService->link(),
             'version' => $versionService->version(),
         ]);

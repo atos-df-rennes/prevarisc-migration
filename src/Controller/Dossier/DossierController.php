@@ -146,6 +146,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
                     /** @var string|null $idAffectationVisite */
                     $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
 
+                    // Attribution des numéros pour les documents manquants (évite NUM_DOCSMANQUANT null)
+                    $this->documentManquantService->assignerNumeros($dossier);
+
                     // Persist du dossier avant les opérations dépendantes de l'ID
                     $this->dossierSauvegardeService->nullifierChampsNonApplicables($dossier);
                     $this->entityManager->persist($dossier);
@@ -346,6 +349,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 // Dossier donnant avis : gestion affectation/désaffectation selon changement de nature
                 $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
                 $etablissementsIds = $this->dossierSauvegardeService->gererDossierDonnantAvis($dossier, $repercuterAvis, $ancienneNature);
+
+                // Attribution des numéros pour les nouveaux documents manquants (évite NUM_DOCSMANQUANT null)
+                $this->documentManquantService->assignerNumeros($dossier);
 
                 // Persist et flush toutes les modifications
                 $this->dossierSauvegardeService->nullifierChampsNonApplicables($dossier);

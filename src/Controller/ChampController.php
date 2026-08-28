@@ -92,7 +92,7 @@ class ChampController extends AbstractController
             'champ' => $champ,
             'form_champ' => $formChamp,
             'valeur_champ_fusion' => ChampCreator::make($formulaire, $rubrique, $champ),
-            'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
+            'champ_valeurs_liste' => $this->champValeurListeRepository->findDistinctValeurs(),
             'form_champ_enfant' => $formChampEnfant instanceof FormInterface ? $formChampEnfant->createView() : null
         ]);
     }

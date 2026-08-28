@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
  * Tests unitaires pour le validator DossierObjet.
  *
  * Ce validator vérifie que le champ OBJET est renseigné
- * sauf pour les natures 21 et 26 (visites périodiques).
+ * sauf pour les natures 21, 26 (visites périodiques) et 40, 41, 42, 44 (arrêtés).
  */
 final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
 {
@@ -89,6 +89,10 @@ final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
     {
         yield 'nature 21 - Visite périodique' => [21];
         yield 'nature 26 - Groupe visite périodique' => [26];
+        yield 'nature 40 - Arrêté ouverture' => [40];
+        yield 'nature 41 - Arrêté' => [41];
+        yield 'nature 42 - Arrêté' => [42];
+        yield 'nature 44 - Arrêté' => [44];
     }
 
     /**

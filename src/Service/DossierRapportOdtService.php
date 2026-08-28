@@ -19,6 +19,7 @@ use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
 use App\Repository\ListeDocumentConsulteRepository;
 use App\Service\DataStore\DataStore;
+use App\Service\Dossier\DossierVisiteConvocationService;
 use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
@@ -40,7 +41,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class DossierRapportOdtService
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger)
     {
     }
 
@@ -159,7 +160,7 @@ class DossierRapportOdtService
             $this->fillChampsDossier($odf, $rawDossier, $idDossier, $typeDossierLabel, $natureDossierLabel, $numInsee);
 
             // --- Champs dates du dossier ---
-            $this->fillChampsDatesDossier($odf, $rawDossier);
+            $this->fillChampsDatesDossier($odf, $rawDossier, $dossier);
 
             // =====================================================================
             // SEGMENT : preventionnistes
@@ -535,7 +536,7 @@ class DossierRapportOdtService
      *
      * @param array<string, string|null> $rawDossier
      */
-    private function fillChampsDatesDossier(Odf $odf, array $rawDossier): void
+    private function fillChampsDatesDossier(Odf $odf, array $rawDossier, Dossier $dossier): void
     {
         // --- dateRvrat ---
         $dateRvrat = 'Indisponible';
@@ -560,22 +561,13 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'dateDelaipresc', $dateDelaipresc);
 
         // --- dateVisite / heureVisite ---
-        $dateVisite = '';
-        $heureVisite = '';
-        if (!empty($rawDossier['DATEVISITE_DOSSIER'])) {
-            $dtVisite = \DateTime::createFromFormat('Y-m-d H:i:s', $rawDossier['DATEVISITE_DOSSIER']);
-            if (!$dtVisite instanceof \DateTime) {
-                $dtVisite = \DateTime::createFromFormat('Y-m-d', substr($rawDossier['DATEVISITE_DOSSIER'], 0, 10));
-            }
+        // Port du legacy DossierController::creationdocAction() : la colonne DATEVISITE_DOSSIER
+        // ne stocke qu'une date (pas d'heure), l'heure réelle de convocation vient du groupe de
+        // dates de commission liées à l'affectation visite/groupe de visite du dossier.
+        $infosConvocation = $this->visiteConvocationService->getInfosConvocation($dossier);
 
-            if ($dtVisite instanceof \DateTime) {
-                $dateVisite = DateFormatterFr::formatLong($dtVisite);
-                $heureVisite = $dtVisite->format('H:i');
-            }
-        }
-
-        $this->addChamp($odf, 'dateVisite', $dateVisite);
-        $this->addChamp($odf, 'heureVisite', $heureVisite);
+        $this->addChamp($odf, 'dateVisite', $infosConvocation['dateVisite']);
+        $this->addChamp($odf, 'heureVisite', $infosConvocation['heureVisite']);
 
         // --- dateGeneration ---
         $this->addChamp($odf, 'dateGeneration', DateFormatterFr::formatLong(new \DateTime()));
