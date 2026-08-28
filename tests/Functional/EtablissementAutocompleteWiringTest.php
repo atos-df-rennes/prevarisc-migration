@@ -2,11 +2,11 @@
 
 namespace App\Tests\Functional;
 
-use PHPUnit\Framework\Attributes\Group;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,8 +24,7 @@ class EtablissementAutocompleteWiringTest extends WebTestCase
 
     private const string API_ROUTE = '/api/etablissements/search';
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     protected function setUp(): void
     {

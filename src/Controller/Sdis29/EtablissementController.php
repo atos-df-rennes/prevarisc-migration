@@ -8,13 +8,13 @@ use App\Entity\Etablissement;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Security\Voter\Sdis29\Sdis29Voter;
 use App\Service\Sdis29\NumeroIdGenerator;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 // @todo: faire un package chargé uniquement par le/les SDIS concernés
 /**
@@ -31,14 +31,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class EtablissementController extends AbstractController
 {
-    /**
-     * @var NumeroIdGenerator
-     */
-    private $numeroIdGenerator;
-
-    public function __construct(NumeroIdGenerator $numeroIdGenerator)
+    public function __construct(private readonly NumeroIdGenerator $numeroIdGenerator)
     {
-        $this->numeroIdGenerator = $numeroIdGenerator;
     }
 
     /**
@@ -49,12 +43,10 @@ class EtablissementController extends AbstractController
      * donc aucune clé de sécurité n'est nécessaire ici (contrairement au
      * legacy, qui exposait PREVARISC_SECURITY_KEY dans l'URL pour proxifier
      * l'image quand le viewer était sur un domaine tiers).
-     *
-     * @Route("/sdis29/etablissement/{id}/kml", name="sdis29_etablissement_kml", methods={"GET"})
-     *
-     * @IsGranted(Sdis29Voter::ENABLED, statusCode=404)
-     * @IsGranted("view_ets", subject="etablissement")
      */
+    #[Route(path: '/sdis29/etablissement/{id}/kml', name: 'sdis29_etablissement_kml', methods: ['GET'])]
+    #[IsGranted(Sdis29Voter::ENABLED, statusCode: 404)]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function kml(Etablissement $etablissement, Request $request): Response
     {
         $adresse = $etablissement->getAdresses()->first();
@@ -80,18 +72,14 @@ class EtablissementController extends AbstractController
      * schéma de numérotation SDIS29 (utilisé uniquement depuis le formulaire
      * d'ajout d'un établissement : la valeur retournée est une suggestion,
      * l'unicité définitive reste garantie à la persistance).
-     *
-     * @Route("/sdis29/etablissement/generateID", name="sdis29_etablissement_generate_id", methods={"POST"})
-     *
-     * @IsGranted(Sdis29Voter::ENABLED, statusCode=404)
-     * @IsGranted(EtablissementVoter::CREATE)
      */
+    #[Route(path: '/sdis29/etablissement/generateID', name: 'sdis29_etablissement_generate_id', methods: ['POST'])]
+    #[IsGranted(Sdis29Voter::ENABLED, statusCode: 404)]
+    #[IsGranted(EtablissementVoter::CREATE)]
     public function generateId(Request $request): JsonResponse
     {
-        $rawArrondissement = $request->request->get('arrondissement', '');
-        $arrondissement = is_scalar($rawArrondissement) ? (string) $rawArrondissement : '';
-        $rawIdGenre = $request->request->get('idgenre') ?: '1';
-        $idGenre = is_scalar($rawIdGenre) ? (string) $rawIdGenre : '1';
+        $arrondissement = $request->request->getString('arrondissement', '');
+        $idGenre = $request->request->getString('idgenre', '1') ?: '1';
         $rawIdPere = $request->request->get('idpere');
         $idPere = (is_string($rawIdPere) || is_int($rawIdPere)) && '' !== (string) $rawIdPere ? (int) $rawIdPere : null;
 

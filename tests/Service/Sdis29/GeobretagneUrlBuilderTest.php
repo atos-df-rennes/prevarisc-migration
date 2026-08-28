@@ -15,8 +15,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class GeobretagneUrlBuilderTest extends TestCase
 {
-    /** @var GeobretagneUrlBuilder */
-    private $builder;
+    private GeobretagneUrlBuilder $builder;
 
     protected function setUp(): void
     {

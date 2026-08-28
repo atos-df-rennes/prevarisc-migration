@@ -3,6 +3,7 @@
 namespace App\Tests\DependencyInjection;
 
 use App\DependencyInjection\ThirdpartyPluginEnvVarProcessor;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -12,17 +13,14 @@ use PHPUnit\Framework\TestCase;
  */
 final class ThirdpartyPluginEnvVarProcessorTest extends TestCase
 {
-    /** @var ThirdpartyPluginEnvVarProcessor */
-    private $processor;
+    private ThirdpartyPluginEnvVarProcessor $processor;
 
     protected function setUp(): void
     {
         $this->processor = new ThirdpartyPluginEnvVarProcessor();
     }
 
-    /**
-     * @dataProvider getEnvProvider
-     */
+    #[DataProvider('getEnvProvider')]
     public function testGetEnv(string $prefix, string $rawValue, bool $expected): void
     {
         $result = $this->processor->getEnv(
@@ -39,7 +37,7 @@ final class ThirdpartyPluginEnvVarProcessorTest extends TestCase
     /**
      * @return array<string, array<mixed>>
      */
-    public function getEnvProvider(): array
+    public static function getEnvProvider(): array
     {
         return [
             'Plugin_SDIS29 présent parmi d\'autres' => ['sdis29_plugin_enabled', 'Plugin_Foo;Plugin_SDIS29;Plugin_Bar', true],

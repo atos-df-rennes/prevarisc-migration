@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DossierDocumentManquantServiceTest extends TestCase
 {
-    /** @var DossierDocumentManquantService */
-    private $service;
+    private DossierDocumentManquantService $service;
 
     protected function setUp(): void
     {
