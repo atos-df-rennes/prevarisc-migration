@@ -45,5 +45,5 @@ REVIEW_REPORT.md
 
 ###> symfony/asset-mapper ###
 /public/assets/
-/assets/vendor/
+/assets/vendor-legacy/
 ###< symfony/asset-mapper ###

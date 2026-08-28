@@ -9,14 +9,14 @@
         {% block stylesheets %}
             {# {{ encore_entry_link_tags('app') }} #}
 
-            <link href="{{ asset('vendor/bootstrap.css') }}" rel="stylesheet" />
+            <link href="{{ asset('vendor-legacy/bootstrap.css') }}" rel="stylesheet" />
             <link href="{{ asset('styles/main-bs3.css') }}" rel="stylesheet" />
-            <link href="{{ asset('vendor/tom-select.css') }}" rel="stylesheet" />
+            <link href="{{ asset('vendor-legacy/tom-select.css') }}" rel="stylesheet" />
             <link href="{{ asset('styles/login.css') }}" rel="stylesheet" />
             <link href="{{ asset('styles/utilities.css') }}" rel="stylesheet" />
             <link href="{{ asset('styles/toast-notifications.css') }}" rel="stylesheet" />
 
-            <link href="{{ asset('vendor/jquery-ui.css') }}" rel="stylesheet" />
+            <link href="{{ asset('vendor-legacy/jquery-ui.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/jquery/jquery.fullcalendar.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/jquery/jquery.fancybox.min.css') }}" rel="stylesheet" />
             <link href="{{ asset('css/dropzone/basic.css') }}" rel="stylesheet" />
@@ -32,9 +32,9 @@
             {% block importmap %}{{ importmap('app') }}{% endblock %}
             {# {{ encore_entry_script_tags('app') }} #}
 
-            <script src="{{ asset('vendor/jquery.js') }}"></script>
-            <script src="{{ asset('vendor/jquery-migrate.js') }}"></script>
-            <script src="{{ asset('vendor/jquery-ui.js') }}"></script>
+            <script src="{{ asset('vendor-legacy/jquery.js') }}"></script>
+            <script src="{{ asset('vendor-legacy/jquery-migrate.js') }}"></script>
+            <script src="{{ asset('vendor-legacy/jquery-ui.js') }}"></script>
             <script src="{{ asset('js/jquery.fullcalendar.js') }}"></script>
             <script src="{{ asset('js/jquery.autocomplete.min.js') }}"></script>
             <script src="{{ asset('js/jquery.timeentry.js') }}"></script>
@@ -46,8 +46,8 @@
             <script src="{{ asset('js/jquery-ui.datepicker.fr.js') }}"></script>
             <script src="{{ asset('js/jquery.marquee.min.js') }}"></script>
             <script src="{{ asset('js/jquery.hoverintent.js') }}"></script>
-            <script src="{{ asset('vendor/bootstrap.js') }}"></script>
-            <script src="{{ asset('vendor/tom-select.js') }}"></script>
+            <script src="{{ asset('vendor-legacy/bootstrap.js') }}"></script>
+            <script src="{{ asset('vendor-legacy/tom-select.js') }}"></script>
             <script src="{{ asset('toast-notifications.js') }}"></script>
             <script src="{{ asset('main-bs3.js') }}"></script>
             <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>
