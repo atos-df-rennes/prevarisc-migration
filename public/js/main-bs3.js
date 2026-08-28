@@ -67,8 +67,11 @@ function bindEtsPopup($elem) {
             var e = $(this);
             // animation: false évite la race condition Bootstrap 3 lors du destroy/update
             e.popover({html: true, animation: false, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
-            // @todo: migrer cette route vers Symfony
-            $.getJSON("/api/1.0/etablissement?id=" + id, function(data) {
+            $.getJSON("/api/2.0/etablissement/apercu?id=" + id, function(data) {
+                if (!data || !data.response) {
+                    e.popover('destroy');
+                    return;
+                }
                 var ets_id = data.response.general.ID_ETABLISSEMENT;
                 var ets_libelle = data.response.informations.LIBELLE_ETABLISSEMENTINFORMATIONS;
                 var ets_type = data.response.informations.LIBELLE_TYPE_PRINCIPAL;
@@ -140,6 +143,8 @@ function bindEtsPopup($elem) {
                 // donc destroy+recreate est sûr et utilise uniquement l'API publique Bootstrap 3.
                 e.popover('destroy');
                 e.popover({html: true, animation: false, content: html}).popover('show');
+            }).fail(function() {
+                e.popover('destroy');
             });
         },
         out: function() {
