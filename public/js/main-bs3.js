@@ -60,8 +60,8 @@ function bindEtsMarquee($elem) {
 }
 
 function bindEtsPopup($elem) {
-    // Bulle ETS
-    $elem.find('a[href^="/etablissement/"][href$="/informations"]').hoverIntent({
+    // Bulle ETS (exclut le lien "Général" du menu latéral de la fiche établissement, qui matche le même pattern d'URL)
+    $elem.find('a[href^="/etablissement/"][href$="/informations"]').not('.menu_dashboard a').hoverIntent({
         over: function () {
             var id = $(this).attr('href').replace("/etablissement/", "").replace("/informations", "");
             var e = $(this);
