@@ -23,7 +23,7 @@ class AdresseController extends AbstractController
     /**
      * Autocomplete des communes par nom ou code postal.
      */
-    #[Route(path: '/api/2.0/adresse/get_communes', name: 'api_adresse_get_communes', methods: ['GET'])]
+    #[Route(path: '/api/2.0/adresse/get_communes', name: 'api_adresse_get_communes', methods: ['GET'], options: ['expose' => true])]
     public function getCommunes(Request $request): JsonResponse
     {
         $q = $this->extractString($request->query->get('q', ''));

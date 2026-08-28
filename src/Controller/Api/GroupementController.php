@@ -22,7 +22,7 @@ class GroupementController extends AbstractController
      * Recherche de groupements pour autocomplete.
      * Filtre uniquement les groupements de type "Service Instructeur" (ID 10).
      */
-    #[Route(path: '/api/groupements/search', name: 'api_groupements_search', methods: ['GET'])]
+    #[Route(path: '/api/groupements/search', name: 'api_groupements_search', methods: ['GET'], options: ['expose' => true])]
     public function search(Request $request): JsonResponse
     {
         $query = (string) $request->query->get('q', '');
