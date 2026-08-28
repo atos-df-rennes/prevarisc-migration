@@ -67,7 +67,7 @@ function bindEtsPopup($elem) {
             var e = $(this);
             // animation: false évite la race condition Bootstrap 3 lors du destroy/update
             e.popover({html: true, animation: false, content: "<p class='text-center'><img src='/images/load.gif'></p>"}).popover('show');
-            $.getJSON("/api/2.0/etablissement/apercu?id=" + id, function(data) {
+            $.getJSON(Routing.generate('api_etablissement_apercu', {id: id}), function(data) {
                 if (!data || !data.response) {
                     e.popover('destroy');
                     return;
@@ -103,7 +103,7 @@ function bindEtsPopup($elem) {
                 if(ets_type != null) html+= "<img src='/images/types/b/icone-type-" + ets_type + ".png'>&nbsp;";
                 html += ets_libelle + "</strong></span>";
                 html += "&nbsp;<span><small>" + ets_adresses + "</small></span>";
-                html += "<br /><span><small>#" + data.response.general.NUMEROID_ETABLISSEMENT + "</small></span>";
+                if(data.response.general.NUMEROID_ETABLISSEMENT != null) html += "<br /><span><small>#" + data.response.general.NUMEROID_ETABLISSEMENT + "</small></span>";
 
                 if(data.response.presence_avis_differe === true) {
                     html += "<br><br><p class='avis' style='background-color: #3a87ad; font-size: .7em; float: none'>Avis différé</p>";

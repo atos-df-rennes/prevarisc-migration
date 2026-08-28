@@ -6,6 +6,7 @@ use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
+use App\Service\EtablissementAncestryService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -14,7 +15,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly EtablissementAncestryService $etablissementAncestryService)
     {
     }
 
@@ -54,19 +55,7 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
         $event->getRequest()->attributes->set('is_allowed_delete_etablissement', $isAllowedDeleteEtablissement);
 
         // Récupère récursivement le parent de l'établissement
-        $etablissementCourant = $etablissement;
-        $parents = [];
-
-        do {
-            $parent = $etablissementCourant->getParent();
-
-            if (null !== $parent) {
-                $parents[] = $parent;
-                $etablissementCourant = $parent;
-            }
-        } while (null !== $parent);
-
-        $parents = array_reverse($parents);
+        $parents = $this->etablissementAncestryService->getAncetres($etablissement);
         $event->getRequest()->attributes->set('parents_etablissement', $parents);
 
         $capsuleDescriptifEtablissement = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT]);

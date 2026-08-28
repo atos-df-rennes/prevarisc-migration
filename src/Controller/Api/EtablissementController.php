@@ -10,6 +10,7 @@ use App\Repository\EtablissementAdresseRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\PeriodiciteRepository;
 use App\Security\Voter\Etablissement\EtablissementVoter;
+use App\Service\EtablissementAncestryService;
 use App\Service\EtablissementSearchService;
 use App\Service\Search\EtablissementAutocompleteNormalizer;
 use App\Service\Search\SearchQueryHelper;
@@ -49,7 +50,8 @@ class EtablissementController extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly EtablissementSearchService $etablissementSearchService,
         private readonly EtablissementAutocompleteNormalizer $autocompleteNormalizer,
-        private readonly SearchQueryHelper $searchQueryHelper
+        private readonly SearchQueryHelper $searchQueryHelper,
+        private readonly EtablissementAncestryService $etablissementAncestryService
     ) {
     }
 
@@ -93,7 +95,7 @@ class EtablissementController extends AbstractController
      * les champs effectivement consommés par public/js/main-bs3.js (contrairement au legacy qui calculait
      * aussi rubriques, plans, diaporama, historique de dossiers, données pratiques, dates de visite, etc.).
      */
-    #[Route(path: '/api/2.0/etablissement/apercu', name: 'api_etablissement_apercu', methods: ['GET'])]
+    #[Route(path: '/api/2.0/etablissement/apercu', name: 'api_etablissement_apercu', methods: ['GET'], options: ['expose' => true])]
     public function apercu(Request $request): JsonResponse
     {
         $id = filter_var($request->query->get('id'), FILTER_VALIDATE_INT);
@@ -121,13 +123,7 @@ class EtablissementController extends AbstractController
         $parentDirect = $etablissement->getParent();
 
         // Chaîne des ancêtres, racine en premier (port du climb+reverse legacy).
-        $parents = [];
-        $ancestor = $parentDirect;
-        while (null !== $ancestor) {
-            $parents[] = $ancestor;
-            $ancestor = $ancestor->getParent();
-        }
-        $parents = array_reverse($parents);
+        $parents = $this->etablissementAncestryService->getAncetres($etablissement);
 
         // Pour une cellule, la catégorie affichée est celle de son établissement père direct (parité legacy).
         $categorieLibelle = GenreEtablissement::CELLULE === $genre && null !== $parentDirect
