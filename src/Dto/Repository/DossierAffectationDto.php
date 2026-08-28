@@ -52,6 +52,38 @@ final class DossierAffectationDto extends AbstractDossierResultDto
     public $NUM_DOCURBA;
 
     /**
+     * Alias de NUM_DOCURBA, utilisé par le template partagé _dossier.html.twig
+     * (comme pour DossierDashboardDto).
+     *
+     * @var string|null
+     */
+    public $NB_URBA;
+
+    /**
+     * Non calculé par les requêtes d'ODJ de commission, mais requis par le template
+     * partagé _dossier.html.twig (comme pour DossierDashboardDto).
+     *
+     * @var int|null
+     */
+    public $NB_PJ;
+
+    /**
+     * Non calculé par les requêtes d'ODJ de commission, mais requis par le template
+     * partagé _dossier.html.twig (comme pour DossierDashboardDto).
+     *
+     * @var int|null
+     */
+    public $ALERTE_RECEPTION_TRAVAUX;
+
+    /**
+     * Non calculé par les requêtes d'ODJ de commission, mais requis par le template
+     * partagé _dossier.html.twig (comme pour DossierDashboardDto).
+     *
+     * @var int|null
+     */
+    public $ECHEANCIER_TRAVAUX;
+
+    /**
      * Données établissement enrichies par le contrôleur (informations, adresses, parents).
      * Null si non enrichi (dossier sans établissement ou enrichissement non effectué).
      *
@@ -90,6 +122,10 @@ final class DossierAffectationDto extends AbstractDossierResultDto
         $dto->NUM_DOSSIER = SqlTypeHelper::toInt($row['NUM_DOSSIER'] ?? null);
         $dto->ID_DATECOMMISSION_AFFECT = SqlTypeHelper::toInt($row['ID_DATECOMMISSION_AFFECT'] ?? null);
         $dto->NUM_DOCURBA = SqlTypeHelper::toStr($row['NUM_DOCURBA'] ?? null);
+        $dto->NB_URBA = $dto->NUM_DOCURBA;
+        $dto->NB_PJ = SqlTypeHelper::toInt($row['NB_PJ'] ?? null);
+        $dto->ALERTE_RECEPTION_TRAVAUX = SqlTypeHelper::toInt($row['ALERTE_RECEPTION_TRAVAUX'] ?? null);
+        $dto->ECHEANCIER_TRAVAUX = SqlTypeHelper::toInt($row['ECHEANCIER_TRAVAUX'] ?? null);
 
         return $dto;
     }
