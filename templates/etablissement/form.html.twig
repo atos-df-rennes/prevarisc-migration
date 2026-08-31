@@ -411,13 +411,20 @@
         // ——— Activités par type ———
         var activites = {{ activites_json|raw }};
         $(document).on('change', 'select.type_select', function() {
-            $(this).next().find('option').remove();
+            var $activiteSelect = $(this).next();
+            // Conserve la valeur déjà sélectionnée (rendue par le serveur ou choisie
+            // par l'utilisateur) afin de la réappliquer après reconstruction des options.
+            var valeurCourante = $activiteSelect.val();
+            $activiteSelect.find('option').remove();
             for (var x in activites) {
                 if (activites[x]['ID_TYPE'] == $(this).val()) {
-                    $(this).next().append(
+                    $activiteSelect.append(
                         $('<option />').val(activites[x]['ID_TYPEACTIVITE']).text(activites[x]['LIBELLE_ACTIVITE'])
                     );
                 }
+            }
+            if (valeurCourante !== null && $activiteSelect.find('option[value="' + valeurCourante + '"]').length) {
+                $activiteSelect.val(valeurCourante);
             }
         });
         $('select.type_select').each(function() {
