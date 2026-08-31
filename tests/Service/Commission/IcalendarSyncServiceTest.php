@@ -177,6 +177,15 @@ final class IcalendarSyncServiceTest extends TestCase
         $this->assertStringContainsString('END:VEVENT', $ics);
         $this->assertStringContainsString('END:VCALENDAR', $ics);
         $this->assertStringContainsString('UID:prevarisc-commission-1-dossier-1@prevarisc.local', $ics);
+
+        // Non-régression : DTSTART/DTEND référencent TZID=Europe/Paris, qui doit être
+        // défini par un composant VTIMEZONE, sous peine de décalage horaire chez certains
+        // clients (Outlook) incapables de résoudre un TZID non déclaré dans le VCALENDAR.
+        $this->assertStringContainsString('BEGIN:VTIMEZONE', $ics);
+        $this->assertStringContainsString('TZID:Europe/Paris', $ics);
+        $this->assertStringContainsString('END:VTIMEZONE', $ics);
+        $this->assertStringContainsString('DTSTART;TZID=Europe/Paris:20250615T090000', $ics);
+        $this->assertStringContainsString('DTEND;TZID=Europe/Paris:20250615T110000', $ics);
     }
 
     public function testGenerateFeedIncludesServiceInstructeurForTypeDossierInstruction(): void
