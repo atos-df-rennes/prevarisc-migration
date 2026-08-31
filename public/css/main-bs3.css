@@ -238,26 +238,19 @@ form#etablissement dt,
 form#etablissement dd {
   line-height: 30px;
 }
-form#etablissement .champs_icpe_rubrique_no {
-  width: 50px;
+/* Tableau des rubriques ICPE : colonnes en pourcentage (table-layout: fixed) pour
+   que la largeur reste fluide et tienne dans la colonne (col-lg-6) sans jamais
+   dépasser sur "Données prévention". Les <input>/<select> (form-control, width:100%)
+   remplissent alors naturellement leur cellule.
+   .table-scroll-x reste un filet de sécurité (overflow ne s'applique pas de façon
+   fiable sur un <table> lui-même) pour les très petites largeurs. */
+form#etablissement .champs_icpe {
+  table-layout: fixed;
+  width: 100%;
 }
-
-/* Le tableau des rubriques ICPE ne doit pas déborder de sa colonne (col-lg-6) :
-   overflow ne s'applique pas fiablement sur un élément <table>, on le confine
-   donc dans un conteneur block avec overflow-x, qui affiche un scroll horizontal
-   si besoin au lieu de recouvrir la colonne "Données prévention". */
 form#etablissement .table-scroll-x {
   overflow-x: auto;
   width: 100%;
-}
-
-@media screen and (max-width: 1500px) {
-  form#etablissement .champs_icpe_rubrique_id {
-    width: 90px;
-  }
-  form#etablissement .champs_icpe_rubrique_nom {
-    width: 160px;
-  }
 }
 
 
