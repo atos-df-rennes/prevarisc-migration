@@ -6,6 +6,7 @@ namespace App\Tests\Service\Commission;
 
 use App\Repository\DateCommissionRepository;
 use App\Service\Commission\IcalendarSyncService;
+use App\Service\Commission\IcsVTimezoneBuilder;
 use PHPUnit\Framework\TestCase;
 
 final class IcalendarSyncServiceTest extends TestCase
@@ -27,7 +28,7 @@ final class IcalendarSyncServiceTest extends TestCase
         $repo = $this->createMock(DateCommissionRepository::class);
         $repo->method('findForWebcalSync')->willReturn($rows);
 
-        $service = new IcalendarSyncService($repo);
+        $service = new IcalendarSyncService($repo, new IcsVTimezoneBuilder());
         // Unfold iCal line folding (RFC 5545 §3.1) before asserting
         $ics = preg_replace('/\r\n[ \t]/', '', $service->generateFeed(null, null)) ?? '';
 
@@ -168,7 +169,7 @@ final class IcalendarSyncServiceTest extends TestCase
         $repo = $this->createMock(DateCommissionRepository::class);
         $repo->method('findForWebcalSync')->willReturn([$row]);
 
-        $service = new IcalendarSyncService($repo);
+        $service = new IcalendarSyncService($repo, new IcsVTimezoneBuilder());
         $ics = $service->generateFeed(null, null);
 
         $this->assertStringContainsString('BEGIN:VCALENDAR', $ics);
@@ -219,7 +220,7 @@ final class IcalendarSyncServiceTest extends TestCase
         $repo = $this->createMock(DateCommissionRepository::class);
         $repo->method('findForWebcalSync')->willReturn([$row]);
 
-        $service = new IcalendarSyncService($repo);
+        $service = new IcalendarSyncService($repo, new IcsVTimezoneBuilder());
         $ics = $service->generateFeed(null, null);
 
         $this->assertStringContainsString('Coordonnées du service instructeur :', $ics);
