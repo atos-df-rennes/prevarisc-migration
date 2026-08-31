@@ -14,8 +14,7 @@
 <tr id="{{ is_proto ? 'prototype_rubrique' : '' }}"
     class="{{ is_proto ? 'hide prototype' : '' }}">
     <td>
-        <select class="form-control" name="RUBRIQUES[{{ rub_key }}][ID_RUBRIQUE]"
-                style="width: auto;">
+        <select class="form-control" name="RUBRIQUES[{{ rub_key }}][ID_RUBRIQUE]">
             <option value="1" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 1) ? 'selected' : '' }}>Substance</option>
             <option value="2" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 2) ? 'selected' : '' }}>Activité</option>
             <option value="3" {{ (not is_proto and rubrique is not null and rubrique.rubrique == 3) ? 'selected' : '' }}>IED</option>
@@ -25,24 +24,20 @@
     <td>
         <input type="text" class="form-control" placeholder="Numéro"
                name="RUBRIQUES[{{ rub_key }}][NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
-               value="{{ is_proto ? '' : (rubrique.numero|default('')) }}"
-               style="width: 60px;" />
+               value="{{ is_proto ? '' : (rubrique.numero|default('')) }}" />
     </td>
     <td>
         <input type="text" class="form-control" placeholder="Nom"
                name="RUBRIQUES[{{ rub_key }}][NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
-               value="{{ is_proto ? '' : (rubrique.nom|default('')) }}"
-               style="width: 140px;" />
+               value="{{ is_proto ? '' : (rubrique.nom|default('')) }}" />
     </td>
     <td>
         <input type="text" class="form-control" placeholder="Valeur"
                name="RUBRIQUES[{{ rub_key }}][VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
-               value="{{ is_proto ? '' : (rubrique.valeur|default('')) }}"
-               style="width: 80px;" />
+               value="{{ is_proto ? '' : (rubrique.valeur|default('')) }}" />
     </td>
     <td>
-        <select class="form-control" name="RUBRIQUES[{{ rub_key }}][CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE]"
-                style="width: auto;">
+        <select class="form-control" name="RUBRIQUES[{{ rub_key }}][CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE]">
             <option value="D" {{ (not is_proto and rubrique is not null and rubrique.classement == 'D') ? 'selected' : '' }}>D</option>
             <option value="DC" {{ (not is_proto and rubrique is not null and rubrique.classement == 'DC') ? 'selected' : '' }}>DC</option>
             <option value="EN" {{ (not is_proto and rubrique is not null and rubrique.classement == 'EN') ? 'selected' : '' }}>EN</option>
