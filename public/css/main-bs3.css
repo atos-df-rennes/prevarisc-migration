@@ -242,6 +242,15 @@ form#etablissement .champs_icpe_rubrique_no {
   width: 50px;
 }
 
+/* Le tableau des rubriques ICPE ne doit pas déborder de sa colonne (col-lg-6) :
+   overflow ne s'applique pas fiablement sur un élément <table>, on le confine
+   donc dans un conteneur block avec overflow-x, qui affiche un scroll horizontal
+   si besoin au lieu de recouvrir la colonne "Données prévention". */
+form#etablissement .table-scroll-x {
+  overflow-x: auto;
+  width: 100%;
+}
+
 @media screen and (max-width: 1500px) {
   form#etablissement .champs_icpe_rubrique_id {
     width: 90px;

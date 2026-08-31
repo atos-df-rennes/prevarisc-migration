@@ -241,21 +241,23 @@
                     Ajouter une rubrique
                 </a>
             </h4>
-            <table class="table table-condensed champs_icpe champs rubrique">
-                <thead>
-                    <tr>
-                        <th>Rubrique</th><th>Numéro</th><th>Nom</th><th>Valeur</th><th>Classement</th><th></th>
-                    </tr>
-                </thead>
-                <tbody id="rubriques_tbody">
-                    {{ include('etablissement/_partial_rubrique.html.twig', {prototype: true}) }}
-                    {% if not add %}
-                        {% for rubrique in etablissement.latestInformations.rubriquesIcpe %}
-                            {{ include('etablissement/_partial_rubrique.html.twig', {rubrique: rubrique}) }}
-                        {% endfor %}
-                    {% endif %}
-                </tbody>
-            </table>
+            <div class="table-scroll-x">
+                <table class="table table-condensed champs_icpe champs rubrique">
+                    <thead>
+                        <tr>
+                            <th>Rubrique</th><th>Numéro</th><th>Nom</th><th>Valeur</th><th>Classement</th><th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="rubriques_tbody">
+                        {{ include('etablissement/_partial_rubrique.html.twig', {prototype: true}) }}
+                        {% if not add %}
+                            {% for rubrique in etablissement.latestInformations.rubriquesIcpe %}
+                                {{ include('etablissement/_partial_rubrique.html.twig', {rubrique: rubrique}) }}
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
 
             {# Effectifs ERP/Cellule/IGH #}
             <h4 class="champ_effectifs champs h4_subtitle">Effectifs</h4>
