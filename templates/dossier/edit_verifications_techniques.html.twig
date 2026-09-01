@@ -2,9 +2,9 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link href="{{ asset('css/formulaire-bs3/descriptif.css') }}" rel="stylesheet" />
-    <link href="{{ asset('css/formulaire-bs3/edit-table.css') }}" rel="stylesheet" />
-    <link href="{{ asset('css/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
+    <link href="{{ asset('styles/formulaire-bs3/descriptif.css') }}" rel="stylesheet" />
+    <link href="{{ asset('styles/formulaire-bs3/edit-table.css') }}" rel="stylesheet" />
+    <link href="{{ asset('styles/formulaire-bs3/formulaire.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% set nom_capsule = capsule ? capsule.nom : 'Vérifications Techniques' %}

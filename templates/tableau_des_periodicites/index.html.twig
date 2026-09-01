@@ -50,8 +50,8 @@
                     </tr>
                     <tr>
                         {% for i in 1..chunked_types|length %}
-                            <th style='height: 20px; background: url(/css/images/avec_sans_local.gif) center -14px no-repeat'></th>
-                            <th style='height: 20px; background: url(/css/images/avec_sans_local.gif) center 2px no-repeat'></th>
+                            <th style='height: 20px; background: url({{ asset('styles/images/avec_sans_local.gif') }}) center -14px no-repeat'></th>
+                            <th style='height: 20px; background: url({{ asset('styles/images/avec_sans_local.gif') }}) center 2px no-repeat'></th>
                         {% endfor %}
                     </tr>
                 </thead>
