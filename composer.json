@@ -111,7 +111,7 @@
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd",
-            "fos:js-routing:dump --format=js --target=public/js/fos_js_routes.js": "symfony-cmd",
+            "fos:js-routing:dump --format=js": "symfony-cmd",
             "requirements-checker": "script",
             "importmap:install": "symfony-cmd"
         },

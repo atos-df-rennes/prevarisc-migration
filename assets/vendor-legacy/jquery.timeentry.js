@@ -975,6 +975,6 @@ $.timeEntry = new TimeEntry(); // Singleton instance
 (function($) {
 	$.timeEntry.regional['fr'] = {show24Hours: true, separator: ':',
 		ampmPrefix: '', ampmNames: ['AM', 'PM'],
-		spinnerTexts: ['Maintenant', 'Précédent', 'Suivant', 'Augmentez', 'Amoindrissez']};
+		spinnerTexts: ['Maintenant', 'PrÃ©cÃ©dent', 'Suivant', 'Augmentez', 'Amoindrissez']};
 	$.timeEntry.setDefaults($.timeEntry.regional['fr']);
 })(jQuery);
