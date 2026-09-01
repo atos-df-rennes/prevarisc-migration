@@ -29,20 +29,20 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+    <script src="{{ asset('scripts/formulaire/add-collection-widget.js') }}"></script>
 
     {# Module ES6 pour le formulaire dossier (chargement en module) #}
-    <script type="module" src="{{ asset('js/dossier/form.js') }}"></script>
+    <script type="module" src="{{ asset('scripts/dossier/form.js') }}"></script>
 
     {# Autres scripts (sans modules ES6) #}
-    <script src="{{ asset('js/dossier/gestion-incomplet.js') }}"></script>
-    <script src="{{ asset('js/dossier/commission.js') }}"></script>
-    <script src="{{ asset('js/dossier/date-clear.js') }}"></script>
-    <script src="{{ asset('js/dossier/platau.js') }}"></script>
+    <script src="{{ asset('scripts/dossier/gestion-incomplet.js') }}"></script>
+    <script src="{{ asset('scripts/dossier/commission.js') }}"></script>
+    <script src="{{ asset('scripts/dossier/date-clear.js') }}"></script>
+    <script src="{{ asset('scripts/dossier/platau.js') }}"></script>
 
     {# FullCalendar v1 (legacy) pour sélection dates commission/visite #}
-    <script src="{{ asset('js/calendrier/date-collection-observer.js') }}"></script>
-    <script src="{{ asset('js/dossier/calendar-init.js') }}"></script>
+    <script src="{{ asset('scripts/calendrier/date-collection-observer.js') }}"></script>
+    <script src="{{ asset('scripts/dossier/calendar-init.js') }}"></script>
 {% endblock %}
 
 {% block body %}

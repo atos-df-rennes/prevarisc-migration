@@ -4,13 +4,13 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('js/geoportail/sdk-ol/GpSDK2D.js') }}"></script>
-    <script src="{{ asset('js/geoportail/manageMap.js') }}"></script>
+    <script src="{{ asset('vendor-legacy/sdk-ol/GpSDK2D.js') }}"></script>
+    <script src="{{ asset('scripts/geoportail/manageMap.js') }}"></script>
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    <link href="{{ asset('js/geoportail/sdk-ol/GpSDK2D.css') }}" rel="stylesheet" />
+    <link href="{{ asset('vendor-legacy/sdk-ol/GpSDK2D.css') }}" rel="stylesheet" />
 {% endblock %}
 
 {% block body %}
@@ -67,7 +67,7 @@
             <script type="text/javascript" src="{{ asset('js/geoconcept/defs/' ~ projection ~ '.js') }}"></script>
         {% endif %}
 
-        <script type="text/javascript" src="{{ asset('js/geoconcept/geoconcept.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('scripts/geoconcept/geoconcept.js') }}"></script>
         <link rel="stylesheet" href="{{ asset('styles/geoconcept/htc.css') }}"/>
 
         <script>

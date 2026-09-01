@@ -218,8 +218,8 @@
     </script>
     {% if not dossier.verrou %}
         <script type="module">
-            import { initTomSelectEtablissement } from '{{ asset('js/modules/tom-select-etablissement.js') }}';
-            import { initLoadingButton } from '{{ asset('js/modules/loading-button.js') }}';
+            import { initTomSelectEtablissement } from '{{ asset('scripts/modules/tom-select-etablissement.js') }}';
+            import { initLoadingButton } from '{{ asset('scripts/modules/loading-button.js') }}';
 
             const hiddenField = document.getElementById('{{ formAjouterEtab.idEtablissement.vars.id }}');
             const submitBtn = document.getElementById('js-btn-valider-etab');

@@ -102,9 +102,9 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('js/formulaire/add-collection-widget.js') }}"></script>
+    <script src="{{ asset('scripts/formulaire/add-collection-widget.js') }}"></script>
     <script type="module">
-        import { initTodayButtonsModule } from '{{ asset('js/dossier/modules/today-buttons.js') }}';
+        import { initTodayButtonsModule } from '{{ asset('scripts/dossier/modules/today-buttons.js') }}';
         initTodayButtonsModule();
     </script>
 {% endblock %}

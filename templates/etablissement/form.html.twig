@@ -28,7 +28,7 @@
 {% block stylesheets %}
     {{ parent() }}
     {% if key_ign is not null and key_ign is not empty %}
-        <link rel="stylesheet" href="{{ asset('js/geoportail/sdk-ol/GpSDK2D.css') }}" media="all">
+        <link rel="stylesheet" href="{{ asset('vendor-legacy/sdk-ol/GpSDK2D.css') }}" media="all">
     {% endif %}
     {% if geoconcept_url is not null and geoconcept_url is not empty %}
         <link rel="stylesheet" href="{{ asset('styles/geoconcept/htc.css') }}">
@@ -43,9 +43,9 @@
 {% block javascripts %}
     {{ parent() }}
     {% if key_ign is not null and key_ign is not empty %}
-        <script src="{{ asset('js/geoportail/sdk-ol/GpSDK2D.js') }}"></script>
-        <script src="{{ asset('js/geoportail/manageMap.js') }}"></script>
-        <script src="{{ asset('js/etablissement/edit/geolocaliseIGN.js') }}"></script>
+        <script src="{{ asset('vendor-legacy/sdk-ol/GpSDK2D.js') }}"></script>
+        <script src="{{ asset('scripts/geoportail/manageMap.js') }}"></script>
+        <script src="{{ asset('scripts/etablissement/edit/geolocaliseIGN.js') }}"></script>
     {% endif %}
     {% if geoconcept_url is not null and geoconcept_url is not empty %}
         <script src="{{ asset('js/geoconcept/OpenLayers.js') }}"></script>
@@ -55,7 +55,7 @@
         {% if geoconcept_projection is not empty %}
             <script src="{{ asset('js/geoconcept/defs/' ~ geoconcept_projection ~ '.js') }}"></script>
         {% endif %}
-        <script src="{{ asset('js/geoconcept/geoconcept.js') }}"></script>
+        <script src="{{ asset('scripts/geoconcept/geoconcept.js') }}"></script>
     {% endif %}
     <script>
     $(document).ready(function() {
@@ -781,7 +781,7 @@
     });
     </script>
     <script type="module">
-        import { initTomSelectEtablissement } from '{{ asset('js/modules/tom-select-etablissement.js') }}';
+        import { initTomSelectEtablissement } from '{{ asset('scripts/modules/tom-select-etablissement.js') }}';
 
         const searchUrl = '{{ path('api_etablissements_search') }}';
 

@@ -53,7 +53,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="module">
-        import { initLoadingButton } from '{{ asset('js/modules/loading-button.js') }}';
+        import { initLoadingButton } from '{{ asset('scripts/modules/loading-button.js') }}';
         initLoadingButton('#js-btn-enregistrer', 'Enregistrement en cours...');
     </script>
 {% endblock %}

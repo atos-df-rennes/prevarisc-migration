@@ -59,7 +59,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('js/dossier/avisDerogation-bs3.js') }}"></script>
+    <script src="{{ asset('scripts/dossier/avisDerogation-bs3.js') }}"></script>
     <script>
         $(document).on('click', '.js-delete-avis-derogation', function () {
             const card = $(this).closest('.js-card-avis-derogation');
