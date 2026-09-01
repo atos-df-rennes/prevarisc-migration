@@ -5,6 +5,7 @@ namespace App\Controller\Commission;
 use App\Dto\Repository\DossierAffectationDto;
 use App\Repository\CommissionRepository;
 use App\Repository\DateCommissionRepository;
+use App\Service\Commission\IcsVTimezoneBuilder;
 use Sabre\VObject\Component\VCalendar;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,12 +28,19 @@ class CalendrierDesCommissionsExportController extends AbstractController
      */
     private $commissionRepository;
 
+    /**
+     * @var IcsVTimezoneBuilder
+     */
+    private $icsVTimezoneBuilder;
+
     public function __construct(
         DateCommissionRepository $dateCommissionRepository,
-        CommissionRepository $commissionRepository
+        CommissionRepository $commissionRepository,
+        IcsVTimezoneBuilder $icsVTimezoneBuilder
     ) {
         $this->dateCommissionRepository = $dateCommissionRepository;
         $this->commissionRepository = $commissionRepository;
+        $this->icsVTimezoneBuilder = $icsVTimezoneBuilder;
     }
 
     /**
@@ -69,6 +77,7 @@ class CalendrierDesCommissionsExportController extends AbstractController
         }
 
         $calendar = new VCalendar(['METHOD' => 'REQUEST', 'PRODID' => 'SDIS62/Prevarisc']);
+        $this->icsVTimezoneBuilder->addVTimezone($calendar, 'Europe/Paris');
         $calendar->add('VEVENT', [
             'SUMMARY' => $libelle,
             'DESCRIPTION' => $description,
@@ -117,6 +126,7 @@ class CalendrierDesCommissionsExportController extends AbstractController
         $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
 
         $calendar = new VCalendar(['PRODID' => 'SDIS62/Prevarisc']);
+        $this->icsVTimezoneBuilder->addVTimezone($calendar, 'Europe/Paris');
 
         foreach ($commissions as $commissiondujour) {
             /** @var array<string, mixed> $commissiondujour */
