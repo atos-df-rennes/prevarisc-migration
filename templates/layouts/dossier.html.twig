@@ -93,11 +93,17 @@
         {% endif %}
 
         {#
-            Dérogation, Cahier des charges de type T, Locaux SDIS,
-            Extérieur SDIS, Ouverture, Fermeture, Mise en demeure,
-            Utilisation exceptionnelle de locaux
+            Tout SAUF
+            Natures :
+             - Dérogation, Locaux SDIS, Extérieur SDIS, Ouverture, Fermeture, Mise en demeure, Utilisation exceptionnelle de locaux
+
+            Types :
+            - Courriel / Courriel
         #}
-        {% if dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_PRESCRIPTIONS') %}
+        {% if
+            dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_PRESCRIPTIONS') and
+            dossier.type.id not in constant('App\\Constant\\DossierType::TYPES_SANS_PRESCRIPTIONS')
+        %}
             <li {% if app.request.get('_route') starts with 'dossier_prescriptions' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_prescriptions', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
