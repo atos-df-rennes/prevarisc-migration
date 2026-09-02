@@ -3,6 +3,7 @@
 namespace App\Controller\Dossier;
 
 use App\Constant\TypePrescription;
+use App\Controller\Contract\DossierPrescriptionsAccessInterface;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionType;
 use App\Repository\PrescriptionArticleRepository;
@@ -18,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class DossierPrescriptionTypeController extends AbstractController
+class DossierPrescriptionTypeController extends AbstractController implements DossierPrescriptionsAccessInterface
 {
     /** @var DossierPrescriptionService */
     private $service;

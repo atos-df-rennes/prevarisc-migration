@@ -19,6 +19,8 @@ final class DossierType
 
     public const TYPES_VISITE = [2, 3];
 
+    public const TYPES_SANS_PRESCRIPTIONS = [5];
+
     /**
      * Empêche l'instanciation de la classe.
      */
