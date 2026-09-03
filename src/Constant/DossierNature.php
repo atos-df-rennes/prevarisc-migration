@@ -61,7 +61,7 @@ final class DossierNature
 
     public const NATURES_DESCRIPTIF_TRAVAUX = [1, 2];
 
-    public const NATURES_SANS_PRESCRIPTIONS = [3, 31, 32, 40, 41, 42, 44];
+    public const NATURES_SANS_PRESCRIPTIONS = [31, 32, 40, 41, 42, 44];
 
     public const NATURES_SANS_CONTACTS = [40, 41, 42, 44];
 
