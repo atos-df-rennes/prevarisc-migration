@@ -4,6 +4,28 @@
 
 <!--- END HEADER -->
 
+## [2.10.5](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.4...v2.10.5) (03-09-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Commission
+
+* VTIMEZONE manquant dans l'export ICS Outlook (#407) ([966b0e](https://github.com/atos-df-rennes/prevarisc-migration/commit/966b0e9e07a0a12aee72951e9971520f3c3e8c6f))
+
+##### Dossier
+
+* Autorise l'utilisation des prescriptions sur les études Dérogation (#409) ([034d26](https://github.com/atos-df-rennes/prevarisc-migration/commit/034d261d840dd12bce8e0cfba94c027882c7740f))
+* Affiche/masque l'onglet "Prescriptions" en fonction du type et de la nature (#408) ([ba8174](https://github.com/atos-df-rennes/prevarisc-migration/commit/ba8174248645a74162b26da9ecfddc1f524ef24a))
+
+##### Etablissement
+
+* Conserve l'activité sauvegardée lors de la modification (#406) ([cf4d4b](https://github.com/atos-df-rennes/prevarisc-migration/commit/cf4d4b96146c88aca6b458ed1fa2604ca22d5456))
+* Permet la suppression des rubriques ICPE sur toutes les tailles d'écran (#405) ([87adf3](https://github.com/atos-df-rennes/prevarisc-migration/commit/87adf3d2f1c56523249b43a8baeb58171a015a4f))
+
+
+---
+
 ## [2.10.4](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.3...v2.10.4) (28-08-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gauge-high.svg" width="20" height="20"> Performances
