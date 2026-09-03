@@ -3,6 +3,7 @@
 namespace App\Controller\Dossier;
 
 use App\Constant\TypePrescription;
+use App\Controller\Contract\DossierPrescriptionsAccessInterface;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionType;
 use App\Repository\PrescriptionArticleRepository;
@@ -18,7 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class DossierPrescriptionTypeController extends AbstractController
+class DossierPrescriptionTypeController extends AbstractController implements DossierPrescriptionsAccessInterface
 {
     public function __construct(private readonly DossierPrescriptionService $service, private readonly PrescriptionCategorieRepository $categorieRepo, private readonly PrescriptionTypeRepository $prescriptionTypeRepo, private readonly PrescriptionTexteRepository $texteRepo, private readonly PrescriptionArticleRepository $articleRepo, private readonly LoggerInterface $logger)
     {
