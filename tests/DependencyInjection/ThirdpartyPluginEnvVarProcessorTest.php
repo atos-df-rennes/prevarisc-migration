@@ -26,7 +26,7 @@ final class ThirdpartyPluginEnvVarProcessorTest extends TestCase
         $result = $this->processor->getEnv(
             $prefix,
             'PREVARISC_THIRDPARTY_PLUGINS',
-            static fn(): string => $rawValue
+            static fn (): string => $rawValue
         );
 
         self::assertSame($expected, $result);

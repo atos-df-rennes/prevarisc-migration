@@ -2,10 +2,10 @@
 
 namespace App\Twig;
 
-use Twig\Attribute\AsTwigFilter;
-use Twig\Attribute\AsTwigFunction;
 use App\Service\DateDiffFormatterService;
 use App\Service\PlatauTempsRestant;
+use Twig\Attribute\AsTwigFilter;
+use Twig\Attribute\AsTwigFunction;
 
 class SearchExtension
 {

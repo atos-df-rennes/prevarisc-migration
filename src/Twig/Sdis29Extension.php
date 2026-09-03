@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Twig;
 
-use Twig\Attribute\AsTwigFunction;
 use App\Entity\Etablissement;
 use App\Repository\CoucheCartoRepository;
 use App\Service\Sdis29\GeobretagneUrlBuilder;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Twig\Attribute\AsTwigFunction;
 
 /**
  * Fonctions Twig portant l'intégration du visualiseur Géobretagne (sviewer)

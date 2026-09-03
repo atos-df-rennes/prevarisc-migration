@@ -617,7 +617,7 @@ class Etablissement
      */
     public function getFilsActifs(): Collection
     {
-        return $this->fils->filter(static fn(self $fils): bool => null === $fils->getDateSuppression());
+        return $this->fils->filter(static fn (self $fils): bool => null === $fils->getDateSuppression());
     }
 
     public function addFils(self $fils): self
