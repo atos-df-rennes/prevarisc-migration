@@ -20,10 +20,9 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 final class PrescriptionsAccessSubscriberTest extends TestCase
 {
     /** @var DossierRepository|MockObject */
-    private $dossierRepository;
+    private MockObject $dossierRepository;
 
-    /** @var PrescriptionsAccessSubscriber */
-    private $subscriber;
+    private PrescriptionsAccessSubscriber $subscriber;
 
     protected function setUp(): void
     {
@@ -95,16 +94,13 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
         };
     }
 
-    /**
-     * @param mixed $controller
-     */
-    private function buildEvent($controller, int $idDossier): ControllerEvent
+    private function buildEvent(\Closure|DossierPrescriptionsAccessInterface $controller, int $idDossier): ControllerEvent
     {
         $kernel = $this->createMock(HttpKernelInterface::class);
         $request = new Request();
         $request->attributes->set('id', $idDossier);
 
-        return new ControllerEvent($kernel, $controller, $request, HttpKernelInterface::MASTER_REQUEST);
+        return new ControllerEvent($kernel, $controller, $request, HttpKernelInterface::MAIN_REQUEST);
     }
 
     private function creerDossier(DossierNatureListe $nature, DossierType $type): Dossier
@@ -122,7 +118,6 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
 
         $reflection = new \ReflectionClass($nature);
         $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
         $property->setValue($nature, $id);
 
         return $nature;
@@ -134,7 +129,6 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
 
         $reflection = new \ReflectionClass($type);
         $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
         $property->setValue($type, $id);
 
         return $type;

@@ -428,9 +428,7 @@ class Etablissement
         assert($this->informations instanceof Selectable);
 
         $anterieures = $this->informations->matching(
-            Criteria::create()
-                ->where(Criteria::expr()->lte('date', $date))
-                ->orderBy(['date' => Criteria::DESC])
+            Criteria::create()->where(Criteria::expr()->lte('date', $date))->orderBy(['date' => Order::Descending])
                 ->setMaxResults(1)
         );
 
@@ -442,8 +440,7 @@ class Etablissement
         }
 
         $plusAncienne = $this->informations->matching(
-            Criteria::create()
-                ->orderBy(['date' => Criteria::ASC])
+            Criteria::create()->orderBy(['date' => Order::Ascending])
                 ->setMaxResults(1)
         );
 
@@ -620,9 +617,7 @@ class Etablissement
      */
     public function getFilsActifs(): Collection
     {
-        return $this->fils->filter(static function (self $fils): bool {
-            return null === $fils->getDateSuppression();
-        });
+        return $this->fils->filter(static fn(self $fils): bool => null === $fils->getDateSuppression());
     }
 
     public function addFils(self $fils): self

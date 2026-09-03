@@ -60,9 +60,7 @@ final readonly class VersionService
 
             $minorVersion = $this->extractMinorVersion($version);
 
-            if (!isset($sections[$minorVersion])) {
-                $sections[$minorVersion] = [];
-            }
+            $sections[$minorVersion] ??= [];
 
             $sections[$minorVersion][] = [
                 'version' => $version,

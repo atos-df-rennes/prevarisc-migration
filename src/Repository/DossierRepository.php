@@ -513,9 +513,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         foreach ($dossierIds as $id) {
-            if (!isset($map[$id])) {
-                $map[$id] = 0;
-            }
+            $map[$id] ??= 0;
         }
 
         return $map;

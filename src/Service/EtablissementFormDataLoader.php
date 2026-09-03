@@ -57,9 +57,7 @@ final readonly class EtablissementFormDataLoader
             $type = $commission->getType();
             $typeId = $type ? (int) $type->getId() : 0;
             $typeLibelle = $type ? (string) $type->getLibelle() : '';
-            if (!isset($commissionsData[$typeId])) {
-                $commissionsData[$typeId] = ['libelle' => $typeLibelle, 'items' => []];
-            }
+            $commissionsData[$typeId] ??= ['libelle' => $typeLibelle, 'items' => []];
 
             $commissionsData[$typeId]['items'][] = $commission;
         }

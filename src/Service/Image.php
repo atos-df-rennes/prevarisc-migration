@@ -19,9 +19,7 @@ final readonly class Image
     {
         $image = $this->imagine->open($filename);
 
-        if (null === $height) {
-            $height = $this->calculateHeightFromWidth($image, $width);
-        }
+        $height ??= $this->calculateHeightFromWidth($image, $width);
 
         return $image->resize(new Box($width, $height));
     }

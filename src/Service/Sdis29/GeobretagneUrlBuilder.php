@@ -22,9 +22,9 @@ class GeobretagneUrlBuilder
      * Coordonnées d'exemple utilisées par l'admin des couches cartographiques
      * (centre approximatif du département du Finistère), identiques au legacy.
      */
-    private const ADMIN_SAMPLE_LONGITUDE = -4.080290;
+    private const float ADMIN_SAMPLE_LONGITUDE = -4.080290;
 
-    private const ADMIN_SAMPLE_LATITUDE = 47.976387;
+    private const float ADMIN_SAMPLE_LATITUDE = 47.976387;
 
     /**
      * Construit l'URL de l'iframe Géobretagne pour la fiche d'un établissement.

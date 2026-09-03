@@ -57,7 +57,7 @@ class SearchQueryHelper
             return [$label, null];
         }
 
-        if ('#' === substr($label, 0, 1)) {
+        if (str_starts_with($label, '#')) {
             return [null, substr($label, 1)];
         }
 

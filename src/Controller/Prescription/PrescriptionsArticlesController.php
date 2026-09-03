@@ -35,9 +35,7 @@ class PrescriptionsArticlesController extends AbstractController
     #[Route(path: '/admin/prescriptions/articles/modifier/{articleListe}', name: 'admin_prescriptions_articles_edit')]
     public function formArticle(Request $request, ?PrescriptionArticleListe $articleListe = null): Response
     {
-        if (null === $articleListe) {
-            $articleListe = new PrescriptionArticleListe();
-        }
+        $articleListe ??= new PrescriptionArticleListe();
 
         $form = $this->createForm(PrescriptionArticleListeType::class, $articleListe);
         $form->handleRequest($request);

@@ -51,7 +51,7 @@ class ApiEtablissementSearchTest extends WebTestCase
 
         $client = $this->createAuthenticatedClient();
 
-        $client->request(Request::METHOD_GET, self::ROUTE, ['q' => mb_substr((string) $libelle, 0, 5)]);
+        $client->request(Request::METHOD_GET, self::ROUTE, ['q' => mb_substr($libelle, 0, 5)]);
 
         $this->assertResponseIsSuccessful();
 
@@ -115,7 +115,7 @@ class ApiEtablissementSearchTest extends WebTestCase
             $this->markTestSkipped('Aucun établissement avec un libellé exploitable');
         }
 
-        $prefix = mb_substr((string) $libelle, 0, 3);
+        $prefix = mb_substr($libelle, 0, 3);
 
         $client = $this->createAuthenticatedClient();
 

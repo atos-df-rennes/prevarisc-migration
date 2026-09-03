@@ -2,45 +2,21 @@
 
 namespace App\Twig;
 
+use Twig\Attribute\AsTwigFilter;
+use Twig\Attribute\AsTwigFunction;
 use App\Service\DateDiffFormatterService;
 use App\Service\PlatauTempsRestant;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
-use Twig\TwigFunction;
 
-class SearchExtension extends AbstractExtension
+class SearchExtension
 {
     public function __construct(private readonly PlatauTempsRestant $platauTempsRestant, private readonly DateDiffFormatterService $dateDiffFormatter)
     {
     }
 
     /**
-     * @return TwigFilter[]
-     */
-    #[\Override]
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('replace_ci', $this->replaceCaseInsensitive(...)),
-        ];
-    }
-
-    /**
-     * @return TwigFunction[]
-     */
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('format_date_diff', $this->formatDateDiff(...)),
-            new TwigFunction('platau_temps_restant', $this->platauTempsRestant(...)),
-            new TwigFunction('platau_couleur_temps_restant', $this->platauCouleurTempsRestant(...)),
-        ];
-    }
-
-    /**
      * Remplace toutes les occurrences de $search dans $subject de façon insensible à la casse.
      */
+    #[AsTwigFilter(name: 'replace_ci')]
     public function replaceCaseInsensitive(string $subject, string $search, string $replace): string
     {
         if ('' === $search) {
@@ -55,6 +31,7 @@ class SearchExtension extends AbstractExtension
      * Utilisé pour l'affichage "Réponse à faire (X jours)" sur les dossiers de type courrier.
      * Délègue à DateDiffFormatterService.
      */
+    #[AsTwigFunction(name: 'format_date_diff')]
     public function formatDateDiff(string $dateString): string
     {
         return $this->dateDiffFormatter->format($dateString);
@@ -64,6 +41,7 @@ class SearchExtension extends AbstractExtension
      * Retourne le temps restant pour une consultation Plat'AU (port de Service_Utils_TempsRestant::calculate).
      * Inclut le signe "-" pour les délais dépassés.
      */
+    #[AsTwigFunction(name: 'platau_temps_restant')]
     public function platauTempsRestant(string $dateString): string
     {
         try {
@@ -79,6 +57,7 @@ class SearchExtension extends AbstractExtension
      * Retourne la couleur Bootstrap du label Plat'AU en fonction du temps restant.
      * Valeurs possibles : success, warning, danger, default.
      */
+    #[AsTwigFunction(name: 'platau_couleur_temps_restant')]
     public function platauCouleurTempsRestant(string $dateString): string
     {
         try {

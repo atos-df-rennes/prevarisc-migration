@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter\Sdis29;
 
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
@@ -19,15 +20,11 @@ class Sdis29Voter implements VoterInterface
 {
     public const ENABLED = 'sdis29_enabled';
 
-    /** @var bool */
-    private $sdis29CustomEnabled;
-
-    public function __construct(bool $sdis29CustomEnabled)
+    public function __construct(private readonly bool $sdis29CustomEnabled)
     {
-        $this->sdis29CustomEnabled = $sdis29CustomEnabled;
     }
 
-    public function vote(TokenInterface $token, $subject, array $attributes): int
+    public function vote(TokenInterface $token, $subject, array $attributes, ?Vote $vote = null): int
     {
         if (!in_array(self::ENABLED, $attributes, true)) {
             return self::ACCESS_ABSTAIN;

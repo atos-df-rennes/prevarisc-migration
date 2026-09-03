@@ -62,9 +62,7 @@ class DossierNatureListeRepository extends ServiceEntityRepository
             }
 
             $key = (string) $dossierType->getId();
-            if (!isset($grouped[$key])) {
-                $grouped[$key] = [];
-            }
+            $grouped[$key] ??= [];
 
             $grouped[$key][] = $nature;
         }
