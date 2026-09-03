@@ -156,10 +156,8 @@ class AdresseController extends AbstractController
 
     /**
      * Extrait une valeur string depuis une valeur mixed de ParameterBag.
-     *
-     * @param mixed $value
      */
-    private function extractString($value): string
+    private function extractString(string|int|float|bool|null $value): string
     {
         if (is_string($value)) {
             return $value;

@@ -121,7 +121,6 @@ final class DossierVisiteConvocationServiceTest extends TestCase
 
         $reflection = new \ReflectionClass($dateCommission);
         $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
         $property->setValue($dateCommission, $id);
 
         return $dateCommission;

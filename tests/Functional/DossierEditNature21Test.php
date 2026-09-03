@@ -52,10 +52,7 @@ final class DossierEditNature21Test extends WebTestCase
             $this->markTestSkipped('Utilisateur root non trouvé');
         }
 
-        // Simuler l'authentification Zend dans $_SESSION
-        if (!isset($_SESSION)) {
-            $_SESSION = [];
-        }
+        $_SESSION ??= [];
 
         $_SESSION['Zend_Auth'] = [
             'storage' => [
@@ -121,10 +118,7 @@ final class DossierEditNature21Test extends WebTestCase
             $this->markTestSkipped('Utilisateur root non trouvé');
         }
 
-        // Simuler l'authentification Zend dans $_SESSION
-        if (!isset($_SESSION)) {
-            $_SESSION = [];
-        }
+        $_SESSION ??= [];
 
         $_SESSION['Zend_Auth'] = [
             'storage' => [

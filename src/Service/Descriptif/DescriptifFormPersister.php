@@ -227,10 +227,7 @@ class DescriptifFormPersister
 
                 // Ligne existante : mise à jour valeur ET idx (pour drag & drop)
                 $existing = $lookup[$champId]['i'.$idx] ?? null;
-                if (null === $existing) {
-                    // Cherche par valeurId dans tous les idx (cas du drag & drop)
-                    $existing = $this->findValeurById($lookup[$champId] ?? [], $valeurId);
-                }
+                $existing ??= $this->findValeurById($lookup[$champId] ?? [], $valeurId);
 
                 if (null !== $existing) {
                     $champ = $existing->getChamp();

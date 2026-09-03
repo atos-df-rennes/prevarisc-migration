@@ -32,9 +32,7 @@ class PrescriptionsRappelsController extends AbstractController
     #[Route(path: '/admin/prescriptions/rappels/modifier/{rappelReg}', name: 'admin_prescriptions_rappels_edit')]
     public function form(Request $request, ?PrescriptionReglementaire $rappelReg = null): Response
     {
-        if (null === $rappelReg) {
-            $rappelReg = new PrescriptionReglementaire();
-        }
+        $rappelReg ??= new PrescriptionReglementaire();
 
         $form = $this->createForm(PrescriptionReglementaireType::class, $rappelReg);
         $form->handleRequest($request);

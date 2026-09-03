@@ -106,9 +106,7 @@ class SimpleFileDataStore implements DataStore
                         $default_numeroid[] = $numero_id;
                     }
 
-                    if (null === $tokens['%NUMEROID_ETABLISSEMENT%']) {
-                        $tokens['%NUMEROID_ETABLISSEMENT%'] = implode('_', $default_numeroid);
-                    }
+                    $tokens['%NUMEROID_ETABLISSEMENT%'] ??= implode('_', $default_numeroid);
                 } else {
                     $tokens['%NUMEROID_ETABLISSEMENT%'] = $linkedObjectId;
                 }

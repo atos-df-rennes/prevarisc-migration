@@ -22,9 +22,7 @@ class ChampType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        if (null === $options['types']) {
-            $options['types'] = $this->typeChampRepository->findAll();
-        }
+        $options['types'] ??= $this->typeChampRepository->findAll();
 
         $builder
             ->add('nom')

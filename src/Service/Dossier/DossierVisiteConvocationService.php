@@ -19,18 +19,8 @@ use App\Utils\DateFormatterFr;
  */
 class DossierVisiteConvocationService
 {
-    /** @var DossierAffectationRepository */
-    private $affectationRepository;
-
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepository;
-
-    public function __construct(
-        DossierAffectationRepository $affectationRepository,
-        DateCommissionRepository $dateCommissionRepository
-    ) {
-        $this->affectationRepository = $affectationRepository;
-        $this->dateCommissionRepository = $dateCommissionRepository;
+    public function __construct(private readonly DossierAffectationRepository $affectationRepository, private readonly DateCommissionRepository $dateCommissionRepository)
+    {
     }
 
     /**

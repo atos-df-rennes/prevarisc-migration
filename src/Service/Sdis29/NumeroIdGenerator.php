@@ -18,19 +18,15 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class NumeroIdGenerator
 {
-    private const RANGES = [
+    private const array RANGES = [
         'Brest' => [1000, 39999],
         'Quimper' => [40000, 79999],
         'Morlaix' => [80000, 89999],
         'Châteaulin' => [90000, 99999],
     ];
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
     /**
@@ -126,8 +122,8 @@ class NumeroIdGenerator
             $numeroid = is_scalar($row['numeroid']) ? (string) $row['numeroid'] : '';
             $parts = explode('.', $numeroid);
             $suffix = end($parts);
-            if (1 === strlen($suffix) && \ord($suffix) > $compteur) {
-                $compteur = \ord($suffix);
+            if (1 === strlen($suffix) && \ord($suffix[0]) > $compteur) {
+                $compteur = \ord($suffix[0]);
             }
         }
 

@@ -26,9 +26,7 @@ class RuntimeDataStore implements DataStore
 
     private function getDataStore(): DataStore
     {
-        if (null === $this->dataStore) {
-            $this->dataStore = $this->factory->create();
-        }
+        $this->dataStore ??= $this->factory->create();
 
         return $this->dataStore;
     }

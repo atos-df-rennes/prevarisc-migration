@@ -562,9 +562,7 @@ class CalendrierDesCommissionsOdjController extends AbstractController
         /** @var array<int, EtablissementAdresse> $etablissementAdresses */
         $etablissementAdresses = $this->etablissementAdresseRepository->get($idEtab);
         $adresses = array_map(
-            static function (EtablissementAdresse $adresse): array {
-                return ['LIBELLE_COMMUNE' => $adresse->getCommune() instanceof Commune ? $adresse->getCommune()->getLibelle() : null];
-            },
+            static fn (EtablissementAdresse $adresse): array => ['LIBELLE_COMMUNE' => $adresse->getCommune() instanceof Commune ? $adresse->getCommune()->getLibelle() : null],
             $etablissementAdresses
         );
 

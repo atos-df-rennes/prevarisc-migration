@@ -24,9 +24,7 @@ class PlatauStatutPecEnum
 
     public static function getLabel(?string $enumValue): string
     {
-        if (null === $enumValue) {
-            $enumValue = self::INCONNU;
-        }
+        $enumValue ??= self::INCONNU;
 
         return self::LABELS[$enumValue] ?? self::LABELS[self::INCONNU];
     }

@@ -49,9 +49,7 @@ class DossierEditNature56Test extends WebTestCase
             $this->markTestSkipped('Utilisateur root non trouvé');
         }
 
-        if (!isset($_SESSION)) {
-            $_SESSION = [];
-        }
+        $_SESSION ??= [];
 
         $_SESSION['Zend_Auth'] = [
             'storage' => [
