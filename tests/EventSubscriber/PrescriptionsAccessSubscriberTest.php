@@ -57,7 +57,7 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
     public function testThrowsNotFoundWhenNatureSansPrescriptions(): void
     {
         // Dérogation
-        $dossier = $this->creerDossier($this->creerNature(3), $this->creerType(1));
+        $dossier = $this->creerDossier($this->creerNature(31), $this->creerType(1));
         $this->dossierRepository->method('find')->willReturn($dossier);
 
         $this->expectException(NotFoundHttpException::class);
