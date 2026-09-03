@@ -15,10 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Group('functional')]
 class DossierEditNature33Test extends WebTestCase
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     protected function setUp(): void
     {

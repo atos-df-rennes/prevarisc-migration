@@ -27,7 +27,7 @@ use Sabre\VObject\Component\VCalendar;
  */
 class IcalendarSyncService
 {
-    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository)
+    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly IcsVTimezoneBuilder $icsVTimezoneBuilder)
     {
     }
 
@@ -70,7 +70,7 @@ class IcalendarSyncService
         ]);
 
         $tzid = 'Europe/Paris';
-        $this->addVTimezone($calendar, $tzid);
+        $this->icsVTimezoneBuilder->addVTimezone($calendar, $tzid);
 
         $tz = new \DateTimeZone($tzid);
         $nowUtc = new \DateTime('now', new \DateTimeZone('UTC'));
@@ -337,35 +337,5 @@ class IcalendarSyncService
         }
 
         return "Avis d'exploitation indisponible";
-    }
-
-    /**
-     * Ajoute le composant VTIMEZONE au calendrier.
-     * Port de Api_Service_Calendar::getVTimezoneComponent().
-     *
-     * @param string $tzid Identifiant de timezone (ex: "Europe/Paris")
-     */
-    private function addVTimezone(VCalendar $calendar, string $tzid): void
-    {
-        $vtimezone = $calendar->createComponent('VTIMEZONE');
-        $vtimezone->add('TZID', $tzid);
-
-        $daylight = $calendar->createComponent('DAYLIGHT');
-        $daylight->add('DTSTART', '16010325T020000');
-        $daylight->add('RRULE', 'FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3');
-        $daylight->add('TZOFFSETFROM', '+0100');
-        $daylight->add('TZOFFSETTO', '+0200');
-
-        $vtimezone->add($daylight);
-
-        $standard = $calendar->createComponent('STANDARD');
-        $standard->add('DTSTART', '16011028T030000');
-        $standard->add('RRULE', 'FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10');
-        $standard->add('TZOFFSETFROM', '+0200');
-        $standard->add('TZOFFSETTO', '+0100');
-
-        $vtimezone->add($standard);
-
-        $calendar->add($vtimezone);
     }
 }

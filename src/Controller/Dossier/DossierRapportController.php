@@ -28,7 +28,8 @@ class DossierRapportController extends AbstractController implements DossierLate
         private readonly string $documentsDataPath,
         private readonly string $documentsRealDataPath,
         private readonly LoggerInterface $logger
-    ) {}
+    ) {
+    }
 
     /**
      * Affiche l'onglet Rapport du dossier.

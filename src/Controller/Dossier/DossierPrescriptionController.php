@@ -4,6 +4,7 @@ namespace App\Controller\Dossier;
 
 use App\Constant\TypePrescription;
 use App\Controller\Contract\DossierLateralNavigationInterface;
+use App\Controller\Contract\DossierPrescriptionsAccessInterface;
 use App\Entity\Dossier;
 use App\Entity\PrescriptionDossier;
 use App\Form\PrescriptionDossierType;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class DossierPrescriptionController extends AbstractController implements DossierLateralNavigationInterface
+class DossierPrescriptionController extends AbstractController implements DossierLateralNavigationInterface, DossierPrescriptionsAccessInterface
 {
     public function __construct(private readonly DossierPrescriptionService $service)
     {

@@ -3,8 +3,14 @@
 namespace App\Controller\Api;
 
 use App\Constant\GenreEtablissement;
+use App\Entity\Etablissement;
+use App\Entity\EtablissementAdresse;
+use App\Entity\Utilisateur;
+use App\Repository\EtablissementAdresseRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\PeriodiciteRepository;
+use App\Security\Voter\Etablissement\EtablissementVoter;
+use App\Service\EtablissementAncestryService;
 use App\Service\EtablissementSearchService;
 use App\Service\Search\EtablissementAutocompleteNormalizer;
 use App\Service\Search\SearchQueryHelper;
@@ -13,6 +19,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
@@ -32,13 +39,20 @@ class EtablissementController extends AbstractController
 
     private const int SEARCH_MAX_LIMIT = 50;
 
+    /**
+     * Nombre maximum d'établissements liés retournés (parité legacy : getItems(0, 500)).
+     */
+    private const int LIES_MAX_LIMIT = 500;
+
     public function __construct(
         private readonly EtablissementRepository $etablissementRepository,
+        private readonly EtablissementAdresseRepository $etablissementAdresseRepository,
         private readonly PeriodiciteRepository $periodiciteRepository,
         private readonly EntityManagerInterface $em,
         private readonly EtablissementSearchService $etablissementSearchService,
         private readonly EtablissementAutocompleteNormalizer $autocompleteNormalizer,
-        private readonly SearchQueryHelper $searchQueryHelper
+        private readonly SearchQueryHelper $searchQueryHelper,
+        private readonly EtablissementAncestryService $etablissementAncestryService
     ) {
     }
 
@@ -47,12 +61,9 @@ class EtablissementController extends AbstractController
      * Port de Api_Service_Etablissement::getAdresse.
      */
     #[Route(path: '/api/2.0/etablissement/get_adresse', name: 'api_etablissement_get_adresse', methods: ['GET'])]
-    public function getAdresse(Request $request): JsonResponse
+    public function getAdresse(#[MapQueryParameter] string $id = ''): JsonResponse
     {
-        /** @var string|null $id */
-        $id = $request->query->get('id');
-
-        if (null === $id || '' === $id) {
+        if ('' === $id) {
             return new JsonResponse(['response' => null]);
         }
 
@@ -77,6 +88,149 @@ class EtablissementController extends AbstractController
     }
 
     /**
+     * Aperçu d'un établissement pour la bulle popover (bindEtsPopup, hover sur un lien établissement).
+     * Port allégé de Api_Service_Etablissement::get() / Service_Etablissement::get() : ne recalcule que
+     * les champs effectivement consommés par public/js/main-bs3.js (contrairement au legacy qui calculait
+     * aussi rubriques, plans, diaporama, historique de dossiers, données pratiques, dates de visite, etc.).
+     */
+    #[Route(path: '/api/2.0/etablissement/apercu', name: 'api_etablissement_apercu', methods: ['GET'], options: ['expose' => true])]
+    public function apercu(#[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $id = null): JsonResponse
+    {
+        if (null === $id) {
+            return new JsonResponse(['response' => null]);
+        }
+
+        $etablissement = $this->etablissementRepository->find($id);
+
+        if (null === $etablissement || null !== $etablissement->getDateSuppression()) {
+            return new JsonResponse(['response' => null]);
+        }
+
+        $this->denyAccessUnlessGranted(EtablissementVoter::LECTURE, $etablissement);
+
+        $now = new \DateTime();
+        $informations = $etablissement->getInformationsAtDate($now);
+
+        if (null === $informations) {
+            return new JsonResponse(['response' => null]);
+        }
+
+        $genre = $informations->getGenre()?->getId();
+        $parentDirect = $etablissement->getParent();
+
+        // Chaîne des ancêtres, racine en premier (port du climb+reverse legacy).
+        $parents = $this->etablissementAncestryService->getAncetres($etablissement);
+
+        // Pour une cellule, la catégorie affichée est celle de son établissement père direct (parité legacy).
+        $categorieLibelle = GenreEtablissement::CELLULE === $genre && null !== $parentDirect
+            ? $parentDirect->getInformationsAtDate($now)?->getCategorie()?->getLibelle()
+            : $informations->getCategorie()?->getLibelle();
+
+        $avis = $etablissement->getDossierDonnantAvis()?->getAvisCommission()?->getId();
+
+        return new JsonResponse(['response' => [
+            'general' => [
+                'ID_ETABLISSEMENT' => $etablissement->getId(),
+                'NUMEROID_ETABLISSEMENT' => $etablissement->getNumero(),
+            ],
+            'informations' => [
+                'LIBELLE_ETABLISSEMENTINFORMATIONS' => $informations->getLibelle(),
+                'LIBELLE_TYPE_PRINCIPAL' => $informations->getType()?->getLibelle(),
+                'ID_GENRE' => $genre,
+                'LIBELLE_CATEGORIE' => $categorieLibelle,
+            ],
+            'parents' => array_map(
+                fn (Etablissement $parent): array => [
+                    'LIBELLE_ETABLISSEMENTINFORMATIONS' => $parent->getInformationsAtDate($now)?->getLibelle(),
+                    'LIBELLE_CATEGORIE' => $parent->getInformationsAtDate($now)?->getCategorie()?->getLibelle(),
+                ],
+                $parents
+            ),
+            'adresses' => array_map(
+                static fn (EtablissementAdresse $adresse): array => [
+                    'NUMERO_ADRESSE' => $adresse->getNumero(),
+                    'LIBELLE_RUE' => $adresse->getRue()?->getLibelle(),
+                    'CODEPOSTAL_COMMUNE' => $adresse->getCommune()?->getCodePostal(),
+                    'LIBELLE_COMMUNE' => $adresse->getCommune()?->getLibelle(),
+                ],
+                $this->getAdressesEtablissement($id)
+            ),
+            // Le détail des enfants n'est utile au front que pour les sites (bindEtsPopup) ;
+            // on évite la requête pour tous les autres genres.
+            'etablissement_lies' => GenreEtablissement::SITE === $genre
+                ? $this->getLibellesCommunesDefautFilsActifs($id)
+                : [],
+            'presence_avis_differe' => $etablissement->hasAvisDiffere(),
+            'avis' => $avis,
+            'preventionnistes' => array_map(
+                static fn (Utilisateur $preventionniste): array => [
+                    'NOM_UTILISATEURINFORMATIONS' => $preventionniste->getInformations()?->getNom(),
+                    'PRENOM_UTILISATEURINFORMATIONS' => $preventionniste->getInformations()?->getPrenom(),
+                ],
+                $informations->getPreventionnistes()->toArray()
+            ),
+        ]]);
+    }
+
+    /**
+     * Résolution de l'adresse d'un établissement (délègue à EtablissementAdresseRepository::get(),
+     * qui porte déjà la logique legacy site → enfant au plus grand effectif / cellule → parent direct).
+     *
+     * @return array<int, EtablissementAdresse>
+     */
+    private function getAdressesEtablissement(int $id): array
+    {
+        return array_values(array_filter(
+            $this->etablissementAdresseRepository->get($id),
+            static fn (mixed $adresse): bool => $adresse instanceof EtablissementAdresse
+        ));
+    }
+
+    /**
+     * Communes des adresses par défaut des fils actifs d'un site.
+     * Port allégé de Model_DbTable_Search::setItem('etablissement'), restreint à la seule colonne
+     * consommée par la bulle popover (LIBELLE_COMMUNE_ADRESSE_DEFAULT), via EtablissementSearchService
+     * pour réutiliser exactement la même logique de résolution (fallback site/cellule) que la recherche.
+     *
+     * @return array<int, array{LIBELLE_COMMUNE_ADRESSE_DEFAULT: string|null}>
+     */
+    private function getLibellesCommunesDefautFilsActifs(int $idEtablissementPere): array
+    {
+        $search = $this->etablissementSearchService->etablissements(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $idEtablissementPere,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            self::LIES_MAX_LIMIT,
+            1
+        );
+
+        return array_values(array_map(
+            static function (array $row): array {
+                $libelle = $row['LIBELLE_COMMUNE_ADRESSE_DEFAULT'] ?? null;
+
+                return ['LIBELLE_COMMUNE_ADRESSE_DEFAULT' => is_scalar($libelle) ? (string) $libelle : null];
+            },
+            $search['results']
+        ));
+    }
+
+    /**
      * Recherche d'établissements pour autocomplétion.
      *
      * Route API commune à tous les écrans (recherche navbar, liaisons dossier,
@@ -88,30 +242,23 @@ class EtablissementController extends AbstractController
      * recherche), via SearchQueryHelper::splitLabelAndIdentifiant().
      */
     #[Route(path: '/api/etablissements/search', name: 'api_etablissements_search', methods: ['GET'])]
-    public function search(Request $request): JsonResponse
-    {
+    public function search(
+        #[MapQueryParameter] string $q = '',
+        #[MapQueryParameter] string $label = '',
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $limit = self::SEARCH_DEFAULT_LIMIT,
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $page = 1,
+    ): JsonResponse {
         // « q » est le paramètre utilisé par les autocomplétions, « label » est le nom legacy
-        $rawQuery = $request->query->get('q', $request->query->get('label', ''));
-        $query = is_scalar($rawQuery) ? trim((string) $rawQuery) : '';
+        $query = trim('' !== $q ? $q : $label);
 
         // Seuil legacy : l'autocomplétion ne se déclenche qu'à partir de 3 caractères
         if (mb_strlen($query) < self::SEARCH_MIN_LENGTH) {
             return new JsonResponse([]);
         }
 
-        $limit = filter_var($request->query->get('limit', self::SEARCH_DEFAULT_LIMIT), FILTER_VALIDATE_INT);
-        if (false === $limit) {
-            $limit = self::SEARCH_DEFAULT_LIMIT;
-        }
+        $limit = max(1, min(self::SEARCH_MAX_LIMIT, $limit ?? self::SEARCH_DEFAULT_LIMIT));
 
-        $limit = max(1, min(self::SEARCH_MAX_LIMIT, $limit));
-
-        $page = filter_var($request->query->get('page', 1), FILTER_VALIDATE_INT);
-        if (false === $page) {
-            $page = 1;
-        }
-
-        $page = max(1, $page);
+        $page = max(1, $page ?? 1);
 
         [$label, $identifiant] = $this->searchQueryHelper->splitLabelAndIdentifiant($query);
 

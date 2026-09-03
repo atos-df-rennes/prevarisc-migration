@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -33,11 +34,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/gestion-odj', name: 'calendrier_des_commissions_gestion_odj', methods: ['GET'], options: ['expose' => true])]
     #[IsGranted('modification_odj')]
-    public function gestionOdj(Request $request): Response
+    public function gestionOdj(#[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $dateCommId = 0): Response
     {
-        /** @var string $rawDateCommId */
-        $rawDateCommId = $request->query->get('dateCommId', '0');
-        $dateCommId = (int) $rawDateCommId;
+        $dateCommId ??= 0;
 
         $dateCommission = $this->dateCommissionRepository->find($dateCommId);
         if (null === $dateCommission) {
@@ -96,19 +95,16 @@ class CalendrierDesCommissionsOdjController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/recup-evenement-odj', name: 'calendrier_des_commissions_recup_evenement_odj', methods: ['GET'], options: ['expose' => true])]
     #[IsGranted('modification_odj')]
-    public function recupEvenementOdj(Request $request): JsonResponse
-    {
-        /** @var string $rawStart */
-        $rawStart = $request->query->get('start', '0');
-        /** @var string $rawEnd */
-        $rawEnd = $request->query->get('end', '0');
-        /** @var string $rawDateCommId */
-        $rawDateCommId = $request->query->get('dateCommId', '0');
-        $dateCommId = (int) $rawDateCommId;
+    public function recupEvenementOdj(
+        #[MapQueryParameter] string $start = '0',
+        #[MapQueryParameter] string $end = '0',
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $dateCommId = 0,
+    ): JsonResponse {
+        $dateCommId ??= 0;
 
         // Conversion ms → sec → date 'Y-m-d' (port de Zend_Date::TIMESTAMP + format YEAR-MONTH-DAY)
-        $dateDebut = date('Y-m-d', (int) substr($rawStart, 0, -3));
-        $dateFin = date('Y-m-d', (int) substr($rawEnd, 0, -3));
+        $dateDebut = date('Y-m-d', (int) substr($start, 0, -3));
+        $dateFin = date('Y-m-d', (int) substr($end, 0, -3));
 
         $listeDossiersAffect = $this->dateCommissionRepository->findDossierAffectForCommission($dateCommId);
 

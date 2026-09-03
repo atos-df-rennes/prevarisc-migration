@@ -131,6 +131,10 @@ class NumeroIdGenerator
             }
         }
 
+        if ($compteur + 1 > 255) {
+            throw new \RuntimeException('Impossible de générer un suffixe supplémentaire : limite de caractères atteinte.');
+        }
+
         return $numeroSearch.'.'.\chr($compteur + 1);
     }
 }

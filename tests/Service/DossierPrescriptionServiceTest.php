@@ -104,9 +104,7 @@ final class DossierPrescriptionServiceTest extends TestCase
     {
         $dossier = $this->createMock(Dossier::class);
         $prescriptionType = $this->createMock(PrescriptionType::class);
-        $em = $this->getMockBuilder(EntityManager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $em = $this->createMock(EntityManager::class);
         $logger = $this->createMock(LoggerInterface::class);
         $security = $this->createMock(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
@@ -130,9 +128,7 @@ final class DossierPrescriptionServiceTest extends TestCase
     {
         $dossier = $this->createMock(Dossier::class);
         $prescriptionType = $this->createMock(PrescriptionType::class);
-        $em = $this->getMockBuilder(EntityManager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $em = $this->createMock(EntityManager::class);
         $logger = $this->createMock(LoggerInterface::class);
         $security = $this->createMock(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
@@ -151,9 +147,7 @@ final class DossierPrescriptionServiceTest extends TestCase
     {
         $dossier = $this->createMock(Dossier::class);
         $prescriptionType = $this->createMock(PrescriptionType::class);
-        $em = $this->getMockBuilder(EntityManager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $em = $this->createMock(EntityManager::class);
         $logger = $this->createMock(LoggerInterface::class);
         $security = $this->createMock(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);

@@ -30,6 +30,7 @@ final readonly class EtablissementFormDataLoader
     }
 
     /**
+     * @fixme: utiliser un Form Type Symfony
      * Charge toutes les données de référence pour le formulaire établissement.
      *
      * @return array<string, mixed> Tableau associatif prêt pour le render() Twig
