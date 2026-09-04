@@ -91,4 +91,54 @@ final class FileTest extends TestCase
             'path ending with double dots' => ['somepath/..'],
         ];
     }
+
+    /**
+     * @dataProvider sanitizeForContentDispositionProvider
+     */
+    public function testSanitizeForContentDisposition(string $input, string $expected): void
+    {
+        $this->assertSame($expected, File::sanitizeForContentDisposition($input));
+    }
+
+    public static function sanitizeForContentDispositionProvider(): array
+    {
+        return [
+            'standard filename unchanged' => [
+                'document.pdf',
+                'document.pdf',
+            ],
+            'filename with spaces unchanged' => [
+                'mon document.txt',
+                'mon document.txt',
+            ],
+            'filename with special characters unchanged' => [
+                'document_spécial-éàù@2025.pdf',
+                'document_spécial-éàù@2025.pdf',
+            ],
+            'filename with forward slash' => [
+                'Devis 2024/2025.pdf',
+                'Devis 2024-2025.pdf',
+            ],
+            'filename with backslash' => [
+                'dossier\\sous-dossier.pdf',
+                'dossier-sous-dossier.pdf',
+            ],
+            'filename with multiple forward slashes' => [
+                'a/b/c.pdf',
+                'a-b-c.pdf',
+            ],
+            'filename with mixed slashes and backslashes' => [
+                'a/b\\c.pdf',
+                'a-b-c.pdf',
+            ],
+            'filename that is only a slash' => [
+                '/',
+                '-',
+            ],
+            'empty string' => [
+                '',
+                '',
+            ],
+        ];
+    }
 }
