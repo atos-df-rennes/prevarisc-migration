@@ -1016,23 +1016,6 @@ class Etablissement
         return $this;
     }
 
-    public function hasAvisDerogations(): bool
-    {
-        $dossiers = $this->getDossiers();
-
-        foreach ($dossiers as $dossier) {
-            $avisDerogations = $dossier->getAvisDerogations();
-
-            foreach ($avisDerogations as $avisDerogation) {
-                if ($avisDerogation->getDisplayHistorique()) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     public function getRisquesNaturels(): ?string
     {
         return $this->risquesNaturels;

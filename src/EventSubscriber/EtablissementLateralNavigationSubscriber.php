@@ -4,6 +4,8 @@ namespace App\EventSubscriber;
 
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
+use App\Entity\Etablissement;
+use App\Repository\AvisDerogationsRepository;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -20,16 +22,21 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
     /** @var CapsuleRubriqueRepository */
     private $capsuleRubriqueRepository;
 
+    /** @var AvisDerogationsRepository */
+    private $avisDerogationsRepository;
+
     /** @var AuthorizationCheckerInterface */
     private $authorizationChecker;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,
         CapsuleRubriqueRepository $capsuleRubriqueRepository,
+        AvisDerogationsRepository $avisDerogationsRepository,
         AuthorizationCheckerInterface $authorizationChecker
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
+        $this->avisDerogationsRepository = $avisDerogationsRepository;
         $this->authorizationChecker = $authorizationChecker;
     }
 
@@ -89,7 +96,24 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
         $event->getRequest()->attributes->set('libelle_descriptif', null !== $capsuleDescriptifEtablissement ? $capsuleDescriptifEtablissement->getNom() : 'Descriptif');
         $event->getRequest()->attributes->set('libelle_effectifs_degagements', null !== $capsuleEffectifsDegagements ? $capsuleEffectifsDegagements->getNom() : 'Effectifs et Dégagements');
 
-        $event->getRequest()->attributes->set('has_avis_derogations', $this->etablissementRepository->hasAvisDerogationsVisibles($etablissement->getId()));
+        $event->getRequest()->attributes->set('has_avis_derogations', $this->avisDerogationsRepository->hasForEtablissements($this->getIdsEtablissementEtFils($etablissement)));
+    }
+
+    /**
+     * Retourne les ids de l'établissement et de ses fils (ex. cellules d'un ERP),
+     * conformément à Service\Etablissement::getAvisDerogations() utilisée pour l'affichage.
+     *
+     * @return int[]
+     */
+    private function getIdsEtablissementEtFils(Etablissement $etablissement): array
+    {
+        $ids = [$etablissement->getId()];
+
+        foreach ($etablissement->getFils() as $fils) {
+            $ids[] = $fils->getId();
+        }
+
+        return $ids;
     }
 
     public static function getSubscribedEvents(): array
