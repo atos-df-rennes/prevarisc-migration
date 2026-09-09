@@ -124,12 +124,13 @@ class Commission
 
     public function getDocumentCr(): ?string
     {
-        return $this->documentCr;
+        // Normalise une éventuelle chaîne vide résiduelle en base (bug historique) en null.
+        return '' === $this->documentCr ? null : $this->documentCr;
     }
 
     public function setDocumentCr(?string $documentCr): self
     {
-        $this->documentCr = $documentCr;
+        $this->documentCr = '' === $documentCr ? null : $documentCr;
 
         return $this;
     }
