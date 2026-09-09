@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Repository;
 
-use App\Entity\DossierType;
 use App\Entity\DossierNatureListe;
+use App\Entity\DossierType;
 use App\Repository\DossierNatureListeRepository;
 use App\Repository\DossierTypeRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

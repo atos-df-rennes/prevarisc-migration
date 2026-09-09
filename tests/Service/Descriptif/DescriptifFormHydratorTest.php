@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Descriptif;
 
-use App\Dto\Descriptif\RubriqueFormData;
 use App\Constant\TypeChamp;
 use App\Dto\Descriptif\ChampValueData;
+use App\Dto\Descriptif\RubriqueFormData;
 use App\Dto\Descriptif\TableauRowData;
 use App\Entity\Champ;
 use App\Entity\Dossier;
