@@ -29,7 +29,7 @@ class Dossier
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_DOSSIER', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'DATESUPPRESSION_DOSSIER', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateSuppression = null;

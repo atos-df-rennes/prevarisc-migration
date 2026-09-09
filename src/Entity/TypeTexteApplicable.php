@@ -16,7 +16,7 @@ class TypeTexteApplicable
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_TYPETEXTEAPPL', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_TYPETEXTEAPPL', type: Types::TEXT, nullable: false)]
     private ?string $libelle = null;

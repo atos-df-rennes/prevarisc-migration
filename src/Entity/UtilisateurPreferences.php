@@ -13,7 +13,7 @@ class UtilisateurPreferences
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_UTILISATEURPREFERENCES', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'DASHBOARD_BLOCS', type: Types::STRING, length: 500, nullable: true)]
     private ?string $blocsDashboard = null;

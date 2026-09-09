@@ -13,7 +13,7 @@ class DossierType
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_DOSSIERTYPE', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_DOSSIERTYPE', type: Types::STRING, length: 100, nullable: false)]
     private ?string $libelle = null;

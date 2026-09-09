@@ -17,7 +17,7 @@ class Commission
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_COMMISSION', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[Assert\NotBlank(message: 'Le libellé est obligatoire.')]
     #[Assert\Length(max: 80, maxMessage: 'Le libellé de la commission ne peut pas dépasser {{ limit }} caractères.')]

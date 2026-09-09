@@ -18,7 +18,7 @@ class Groupement
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_GROUPEMENT', type: Types::BIGINT, options: ['unsigned' => true])]
     #[Groups(['api_response'])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_GROUPEMENT', type: Types::STRING, length: 255, nullable: false)]
     #[Groups(['api_response'])]

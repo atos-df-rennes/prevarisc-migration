@@ -13,7 +13,7 @@ class TexteApplicable
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_TEXTESAPPL', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_TEXTESAPPL', type: Types::TEXT, nullable: true)]
     private ?string $libelle = null;

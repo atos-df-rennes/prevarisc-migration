@@ -15,7 +15,7 @@ class DateCommission
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_DATECOMMISSION', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'DATE_COMMISSION', type: Types::DATE_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $date = null;

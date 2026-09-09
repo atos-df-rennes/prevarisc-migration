@@ -13,7 +13,7 @@ class EtablissementInformationsPlan
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSPLAN', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'NUMERO_ETABLISSEMENTPLAN', type: Types::TEXT, nullable: true)]
     private ?string $numero = null;

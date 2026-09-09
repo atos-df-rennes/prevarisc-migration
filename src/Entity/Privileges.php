@@ -14,7 +14,7 @@ class Privileges
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id_privilege', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(type: Types::STRING, length: 45, nullable: true)]
     private ?string $name = null;

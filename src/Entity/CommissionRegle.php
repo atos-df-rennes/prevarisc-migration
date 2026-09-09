@@ -15,7 +15,7 @@ class CommissionRegle
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_REGLE', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Groupement::class)]
     #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', nullable: true)]

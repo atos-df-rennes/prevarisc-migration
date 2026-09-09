@@ -15,7 +15,7 @@ class Groupe
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_GROUPE', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[Assert\NotBlank(message: 'Cette valeur ne doit pas être vide.')]
     #[ORM\Column(name: 'LIBELLE_GROUPE', type: Types::STRING, length: 255, nullable: false)]

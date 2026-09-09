@@ -13,7 +13,7 @@ class PieceJointe
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_PIECEJOINTE', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'NOM_PIECEJOINTE', type: Types::STRING, length: 255, nullable: false)]
     private ?string $nom = null;

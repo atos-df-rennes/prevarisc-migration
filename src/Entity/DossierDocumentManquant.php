@@ -13,7 +13,7 @@ class DossierDocumentManquant
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_DOCMANQUANT', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'NUM_DOCSMANQUANT', type: Types::STRING, length: 45, nullable: false)]
     private ?string $numero = null;

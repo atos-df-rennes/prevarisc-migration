@@ -15,7 +15,7 @@ class DossierNatureListe
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_DOSSIERNATURE', type: Types::BIGINT)]
     #[Groups(['api_response'])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_DOSSIERNATURE', type: Types::STRING, length: 100, nullable: false)]
     #[Groups(['api_response'])]

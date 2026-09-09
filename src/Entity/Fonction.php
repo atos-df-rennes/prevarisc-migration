@@ -14,7 +14,7 @@ class Fonction
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_FONCTION', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_FONCTION', type: Types::STRING, length: 50, nullable: false)]
     private ?string $libelle = null;

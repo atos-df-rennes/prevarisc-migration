@@ -13,7 +13,7 @@ class PrescriptionArticleListe
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_ARTICLE', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_ARTICLE', type: Types::STRING, length: 255, nullable: false)]
     private ?string $libelle = null;

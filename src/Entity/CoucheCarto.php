@@ -13,7 +13,7 @@ class CoucheCarto
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_COUCHECARTO', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'NOM_COUCHECARTO', type: Types::STRING, length: 255, nullable: true)]
     private ?string $nom = null;

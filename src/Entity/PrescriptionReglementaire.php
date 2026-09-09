@@ -15,7 +15,7 @@ class PrescriptionReglementaire
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_PRESCRIPTIONREGL', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'PRESCRIPTIONREGL_TYPE', type: Types::INTEGER, nullable: true)]
     private ?int $type = null;

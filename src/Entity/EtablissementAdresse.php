@@ -13,7 +13,7 @@ class EtablissementAdresse
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_ADRESSE', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'NUMERO_ADRESSE', type: Types::STRING, length: 255, nullable: true)]
     private ?string $numero = null;

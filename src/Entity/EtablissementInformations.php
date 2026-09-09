@@ -16,7 +16,7 @@ class EtablissementInformations
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONS', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_ETABLISSEMENTINFORMATIONS', type: Types::STRING, length: 255, nullable: false)]
     private ?string $libelle = null;

@@ -26,7 +26,7 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_UTILISATEUR', type: Types::BIGINT, options: ['unsigned' => true])]
     #[Groups(['api_response'])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'USERNAME_UTILISATEUR', type: Types::STRING, length: 100, nullable: false)]
     #[Assert\NotNull(message: "Le nom d'utilisateur ne doit pas être null.")]

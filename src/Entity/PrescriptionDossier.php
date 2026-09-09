@@ -15,7 +15,7 @@ class PrescriptionDossier
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_PRESCRIPTION_DOSSIER', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'NUM_PRESCRIPTION_DOSSIER', type: Types::INTEGER, nullable: false)]
     private ?int $numero = null;

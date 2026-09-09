@@ -13,7 +13,7 @@ class DossierDocumentUrbanisme
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_DOCURBA', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'NUM_DOCURBA', type: Types::STRING, length: 100, nullable: false)]
     private ?string $numero = null;

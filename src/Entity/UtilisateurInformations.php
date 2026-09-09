@@ -17,7 +17,7 @@ class UtilisateurInformations
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_UTILISATEURINFORMATIONS', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'NOM_UTILISATEURINFORMATIONS', type: Types::STRING, length: 50, nullable: true)]
     #[Assert\Length(max: 50)]

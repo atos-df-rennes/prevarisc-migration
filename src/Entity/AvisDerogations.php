@@ -13,7 +13,7 @@ class AvisDerogations
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     #[ORM\Column(name: 'ID_AVIS_DEROGATION', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'TYPE', type: Types::STRING, length: 50, nullable: false)]
     private ?string $type = null;

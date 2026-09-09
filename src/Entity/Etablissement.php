@@ -21,7 +21,7 @@ class Etablissement
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_ETABLISSEMENT', type: Types::BIGINT, options: ['unsigned' => true])]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'DATESUPPRESSION_ETABLISSEMENT', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateSuppression = null;

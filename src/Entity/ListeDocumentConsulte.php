@@ -13,7 +13,7 @@ class ListeDocumentConsulte
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_DOC', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_DOC', type: Types::TEXT, nullable: false)]
     private ?string $libelle = null;

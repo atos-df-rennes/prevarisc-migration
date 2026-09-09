@@ -13,7 +13,7 @@ class ListeDocumentAjoute
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_DOCAJOUT', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_DOCAJOUT', type: Types::TEXT, nullable: false)]
     private ?string $libelle = null;

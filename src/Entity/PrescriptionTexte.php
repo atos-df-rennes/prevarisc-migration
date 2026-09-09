@@ -15,7 +15,7 @@ class PrescriptionTexte
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'ID_PRESCRIPTIONTEXTE', type: Types::BIGINT)]
-    private ?string $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'LIBELLE_PRESCRIPTIONTEXTE', type: Types::STRING, length: 255, nullable: true)]
     private ?string $libelle = null;
