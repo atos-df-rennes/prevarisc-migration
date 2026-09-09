@@ -151,4 +151,18 @@ final class CommissionDocumentCrServiceTest extends TestCase
 
         self::assertFalse($this->service->documentCrExists($commission));
     }
+
+    /**
+     * Régression : une chaîne vide résiduelle en base (bug historique, cf. migration
+     * Version20260909092425) doit être traitée comme "aucun document", même lorsqu'elle
+     * est présente directement sur la propriété (hydratation Doctrine, qui ne passe pas
+     * par le setter).
+     */
+    public function testDocumentCrExistsRetourneFalseSiChaineVideEnBase(): void
+    {
+        $commission = new Commission();
+        $commission->setDocumentCr('');
+
+        self::assertFalse($this->service->documentCrExists($commission));
+    }
 }
