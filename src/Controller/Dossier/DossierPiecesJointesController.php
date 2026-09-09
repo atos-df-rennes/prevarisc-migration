@@ -11,6 +11,7 @@ use App\Repository\DossierPieceJointeRepository;
 use App\Repository\PieceJointeStatutRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\NotificationService;
+use App\Utils\File;
 use App\Utils\PathNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -246,7 +247,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $response = new BinaryFileResponse($filePath);
         $response->setContentDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $pj->getNom().$pj->getExtension()
+            File::sanitizeForContentDisposition($pj->getNom().$pj->getExtension())
         );
 
         return $response;
@@ -354,7 +355,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 
             $fichiers[] = [
                 'path' => $pjPath,
-                'name' => $pj->getNom().$pj->getExtension(),
+                'name' => File::sanitizeForContentDisposition($pj->getNom().$pj->getExtension()),
             ];
         }
 

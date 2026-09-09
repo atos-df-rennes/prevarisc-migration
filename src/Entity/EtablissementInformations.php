@@ -430,7 +430,7 @@ class EtablissementInformations
      */
     public function getPreventionnistes(): Collection
     {
-        $criteria = Criteria::create(true)->andWhere(Criteria::expr()->eq('actif', true));
+        $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('actif', true));
 
         // PHPStan n'a pas l'extension Doctrine et n'est donc pas au courant que ça fonctionne bien.
         /* @phpstan-ignore-next-line */

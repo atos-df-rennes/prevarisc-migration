@@ -22,7 +22,7 @@ class RessourcesSpecialiseesEtablissementNameGenerator
     public static function fromRequest(Request $request): string
     {
         /** @var FormData $formData */
-        $formData = $request->request->all('ressource_specialisee_etablissement');
+        $formData = $request->request->all();
 
         $name = 'etablissement_';
         $namer = self::createNamer($formData['genre']);
