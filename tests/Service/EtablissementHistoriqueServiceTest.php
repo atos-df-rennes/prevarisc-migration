@@ -16,9 +16,9 @@ final class EtablissementHistoriqueServiceTest extends TestCase
     #[DataProvider('lastAvisLibelleProvider')]
     public function testGetLastAvisLibelle(array $dossiersDataParams, string $expected): void
     {
-        $etablissementRepository = $this->createMock(EtablissementRepository::class);
+        $etablissementRepository = $this->createStub(EtablissementRepository::class);
         $dossierRepository = $this->createMock(DossierRepository::class);
-        $logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         // Construire les mocks de dossiers à partir des paramètres
         $dossiersData = [];

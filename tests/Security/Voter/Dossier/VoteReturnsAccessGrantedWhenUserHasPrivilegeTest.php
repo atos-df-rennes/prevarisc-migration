@@ -23,7 +23,7 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker = $this->createStub(EtablissementCollectionAccessChecker::class);
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
         $token = $this->createMock(TokenInterface::class);
@@ -40,7 +40,7 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
         $resource->method('getName')->willReturn('resource_1');
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resource]);
 
-        $privilege = $this->createMock(Privileges::class);
+        $privilege = $this->createStub(Privileges::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);
 
         $group = $this->createMock(Groupe::class);

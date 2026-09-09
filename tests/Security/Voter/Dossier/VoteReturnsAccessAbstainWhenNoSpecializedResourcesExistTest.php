@@ -16,13 +16,13 @@ class VoteReturnsAccessAbstainWhenNoSpecializedResourcesExistTest extends TestCa
     public function testVoteReturnsAccessAbstainWhenNoSpecializedResourcesExist(): void
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $privilegesRepository = $this->createStub(PrivilegesRepository::class);
+        $collectionAccessChecker = $this->createStub(EtablissementCollectionAccessChecker::class);
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([]);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 

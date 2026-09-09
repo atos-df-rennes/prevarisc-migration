@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(SearchQueryHelper::class)]
 final class SearchQueryHelperTest extends TestCase
 {
-    /** @var Connection|MockObject */
+    /** @var MockObject&Connection */
     private MockObject $connection;
 
     private SearchQueryHelper $helper;

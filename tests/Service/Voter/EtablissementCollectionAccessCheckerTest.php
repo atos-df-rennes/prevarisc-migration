@@ -59,7 +59,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testCollectionVideRetourneFalse(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
 
         $result = $this->checker->hasAtLeastOneAccessible([], 'view_ets', $token);
 
@@ -71,7 +71,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testUnEtablissementAccessibleRetourneTrue(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $etablissement = $this->createMockEtablissement(2);
 
         $voter = $this->createMock(VoterInterface::class);
@@ -89,7 +89,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testUnEtablissementNonAccessibleRetourneFalse(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $etablissement = $this->createMockEtablissement(2);
 
         $voter = $this->createMock(VoterInterface::class);
@@ -107,7 +107,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testDeuxEtablissementsAuMoinsUnAccessibleRetourneTrue(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $ets1 = $this->createMockEtablissement(2);
         $ets2 = $this->createMockEtablissement(3);
 
@@ -133,7 +133,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testEtablissementSansVoterDedieDelegueAAuthorizationCheckerEtRefuse(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $etablissement = $this->createMockEtablissement(999);
 
         $this->factory->method('getVoterForGenre')->with(999)->willReturn(null);
@@ -152,7 +152,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testEtablissementGenreSiteDelegueAAuthorizationCheckerEtAccorde(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $etablissement = $this->createMockEtablissement(1);
 
         $this->factory->method('getVoterForGenre')->with(1)->willReturn(null);
@@ -168,7 +168,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testEtablissementSansInformationsEstIgnoreAvecWarning(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
 
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willThrowException(new \OutOfBoundsException('No informations'));

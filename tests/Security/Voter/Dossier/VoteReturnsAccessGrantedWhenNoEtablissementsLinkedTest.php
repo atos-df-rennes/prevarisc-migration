@@ -43,7 +43,7 @@ class VoteReturnsAccessGrantedWhenNoEtablissementsLinkedTest extends TestCase
         $resource->method('getName')->willReturn('dossier_1');
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resource]);
 
-        $privilege = $this->createMock(Privileges::class);
+        $privilege = $this->createStub(Privileges::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);
 
         $group = $this->createMock(Groupe::class);

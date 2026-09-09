@@ -2,6 +2,7 @@
 
 namespace App\Tests\Service;
 
+use PHPUnit\Framework\MockObject\Stub;
 use App\Constant\TypeChamp as TypeChampConstant;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
@@ -32,17 +33,17 @@ use PHPUnit\Framework\TestCase;
  */
 final class DescriptifTest extends TestCase
 {
-    /** @var CapsuleRubriqueRepository|MockObject */
+    /** @var MockObject&CapsuleRubriqueRepository */
     private MockObject $capsuleRepo;
 
-    /** @var ValeurRepository|MockObject */
+    /** @var MockObject&ValeurRepository */
     private MockObject $valeurRepo;
 
-    /** @var DossierDisplayRubriqueRepository|MockObject */
+    /** @var MockObject&DossierDisplayRubriqueRepository */
     private MockObject $dossierDisplayRepo;
 
-    /** @var EtablissementDisplayRubriqueRepository|MockObject */
-    private MockObject $etablissementDisplayRepo;
+    /** @var Stub&EtablissementDisplayRubriqueRepository */
+    private Stub $etablissementDisplayRepo;
 
     private Descriptif $service;
 
@@ -51,7 +52,7 @@ final class DescriptifTest extends TestCase
         $this->capsuleRepo = $this->createMock(CapsuleRubriqueRepository::class);
         $this->valeurRepo = $this->createMock(ValeurRepository::class);
         $this->dossierDisplayRepo = $this->createMock(DossierDisplayRubriqueRepository::class);
-        $this->etablissementDisplayRepo = $this->createMock(EtablissementDisplayRubriqueRepository::class);
+        $this->etablissementDisplayRepo = $this->createStub(EtablissementDisplayRubriqueRepository::class);
 
         $this->service = new Descriptif(
             $this->capsuleRepo,

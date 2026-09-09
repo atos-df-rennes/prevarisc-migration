@@ -16,7 +16,7 @@ final class Sdis29VoterTest extends TestCase
     {
         $voter = new Sdis29Voter(true);
 
-        $result = $voter->vote($this->createMock(TokenInterface::class), null, [Sdis29Voter::ENABLED]);
+        $result = $voter->vote($this->createStub(TokenInterface::class), null, [Sdis29Voter::ENABLED]);
 
         self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
     }
@@ -25,7 +25,7 @@ final class Sdis29VoterTest extends TestCase
     {
         $voter = new Sdis29Voter(false);
 
-        $result = $voter->vote($this->createMock(TokenInterface::class), null, [Sdis29Voter::ENABLED]);
+        $result = $voter->vote($this->createStub(TokenInterface::class), null, [Sdis29Voter::ENABLED]);
 
         self::assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
@@ -34,7 +34,7 @@ final class Sdis29VoterTest extends TestCase
     {
         $voter = new Sdis29Voter(true);
 
-        $result = $voter->vote($this->createMock(TokenInterface::class), null, ['some_other_attribute']);
+        $result = $voter->vote($this->createStub(TokenInterface::class), null, ['some_other_attribute']);
 
         self::assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
     }

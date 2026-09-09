@@ -17,7 +17,7 @@ final class CommissionDatesTransformerTest extends TestCase
 {
     private CommissionDatesTransformer $transformer;
 
-    /** @var LoggerInterface */
+    /** @var MockObject&LoggerInterface */
     private MockObject $logger;
 
     protected function setUp(): void

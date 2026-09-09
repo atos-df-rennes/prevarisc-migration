@@ -18,7 +18,7 @@ final class ValeurResolverTest extends TestCase
 
     public function testRetourneVideSiValeurNulleAvecTypeChamp(): void
     {
-        $typeChamp = $this->createMock(TypeChampEntity::class);
+        $typeChamp = $this->createStub(TypeChampEntity::class);
 
         self::assertSame('', ValeurResolver::resolve($typeChamp, null));
     }

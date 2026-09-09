@@ -2,6 +2,7 @@
 
 namespace App\Tests\Service\Descriptif;
 
+use PHPUnit\Framework\MockObject\Stub;
 use App\Constant\TypeChamp;
 use App\Dto\Descriptif\ChampValueData;
 use App\Dto\Descriptif\DescriptifFormData;
@@ -27,19 +28,19 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DescriptifFormPersister::class)]
 class DescriptifFormPersisterTest extends TestCase
 {
-    /** @var ValeurRepository|MockObject */
+    /** @var MockObject&ValeurRepository */
     private MockObject $valeurRepository;
 
-    /** @var ChampRepository|MockObject */
+    /** @var MockObject&ChampRepository */
     private MockObject $champRepository;
 
-    /** @var DossierDisplayRubriqueRepository|MockObject */
+    /** @var MockObject&DossierDisplayRubriqueRepository */
     private MockObject $dossierDisplayRubriqueRepository;
 
-    /** @var EtablissementDisplayRubriqueRepository|MockObject */
-    private MockObject $etablissementDisplayRubriqueRepository;
+    /** @var Stub&EtablissementDisplayRubriqueRepository */
+    private Stub $etablissementDisplayRubriqueRepository;
 
-    /** @var EntityManagerInterface|MockObject */
+    /** @var MockObject&EntityManagerInterface */
     private MockObject $entityManager;
 
     private DescriptifFormPersister $persister;
@@ -49,7 +50,7 @@ class DescriptifFormPersisterTest extends TestCase
         $this->valeurRepository = $this->createMock(ValeurRepository::class);
         $this->champRepository = $this->createMock(ChampRepository::class);
         $this->dossierDisplayRubriqueRepository = $this->createMock(DossierDisplayRubriqueRepository::class);
-        $this->etablissementDisplayRubriqueRepository = $this->createMock(EtablissementDisplayRubriqueRepository::class);
+        $this->etablissementDisplayRubriqueRepository = $this->createStub(EtablissementDisplayRubriqueRepository::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
 
         $this->persister = new DescriptifFormPersister(

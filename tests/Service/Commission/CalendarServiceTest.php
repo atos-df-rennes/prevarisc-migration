@@ -16,16 +16,11 @@ final class CalendarServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $dateCommissionRepository = $this->createMock(DateCommissionRepository::class);
-        $commissionTypeEvenementRepository = $this->createMock(CommissionTypeEvenementRepository::class);
-        $commissionRepository = $this->createMock(CommissionRepository::class);
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-
         $this->calendarService = new CalendarService(
-            $dateCommissionRepository,
-            $commissionTypeEvenementRepository,
-            $commissionRepository,
-            $entityManager
+            $this->createStub(DateCommissionRepository::class),
+            $this->createStub(CommissionTypeEvenementRepository::class),
+            $this->createStub(CommissionRepository::class),
+            $this->createStub(EntityManagerInterface::class)
         );
     }
 

@@ -15,13 +15,13 @@ class VoteReturnsAccessAbstainForUnsupportedAttributeTest extends TestCase
 {
     public function testVoteReturnsAccessAbstainForUnsupportedAttribute(): void
     {
-        $resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $resourcesRepository = $this->createStub(ResourcesRepository::class);
+        $privilegesRepository = $this->createStub(PrivilegesRepository::class);
+        $collectionAccessChecker = $this->createStub(EtablissementCollectionAccessChecker::class);
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
-        $dossier = $this->createMock(Dossier::class);
-        $token = $this->createMock(TokenInterface::class);
+        $dossier = $this->createStub(Dossier::class);
+        $token = $this->createStub(TokenInterface::class);
 
         $result = $voter->vote($token, $dossier, ['unsupported_attribute']);
 

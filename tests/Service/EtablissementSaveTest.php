@@ -71,25 +71,18 @@ class EtablissementSaveTest extends TestCase
                 return null;
             }
         );
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $dossierRepo = $this->createMock(DossierRepository::class);
-        $avisDerogationsRepo = $this->createMock(AvisDerogationsRepository::class);
-        $parameterBag = $this->createMock(ParameterBagInterface::class);
-        $texteApplicable = $this->createMock(TexteApplicable::class);
         $persistenceService = new EtablissementPersistenceService($etablissementRepo);
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
 
         return new EtablissementService(
             $etablissementRepo,
-            $dossierRepo,
-            $avisDerogationsRepo,
-            $parameterBag,
+            $this->createStub(DossierRepository::class),
+            $this->createStub(AvisDerogationsRepository::class),
+            $this->createStub(ParameterBagInterface::class),
             $em,
-            $logger,
-            $texteApplicable,
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(TexteApplicable::class),
             $persistenceService,
-            $informationsRepo
+            $this->createStub(EtablissementInformationsRepository::class)
         );
     }
 

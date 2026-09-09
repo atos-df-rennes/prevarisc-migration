@@ -27,7 +27,7 @@ final class NumeroIdGeneratorTest extends TestCase
 {
     public function testGenerateThrowsForUnknownArrondissement(): void
     {
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
         $generator = new NumeroIdGenerator($entityManager);
 
         $this->expectException(\InvalidArgumentException::class);

@@ -2,6 +2,7 @@
 
 namespace App\Tests\Service;
 
+use PHPUnit\Framework\MockObject\Stub;
 use App\Dto\FusionDesCommunes\Commune as CommuneDto;
 use App\Dto\FusionDesCommunes\FusionDeCommunes;
 use App\Entity\Commission;
@@ -25,34 +26,34 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 final class FusionDesCommunesTest extends TestCase
 {
-    /** @var SerializerInterface|MockObject */
+    /** @var MockObject&SerializerInterface */
     private MockObject $serializer;
 
-    /** @var LoggerInterface|MockObject */
-    private MockObject $logger;
+    /** @var Stub&LoggerInterface */
+    private Stub $logger;
 
-    /** @var EntityManagerInterface|MockObject */
+    /** @var MockObject&EntityManagerInterface */
     private MockObject $entityManager;
 
-    /** @var CommuneRepository|MockObject */
+    /** @var MockObject&CommuneRepository */
     private MockObject $communeRepository;
 
-    /** @var EtablissementAdresseRepository|MockObject */
+    /** @var MockObject&EtablissementAdresseRepository */
     private MockObject $etablissementAdresseRepository;
 
-    /** @var AdresseRueRepository|MockObject */
+    /** @var MockObject&AdresseRueRepository */
     private MockObject $adresseRueRepository;
 
-    /** @var UtilisateurRepository|MockObject */
+    /** @var MockObject&UtilisateurRepository */
     private MockObject $utilisateurRepository;
 
-    /** @var CommissionRegleRepository|MockObject */
+    /** @var MockObject&CommissionRegleRepository */
     private MockObject $commissionRegleRepository;
 
     protected function setUp(): void
     {
         $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = $this->createStub(LoggerInterface::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->communeRepository = $this->createMock(CommuneRepository::class);
         $this->etablissementAdresseRepository = $this->createMock(EtablissementAdresseRepository::class);

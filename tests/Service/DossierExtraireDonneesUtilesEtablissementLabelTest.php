@@ -37,11 +37,11 @@ class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
         $dossierRepository->method('countPiecesJointesBulk')->willReturn([]);
 
         $this->service = new Dossier(
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
             $dossierRepository,
-            $this->createMock(Security::class),
+            $this->createStub(Security::class),
             new PlatauTempsRestant(),
-            $this->createMock(TexteApplicable::class)
+            $this->createStub(TexteApplicable::class)
         );
     }
 

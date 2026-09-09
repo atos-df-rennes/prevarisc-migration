@@ -17,7 +17,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 final class DossierPrescriptionServiceTest extends TestCase
 {
-    /** @var PrescriptionDossierRepository */
+    /** @var MockObject&PrescriptionDossierRepository */
     private MockObject $repository;
 
     private DossierPrescriptionService $service;
@@ -25,15 +25,12 @@ final class DossierPrescriptionServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->createMock(PrescriptionDossierRepository::class);
-        $em = $this->createMock(EntityManagerInterface::class);
-        $logger = $this->createMock(LoggerInterface::class);
-        $security = $this->createMock(Security::class);
-        $this->service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
+        $this->service = new DossierPrescriptionService($this->repository, $this->createStub(EntityManagerInterface::class), $this->createStub(LoggerInterface::class), $this->createStub(Security::class));
     }
 
     public function testReordonnerAppelleRenumerotationDeuxFois(): void
     {
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $idsRegl = [3, 1, 2];
         $idsAutres = [5, 4];
 
@@ -58,7 +55,7 @@ final class DossierPrescriptionServiceTest extends TestCase
 
     public function testReordonnerTransmetToujursLeMemeDossierAuRepository(): void
     {
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
 
         $this->repository->expects($this->exactly(2))
             ->method('renumeroterParIds')
@@ -69,7 +66,7 @@ final class DossierPrescriptionServiceTest extends TestCase
 
     public function testReordonnerAvecListesVides(): void
     {
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
 
         $this->repository->expects($this->exactly(2))
             ->method('renumeroterParIds');
@@ -83,7 +80,7 @@ final class DossierPrescriptionServiceTest extends TestCase
      */
     public function testReordonnerPasseLesBonIdsAChaqueListe(): void
     {
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $idsRegl = [10, 20, 30];
         $idsAutres = [40, 50];
 
@@ -102,11 +99,11 @@ final class DossierPrescriptionServiceTest extends TestCase
 
     public function testAjouterDepuisTypeCreePrescriptionAvecBonType(): void
     {
-        $dossier = $this->createMock(Dossier::class);
-        $prescriptionType = $this->createMock(PrescriptionType::class);
+        $dossier = $this->createStub(Dossier::class);
+        $prescriptionType = $this->createStub(PrescriptionType::class);
         $em = $this->createMock(EntityManager::class);
-        $logger = $this->createMock(LoggerInterface::class);
-        $security = $this->createMock(Security::class);
+        $logger = $this->createStub(LoggerInterface::class);
+        $security = $this->createStub(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
@@ -126,11 +123,11 @@ final class DossierPrescriptionServiceTest extends TestCase
 
     public function testAjouterDepuisTypeAssigneProchainNumero(): void
     {
-        $dossier = $this->createMock(Dossier::class);
-        $prescriptionType = $this->createMock(PrescriptionType::class);
+        $dossier = $this->createStub(Dossier::class);
+        $prescriptionType = $this->createStub(PrescriptionType::class);
         $em = $this->createMock(EntityManager::class);
-        $logger = $this->createMock(LoggerInterface::class);
-        $security = $this->createMock(Security::class);
+        $logger = $this->createStub(LoggerInterface::class);
+        $security = $this->createStub(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(3);
@@ -145,11 +142,11 @@ final class DossierPrescriptionServiceTest extends TestCase
 
     public function testAjouterDepuisTypeGardeLienTypeEtNeCopiesPasLibelle(): void
     {
-        $dossier = $this->createMock(Dossier::class);
-        $prescriptionType = $this->createMock(PrescriptionType::class);
+        $dossier = $this->createStub(Dossier::class);
+        $prescriptionType = $this->createStub(PrescriptionType::class);
         $em = $this->createMock(EntityManager::class);
-        $logger = $this->createMock(LoggerInterface::class);
-        $security = $this->createMock(Security::class);
+        $logger = $this->createStub(LoggerInterface::class);
+        $security = $this->createStub(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
         $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);

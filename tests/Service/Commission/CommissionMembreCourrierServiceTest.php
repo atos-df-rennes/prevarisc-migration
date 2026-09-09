@@ -2,6 +2,7 @@
 
 namespace App\Tests\Service\Commission;
 
+use PHPUnit\Framework\MockObject\Stub;
 use App\Entity\CommissionMembre;
 use App\Enum\CommissionMembreCourrierType;
 use App\Service\Commission\CommissionMembreCourrierService;
@@ -20,11 +21,11 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 {
     private string $tmpDir;
 
-    /** @var EntityManagerInterface|MockObject */
+    /** @var MockObject&EntityManagerInterface */
     private MockObject $entityManager;
 
-    /** @var LoggerInterface|MockObject */
-    private MockObject $logger;
+    /** @var Stub&LoggerInterface */
+    private Stub $logger;
 
     private CommissionMembreCourrierService $service;
 
@@ -34,7 +35,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         mkdir($this->tmpDir, 0777, true);
 
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = $this->createStub(LoggerInterface::class);
 
         $this->service = new CommissionMembreCourrierService(
             $this->tmpDir,

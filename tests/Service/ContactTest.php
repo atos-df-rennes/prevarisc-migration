@@ -17,19 +17,19 @@ final class ContactTest extends TestCase
 {
     private UtilisateurInformations $contact;
 
-    /** @var EtablissementRepository|MockObject */
+    /** @var MockObject&EtablissementRepository */
     private MockObject $etablissementRepository;
 
-    /** @var DossierRepository|MockObject */
+    /** @var MockObject&DossierRepository */
     private MockObject $dossierRepository;
 
-    /** @var GroupementRepository|MockObject */
+    /** @var MockObject&GroupementRepository */
     private MockObject $groupementRepository;
 
-    /** @var CommissionRepository|MockObject */
+    /** @var MockObject&CommissionRepository */
     private MockObject $commissionRepository;
 
-    /** @var CommuneRepository|MockObject */
+    /** @var MockObject&CommuneRepository */
     private MockObject $communeRepository;
 
     protected function setUp(): void

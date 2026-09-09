@@ -16,7 +16,7 @@ class VoteReturnsAccessAbstainWhenPrivilegeIsUnknownTest extends TestCase
         $privilegesRepository->method('findAll')->willReturn([]);
 
         $voter = new PrivilegeVoter($privilegesRepository);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
 
         $result = $voter->vote($token, null, ['privilege_inexistant']);
 

@@ -2,6 +2,7 @@
 
 namespace App\Tests\Service\Commission;
 
+use PHPUnit\Framework\MockObject\Stub;
 use App\Entity\Commission;
 use App\Service\Commission\CommissionDocumentCrService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,11 +19,11 @@ final class CommissionDocumentCrServiceTest extends TestCase
 {
     private string $tmpDir;
 
-    /** @var EntityManagerInterface|MockObject */
+    /** @var MockObject&EntityManagerInterface */
     private MockObject $entityManager;
 
-    /** @var LoggerInterface|MockObject */
-    private MockObject $logger;
+    /** @var Stub&LoggerInterface */
+    private Stub $logger;
 
     private CommissionDocumentCrService $service;
 
@@ -32,7 +33,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
         mkdir($this->tmpDir, 0777, true);
 
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = $this->createStub(LoggerInterface::class);
 
         $this->service = new CommissionDocumentCrService(
             $this->tmpDir,

@@ -162,7 +162,7 @@ class DescriptifFormHydratorTest extends TestCase
             ],
         ];
 
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $formData = $this->hydrator->hydrateFromDossier($dossier, $rubriques);
 
         $rubriqueData = $formData->getRubrique(5);
@@ -172,7 +172,7 @@ class DescriptifFormHydratorTest extends TestCase
 
     public function testHydrateRubriquesVides(): void
     {
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $formData = $this->hydrator->hydrateFromDossier($dossier, []);
 
         self::assertEmpty($formData->getRubriques());
@@ -193,7 +193,7 @@ class DescriptifFormHydratorTest extends TestCase
             ],
         ];
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
         $formData = $this->hydrator->hydrateFromEtablissement($etablissement, $rubriques);
 
         $rubriqueData = $formData->getRubrique(9);
@@ -217,9 +217,7 @@ class DescriptifFormHydratorTest extends TestCase
                 ],
             ],
         ];
-
-        $dossier = $this->createMock(Dossier::class);
-        $formData = $this->hydrator->hydrateFromDossier($dossier, $rubriques);
+        $formData = $this->hydrator->hydrateFromDossier($this->createStub(Dossier::class), $rubriques);
 
         $rubriqueData = $formData->getRubrique(1);
         self::assertNotNull($rubriqueData);
@@ -244,9 +242,7 @@ class DescriptifFormHydratorTest extends TestCase
                 ],
             ],
         ];
-
-        $dossier = $this->createMock(Dossier::class);
-        $formData = $this->hydrator->hydrateFromDossier($dossier, $rubriques);
+        $formData = $this->hydrator->hydrateFromDossier($this->createStub(Dossier::class), $rubriques);
 
         $rubriqueData = $formData->getRubrique(1);
         self::assertNotNull($rubriqueData);

@@ -43,14 +43,14 @@ class VoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessibleTest extends Te
         $resource->method('getName')->willReturn('dossier_1');
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resource]);
 
-        $privilege = $this->createMock(Privileges::class);
+        $privilege = $this->createStub(Privileges::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);
 
         $group = $this->createMock(Groupe::class);
         $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
         $user->method('getGroupe')->willReturn($group);
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
         $dossier = $this->createMock(Dossier::class);
         $nature = $this->createMock(DossierNatureListe::class);
         $nature->method('getId')->willReturn(1);
