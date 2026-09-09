@@ -16,18 +16,19 @@ return RectorConfig::configure()
     ->withTypeCoverageLevel(50)
     ->withDeadCodeLevel(50)
     ->withCodeQualityLevel(50)
-    ->withAttributesSets(phpunit: true)
-    ->withImportNames(removeUnusedImports: true, importShortClasses: false)
+    ->withAttributesSets(symfony: true, doctrine: true, phpunit: true)
+    ->withImportNames(importShortClasses: false, removeUnusedImports: true)
     ->withPreparedSets(
         codingStyle: true,
         privatization: true,
         earlyReturn: true,
-        symfonyConfigs: true,
         symfonyCodeQuality: true,
+        symfonyConfigs: true,
     )
     ->withComposerBased(
-        doctrine: true,
         twig: true,
+        doctrine: true,
+        phpunit: true,
         symfony: true,
     )
 ;
