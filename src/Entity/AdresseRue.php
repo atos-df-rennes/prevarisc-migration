@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\AdresseRueRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,15 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'adresserue')]
 class AdresseRue
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_RUE', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_RUE', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_RUE', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_RUE', type: Types::STRING, length: 255, nullable: false)]
     private ?string $libelle = null;
 
     #[ORM\ManyToOne(targetEntity: AdresseRueType::class)]

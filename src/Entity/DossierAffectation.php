@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\DossierAffectationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,13 +10,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'dossieraffectation')]
 class DossierAffectation
 {
-    #[ORM\Column(name: 'HEURE_DEB_AFFECT', type: 'time', nullable: true)]
+    #[ORM\Column(name: 'HEURE_DEB_AFFECT', type: Types::TIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $heureDebut = null;
 
-    #[ORM\Column(name: 'HEURE_FIN_AFFECT', type: 'time', nullable: true)]
+    #[ORM\Column(name: 'HEURE_FIN_AFFECT', type: Types::TIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $heureFin = null;
 
-    #[ORM\Column(name: 'NUM_DOSSIER', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'NUM_DOSSIER', type: Types::INTEGER, nullable: false)]
     private ?int $numero = null;
 
     #[ORM\Id]

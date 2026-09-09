@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\ListeDocumentAjouteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,21 +10,18 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'listedocajout')]
 class ListeDocumentAjoute
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_DOCAJOUT', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_DOCAJOUT', type: Types::BIGINT)]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_DOCAJOUT', type: 'text', nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_DOCAJOUT', type: Types::TEXT, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'REF_DOCAJOUT', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'REF_DOCAJOUT', type: Types::STRING, length: 255, nullable: true)]
     private ?string $reference = null;
 
-    #[ORM\Column(name: 'DATE_DOCAJOUT', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATE_DOCAJOUT', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\ManyToOne(targetEntity: DossierNatureListe::class)]

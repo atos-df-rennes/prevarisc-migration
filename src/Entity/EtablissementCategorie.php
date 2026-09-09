@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\EtablissementCategorieRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,18 +10,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'categorie')]
 class EtablissementCategorie
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_CATEGORIE', type: 'integer', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_CATEGORIE', type: Types::INTEGER, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_CATEGORIE', type: 'string', length: 15, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_CATEGORIE', type: Types::STRING, length: 15, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'COMMENTAIRE_CATEGORIE', type: 'string', length: 35, nullable: true)]
+    #[ORM\Column(name: 'COMMENTAIRE_CATEGORIE', type: Types::STRING, length: 35, nullable: true)]
     private ?string $commentaire = null;
 
     public function getId(): ?int

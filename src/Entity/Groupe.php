@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\GroupeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,19 +12,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: GroupeRepository::class)]
 class Groupe
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_GROUPE', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_GROUPE', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
     #[Assert\NotBlank(message: 'Cette valeur ne doit pas être vide.')]
-    #[ORM\Column(name: 'LIBELLE_GROUPE', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_GROUPE', type: Types::STRING, length: 255, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'DESC_GROUPE', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESC_GROUPE', type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     /**

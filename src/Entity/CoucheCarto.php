@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\CoucheCartoRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,36 +10,33 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'couchecarto')]
 class CoucheCarto
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_COUCHECARTO', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_COUCHECARTO', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'NOM_COUCHECARTO', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'NOM_COUCHECARTO', type: Types::STRING, length: 255, nullable: true)]
     private ?string $nom = null;
 
-    #[ORM\Column(name: 'URL_COUCHECARTO', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'URL_COUCHECARTO', type: Types::STRING, length: 255, nullable: false)]
     private ?string $url = null;
 
-    #[ORM\Column(name: 'ISBASELAYER_COUCHECARTO', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'ISBASELAYER_COUCHECARTO', type: Types::BOOLEAN, nullable: false)]
     private ?bool $baseLayer = null;
 
-    #[ORM\Column(name: 'LAYERS_COUCHECARTO', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'LAYERS_COUCHECARTO', type: Types::STRING, length: 255, nullable: true)]
     private ?string $layer = null;
 
-    #[ORM\Column(name: 'FORMAT_COUCHECARTO', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'FORMAT_COUCHECARTO', type: Types::STRING, length: 255, nullable: false)]
     private ?string $format = null;
 
-    #[ORM\Column(name: 'TRANSPARENT_COUCHECARTO', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'TRANSPARENT_COUCHECARTO', type: Types::BOOLEAN, nullable: false)]
     private ?bool $transparent = null;
 
-    #[ORM\Column(name: 'TYPE_COUCHECARTO', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: 'TYPE_COUCHECARTO', type: Types::STRING, length: 50, nullable: false)]
     private ?string $type = null;
 
-    #[ORM\Column(name: 'ORDRE_COUCHECARTO', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'ORDRE_COUCHECARTO', type: Types::INTEGER, nullable: true)]
     private ?int $ordre = null;
 
     public function getId(): ?int

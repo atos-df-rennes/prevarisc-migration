@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\PrescriptionTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,27 +12,24 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'prescriptiontype')]
 class PrescriptionType
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_PRESCRIPTIONTYPE', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_PRESCRIPTIONTYPE', type: Types::BIGINT)]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'PRESCRIPTIONTYPE_CATEGORIE', type: 'bigint', nullable: true)]
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_CATEGORIE', type: Types::BIGINT, nullable: true)]
     private ?int $categorie = null;
 
-    #[ORM\Column(name: 'PRESCRIPTIONTYPE_TEXTE', type: 'bigint', nullable: true)]
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_TEXTE', type: Types::BIGINT, nullable: true)]
     private ?int $texte = null;
 
-    #[ORM\Column(name: 'PRESCRIPTIONTYPE_ARTICLE', type: 'bigint', nullable: true)]
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_ARTICLE', type: Types::BIGINT, nullable: true)]
     private ?int $article = null;
 
-    #[ORM\Column(name: 'PRESCRIPTIONTYPE_LIBELLE', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_LIBELLE', type: Types::TEXT, nullable: true)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'PRESCRIPTIONTYPE_NUM', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'PRESCRIPTIONTYPE_NUM', type: Types::INTEGER, nullable: true)]
     private ?int $numero = null;
 
     /**

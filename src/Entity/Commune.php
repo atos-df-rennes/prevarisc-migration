@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\CommuneRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -15,13 +16,13 @@ class Commune
      * @var string Numéro INSEE de la commune
      */
     #[ORM\Id]
-    #[ORM\Column(name: 'NUMINSEE_COMMUNE', type: 'string', length: 5, options: ['fixed' => true])]
-    private $id;
+    #[ORM\Column(name: 'NUMINSEE_COMMUNE', type: Types::STRING, length: 5, options: ['fixed' => true])]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_COMMUNE', type: 'string', length: 60, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_COMMUNE', type: Types::STRING, length: 60, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'CODEPOSTAL_COMMUNE', type: 'string', length: 5, nullable: false)]
+    #[ORM\Column(name: 'CODEPOSTAL_COMMUNE', type: Types::STRING, length: 5, nullable: false)]
     private ?string $codePostal = null;
 
     #[ORM\OneToOne(targetEntity: UtilisateurInformations::class, cascade: ['persist'])]

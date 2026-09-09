@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\RubriqueRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -13,21 +14,18 @@ class Rubrique
 {
     use GetIdOrFailTrait;
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_RUBRIQUE', type: 'integer')]
-    private $id;
+    #[ORM\Column(name: 'ID_RUBRIQUE', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'NOM', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'NOM', type: Types::STRING, length: 255, nullable: false)]
     private ?string $nom = null;
 
-    #[ORM\Column(name: 'DEFAULT_DISPLAY', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DEFAULT_DISPLAY', type: Types::BOOLEAN, nullable: true)]
     private ?bool $defaultDisplay = null;
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private ?int $idx = null;
 
     #[ORM\ManyToOne(targetEntity: CapsuleRubrique::class, inversedBy: 'rubriques')]
@@ -41,7 +39,7 @@ class Rubrique
     #[ORM\OrderBy(['idx' => 'ASC', 'id' => 'ASC'])]
     private Collection $champs;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: Types::BOOLEAN)]
     private bool $ouverte = false;
 
     public function __construct()

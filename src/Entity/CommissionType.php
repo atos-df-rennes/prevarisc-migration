@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\CommissionTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -15,17 +16,14 @@ class CommissionType
 {
     use GetIdOrFailTrait;
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_COMMISSIONTYPE', type: 'integer', length: 2, options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_COMMISSIONTYPE', type: Types::INTEGER, length: 2, options: ['unsigned' => true])]
+    private ?int $id = null;
 
     #[Assert\NotBlank(message: 'Le type de commission est obligatoire.')]
     #[Assert\Length(max: 50, maxMessage: 'Le libellé du type de commission ne peut pas dépasser {{ limit }} caractères.')]
-    #[ORM\Column(name: 'LIBELLE_COMMISSIONTYPE', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_COMMISSIONTYPE', type: Types::STRING, length: 50, nullable: false)]
     private ?string $libelle = null;
 
     /**

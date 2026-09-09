@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\CommissionMembreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -14,30 +15,27 @@ class CommissionMembre
 {
     use GetIdOrFailTrait;
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_COMMISSIONMEMBRE', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_COMMISSIONMEMBRE', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_COMMISSIONMEMBRE', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_COMMISSIONMEMBRE', type: Types::STRING, length: 255, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'PRESENCE_COMMISSIONMEMBRE', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'PRESENCE_COMMISSIONMEMBRE', type: Types::INTEGER, nullable: false)]
     private ?int $presence = null;
 
-    #[ORM\Column(name: 'COURRIER_CONVOCATIONVISITE', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'COURRIER_CONVOCATIONVISITE', type: Types::STRING, length: 255, nullable: true)]
     private ?string $courrierConvocationVisite = null;
 
-    #[ORM\Column(name: 'COURRIER_CONVOCATIONSALLE', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'COURRIER_CONVOCATIONSALLE', type: Types::STRING, length: 255, nullable: true)]
     private ?string $courrierConvocationSalle = null;
 
-    #[ORM\Column(name: 'COURRIER_ODJ', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'COURRIER_ODJ', type: Types::STRING, length: 255, nullable: true)]
     private ?string $courrierOrdreDuJour = null;
 
-    #[ORM\Column(name: 'COURRIER_PV', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'COURRIER_PV', type: Types::STRING, length: 255, nullable: true)]
     private ?string $courrierProcesVerbal = null;
 
     #[ORM\ManyToOne(targetEntity: Groupement::class)]
@@ -97,7 +95,7 @@ class CommissionMembre
     #[ORM\ManyToMany(targetEntity: DossierType::class)]
     private Collection $typesDossier;
 
-    #[ORM\Column(name: 'MANIFESTATION_COMMISSIONMEMBRE', type: 'boolean', nullable: false, options: ['default' => false])]
+    #[ORM\Column(name: 'MANIFESTATION_COMMISSIONMEMBRE', type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
     private bool $manifestation;
 
     public function __construct()

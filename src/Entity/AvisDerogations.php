@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\AvisDerogationsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,36 +10,33 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'avisderogations')]
 class AvisDerogations
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
-    #[ORM\Column(name: 'ID_AVIS_DEROGATION', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_AVIS_DEROGATION', type: Types::BIGINT)]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'TYPE', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: 'TYPE', type: Types::STRING, length: 50, nullable: false)]
     private ?string $type = null;
 
-    #[ORM\Column(name: 'TITRE', type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(name: 'TITRE', type: Types::STRING, length: 100, nullable: true)]
     private ?string $titre = null;
 
-    #[ORM\Column(name: 'OBJET', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'OBJET', type: Types::TEXT, nullable: true)]
     private ?string $objet = null;
 
-    #[ORM\Column(name: 'JUSTIFICATION', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'JUSTIFICATION', type: Types::TEXT, nullable: true)]
     private ?string $justification = null;
 
-    #[ORM\Column(name: 'ARTICLES_CONCERNES', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'ARTICLES_CONCERNES', type: Types::TEXT, nullable: true)]
     private ?string $articlesConcernes = null;
 
-    #[ORM\Column(name: 'MESURES_COMPENSATOIRES_PROPOSEES', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'MESURES_COMPENSATOIRES_PROPOSEES', type: Types::TEXT, nullable: true)]
     private ?string $mesuresCompensatoiresProposees = null;
 
-    #[ORM\Column(name: 'ANALYSE_DE_RISQUE', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'ANALYSE_DE_RISQUE', type: Types::TEXT, nullable: true)]
     private ?string $analyseDeRisque = null;
 
-    #[ORM\Column(name: 'DISPLAY_HISTORIQUE', type: 'boolean', options: ['default' => 0])]
+    #[ORM\Column(name: 'DISPLAY_HISTORIQUE', type: Types::BOOLEAN, options: ['default' => 0])]
     private bool $displayHistorique;
 
     #[ORM\ManyToOne(targetEntity: Avis::class)]

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\EtablissementInformationsTypesActivitesSecondairesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,13 +10,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'etablissementinformationstypesactivitessecondaires')]
 class EtablissementInformationsTypesActivitesSecondaires
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSTYPESACTIVITESSECONDAIRES', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSTYPESACTIVITESSECONDAIRES', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
     #[ORM\ManyToOne(targetEntity: EtablissementInformations::class, inversedBy: 'typesActivitesSecondaires')]
     #[ORM\JoinColumn(name: 'ID_ETABLISSEMENTINFORMATIONS', referencedColumnName: 'ID_ETABLISSEMENTINFORMATIONS', nullable: false, options: ['unsigned' => true])]

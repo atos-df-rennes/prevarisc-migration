@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\PrescriptionDossierAssociationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 class PrescriptionDossierAssociation
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'NUM_PRESCRIPTION_DOSSIERASSOC', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'NUM_PRESCRIPTION_DOSSIERASSOC', type: Types::INTEGER, nullable: false)]
     private ?int $numero = null;
 
     #[ORM\Id]

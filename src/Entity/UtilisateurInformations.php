@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\UtilisateurInformationsRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,75 +14,72 @@ class UtilisateurInformations
 {
     use GetIdOrFailTrait;
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_UTILISATEURINFORMATIONS', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_UTILISATEURINFORMATIONS', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'NOM_UTILISATEURINFORMATIONS', type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(name: 'NOM_UTILISATEURINFORMATIONS', type: Types::STRING, length: 50, nullable: true)]
     #[Assert\Length(max: 50)]
     private ?string $nom = null;
 
-    #[ORM\Column(name: 'PRENOM_UTILISATEURINFORMATIONS', type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(name: 'PRENOM_UTILISATEURINFORMATIONS', type: Types::STRING, length: 50, nullable: true)]
     #[Assert\Length(max: 50)]
     private ?string $prenom = null;
 
-    #[ORM\Column(name: 'TELFIXE_UTILISATEURINFORMATIONS', type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'TELFIXE_UTILISATEURINFORMATIONS', type: Types::STRING, length: 20, nullable: true)]
     #[Assert\Length(max: 20)]
     private ?string $telephoneFixe = null;
 
-    #[ORM\Column(name: 'TELPORTABLE_UTILISATEURINFORMATIONS', type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'TELPORTABLE_UTILISATEURINFORMATIONS', type: Types::STRING, length: 20, nullable: true)]
     #[Assert\Length(max: 20)]
     private ?string $telephonePortable = null;
 
-    #[ORM\Column(name: 'TELFAX_UTILISATEURINFORMATIONS', type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'TELFAX_UTILISATEURINFORMATIONS', type: Types::STRING, length: 20, nullable: true)]
     #[Assert\Length(max: 20)]
     private ?string $telephoneFax = null;
 
-    #[ORM\Column(name: 'MAIL_UTILISATEURINFORMATIONS', type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(name: 'MAIL_UTILISATEURINFORMATIONS', type: Types::STRING, length: 50, nullable: true)]
     #[Assert\Length(max: 50)]
     private ?string $mail = null;
 
-    #[ORM\Column(name: 'SOCIETE_UTILISATEURINFORMATIONS', type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(name: 'SOCIETE_UTILISATEURINFORMATIONS', type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
     private ?string $societe = null;
 
-    #[ORM\Column(name: 'NUMEROADRESSE_UTILISATEURINFORMATIONS', type: 'string', length: 10, nullable: true)]
+    #[ORM\Column(name: 'NUMEROADRESSE_UTILISATEURINFORMATIONS', type: Types::STRING, length: 10, nullable: true)]
     #[Assert\Length(max: 10)]
     private ?string $numeroAdresse = null;
 
-    #[ORM\Column(name: 'RUEADRESSE_UTILISATEURINFORMATIONS', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'RUEADRESSE_UTILISATEURINFORMATIONS', type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $rueAdresse = null;
 
-    #[ORM\Column(name: 'CPADRESSE_UTILISATEURINFORMATIONS', type: 'string', length: 5, nullable: true)]
+    #[ORM\Column(name: 'CPADRESSE_UTILISATEURINFORMATIONS', type: Types::STRING, length: 5, nullable: true)]
     #[Assert\Length(max: 5)]
     private ?string $codePostalAdresse = null;
 
-    #[ORM\Column(name: 'VILLEADRESSE_UTILISATEURINFORMATIONS', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'VILLEADRESSE_UTILISATEURINFORMATIONS', type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $villeAdresse = null;
 
-    #[ORM\Column(name: 'WEB_UTILISATEURINFORMATIONS', type: 'string', length: 100, nullable: true)]
+    #[ORM\Column(name: 'WEB_UTILISATEURINFORMATIONS', type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
     private ?string $siteWeb = null;
 
-    #[ORM\Column(name: 'OBS_UTILISATEURINFORMATIONS', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'OBS_UTILISATEURINFORMATIONS', type: Types::TEXT, nullable: true)]
     private ?string $observations = null;
 
-    #[ORM\Column(name: 'DATE_PRV2', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATE_PRV2', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $datePrv2 = null;
 
-    #[ORM\Column(name: 'DATE_RECYCLAGE', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATE_RECYCLAGE', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateRecyclage = null;
 
-    #[ORM\Column(name: 'DATE_SID', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATE_SID', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateSid = null;
 
-    #[ORM\Column(name: 'GRADE_UTILISATEURINFORMATIONS', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'GRADE_UTILISATEURINFORMATIONS', type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $grade = null;
 

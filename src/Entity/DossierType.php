@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\DossierTypeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,15 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'dossiertype')]
 class DossierType
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_DOSSIERTYPE', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_DOSSIERTYPE', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_DOSSIERTYPE', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_DOSSIERTYPE', type: Types::STRING, length: 100, nullable: false)]
     private ?string $libelle = null;
 
     public function getId(): ?int

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\CapsuleRubriqueRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -14,18 +15,15 @@ class CapsuleRubrique
 {
     use GetIdOrFailTrait;
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_CAPSULERUBRIQUE', type: 'integer')]
-    private $id;
+    #[ORM\Column(name: 'ID_CAPSULERUBRIQUE', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'NOM_INTERNE', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'NOM_INTERNE', type: Types::STRING, length: 255, nullable: false)]
     private ?string $nomInterne = null;
 
-    #[ORM\Column(name: 'NOM', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'NOM', type: Types::STRING, length: 255, nullable: false)]
     private ?string $nom = null;
 
     /**

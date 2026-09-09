@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Doctrine\ContactCriteria;
 use App\Repository\GroupementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -13,16 +14,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: GroupementRepository::class)]
 class Groupement
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_GROUPEMENT', type: 'bigint', options: ['unsigned' => true])]
+    #[ORM\Column(name: 'ID_GROUPEMENT', type: Types::BIGINT, options: ['unsigned' => true])]
     #[Groups(['api_response'])]
-    private $id;
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_GROUPEMENT', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_GROUPEMENT', type: Types::STRING, length: 255, nullable: false)]
     #[Groups(['api_response'])]
     private ?string $libelle = null;
 

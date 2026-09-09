@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\AvisRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,15 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'avis')]
 class Avis
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_AVIS', type: 'integer', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_AVIS', type: Types::INTEGER, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_AVIS', type: 'string', length: 75, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_AVIS', type: Types::STRING, length: 75, nullable: false)]
     private ?string $libelle = null;
 
     public function getId(): ?int

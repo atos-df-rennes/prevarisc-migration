@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\GroupementTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,15 +13,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table(name: 'groupementtype')]
 class GroupementType
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_GROUPEMENTTYPE', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_GROUPEMENTTYPE', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_GROUPEMENTTYPE', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_GROUPEMENTTYPE', type: Types::STRING, length: 255, nullable: false)]
     #[Groups(['api_response'])]
     private ?string $libelle = null;
 

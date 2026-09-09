@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\PeriodiciteRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,18 +10,18 @@ use Doctrine\ORM\Mapping as ORM;
 class Periodicite
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'LOCALSOMMEIL_PERIODICITE', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'LOCALSOMMEIL_PERIODICITE', type: Types::BOOLEAN, nullable: false)]
     private bool $localSommeil;
 
-    #[ORM\Column(name: 'PERIODICITE_PERIODICITE', type: 'integer', nullable: false, options: ['unsigned' => true])]
+    #[ORM\Column(name: 'PERIODICITE_PERIODICITE', type: Types::INTEGER, nullable: false, options: ['unsigned' => true])]
     private ?int $periodicite = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'ID_CATEGORIE', type: 'integer', nullable: false, options: ['unsigned' => true])]
+    #[ORM\Column(name: 'ID_CATEGORIE', type: Types::INTEGER, nullable: false, options: ['unsigned' => true])]
     private int $categorie;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'ID_TYPE', type: 'string', length: 10, nullable: false)]
+    #[ORM\Column(name: 'ID_TYPE', type: Types::STRING, length: 10, nullable: false)]
     private string $type;
 
     public function getLocalSommeil(): bool

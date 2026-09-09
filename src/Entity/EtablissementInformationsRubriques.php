@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\EtablissementInformationsRubriqueRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,27 +10,24 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'etablissementinformationsrubrique')]
 class EtablissementInformationsRubriques
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::BIGINT)]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: 'integer')]
+    #[ORM\Column(name: 'NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::INTEGER)]
     private ?int $numero = null;
 
-    #[ORM\Column(name: 'VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: 'float')]
+    #[ORM\Column(name: 'VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::FLOAT)]
     private ?float $valeur = null;
 
-    #[ORM\Column(name: 'NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: 'string', length: 500)]
+    #[ORM\Column(name: 'NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::STRING, length: 500)]
     private ?string $nom = null;
 
-    #[ORM\Column(name: 'ID_RUBRIQUE', type: 'smallint')]
+    #[ORM\Column(name: 'ID_RUBRIQUE', type: Types::SMALLINT)]
     private ?int $rubrique = null;
 
-    #[ORM\Column(name: 'CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: 'string', length: 50)]
+    #[ORM\Column(name: 'CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::STRING, length: 50)]
     private ?string $classement = null;
 
     #[ORM\ManyToOne(targetEntity: EtablissementInformations::class, inversedBy: 'rubriquesIcpe')]

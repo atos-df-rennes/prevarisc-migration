@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\EtablissementStatutRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,15 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'statut')]
 class EtablissementStatut
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_STATUT', type: 'integer', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_STATUT', type: Types::INTEGER, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_STATUT', type: 'string', length: 30, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_STATUT', type: Types::STRING, length: 30, nullable: false)]
     private ?string $libelle = null;
 
     public function getId(): ?int

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\UtilisateurRepository;
 use App\Validator as PrevariscAssert;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -21,23 +22,20 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInterface
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_UTILISATEUR', type: 'bigint', options: ['unsigned' => true])]
+    #[ORM\Column(name: 'ID_UTILISATEUR', type: Types::BIGINT, options: ['unsigned' => true])]
     #[Groups(['api_response'])]
-    private $id;
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'USERNAME_UTILISATEUR', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'USERNAME_UTILISATEUR', type: Types::STRING, length: 100, nullable: false)]
     #[Assert\NotNull(message: "Le nom d'utilisateur ne doit pas être null.")]
     private ?string $username = null;
 
     /**
      * @var array<Role|string>
      */
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: Types::JSON)]
     private array $roles = [];
 
     private ?string $plainPassword = null;
@@ -45,29 +43,29 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
     /**
      * @var ?string The hashed password
      */
-    #[ORM\Column(name: 'PASSWD_UTILISATEUR', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'PASSWD_UTILISATEUR', type: Types::STRING, length: 255, nullable: true)]
     private ?string $password = null;
 
-    #[ORM\Column(name: 'LASTACTION_UTILISATEUR', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'LASTACTION_UTILISATEUR', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $lastAction = null;
 
-    #[ORM\Column(name: 'ACTIF_UTILISATEUR', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'ACTIF_UTILISATEUR', type: Types::BOOLEAN, nullable: false)]
     private ?bool $actif = null;
 
-    #[ORM\Column(name: 'FAILED_LOGIN_ATTEMPTS_UTILISATEUR', type: 'smallint', nullable: false, options: ['unsigned' => true])]
+    #[ORM\Column(name: 'FAILED_LOGIN_ATTEMPTS_UTILISATEUR', type: Types::SMALLINT, nullable: false, options: ['unsigned' => true])]
     private int $failedLoginAttempts = 0;
 
-    #[ORM\Column(name: 'IP_UTILISATEUR', type: 'string', length: 45, nullable: true)]
+    #[ORM\Column(name: 'IP_UTILISATEUR', type: Types::STRING, length: 45, nullable: true)]
     private ?string $ip = null;
 
     // @todo: Vérifier si doublon avec $commune
-    #[ORM\Column(name: 'NUMINSEE_COMMUNE', type: 'string', length: 5, nullable: true)]
+    #[ORM\Column(name: 'NUMINSEE_COMMUNE', type: Types::STRING, length: 5, nullable: true)]
     private ?string $numinsee = null;
 
-    #[ORM\Column(name: 'DERNIERE_VISITE_DASHBOARD', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DERNIERE_VISITE_DASHBOARD', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $derniereVisiteDashboard = null;
 
-    #[ORM\Column(name: 'DERNIERE_VISITE_PIECES_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DERNIERE_VISITE_PIECES_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $derniereVisitePiecesDossier = null;
 
     #[ORM\ManyToOne(targetEntity: Groupe::class, inversedBy: 'utilisateurs')]
@@ -103,7 +101,7 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
     #[ORM\ManyToMany(targetEntity: Groupement::class, inversedBy: 'utilisateurs')]
     private Collection $groupements;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     private ?bool $sso = null;
 
     #[Groups(['api_response'])]

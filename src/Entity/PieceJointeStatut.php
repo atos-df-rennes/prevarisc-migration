@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\PieceJointeStatutRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,18 +12,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'piecejointestatut')]
 class PieceJointeStatut
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_PIECEJOINTESTATUT', type: 'integer')]
-    private $id;
+    #[ORM\Column(name: 'ID_PIECEJOINTESTATUT', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'NOM_STATUT', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: 'NOM_STATUT', type: Types::STRING, length: 50, nullable: false)]
     private ?string $nomStatut = null;
 
-    #[ORM\Column(name: 'NOM_LISIBLE', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: 'NOM_LISIBLE', type: Types::STRING, length: 50, nullable: false)]
     private ?string $nomLisible = null;
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\DateCommissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,30 +12,27 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'datecommission')]
 class DateCommission
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_DATECOMMISSION', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_DATECOMMISSION', type: Types::BIGINT)]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'DATE_COMMISSION', type: 'date', nullable: false)]
+    #[ORM\Column(name: 'DATE_COMMISSION', type: Types::DATE_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(name: 'HEUREDEB_COMMISSION', type: 'time', nullable: false, options: ['default' => '09:00:00'])]
+    #[ORM\Column(name: 'HEUREDEB_COMMISSION', type: Types::TIME_MUTABLE, nullable: false, options: ['default' => '09:00:00'])]
     private ?\DateTimeInterface $heureDebut = null;
 
-    #[ORM\Column(name: 'HEUREFIN_COMMISSION', type: 'time', nullable: false, options: ['default' => '18:00:00'])]
+    #[ORM\Column(name: 'HEUREFIN_COMMISSION', type: Types::TIME_MUTABLE, nullable: false, options: ['default' => '18:00:00'])]
     private ?\DateTimeInterface $heureFin = null;
 
-    #[ORM\Column(name: 'LIBELLE_DATECOMMISSION', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'LIBELLE_DATECOMMISSION', type: Types::STRING, length: 255, nullable: true)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'GESTION_HEURES', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'GESTION_HEURES', type: Types::BOOLEAN, nullable: false)]
     private ?bool $gestionHeures = null;
 
-    #[ORM\Column(name: 'DATECOMMISSION_LIEES', type: 'bigint', nullable: true)]
+    #[ORM\Column(name: 'DATECOMMISSION_LIEES', type: Types::BIGINT, nullable: true)]
     private ?int $dateCommissionLiees = null;
 
     #[ORM\ManyToOne(targetEntity: CommissionTypeEvenement::class)]

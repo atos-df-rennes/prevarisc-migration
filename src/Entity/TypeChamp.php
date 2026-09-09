@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\TypeChampRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,15 +13,12 @@ class TypeChamp
 {
     use GetIdOrFailTrait;
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_TYPECHAMP', type: 'integer')]
-    private $id;
+    #[ORM\Column(name: 'ID_TYPECHAMP', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'TYPE', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: 'TYPE', type: Types::STRING, length: 50, nullable: false)]
     private string $type;
 
     public function getId(): ?int

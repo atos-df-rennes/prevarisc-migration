@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\TypeTexteApplicableRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,15 +13,12 @@ class TypeTexteApplicable
 {
     use GetIdOrFailTrait;
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_TYPETEXTEAPPL', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_TYPETEXTEAPPL', type: Types::BIGINT)]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_TYPETEXTEAPPL', type: 'text', nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_TYPETEXTEAPPL', type: Types::TEXT, nullable: false)]
     private ?string $libelle = null;
 
     public function getId(): ?int

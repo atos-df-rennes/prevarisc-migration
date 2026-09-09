@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\UtilisateurPreferencesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,22 +10,19 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'utilisateurpreferences')]
 class UtilisateurPreferences
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_UTILISATEURPREFERENCES', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_UTILISATEURPREFERENCES', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'DASHBOARD_BLOCS', type: 'string', length: 500, nullable: true)]
+    #[ORM\Column(name: 'DASHBOARD_BLOCS', type: Types::STRING, length: 500, nullable: true)]
     private ?string $blocsDashboard = null;
 
     #[ORM\OneToOne(targetEntity: Utilisateur::class, inversedBy: 'preferences', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', nullable: false, options: ['unsigned' => true])]
     private ?Utilisateur $utilisateur = null;
 
-    #[ORM\Column(name: 'DERNIERE_VERSION_VUE', type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(name: 'DERNIERE_VERSION_VUE', type: Types::STRING, length: 50, nullable: true)]
     private ?string $derniereVersionVue = null;
 
     public function getId(): ?int

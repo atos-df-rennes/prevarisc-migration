@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\ChampRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -14,21 +15,18 @@ class Champ
 {
     use GetIdOrFailTrait;
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_CHAMP', type: 'integer')]
-    private $id;
+    #[ORM\Column(name: 'ID_CHAMP', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'NOM', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'NOM', type: Types::STRING, length: 255, nullable: false)]
     private ?string $nom = null;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     private ?bool $tableau = null;
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private ?int $idx = null;
 
     #[ORM\ManyToOne(targetEntity: TypeChamp::class)]

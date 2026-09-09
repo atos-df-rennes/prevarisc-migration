@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\PrescriptionCategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,18 +12,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'prescriptioncat')]
 class PrescriptionCategorie
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_PRESCRIPTION_CAT', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_PRESCRIPTION_CAT', type: Types::BIGINT)]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_PRESCRIPTION_CAT', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_PRESCRIPTION_CAT', type: Types::STRING, length: 255, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'NUM_PRESCRIPTION_CAT', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'NUM_PRESCRIPTION_CAT', type: Types::INTEGER, nullable: false)]
     private ?int $numero = null;
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Doctrine\ContactCriteria;
 use App\Repository\CommissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -13,20 +14,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: CommissionRepository::class)]
 class Commission
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_COMMISSION', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_COMMISSION', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?string $id = null;
 
     #[Assert\NotBlank(message: 'Le libellé est obligatoire.')]
     #[Assert\Length(max: 80, maxMessage: 'Le libellé de la commission ne peut pas dépasser {{ limit }} caractères.')]
-    #[ORM\Column(name: 'LIBELLE_COMMISSION', type: 'string', length: 80, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_COMMISSION', type: Types::STRING, length: 80, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'DOCUMENT_CR', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'DOCUMENT_CR', type: Types::STRING, length: 255, nullable: true)]
     private ?string $documentCr = null;
 
     #[ORM\ManyToOne(targetEntity: CommissionType::class, inversedBy: 'commissions')]

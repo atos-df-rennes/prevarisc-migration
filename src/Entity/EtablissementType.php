@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\EtablissementTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,15 +12,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'type')]
 class EtablissementType
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_TYPE', type: 'integer', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_TYPE', type: Types::INTEGER, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_TYPE', type: 'string', length: 45, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_TYPE', type: Types::STRING, length: 45, nullable: false)]
     private ?string $libelle = null;
 
     /**

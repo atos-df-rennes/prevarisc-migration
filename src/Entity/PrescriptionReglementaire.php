@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\PrescriptionReglementaireRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,21 +12,18 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'prescriptionregl')]
 class PrescriptionReglementaire
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_PRESCRIPTIONREGL', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_PRESCRIPTIONREGL', type: Types::BIGINT)]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'PRESCRIPTIONREGL_TYPE', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'PRESCRIPTIONREGL_TYPE', type: Types::INTEGER, nullable: true)]
     private ?int $type = null;
 
-    #[ORM\Column(name: 'PRESCRIPTIONREGL_LIBELLE', type: 'text', nullable: false)]
+    #[ORM\Column(name: 'PRESCRIPTIONREGL_LIBELLE', type: Types::TEXT, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'PRESCRIPTIONREGL_VISIBLE', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'PRESCRIPTIONREGL_VISIBLE', type: Types::BOOLEAN, nullable: false)]
     private ?bool $visible = null;
 
     /**

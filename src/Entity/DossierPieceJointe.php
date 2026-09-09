@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\DossierPieceJointeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -9,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'dossierpj')]
 class DossierPieceJointe
 {
-    #[ORM\Column(name: 'PJ_COMMISSION', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'PJ_COMMISSION', type: Types::BOOLEAN, nullable: false)]
     private ?bool $pieceJointeCommission = null;
 
     #[ORM\Id]

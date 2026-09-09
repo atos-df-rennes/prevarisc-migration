@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use App\Repository\PrescriptionTexteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,18 +12,15 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'prescriptiontexte')]
 class PrescriptionTexte
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_PRESCRIPTIONTEXTE', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_PRESCRIPTIONTEXTE', type: Types::BIGINT)]
+    private ?string $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_PRESCRIPTIONTEXTE', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'LIBELLE_PRESCRIPTIONTEXTE', type: Types::STRING, length: 255, nullable: true)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'NUM_PRESCRIPTIONTEXTE', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'NUM_PRESCRIPTIONTEXTE', type: Types::INTEGER, nullable: false)]
     private ?int $numero = null;
 
     #[ORM\ManyToOne(targetEntity: PrescriptionCategorie::class, inversedBy: 'textes')]
