@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
-use PHPUnit\Framework\MockObject\Stub;
 use App\Constant\TypeChamp as TypeChampConstant;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
@@ -42,9 +43,6 @@ final class DescriptifTest extends TestCase
     /** @var MockObject&DossierDisplayRubriqueRepository */
     private MockObject $dossierDisplayRepo;
 
-    /** @var Stub&EtablissementDisplayRubriqueRepository */
-    private Stub $etablissementDisplayRepo;
-
     private Descriptif $service;
 
     protected function setUp(): void
@@ -52,13 +50,13 @@ final class DescriptifTest extends TestCase
         $this->capsuleRepo = $this->createMock(CapsuleRubriqueRepository::class);
         $this->valeurRepo = $this->createMock(ValeurRepository::class);
         $this->dossierDisplayRepo = $this->createMock(DossierDisplayRubriqueRepository::class);
-        $this->etablissementDisplayRepo = $this->createStub(EtablissementDisplayRubriqueRepository::class);
+        $etablissementDisplayRepo = $this->createStub(EtablissementDisplayRubriqueRepository::class);
 
         $this->service = new Descriptif(
             $this->capsuleRepo,
             $this->valeurRepo,
             $this->dossierDisplayRepo,
-            $this->etablissementDisplayRepo
+            $etablissementDisplayRepo
         );
     }
 
@@ -74,8 +72,8 @@ final class DescriptifTest extends TestCase
 
         $result = $this->service->getForDossier(new Dossier(), 'capsuleInexistante');
 
-        self::assertNull($result['capsule']);
-        self::assertSame([], $result['rubriques']);
+        $this->assertNull($result['capsule']);
+        $this->assertSame([], $result['rubriques']);
     }
 
     // -------------------------------------------------------------------------
@@ -101,8 +99,8 @@ final class DescriptifTest extends TestCase
 
         // Assert
         $champResult = $result['rubriques'][0]['champs'][0];
-        self::assertSame($champ, $champResult['champ']);
-        self::assertSame($valeur, $champResult['valeur']);
+        $this->assertSame($champ, $champResult['champ']);
+        $this->assertSame($valeur, $champResult['valeur']);
     }
 
     public function testChampSimpleSansValeurRetourneNull(): void
@@ -121,7 +119,7 @@ final class DescriptifTest extends TestCase
         $result = $this->service->getForDossier($dossier, 'descriptifEtablissement');
 
         // Assert
-        self::assertNull($result['rubriques'][0]['champs'][0]['valeur']);
+        $this->assertNull($result['rubriques'][0]['champs'][0]['valeur']);
     }
 
     // -------------------------------------------------------------------------
@@ -153,15 +151,15 @@ final class DescriptifTest extends TestCase
 
         // Assert
         $champResult = $result['rubriques'][0]['champs'][0];
-        self::assertSame($champParent, $champResult['champ']);
-        self::assertNull($champResult['valeur']);
-        self::assertArrayHasKey('sous_champs', $champResult);
-        self::assertArrayNotHasKey('lignes', $champResult);
-        self::assertCount(2, $champResult['sous_champs']);
-        self::assertSame($enfant1, $champResult['sous_champs'][0]['champ']);
-        self::assertSame($valeurEnfant1, $champResult['sous_champs'][0]['valeur']);
-        self::assertSame($enfant2, $champResult['sous_champs'][1]['champ']);
-        self::assertSame($valeurEnfant2, $champResult['sous_champs'][1]['valeur']);
+        $this->assertSame($champParent, $champResult['champ']);
+        $this->assertNull($champResult['valeur']);
+        $this->assertArrayHasKey('sous_champs', $champResult);
+        $this->assertArrayNotHasKey('lignes', $champResult);
+        $this->assertCount(2, $champResult['sous_champs']);
+        $this->assertSame($enfant1, $champResult['sous_champs'][0]['champ']);
+        $this->assertSame($valeurEnfant1, $champResult['sous_champs'][0]['valeur']);
+        $this->assertSame($enfant2, $champResult['sous_champs'][1]['champ']);
+        $this->assertSame($valeurEnfant2, $champResult['sous_champs'][1]['valeur']);
     }
 
     // -------------------------------------------------------------------------
@@ -193,12 +191,12 @@ final class DescriptifTest extends TestCase
 
         // Assert
         $champResult = $result['rubriques'][0]['champs'][0];
-        self::assertNull($champResult['valeur']);
-        self::assertArrayHasKey('lignes', $champResult);
-        self::assertArrayNotHasKey('sous_champs', $champResult);
-        self::assertCount(1, $champResult['lignes']);
-        self::assertSame($ligne1col1, $champResult['lignes'][0][31]);
-        self::assertSame($ligne1col2, $champResult['lignes'][0][32]);
+        $this->assertNull($champResult['valeur']);
+        $this->assertArrayHasKey('lignes', $champResult);
+        $this->assertArrayNotHasKey('sous_champs', $champResult);
+        $this->assertCount(1, $champResult['lignes']);
+        $this->assertSame($ligne1col1, $champResult['lignes'][0][31]);
+        $this->assertSame($ligne1col2, $champResult['lignes'][0][32]);
     }
 
     public function testLignesTableauSontOrdonneesParIdx(): void
@@ -225,9 +223,9 @@ final class DescriptifTest extends TestCase
 
         // Assert — la ligne avec idx=1 doit être en première position
         $lignes = $result['rubriques'][0]['champs'][0]['lignes'];
-        self::assertCount(2, $lignes);
-        self::assertSame($valeurIdx1, $lignes[0][31]);
-        self::assertSame($valeurIdx2, $lignes[1][31]);
+        $this->assertCount(2, $lignes);
+        $this->assertSame($valeurIdx1, $lignes[0][31]);
+        $this->assertSame($valeurIdx2, $lignes[1][31]);
     }
 
     public function testTableauSansValeurRetourneLignesVides(): void
@@ -249,7 +247,7 @@ final class DescriptifTest extends TestCase
         $result = $this->service->getForDossier($dossier, 'descriptifEtablissement');
 
         // Assert
-        self::assertSame([], $result['rubriques'][0]['champs'][0]['lignes']);
+        $this->assertSame([], $result['rubriques'][0]['champs'][0]['lignes']);
     }
 
     // -------------------------------------------------------------------------
@@ -280,8 +278,8 @@ final class DescriptifTest extends TestCase
         $result = $this->service->getForDossier($dossier, 'descriptifEtablissement');
 
         // Assert — seul le champ parent doit apparaître au niveau racine
-        self::assertCount(1, $result['rubriques'][0]['champs']);
-        self::assertSame($champParent, $result['rubriques'][0]['champs'][0]['champ']);
+        $this->assertCount(1, $result['rubriques'][0]['champs']);
+        $this->assertSame($champParent, $result['rubriques'][0]['champs'][0]['champ']);
     }
 
     // -------------------------------------------------------------------------
@@ -317,21 +315,19 @@ final class DescriptifTest extends TestCase
         $result = $this->service->getForDossier($dossier, 'descriptifEtablissement');
 
         // Assert
-        self::assertSame($displayAttendu, $result['rubriques'][0]['display']);
+        $this->assertSame($displayAttendu, $result['rubriques'][0]['display']);
     }
 
     /**
-     * @return array<string, array{?bool, ?bool, bool}>
+     * @return \Iterator<string, array{(bool | null), (bool | null), bool}>
      */
-    public static function displayPreferenceProvider(): array
+    public static function displayPreferenceProvider(): \Iterator
     {
-        return [
-            'pref utilisateur true surpasse defaultDisplay false' => [true, false, true],
-            'pref utilisateur false surpasse defaultDisplay true' => [false, true, false],
-            'sans pref utilisateur, utilise defaultDisplay true' => [null, true, true],
-            'sans pref utilisateur, utilise defaultDisplay false' => [null, false, false],
-            'sans pref ni defaultDisplay, vaut true par défaut' => [null, null, true],
-        ];
+        yield 'pref utilisateur true surpasse defaultDisplay false' => [true, false, true];
+        yield 'pref utilisateur false surpasse defaultDisplay true' => [false, true, false];
+        yield 'sans pref utilisateur, utilise defaultDisplay true' => [null, true, true];
+        yield 'sans pref utilisateur, utilise defaultDisplay false' => [null, false, false];
+        yield 'sans pref ni defaultDisplay, vaut true par défaut' => [null, null, true];
     }
 
     // -------------------------------------------------------------------------
@@ -359,9 +355,9 @@ final class DescriptifTest extends TestCase
         $result = $this->service->getForDossier($dossier, 'descriptifEtablissement');
 
         // Assert — l'ordre fourni par le repository est préservé tel quel
-        self::assertCount(2, $result['rubriques']);
-        self::assertSame($rubrique1, $result['rubriques'][0]['rubrique']);
-        self::assertSame($rubrique2, $result['rubriques'][1]['rubrique']);
+        $this->assertCount(2, $result['rubriques']);
+        $this->assertSame($rubrique1, $result['rubriques'][0]['rubrique']);
+        $this->assertSame($rubrique2, $result['rubriques'][1]['rubrique']);
     }
 
     public function testOrdreDesChampsEstPreserve(): void
@@ -383,10 +379,10 @@ final class DescriptifTest extends TestCase
 
         // Assert
         $champs = $result['rubriques'][0]['champs'];
-        self::assertCount(3, $champs);
-        self::assertSame($champ1, $champs[0]['champ']);
-        self::assertSame($champ2, $champs[1]['champ']);
-        self::assertSame($champ3, $champs[2]['champ']);
+        $this->assertCount(3, $champs);
+        $this->assertSame($champ1, $champs[0]['champ']);
+        $this->assertSame($champ2, $champs[1]['champ']);
+        $this->assertSame($champ3, $champs[2]['champ']);
     }
 
     public function testOrdreDesSousChampsEstPreserve(): void
@@ -413,10 +409,10 @@ final class DescriptifTest extends TestCase
 
         // Assert
         $sousChamps = $result['rubriques'][0]['champs'][0]['sous_champs'];
-        self::assertCount(3, $sousChamps);
-        self::assertSame($enfant1, $sousChamps[0]['champ']);
-        self::assertSame($enfant2, $sousChamps[1]['champ']);
-        self::assertSame($enfant3, $sousChamps[2]['champ']);
+        $this->assertCount(3, $sousChamps);
+        $this->assertSame($enfant1, $sousChamps[0]['champ']);
+        $this->assertSame($enfant2, $sousChamps[1]['champ']);
+        $this->assertSame($enfant3, $sousChamps[2]['champ']);
     }
 
     // -------------------------------------------------------------------------

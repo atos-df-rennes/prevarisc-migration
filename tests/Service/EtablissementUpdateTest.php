@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Constant\GenreEtablissement;
@@ -32,7 +34,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 #[CoversMethod(EtablissementService::class, 'update')]
 #[CoversMethod(EtablissementService::class, 'checkAlerte')]
-class EtablissementUpdateTest extends TestCase
+final class EtablissementUpdateTest extends TestCase
 {
     /**
      * Construit le service avec des mocks minimaux.

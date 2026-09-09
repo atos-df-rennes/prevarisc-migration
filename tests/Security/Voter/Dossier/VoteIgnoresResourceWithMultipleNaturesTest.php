@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
@@ -16,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class VoteIgnoresResourceWithMultipleNaturesTest extends TestCase
+final class VoteIgnoresResourceWithMultipleNaturesTest extends TestCase
 {
     public function testVoteIgnoresResourceWithMultipleNatures(): void
     {
@@ -47,6 +49,6 @@ class VoteIgnoresResourceWithMultipleNaturesTest extends TestCase
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 
-        $this->assertEquals(VoterInterface::ACCESS_DENIED, $result);
+        $this->assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 }

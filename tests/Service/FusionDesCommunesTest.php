@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
-use PHPUnit\Framework\MockObject\Stub;
 use App\Dto\FusionDesCommunes\Commune as CommuneDto;
 use App\Dto\FusionDesCommunes\FusionDeCommunes;
 use App\Entity\Commission;
@@ -29,9 +30,6 @@ final class FusionDesCommunesTest extends TestCase
     /** @var MockObject&SerializerInterface */
     private MockObject $serializer;
 
-    /** @var Stub&LoggerInterface */
-    private Stub $logger;
-
     /** @var MockObject&EntityManagerInterface */
     private MockObject $entityManager;
 
@@ -53,7 +51,6 @@ final class FusionDesCommunesTest extends TestCase
     protected function setUp(): void
     {
         $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->logger = $this->createStub(LoggerInterface::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->communeRepository = $this->createMock(CommuneRepository::class);
         $this->etablissementAdresseRepository = $this->createMock(EtablissementAdresseRepository::class);
@@ -66,7 +63,7 @@ final class FusionDesCommunesTest extends TestCase
     {
         return new FusionDesCommunes(
             $this->serializer,
-            $this->logger,
+            $this->createStub(LoggerInterface::class),
             $this->entityManager,
             $this->communeRepository,
             $this->etablissementAdresseRepository,
@@ -100,7 +97,7 @@ final class FusionDesCommunesTest extends TestCase
 
         $ancienneCommune->addGroupement($groupement);
 
-        self::assertTrue($groupement->getCommunes()->contains($ancienneCommune));
+        $this->assertTrue($groupement->getCommunes()->contains($ancienneCommune));
 
         $fusion = new FusionDeCommunes('Nouvelle Commune', 'NEW01', [
             new CommuneDto('Ancienne Commune', 'OLD01'),
@@ -108,7 +105,7 @@ final class FusionDesCommunesTest extends TestCase
 
         $this->serializer->method('deserialize')->willReturn([$fusion]);
 
-        $this->communeRepository->method('find')->willReturnMap([
+        $this->communeRepository->expects($this->atLeast(2))->method('find')->willReturnMap([
             ['NEW01', null, null, $nouvelleCommune],
             ['OLD01', null, null, $ancienneCommune],
         ]);
@@ -120,7 +117,7 @@ final class FusionDesCommunesTest extends TestCase
 
         $this->buildService()->fusionner('{}');
 
-        self::assertFalse($groupement->getCommunes()->contains($ancienneCommune));
+        $this->assertFalse($groupement->getCommunes()->contains($ancienneCommune));
     }
 
     /**
@@ -152,7 +149,7 @@ final class FusionDesCommunesTest extends TestCase
 
         $this->serializer->method('deserialize')->willReturn([$fusion]);
 
-        $this->communeRepository->method('find')->willReturnMap([
+        $this->communeRepository->expects($this->atLeast(2))->method('find')->willReturnMap([
             ['NEW01', null, null, $nouvelleCommune],
             ['OLD01', null, null, $ancienneCommune],
         ]);
@@ -160,18 +157,18 @@ final class FusionDesCommunesTest extends TestCase
         $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
         $this->adresseRueRepository->method('findBy')->willReturn([]);
         $this->utilisateurRepository->method('findOneBy')->willReturn($utilisateur);
-        $this->commissionRegleRepository->method('findBy')->willReturnMap([
+        $this->commissionRegleRepository->expects($this->atLeast(1))->method('findBy')->willReturnMap([
             [['commune' => $ancienneCommune], null, null, null, [$regle]],
         ]);
 
         $removedEntities = [];
-        $this->entityManager->method('remove')->willReturnCallback(static function ($entity) use (&$removedEntities): void {
+        $this->entityManager->method('remove')->willReturnCallback(static function (object $entity) use (&$removedEntities): void {
             $removedEntities[] = $entity;
         });
 
         $this->buildService()->fusionner('{}');
 
-        self::assertContains($regle, $removedEntities);
+        $this->assertContains($regle, $removedEntities);
     }
 
     /**
@@ -194,7 +191,7 @@ final class FusionDesCommunesTest extends TestCase
         ]);
 
         $this->serializer->method('deserialize')->willReturn([$fusion]);
-        $this->communeRepository->method('find')->willReturnMap([
+        $this->communeRepository->expects($this->atLeast(2))->method('find')->willReturnMap([
             ['NEW01', null, null, $nouvelleCommune],
             ['OLD01', null, null, $ancienneCommune],
         ]);
@@ -205,9 +202,9 @@ final class FusionDesCommunesTest extends TestCase
 
         $resultat = $this->buildService()->fusionner('{}');
 
-        self::assertTrue($resultat->hasSuccess());
-        self::assertFalse($resultat->hasFailures());
-        self::assertSame(['Nouvelle Commune'], $resultat->succes());
+        $this->assertTrue($resultat->hasSuccess());
+        $this->assertFalse($resultat->hasFailures());
+        $this->assertSame(['Nouvelle Commune'], $resultat->succes());
     }
 
     /**
@@ -225,10 +222,10 @@ final class FusionDesCommunesTest extends TestCase
 
         $resultat = $this->buildService()->fusionner('{}');
 
-        self::assertFalse($resultat->hasSuccess());
-        self::assertTrue($resultat->hasFailures());
-        self::assertCount(1, $resultat->echecs());
-        self::assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
+        $this->assertFalse($resultat->hasSuccess());
+        $this->assertTrue($resultat->hasFailures());
+        $this->assertCount(1, $resultat->echecs());
+        $this->assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
     }
 
     /**
@@ -254,7 +251,7 @@ final class FusionDesCommunesTest extends TestCase
         ]);
 
         $this->serializer->method('deserialize')->willReturn([$fusionKo, $fusionOk]);
-        $this->communeRepository->method('find')->willReturnMap([
+        $this->communeRepository->expects($this->atLeast(3))->method('find')->willReturnMap([
             ['GHOST', null, null, null],
             ['NEW01', null, null, $nouvelleCommune],
             ['OLD01', null, null, $ancienneCommune],
@@ -266,10 +263,10 @@ final class FusionDesCommunesTest extends TestCase
 
         $resultat = $this->buildService()->fusionner('{}');
 
-        self::assertTrue($resultat->hasSuccess());
-        self::assertTrue($resultat->hasFailures());
-        self::assertSame(['Nouvelle Commune'], $resultat->succes());
-        self::assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
+        $this->assertTrue($resultat->hasSuccess());
+        $this->assertTrue($resultat->hasFailures());
+        $this->assertSame(['Nouvelle Commune'], $resultat->succes());
+        $this->assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
     }
 
     /**

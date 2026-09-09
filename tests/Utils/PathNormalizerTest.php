@@ -8,7 +8,7 @@ use App\Utils\PathNormalizer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class PathNormalizerTest extends TestCase
+final class PathNormalizerTest extends TestCase
 {
     #[DataProvider('provideNormalizationCases')]
     public function testNormalizationHandlesVariousInputFormats(string $input, string $expected): void

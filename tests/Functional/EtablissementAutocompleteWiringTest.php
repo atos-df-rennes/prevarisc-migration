@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
@@ -18,7 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
  * avec le strangler en 3.0).
  */
 #[Group('functional')]
-class EtablissementAutocompleteWiringTest extends WebTestCase
+final class EtablissementAutocompleteWiringTest extends WebTestCase
 {
     private const string LEGACY_ROUTE = '/api/1.0/search/etablissements';
 

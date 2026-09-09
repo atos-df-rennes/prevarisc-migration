@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Alerte;
 
 use App\Service\Alerte\AlerteService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AlerteServiceTest extends KernelTestCase
+final class AlerteServiceTest extends KernelTestCase
 {
     private AlerteService $alerteService;
 

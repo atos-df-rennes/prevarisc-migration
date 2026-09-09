@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Privilege;
 
 use App\Repository\PrivilegesRepository;
@@ -8,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class VoteReturnsAccessAbstainWhenPrivilegeIsUnknownTest extends TestCase
+final class VoteReturnsAccessAbstainWhenPrivilegeIsUnknownTest extends TestCase
 {
     public function testVoteReturnsAccessAbstainWhenPrivilegeIsUnknown(): void
     {
@@ -20,6 +22,6 @@ class VoteReturnsAccessAbstainWhenPrivilegeIsUnknownTest extends TestCase
 
         $result = $voter->vote($token, null, ['privilege_inexistant']);
 
-        $this->assertEquals(VoterInterface::ACCESS_ABSTAIN, $result);
+        $this->assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
     }
 }

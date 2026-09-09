@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Sdis29;
 
 use App\Security\Voter\Sdis29\Sdis29Voter;
@@ -18,7 +20,7 @@ final class Sdis29VoterTest extends TestCase
 
         $result = $voter->vote($this->createStub(TokenInterface::class), null, [Sdis29Voter::ENABLED]);
 
-        self::assertSame(VoterInterface::ACCESS_GRANTED, $result);
+        $this->assertSame(VoterInterface::ACCESS_GRANTED, $result);
     }
 
     public function testVoteReturnsAccessDeniedWhenSdis29CustomDisabled(): void
@@ -27,7 +29,7 @@ final class Sdis29VoterTest extends TestCase
 
         $result = $voter->vote($this->createStub(TokenInterface::class), null, [Sdis29Voter::ENABLED]);
 
-        self::assertSame(VoterInterface::ACCESS_DENIED, $result);
+        $this->assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 
     public function testVoteReturnsAccessAbstainForUnsupportedAttribute(): void
@@ -36,6 +38,6 @@ final class Sdis29VoterTest extends TestCase
 
         $result = $voter->vote($this->createStub(TokenInterface::class), null, ['some_other_attribute']);
 
-        self::assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
+        $this->assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
     }
 }

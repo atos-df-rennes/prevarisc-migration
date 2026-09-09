@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Constant\TypeChamp as TypeChampConstant;
@@ -55,14 +57,14 @@ final class DescriptifCopierTest extends TestCase
 
         $result = $this->service->matchRubriqueByNom($rubriques, 'Accès');
 
-        self::assertSame($rubrique, $result['rubrique']);
+        $this->assertSame($rubrique, $result['rubrique']);
     }
 
     public function testMatchRubriqueByNomRetourneNullSiAbsent(): void
     {
         $rubriques = [['rubrique' => $this->buildRubrique(1, 'Accès'), 'display' => true, 'champs' => []]];
 
-        self::assertNull($this->service->matchRubriqueByNom($rubriques, 'Inconnu'));
+        $this->assertNull($this->service->matchRubriqueByNom($rubriques, 'Inconnu'));
     }
 
     // -------------------------------------------------------------------------
@@ -76,14 +78,14 @@ final class DescriptifCopierTest extends TestCase
 
         $result = $this->service->matchChampByNom($champs, 'Largeur');
 
-        self::assertSame($champ, $result['champ']);
+        $this->assertSame($champ, $result['champ']);
     }
 
     public function testMatchChampByNomRetourneNullSiAbsent(): void
     {
         $champs = [['champ' => $this->buildSimpleChamp(10, 'Largeur'), 'valeur' => null]];
 
-        self::assertNull($this->service->matchChampByNom($champs, 'Inconnu'));
+        $this->assertNull($this->service->matchChampByNom($champs, 'Inconnu'));
     }
 
     // -------------------------------------------------------------------------
@@ -92,7 +94,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieSimpleSkipSiSourceNull(): void
     {
-        $this->entityManager->expects(self::never())->method('persist');
+        $this->entityManager->expects($this->never())->method('persist');
 
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $targetChamp = $this->buildSimpleChamp(20, 'Largeur');
@@ -110,7 +112,7 @@ final class DescriptifCopierTest extends TestCase
 
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertCount(0, $etablissement->getValeurs());
+        $this->assertCount(0, $etablissement->getValeurs());
     }
 
     // -------------------------------------------------------------------------
@@ -119,7 +121,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieSimpleUpdateValeurExistante(): void
     {
-        $this->entityManager->expects(self::never())->method('persist');
+        $this->entityManager->expects($this->never())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('texte source');
         $targetValeur = new Valeur()->setStr('ancien texte');
@@ -139,7 +141,7 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([$targetValeur]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertSame('texte source', $targetValeur->getStr());
+        $this->assertSame('texte source', $targetValeur->getStr());
     }
 
     // -------------------------------------------------------------------------
@@ -148,7 +150,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieSimpleCreationSiTargetNull(): void
     {
-        $this->entityManager->expects(self::once())->method('persist')
+        $this->entityManager->expects($this->once())->method('persist')
             ->with(self::isInstanceOf(Valeur::class));
 
         $sourceValeur = new Valeur()->setStr('texte source');
@@ -168,10 +170,10 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertCount(1, $etablissement->getValeurs());
+        $this->assertCount(1, $etablissement->getValeurs());
         $newValeur = $etablissement->getValeurs()->first();
-        self::assertSame($targetChamp, $newValeur->getChamp());
-        self::assertSame('texte source', $newValeur->getStr());
+        $this->assertSame($targetChamp, $newValeur->getChamp());
+        $this->assertSame('texte source', $newValeur->getStr());
     }
 
     // -------------------------------------------------------------------------
@@ -204,11 +206,11 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([$targetValeur]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertSame('texte', $targetValeur->getStr());
-        self::assertSame('long texte', $targetValeur->getLongStr());
-        self::assertSame(42, $targetValeur->getNumber());
-        self::assertTrue($targetValeur->getCheckbox());
-        self::assertSame($date, $targetValeur->getDate());
+        $this->assertSame('texte', $targetValeur->getStr());
+        $this->assertSame('long texte', $targetValeur->getLongStr());
+        $this->assertSame(42, $targetValeur->getNumber());
+        $this->assertTrue($targetValeur->getCheckbox());
+        $this->assertSame($date, $targetValeur->getDate());
     }
 
     // -------------------------------------------------------------------------
@@ -217,7 +219,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testRubriqueAbsenteDansCibleEstIgnoree(): void
     {
-        $this->entityManager->expects(self::never())->method('persist');
+        $this->entityManager->expects($this->never())->method('persist');
 
         $sourceRubriques = [
             $this->buildRubriqueItem('Rubrique Absente', [
@@ -233,12 +235,12 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertCount(0, $etablissement->getValeurs());
+        $this->assertCount(0, $etablissement->getValeurs());
     }
 
     public function testRubriqueAbsenteDansCibleLoggue(): void
     {
-        $this->logger->expects(self::once())->method('warning')
+        $this->logger->expects($this->once())->method('warning')
             ->with(self::stringContains('rubrique'));
 
         $sourceRubriques = [
@@ -256,7 +258,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testChampAbsentDansCibleEstIgnore(): void
     {
-        $this->entityManager->expects(self::never())->method('persist');
+        $this->entityManager->expects($this->never())->method('persist');
 
         $sourceRubriques = [
             $this->buildRubriqueItem('Accès', [
@@ -272,12 +274,12 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertCount(0, $etablissement->getValeurs());
+        $this->assertCount(0, $etablissement->getValeurs());
     }
 
     public function testChampAbsentDansCibleLoggue(): void
     {
-        $this->logger->expects(self::once())->method('warning')
+        $this->logger->expects($this->once())->method('warning')
             ->with(self::stringContains('champ'));
 
         $sourceRubriques = [
@@ -300,7 +302,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieParentNonTableauCopieEnfantsParNom(): void
     {
-        $this->entityManager->expects(self::once())->method('persist');
+        $this->entityManager->expects($this->once())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('valeur enfant');
         $targetChampEnfant = $this->buildSimpleChamp(21, 'Sous-champ A');
@@ -337,15 +339,15 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertCount(1, $etablissement->getValeurs());
+        $this->assertCount(1, $etablissement->getValeurs());
         $newValeur = $etablissement->getValeurs()->first();
-        self::assertSame($targetChampEnfant, $newValeur->getChamp());
-        self::assertSame('valeur enfant', $newValeur->getStr());
+        $this->assertSame($targetChampEnfant, $newValeur->getChamp());
+        $this->assertSame('valeur enfant', $newValeur->getStr());
     }
 
     public function testCopieParentNonTableauEnfantAbsentDansCibleIgnore(): void
     {
-        $this->entityManager->expects(self::never())->method('persist');
+        $this->entityManager->expects($this->never())->method('persist');
 
         $sourceParent = $this->buildParentChamp(10, 'ParentChamp', false);
         $sourceEnfant = $this->buildSimpleChamp(11, 'Sous-champ Absent');
@@ -380,7 +382,7 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertCount(0, $etablissement->getValeurs());
+        $this->assertCount(0, $etablissement->getValeurs());
     }
 
     // -------------------------------------------------------------------------
@@ -390,7 +392,7 @@ final class DescriptifCopierTest extends TestCase
     public function testCopieParentTableauSupprimeLignesExistantes(): void
     {
         $valeurExistante = new Valeur();
-        $this->entityManager->expects(self::once())->method('remove')->with($valeurExistante);
+        $this->entityManager->expects($this->once())->method('remove')->with($valeurExistante);
 
         $sourceParent = $this->buildParentChamp(10, 'Tableau', true);
         $targetParent = $this->buildParentChamp(20, 'Tableau', true);
@@ -415,12 +417,12 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([$valeurExistante]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertCount(0, $etablissement->getValeurs());
+        $this->assertCount(0, $etablissement->getValeurs());
     }
 
     public function testCopieParentTableauCreeLignesSourceAvecIdxCorrect(): void
     {
-        $this->entityManager->expects(self::exactly(2))->method('persist');
+        $this->entityManager->expects($this->exactly(2))->method('persist');
 
         $sourceParent = $this->buildParentChamp(10, 'Tableau', true);
         $sourceEnfantA = $this->buildSimpleChamp(11, 'Col A');
@@ -455,18 +457,18 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertCount(2, $etablissement->getValeurs());
+        $this->assertCount(2, $etablissement->getValeurs());
         $valeurs = $etablissement->getValeurs()->toArray();
-        self::assertSame('ligne 1', $valeurs[0]->getStr());
-        self::assertSame(1, $valeurs[0]->getIdx());
-        self::assertSame('ligne 2', $valeurs[1]->getStr());
-        self::assertSame(2, $valeurs[1]->getIdx());
-        self::assertSame($targetEnfantA, $valeurs[0]->getChamp());
+        $this->assertSame('ligne 1', $valeurs[0]->getStr());
+        $this->assertSame(1, $valeurs[0]->getIdx());
+        $this->assertSame('ligne 2', $valeurs[1]->getStr());
+        $this->assertSame(2, $valeurs[1]->getIdx());
+        $this->assertSame($targetEnfantA, $valeurs[0]->getChamp());
     }
 
     public function testCopieParentTableauColonneAbsenteDansCibleIgnoree(): void
     {
-        $this->entityManager->expects(self::never())->method('persist');
+        $this->entityManager->expects($this->never())->method('persist');
 
         $sourceParent = $this->buildParentChamp(10, 'Tableau', true);
         $sourceEnfant = $this->buildSimpleChamp(11, 'Col Absente');
@@ -495,7 +497,7 @@ final class DescriptifCopierTest extends TestCase
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $this->service->copyFromDossierToEtablissement($sourceRubriques, $targetRubriques, $etablissement);
 
-        self::assertCount(0, $etablissement->getValeurs());
+        $this->assertCount(0, $etablissement->getValeurs());
     }
 
     // -------------------------------------------------------------------------
@@ -504,7 +506,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieEtablissementVersDossier(): void
     {
-        $this->entityManager->expects(self::once())->method('persist');
+        $this->entityManager->expects($this->once())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('valeur établissement');
         $targetChamp = $this->buildSimpleChamp(20, 'Champ A');
@@ -523,8 +525,8 @@ final class DescriptifCopierTest extends TestCase
         $dossier = $this->buildDossierAvecValeurs([]);
         $this->service->copyFromEtablissementToDossier($sourceRubriques, $targetRubriques, $dossier);
 
-        self::assertCount(1, $dossier->getValeurs());
-        self::assertSame('valeur établissement', $dossier->getValeurs()->first()->getStr());
+        $this->assertCount(1, $dossier->getValeurs());
+        $this->assertSame('valeur établissement', $dossier->getValeurs()->first()->getStr());
     }
 
     // -------------------------------------------------------------------------
@@ -533,7 +535,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieDossierVersDossier(): void
     {
-        $this->entityManager->expects(self::once())->method('persist');
+        $this->entityManager->expects($this->once())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('valeur dossier source');
         $targetChamp = $this->buildSimpleChamp(30, 'Champ A');
@@ -552,13 +554,13 @@ final class DescriptifCopierTest extends TestCase
         $dossierCible = $this->buildDossierAvecValeurs([]);
         $this->service->copyFromDossierToDossier($sourceRubriques, $targetRubriques, $dossierCible);
 
-        self::assertCount(1, $dossierCible->getValeurs());
-        self::assertSame('valeur dossier source', $dossierCible->getValeurs()->first()->getStr());
+        $this->assertCount(1, $dossierCible->getValeurs());
+        $this->assertSame('valeur dossier source', $dossierCible->getValeurs()->first()->getStr());
     }
 
     public function testCopieDossierVersDossierNeModifiePasDossierSource(): void
     {
-        $this->entityManager->expects(self::once())->method('persist');
+        $this->entityManager->expects($this->once())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('valeur originale');
         $targetChamp = $this->buildSimpleChamp(31, 'Champ A');
@@ -578,8 +580,8 @@ final class DescriptifCopierTest extends TestCase
         $dossierCible = $this->buildDossierAvecValeurs([]);
         $this->service->copyFromDossierToDossier($sourceRubriques, $targetRubriques, $dossierCible);
 
-        self::assertCount(1, $dossierSource->getValeurs(), 'Le dossier source ne doit pas être modifié.');
-        self::assertSame('valeur originale', $sourceValeur->getStr(), 'La valeur source ne doit pas être modifiée.');
+        $this->assertCount(1, $dossierSource->getValeurs(), 'Le dossier source ne doit pas être modifié.');
+        $this->assertSame('valeur originale', $sourceValeur->getStr(), 'La valeur source ne doit pas être modifiée.');
     }
 
     // -------------------------------------------------------------------------
@@ -588,7 +590,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testFlushEstAppelee(): void
     {
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $this->service->copyFromDossierToEtablissement(
             [],

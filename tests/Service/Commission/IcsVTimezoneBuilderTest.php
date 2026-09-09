@@ -8,7 +8,7 @@ use App\Service\Commission\IcsVTimezoneBuilder;
 use PHPUnit\Framework\TestCase;
 use Sabre\VObject\Component\VCalendar;
 
-class IcsVTimezoneBuilderTest extends TestCase
+final class IcsVTimezoneBuilderTest extends TestCase
 {
     public function testAddVTimezoneDefinesEuropeParisRules(): void
     {

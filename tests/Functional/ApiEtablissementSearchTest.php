@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Etablissement;
@@ -16,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
  * les liaisons de dossier et les établissements père/enfants.
  */
 #[Group('functional')]
-class ApiEtablissementSearchTest extends WebTestCase
+final class ApiEtablissementSearchTest extends WebTestCase
 {
     private const string ROUTE = '/api/etablissements/search';
 

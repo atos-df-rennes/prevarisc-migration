@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Twig;
 
 use App\Constant\Avis;
@@ -10,7 +12,7 @@ use App\Twig\DossierStatusExtension;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class DossierStatusExtensionTest extends TestCase
+final class DossierStatusExtensionTest extends TestCase
 {
     /** @var MockObject&DateDiffFormatterService */
     private MockObject $dateDiffFormatter;

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Commission;
 
 use App\Service\Commission\CommissionMembreEligibilityChecker;
 use PHPUnit\Framework\TestCase;
 
-class CommissionMembreEligibilityCheckerTest extends TestCase
+final class CommissionMembreEligibilityCheckerTest extends TestCase
 {
     private CommissionMembreEligibilityChecker $checker;
 
@@ -19,7 +21,7 @@ class CommissionMembreEligibilityCheckerTest extends TestCase
         $membre = $this->buildMembre();
         $dossier = ['TYPE_DOSSIER' => 1, 'infosEtab' => []];
 
-        self::assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
+        $this->assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
     }
 
     public function testRetourneFalseSiTypeDossierNonDansCompetences(): void
@@ -27,7 +29,7 @@ class CommissionMembreEligibilityCheckerTest extends TestCase
         $membre = $this->buildMembre(['dossiertypes' => []]);
         $dossier = $this->buildDossier(['TYPE_DOSSIER' => 1]);
 
-        self::assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
+        $this->assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
     }
 
     public function testRetourneVraiSiGenreManifestation(): void
@@ -35,7 +37,7 @@ class CommissionMembreEligibilityCheckerTest extends TestCase
         $membre = $this->buildMembre(['manifestation' => true]);
         $dossier = $this->buildDossier(['ID_GENRE' => 8]);
 
-        self::assertTrue($this->checker->isDossierConcerneMembre($membre, $dossier));
+        $this->assertTrue($this->checker->isDossierConcerneMembre($membre, $dossier));
     }
 
     public function testRetourneFauxSiGenreManifestationMaisMembreSansFlag(): void
@@ -43,7 +45,7 @@ class CommissionMembreEligibilityCheckerTest extends TestCase
         $membre = $this->buildMembre(['manifestation' => false]);
         $dossier = $this->buildDossier(['ID_GENRE' => 8]);
 
-        self::assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
+        $this->assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
     }
 
     public function testRetourneVraiSiCategorieEtTypeActiviteCorrespondent(): void
@@ -54,7 +56,7 @@ class CommissionMembreEligibilityCheckerTest extends TestCase
         ]);
         $dossier = $this->buildDossier(['ID_CATEGORIE' => 5, 'ID_TYPEACTIVITE' => 10]);
 
-        self::assertTrue($this->checker->isDossierConcerneMembre($membre, $dossier));
+        $this->assertTrue($this->checker->isDossierConcerneMembre($membre, $dossier));
     }
 
     public function testRetourneFauxSiCategorieSansTypeActivite(): void
@@ -65,7 +67,7 @@ class CommissionMembreEligibilityCheckerTest extends TestCase
         ]);
         $dossier = $this->buildDossier(['ID_CATEGORIE' => 5, 'ID_TYPEACTIVITE' => 10]);
 
-        self::assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
+        $this->assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
     }
 
     public function testRetourneVraiSiClasseCorrespond(): void
@@ -75,7 +77,7 @@ class CommissionMembreEligibilityCheckerTest extends TestCase
         ]);
         $dossier = $this->buildDossier(['ID_CLASSE' => 3]);
 
-        self::assertTrue($this->checker->isDossierConcerneMembre($membre, $dossier));
+        $this->assertTrue($this->checker->isDossierConcerneMembre($membre, $dossier));
     }
 
     public function testRetourneFauxSiClasseNeCorrespondPas(): void
@@ -85,7 +87,7 @@ class CommissionMembreEligibilityCheckerTest extends TestCase
         ]);
         $dossier = $this->buildDossier(['ID_CLASSE' => 4]);
 
-        self::assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
+        $this->assertFalse($this->checker->isDossierConcerneMembre($membre, $dossier));
     }
 
     /**

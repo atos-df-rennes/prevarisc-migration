@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Commission;
 
 use App\Dto\Commission\CommissionDatesDto;
@@ -125,8 +127,10 @@ final class CommissionDatesTransformerTest extends TestCase
         foreach ($result as $dateCommission) {
             $heureDebut = $dateCommission->getHeureDebut();
             $heureFin = $dateCommission->getHeureFin();
+            $this->assertInstanceOf(\DateTimeInterface::class, $heureDebut);
 
             $this->assertSame('09:00:00', $heureDebut->format('H:i:s'));
+            $this->assertInstanceOf(\DateTimeInterface::class, $heureFin);
             $this->assertSame('18:00:00', $heureFin->format('H:i:s'));
         }
 
@@ -140,16 +144,17 @@ final class CommissionDatesTransformerTest extends TestCase
     /**
      * Fournit les différentes périodicités possibles.
      *
-     * @return array<string, array<int>>
+     * @return \Iterator<string, array<int>>
      */
-    public static function providePeriodicityValues(): array
+    public static function providePeriodicityValues(): \Iterator
     {
-        return [
-            'periodicite 1 semaine' => [1, 11], // Du 20/01 au 31/03 = 11 dates espacées d'1 semaine
-            'periodicite 2 semaines' => [2, 6], // Du 20/01 au 31/03 = 6 dates espacées de 2 semaines
-            'periodicite 3 semaines' => [3, 4], // Du 20/01 au 31/03 = 4 dates espacées de 3 semaines
-            'periodicite 4 semaines' => [4, 3], // Du 20/01 au 31/03 = 3 dates espacées de 4 semaines
-        ];
+        yield 'periodicite 1 semaine' => [1, 11];
+        // Du 20/01 au 31/03 = 11 dates espacées d'1 semaine
+        yield 'periodicite 2 semaines' => [2, 6];
+        // Du 20/01 au 31/03 = 6 dates espacées de 2 semaines
+        yield 'periodicite 3 semaines' => [3, 4];
+        // Du 20/01 au 31/03 = 4 dates espacées de 3 semaines
+        yield 'periodicite 4 semaines' => [4, 3];
     }
 
     #[DataProvider('provideMissingInformation')]
@@ -172,7 +177,9 @@ final class CommissionDatesTransformerTest extends TestCase
             ->method('error')
             ->with(
                 $this->stringContains('Informations manquantes'),
-                $this->callback(fn ($context): bool => null === $context[$expectedErrorContext])
+                $this->callback(function ($context) use ($expectedErrorContext): void {
+                    $this->assertNull($context[$expectedErrorContext]);
+                })
             );
 
         $result = $this->transformer->transformToEntities($dto);
@@ -185,44 +192,42 @@ final class CommissionDatesTransformerTest extends TestCase
     /**
      * Fournit les cas d'informations manquantes.
      *
-     * @return array<string, array<int, mixed>>
+     * @return \Iterator<string, array<int, mixed>>
      */
-    public static function provideMissingInformation(): array
+    public static function provideMissingInformation(): \Iterator
     {
-        return [
-            'date manquante' => [
-                function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
-                    // On utilise Reflection pour forcer la valeur à null sans passer par le setter
-                    $reflection = new \ReflectionClass($dateItem);
-                    $property = $reflection->getProperty('date');
-                    $property->setValue($dateItem, null);
-                },
-                'date',
-            ],
-            'heure debut manquante' => [
-                function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
-                    $reflection = new \ReflectionClass($dateItem);
-                    $property = $reflection->getProperty('heureDebut');
-                    $property->setValue($dateItem, null);
-                },
-                'heure_debut',
-            ],
-            'heure fin manquante' => [
-                function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
-                    $reflection = new \ReflectionClass($dateItem);
-                    $property = $reflection->getProperty('heureFin');
-                    $property->setValue($dateItem, null);
-                },
-                'heure_fin',
-            ],
-            'type evenement manquant' => [
-                function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
-                    $reflection = new \ReflectionClass($dto);
-                    $property = $reflection->getProperty('typeEvenement');
-                    $property->setValue($dto, null);
-                },
-                'type_evenement',
-            ],
+        yield 'date manquante' => [
+            function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
+                // On utilise Reflection pour forcer la valeur à null sans passer par le setter
+                $reflection = new \ReflectionClass($dateItem);
+                $property = $reflection->getProperty('date');
+                $property->setValue($dateItem, null);
+            },
+            'date',
+        ];
+        yield 'heure debut manquante' => [
+            function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
+                $reflection = new \ReflectionClass($dateItem);
+                $property = $reflection->getProperty('heureDebut');
+                $property->setValue($dateItem, null);
+            },
+            'heure_debut',
+        ];
+        yield 'heure fin manquante' => [
+            function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
+                $reflection = new \ReflectionClass($dateItem);
+                $property = $reflection->getProperty('heureFin');
+                $property->setValue($dateItem, null);
+            },
+            'heure_fin',
+        ];
+        yield 'type evenement manquant' => [
+            function (CommissionDatesDto $dto, DateCommissionItemDto $dateItem): void {
+                $reflection = new \ReflectionClass($dto);
+                $property = $reflection->getProperty('typeEvenement');
+                $property->setValue($dto, null);
+            },
+            'type_evenement',
         ];
     }
 

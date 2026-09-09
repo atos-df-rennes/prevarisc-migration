@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Service\VersionService;
@@ -35,14 +37,14 @@ final class VersionServiceTest extends TestCase
 
         $service = new VersionService($this->tmpDir);
 
-        self::assertSame('2.8.18', $service->getCurrentVersion());
+        $this->assertSame('2.8.18', $service->getCurrentVersion());
     }
 
     public function testGetCurrentVersionRetourneNullSiAucunFichier(): void
     {
         $service = new VersionService($this->tmpDir);
 
-        self::assertNull($service->getCurrentVersion());
+        $this->assertNull($service->getCurrentVersion());
     }
 
     public function testGetCurrentVersionRetourneNullSiAucuneSection(): void
@@ -51,7 +53,7 @@ final class VersionServiceTest extends TestCase
 
         $service = new VersionService($this->tmpDir);
 
-        self::assertNull($service->getCurrentVersion());
+        $this->assertNull($service->getCurrentVersion());
     }
 
     // -------------------------------------------------------------------------
@@ -65,13 +67,13 @@ final class VersionServiceTest extends TestCase
         $service = new VersionService($this->tmpDir);
         $result = $service->getChangelogByMinorVersion();
 
-        self::assertArrayHasKey('2.8', $result);
-        self::assertArrayHasKey('2.7', $result);
-        self::assertCount(2, $result['2.8']);
-        self::assertCount(1, $result['2.7']);
-        self::assertSame('2.8.18', $result['2.8'][0]['version']);
-        self::assertSame('2.8.17', $result['2.8'][1]['version']);
-        self::assertSame('2.7.1', $result['2.7'][0]['version']);
+        $this->assertArrayHasKey('2.8', $result);
+        $this->assertArrayHasKey('2.7', $result);
+        $this->assertCount(2, $result['2.8']);
+        $this->assertCount(1, $result['2.7']);
+        $this->assertSame('2.8.18', $result['2.8'][0]['version']);
+        $this->assertSame('2.8.17', $result['2.8'][1]['version']);
+        $this->assertSame('2.7.1', $result['2.7'][0]['version']);
     }
 
     public function testGetChangelogByMinorVersionTrieSemantiquementDescendant(): void
@@ -82,7 +84,7 @@ final class VersionServiceTest extends TestCase
         $service = new VersionService($this->tmpDir);
         $keys = array_keys($service->getChangelogByMinorVersion());
 
-        self::assertSame(['2.10', '2.9', '2.8'], $keys);
+        $this->assertSame(['2.10', '2.9', '2.8'], $keys);
     }
 
     public function testGetChangelogByMinorVersionSupprimeLEnTeteDuContent(): void
@@ -93,14 +95,14 @@ final class VersionServiceTest extends TestCase
         $result = $service->getChangelogByMinorVersion();
 
         // La ligne ## [2.8.18](...) ne doit pas apparaître dans le content
-        self::assertStringNotContainsString('## [2.8.18]', $result['2.8'][0]['content']);
+        $this->assertStringNotContainsString('## [2.8.18]', $result['2.8'][0]['content']);
     }
 
     public function testGetChangelogByMinorVersionRetourneTableauVideSiFichierAbsent(): void
     {
         $service = new VersionService($this->tmpDir);
 
-        self::assertSame([], $service->getChangelogByMinorVersion());
+        $this->assertSame([], $service->getChangelogByMinorVersion());
     }
 
     public function testGetChangelogByMinorVersionRetourneTableauVideSiAucuneSection(): void
@@ -109,7 +111,7 @@ final class VersionServiceTest extends TestCase
 
         $service = new VersionService($this->tmpDir);
 
-        self::assertSame([], $service->getChangelogByMinorVersion());
+        $this->assertSame([], $service->getChangelogByMinorVersion());
     }
 
     public function testGetChangelogByMinorVersionConserveLaDateDeChaquePatch(): void
@@ -122,8 +124,8 @@ final class VersionServiceTest extends TestCase
         $service = new VersionService($this->tmpDir);
         $result = $service->getChangelogByMinorVersion();
 
-        self::assertSame('31-03-2026', $result['2.8'][0]['date']);
-        self::assertSame('24-03-2026', $result['2.8'][1]['date']);
+        $this->assertSame('31-03-2026', $result['2.8'][0]['date']);
+        $this->assertSame('24-03-2026', $result['2.8'][1]['date']);
     }
 
     // -------------------------------------------------------------------------

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
@@ -13,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel pour l'édition d'un dossier de nature 5 (Cahier des charges de type T).
  */
 #[Group('functional')]
-class DossierEditNature5Test extends WebTestCase
+final class DossierEditNature5Test extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
 
@@ -82,16 +84,16 @@ class DossierEditNature5Test extends WebTestCase
         $content = $client->getResponse()->getContent();
 
         foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
+            $this->assertStringContainsString($label, (string) $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
         }
 
         // Vérifier que les champs incomplet et horsDelai sont présents (champs d'études)
-        $this->assertStringContainsString('incomplet', $content, 'Le champ incomplet devrait être présent');
-        $this->assertStringContainsString('horsDelai', $content, 'Le champ horsDelai devrait être présent');
+        $this->assertStringContainsString('incomplet', (string) $content, 'Le champ incomplet devrait être présent');
+        $this->assertStringContainsString('horsDelai', (string) $content, 'Le champ horsDelai devrait être présent');
 
         // Vérifier que le champ type ne devrait PAS être visible pour nature 5 (différence avec nature 4)
         // Le champ est dans le HTML mais masqué par JS, donc on vérifie juste sa présence
-        $this->assertStringContainsString('dossier[type]', $content, 'Le champ type devrait être dans le HTML');
+        $this->assertStringContainsString('dossier[type]', (string) $content, 'Le champ type devrait être dans le HTML');
     }
 
     protected function tearDown(): void

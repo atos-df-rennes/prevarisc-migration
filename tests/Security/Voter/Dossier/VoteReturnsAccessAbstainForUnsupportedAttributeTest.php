@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
@@ -11,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class VoteReturnsAccessAbstainForUnsupportedAttributeTest extends TestCase
+final class VoteReturnsAccessAbstainForUnsupportedAttributeTest extends TestCase
 {
     public function testVoteReturnsAccessAbstainForUnsupportedAttribute(): void
     {
@@ -25,6 +27,6 @@ class VoteReturnsAccessAbstainForUnsupportedAttributeTest extends TestCase
 
         $result = $voter->vote($token, $dossier, ['unsupported_attribute']);
 
-        $this->assertEquals(VoterInterface::ACCESS_ABSTAIN, $result);
+        $this->assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
     }
 }

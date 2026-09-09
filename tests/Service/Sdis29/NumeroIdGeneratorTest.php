@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Sdis29;
 
 use App\Service\Sdis29\NumeroIdGenerator;
@@ -38,7 +40,7 @@ final class NumeroIdGeneratorTest extends TestCase
     public function testGenerateRacineReturnsPaddedNumeroid(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(self::once())->method('fetchOne')
+        $connection->expects($this->once())->method('fetchOne')
             ->with(self::anything(), ['minId' => 1000, 'maxId' => 39999])
             ->willReturn(1042);
 
@@ -49,7 +51,7 @@ final class NumeroIdGeneratorTest extends TestCase
 
         $result = $generator->generate('Brest', '1', null);
 
-        self::assertSame('01042', $result);
+        $this->assertSame('01042', $result);
     }
 
     public function testGenerateRacineAppendsCelluleSuffix(): void
@@ -65,7 +67,7 @@ final class NumeroIdGeneratorTest extends TestCase
         // Genre "3" = Cellule (cf. App\Constant\GenreEtablissement::CELLULE).
         $result = $generator->generate('Brest', '3', null);
 
-        self::assertSame('00500.00', $result);
+        $this->assertSame('00500.00', $result);
     }
 
     /**
@@ -78,11 +80,11 @@ final class NumeroIdGeneratorTest extends TestCase
     {
         $connection = $this->createMock(Connection::class);
         // Premier appel : lecture du numéro du père (idPere = 7 bien transmis en paramètre lié).
-        $connection->expects(self::once())->method('fetchOne')
+        $connection->expects($this->once())->method('fetchOne')
             ->with(self::anything(), ['idPere' => 7])
             ->willReturn('01042');
         // Second appel : recherche des enfants existants partageant ce même numéro de père.
-        $connection->expects(self::once())->method('fetchAllAssociative')
+        $connection->expects($this->once())->method('fetchAllAssociative')
             ->with(self::anything(), ['length' => 5, 'numeroSearch' => '01042'])
             ->willReturn([
                 ['numeroid' => '01042.01'],
@@ -95,7 +97,7 @@ final class NumeroIdGeneratorTest extends TestCase
 
         $result = $generator->generate('Brest', '3', 7);
 
-        self::assertSame('01042.02', $result);
+        $this->assertSame('01042.02', $result);
     }
 
     /**
@@ -110,10 +112,10 @@ final class NumeroIdGeneratorTest extends TestCase
     public function testGenerateEnfantAppendsCelluleSuffixToSiteParentNumeroid(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(self::once())->method('fetchOne')
+        $connection->expects($this->once())->method('fetchOne')
             ->with(self::anything(), ['idPere' => 7])
             ->willReturn('01042.00');
-        $connection->expects(self::once())->method('fetchAllAssociative')
+        $connection->expects($this->once())->method('fetchAllAssociative')
             ->with(self::anything(), ['length' => 8, 'numeroSearch' => '01042.00'])
             ->willReturn([
                 ['numeroid' => '01042.00'],
@@ -127,16 +129,16 @@ final class NumeroIdGeneratorTest extends TestCase
 
         $result = $generator->generate('Brest', '3', 7);
 
-        self::assertSame('01042.00.02', $result);
+        $this->assertSame('01042.00.02', $result);
     }
 
     public function testGenerateEnfantReturnsNextLetterSuffixForNonCelluleGenre(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(self::once())->method('fetchOne')
+        $connection->expects($this->once())->method('fetchOne')
             ->with(self::anything(), ['idPere' => 7])
             ->willReturn('01042');
-        $connection->expects(self::once())->method('fetchAllAssociative')
+        $connection->expects($this->once())->method('fetchAllAssociative')
             ->with(self::anything(), ['length' => 5, 'numeroSearch' => '01042'])
             ->willReturn([
                 ['numeroid' => '01042.A'],
@@ -151,6 +153,6 @@ final class NumeroIdGeneratorTest extends TestCase
         // Genre "1" (non-Cellule) : suffixe alphabétique sur la racine à 5 caractères.
         $result = $generator->generate('Brest', '1', 7);
 
-        self::assertSame('01042.C', $result);
+        $this->assertSame('01042.C', $result);
     }
 }

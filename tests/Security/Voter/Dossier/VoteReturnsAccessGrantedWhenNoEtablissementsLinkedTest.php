@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
@@ -22,7 +24,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  * Aligne sur le cas $i === 0 du Plugin_ACL legacy (ligne 294) : si aucune ressource établissement
  * n'est présente dans les ressources de la page, la vérification ets est ignorée.
  */
-class VoteReturnsAccessGrantedWhenNoEtablissementsLinkedTest extends TestCase
+final class VoteReturnsAccessGrantedWhenNoEtablissementsLinkedTest extends TestCase
 {
     public function testVoteReturnsAccessGrantedWhenNoEtablissementsLinked(): void
     {
@@ -58,6 +60,6 @@ class VoteReturnsAccessGrantedWhenNoEtablissementsLinkedTest extends TestCase
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 
-        $this->assertEquals(VoterInterface::ACCESS_GRANTED, $result);
+        $this->assertSame(VoterInterface::ACCESS_GRANTED, $result);
     }
 }

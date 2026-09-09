@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Constant\GenreEtablissement;
@@ -28,7 +30,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  * sans nécessiter de base de données.
  */
 #[CoversMethod(EtablissementService::class, 'save')]
-class EtablissementSaveTest extends TestCase
+final class EtablissementSaveTest extends TestCase
 {
     /**
      * Crée le service avec des mocks minimaux pour tester la logique de validation.
@@ -47,7 +49,7 @@ class EtablissementSaveTest extends TestCase
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('getConnection')->willReturn($connection);
         // On simule la persistance en affectant l'ID=1 via réflexion
-        $em->method('persist')->willReturnCallback(static function ($entity): void {
+        $em->method('persist')->willReturnCallback(static function (object $entity): void {
             if ($entity instanceof Etablissement) {
                 $r = new \ReflectionClass($entity);
                 $p = $r->getProperty('id');

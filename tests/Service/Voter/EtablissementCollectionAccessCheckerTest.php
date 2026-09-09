@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Voter;
 
 use App\Entity\Etablissement;
@@ -14,7 +16,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementCollectionAccessCheckerTest extends TestCase
+final class EtablissementCollectionAccessCheckerTest extends TestCase
 {
     /** @var MockObject&EtablissementVoterFactory */
     private MockObject $factory;
@@ -117,7 +119,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
         $grantingVoter = $this->createMock(VoterInterface::class);
         $grantingVoter->method('vote')->willReturn(VoterInterface::ACCESS_GRANTED);
 
-        $this->factory->method('getVoterForGenre')->willReturnMap([
+        $this->factory->expects($this->atLeast(2))->method('getVoterForGenre')->willReturnMap([
             [2, $denyingVoter],
             [3, $grantingVoter],
         ]);

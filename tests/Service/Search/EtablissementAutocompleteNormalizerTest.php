@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Search;
 
 use App\Constant\GenreEtablissement;
@@ -72,16 +74,14 @@ final class EtablissementAutocompleteNormalizerTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: int, 1: string|null}>
+     * @return \Iterator<string, array{int, (string | null)}>
      */
-    public static function communeProvider(): array
+    public static function communeProvider(): \Iterator
     {
-        return [
-            'site' => [GenreEtablissement::SITE, 'COMMUNE SITE'],
-            'cellule' => [GenreEtablissement::CELLULE, 'COMMUNE CELLULE'],
-            'erp' => [GenreEtablissement::ERP, 'COMMUNE DEFAUT'],
-            'habitation' => [GenreEtablissement::HABITATION, 'COMMUNE DEFAUT'],
-        ];
+        yield 'site' => [GenreEtablissement::SITE, 'COMMUNE SITE'];
+        yield 'cellule' => [GenreEtablissement::CELLULE, 'COMMUNE CELLULE'];
+        yield 'erp' => [GenreEtablissement::ERP, 'COMMUNE DEFAUT'];
+        yield 'habitation' => [GenreEtablissement::HABITATION, 'COMMUNE DEFAUT'];
     }
 
     public function testMissingOrEmptyValuesAreNormalizedToNull(): void

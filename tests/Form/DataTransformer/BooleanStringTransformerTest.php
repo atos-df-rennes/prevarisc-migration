@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Form\DataTransformer;
 
 use App\Form\DataTransformer\BooleanStringTransformer;
@@ -24,19 +26,17 @@ final class BooleanStringTransformerTest extends TestCase
     #[DataProvider('transformProvider')]
     public function testTransform(?bool $input, ?string $expected): void
     {
-        self::assertSame($expected, $this->transformer->transform($input));
+        $this->assertSame($expected, $this->transformer->transform($input));
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return \Iterator<string, array<mixed>>
      */
-    public static function transformProvider(): array
+    public static function transformProvider(): \Iterator
     {
-        return [
-            'true → "1"' => [true, '1'],
-            'false → "0"' => [false, '0'],
-            'null → null' => [null, null],
-        ];
+        yield 'true → "1"' => [true, '1'];
+        yield 'false → "0"' => [false, '0'];
+        yield 'null → null' => [null, null];
     }
 
     // =========================================================================
@@ -45,19 +45,17 @@ final class BooleanStringTransformerTest extends TestCase
     #[DataProvider('reverseTransformProvider')]
     public function testReverseTransform(?string $input, bool $expected): void
     {
-        self::assertSame($expected, $this->transformer->reverseTransform($input));
+        $this->assertSame($expected, $this->transformer->reverseTransform($input));
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return \Iterator<string, array<mixed>>
      */
-    public static function reverseTransformProvider(): array
+    public static function reverseTransformProvider(): \Iterator
     {
-        return [
-            '"1" → true' => ['1', true],
-            '"0" → false' => ['0', false],
-            'null → false' => [null, false],
-            '"" → false' => ['', false],
-        ];
+        yield '"1" → true' => ['1', true];
+        yield '"0" → false' => ['0', false];
+        yield 'null → false' => [null, false];
+        yield '"" → false' => ['', false];
     }
 }

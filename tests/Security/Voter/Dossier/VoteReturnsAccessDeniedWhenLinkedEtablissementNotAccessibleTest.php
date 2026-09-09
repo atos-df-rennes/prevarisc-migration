@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
@@ -22,7 +24,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  * Vérifie que DossierVoter refuse l'accès quand aucun établissement lié n'est accessible (view_ets).
  * Aligne sur le Plugin_ACL legacy (lignes 278–302) : le contrôle ets précède le contrôle nature.
  */
-class VoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessibleTest extends TestCase
+final class VoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessibleTest extends TestCase
 {
     public function testVoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessible(): void
     {
@@ -59,6 +61,6 @@ class VoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessibleTest extends Te
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 
-        $this->assertEquals(VoterInterface::ACCESS_DENIED, $result);
+        $this->assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 }

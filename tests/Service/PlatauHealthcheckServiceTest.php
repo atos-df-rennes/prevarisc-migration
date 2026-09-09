@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Constant\Platau\HealthcheckErrorSource;
@@ -17,7 +19,7 @@ use Psr\Log\NullLogger;
  *
  * Les scénarios dépendant de cURL (appels réseau réels) sont couverts en intégration.
  */
-class PlatauHealthcheckServiceTest extends TestCase
+final class PlatauHealthcheckServiceTest extends TestCase
 {
     /**
      * Crée une instance du service avec des chemins de fichiers inexistants,

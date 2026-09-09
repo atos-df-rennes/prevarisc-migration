@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\Dossier as DossierEntity;
@@ -25,7 +27,7 @@ use Symfony\Bundle\SecurityBundle\Security;
  * Iso-legacy (quirk assumé) : quand DATECOMM_DOSSIER est renseignée, le legacy compare en réalité
  * à DATEINSERT_DOSSIER (et non DATECOMM_DOSSIER).
  */
-class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
+final class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
 {
     private Dossier $service;
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Repository;
 
 use App\Repository\DossierRepository;
@@ -12,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  * les dossiers possédant un dossier lié d'une nature ou d'un type donné.
  */
 #[Group('functional')]
-class DossierRepositoryNotExistsFilterTest extends KernelTestCase
+final class DossierRepositoryNotExistsFilterTest extends KernelTestCase
 {
     private DossierRepository $repository;
 
@@ -30,7 +32,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
     {
         $result = $this->repository->findLeveePresc();
 
-        self::assertIsArray($result);
+        $this->assertIsArray($result);
     }
 
     /**
@@ -41,7 +43,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
     {
         $result = $this->repository->findAbsenceQuorum();
 
-        self::assertIsArray($result);
+        $this->assertIsArray($result);
     }
 
     /**
@@ -52,7 +54,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
     {
         $result = $this->repository->findNpsp();
 
-        self::assertIsArray($result);
+        $this->assertIsArray($result);
     }
 
     /**
@@ -67,7 +69,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
         }
 
         foreach ($result as $dto) {
-            self::assertNotNull($dto->ID_DOSSIER);
+            $this->assertNotNull($dto->ID_DOSSIER);
         }
     }
 
@@ -83,7 +85,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
         }
 
         foreach ($result as $dto) {
-            self::assertNotNull($dto->ID_DOSSIER);
+            $this->assertNotNull($dto->ID_DOSSIER);
         }
     }
 
@@ -99,7 +101,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
         }
 
         foreach ($result as $dto) {
-            self::assertNotNull($dto->ID_DOSSIER);
+            $this->assertNotNull($dto->ID_DOSSIER);
         }
     }
 }

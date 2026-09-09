@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
@@ -23,7 +25,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementCampingVoterTest extends TestCase
+final class EtablissementCampingVoterTest extends TestCase
 {
     /**
      * @var MockObject&ResourcesRepository
@@ -88,7 +90,7 @@ class EtablissementCampingVoterTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('warning')
-            ->with($this->equalTo("Aucune règle trouvée pour les campings. Il est recommandé d'en ajouter une."));
+            ->with("Aucune règle trouvée pour les campings. Il est recommandé d'en ajouter une.");
 
         $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
 
@@ -109,7 +111,7 @@ class EtablissementCampingVoterTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('warning')
-            ->with($this->equalTo('Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons.'));
+            ->with('Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons.');
 
         $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
 

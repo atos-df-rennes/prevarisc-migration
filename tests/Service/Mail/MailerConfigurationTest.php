@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Mail;
 
 use App\Service\Mail\MailerConfiguration;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class MailerConfigurationTest extends TestCase
+final class MailerConfigurationTest extends TestCase
 {
     /**
      * @param array{

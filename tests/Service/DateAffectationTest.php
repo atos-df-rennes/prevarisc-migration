@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\CommissionTypeEvenement;
@@ -49,7 +51,7 @@ final class DateAffectationTest extends KernelTestCase
         $dossier = $this->createDossierOfType(2);
         $dateCommission = $this->createDateCommissionOfType(2);
 
-        $this->assertSame(null, $this->dateAffectation->getIdDateCommission($dossier, $dateCommission));
+        $this->assertNull($this->dateAffectation->getIdDateCommission($dossier, $dateCommission));
     }
 
     public function testGetWithGroupeDeVisitesCommissionSalle(): void
@@ -67,7 +69,7 @@ final class DateAffectationTest extends KernelTestCase
         $dossier = $this->createDossierOfType(3);
         $dateCommission = $this->createDateCommissionOfType(3);
 
-        $this->assertSame(null, $this->dateAffectation->getIdDateCommission($dossier, $dateCommission));
+        $this->assertNull($this->dateAffectation->getIdDateCommission($dossier, $dateCommission));
     }
 
     public function testGetWithEtudeAndNullDateCommissionLogsError(): void
@@ -79,7 +81,7 @@ final class DateAffectationTest extends KernelTestCase
         $dateAffectation = new DateAffectation($logger);
         $dossier = $this->createDossierOfType(1);
 
-        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, null));
+        $this->assertNull($dateAffectation->getIdDateCommission($dossier, null));
     }
 
     public function testGetWithVisiteAndNullDateCommissionLogsError(): void
@@ -91,7 +93,7 @@ final class DateAffectationTest extends KernelTestCase
         $dateAffectation = new DateAffectation($logger);
         $dossier = $this->createDossierOfType(2);
 
-        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, null));
+        $this->assertNull($dateAffectation->getIdDateCommission($dossier, null));
     }
 
     public function testGetWithVisiteAndNullTypeEvenementLogsError(): void
@@ -109,7 +111,7 @@ final class DateAffectationTest extends KernelTestCase
         $dossier = $this->createDossierOfType(2);
         $dateCommission = $this->createDateCommissionOfType();
 
-        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, $dateCommission));
+        $this->assertNull($dateAffectation->getIdDateCommission($dossier, $dateCommission));
     }
 
     public function testGetWithNullDossierTypeLogsError(): void
@@ -124,7 +126,7 @@ final class DateAffectationTest extends KernelTestCase
         $dossier = $this->createConfiguredMock(Dossier::class, ['getId' => 1, 'getType' => null]);
         $dateCommission = $this->createDateCommissionOfType();
 
-        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, $dateCommission));
+        $this->assertNull($dateAffectation->getIdDateCommission($dossier, $dateCommission));
     }
 
     public function testGetWithDossierTypeNotHandled(): void
@@ -138,7 +140,7 @@ final class DateAffectationTest extends KernelTestCase
         $dossier = $this->createDossierOfType(4);
         $dateCommission = $this->createDateCommissionOfType(1);
 
-        $this->assertSame(null, $dateAffectation->getIdDateCommission($dossier, $dateCommission));
+        $this->assertNull($dateAffectation->getIdDateCommission($dossier, $dateCommission));
     }
 
     private function createDossierOfType(int $typeId): Dossier

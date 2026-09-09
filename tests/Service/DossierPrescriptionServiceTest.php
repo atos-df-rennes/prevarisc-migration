@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Constant\TypePrescription;
@@ -37,7 +39,7 @@ final class DossierPrescriptionServiceTest extends TestCase
         $callCount = 0;
         $this->repository->expects($this->exactly(2))
             ->method('renumeroterParIds')
-            ->willReturnCallback(function ($d, $ids) use ($dossier, $idsRegl, $idsAutres, &$callCount): null {
+            ->willReturnCallback(function ($d, array $ids) use ($dossier, $idsRegl, $idsAutres, &$callCount): null {
                 ++$callCount;
                 if (1 === $callCount) {
                     $this->assertSame($dossier, $d);
@@ -116,9 +118,9 @@ final class DossierPrescriptionServiceTest extends TestCase
 
         $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::EXPLOITATION);
 
-        self::assertSame(TypePrescription::EXPLOITATION, $prescription->getType());
-        self::assertSame($dossier, $prescription->getDossier());
-        self::assertSame($prescriptionType, $prescription->getPrescriptionType());
+        $this->assertSame(TypePrescription::EXPLOITATION, $prescription->getType());
+        $this->assertSame($dossier, $prescription->getDossier());
+        $this->assertSame($prescriptionType, $prescription->getPrescriptionType());
     }
 
     public function testAjouterDepuisTypeAssigneProchainNumero(): void
@@ -137,7 +139,7 @@ final class DossierPrescriptionServiceTest extends TestCase
 
         $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::REGLEMENTAIRE);
 
-        self::assertSame(4, $prescription->getNumero());
+        $this->assertSame(4, $prescription->getNumero());
     }
 
     public function testAjouterDepuisTypeGardeLienTypeEtNeCopiesPasLibelle(): void
@@ -156,7 +158,7 @@ final class DossierPrescriptionServiceTest extends TestCase
 
         $prescription = $service->ajouterDepuisType($dossier, $prescriptionType, TypePrescription::AMELIORATION);
 
-        self::assertSame($prescriptionType, $prescription->getPrescriptionType());
-        self::assertNull($prescription->getLibelle());
+        $this->assertSame($prescriptionType, $prescription->getPrescriptionType());
+        $this->assertNull($prescription->getLibelle());
     }
 }
