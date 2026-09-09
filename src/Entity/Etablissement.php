@@ -382,7 +382,7 @@ class Etablissement
      */
     public static function createLatestInformationsCriteria(): Criteria
     {
-        return Criteria::create(true)
+        return Criteria::create()
             ->orderBy(['id' => Order::Descending])
             ->setMaxResults(1);
     }
@@ -682,23 +682,6 @@ class Etablissement
         $this->dossierDonnantAvis = $dossierDonnantAvis;
 
         return $this;
-    }
-
-    public function hasAvisDerogations(): bool
-    {
-        $dossiers = $this->getDossiers();
-
-        foreach ($dossiers as $dossier) {
-            $avisDerogations = $dossier->getAvisDerogations();
-
-            foreach ($avisDerogations as $avisDerogation) {
-                if ($avisDerogation->getDisplayHistorique()) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     public function getRisquesNaturels(): ?string

@@ -27,4 +27,23 @@ class File
 
         return $sanitizedFilename;
     }
+
+    /**
+     * Sanitize a user-provided display name for safe use in an HTTP Content-Disposition header
+     * (e.g. via BinaryFileResponse::setContentDisposition()) or as a ZIP entry name.
+     *
+     * Unlike self::sanitize(), this method does not treat the input as a path: it is meant for
+     * free-text names (e.g. PieceJointe::getNom()) that may legitimately contain spaces or
+     * accented characters. However, "/" and "\" must be removed since
+     * HeaderUtils::makeDisposition() throws an InvalidArgumentException when the filename
+     * contains either of them.
+     *
+     * @param string $filename the original filename or display name provided by the caller
+     *
+     * @return string the sanitized filename, safe to use in a Content-Disposition header
+     */
+    public static function sanitizeForContentDisposition(string $filename): string
+    {
+        return str_replace(['/', '\\'], '-', $filename);
+    }
 }

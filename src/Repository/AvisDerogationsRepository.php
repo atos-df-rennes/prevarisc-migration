@@ -55,6 +55,33 @@ class AvisDerogationsRepository extends ServiceEntityRepository
     }
 
     /**
+     * Vérifie si au moins un avis/dérogation historisé existe pour une liste d'établissements
+     * (parent + enfants). Doit rester cohérent avec findForEtablissements(), utilisée pour
+     * l'affichage, afin que le témoin (pastille verte) reflète bien les données affichées.
+     *
+     * @param int[] $idsEtablissements
+     */
+    public function hasForEtablissements(array $idsEtablissements): bool
+    {
+        if ([] === $idsEtablissements) {
+            return false;
+        }
+
+        $count = $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->join('a.dossier', 'd')
+            ->join('d.etablissements', 'e')
+            ->where('e.id IN (:ids)')
+            ->andWhere('a.displayHistorique = 1')
+            ->setParameter('ids', $idsEtablissements, Connection::PARAM_INT_ARRAY)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+
+        return $count > 0;
+    }
+
+    /**
      * Retourne les avis et dérogations des dossiers d'un établissement ayant été indiqués comme historisés.
      *
      * @return AvisDerogations[]

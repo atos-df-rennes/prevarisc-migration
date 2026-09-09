@@ -6,6 +6,11 @@ use App\Repository\DateCommissionRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\PieceJointeRepository;
 use App\Service\DataStore\DataStore;
+<<<<<<< HEAD
+=======
+use App\Utils\File;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+>>>>>>> release/2.10
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,7 +64,7 @@ class PieceJointeController extends AbstractController
         $response = new BinaryFileResponse($filePath);
         $response->setContentDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $filename ?? ($pieceJointe->getNom().$pieceJointe->getExtension())
+            File::sanitizeForContentDisposition($filename ?? ($pieceJointe->getNom().$pieceJointe->getExtension()))
         );
 
         return $response;
@@ -99,7 +104,7 @@ class PieceJointeController extends AbstractController
         $response = new BinaryFileResponse($filePath);
         $response->setContentDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $filename ?? ($pieceJointe->getNom().$pieceJointe->getExtension())
+            File::sanitizeForContentDisposition($filename ?? ($pieceJointe->getNom().$pieceJointe->getExtension()))
         );
 
         return $response;
