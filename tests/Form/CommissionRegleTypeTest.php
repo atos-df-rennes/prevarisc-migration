@@ -217,7 +217,7 @@ final class CommissionRegleTypeTest extends TestCase
 
         $form = $this->createMock(FormInterface::class);
         $form->method('getData')->willReturn(null);
-        $form->expects($this->atLeast(2))->method('get')->willReturnMap([
+        $form->method('get')->willReturnMap([
             ['localSommeil', $localSommeilField],
             ['etudeVisite', $etudeVisiteField],
         ]);

@@ -177,8 +177,10 @@ final class CommissionDatesTransformerTest extends TestCase
             ->method('error')
             ->with(
                 $this->stringContains('Informations manquantes'),
-                $this->callback(function ($context) use ($expectedErrorContext): void {
+                $this->callback(function ($context) use ($expectedErrorContext): bool {
                     $this->assertNull($context[$expectedErrorContext]);
+
+                    return true;
                 })
             );
 
