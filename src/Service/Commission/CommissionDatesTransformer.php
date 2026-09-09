@@ -31,7 +31,7 @@ final readonly class CommissionDatesTransformer
         // Gestion de la périodicité
         if (
             $dto->isWithPeriodicite()
-            && $dto->getDateFin()
+            && $dto->getDateFin() instanceof \DateTimeInterface
             && $dto->getPeriodicite()
             && 1 === count($datesDto)
         ) {

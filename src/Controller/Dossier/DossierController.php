@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dossier;
 
+use App\Entity\DossierAffectation;
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
 use App\Constant\NomInterneCapsule;
@@ -285,12 +286,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
         );
 
         $form->get('idAffectationDossierCommission')->setData(
-            $affectationCommission && $affectationCommission->getDateCommission()
+            $affectationCommission instanceof DossierAffectation && $affectationCommission->getDateCommission() instanceof \App\Entity\DateCommission
                 ? (string) $affectationCommission->getDateCommission()->getId()
                 : null
         );
         $form->get('idAffectationDossierVisite')->setData(
-            $affectationVisite && $affectationVisite->getDateCommission()
+            $affectationVisite instanceof DossierAffectation && $affectationVisite->getDateCommission() instanceof \App\Entity\DateCommission
                 ? (string) $affectationVisite->getDateCommission()->getId()
                 : null
         );
@@ -306,7 +307,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $nouveauType = $dossier->getType();
                 $nouvelleNature = $dossier->getNature();
 
-                if ($nouveauType && ($ancienType !== $nouveauType || $ancienneNature !== $nouvelleNature)) {
+                if ($nouveauType instanceof \App\Entity\DossierType && ($ancienType !== $nouveauType || $ancienneNature !== $nouvelleNature)) {
                     $this->documentConsulteTransferService->transfertOuSupprimeDocumentsConsultes(
                         $dossier,
                         $nouveauType,
