@@ -89,9 +89,7 @@ final class FileTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider sanitizeForContentDispositionProvider
-     */
+    #[DataProvider('sanitizeForContentDispositionProvider')]
     public function testSanitizeForContentDisposition(string $input, string $expected): void
     {
         $this->assertSame($expected, File::sanitizeForContentDisposition($input));

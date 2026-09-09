@@ -73,7 +73,7 @@ class AvisDerogationsRepository extends ServiceEntityRepository
             ->join('d.etablissements', 'e')
             ->where('e.id IN (:ids)')
             ->andWhere('a.displayHistorique = 1')
-            ->setParameter('ids', $idsEtablissements, Connection::PARAM_INT_ARRAY)
+            ->setParameter('ids', $idsEtablissements, ArrayParameterType::INTEGER)
             ->getQuery()
             ->getSingleScalarResult()
         ;

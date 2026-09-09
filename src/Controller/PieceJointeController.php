@@ -2,15 +2,12 @@
 
 namespace App\Controller;
 
+use App\Constant\DataStoreObjectTypes;
 use App\Repository\DateCommissionRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\PieceJointeRepository;
 use App\Service\DataStore\DataStore;
-<<<<<<< HEAD
-=======
 use App\Utils\File;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
->>>>>>> release/2.10
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,14 +49,13 @@ class PieceJointeController extends AbstractController
             throw $this->createNotFoundException('Pièce jointe non rattachée à cet établissement.');
         }
 
-        $filePath = $this->dataStore->getFilePath($pieceJointe, 'etablissement', $id);
+        $filePath = $this->dataStore->getFilePath($pieceJointe, DataStoreObjectTypes::ETABLISSEMENT, $id);
 
         if (!is_readable($filePath)) {
             throw $this->createNotFoundException('Fichier introuvable ou illisible.');
         }
 
-        // @todo: utiliser la constante DataStoreObjectType lors du merge sur develop/
-        $filename = $this->dataStore->getFormattedFilename($pieceJointe, 'etablissement', $id);
+        $filename = $this->dataStore->getFormattedFilename($pieceJointe, DataStoreObjectTypes::ETABLISSEMENT, $id);
 
         $response = new BinaryFileResponse($filePath);
         $response->setContentDisposition(
@@ -92,14 +88,13 @@ class PieceJointeController extends AbstractController
             throw $this->createNotFoundException('Pièce jointe non rattachée à cette date de commission.');
         }
 
-        $filePath = $this->dataStore->getFilePath($pieceJointe, 'dateCommission', $id);
+        $filePath = $this->dataStore->getFilePath($pieceJointe, DataStoreObjectTypes::DATE_COMMISSION, $id);
 
         if (!is_readable($filePath)) {
             throw $this->createNotFoundException('Fichier introuvable ou illisible.');
         }
 
-        // @todo: utiliser la constante DataStoreObjectType lors du merge sur develop/
-        $filename = $this->dataStore->getFormattedFilename($pieceJointe, 'dateCommission', $id);
+        $filename = $this->dataStore->getFormattedFilename($pieceJointe, DataStoreObjectTypes::DATE_COMMISSION, $id);
 
         $response = new BinaryFileResponse($filePath);
         $response->setContentDisposition(
