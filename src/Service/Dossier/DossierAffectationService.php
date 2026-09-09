@@ -3,6 +3,7 @@
 namespace App\Service\Dossier;
 
 use App\Constant\CommissionTypeEvenement as TypeEvenement;
+use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use App\Entity\DossierAffectation;
 use App\Entity\DossierNatureListe;
@@ -129,7 +130,7 @@ class DossierAffectationService
 
         // Cas 2.2 : Affectation existe déjà → Vérifier si date changée
         $affectationDateCommission = $affectationExistante->getDateCommission();
-        if (!$affectationDateCommission || $affectationDateCommission->getId() === $idDateCommission) {
+        if (!$affectationDateCommission instanceof DateCommission || $affectationDateCommission->getId() === $idDateCommission) {
             // Même date → Rien à faire
             return;
         }

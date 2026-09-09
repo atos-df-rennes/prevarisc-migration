@@ -5,51 +5,45 @@ namespace App\Entity;
 use App\Constant\DossierNature;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\DossierRepository;
-use App\Validator\DossierDocumentsManquants;
-use App\Validator\DossierObjet;
+use App\Validator as PrevariscAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @DossierObjet(groups={"edit_informations"})
- *
- * @DossierDocumentsManquants(groups={"edit_informations"})
- */
 #[ORM\Entity(repositoryClass: DossierRepository::class)]
 #[ORM\Table]
 #[ORM\Index(columns: ['DATESUPPRESSION_DOSSIER'])]
+#[PrevariscAssert\DossierObjet(groups: ['edit_informations'])]
+#[PrevariscAssert\DossierDocumentsManquants(groups: ['edit_informations'])]
 class Dossier
 {
     use GetIdOrFailTrait;
 
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_DOSSIER', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_DOSSIER', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'DATESUPPRESSION_DOSSIER', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATESUPPRESSION_DOSSIER', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateSuppression = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(name: 'DELETED_BY', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
     private ?Utilisateur $deletedBy = null;
 
-    #[ORM\Column(name: 'OBJET_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'OBJET_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $objet = null;
 
-    #[ORM\Column(name: 'DESCGEN_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCGEN_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $descriptifGeneral = null;
 
-    #[ORM\Column(name: 'DESCEFF_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCEFF_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $descriptifEffectifs = null;
 
-    #[ORM\Column(name: 'COORDSSI_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'COORDSSI_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $coordonneesSsi = null;
 
     #[ORM\ManyToOne(targetEntity: DossierType::class)]
@@ -80,19 +74,16 @@ class Dossier
     #[ORM\JoinColumn(name: 'AVIS_DOSSIER_COMMISSION', referencedColumnName: 'ID_AVIS', nullable: true, options: ['unsigned' => true])]
     private ?Avis $avisCommission = null;
 
-    /**
-     * @var ?int
-     */
-    #[ORM\Column(name: 'FACTDANGE_DOSSIER', type: 'integer', nullable: true, options: ['unsigned' => true])]
-    private $facteurDangerosite;
+    #[ORM\Column(name: 'FACTDANGE_DOSSIER', type: Types::INTEGER, nullable: true, options: ['unsigned' => true])]
+    private ?int $facteurDangerosite = null;
 
-    #[ORM\Column(type: 'string', length: 10, nullable: true, name: 'DATECOMM_DOSSIER')]
+    #[ORM\Column(type: Types::STRING, length: 10, nullable: true, name: 'DATECOMM_DOSSIER')]
     private ?string $dateCommission = null;
 
-    #[ORM\Column(type: 'date', nullable: true, name: 'DATEVISITE_DOSSIER')]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true, name: 'DATEVISITE_DOSSIER')]
     private ?\DateTimeInterface $dateVisite = null;
 
-    #[ORM\Column(type: 'datetime', nullable: false, name: 'DATEINSERT_DOSSIER')]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false, name: 'DATEINSERT_DOSSIER')]
     #[Assert\NotNull(message: 'La date de création du dossier est obligatoire.')]
     private ?\DateTimeInterface $dateInsert = null;
 
@@ -106,7 +97,7 @@ class Dossier
     #[ORM\OneToMany(targetEntity: AvisDerogations::class, mappedBy: 'dossier', orphanRemoval: true)]
     private Collection $avisDerogations;
 
-    #[ORM\Column(name: 'DIFFEREAVIS_DOSSIER', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DIFFEREAVIS_DOSSIER', type: Types::BOOLEAN, nullable: true)]
     private ?bool $avisDiffere = null;
 
     /**
@@ -205,145 +196,142 @@ class Dossier
     #[ORM\OneToMany(targetEntity: PrescriptionDossier::class, mappedBy: 'dossier', orphanRemoval: true)]
     private Collection $prescriptions;
 
-    #[ORM\Column(name: 'VERROU_DOSSIER', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'VERROU_DOSSIER', type: Types::BOOLEAN, nullable: true)]
     private ?bool $verrou = null;
 
-    #[ORM\Column(name: 'VERROU_USER_DOSSIER', type: 'bigint', nullable: true)]
+    #[ORM\Column(name: 'VERROU_USER_DOSSIER', type: Types::BIGINT, nullable: true)]
     private ?int $utilisateurVerrou = null;
 
     #[ORM\OneToOne(targetEntity: PlatauConsultation::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'ID_PLATAU', referencedColumnName: 'ID_PLATAU', options: ['fixed' => true])]
     private ?PlatauConsultation $consultationPlatau = null;
 
-    #[ORM\Column(name: 'DEMANDEUR_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DEMANDEUR_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $demandeur = null;
 
-    #[ORM\Column(name: 'DATESDIS_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATESDIS_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateReception = null;
 
     #[ORM\ManyToOne(targetEntity: Commission::class)]
     #[ORM\JoinColumn(name: 'COMMISSION_DOSSIER', referencedColumnName: 'ID_COMMISSION', nullable: true, options: ['unsigned' => true])]
     private ?Commission $commission = null;
 
-    #[ORM\Column(name: 'DATEMAIRIE_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATEMAIRIE_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateMairie = null;
 
-    #[ORM\Column(name: 'DATESECRETARIAT_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATESECRETARIAT_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateSecretariat = null;
 
-    /**
-     * @var ?string
-     */
-    #[ORM\Column(name: 'SERVICEINSTRUC_DOSSIER', type: 'string', length: 255, nullable: true)]
-    private $serviceInstructeur;
+    #[ORM\Column(name: 'SERVICEINSTRUC_DOSSIER', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $serviceInstructeur = null;
 
     #[ORM\ManyToOne(targetEntity: Avis::class)]
     #[ORM\JoinColumn(name: 'AVIS_DOSSIER', referencedColumnName: 'ID_AVIS', nullable: true, options: ['unsigned' => true])]
     private ?Avis $avis = null;
 
-    #[ORM\Column(name: 'ANOMALIE_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'ANOMALIE_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $analyseDeRisque = null;
 
-    #[ORM\Column(name: 'OBSERVATION_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'OBSERVATION_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $observations = null;
 
-    #[ORM\Column(name: 'DATEREP_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATEREP_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateReponse = null;
 
-    #[ORM\Column(name: 'HORSDELAI_DOSSIER', type: 'boolean', nullable: true, options: ['default' => 0])]
+    #[ORM\Column(name: 'HORSDELAI_DOSSIER', type: Types::BOOLEAN, nullable: true, options: ['default' => 0])]
     private ?bool $horsDelai;
 
-    #[ORM\Column(name: 'ABSQUORUM_DOSSIER', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'ABSQUORUM_DOSSIER', type: Types::BOOLEAN, nullable: true)]
     private ?bool $absenceDeQuorum = null;
 
-    #[ORM\Column(name: 'DELAIPRESC_DOSSIER', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DELAIPRESC_DOSSIER', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateLimitePrescription = null;
 
-    #[ORM\Column(name: 'ECHEANCIERTRAV_DOSSIER', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'ECHEANCIERTRAV_DOSSIER', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $echeancierTravaux = null;
 
-    #[ORM\Column(name: 'INCOMPLET_DOSSIER', type: 'boolean', nullable: true, options: ['default' => 0])]
+    #[ORM\Column(name: 'INCOMPLET_DOSSIER', type: Types::BOOLEAN, nullable: true, options: ['default' => 0])]
     private ?bool $incomplet;
 
-    #[ORM\Column(name: 'DATEINCOMPLET_DOSSIER', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATEINCOMPLET_DOSSIER', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateIncomplet = null;
 
-    #[ORM\Column(name: 'LIEUREUNION_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'LIEUREUNION_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $lieuReunion = null;
 
-    #[ORM\Column(name: 'DATEENVTRANSIT_DOSSIER', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATEENVTRANSIT_DOSSIER', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateEnvoiTransit = null;
 
-    #[ORM\Column(name: 'DATERVRAT_DOSSIER', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATERVRAT_DOSSIER', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateReceptionRvrat = null;
 
-    #[ORM\Column(name: 'DESCANAL_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCANAL_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $descriptifAnalyseRisque = null;
 
-    #[ORM\Column(name: 'REGLEDEROG_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'REGLEDEROG_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $reglesDerogation = null;
 
-    #[ORM\Column(name: 'JUSTIFDEROG_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'JUSTIFDEROG_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $justificationDerogation = null;
 
-    #[ORM\Column(name: 'MESURESCOMPENS_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'MESURESCOMPENS_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $mesuresCompensatoires = null;
 
-    #[ORM\Column(name: 'MESURESCOMPLE_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'MESURESCOMPLE_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $mesuresComplementaires = null;
 
-    #[ORM\Column(name: 'NPSP_DOSSIER', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'NPSP_DOSSIER', type: Types::BOOLEAN, nullable: true)]
     private ?bool $nePeutSePrononcer = null;
 
-    #[ORM\Column(name: 'CNE_DOSSIER', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'CNE_DOSSIER', type: Types::BOOLEAN, nullable: true)]
     private ?bool $celluleNonExploitee = null;
 
-    #[ORM\Column(name: 'DATEPREF_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATEPREF_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $datePrefecture = null;
 
-    #[ORM\Column(name: 'DATETRANSFERTCOMM_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATETRANSFERTCOMM_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateTransfertCommission = null;
 
-    #[ORM\Column(name: 'DATERECEPTIONCOMM_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATERECEPTIONCOMM_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateReceptionCommission = null;
 
-    #[ORM\Column(name: 'DATEREUN_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATEREUN_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateReunion = null;
 
-    #[ORM\Column(name: 'OPERSDIS_DOSSIER', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'OPERSDIS_DOSSIER', type: Types::BOOLEAN, nullable: true)]
     private ?bool $operationSdis = null;
 
-    #[ORM\Column(name: 'RCCI_DOSSIER', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'RCCI_DOSSIER', type: Types::BOOLEAN, nullable: true)]
     private ?bool $rcci = null;
 
-    #[ORM\Column(name: 'REX_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'REX_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $rex = null;
 
-    #[ORM\Column(name: 'CHARGESEC_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'CHARGESEC_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $chargeSecurite = null;
 
-    #[ORM\Column(name: 'DUREEDEPL_DOSSIER', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DUREEDEPL_DOSSIER', type: Types::INTEGER, nullable: true)]
     private ?int $dureeDeplacement = null;
 
-    #[ORM\Column(name: 'GRAVPRESC_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'GRAVPRESC_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $gravitePrescription = null;
 
-    #[ORM\Column(name: 'NUMINTERV_DOSSIER', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'NUMINTERV_DOSSIER', type: Types::STRING, length: 255, nullable: true)]
     private ?string $numeroIntervention = null;
 
-    #[ORM\Column(name: 'DATEINTERV_DOSSIER', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATEINTERV_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateIntervention = null;
 
-    #[ORM\Column(name: 'DUREEINTERV_DOSSIER', type: 'time', nullable: true)]
+    #[ORM\Column(name: 'DUREEINTERV_DOSSIER', type: Types::TIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dureeIntervention = null;
 
-    #[ORM\Column(name: 'DATESIGN_DOSSIER', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATESIGN_DOSSIER', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateSignature = null;
 
-    #[ORM\Column(name: 'DESCRIPTIF_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCRIPTIF_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $descriptif = null;
 
-    #[ORM\Column(name: 'DATE_NOTIFICATION', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'DATE_NOTIFICATION', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateNotification = null;
 
     // @todo: Voir s'il y a des valeurs par défaut à mettre (notamment les booléens)
@@ -522,18 +510,12 @@ class Dossier
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getFacteurDangerosite()
+    public function getFacteurDangerosite(): ?int
     {
         return $this->facteurDangerosite;
     }
 
-    /**
-     * @param int|null $facteurDangerosite
-     */
-    public function setFacteurDangerosite($facteurDangerosite): self
+    public function setFacteurDangerosite(?int $facteurDangerosite): self
     {
         $this->facteurDangerosite = $facteurDangerosite;
 

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Service\PlatauTempsRestant;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class PlatauTempsRestantTest extends TestCase
+final class PlatauTempsRestantTest extends TestCase
 {
     private PlatauTempsRestant $service;
 
@@ -25,17 +27,15 @@ class PlatauTempsRestantTest extends TestCase
         $this->assertSame($expectedResult, $result);
     }
 
-    public static function calculateProvider(): array
+    public static function calculateProvider(): \Iterator
     {
-        return [
-            'future limit date days' => ['now +5 days', '5 jours'],
-            'future limit date one day' => ['now +1 day', '1 jour'],
-            'future limit date months' => ['now +2 months', '2 mois'],
-            'future limit date years' => ['now +1 year', '1 an'],
-            'future limit date multiple years' => ['now +2 years', '2 ans'],
-            'future limit date combined' => ['now +1 year +2 months +3 days', '1 an et 2 mois et 3 jours'],
-            'past limit date days' => ['now -5 days', '- 5 jours'],
-        ];
+        yield 'future limit date days' => ['now +5 days', '5 jours'];
+        yield 'future limit date one day' => ['now +1 day', '1 jour'];
+        yield 'future limit date months' => ['now +2 months', '2 mois'];
+        yield 'future limit date years' => ['now +1 year', '1 an'];
+        yield 'future limit date multiple years' => ['now +2 years', '2 ans'];
+        yield 'future limit date combined' => ['now +1 year +2 months +3 days', '1 an et 2 mois et 3 jours'];
+        yield 'past limit date days' => ['now -5 days', '- 5 jours'];
     }
 
     #[DataProvider('getCouleurTempsRestantProvider')]
@@ -48,13 +48,11 @@ class PlatauTempsRestantTest extends TestCase
         $this->assertSame($expectedColor, $result);
     }
 
-    public static function getCouleurTempsRestantProvider(): array
+    public static function getCouleurTempsRestantProvider(): \Iterator
     {
-        return [
-            'past date returns default' => ['now -1 day', 'default'],
-            'more than 6 months returns success' => ['now +7 months', 'success'],
-            'between 3 and 6 months returns warning' => ['now +5 months', 'warning'],
-            'less than 3 months returns important' => ['now +2 months', 'danger'],
-        ];
+        yield 'past date returns default' => ['now -1 day', 'default'];
+        yield 'more than 6 months returns success' => ['now +7 months', 'success'];
+        yield 'between 3 and 6 months returns warning' => ['now +5 months', 'warning'];
+        yield 'less than 3 months returns important' => ['now +2 months', 'danger'];
     }
 }

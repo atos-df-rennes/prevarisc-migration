@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\UtilisateurInformations;
@@ -17,19 +19,19 @@ final class ContactTest extends TestCase
 {
     private UtilisateurInformations $contact;
 
-    /** @var EtablissementRepository|MockObject */
+    /** @var MockObject&EtablissementRepository */
     private MockObject $etablissementRepository;
 
-    /** @var DossierRepository|MockObject */
+    /** @var MockObject&DossierRepository */
     private MockObject $dossierRepository;
 
-    /** @var GroupementRepository|MockObject */
+    /** @var MockObject&GroupementRepository */
     private MockObject $groupementRepository;
 
-    /** @var CommissionRepository|MockObject */
+    /** @var MockObject&CommissionRepository */
     private MockObject $commissionRepository;
 
-    /** @var CommuneRepository|MockObject */
+    /** @var MockObject&CommuneRepository */
     private MockObject $communeRepository;
 
     protected function setUp(): void
@@ -61,7 +63,7 @@ final class ContactTest extends TestCase
         $this->groupementRepository->method('findNumberByContacts')->willReturn(0);
         $this->communeRepository->method('findNumberByContacts')->willReturn(0);
 
-        self::assertFalse($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
+        $this->assertFalse($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
     }
 
     public function testContactPartageAvecUneAutreEntite(): void
@@ -72,7 +74,7 @@ final class ContactTest extends TestCase
         $this->groupementRepository->method('findNumberByContacts')->willReturn(0);
         $this->communeRepository->method('findNumberByContacts')->willReturn(0);
 
-        self::assertTrue($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
+        $this->assertTrue($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
     }
 
     public function testContactNonUtilise(): void
@@ -83,7 +85,7 @@ final class ContactTest extends TestCase
         $this->groupementRepository->method('findNumberByContacts')->willReturn(0);
         $this->communeRepository->method('findNumberByContacts')->willReturn(0);
 
-        self::assertFalse($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
+        $this->assertFalse($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
     }
 
     public function testContactUtiliseSeulementParUneAutreEntite(): void
@@ -94,7 +96,7 @@ final class ContactTest extends TestCase
         $this->groupementRepository->method('findNumberByContacts')->willReturn(0);
         $this->communeRepository->method('findNumberByContacts')->willReturn(0);
 
-        self::assertTrue($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
+        $this->assertTrue($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
     }
 
     public function testContactUtiliseParToutesLesEntites(): void
@@ -105,7 +107,7 @@ final class ContactTest extends TestCase
         $this->groupementRepository->method('findNumberByContacts')->willReturn(1);
         $this->communeRepository->method('findNumberByContacts')->willReturn(1);
 
-        self::assertTrue($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
+        $this->assertTrue($this->buildService()->isUsed($this->contact, Contact::COMMISSION));
     }
 
     /**
@@ -122,20 +124,18 @@ final class ContactTest extends TestCase
             $this->{$repo}->method('findNumberByContacts')->willReturn($count);
         }
 
-        self::assertFalse($this->buildService()->isUsed($this->contact, $elementLie));
+        $this->assertFalse($this->buildService()->isUsed($this->contact, $elementLie));
     }
 
     /**
-     * @return array<string, array{string, string}>
+     * @return \Iterator<string, array{string, string}>
      */
-    public static function provideElementLieAvecSonRepository(): array
+    public static function provideElementLieAvecSonRepository(): \Iterator
     {
-        return [
-            'etablissement' => [Contact::ETABLISSEMENT, 'etablissementRepository'],
-            'dossier' => [Contact::DOSSIER, 'dossierRepository'],
-            'groupement' => [Contact::GROUPEMENT, 'groupementRepository'],
-            'commission' => [Contact::COMMISSION, 'commissionRepository'],
-            'commune' => [Contact::COMMUNE, 'communeRepository'],
-        ];
+        yield 'etablissement' => [Contact::ETABLISSEMENT, 'etablissementRepository'];
+        yield 'dossier' => [Contact::DOSSIER, 'dossierRepository'];
+        yield 'groupement' => [Contact::GROUPEMENT, 'groupementRepository'];
+        yield 'commission' => [Contact::COMMISSION, 'commissionRepository'];
+        yield 'commune' => [Contact::COMMUNE, 'communeRepository'];
     }
 }

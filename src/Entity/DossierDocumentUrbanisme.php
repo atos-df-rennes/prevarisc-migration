@@ -3,21 +3,19 @@
 namespace App\Entity;
 
 use App\Repository\DossierDocumentUrbanismeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DossierDocumentUrbanismeRepository::class)]
 #[ORM\Table(name: 'dossierdocurba')]
 class DossierDocumentUrbanisme
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_DOCURBA', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_DOCURBA', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'NUM_DOCURBA', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'NUM_DOCURBA', type: Types::STRING, length: 100, nullable: false)]
     private ?string $numero = null;
 
     #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'documentsUrbanisme')]

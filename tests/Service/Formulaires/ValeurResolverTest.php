@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Formulaires;
 
 use App\Constant\TypeChamp;
@@ -13,14 +15,14 @@ final class ValeurResolverTest extends TestCase
 {
     public function testRetourneVideSiValeurNulle(): void
     {
-        self::assertSame('', ValeurResolver::resolve(null, null));
+        $this->assertSame('', ValeurResolver::resolve(null, null));
     }
 
     public function testRetourneVideSiValeurNulleAvecTypeChamp(): void
     {
-        $typeChamp = $this->createMock(TypeChampEntity::class);
+        $typeChamp = $this->createStub(TypeChampEntity::class);
 
-        self::assertSame('', ValeurResolver::resolve($typeChamp, null));
+        $this->assertSame('', ValeurResolver::resolve($typeChamp, null));
     }
 
     public function testRetourneNonSiValeurNulleAvecTypeChampCheckbox(): void
@@ -28,7 +30,7 @@ final class ValeurResolverTest extends TestCase
         $typeChamp = $this->createMock(TypeChampEntity::class);
         $typeChamp->method('getId')->willReturn(TypeChamp::CHECKBOX);
 
-        self::assertSame('Non', ValeurResolver::resolve($typeChamp, null));
+        $this->assertSame('Non', ValeurResolver::resolve($typeChamp, null));
     }
 
     public function testCheckboxVraiRetourneOui(): void
@@ -38,7 +40,7 @@ final class ValeurResolverTest extends TestCase
         $valeur = $this->createMock(Valeur::class);
         $valeur->method('getCheckbox')->willReturn(true);
 
-        self::assertSame('Oui', ValeurResolver::resolve($typeChamp, $valeur));
+        $this->assertSame('Oui', ValeurResolver::resolve($typeChamp, $valeur));
     }
 
     public function testCheckboxFauxRetourneNon(): void
@@ -48,7 +50,7 @@ final class ValeurResolverTest extends TestCase
         $valeur = $this->createMock(Valeur::class);
         $valeur->method('getCheckbox')->willReturn(false);
 
-        self::assertSame('Non', ValeurResolver::resolve($typeChamp, $valeur));
+        $this->assertSame('Non', ValeurResolver::resolve($typeChamp, $valeur));
     }
 
     public function testDateNulleRetourneVide(): void
@@ -58,7 +60,7 @@ final class ValeurResolverTest extends TestCase
         $valeur = $this->createMock(Valeur::class);
         $valeur->method('getDate')->willReturn(null);
 
-        self::assertSame('', ValeurResolver::resolve($typeChamp, $valeur));
+        $this->assertSame('', ValeurResolver::resolve($typeChamp, $valeur));
     }
 
     public function testDateNonNulleRetourneDateFormatee(): void
@@ -69,7 +71,7 @@ final class ValeurResolverTest extends TestCase
         $valeur = $this->createMock(Valeur::class);
         $valeur->method('getDate')->willReturn($date);
 
-        self::assertSame(DateFormatterFr::formatLong($date), ValeurResolver::resolve($typeChamp, $valeur));
+        $this->assertSame(DateFormatterFr::formatLong($date), ValeurResolver::resolve($typeChamp, $valeur));
     }
 
     public function testTextareaRetourneLongStr(): void
@@ -79,7 +81,7 @@ final class ValeurResolverTest extends TestCase
         $valeur = $this->createMock(Valeur::class);
         $valeur->method('getLongStr')->willReturn('Texte long ici');
 
-        self::assertSame('Texte long ici', ValeurResolver::resolve($typeChamp, $valeur));
+        $this->assertSame('Texte long ici', ValeurResolver::resolve($typeChamp, $valeur));
     }
 
     public function testNumberRetourneValeurNumerique(): void
@@ -89,7 +91,7 @@ final class ValeurResolverTest extends TestCase
         $valeur = $this->createMock(Valeur::class);
         $valeur->method('getNumber')->willReturn(42);
 
-        self::assertSame('42', ValeurResolver::resolve($typeChamp, $valeur));
+        $this->assertSame('42', ValeurResolver::resolve($typeChamp, $valeur));
     }
 
     public function testNumberNulRetourneVide(): void
@@ -99,7 +101,7 @@ final class ValeurResolverTest extends TestCase
         $valeur = $this->createMock(Valeur::class);
         $valeur->method('getNumber')->willReturn(null);
 
-        self::assertSame('', ValeurResolver::resolve($typeChamp, $valeur));
+        $this->assertSame('', ValeurResolver::resolve($typeChamp, $valeur));
     }
 
     public function testDefautRetourneStr(): void
@@ -109,7 +111,7 @@ final class ValeurResolverTest extends TestCase
         $valeur = $this->createMock(Valeur::class);
         $valeur->method('getStr')->willReturn('valeur texte');
 
-        self::assertSame('valeur texte', ValeurResolver::resolve($typeChamp, $valeur));
+        $this->assertSame('valeur texte', ValeurResolver::resolve($typeChamp, $valeur));
     }
 
     public function testDefautAvecStrNullFallbackSurLongStr(): void
@@ -120,7 +122,7 @@ final class ValeurResolverTest extends TestCase
         $valeur->method('getStr')->willReturn(null);
         $valeur->method('getLongStr')->willReturn('fallback long');
 
-        self::assertSame('fallback long', ValeurResolver::resolve($typeChamp, $valeur));
+        $this->assertSame('fallback long', ValeurResolver::resolve($typeChamp, $valeur));
     }
 
     public function testTypeChampNullFallbackSurStr(): void
@@ -128,6 +130,6 @@ final class ValeurResolverTest extends TestCase
         $valeur = $this->createMock(Valeur::class);
         $valeur->method('getStr')->willReturn('valeur sans type');
 
-        self::assertSame('valeur sans type', ValeurResolver::resolve(null, $valeur));
+        $this->assertSame('valeur sans type', ValeurResolver::resolve(null, $valeur));
     }
 }

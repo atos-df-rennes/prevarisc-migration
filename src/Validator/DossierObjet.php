@@ -7,9 +7,8 @@ use Symfony\Component\Validator\Constraint;
 /**
  * Constraint pour valider que le champ OBJET est rempli
  * uniquement si la nature du dossier le requiert.
- *
- * @Annotation
  */
+#[\Attribute]
 final class DossierObjet extends Constraint
 {
     /** @var string */

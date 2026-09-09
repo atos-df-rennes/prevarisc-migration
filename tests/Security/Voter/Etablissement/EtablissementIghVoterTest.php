@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
@@ -27,8 +29,11 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementIghVoterTest extends TestCase
+final class EtablissementIghVoterTest extends TestCase
 {
+    /**
+     * @param Privileges&MockObject $privilege
+     */
     private function createMockUserWithPrivileges(MockObject $privilege, array $groupements = [], ?MockObject $commune = null): MockObject
     {
         $userPrivileges = $this->createMock(Collection::class);
@@ -66,6 +71,9 @@ class EtablissementIghVoterTest extends TestCase
         return $etablissement;
     }
 
+    /**
+     * @param Privileges&MockObject $privilege
+     */
     private function createVoter(array $resources, MockObject $privilege): EtablissementIghVoter
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
@@ -156,7 +164,7 @@ class EtablissementIghVoterTest extends TestCase
         $privilege = $this->createMock(Privileges::class);
 
         $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
-        $commune = $this->createMock(Commune::class);
+        $commune = $this->createStub(Commune::class);
         $groupement = $this->createMock(Groupement::class);
         $groupement->method('getCommunes')->willReturn(new ArrayCollection([$commune]));
         $user = $this->createMockUserWithPrivileges($privilege, [$groupement]);
@@ -176,7 +184,7 @@ class EtablissementIghVoterTest extends TestCase
         $privilege = $this->createMock(Privileges::class);
 
         $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
-        $commune = $this->createMock(Commune::class);
+        $commune = $this->createStub(Commune::class);
         $user = $this->createMockUserWithPrivileges($privilege, [], $commune);
         $subject = $this->createMockEtablissement($classe, [$commune]);
         $token = $this->createMock(TokenInterface::class);
@@ -194,7 +202,7 @@ class EtablissementIghVoterTest extends TestCase
         $privilege = $this->createMock(Privileges::class);
 
         $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
-        $commune = $this->createMock(Commune::class);
+        $commune = $this->createStub(Commune::class);
         $groupement = $this->createMock(Groupement::class);
         $groupement->method('getCommunes')->willReturn(new ArrayCollection([$commune]));
         $user = $this->createMockUserWithPrivileges($privilege, [$groupement], $commune);
@@ -214,7 +222,7 @@ class EtablissementIghVoterTest extends TestCase
         $privilege = $this->createMock(Privileges::class);
 
         $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
-        $commune = $this->createMock(Commune::class);
+        $commune = $this->createStub(Commune::class);
         $user = $this->createMockUserWithPrivileges($privilege);
         $subject = $this->createMockEtablissement($classe, [$commune]);
         $token = $this->createMock(TokenInterface::class);
@@ -232,7 +240,7 @@ class EtablissementIghVoterTest extends TestCase
         $privilege = $this->createMock(Privileges::class);
 
         $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
-        $commission = $this->createMock(Commission::class);
+        $commission = $this->createStub(Commission::class);
         $user = $this->createMockUserWithPrivileges($privilege);
         $user->method('getCommissions')->willReturn(new ArrayCollection([$commission]));
 
@@ -252,8 +260,8 @@ class EtablissementIghVoterTest extends TestCase
         $privilege = $this->createMock(Privileges::class);
 
         $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
-        $commission = $this->createMock(Commission::class);
-        $commune = $this->createMock(Commune::class);
+        $commission = $this->createStub(Commission::class);
+        $commune = $this->createStub(Commune::class);
         $groupement = $this->createMock(Groupement::class);
         $groupement->method('getCommunes')->willReturn(new ArrayCollection([$commune]));
         $user = $this->createMockUserWithPrivileges($privilege, [$groupement], $commune);
@@ -275,7 +283,7 @@ class EtablissementIghVoterTest extends TestCase
         $privilege = $this->createMock(Privileges::class);
 
         $classe = $this->createConfiguredMock(IghClasse::class, ['getId' => 3]);
-        $commission = $this->createMock(Commission::class);
+        $commission = $this->createStub(Commission::class);
         $user = $this->createMockUserWithPrivileges($privilege);
         $user->method('getCommissions')->willReturn(new ArrayCollection());
 

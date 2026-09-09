@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CommissionRegleLocalSommeilRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommissionRegleLocalSommeilRepository::class)]
@@ -15,7 +16,7 @@ class CommissionRegleLocalSommeil
     private ?CommissionRegle $regle = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'LOCALSOMMEIL', type: 'smallint', nullable: false)]
+    #[ORM\Column(name: 'LOCALSOMMEIL', type: Types::SMALLINT, nullable: false)]
     private int $localSommeil;
 
     public function getRegle(): ?CommissionRegle

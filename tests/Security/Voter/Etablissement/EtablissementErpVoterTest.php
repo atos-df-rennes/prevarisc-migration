@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
@@ -27,8 +29,11 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementErpVoterTest extends TestCase
+final class EtablissementErpVoterTest extends TestCase
 {
+    /**
+     * @param Privileges&MockObject $privilege
+     */
     private function createMockUserWithPrivileges(MockObject $privilege, array $groupements = [], $commune = null): MockObject
     {
         $userPrivileges = $this->createMock(Collection::class);
@@ -70,6 +75,9 @@ class EtablissementErpVoterTest extends TestCase
         return $etablissement;
     }
 
+    /**
+     * @param Privileges&MockObject $privilege
+     */
     private function createVoter(array $resources, MockObject $privilege): EtablissementErpVoter
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);

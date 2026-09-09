@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Privilege;
 
 use App\Entity\Groupe;
@@ -11,7 +13,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class VoteCallsRepositoryOnlyOnceAcrossMultipleVotesTest extends TestCase
+final class VoteCallsRepositoryOnlyOnceAcrossMultipleVotesTest extends TestCase
 {
     public function testFindAllIsCalledOnlyOnceOnMultipleVotes(): void
     {

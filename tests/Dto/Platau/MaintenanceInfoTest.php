@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Dto\Platau;
 
 use App\Dto\Platau\MaintenanceInfo;
 use PHPUnit\Framework\TestCase;
 
-class MaintenanceInfoTest extends TestCase
+final class MaintenanceInfoTest extends TestCase
 {
     public function testFromApiResponseActiveMaintenance(): void
     {

@@ -36,9 +36,9 @@ final class IcalendarSyncServiceTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, mixed>>
+     * @return \Iterator<string, array<int, mixed>>
      */
-    public static function provideGenerateFeedData(): array
+    public static function provideGenerateFeedData(): \Iterator
     {
         $baseRow = [
             'ID_DATECOMMISSION' => '1',
@@ -75,56 +75,53 @@ final class IcalendarSyncServiceTest extends TestCase
             'DERNIERE_VISITE' => '2024-03-10',
             'AVIS_DOSSIER_COMMISSION_VAL' => '1',
         ];
-
-        return [
-            'description avec contacts et avis favorable' => [
-                [$baseRow],
-                'Contacts du dossier :',
-            ],
-            'description contient le contact dossier' => [
-                [$baseRow],
-                'Martin Paul',
-            ],
-            'description contient la mairie' => [
-                [$baseRow],
-                'Coordonnées de la mairie :',
-            ],
-            'description contient la dernière visite' => [
-                [$baseRow],
-                'Date de la dernière visite périodique : 10/03/2024',
-            ],
-            'description contient avis favorable' => [
-                [$baseRow],
-                "Avis d'exploitation de l'établissement : Favorable",
-            ],
-            'description contient le préventionniste' => [
-                [$baseRow],
-                'Préventionniste(s) du dossier :',
-            ],
-            'avis défavorable' => [
-                [array_merge($baseRow, ['AVIS_DOSSIER_COMMISSION_VAL' => '2'])],
-                'Défavorable',
-            ],
-            'avis indisponible si null' => [
-                [array_merge($baseRow, ['AVIS_DOSSIER_COMMISSION_VAL' => null])],
-                "Avis d'exploitation indisponible",
-            ],
-            'aucun contact si tous null' => [
-                [array_merge($baseRow, ['CONTACTS_DOSSIER' => null, 'CONTACTS_ETABLISSEMENT' => null])],
-                'Aucun contact',
-            ],
-            'aucune mairie si null' => [
-                [array_merge($baseRow, ['MAIRE_CONTACT' => null])],
-                'Aucune coordonées pour la mairie.',
-            ],
-            'dossier sans preventionniste' => [
-                [array_merge($baseRow, ['PREVENTIONNISTES' => null])],
-                'Informations du prévisionniste incomplètes ou absentes',
-            ],
-            'avis favorable à l exploitation pour cellule' => [
-                [array_merge($baseRow, ['ID_GENRE' => '3', 'AVIS_DOSSIER_COMMISSION_VAL' => '1'])],
-                "Favorable à l'exploitation",
-            ],
+        yield 'description avec contacts et avis favorable' => [
+            [$baseRow],
+            'Contacts du dossier :',
+        ];
+        yield 'description contient le contact dossier' => [
+            [$baseRow],
+            'Martin Paul',
+        ];
+        yield 'description contient la mairie' => [
+            [$baseRow],
+            'Coordonnées de la mairie :',
+        ];
+        yield 'description contient la dernière visite' => [
+            [$baseRow],
+            'Date de la dernière visite périodique : 10/03/2024',
+        ];
+        yield 'description contient avis favorable' => [
+            [$baseRow],
+            "Avis d'exploitation de l'établissement : Favorable",
+        ];
+        yield 'description contient le préventionniste' => [
+            [$baseRow],
+            'Préventionniste(s) du dossier :',
+        ];
+        yield 'avis défavorable' => [
+            [array_merge($baseRow, ['AVIS_DOSSIER_COMMISSION_VAL' => '2'])],
+            'Défavorable',
+        ];
+        yield 'avis indisponible si null' => [
+            [array_merge($baseRow, ['AVIS_DOSSIER_COMMISSION_VAL' => null])],
+            "Avis d'exploitation indisponible",
+        ];
+        yield 'aucun contact si tous null' => [
+            [array_merge($baseRow, ['CONTACTS_DOSSIER' => null, 'CONTACTS_ETABLISSEMENT' => null])],
+            'Aucun contact',
+        ];
+        yield 'aucune mairie si null' => [
+            [array_merge($baseRow, ['MAIRE_CONTACT' => null])],
+            'Aucune coordonées pour la mairie.',
+        ];
+        yield 'dossier sans preventionniste' => [
+            [array_merge($baseRow, ['PREVENTIONNISTES' => null])],
+            'Informations du prévisionniste incomplètes ou absentes',
+        ];
+        yield 'avis favorable à l exploitation pour cellule' => [
+            [array_merge($baseRow, ['ID_GENRE' => '3', 'AVIS_DOSSIER_COMMISSION_VAL' => '1'])],
+            "Favorable à l'exploitation",
         ];
     }
 

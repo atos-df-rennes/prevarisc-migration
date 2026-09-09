@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
@@ -21,10 +23,16 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementZoneVoterTest extends TestCase
+final class EtablissementZoneVoterTest extends TestCase
 {
+    /**
+     * @var MockObject&ResourcesRepository
+     */
     private MockObject $resourcesRepository;
 
+    /**
+     * @var MockObject&PrivilegesRepository
+     */
     private MockObject $privilegesRepository;
 
     private EtablissementZoneVoter $voter;
@@ -47,8 +55,8 @@ class EtablissementZoneVoterTest extends TestCase
 
     public function testAbstainIfParentDoesNotSupport(): void
     {
-        $etablissement = $this->createMock(Etablissement::class);
-        $token = $this->createMock(TokenInterface::class);
+        $etablissement = $this->createStub(Etablissement::class);
+        $token = $this->createStub(TokenInterface::class);
         $this->assertSame(
             VoterInterface::ACCESS_ABSTAIN,
             $this->voter->vote($token, $etablissement, ['unknown_attribute'])
@@ -60,7 +68,7 @@ class EtablissementZoneVoterTest extends TestCase
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementZone')
             ->willReturn([]);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $etablissement = $this->createEtablissementMock();
         $this->assertSame(
             VoterInterface::ACCESS_DENIED,
@@ -72,7 +80,7 @@ class EtablissementZoneVoterTest extends TestCase
     {
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementZone')
-            ->willReturn([$this->createMock(Resources::class)]);
+            ->willReturn([$this->createStub(Resources::class)]);
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
         $etablissement = $this->createEtablissementMock();

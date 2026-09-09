@@ -3,30 +3,28 @@
 namespace App\Entity;
 
 use App\Repository\DossierDocumentManquantRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DossierDocumentManquantRepository::class)]
 #[ORM\Table(name: 'dossierdocmanquant')]
 class DossierDocumentManquant
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_DOCMANQUANT', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_DOCMANQUANT', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'NUM_DOCSMANQUANT', type: 'string', length: 45, nullable: false)]
+    #[ORM\Column(name: 'NUM_DOCSMANQUANT', type: Types::STRING, length: 45, nullable: false)]
     private ?string $numero = null;
 
-    #[ORM\Column(name: 'DOCMANQUANT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DOCMANQUANT', type: Types::TEXT, nullable: true)]
     private ?string $documentManquant = null;
 
-    #[ORM\Column(name: 'DATE_DOCSMANQUANT', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATE_DOCSMANQUANT', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(name: 'DATE_RECEPTION_DOC', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATE_RECEPTION_DOC', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateReception = null;
 
     #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'documentsManquants')]

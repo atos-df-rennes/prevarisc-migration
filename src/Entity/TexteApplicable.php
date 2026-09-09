@@ -3,31 +3,29 @@
 namespace App\Entity;
 
 use App\Repository\TexteApplicableRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TexteApplicableRepository::class)]
 #[ORM\Table(name: 'textesappl')]
 class TexteApplicable
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_TEXTESAPPL', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_TEXTESAPPL', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_TEXTESAPPL', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'LIBELLE_TEXTESAPPL', type: Types::TEXT, nullable: true)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'VISIBLE_TEXTESAPPL', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'VISIBLE_TEXTESAPPL', type: Types::BOOLEAN, nullable: true)]
     private ?bool $visible = null;
 
     #[ORM\ManyToOne(targetEntity: TypeTexteApplicable::class)]
     #[ORM\JoinColumn(name: 'ID_TYPETEXTEAPPL', referencedColumnName: 'ID_TYPETEXTEAPPL', nullable: false)]
     private ?TypeTexteApplicable $type = null;
 
-    #[ORM\Column(name: 'NUM_TEXTESAPPL', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'NUM_TEXTESAPPL', type: Types::INTEGER, nullable: false)]
     private ?int $num = null;
 
     public function getId(): ?int

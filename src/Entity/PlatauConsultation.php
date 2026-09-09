@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PlatauConsultationRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlatauConsultationRepository::class)]
@@ -10,22 +11,22 @@ use Doctrine\ORM\Mapping as ORM;
 class PlatauConsultation
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'ID_PLATAU', type: 'string', length: 11, nullable: false, options: ['fixed' => true])]
+    #[ORM\Column(name: 'ID_PLATAU', type: Types::STRING, length: 11, nullable: false, options: ['fixed' => true])]
     private ?string $identifiant = null;
 
-    #[ORM\Column(name: 'STATUT_AVIS', type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(name: 'STATUT_AVIS', type: Types::STRING, length: 50, nullable: true)]
     private ?string $statutAvis = null;
 
-    #[ORM\Column(name: 'DATE_AVIS', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATE_AVIS', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateAvis = null;
 
-    #[ORM\Column(name: 'STATUT_PEC', type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(name: 'STATUT_PEC', type: Types::STRING, length: 50, nullable: true)]
     private ?string $statutPriseEnCompte = null;
 
-    #[ORM\Column(name: 'DATE_PEC', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATE_PEC', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $datePriseEnCompte = null;
 
-    #[ORM\Column(name: 'DATE_REPONSE_ATTENDUE', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATE_REPONSE_ATTENDUE', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateReponseAttendue = null;
 
     public function getIdentifiant(): ?string

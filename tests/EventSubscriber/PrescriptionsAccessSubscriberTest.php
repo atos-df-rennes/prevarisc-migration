@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 final class PrescriptionsAccessSubscriberTest extends TestCase
 {
-    /** @var DossierRepository|MockObject */
+    /** @var MockObject&DossierRepository */
     private MockObject $dossierRepository;
 
     private PrescriptionsAccessSubscriber $subscriber;
@@ -96,11 +96,10 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
 
     private function buildEvent(\Closure|DossierPrescriptionsAccessInterface $controller, int $idDossier): ControllerEvent
     {
-        $kernel = $this->createMock(HttpKernelInterface::class);
         $request = new Request();
         $request->attributes->set('id', $idDossier);
 
-        return new ControllerEvent($kernel, $controller, $request, HttpKernelInterface::MAIN_REQUEST);
+        return new ControllerEvent($this->createStub(HttpKernelInterface::class), $controller, $request, HttpKernelInterface::MAIN_REQUEST);
     }
 
     private function creerDossier(DossierNatureListe $nature, DossierType $type): Dossier

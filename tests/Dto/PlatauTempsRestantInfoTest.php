@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Dto;
 
 use App\Dto\PlatauTempsRestantInfo;
 use PHPUnit\Framework\TestCase;
 
-class PlatauTempsRestantInfoTest extends TestCase
+final class PlatauTempsRestantInfoTest extends TestCase
 {
     public function testConstructorAndGetters(): void
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Voter;
 
 use App\Entity\Etablissement;
@@ -14,7 +16,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementCollectionAccessCheckerTest extends TestCase
+final class EtablissementCollectionAccessCheckerTest extends TestCase
 {
     /** @var MockObject&EtablissementVoterFactory */
     private MockObject $factory;
@@ -59,7 +61,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testCollectionVideRetourneFalse(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
 
         $result = $this->checker->hasAtLeastOneAccessible([], 'view_ets', $token);
 
@@ -71,7 +73,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testUnEtablissementAccessibleRetourneTrue(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $etablissement = $this->createMockEtablissement(2);
 
         $voter = $this->createMock(VoterInterface::class);
@@ -89,7 +91,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testUnEtablissementNonAccessibleRetourneFalse(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $etablissement = $this->createMockEtablissement(2);
 
         $voter = $this->createMock(VoterInterface::class);
@@ -107,7 +109,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testDeuxEtablissementsAuMoinsUnAccessibleRetourneTrue(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $ets1 = $this->createMockEtablissement(2);
         $ets2 = $this->createMockEtablissement(3);
 
@@ -117,7 +119,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
         $grantingVoter = $this->createMock(VoterInterface::class);
         $grantingVoter->method('vote')->willReturn(VoterInterface::ACCESS_GRANTED);
 
-        $this->factory->method('getVoterForGenre')->willReturnMap([
+        $this->factory->expects($this->atLeast(2))->method('getVoterForGenre')->willReturnMap([
             [2, $denyingVoter],
             [3, $grantingVoter],
         ]);
@@ -133,7 +135,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testEtablissementSansVoterDedieDelegueAAuthorizationCheckerEtRefuse(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $etablissement = $this->createMockEtablissement(999);
 
         $this->factory->method('getVoterForGenre')->with(999)->willReturn(null);
@@ -152,7 +154,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testEtablissementGenreSiteDelegueAAuthorizationCheckerEtAccorde(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $etablissement = $this->createMockEtablissement(1);
 
         $this->factory->method('getVoterForGenre')->with(1)->willReturn(null);
@@ -168,7 +170,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testEtablissementSansInformationsEstIgnoreAvecWarning(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
 
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willThrowException(new \OutOfBoundsException('No informations'));

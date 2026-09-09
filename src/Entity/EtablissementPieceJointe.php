@@ -3,13 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\EtablissementPieceJointeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EtablissementPieceJointeRepository::class)]
 #[ORM\Table(name: 'etablissementpj')]
 class EtablissementPieceJointe
 {
-    #[ORM\Column(name: 'PLACEMENT_ETABLISSEMENTPJ', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'PLACEMENT_ETABLISSEMENTPJ', type: Types::INTEGER, nullable: true)]
     private ?int $placement = null;
 
     #[ORM\Id]

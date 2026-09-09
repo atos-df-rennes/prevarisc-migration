@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\PlatauConsultation as PlatauConsultationEntity;
@@ -8,7 +10,7 @@ use App\Enum\PlatauStatutPecEnum;
 use App\Service\PlatauConsultation;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class PlatauConsultationTest extends KernelTestCase
+final class PlatauConsultationTest extends KernelTestCase
 {
     private PlatauConsultation $service;
 

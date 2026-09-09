@@ -18,10 +18,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class LastActionSubscriberTest extends TestCase
 {
-    /** @var Security|MockObject */
+    /** @var MockObject&Security */
     private MockObject $security;
 
-    /** @var LastActionUpdater|MockObject */
+    /** @var MockObject&LastActionUpdater */
     private MockObject $lastActionUpdater;
 
     private LastActionSubscriber $subscriber;
@@ -35,12 +35,11 @@ final class LastActionSubscriberTest extends TestCase
 
     private function buildTerminateEvent(bool $isMasterRequest = true): TerminateEvent
     {
-        $kernel = $this->createMock(HttpKernelInterface::class);
         $requestType = $isMasterRequest
             ? HttpKernelInterface::MAIN_REQUEST
             : HttpKernelInterface::SUB_REQUEST;
 
-        return new TerminateEvent($kernel, new Request(), new Response(), $requestType);
+        return new TerminateEvent($this->createStub(HttpKernelInterface::class), new Request(), new Response(), $requestType);
     }
 
     public function testSubscribesToKernelTerminate(): void
@@ -67,7 +66,7 @@ final class LastActionSubscriberTest extends TestCase
 
     public function testSkipsWhenUserIsNotUtilisateur(): void
     {
-        $this->security->method('getUser')->willReturn($this->createMock(UserInterface::class));
+        $this->security->method('getUser')->willReturn($this->createStub(UserInterface::class));
         $this->lastActionUpdater->expects($this->never())->method('update');
 
         $this->subscriber->onKernelTerminate($this->buildTerminateEvent());

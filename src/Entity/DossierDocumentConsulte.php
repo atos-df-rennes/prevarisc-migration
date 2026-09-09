@@ -3,27 +3,25 @@
 namespace App\Entity;
 
 use App\Repository\DossierDocumentConsulteRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DossierDocumentConsulteRepository::class)]
 #[ORM\Table(name: 'dossierdocconsulte')]
 class DossierDocumentConsulte
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_DOSSIERDOCCONSULTE', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_DOSSIERDOCCONSULTE', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'REF_CONSULTE', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'REF_CONSULTE', type: Types::STRING, length: 255, nullable: true)]
     private ?string $reference = null;
 
-    #[ORM\Column(name: 'DATE_CONSULTE', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATE_CONSULTE', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(name: 'DOC_CONSULTE', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'DOC_CONSULTE', type: Types::BOOLEAN, nullable: false)]
     private ?bool $consulte = null;
 
     #[ORM\ManyToOne(targetEntity: DossierNatureListe::class)]
@@ -34,7 +32,7 @@ class DossierDocumentConsulte
     #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false)]
     private ?Dossier $dossier = null;
 
-    #[ORM\Column(name: 'ID_DOC', type: 'bigint', nullable: false)]
+    #[ORM\Column(name: 'ID_DOC', type: Types::BIGINT, nullable: false)]
     private string $document;
 
     public function getId(): ?int

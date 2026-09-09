@@ -6,63 +6,61 @@ use App\Repository\EtablissementInformationsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EtablissementInformationsRepository::class)]
 #[ORM\Table(name: 'etablissementinformations')]
 class EtablissementInformations
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONS', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONS', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_ETABLISSEMENTINFORMATIONS', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_ETABLISSEMENTINFORMATIONS', type: Types::STRING, length: 255, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'DATE_ETABLISSEMENTINFORMATIONS', type: 'date', nullable: false)]
+    #[ORM\Column(name: 'DATE_ETABLISSEMENTINFORMATIONS', type: Types::DATE_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(name: 'LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS', type: Types::BOOLEAN, nullable: true)]
     private ?bool $localSommeil = null;
 
-    #[ORM\Column(name: 'PERIODICITE_ETABLISSEMENTINFORMATIONS', type: 'smallint', nullable: true)]
+    #[ORM\Column(name: 'PERIODICITE_ETABLISSEMENTINFORMATIONS', type: Types::SMALLINT, nullable: true)]
     private ?int $periodicite = null;
 
-    #[ORM\Column(name: 'ICPE_ETABLISSEMENTINFORMATIONS', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'ICPE_ETABLISSEMENTINFORMATIONS', type: Types::BOOLEAN, nullable: true)]
     private ?bool $icpe = null;
 
-    #[ORM\Column(name: 'R14320_ETABLISSEMENTINFORMATIONS', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'R14320_ETABLISSEMENTINFORMATIONS', type: Types::BOOLEAN, nullable: true)]
     private ?bool $r14320 = null;
 
-    #[ORM\Column(name: 'DROITPUBLIC_ETABLISSEMENTINFORMATIONS', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DROITPUBLIC_ETABLISSEMENTINFORMATIONS', type: Types::BOOLEAN, nullable: true)]
     private ?bool $droitPublic = null;
 
-    #[ORM\Column(name: 'EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
     private ?int $effectifHabitation = null;
 
-    #[ORM\Column(name: 'EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
     private ?int $effectifCaravane = null;
 
-    #[ORM\Column(name: 'EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
     private ?int $effectifEmplacementNu = null;
 
-    #[ORM\Column(name: 'EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
     private ?int $effectifDivers = null;
 
-    #[ORM\Column(name: 'EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
     private ?int $effectifPublic = null;
 
-    #[ORM\Column(name: 'EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
     private ?int $effectifPersonnel = null;
 
-    #[ORM\Column(name: 'EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
     private ?int $effectifHeberge = null;
 
-    #[ORM\Column(name: 'EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
     private ?int $effectifJustifiantClassement = null;
 
     #[ORM\ManyToOne(targetEntity: Etablissement::class, inversedBy: 'informations')]

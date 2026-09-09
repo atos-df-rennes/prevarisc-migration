@@ -10,9 +10,8 @@ use Symfony\Component\Validator\Constraint;
  * Règles métier :
  * - Si login (username) renseigné → vérifier unicité du login
  * - Si login vide → vérifier unicité du mail (dans UtilisateurInformations)
- *
- * @Annotation
  */
+#[\Attribute]
 final class UniqueUtilisateur extends Constraint
 {
     /** @var string Message d'erreur pour login déjà utilisé */

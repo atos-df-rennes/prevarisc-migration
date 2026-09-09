@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Form;
 
 use App\Entity\CommissionRegle;
@@ -40,8 +42,8 @@ final class CommissionRegleTypeTest extends TestCase
 
         $this->type->onPreSetData($event);
 
-        self::assertSame([1], $capturedOptions['localSommeil']['data']);
-        self::assertSame([0], $capturedOptions['etudeVisite']['data']);
+        $this->assertSame([1], $capturedOptions['localSommeil']['data']);
+        $this->assertSame([0], $capturedOptions['etudeVisite']['data']);
     }
 
     public function testPreSetDataAvecPlusieursValeurs(): void
@@ -57,8 +59,8 @@ final class CommissionRegleTypeTest extends TestCase
 
         $this->type->onPreSetData($event);
 
-        self::assertSame([0, 1], $capturedOptions['localSommeil']['data']);
-        self::assertSame([1], $capturedOptions['etudeVisite']['data']);
+        $this->assertSame([0, 1], $capturedOptions['localSommeil']['data']);
+        $this->assertSame([1], $capturedOptions['etudeVisite']['data']);
     }
 
     public function testPreSetDataAvecCollectionsVidesDonneDatasVides(): void
@@ -71,8 +73,8 @@ final class CommissionRegleTypeTest extends TestCase
 
         $this->type->onPreSetData($event);
 
-        self::assertSame([], $capturedOptions['localSommeil']['data']);
-        self::assertSame([], $capturedOptions['etudeVisite']['data']);
+        $this->assertSame([], $capturedOptions['localSommeil']['data']);
+        $this->assertSame([], $capturedOptions['etudeVisite']['data']);
     }
 
     public function testPreSetDataAvecDataNullDonneDatasVides(): void
@@ -84,8 +86,8 @@ final class CommissionRegleTypeTest extends TestCase
 
         $this->type->onPreSetData($event);
 
-        self::assertSame([], $capturedOptions['localSommeil']['data']);
-        self::assertSame([], $capturedOptions['etudeVisite']['data']);
+        $this->assertSame([], $capturedOptions['localSommeil']['data']);
+        $this->assertSame([], $capturedOptions['etudeVisite']['data']);
     }
 
     // =========================================================================
@@ -100,8 +102,8 @@ final class CommissionRegleTypeTest extends TestCase
         $this->type->onPostSubmit($event);
 
         $collection = $regle->getLocalSommeil();
-        self::assertCount(1, $collection);
-        self::assertSame(1, $collection->first()->getLocalSommeil());
+        $this->assertCount(1, $collection);
+        $this->assertSame(1, $collection->first()->getLocalSommeil());
     }
 
     public function testSupprimerLocalSommeilNonSoumis(): void
@@ -116,8 +118,8 @@ final class CommissionRegleTypeTest extends TestCase
         $this->type->onPostSubmit($event);
 
         $collection = $regle->getLocalSommeil();
-        self::assertCount(1, $collection);
-        self::assertSame(1, $collection->first()->getLocalSommeil());
+        $this->assertCount(1, $collection);
+        $this->assertSame(1, $collection->first()->getLocalSommeil());
     }
 
     public function testNeDoublePasLocalSommeilDejaExistant(): void
@@ -129,7 +131,7 @@ final class CommissionRegleTypeTest extends TestCase
 
         $this->type->onPostSubmit($event);
 
-        self::assertCount(1, $regle->getLocalSommeil());
+        $this->assertCount(1, $regle->getLocalSommeil());
     }
 
     public function testViderLocalSommeilSiAucuneValeurSoumise(): void
@@ -141,7 +143,7 @@ final class CommissionRegleTypeTest extends TestCase
 
         $this->type->onPostSubmit($event);
 
-        self::assertCount(0, $regle->getLocalSommeil());
+        $this->assertCount(0, $regle->getLocalSommeil());
     }
 
     // =========================================================================
@@ -156,8 +158,8 @@ final class CommissionRegleTypeTest extends TestCase
         $this->type->onPostSubmit($event);
 
         $collection = $regle->getEtudeVisite();
-        self::assertCount(1, $collection);
-        self::assertSame(0, $collection->first()->getEtudeVisite());
+        $this->assertCount(1, $collection);
+        $this->assertSame(0, $collection->first()->getEtudeVisite());
     }
 
     public function testSupprimerEtudeVisiteNonSoumise(): void
@@ -172,8 +174,8 @@ final class CommissionRegleTypeTest extends TestCase
         $this->type->onPostSubmit($event);
 
         $collection = $regle->getEtudeVisite();
-        self::assertCount(1, $collection);
-        self::assertSame(0, $collection->first()->getEtudeVisite());
+        $this->assertCount(1, $collection);
+        $this->assertSame(0, $collection->first()->getEtudeVisite());
     }
 
     public function testNeDoublePasEtudeVisiteDejaExistante(): void
@@ -185,7 +187,7 @@ final class CommissionRegleTypeTest extends TestCase
 
         $this->type->onPostSubmit($event);
 
-        self::assertCount(1, $regle->getEtudeVisite());
+        $this->assertCount(1, $regle->getEtudeVisite());
     }
 
     public function testViderEtudeVisiteSiAucuneValeurSoumise(): void
@@ -197,7 +199,7 @@ final class CommissionRegleTypeTest extends TestCase
 
         $this->type->onPostSubmit($event);
 
-        self::assertCount(0, $regle->getEtudeVisite());
+        $this->assertCount(0, $regle->getEtudeVisite());
     }
 
     // =========================================================================
@@ -215,7 +217,8 @@ final class CommissionRegleTypeTest extends TestCase
 
         $form = $this->createMock(FormInterface::class);
         $form->method('getData')->willReturn(null);
-        $form->method('get')->willReturnMap([
+        // getData() n'est pas une CommissionRegle : onPostSubmit() doit retourner tôt, sans jamais appeler get()
+        $form->expects($this->never())->method('get')->willReturnMap([
             ['localSommeil', $localSommeilField],
             ['etudeVisite', $etudeVisiteField],
         ]);
@@ -239,11 +242,11 @@ final class CommissionRegleTypeTest extends TestCase
 
         $this->type->onPostSubmit($event);
 
-        self::assertCount(1, $regle->getLocalSommeil());
-        self::assertSame(0, $regle->getLocalSommeil()->first()->getLocalSommeil());
+        $this->assertCount(1, $regle->getLocalSommeil());
+        $this->assertSame(0, $regle->getLocalSommeil()->first()->getLocalSommeil());
 
-        self::assertCount(1, $regle->getEtudeVisite());
-        self::assertSame(0, $regle->getEtudeVisite()->first()->getEtudeVisite());
+        $this->assertCount(1, $regle->getEtudeVisite());
+        $this->assertSame(0, $regle->getEtudeVisite()->first()->getEtudeVisite());
     }
 
     // =========================================================================

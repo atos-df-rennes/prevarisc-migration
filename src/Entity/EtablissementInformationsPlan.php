@@ -3,27 +3,25 @@
 namespace App\Entity;
 
 use App\Repository\EtablissementInformationsPlanRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EtablissementInformationsPlanRepository::class)]
 #[ORM\Table(name: 'etablissementinformationsplan')]
 class EtablissementInformationsPlan
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSPLAN', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSPLAN', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'NUMERO_ETABLISSEMENTPLAN', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'NUMERO_ETABLISSEMENTPLAN', type: Types::TEXT, nullable: true)]
     private ?string $numero = null;
 
-    #[ORM\Column(name: 'DATE_ETABLISSEMENTPLAN', type: 'date', nullable: false)]
+    #[ORM\Column(name: 'DATE_ETABLISSEMENTPLAN', type: Types::DATE_MUTABLE, nullable: false)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(name: 'MISEAJOUR_ETABLISSEMENTPLAN', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'MISEAJOUR_ETABLISSEMENTPLAN', type: Types::BOOLEAN, nullable: false)]
     private ?bool $aMettreAJour = null;
 
     #[ORM\ManyToOne(targetEntity: TypePlan::class)]

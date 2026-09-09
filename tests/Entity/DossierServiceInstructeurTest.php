@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Entity;
 
 use App\Entity\Dossier;
@@ -13,7 +15,7 @@ use PHPUnit\Framework\TestCase;
  *
  * TODO: Quand création dossier migrée dans Symfony, ajouter migration SQL pour nettoyer la BDD.
  */
-class DossierServiceInstructeurTest extends TestCase
+final class DossierServiceInstructeurTest extends TestCase
 {
     private Dossier $dossier;
 

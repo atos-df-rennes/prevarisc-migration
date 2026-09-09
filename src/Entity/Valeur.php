@@ -3,35 +3,33 @@
 namespace App\Entity;
 
 use App\Repository\ValeurRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ValeurRepository::class)]
 class Valeur
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_VALEUR', type: 'integer')]
-    private $id;
+    #[ORM\Column(name: 'ID_VALEUR', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'VALEUR_STR', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'VALEUR_STR', type: Types::STRING, length: 255, nullable: true)]
     private ?string $str = null;
 
-    #[ORM\Column(name: 'VALEUR_LONG_STR', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'VALEUR_LONG_STR', type: Types::TEXT, nullable: true)]
     private ?string $longStr = null;
 
-    #[ORM\Column(name: 'VALEUR_INT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'VALEUR_INT', type: Types::INTEGER, nullable: true)]
     private ?int $number = null;
 
-    #[ORM\Column(name: 'VALEUR_CHECKBOX', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'VALEUR_CHECKBOX', type: Types::BOOLEAN, nullable: true)]
     private ?bool $checkbox = null;
 
-    #[ORM\Column(name: 'VALEUR_DATE', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'VALEUR_DATE', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $idx = null;
 
     #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'valeurs')]
