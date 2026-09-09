@@ -510,18 +510,12 @@ class Dossier
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getFacteurDangerosite()
+    public function getFacteurDangerosite(): ?int
     {
         return $this->facteurDangerosite;
     }
 
-    /**
-     * @param int|null $facteurDangerosite
-     */
-    public function setFacteurDangerosite($facteurDangerosite): self
+    public function setFacteurDangerosite(?int $facteurDangerosite): self
     {
         $this->facteurDangerosite = $facteurDangerosite;
 
