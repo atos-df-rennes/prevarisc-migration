@@ -217,7 +217,8 @@ final class CommissionRegleTypeTest extends TestCase
 
         $form = $this->createMock(FormInterface::class);
         $form->method('getData')->willReturn(null);
-        $form->method('get')->willReturnMap([
+        // getData() n'est pas une CommissionRegle : onPostSubmit() doit retourner tôt, sans jamais appeler get()
+        $form->expects($this->never())->method('get')->willReturnMap([
             ['localSommeil', $localSommeilField],
             ['etudeVisite', $etudeVisiteField],
         ]);
