@@ -2,8 +2,8 @@
 
 namespace App\Service\Dossier;
 
-use App\Entity\DateCommission;
 use App\Constant\CommissionTypeEvenement as TypeEvenement;
+use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use App\Entity\DossierAffectation;
 use App\Entity\DossierNatureListe;

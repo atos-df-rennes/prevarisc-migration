@@ -2,7 +2,6 @@
 
 namespace App\Controller\Dossier;
 
-use App\Entity\DossierAffectation;
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
 use App\Constant\NomInterneCapsule;
@@ -10,6 +9,7 @@ use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Dto\Descriptif\DescriptifFormData;
 use App\Entity\AvisDerogations;
 use App\Entity\Dossier;
+use App\Entity\DossierAffectation;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
