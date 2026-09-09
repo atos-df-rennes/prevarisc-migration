@@ -21,7 +21,6 @@ return RectorConfig::configure()
     ->withPreparedSets(
         codingStyle: true,
         privatization: true,
-        earlyReturn: true,
         symfonyCodeQuality: true,
         symfonyConfigs: true,
     )
