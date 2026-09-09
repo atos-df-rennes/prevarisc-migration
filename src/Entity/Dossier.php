@@ -6,22 +6,18 @@ use Doctrine\DBAL\Types\Types;
 use App\Constant\DossierNature;
 use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\DossierRepository;
-use App\Validator\DossierDocumentsManquants;
-use App\Validator\DossierObjet;
+use App\Validator as PrevariscAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @DossierObjet(groups={"edit_informations"})
- *
- * @DossierDocumentsManquants(groups={"edit_informations"})
- */
 #[ORM\Entity(repositoryClass: DossierRepository::class)]
 #[ORM\Table]
 #[ORM\Index(columns: ['DATESUPPRESSION_DOSSIER'])]
+#[PrevariscAssert\DossierObjet(groups: ['edit_informations'])]
+#[PrevariscAssert\DossierDocumentsManquants(groups: ['edit_informations'])]
 class Dossier
 {
     use GetIdOrFailTrait;
