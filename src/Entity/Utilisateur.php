@@ -14,11 +14,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @PrevariscAssert\UniqueUtilisateur
- *
- * @PrevariscAssert\Password
- */
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 #[PrevariscAssert\UniqueUtilisateur]
 #[PrevariscAssert\Password]
