@@ -19,7 +19,7 @@
 
 {% block lateral_navigation %}
     <ul class='nav nav-tabs nav-stacked menu_dashboard'>
-        <li {% if app.request.get('_route') is same as('dossier_index') or app.request.get('_route') is same as('dossier_edit') %}class="active"{% endif %}>
+        <li {% if app.current_route is same as('dossier_index') or app.current_route is same as('dossier_edit') %}class="active"{% endif %}>
             <a href="{{ path('dossier_index', {id: dossier.id}) }}">
                 <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                 Informations générales
@@ -28,7 +28,7 @@
 
         {# Type Étude, Natures Dérogation et Changement de DUS #}
         {% if dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') and dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_DESCRIPTIF') %}
-            <li {% if app.request.get('_route') starts with 'dossier_descriptif' %}class="active"{% endif %}>
+            <li {% if app.current_route starts with 'dossier_descriptif' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_descriptif', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                     Descriptif
@@ -42,7 +42,7 @@
 
         {# Étude, Visite et Groupe de visite #}
         {% if dossier.type.id in constant('App\\Constant\\DossierType::TYPES_PRINCIPAUX') %}
-            <li {% if app.request.get('_route') starts with 'dossier_textes_applicables' %}class="active"{% endif %}>
+            <li {% if app.current_route starts with 'dossier_textes_applicables' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_textes_applicables', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
                     Textes applicables
@@ -52,7 +52,7 @@
 
         {# Courrier / Courriel #}
         {% if dossier.type.id != constant('App\\Constant\\DossierType::COURRIER') %}
-            <li {% if app.request.get('_route') starts with 'dossier_documents_consultes' %}class="active"{% endif %}>
+            <li {% if app.current_route starts with 'dossier_documents_consultes' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_documents_consultes', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
                     Documents consultés
@@ -62,7 +62,7 @@
 
         {# Visite et Groupe de visite #}
         {% if is_granted('verifications_techniques') and dossier.type.id in constant('App\\Constant\\DossierType::TYPES_VISITE') %}
-            <li {% if app.request.get('_route') starts with 'dossier_verifications_techniques' %}class="active"{% endif %}>
+            <li {% if app.current_route starts with 'dossier_verifications_techniques' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_verifications_techniques', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                     {{ libelle_verifications_techniques }}
@@ -71,7 +71,7 @@
         {% endif %}
 
         {% if is_granted('effectifs_degagements_doss') and dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') %}
-            <li {% if app.request.get('_route') starts with 'dossier_effectifs_degagements' %}class="active"{% endif %}>
+            <li {% if app.current_route starts with 'dossier_effectifs_degagements' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_effectifs_degagements', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                     {{ libelle_effectifs_degagements }}
@@ -80,8 +80,8 @@
         {% endif %}
 
         {% if is_granted('avis_derogations') and dossier.type.id == constant('App\\Constant\\DossierType::ETUDE') %}
-            <li {% if app.request.get('_route') starts with 'dossier_avis_et_derogations' %}class="active"{% endif %}>
-                <a href="{{ path('dossier_avis_et_derogations', {id: dossier.id}) }}" {% if app.request.get('_route') starts with 'dossier_avis_et_derogations' %}class="active-link"{% endif %}>
+            <li {% if app.current_route starts with 'dossier_avis_et_derogations' %}class="active"{% endif %}>
+                <a href="{{ path('dossier_avis_et_derogations', {id: dossier.id}) }}" {% if app.current_route starts with 'dossier_avis_et_derogations' %}class="active-link"{% endif %}>
                     <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                     Avis et dérogations
 
@@ -104,7 +104,7 @@
             dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_PRESCRIPTIONS') and
             dossier.type.id not in constant('App\\Constant\\DossierType::TYPES_SANS_PRESCRIPTIONS')
         %}
-            <li {% if app.request.get('_route') starts with 'dossier_prescriptions' %}class="active"{% endif %}>
+            <li {% if app.current_route starts with 'dossier_prescriptions' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_prescriptions', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
                     Prescriptions
@@ -112,7 +112,7 @@
             </li>
         {% endif %}
 
-        <li {% if app.request.get('_route') starts with 'dossier_liees' %}class="active"{% endif %}>
+        <li {% if app.current_route starts with 'dossier_liees' %}class="active"{% endif %}>
             <a href="{{ path('dossier_liees', {id: dossier.id}) }}">
                 <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
                 Établissements et dossiers liés
@@ -121,7 +121,7 @@
 
         {# Ouverture, Fermeture, Mise en demeure, Utilisation exceptionnelle de locaux #}
         {% if dossier.nature.id not in constant('App\\Constant\\DossierNature::NATURES_SANS_CONTACTS') %}
-            <li {% if app.request.get('_route') starts with 'dossier_contacts' %}class="active"{% endif %}>
+            <li {% if app.current_route starts with 'dossier_contacts' %}class="active"{% endif %}>
                 <a href="{{ path('dossier_contacts', {id: dossier.id}) }}">
                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                     Contacts
@@ -129,7 +129,7 @@
             </li>
         {% endif %}
 
-        <li {% if app.request.get('_route') starts with 'dossier_pieces_jointes' %}class="active"{% endif %}>
+        <li {% if app.current_route starts with 'dossier_pieces_jointes' %}class="active"{% endif %}>
             <a href="{{ path('dossier_pieces_jointes', {id: dossier.id}) }}">
                 <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
                 Pièces jointes
@@ -158,7 +158,7 @@
             </li>
         {% endif %}
 
-        <li {% if app.request.get('_route') starts with 'dossier_rapport' %}class="active"{% endif %}>
+        <li {% if app.current_route starts with 'dossier_rapport' %}class="active"{% endif %}>
             <a href="{{ path('dossier_rapport', {id: dossier.id}) }}">
                 <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                 Rapport
@@ -168,7 +168,7 @@
         {% if
             not dossier.verrou
             and id_date_commission is not null
-            and app.request.get('_route') is same as('dossier_index')
+            and app.current_route is same as('dossier_index')
         %}
             <li>
                 <a class="sep" href="{{ path('calendrier_des_commissions_gestion_odj', {dateCommId: id_date_commission}) }}">
@@ -180,7 +180,7 @@
         {% if
             not dossier.verrou
             and is_granted('delete_dossier')
-            and app.request.get('_route') is same as('dossier_index')
+            and app.current_route is same as('dossier_index')
         %}
             <li>
                 {% if dossier.dateSuppression is not null %}
