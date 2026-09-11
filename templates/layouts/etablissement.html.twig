@@ -19,7 +19,10 @@
 {% block lateral_navigation %}
     {% if etablissement is defined and etablissement is not null %}
         <ul class='nav nav-tabs nav-stacked menu_dashboard'>
-            <li {% if app.current_route is same as('etablissement_informations') %}class="active"{% endif %}>
+            <li {% if
+                    app.current_route is same as('etablissement_informations')
+                    or app.current_route is same as('etablissement_modifier')
+                %}class="active"{% endif %}>
                 <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                     Général
