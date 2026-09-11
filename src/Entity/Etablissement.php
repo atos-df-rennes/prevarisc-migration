@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Order;
 use Doctrine\Common\Collections\Selectable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EtablissementRepository::class)]
@@ -17,15 +18,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(columns: ['DATESUPPRESSION_ETABLISSEMENT'])]
 class Etablissement
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_ETABLISSEMENT', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_ETABLISSEMENT', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'DATESUPPRESSION_ETABLISSEMENT', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATESUPPRESSION_ETABLISSEMENT', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateSuppression = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
@@ -50,22 +48,22 @@ class Etablissement
     #[ORM\OneToMany(targetEntity: EtablissementAdresse::class, mappedBy: 'etablissement', orphanRemoval: true)]
     private Collection $adresses;
 
-    #[ORM\Column(name: 'NUMEROID_ETABLISSEMENT', type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(name: 'NUMEROID_ETABLISSEMENT', type: Types::STRING, length: 50, nullable: true)]
     private ?string $numero = null;
 
-    #[ORM\Column(name: 'TELEPHONE_ETABLISSEMENT', type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'TELEPHONE_ETABLISSEMENT', type: Types::STRING, length: 20, nullable: true)]
     private ?string $telephone = null;
 
-    #[ORM\Column(name: 'FAX_ETABLISSEMENT', type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'FAX_ETABLISSEMENT', type: Types::STRING, length: 20, nullable: true)]
     private ?string $fax = null;
 
-    #[ORM\Column(name: 'COURRIEL_ETABLISSEMENT', type: 'string', length: 75, nullable: true)]
+    #[ORM\Column(name: 'COURRIEL_ETABLISSEMENT', type: Types::STRING, length: 75, nullable: true)]
     private ?string $courriel = null;
 
-    #[ORM\Column(name: 'NBPREV_ETABLISSEMENT', type: 'smallint', nullable: true)]
+    #[ORM\Column(name: 'NBPREV_ETABLISSEMENT', type: Types::SMALLINT, nullable: true)]
     private ?int $nbPrev = null;
 
-    #[ORM\Column(name: 'DUREEVISITE_ETABLISSEMENT', type: 'time', nullable: true)]
+    #[ORM\Column(name: 'DUREEVISITE_ETABLISSEMENT', type: Types::TIME_MUTABLE, nullable: true)]
     private ?\DateTime $dureeVisite = null;
 
     /**
@@ -90,10 +88,10 @@ class Etablissement
     #[ORM\JoinColumn(name: 'ID_DOSSIER_DONNANT_AVIS', referencedColumnName: 'ID_DOSSIER', nullable: true)]
     private ?Dossier $dossierDonnantAvis = null;
 
-    #[ORM\Column(name: 'DESCTECH_RISQUES_NATURELS_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_RISQUES_NATURELS_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $risquesNaturels = null;
 
-    #[ORM\Column(name: 'DESCTECH_RISQUES_TECHNOLOGIQUES_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_RISQUES_TECHNOLOGIQUES_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $risquesTechnologiques = null;
 
     /**
@@ -135,193 +133,193 @@ class Etablissement
     #[ORM\OneToMany(targetEntity: EtablissementPieceJointe::class, mappedBy: 'etablissement', orphanRemoval: true)]
     private Collection $piecesJointes;
 
-    #[ORM\Column(name: 'DESCRIPTIF_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCRIPTIF_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $descriptif = null;
 
-    #[ORM\Column(name: 'DESCRIPTIF_HISTORIQUE_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCRIPTIF_HISTORIQUE_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $historiqueDescriptif = null;
 
-    #[ORM\Column(name: 'DESCRIPTIF_DEROGATIONS_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCRIPTIF_DEROGATIONS_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $descriptifDerogation = null;
 
-    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_SURFACE_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_SURFACE_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechImplantationSurface = null;
 
-    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_SURFACETOTALE_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_SURFACETOTALE_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechImplantationSurfaceTotale = null;
 
-    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_SURFACEACCPUBLIC_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_SURFACEACCPUBLIC_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechImplantationSurfaceAccPublic = null;
 
-    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_SHON_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_SHON_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechImplantationShon = null;
 
-    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_NBNIVEAUX_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_NBNIVEAUX_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechImplantationNbNiveaux = null;
 
-    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_PBDN_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_IMPLANTATION_PBDN_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechImplantationPbdn = null;
 
-    #[ORM\Column(name: 'DESCTECH_DESSERTE_NBFACADELIBRE_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DESSERTE_NBFACADELIBRE_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechDesserteNbFacadeLibre = null;
 
-    #[ORM\Column(name: 'DESCTECH_DESSERTE_VOIEENGIN_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DESSERTE_VOIEENGIN_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechDesserteVoieEngin = null;
 
-    #[ORM\Column(name: 'DESCTECH_DESSERTE_VOIEECHELLE_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DESSERTE_VOIEECHELLE_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechDesserteVoieEchelle = null;
 
-    #[ORM\Column(name: 'DESCTECH_DESSERTE_ESPACELIBRE_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DESSERTE_ESPACELIBRE_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechDesserteEspaceLibre = null;
 
-    #[ORM\Column(name: 'DESCTECH_ISOLEMENT_LATERALCF_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_ISOLEMENT_LATERALCF_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechIsolementLateralCf = null;
 
-    #[ORM\Column(name: 'DESCTECH_ISOLEMENT_SUPERPOSECF_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_ISOLEMENT_SUPERPOSECF_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechIsolementSuperposeCf = null;
 
-    #[ORM\Column(name: 'DESCTECH_ISOLEMENT_VISAVIS_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_ISOLEMENT_VISAVIS_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechIsolementVisAVis = null;
 
-    #[ORM\Column(name: 'DESCTECH_STABILITE_STRUCTURESF_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_STABILITE_STRUCTURESF_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechStabiliteStructureSf = null;
 
-    #[ORM\Column(name: 'DESCTECH_STABILITE_PLANCHERSF_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_STABILITE_PLANCHERSF_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechStabilitePlancher = null;
 
-    #[ORM\Column(name: 'DESCTECH_DISTRIBUTION_CLOISONNEMENTTRAD_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DISTRIBUTION_CLOISONNEMENTTRAD_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechDistributionCloisonnementTrad = null;
 
-    #[ORM\Column(name: 'DESCTECH_DISTRIBUTION_SECTEURS_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DISTRIBUTION_SECTEURS_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechDistributionSecteurs = null;
 
-    #[ORM\Column(name: 'DESCTECH_DISTRIBUTION_COMPARTIMENTS_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DISTRIBUTION_COMPARTIMENTS_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechDistributionCompartiments = null;
 
-    #[ORM\Column(name: 'DESCTECH_LOCAUXARISQUE_NBRISQUESMOYENS_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_LOCAUXARISQUE_NBRISQUESMOYENS_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechLocauxRisqueNbMoyens = null;
 
-    #[ORM\Column(name: 'DESCTECH_LOCAUXARISQUE_NBRISQUESIMPORTANTS_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_LOCAUXARISQUE_NBRISQUESIMPORTANTS_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechLocauxRisqueNbImportants = null;
 
-    #[ORM\Column(name: 'DESCTECH_ESPACES_NOMBRE_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_ESPACES_NOMBRE_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechEspacesNombre = null;
 
-    #[ORM\Column(name: 'DESCTECH_ESPACES_NIVEAUCONCERNE_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_ESPACES_NIVEAUCONCERNE_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechEspacesNiveauConcerne = null;
 
-    #[ORM\Column(name: 'DESCTECH_DESENFUMAGE_NATUREL_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DESENFUMAGE_NATUREL_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechDesenfumageNaturel = null;
 
-    #[ORM\Column(name: 'DESCTECH_DESENFUMAGE_MECANIQUE_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DESENFUMAGE_MECANIQUE_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechDesenfumageMecanique = null;
 
-    #[ORM\Column(name: 'DESCTECH_DESENFUMAGE_COMMENTAIRE_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DESENFUMAGE_COMMENTAIRE_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $desctechDesenfumageCommentaire = null;
 
-    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_NB_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_NB_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechChaufferiesNb = null;
 
-    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_PUISSMAX_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_PUISSMAX_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechChaufferiesPuissMax = null;
 
-    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_PUISSANCETOTALE', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_PUISSANCETOTALE', type: Types::INTEGER, nullable: true)]
     private ?int $desctechChaufferiesPuissanceTotale = null;
 
-    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_NB30KW', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_NB30KW', type: Types::INTEGER, nullable: true)]
     private ?int $desctechChaufferiesNb30Kw = null;
 
-    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_NB70KW', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_NB70KW', type: Types::INTEGER, nullable: true)]
     private ?int $desctechChaufferiesNb70Kw = null;
 
-    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_NB2MW', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_CHAUFFERIES_NB2MW', type: Types::INTEGER, nullable: true)]
     private ?int $desctechChaufferiesNb2Mw = null;
 
-    #[ORM\Column(name: 'DESCTECH_COUPURENRJ_GAZ_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_COUPURENRJ_GAZ_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $desctechCoupureNrjGaz = null;
 
-    #[ORM\Column(name: 'DESCTECH_COUPURENRJ_ELEC_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_COUPURENRJ_ELEC_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $desctechCoupureNrjElec = null;
 
-    #[ORM\Column(name: 'DESCTECH_COUPURENRJ_PHOTOVOLTAIQUE_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_COUPURENRJ_PHOTOVOLTAIQUE_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $desctechCoupureNrjPhotovoltaique = null;
 
-    #[ORM\Column(name: 'DESCTECH_COUPURENRJ_AUTRE_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_COUPURENRJ_AUTRE_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $desctechCoupureNrjAutre = null;
 
-    #[ORM\Column(name: 'DESCTECH_ASCENSEURS_NBTOTAL_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_ASCENSEURS_NBTOTAL_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechAscenseursNbTotal = null;
 
-    #[ORM\Column(name: 'DESCTECH_ASCENSEURS_NBAS4_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_ASCENSEURS_NBAS4_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechAscenseursNbAs4 = null;
 
-    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_COLONNESSECHES_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechMoyensSecoursColonnesSeches = null;
 
-    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_COLONNESHUMIDES_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_COLONNESHUMIDES_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechMoyensSecoursColonnesHumides = null;
 
-    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_RIA_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_RIA_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechMoyensSecoursRia = null;
 
-    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_SPRINKLEUR_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_SPRINKLEUR_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechMoyensSecoursSprinkleur = null;
 
-    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_BROUILLARDEAU_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_MOYENSSECOURS_BROUILLARDEAU_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechMoyensSecoursBrouillardEau = null;
 
-    #[ORM\Column(name: 'DESCTECH_PCSECU_PRESENCE_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_PCSECU_PRESENCE_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechPcSecuPresence = null;
 
-    #[ORM\Column(name: 'DESCTECH_PCSECU_LOCALISATION_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_PCSECU_LOCALISATION_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $desctechPcSecuLocalisation = null;
 
-    #[ORM\Column(name: 'DESCTECH_SSI_PRESENCE_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SSI_PRESENCE_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechSsiPresence = null;
 
-    #[ORM\Column(name: 'DESCTECH_SSI_CATEGORIE_ETABLISSEMENT', type: 'string', length: 1, nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SSI_CATEGORIE_ETABLISSEMENT', type: Types::STRING, length: 1, nullable: true)]
     private ?string $desctechSsiCategorie = null;
 
-    #[ORM\Column(name: 'DESCTECH_SSI_ALARME_TYPE_ETABLISSEMENT', type: 'string', length: 2, nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SSI_ALARME_TYPE_ETABLISSEMENT', type: Types::STRING, length: 2, nullable: true)]
     private ?string $desctechSsiAlarmeType = null;
 
-    #[ORM\Column(name: 'DESCTECH_SERVICESECU_EL18_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SERVICESECU_EL18_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechServiceSecuEl18 = null;
 
-    #[ORM\Column(name: 'DESCTECH_SERVICESECU_PERSONNELSDESIGNES_ETABLISSEMENT', type: 'boolean', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SERVICESECU_PERSONNELSDESIGNES_ETABLISSEMENT', type: Types::BOOLEAN, nullable: true)]
     private ?bool $desctechServiceSecuPersonnelsDesignes = null;
 
-    #[ORM\Column(name: 'DESCTECH_SERVICESECU_AGENTDESECU_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SERVICESECU_AGENTDESECU_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechServiceSecuAgentSecu = null;
 
-    #[ORM\Column(name: 'DESCTECH_SERVICESECU_CHEFEQUIPE_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SERVICESECU_CHEFEQUIPE_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechServiceSecuChefEquipe = null;
 
-    #[ORM\Column(name: 'DESCTECH_SERVICESECU_CHEFDESERVICESECU_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SERVICESECU_CHEFDESERVICESECU_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechServiceSecuChefDeService = null;
 
-    #[ORM\Column(name: 'DESCTECH_SERVICESECU_SP_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SERVICESECU_SP_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechServiceSecuSp = null;
 
-    #[ORM\Column(name: 'DESCTECH_SERVICESECU_COMMENTAIRESP_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_SERVICESECU_COMMENTAIRESP_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $desctechServiceSecuCommentaireSp = null;
 
-    #[ORM\Column(name: 'DESCTECH_DEFENSE_PTEAU_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DEFENSE_PTEAU_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechDefensePtEau = null;
 
-    #[ORM\Column(name: 'DESCTECH_DEFENSE_VOLUMEPTEAU_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DEFENSE_VOLUMEPTEAU_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechDefenseVolumePtEau = null;
 
-    #[ORM\Column(name: 'DESCTECH_DEFENSE_PTEAUCOMMENTAIRE_ETABLISSEMENT', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DEFENSE_PTEAUCOMMENTAIRE_ETABLISSEMENT', type: Types::TEXT, nullable: true)]
     private ?string $desctechDefensePtEauCommentaire = null;
 
-    #[ORM\Column(name: 'DESCTECH_DEFENSE_PI_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DEFENSE_PI_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechDefensePi = null;
 
-    #[ORM\Column(name: 'DESCTECH_DEFENSE_BI_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DEFENSE_BI_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechDefenseBi = null;
 
-    #[ORM\Column(name: 'DESCTECH_DEFENSE_DEBITSIMULTANE_ETABLISSEMENT', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'DESCTECH_DEFENSE_DEBITSIMULTANE_ETABLISSEMENT', type: Types::INTEGER, nullable: true)]
     private ?int $desctechDefenseDebitSimultane = null;
 
     public function __construct()
@@ -382,7 +380,7 @@ class Etablissement
      */
     public static function createLatestInformationsCriteria(): Criteria
     {
-        return Criteria::create()
+        return Criteria::create(true)
             ->orderBy(['id' => Order::Descending])
             ->setMaxResults(1);
     }
@@ -428,7 +426,7 @@ class Etablissement
         assert($this->informations instanceof Selectable);
 
         $anterieures = $this->informations->matching(
-            Criteria::create()->where(Criteria::expr()->lte('date', $date))->orderBy(['date' => Order::Descending])
+            Criteria::create(true)->where(Criteria::expr()->lte('date', $date))->orderBy(['date' => Order::Descending])
                 ->setMaxResults(1)
         );
 
@@ -440,7 +438,7 @@ class Etablissement
         }
 
         $plusAncienne = $this->informations->matching(
-            Criteria::create()->orderBy(['date' => Order::Ascending])
+            Criteria::create(true)->orderBy(['date' => Order::Ascending])
                 ->setMaxResults(1)
         );
 

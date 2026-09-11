@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 final class LogoutHandlerTest extends TestCase
 {
-    /** @var LastActionUpdater|MockObject */
+    /** @var MockObject&LastActionUpdater */
     private MockObject $lastActionUpdater;
 
     protected function setUp(): void
@@ -77,7 +77,7 @@ final class LogoutHandlerTest extends TestCase
         // TokenInterface::getUser() is now strictly typed as ?UserInterface (Symfony 6.4),
         // so a string return is no longer possible. This exercises the equivalent branch:
         // a UserInterface implementation that is not an App\Entity\Utilisateur.
-        $otherUser = $this->createMock(UserInterface::class);
+        $otherUser = $this->createStub(UserInterface::class);
 
         $token = $this->createMock(TokenInterface::class);
         $token->method('getUser')->willReturn($otherUser);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
@@ -17,13 +19,13 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class VoteReturnsAccessGrantedWhenUserHasPrivilegeForAllNaturesTest extends TestCase
+final class VoteReturnsAccessGrantedWhenUserHasPrivilegeForAllNaturesTest extends TestCase
 {
     public function testVoteReturnsAccessGrantedWhenUserHasPrivilegeForAllNatures(): void
     {
         $resourcesRepository = $this->createMock(ResourcesRepository::class);
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $collectionAccessChecker = $this->createStub(EtablissementCollectionAccessChecker::class);
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
         $token = $this->createMock(TokenInterface::class);
@@ -51,6 +53,6 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeForAllNaturesTest extends Test
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 
-        $this->assertEquals(VoterInterface::ACCESS_GRANTED, $result);
+        $this->assertSame(VoterInterface::ACCESS_GRANTED, $result);
     }
 }

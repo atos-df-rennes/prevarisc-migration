@@ -7,9 +7,8 @@ use Symfony\Component\Validator\Constraint;
 /**
  * Vérifie que le dossier incomplet possède au moins un document manquant
  * avec les champs obligatoires (date et documentManquant) renseignés.
- *
- * @Annotation
  */
+#[\Attribute]
 final class DossierDocumentsManquants extends Constraint
 {
     /** @var string */

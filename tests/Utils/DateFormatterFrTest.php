@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Utils;
 
 use App\Utils\DateFormatterFr;
@@ -11,7 +13,7 @@ final class DateFormatterFrTest extends TestCase
     #[DataProvider('provideFormatLong')]
     public function testFormatLong(\DateTimeInterface $date, string $attendu): void
     {
-        self::assertSame($attendu, DateFormatterFr::formatLong($date));
+        $this->assertSame($attendu, DateFormatterFr::formatLong($date));
     }
 
     public static function provideFormatLong(): iterable
@@ -23,7 +25,7 @@ final class DateFormatterFrTest extends TestCase
     #[DataProvider('provideFormatShort')]
     public function testFormatShort(?string $dateStr, string $attendu): void
     {
-        self::assertSame($attendu, DateFormatterFr::formatShort($dateStr));
+        $this->assertSame($attendu, DateFormatterFr::formatShort($dateStr));
     }
 
     public static function provideFormatShort(): iterable
@@ -38,7 +40,7 @@ final class DateFormatterFrTest extends TestCase
     #[DataProvider('provideFormatLongFromStr')]
     public function testFormatLongFromStr(?string $dateStr, string $attendu): void
     {
-        self::assertSame($attendu, DateFormatterFr::formatLongFromStr($dateStr));
+        $this->assertSame($attendu, DateFormatterFr::formatLongFromStr($dateStr));
     }
 
     public static function provideFormatLongFromStr(): iterable

@@ -84,12 +84,12 @@ final class DossierEditNature21Test extends WebTestCase
         $content = $client->getResponse()->getContent();
 
         foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
+            $this->assertStringContainsString($label, (string) $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
         }
 
         // Vérifier que les checkboxes sont présents (leur label s'affiche différemment)
-        $this->assertStringContainsString('avisDiffere', $content, 'Le champ avisDiffere devrait être présent');
-        $this->assertStringContainsString('absenceDeQuorum', $content, 'Le champ absenceDeQuorum devrait être présent');
+        $this->assertStringContainsString('avisDiffere', (string) $content, 'Le champ avisDiffere devrait être présent');
+        $this->assertStringContainsString('absenceDeQuorum', (string) $content, 'Le champ absenceDeQuorum devrait être présent');
     }
 
     public function testFormHidesFieldsWhenValuesAreEmpty(): void

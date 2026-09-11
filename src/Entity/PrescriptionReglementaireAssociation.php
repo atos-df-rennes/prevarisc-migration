@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PrescriptionReglementaireAssociationRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PrescriptionReglementaireAssociationRepository::class)]
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 class PrescriptionReglementaireAssociation
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'NUM_PRESCRIPTIONASSOC', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'NUM_PRESCRIPTIONASSOC', type: Types::INTEGER, nullable: false)]
     private ?int $numero = null;
 
     #[ORM\Id]
@@ -18,10 +19,10 @@ class PrescriptionReglementaireAssociation
     #[ORM\JoinColumn(name: 'ID_PRESCRIPTIONREGL', referencedColumnName: 'ID_PRESCRIPTIONREGL', nullable: false)]
     private ?PrescriptionReglementaire $regle = null;
 
-    #[ORM\Column(name: 'ID_TEXTE', type: 'bigint', nullable: false)]
+    #[ORM\Column(name: 'ID_TEXTE', type: Types::BIGINT, nullable: false)]
     private ?int $texte = null;
 
-    #[ORM\Column(name: 'ID_ARTICLE', type: 'bigint', nullable: false)]
+    #[ORM\Column(name: 'ID_ARTICLE', type: Types::BIGINT, nullable: false)]
     private ?int $article = null;
 
     public function getNumero(): ?int

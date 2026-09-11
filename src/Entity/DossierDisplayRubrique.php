@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\DossierDisplayRubriqueRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: DossierDisplayRubriqueRepository::class)]
@@ -19,7 +20,7 @@ class DossierDisplayRubrique
     #[ORM\JoinColumn(name: 'ID_RUBRIQUE', referencedColumnName: 'ID_RUBRIQUE', nullable: false)]
     private ?Rubrique $rubrique = null;
 
-    #[ORM\Column(name: 'USER_DISPLAY', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'USER_DISPLAY', type: Types::BOOLEAN, nullable: false)]
     private ?bool $userDisplay = null;
 
     public function getDossier(): ?Dossier

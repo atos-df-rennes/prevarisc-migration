@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
@@ -22,7 +24,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  * Vérifie que DossierVoter refuse l'accès quand aucun établissement lié n'est accessible (view_ets).
  * Aligne sur le Plugin_ACL legacy (lignes 278–302) : le contrôle ets précède le contrôle nature.
  */
-class VoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessibleTest extends TestCase
+final class VoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessibleTest extends TestCase
 {
     public function testVoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessible(): void
     {
@@ -43,14 +45,14 @@ class VoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessibleTest extends Te
         $resource->method('getName')->willReturn('dossier_1');
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resource]);
 
-        $privilege = $this->createMock(Privileges::class);
+        $privilege = $this->createStub(Privileges::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);
 
         $group = $this->createMock(Groupe::class);
         $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
         $user->method('getGroupe')->willReturn($group);
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
         $dossier = $this->createMock(Dossier::class);
         $nature = $this->createMock(DossierNatureListe::class);
         $nature->method('getId')->willReturn(1);
@@ -59,6 +61,6 @@ class VoteReturnsAccessDeniedWhenLinkedEtablissementNotAccessibleTest extends Te
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 
-        $this->assertEquals(VoterInterface::ACCESS_DENIED, $result);
+        $this->assertSame(VoterInterface::ACCESS_DENIED, $result);
     }
 }

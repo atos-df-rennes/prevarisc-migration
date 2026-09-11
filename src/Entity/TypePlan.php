@@ -3,21 +3,19 @@
 namespace App\Entity;
 
 use App\Repository\TypePlanRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: TypePlanRepository::class)]
 #[ORM\Table(name: 'typeplan')]
 class TypePlan
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_TYPEPLAN', type: 'integer')]
-    private $id;
+    #[ORM\Column(name: 'ID_TYPEPLAN', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_TYPEPLAN', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_TYPEPLAN', type: Types::STRING, length: 100, nullable: false)]
     private ?string $libelle = null;
 
     public function getId(): ?int

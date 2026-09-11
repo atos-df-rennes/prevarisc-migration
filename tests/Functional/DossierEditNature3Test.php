@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
@@ -13,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel pour l'édition d'un dossier de nature 3 (Dérogation).
  */
 #[Group('functional')]
-class DossierEditNature3Test extends WebTestCase
+final class DossierEditNature3Test extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
 
@@ -82,19 +84,19 @@ class DossierEditNature3Test extends WebTestCase
         $content = $client->getResponse()->getContent();
 
         foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
+            $this->assertStringContainsString($label, (string) $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
         }
 
         // Vérifier les champs spécifiques aux dérogations
-        $this->assertStringContainsString('Justification de la dérogation', $content, 'Le champ justificationDerogation devrait être présent');
-        $this->assertStringContainsString('Mesures compensatoires', $content, 'Le champ mesuresCompensatoires devrait être présent');
-        $this->assertStringContainsString('Mesures complémentaires', $content, 'Le champ mesuresComplementaires devrait être présent');
-        $this->assertStringContainsString('Règles de dérogation', $content, 'Le champ reglesDerogation devrait être présent');
+        $this->assertStringContainsString('Justification de la dérogation', (string) $content, 'Le champ justificationDerogation devrait être présent');
+        $this->assertStringContainsString('Mesures compensatoires', (string) $content, 'Le champ mesuresCompensatoires devrait être présent');
+        $this->assertStringContainsString('Mesures complémentaires', (string) $content, 'Le champ mesuresComplementaires devrait être présent');
+        $this->assertStringContainsString('Règles de dérogation', (string) $content, 'Le champ reglesDerogation devrait être présent');
 
         // Vérifier les champs d'études
-        $this->assertStringContainsString('documentsUrbanisme', $content, 'Le champ documentsUrbanisme devrait être présent');
-        $this->assertStringContainsString('incomplet', $content, 'Le champ incomplet devrait être présent');
-        $this->assertStringContainsString('horsDelai', $content, 'Le champ horsDelai devrait être présent');
+        $this->assertStringContainsString('documentsUrbanisme', (string) $content, 'Le champ documentsUrbanisme devrait être présent');
+        $this->assertStringContainsString('incomplet', (string) $content, 'Le champ incomplet devrait être présent');
+        $this->assertStringContainsString('horsDelai', (string) $content, 'Le champ horsDelai devrait être présent');
     }
 
     protected function tearDown(): void

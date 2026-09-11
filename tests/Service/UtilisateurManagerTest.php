@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\Utilisateur;
@@ -12,22 +14,20 @@ final class UtilisateurManagerTest extends TestCase
 {
     private string $globalSalt = 'globalsalt';
 
-    public static function providePasswordCases(): array
+    public static function providePasswordCases(): \Iterator
     {
         // initialPassword, sso, plainPassword, expectedPasswordDescription
         // expectedPasswordDescription: 'encoded:<raw>' means encoded value expected,
         // null means password should be null,
         // 'keep' means initialPassword must be kept.
-        return [
-            'create sso no plain' => [null, true, null, null],
-            'create non-sso no plain' => [null, false, null, 'keep'],
-            'create non-sso empty plain' => [null, false, '', 'keep'],
-            'create non-sso with plain' => [null, false, 'secret', 'encoded:secret'],
-            'update non-sso keep existing' => ['oldhash', false, null, 'keep'],
-            'update to sso clears password' => ['oldhash', true, null, null],
-            'update non-sso replace with empty plain keeps old' => ['oldhash', false, '', 'keep'],
-            'update non-sso replace with new plain' => ['oldhash', false, 'newpw', 'encoded:newpw'],
-        ];
+        yield 'create sso no plain' => [null, true, null, null];
+        yield 'create non-sso no plain' => [null, false, null, 'keep'];
+        yield 'create non-sso empty plain' => [null, false, '', 'keep'];
+        yield 'create non-sso with plain' => [null, false, 'secret', 'encoded:secret'];
+        yield 'update non-sso keep existing' => ['oldhash', false, null, 'keep'];
+        yield 'update to sso clears password' => ['oldhash', true, null, null];
+        yield 'update non-sso replace with empty plain keeps old' => ['oldhash', false, '', 'keep'];
+        yield 'update non-sso replace with new plain' => ['oldhash', false, 'newpw', 'encoded:newpw'];
     }
 
     #[DataProvider('providePasswordCases')]
@@ -48,13 +48,13 @@ final class UtilisateurManagerTest extends TestCase
         $service->processPasswordBeforePersist($user);
 
         if (null === $expectedDesc) {
-            self::assertNull($user->getPassword());
+            $this->assertNull($user->getPassword());
 
             return;
         }
 
         if ('keep' === $expectedDesc) {
-            self::assertSame($initialPassword, $user->getPassword());
+            $this->assertSame($initialPassword, $user->getPassword());
 
             return;
         }
@@ -62,7 +62,7 @@ final class UtilisateurManagerTest extends TestCase
         if (str_starts_with($expectedDesc, 'encoded:')) {
             $raw = substr($expectedDesc, strlen('encoded:'));
             $expected = md5($user->getSalt().$this->globalSalt.$raw);
-            self::assertSame($expected, $user->getPassword());
+            $this->assertSame($expected, $user->getPassword());
 
             return;
         }

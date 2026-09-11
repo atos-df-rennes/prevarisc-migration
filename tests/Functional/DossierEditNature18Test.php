@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
@@ -13,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel pour l'édition d'un dossier de nature 18 (Utilisation exceptionnelle de locaux).
  */
 #[Group('functional')]
-class DossierEditNature18Test extends WebTestCase
+final class DossierEditNature18Test extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
 
@@ -80,12 +82,12 @@ class DossierEditNature18Test extends WebTestCase
         $content = $client->getResponse()->getContent();
 
         foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
+            $this->assertStringContainsString($label, (string) $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
         }
 
         // Vérifier que les champs incomplet et horsDelai sont présents (champs d'études)
-        $this->assertStringContainsString('incomplet', $content, 'Le champ incomplet devrait être présent');
-        $this->assertStringContainsString('horsDelai', $content, 'Le champ horsDelai devrait être présent');
+        $this->assertStringContainsString('incomplet', (string) $content, 'Le champ incomplet devrait être présent');
+        $this->assertStringContainsString('horsDelai', (string) $content, 'Le champ horsDelai devrait être présent');
     }
 
     protected function tearDown(): void

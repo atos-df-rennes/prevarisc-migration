@@ -5,19 +5,17 @@ namespace App\Entity;
 use App\Repository\CommissionRegleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommissionRegleRepository::class)]
 #[ORM\Table(name: 'commissionregle')]
 class CommissionRegle
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_REGLE', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_REGLE', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Groupement::class)]
     #[ORM\JoinColumn(name: 'ID_GROUPEMENT', referencedColumnName: 'ID_GROUPEMENT', nullable: true)]

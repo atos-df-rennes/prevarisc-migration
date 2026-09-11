@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Search;
 
 use App\Service\Search\SearchQueryHelper;
@@ -12,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(SearchQueryHelper::class)]
 final class SearchQueryHelperTest extends TestCase
 {
-    /** @var Connection|MockObject */
+    /** @var MockObject&Connection */
     private MockObject $connection;
 
     private SearchQueryHelper $helper;
@@ -31,7 +33,7 @@ final class SearchQueryHelperTest extends TestCase
     {
         $this->connection->method('quote')->with('test')->willReturn("'test'");
 
-        self::assertSame("'test'", $this->helper->safeQuote('test'));
+        $this->assertSame("'test'", $this->helper->safeQuote('test'));
     }
 
     public function testSafeQuoteUtiliseFallbackSiConnectionQuoteRetourneNonString(): void
@@ -67,24 +69,22 @@ final class SearchQueryHelperTest extends TestCase
     #[DataProvider('splitLabelAndIdentifiantProvider')]
     public function testSplitLabelAndIdentifiant(?string $label, array $expected): void
     {
-        self::assertSame($expected, $this->helper->splitLabelAndIdentifiant($label));
+        $this->assertSame($expected, $this->helper->splitLabelAndIdentifiant($label));
     }
 
     /**
-     * @return array<string, array{0: string|null, 1: array{0: string|null, 1: string|null}}>
+     * @return \Iterator<string, array{(string | null), array{(string | null), (string | null)}}>
      */
-    public static function splitLabelAndIdentifiantProvider(): array
+    public static function splitLabelAndIdentifiantProvider(): \Iterator
     {
-        return [
-            'label null' => [null, [null, null]],
-            'label vide' => ['', ['', null]],
-            'label sans dièse' => ['mairie', ['mairie', null]],
-            'label numerique sans dièse' => ['101', ['101', null]],
-            'label avec dièse simple' => ['#101', [null, '101']],
-            'label avec dièse et suffixe' => ['#101A', [null, '101A']],
-            'label uniquement dièse' => ['#', [null, '']],
-            'dièse pas en première position' => ['ab#101', ['ab#101', null]],
-        ];
+        yield 'label null' => [null, [null, null]];
+        yield 'label vide' => ['', ['', null]];
+        yield 'label sans dièse' => ['mairie', ['mairie', null]];
+        yield 'label numerique sans dièse' => ['101', ['101', null]];
+        yield 'label avec dièse simple' => ['#101', [null, '101']];
+        yield 'label avec dièse et suffixe' => ['#101A', [null, '101A']];
+        yield 'label uniquement dièse' => ['#', [null, '']];
+        yield 'dièse pas en première position' => ['ab#101', ['ab#101', null]];
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -100,20 +100,18 @@ final class SearchQueryHelperTest extends TestCase
             ->with($quoteInput)
             ->willReturn(sprintf("'%s'", $quoteInput));
 
-        self::assertSame($expected, $this->helper->buildCriteria($key, $value));
+        $this->assertSame($expected, $this->helper->buildCriteria($key, $value));
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return \Iterator<string, array<mixed>>
      */
-    public static function buildCriteriaExactProvider(): array
+    public static function buildCriteriaExactProvider(): \Iterator
     {
-        return [
-            'valeur string simple' => ['mon_champ', 'valeur', 'valeur', "(mon_champ='valeur')"],
-            'valeur entière' => ['id', 42, '42', "(id='42')"],
-            'valeur booléenne true' => ['actif', true, '1', "(actif='1')"],
-            'valeur booléenne false' => ['actif', false, '0', "(actif='0')"],
-        ];
+        yield 'valeur string simple' => ['mon_champ', 'valeur', 'valeur', "(mon_champ='valeur')"];
+        yield 'valeur entière' => ['id', 42, '42', "(id='42')"];
+        yield 'valeur booléenne true' => ['actif', true, '1', "(actif='1')"];
+        yield 'valeur booléenne false' => ['actif', false, '0', "(actif='0')"];
     }
 
     public function testBuildCriteriaExactAvecTableauProduitConditionOr(): void
@@ -123,7 +121,7 @@ final class SearchQueryHelperTest extends TestCase
 
         $result = $this->helper->buildCriteria('genre.ID_GENRE', ['1', '2', '3']);
 
-        self::assertSame("(genre.ID_GENRE='1' OR genre.ID_GENRE='2' OR genre.ID_GENRE='3')", $result);
+        $this->assertSame("(genre.ID_GENRE='1' OR genre.ID_GENRE='2' OR genre.ID_GENRE='3')", $result);
     }
 
     public function testBuildCriteriaExactAvecTableauDUnElement(): void
@@ -132,7 +130,7 @@ final class SearchQueryHelperTest extends TestCase
             ->with('5')
             ->willReturn("'5'");
 
-        self::assertSame("(id='5')", $this->helper->buildCriteria('id', ['5']));
+        $this->assertSame("(id='5')", $this->helper->buildCriteria('id', ['5']));
     }
 
     public function testBuildCriteriaAvecTableauVideLeveUneException(): void
@@ -155,7 +153,7 @@ final class SearchQueryHelperTest extends TestCase
 
         $result = $this->helper->buildCriteria('LIBELLE_ETABLISSEMENTINFORMATIONS', 'mairie', false);
 
-        self::assertSame("(LIBELLE_ETABLISSEMENTINFORMATIONS LIKE '%mairie%')", $result);
+        $this->assertSame("(LIBELLE_ETABLISSEMENTINFORMATIONS LIKE '%mairie%')", $result);
     }
 
     public function testBuildCriteriaLikeAvecTableauProduitMultiplesLike(): void
@@ -165,7 +163,7 @@ final class SearchQueryHelperTest extends TestCase
 
         $result = $this->helper->buildCriteria('LIBELLE', ['foo', 'bar'], false);
 
-        self::assertSame("(LIBELLE LIKE '%foo%' OR LIBELLE LIKE '%bar%')", $result);
+        $this->assertSame("(LIBELLE LIKE '%foo%' OR LIBELLE LIKE '%bar%')", $result);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -182,8 +180,8 @@ final class SearchQueryHelperTest extends TestCase
         $withDefault = $this->helper->buildCriteria('champ', 'abc');
         $withTrue = $this->helper->buildCriteria('champ', 'abc', true);
 
-        self::assertSame($withTrue, $withDefault);
-        self::assertStringContainsString('=', $withDefault);
-        self::assertStringNotContainsString('LIKE', $withDefault);
+        $this->assertSame($withTrue, $withDefault);
+        $this->assertStringContainsString('=', $withDefault);
+        $this->assertStringNotContainsString('LIKE', $withDefault);
     }
 }

@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Repository;
 
 use App\Entity\DossierNatureListe;
+use App\Entity\DossierType;
 use App\Repository\DossierNatureListeRepository;
 use App\Repository\DossierTypeRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class DossierNatureListeRepositoryTest extends KernelTestCase
+final class DossierNatureListeRepositoryTest extends KernelTestCase
 {
     private DossierNatureListeRepository $repository;
 
@@ -28,18 +31,18 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
         // Type 1 = Étude (devrait avoir des natures)
         $type = $this->dossierTypeRepository->find(1);
 
-        self::assertNotNull($type, 'Le type 1 devrait exister en base de données');
+        $this->assertInstanceOf(DossierType::class, $type, 'Le type 1 devrait exister en base de données');
 
         $natures = $this->repository->findByTypeOrderedByOrdre($type);
 
-        self::assertIsArray($natures);
-        self::assertNotEmpty($natures, 'Le type 1 devrait avoir au moins une nature');
+        $this->assertIsArray($natures);
+        $this->assertNotEmpty($natures, 'Le type 1 devrait avoir au moins une nature');
 
         // Vérifier que ce sont bien des DossierNatureListe
         foreach ($natures as $nature) {
-            self::assertInstanceOf(DossierNatureListe::class, $nature);
-            self::assertNotNull($nature->getId());
-            self::assertNotNull($nature->getLibelle());
+            $this->assertInstanceOf(DossierNatureListe::class, $nature);
+            $this->assertNotNull($nature->getId());
+            $this->assertNotNull($nature->getLibelle());
         }
     }
 
@@ -50,7 +53,7 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
     {
         $type = $this->dossierTypeRepository->find(1);
 
-        self::assertNotNull($type, 'Le type 1 devrait exister en base de données');
+        $this->assertInstanceOf(DossierType::class, $type, 'Le type 1 devrait exister en base de données');
 
         $natures = $this->repository->findByTypeOrderedByOrdre($type);
 
@@ -63,7 +66,7 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
         foreach ($natures as $nature) {
             $ordre = $nature->getOrdre();
             if (null !== $previousOrdre && null !== $ordre) {
-                self::assertGreaterThanOrEqual($previousOrdre, $ordre, 'Les natures doivent être triées par ordre croissant');
+                $this->assertGreaterThanOrEqual($previousOrdre, $ordre, 'Les natures doivent être triées par ordre croissant');
             }
 
             $previousOrdre = $ordre;
@@ -84,8 +87,8 @@ class DossierNatureListeRepositoryTest extends KernelTestCase
         $natures = $this->repository->findByTypeOrderedByOrdre($type);
 
         foreach ($natures as $nature) {
-            self::assertNotNull($nature->getType(), 'Chaque nature doit avoir un type');
-            self::assertEquals($type->getId(), $nature->getType()->getId(), 'Toutes les natures doivent appartenir au type demandé');
+            $this->assertInstanceOf(DossierType::class, $nature->getType(), 'Chaque nature doit avoir un type');
+            $this->assertEquals($type->getId(), $nature->getType()->getId(), 'Toutes les natures doivent appartenir au type demandé');
         }
     }
 }

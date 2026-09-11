@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Constant\GenreEtablissement;
@@ -32,7 +34,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 #[CoversMethod(EtablissementService::class, 'update')]
 #[CoversMethod(EtablissementService::class, 'checkAlerte')]
-class EtablissementUpdateTest extends TestCase
+final class EtablissementUpdateTest extends TestCase
 {
     /**
      * Construit le service avec des mocks minimaux.
@@ -52,22 +54,16 @@ class EtablissementUpdateTest extends TestCase
         $em->method('persist');
         $em->method('flush');
         $em->method('getReference')->willReturnCallback(fn (string $class, $id): MockObject => $this->createMock($class));
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $dossierRepo = $this->createMock(DossierRepository::class);
-        $avisDerogationsRepo = $this->createMock(AvisDerogationsRepository::class);
-        $parameterBag = $this->createMock(ParameterBagInterface::class);
-        $texteApplicable = $this->createMock(TexteApplicable::class);
         $persistenceService = new EtablissementPersistenceService($etablissementRepo);
 
         return new EtablissementService(
             $etablissementRepo,
-            $dossierRepo,
-            $avisDerogationsRepo,
-            $parameterBag,
+            $this->createStub(DossierRepository::class),
+            $this->createStub(AvisDerogationsRepository::class),
+            $this->createStub(ParameterBagInterface::class),
             $em,
-            $logger,
-            $texteApplicable,
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(TexteApplicable::class),
             $persistenceService,
             $informationsRepo
         );
@@ -134,7 +130,7 @@ class EtablissementUpdateTest extends TestCase
         $etablissementRepo = $this->createMock(EtablissementRepository::class);
         $etablissementRepo->method('find')->willReturn(null);
 
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
+        $informationsRepo = $this->createStub(EtablissementInformationsRepository::class);
 
         $service = $this->buildService($etablissementRepo, $informationsRepo);
 
@@ -222,8 +218,8 @@ class EtablissementUpdateTest extends TestCase
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
 
-        $etablissementRepo = $this->createMock(EtablissementRepository::class);
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
+        $etablissementRepo = $this->createStub(EtablissementRepository::class);
+        $informationsRepo = $this->createStub(EtablissementInformationsRepository::class);
         $service = $this->buildService($etablissementRepo, $informationsRepo);
 
         $result = $service->checkAlerte($etablissement, [
@@ -247,8 +243,8 @@ class EtablissementUpdateTest extends TestCase
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
 
-        $etablissementRepo = $this->createMock(EtablissementRepository::class);
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
+        $etablissementRepo = $this->createStub(EtablissementRepository::class);
+        $informationsRepo = $this->createStub(EtablissementInformationsRepository::class);
         $service = $this->buildService($etablissementRepo, $informationsRepo);
 
         $result = $service->checkAlerte($etablissement, [
@@ -274,8 +270,8 @@ class EtablissementUpdateTest extends TestCase
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
 
-        $etablissementRepo = $this->createMock(EtablissementRepository::class);
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
+        $etablissementRepo = $this->createStub(EtablissementRepository::class);
+        $informationsRepo = $this->createStub(EtablissementInformationsRepository::class);
         $service = $this->buildService($etablissementRepo, $informationsRepo);
 
         $result = $service->checkAlerte($etablissement, [
@@ -299,8 +295,8 @@ class EtablissementUpdateTest extends TestCase
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
 
-        $etablissementRepo = $this->createMock(EtablissementRepository::class);
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
+        $etablissementRepo = $this->createStub(EtablissementRepository::class);
+        $informationsRepo = $this->createStub(EtablissementInformationsRepository::class);
         $service = $this->buildService($etablissementRepo, $informationsRepo);
 
         $result = $service->checkAlerte($etablissement, [
@@ -324,8 +320,8 @@ class EtablissementUpdateTest extends TestCase
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
 
-        $etablissementRepo = $this->createMock(EtablissementRepository::class);
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
+        $etablissementRepo = $this->createStub(EtablissementRepository::class);
+        $informationsRepo = $this->createStub(EtablissementInformationsRepository::class);
         $service = $this->buildService($etablissementRepo, $informationsRepo);
 
         $result = $service->checkAlerte($etablissement, [
@@ -351,8 +347,8 @@ class EtablissementUpdateTest extends TestCase
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
 
-        $etablissementRepo = $this->createMock(EtablissementRepository::class);
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
+        $etablissementRepo = $this->createStub(EtablissementRepository::class);
+        $informationsRepo = $this->createStub(EtablissementInformationsRepository::class);
         $service = $this->buildService($etablissementRepo, $informationsRepo);
 
         // L'utilisateur supprime l'activité 20 → seul id=10 présent dans POST
@@ -378,8 +374,8 @@ class EtablissementUpdateTest extends TestCase
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
 
-        $etablissementRepo = $this->createMock(EtablissementRepository::class);
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
+        $etablissementRepo = $this->createStub(EtablissementRepository::class);
+        $informationsRepo = $this->createStub(EtablissementInformationsRepository::class);
         $service = $this->buildService($etablissementRepo, $informationsRepo);
 
         $result = $service->checkAlerte($etablissement, [

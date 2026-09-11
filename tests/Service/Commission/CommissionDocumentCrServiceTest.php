@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Commission;
 
 use App\Entity\Commission;
@@ -18,11 +20,8 @@ final class CommissionDocumentCrServiceTest extends TestCase
 {
     private string $tmpDir;
 
-    /** @var EntityManagerInterface|MockObject */
+    /** @var MockObject&EntityManagerInterface */
     private MockObject $entityManager;
-
-    /** @var LoggerInterface|MockObject */
-    private MockObject $logger;
 
     private CommissionDocumentCrService $service;
 
@@ -32,13 +31,13 @@ final class CommissionDocumentCrServiceTest extends TestCase
         mkdir($this->tmpDir, 0777, true);
 
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         $this->service = new CommissionDocumentCrService(
             $this->tmpDir,
             $this->entityManager,
             new Filesystem(),
-            $this->logger
+            $logger
         );
     }
 
@@ -56,12 +55,12 @@ final class CommissionDocumentCrServiceTest extends TestCase
 
         $commission = new Commission();
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $this->service->upload($commission, $uploadedFile);
 
-        self::assertSame('compte_rendu.odt', $commission->getDocumentCr());
-        self::assertFileExists($this->tmpDir.'compte_rendu.odt');
+        $this->assertSame('compte_rendu.odt', $commission->getDocumentCr());
+        $this->assertFileExists($this->tmpDir.'compte_rendu.odt');
     }
 
     public function testUploadRemplaceAncienFichier(): void
@@ -77,13 +76,13 @@ final class CommissionDocumentCrServiceTest extends TestCase
 
         $uploadedFile = new UploadedFile($tmpFile, 'nouveau.odt', 'application/vnd.oasis.opendocument.text', null, true);
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $this->service->upload($commission, $uploadedFile);
 
-        self::assertSame('nouveau.odt', $commission->getDocumentCr());
-        self::assertFileDoesNotExist($ancienFichier);
-        self::assertFileExists($this->tmpDir.'nouveau.odt');
+        $this->assertSame('nouveau.odt', $commission->getDocumentCr());
+        $this->assertFileDoesNotExist($ancienFichier);
+        $this->assertFileExists($this->tmpDir.'nouveau.odt');
     }
 
     public function testDeleteSupprimeFichierEtVideBdd(): void
@@ -94,23 +93,23 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $commission = new Commission();
         $commission->setDocumentCr('compte_rendu.odt');
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $this->service->delete($commission);
 
-        self::assertNull($commission->getDocumentCr());
-        self::assertFileDoesNotExist($fichier);
+        $this->assertNull($commission->getDocumentCr());
+        $this->assertFileDoesNotExist($fichier);
     }
 
     public function testDeleteSansDocumentNeFaitRien(): void
     {
         $commission = new Commission();
 
-        $this->entityManager->expects(self::never())->method('flush');
+        $this->entityManager->expects($this->never())->method('flush');
 
         $this->service->delete($commission);
 
-        self::assertNull($commission->getDocumentCr());
+        $this->assertNull($commission->getDocumentCr());
     }
 
     public function testDeleteFichierAbsentNeLeveAucuneException(): void
@@ -118,12 +117,12 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $commission = new Commission();
         $commission->setDocumentCr('fichier_inexistant.odt');
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         // Ne doit pas lever d'exception même si le fichier n'existe pas
         $this->service->delete($commission);
 
-        self::assertNull($commission->getDocumentCr());
+        $this->assertNull($commission->getDocumentCr());
     }
 
     public function testDocumentCrExistsRetourneTrueSiFichierPresent(): void
@@ -134,14 +133,14 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $commission = new Commission();
         $commission->setDocumentCr('compte_rendu.odt');
 
-        self::assertTrue($this->service->documentCrExists($commission));
+        $this->assertTrue($this->service->documentCrExists($commission));
     }
 
     public function testDocumentCrExistsRetourneFalseSiAucunDocument(): void
     {
         $commission = new Commission();
 
-        self::assertFalse($this->service->documentCrExists($commission));
+        $this->assertFalse($this->service->documentCrExists($commission));
     }
 
     public function testDocumentCrExistsRetourneFalseSiFichierAbsent(): void
@@ -149,7 +148,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $commission = new Commission();
         $commission->setDocumentCr('fichier_absent.odt');
 
-        self::assertFalse($this->service->documentCrExists($commission));
+        $this->assertFalse($this->service->documentCrExists($commission));
     }
 
     /**
@@ -163,6 +162,6 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $commission = new Commission();
         $commission->setDocumentCr('');
 
-        self::assertFalse($this->service->documentCrExists($commission));
+        $this->assertFalse($this->service->documentCrExists($commission));
     }
 }

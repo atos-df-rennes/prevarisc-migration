@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
@@ -83,13 +85,13 @@ final class DossierEditNature2Test extends WebTestCase
         $content = $client->getResponse()->getContent();
 
         foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
+            $this->assertStringContainsString($label, (string) $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
         }
 
         // Vérifier que certains champs spécifiques aux études sont présents
-        $this->assertStringContainsString('documentsUrbanisme', $content, 'Le champ documentsUrbanisme devrait être présent');
-        $this->assertStringContainsString('incomplet', $content, 'Le champ incomplet devrait être présent');
-        $this->assertStringContainsString('horsDelai', $content, 'Le champ horsDelai devrait être présent');
+        $this->assertStringContainsString('documentsUrbanisme', (string) $content, 'Le champ documentsUrbanisme devrait être présent');
+        $this->assertStringContainsString('incomplet', (string) $content, 'Le champ incomplet devrait être présent');
+        $this->assertStringContainsString('horsDelai', (string) $content, 'Le champ horsDelai devrait être présent');
     }
 
     protected function tearDown(): void

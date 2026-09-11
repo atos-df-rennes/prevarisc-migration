@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
@@ -23,16 +25,28 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementManifestationTemporaireVoterTest extends TestCase
+final class EtablissementManifestationTemporaireVoterTest extends TestCase
 {
+    /**
+     * @var MockObject&ResourcesRepository
+     */
     private MockObject $resourcesRepository;
 
+    /**
+     * @var MockObject&PrivilegesRepository
+     */
     private MockObject $privilegesRepository;
 
+    /**
+     * @var MockObject&LoggerInterface
+     */
     private MockObject $logger;
 
     private EtablissementManifestationTemporaireVoter $voter;
 
+    /**
+     * @var MockObject&TokenInterface
+     */
     private MockObject $token;
 
     protected function setUp(): void
@@ -59,7 +73,7 @@ class EtablissementManifestationTemporaireVoterTest extends TestCase
 
     public function testAbstainIfParentDoesNotSupport(): void
     {
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
 
         $this->assertSame(
             VoterInterface::ACCESS_ABSTAIN,
@@ -76,9 +90,9 @@ class EtablissementManifestationTemporaireVoterTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('warning')
-            ->with($this->equalTo("Aucune règle trouvée pour les manifestations temporaires. Il est recommandé d'en ajouter une."));
+            ->with("Aucune règle trouvée pour les manifestations temporaires. Il est recommandé d'en ajouter une.");
 
-        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createMock(Groupe::class)]));
+        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
 
         $etablissement = $this->createEtablissementMock();
 
@@ -97,9 +111,9 @@ class EtablissementManifestationTemporaireVoterTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('warning')
-            ->with($this->equalTo('Plusieurs règles trouvées pour les manifestations temporaires. Il est recommandé de supprimer les doublons.'));
+            ->with('Plusieurs règles trouvées pour les manifestations temporaires. Il est recommandé de supprimer les doublons.');
 
-        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createMock(Groupe::class)]));
+        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
 
         $etablissement = $this->createEtablissementMock();
 
@@ -154,7 +168,7 @@ class EtablissementManifestationTemporaireVoterTest extends TestCase
             ->method('findRessourcesSpecialiseesEtablissementManifestationTemporaire')
             ->willReturn($resource);
 
-        $privilege = $this->createMock(Privileges::class);
+        $privilege = $this->createStub(Privileges::class);
         $this->privilegesRepository
             ->method('findOneBy')
             ->with(['name' => EtablissementVoter::LECTURE, 'resource' => $resource])

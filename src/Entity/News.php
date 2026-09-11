@@ -3,19 +3,20 @@
 namespace App\Entity;
 
 use App\Repository\NewsRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: NewsRepository::class)]
 class News
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'ID_NEWS', type: 'bigint', options: ['unsigned' => true])]
+    #[ORM\Column(name: 'ID_NEWS', type: Types::BIGINT, options: ['unsigned' => true])]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'TYPE_NEWS', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'TYPE_NEWS', type: Types::STRING, length: 100, nullable: false)]
     private ?string $type = null;
 
-    #[ORM\Column(name: 'TEXTE_NEWS', type: 'text', nullable: false)]
+    #[ORM\Column(name: 'TEXTE_NEWS', type: Types::TEXT, nullable: false)]
     private ?string $texte = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]

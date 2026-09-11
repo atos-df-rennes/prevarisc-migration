@@ -2,12 +2,12 @@
 
 {% block lateral_navigation %}
     <ul class="nav nav-tabs nav-stacked menu_dashboard">
-        <li {% if app.request.get('_route') == 'search_etablissement' %}class="active"{% endif %}>
+        <li {% if app.current_route == 'search_etablissement' %}class="active"{% endif %}>
             <a href="{{ path('search_etablissement', {label: '', page: 1, Rechercher: 'Rechercher'}) }}">
                 <span class="glyphicon glyphicon-home" aria-hidden="true"></span> Établissements
             </a>
         </li>
-        <li {% if app.request.get('_route') == 'search_dossier' %}class="active"{% endif %}>
+        <li {% if app.current_route == 'search_dossier' %}class="active"{% endif %}>
             <a href="{{ path('search_dossier', {objet: '', page: 1, Rechercher: 'Rechercher'}) }}">
                 <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span> Dossiers
             </a>

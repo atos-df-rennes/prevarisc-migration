@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Commission;
 
 use App\Entity\CommissionMembre;
@@ -20,11 +22,8 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 {
     private string $tmpDir;
 
-    /** @var EntityManagerInterface|MockObject */
+    /** @var MockObject&EntityManagerInterface */
     private MockObject $entityManager;
-
-    /** @var LoggerInterface|MockObject */
-    private MockObject $logger;
 
     private CommissionMembreCourrierService $service;
 
@@ -34,13 +33,13 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         mkdir($this->tmpDir, 0777, true);
 
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $logger = $this->createStub(LoggerInterface::class);
 
         $this->service = new CommissionMembreCourrierService(
             $this->tmpDir,
             $this->entityManager,
             new Filesystem(),
-            $this->logger
+            $logger
         );
     }
 
@@ -59,25 +58,23 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 
         $membre = $this->createMembreWithId(42);
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $this->service->upload($membre, $type, $uploadedFile);
 
-        self::assertSame('courrier.odt', $membre->$getter());
-        self::assertFileExists($this->tmpDir.'42'.$type.'_courrier.odt');
+        $this->assertSame('courrier.odt', $membre->$getter());
+        $this->assertFileExists($this->tmpDir.'42'.$type.'_courrier.odt');
     }
 
     /**
-     * @return array<string, array{string, string}>
+     * @return \Iterator<string, array{string, string}>
      */
-    public static function uploadTypesProvider(): array
+    public static function uploadTypesProvider(): \Iterator
     {
-        return [
-            'convocation visite' => [CommissionMembreCourrierType::CONVOCATIONVISITE, 'getCourrierConvocationVisite'],
-            'convocation salle' => [CommissionMembreCourrierType::CONVOCATIONSALLE, 'getCourrierConvocationSalle'],
-            'ordre du jour' => [CommissionMembreCourrierType::ODJ, 'getCourrierOrdreDuJour'],
-            'pv' => [CommissionMembreCourrierType::PV, 'getCourrierProcesVerbal'],
-        ];
+        yield 'convocation visite' => [CommissionMembreCourrierType::CONVOCATIONVISITE, 'getCourrierConvocationVisite'];
+        yield 'convocation salle' => [CommissionMembreCourrierType::CONVOCATIONSALLE, 'getCourrierConvocationSalle'];
+        yield 'ordre du jour' => [CommissionMembreCourrierType::ODJ, 'getCourrierOrdreDuJour'];
+        yield 'pv' => [CommissionMembreCourrierType::PV, 'getCourrierProcesVerbal'];
     }
 
     public function testUploadRemplaceAncienCourrier(): void
@@ -93,13 +90,13 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 
         $uploadedFile = new UploadedFile($tmpFile, 'nouveau.odt', 'application/vnd.oasis.opendocument.text', null, true);
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $this->service->upload($membre, CommissionMembreCourrierType::CONVOCATIONVISITE, $uploadedFile);
 
-        self::assertSame('nouveau.odt', $membre->getCourrierConvocationVisite());
-        self::assertFileDoesNotExist($ancienFichier);
-        self::assertFileExists($this->tmpDir.'42CONVOCATIONVISITE_nouveau.odt');
+        $this->assertSame('nouveau.odt', $membre->getCourrierConvocationVisite());
+        $this->assertFileDoesNotExist($ancienFichier);
+        $this->assertFileExists($this->tmpDir.'42CONVOCATIONVISITE_nouveau.odt');
     }
 
     public function testDeleteSupprimeFichierEtVideBdd(): void
@@ -110,23 +107,23 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierOrdreDuJour('odj.odt');
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $this->service->delete($membre, CommissionMembreCourrierType::ODJ);
 
-        self::assertNull($membre->getCourrierOrdreDuJour());
-        self::assertFileDoesNotExist($fichier);
+        $this->assertNull($membre->getCourrierOrdreDuJour());
+        $this->assertFileDoesNotExist($fichier);
     }
 
     public function testDeleteSansCourrierNeFaitRien(): void
     {
         $membre = $this->createMembreWithId(42);
 
-        $this->entityManager->expects(self::never())->method('flush');
+        $this->entityManager->expects($this->never())->method('flush');
 
         $this->service->delete($membre, CommissionMembreCourrierType::CONVOCATIONSALLE);
 
-        self::assertNull($membre->getCourrierConvocationSalle());
+        $this->assertNull($membre->getCourrierConvocationSalle());
     }
 
     public function testDeleteFichierAbsentNeLeveAucuneException(): void
@@ -134,11 +131,11 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierProcesVerbal('fichier_inexistant.odt');
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $this->service->delete($membre, CommissionMembreCourrierType::PV);
 
-        self::assertNull($membre->getCourrierProcesVerbal());
+        $this->assertNull($membre->getCourrierProcesVerbal());
     }
 
     public function testUploadTypeInvalideLeveException(): void
@@ -171,14 +168,14 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierOrdreDuJour('odj.odt');
 
-        self::assertTrue($this->service->courrierExists($membre, CommissionMembreCourrierType::ODJ));
+        $this->assertTrue($this->service->courrierExists($membre, CommissionMembreCourrierType::ODJ));
     }
 
     public function testCourrierExistsRetourneFalseSiAucunCourrier(): void
     {
         $membre = $this->createMembreWithId(42);
 
-        self::assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::CONVOCATIONVISITE));
+        $this->assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::CONVOCATIONVISITE));
     }
 
     public function testCourrierExistsRetourneFalseSiFichierAbsent(): void
@@ -186,7 +183,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierProcesVerbal('fichier_absent.odt');
 
-        self::assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::PV));
+        $this->assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::PV));
     }
 
     public function testCourrierExistsTypeInvalideLeveException(): void

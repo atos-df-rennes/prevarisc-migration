@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
@@ -13,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel pour l'édition d'un dossier de nature 4 (Cahier des charges fonctionnel du SSI).
  */
 #[Group('functional')]
-class DossierEditNature4Test extends WebTestCase
+final class DossierEditNature4Test extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
 
@@ -82,17 +84,17 @@ class DossierEditNature4Test extends WebTestCase
         $content = $client->getResponse()->getContent();
 
         foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
+            $this->assertStringContainsString($label, (string) $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
         }
 
         // Vérifier que les champs incomplet et horsDelai sont présents (champs d'études)
-        $this->assertStringContainsString('incomplet', $content, 'Le champ incomplet devrait être présent');
-        $this->assertStringContainsString('horsDelai', $content, 'Le champ horsDelai devrait être présent');
+        $this->assertStringContainsString('incomplet', (string) $content, 'Le champ incomplet devrait être présent');
+        $this->assertStringContainsString('horsDelai', (string) $content, 'Le champ horsDelai devrait être présent');
 
         // Vérifier que documentsUrbanisme et serviceInstructeur SONT présents dans le HTML
         // (ils seront masqués par JavaScript côté client selon la nature)
-        $this->assertStringContainsString('documentsUrbanisme', $content, 'Le champ documentsUrbanisme devrait être présent dans le HTML');
-        $this->assertStringContainsString('serviceInstructeur', $content, 'Le champ serviceInstructeur devrait être présent dans le HTML');
+        $this->assertStringContainsString('documentsUrbanisme', (string) $content, 'Le champ documentsUrbanisme devrait être présent dans le HTML');
+        $this->assertStringContainsString('serviceInstructeur', (string) $content, 'Le champ serviceInstructeur devrait être présent dans le HTML');
     }
 
     protected function tearDown(): void

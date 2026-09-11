@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\DossierNatureListeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -10,16 +11,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Table(name: 'dossiernatureliste')]
 class DossierNatureListe
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_DOSSIERNATURE', type: 'bigint')]
+    #[ORM\Column(name: 'ID_DOSSIERNATURE', type: Types::BIGINT)]
     #[Groups(['api_response'])]
-    private $id;
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_DOSSIERNATURE', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_DOSSIERNATURE', type: Types::STRING, length: 100, nullable: false)]
     #[Groups(['api_response'])]
     private ?string $libelle = null;
 
@@ -27,7 +25,7 @@ class DossierNatureListe
     #[ORM\JoinColumn(name: 'ID_DOSSIERTYPE', referencedColumnName: 'ID_DOSSIERTYPE', nullable: false, options: ['unsigned' => true])]
     private ?DossierType $type = null;
 
-    #[ORM\Column(name: 'ORDRE', type: 'integer', nullable: true)]
+    #[ORM\Column(name: 'ORDRE', type: Types::INTEGER, nullable: true)]
     private ?int $ordre = null;
 
     public function getId(): ?int

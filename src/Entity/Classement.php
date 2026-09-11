@@ -3,21 +3,19 @@
 namespace App\Entity;
 
 use App\Repository\ClassementRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ClassementRepository::class)]
 #[ORM\Table(name: 'classement')]
 class Classement
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_CLASSEMENT', type: 'integer', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_CLASSEMENT', type: Types::INTEGER, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_CLASSEMENT', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_CLASSEMENT', type: Types::STRING, length: 255, nullable: false)]
     private ?string $libelle = null;
 
     public function getId(): ?int

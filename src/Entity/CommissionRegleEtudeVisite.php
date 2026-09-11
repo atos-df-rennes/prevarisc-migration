@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CommissionRegleEtudeVisiteRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommissionRegleEtudeVisiteRepository::class)]
@@ -15,7 +16,7 @@ class CommissionRegleEtudeVisite
     private ?CommissionRegle $regle = null;
 
     #[ORM\Id]
-    #[ORM\Column(name: 'ETUDEVISITE', type: 'smallint', nullable: false)]
+    #[ORM\Column(name: 'ETUDEVISITE', type: Types::SMALLINT, nullable: false)]
     private int $etudeVisite;
 
     public function getRegle(): ?CommissionRegle

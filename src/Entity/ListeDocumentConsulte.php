@@ -3,36 +3,34 @@
 namespace App\Entity;
 
 use App\Repository\ListeDocumentConsulteRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ListeDocumentConsulteRepository::class)]
 #[ORM\Table(name: 'listedocconsulte')]
 class ListeDocumentConsulte
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_DOC', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_DOC', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'LIBELLE_DOC', type: 'text', nullable: false)]
+    #[ORM\Column(name: 'LIBELLE_DOC', type: Types::TEXT, nullable: false)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'VISITE_DOC', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'VISITE_DOC', type: Types::BOOLEAN, nullable: false)]
     private ?bool $visite = null;
 
-    #[ORM\Column(name: 'ETUDE_DOC', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'ETUDE_DOC', type: Types::BOOLEAN, nullable: false)]
     private ?bool $etude = null;
 
-    #[ORM\Column(name: 'VISITERT_DOC', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'VISITERT_DOC', type: Types::BOOLEAN, nullable: false)]
     private ?bool $receptionTravaux = null;
 
-    #[ORM\Column(name: 'VISITEVAO_DOC', type: 'boolean', nullable: false)]
+    #[ORM\Column(name: 'VISITEVAO_DOC', type: Types::BOOLEAN, nullable: false)]
     private ?bool $avantOuverture = null;
 
-    #[ORM\Column(name: 'ORDRE_DOC', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'ORDRE_DOC', type: Types::INTEGER, nullable: false)]
     private ?int $ordre = null;
 
     public function getId(): ?int

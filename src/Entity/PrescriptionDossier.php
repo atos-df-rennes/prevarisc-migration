@@ -5,33 +5,31 @@ namespace App\Entity;
 use App\Repository\PrescriptionDossierRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PrescriptionDossierRepository::class)]
 #[ORM\Table(name: 'prescriptiondossier')]
 class PrescriptionDossier
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_PRESCRIPTION_DOSSIER', type: 'bigint')]
-    private $id;
+    #[ORM\Column(name: 'ID_PRESCRIPTION_DOSSIER', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'NUM_PRESCRIPTION_DOSSIER', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'NUM_PRESCRIPTION_DOSSIER', type: Types::INTEGER, nullable: false)]
     private ?int $numero = null;
 
-    #[ORM\Column(name: 'LIBELLE_PRESCRIPTION_DOSSIER', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'LIBELLE_PRESCRIPTION_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $libelle = null;
 
-    #[ORM\Column(name: 'TYPE_PRESCRIPTION_DOSSIER', type: 'integer', nullable: false)]
+    #[ORM\Column(name: 'TYPE_PRESCRIPTION_DOSSIER', type: Types::INTEGER, nullable: false)]
     private ?int $type = null;
 
-    #[ORM\Column(name: 'DATE_LEVEE', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'DATE_LEVEE', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateLevee = null;
 
-    #[ORM\Column(name: 'JUSTIFICATIF_LEVEE', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'JUSTIFICATIF_LEVEE', type: Types::TEXT, nullable: true)]
     private ?string $justificatif = null;
 
     #[ORM\ManyToOne(targetEntity: Dossier::class)]

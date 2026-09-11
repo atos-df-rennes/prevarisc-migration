@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Commission;
 
 use App\Repository\CommissionRepository;
@@ -16,16 +18,11 @@ final class CalendarServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $dateCommissionRepository = $this->createMock(DateCommissionRepository::class);
-        $commissionTypeEvenementRepository = $this->createMock(CommissionTypeEvenementRepository::class);
-        $commissionRepository = $this->createMock(CommissionRepository::class);
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-
         $this->calendarService = new CalendarService(
-            $dateCommissionRepository,
-            $commissionTypeEvenementRepository,
-            $commissionRepository,
-            $entityManager
+            $this->createStub(DateCommissionRepository::class),
+            $this->createStub(CommissionTypeEvenementRepository::class),
+            $this->createStub(CommissionRepository::class),
+            $this->createStub(EntityManagerInterface::class)
         );
     }
 
@@ -45,23 +42,21 @@ final class CalendarServiceTest extends TestCase
     /**
      * Fournit les données pour les tests de parseTimestamp.
      *
-     * @return array<string, array<int, mixed>>
+     * @return \Iterator<string, array<int, mixed>>
      */
-    public static function provideTimestampData(): array
+    public static function provideTimestampData(): \Iterator
     {
-        return [
-            'timestamp valide (millisecondes)' => [
-                '1642611600000', // 19 janvier 2022 15:00:00 UTC
-                new \DateTime()->setTimestamp(1642611600),
-            ],
-            'timestamp invalide (zeros)' => [
-                '0000000000000',
-                null,
-            ],
-            'timestamp invalide (vide avec zeros)' => [
-                '000',
-                null,
-            ],
+        yield 'timestamp valide (millisecondes)' => [
+            '1642611600000', // 19 janvier 2022 15:00:00 UTC
+            new \DateTime()->setTimestamp(1642611600),
+        ];
+        yield 'timestamp invalide (zeros)' => [
+            '0000000000000',
+            null,
+        ];
+        yield 'timestamp invalide (vide avec zeros)' => [
+            '000',
+            null,
         ];
     }
 
@@ -86,33 +81,31 @@ final class CalendarServiceTest extends TestCase
     /**
      * Fournit les données pour les tests de parseJavaScriptDateToTime.
      *
-     * @return array<string, array<int, mixed>>
+     * @return \Iterator<string, array<int, mixed>>
      */
-    public static function provideJavaScriptDateToTimeData(): array
+    public static function provideJavaScriptDateToTimeData(): \Iterator
     {
         // Note: Les heures sont en UTC dans le format ISO, mais converties en timezone locale
         // Avec Europe/Paris (UTC+1), 08:00:00Z devient 09:00:00
-        return [
-            'format valide avec millisecondes' => [
-                '2026-01-20T08:00:00.000Z',
-                '09:00:00', // UTC+1
-                false,
-            ],
-            'format valide sans millisecondes' => [
-                '2026-01-20T16:30:00Z',
-                '17:30:00', // UTC+1
-                false,
-            ],
-            'format de date invalide' => [
-                '2026/01/20T08:00:00.000Z',
-                '',
-                true,
-            ],
-            'format complètement invalide' => [
-                'invalid-date-string',
-                '',
-                true,
-            ],
+        yield 'format valide avec millisecondes' => [
+            '2026-01-20T08:00:00.000Z',
+            '09:00:00', // UTC+1
+            false,
+        ];
+        yield 'format valide sans millisecondes' => [
+            '2026-01-20T16:30:00Z',
+            '17:30:00', // UTC+1
+            false,
+        ];
+        yield 'format de date invalide' => [
+            '2026/01/20T08:00:00.000Z',
+            '',
+            true,
+        ];
+        yield 'format complètement invalide' => [
+            'invalid-date-string',
+            '',
+            true,
         ];
     }
 
@@ -138,38 +131,36 @@ final class CalendarServiceTest extends TestCase
     /**
      * Fournit les données pour les tests de parseJavaScriptDate.
      *
-     * @return array<string, array<int, mixed>>
+     * @return \Iterator<string, array<int, mixed>>
      */
-    public static function provideJavaScriptDateData(): array
+    public static function provideJavaScriptDateData(): \Iterator
     {
         // Note: Les dates sont en UTC dans le format ISO, converties en timezone locale
         // Avec Europe/Paris (UTC+1), les heures sont décalées de +1h
-        return [
-            'format valide avec millisecondes' => [
-                '2026-01-20T08:00:00.000Z',
-                '2026-01-20 09:00:00', // UTC+1
-                false,
-            ],
-            'format valide sans millisecondes' => [
-                '2026-01-20T14:30:00Z',
-                '2026-01-20 15:30:00', // UTC+1
-                false,
-            ],
-            'format de date invalide (slashes)' => [
-                '2026/01/20T08:00:00.000Z',
-                '',
-                true,
-            ],
-            'format complètement invalide' => [
-                'not-a-valid-date',
-                '',
-                true,
-            ],
-            'format sans timezone' => [
-                '2026-01-20T08:00:00',
-                '',
-                true,
-            ],
+        yield 'format valide avec millisecondes' => [
+            '2026-01-20T08:00:00.000Z',
+            '2026-01-20 09:00:00', // UTC+1
+            false,
+        ];
+        yield 'format valide sans millisecondes' => [
+            '2026-01-20T14:30:00Z',
+            '2026-01-20 15:30:00', // UTC+1
+            false,
+        ];
+        yield 'format de date invalide (slashes)' => [
+            '2026/01/20T08:00:00.000Z',
+            '',
+            true,
+        ];
+        yield 'format complètement invalide' => [
+            'not-a-valid-date',
+            '',
+            true,
+        ];
+        yield 'format sans timezone' => [
+            '2026-01-20T08:00:00',
+            '',
+            true,
         ];
     }
 }

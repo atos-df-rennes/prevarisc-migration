@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
@@ -13,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel pour l'édition d'un dossier de nature 6 (Salon type T).
  */
 #[Group('functional')]
-class DossierEditNature6Test extends WebTestCase
+final class DossierEditNature6Test extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
 
@@ -82,16 +84,16 @@ class DossierEditNature6Test extends WebTestCase
         $content = $client->getResponse()->getContent();
 
         foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
+            $this->assertStringContainsString($label, (string) $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
         }
 
         // Vérifier que les champs incomplet et horsDelai sont présents (champs d'études)
-        $this->assertStringContainsString('incomplet', $content, 'Le champ incomplet devrait être présent');
-        $this->assertStringContainsString('horsDelai', $content, 'Le champ horsDelai devrait être présent');
+        $this->assertStringContainsString('incomplet', (string) $content, 'Le champ incomplet devrait être présent');
+        $this->assertStringContainsString('horsDelai', (string) $content, 'Le champ horsDelai devrait être présent');
 
         // Vérifier que le champ chargeSecurite est présent (différence vs nature 5)
-        $this->assertStringContainsString('Chargé de sécurité (T)', $content, 'Le champ chargeSecurite devrait être présent');
-        $this->assertStringContainsString('dossier[chargeSecurite]', $content, 'Le champ chargeSecurite devrait être dans le HTML');
+        $this->assertStringContainsString('Chargé de sécurité (T)', (string) $content, 'Le champ chargeSecurite devrait être présent');
+        $this->assertStringContainsString('dossier[chargeSecurite]', (string) $content, 'Le champ chargeSecurite devrait être dans le HTML');
     }
 
     protected function tearDown(): void

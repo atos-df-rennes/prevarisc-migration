@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Dto\Platau;
 
 use App\Constant\Platau\HealthcheckErrorSource;
@@ -8,7 +10,7 @@ use App\Dto\Platau\MaintenanceInfo;
 use App\Dto\Platau\VersionInfo;
 use PHPUnit\Framework\TestCase;
 
-class HealthcheckResultTest extends TestCase
+final class HealthcheckResultTest extends TestCase
 {
     public function testSuccessFactorySerializesCorrectly(): void
     {
@@ -22,11 +24,11 @@ class HealthcheckResultTest extends TestCase
         $this->assertNull($data['errorSource']);
         $this->assertNull($data['maintenance']);
         $this->assertNotNull($data['message']);
-        $this->assertStringContainsString('fonctionnée', $data['message']);
-        $this->assertStringContainsString('<small>', $data['message']);
-        $this->assertStringContainsString('1.0.0', $data['message']);
-        $this->assertStringContainsString('model-1', $data['message']);
-        $this->assertStringContainsString('nomen-1', $data['message']);
+        $this->assertStringContainsString('fonctionnée', (string) $data['message']);
+        $this->assertStringContainsString('<small>', (string) $data['message']);
+        $this->assertStringContainsString('1.0.0', (string) $data['message']);
+        $this->assertStringContainsString('model-1', (string) $data['message']);
+        $this->assertStringContainsString('nomen-1', (string) $data['message']);
     }
 
     public function testSuccessWithoutVersionDetailsOmitsSmallTag(): void
@@ -38,7 +40,7 @@ class HealthcheckResultTest extends TestCase
         $data = json_decode((string) $json, true);
 
         $this->assertTrue($data['success']);
-        $this->assertStringNotContainsString('<small>', $data['message']);
+        $this->assertStringNotContainsString('<small>', (string) $data['message']);
     }
 
     public function testSuccessIncludesMaintenanceInfo(): void
@@ -76,8 +78,8 @@ class HealthcheckResultTest extends TestCase
         $json = json_encode($result);
         $data = json_decode((string) $json, true);
 
-        $this->assertStringNotContainsString('<script>', $data['message']);
-        $this->assertStringContainsString('&lt;script&gt;', $data['message']);
+        $this->assertStringNotContainsString('<script>', (string) $data['message']);
+        $this->assertStringContainsString('&lt;script&gt;', (string) $data['message']);
     }
 
     public function testPlatauErrorFactory(): void

@@ -3,30 +3,28 @@
 namespace App\Entity;
 
 use App\Repository\EtablissementAdresseRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EtablissementAdresseRepository::class)]
 #[ORM\Table(name: 'etablissementadresse')]
 class EtablissementAdresse
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_ADRESSE', type: 'bigint', options: ['unsigned' => true])]
-    private $id;
+    #[ORM\Column(name: 'ID_ADRESSE', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'NUMERO_ADRESSE', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'NUMERO_ADRESSE', type: Types::STRING, length: 255, nullable: true)]
     private ?string $numero = null;
 
-    #[ORM\Column(name: 'COMPLEMENT_ADRESSE', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'COMPLEMENT_ADRESSE', type: Types::STRING, length: 255, nullable: true)]
     private ?string $complement = null;
 
-    #[ORM\Column(name: 'LON_ETABLISSEMENTADRESSE', type: 'float', nullable: true)]
+    #[ORM\Column(name: 'LON_ETABLISSEMENTADRESSE', type: Types::FLOAT, nullable: true)]
     private ?float $longitude = null;
 
-    #[ORM\Column(name: 'LAT_ETABLISSEMENTADRESSE', type: 'float', nullable: true)]
+    #[ORM\Column(name: 'LAT_ETABLISSEMENTADRESSE', type: Types::FLOAT, nullable: true)]
     private ?float $latitude = null;
 
     #[ORM\ManyToOne(targetEntity: Commune::class)]

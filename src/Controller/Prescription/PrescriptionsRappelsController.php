@@ -46,6 +46,7 @@ class PrescriptionsRappelsController extends AbstractController
 
         return $this->render('prescriptions_rappels/form.html.twig', [
             'form' => $form,
+            'rappel_reg' => $rappelReg,
         ]);
     }
 }

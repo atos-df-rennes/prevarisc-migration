@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
@@ -13,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel pour l'édition d'un dossier de nature 10 (Suivi organisme formation SSIAP).
  */
 #[Group('functional')]
-class DossierEditNature10Test extends WebTestCase
+final class DossierEditNature10Test extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
 
@@ -82,16 +84,16 @@ class DossierEditNature10Test extends WebTestCase
         $content = $client->getResponse()->getContent();
 
         foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
+            $this->assertStringContainsString($label, (string) $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
         }
 
         // Vérifier que les champs incomplet et horsDelai sont présents (champs d'études)
-        $this->assertStringContainsString('incomplet', $content, 'Le champ incomplet devrait être présent');
-        $this->assertStringContainsString('horsDelai', $content, 'Le champ horsDelai devrait être présent');
+        $this->assertStringContainsString('incomplet', (string) $content, 'Le champ incomplet devrait être présent');
+        $this->assertStringContainsString('horsDelai', (string) $content, 'Le champ horsDelai devrait être présent');
 
         // Vérifier que commission et dateCommission sont dans le HTML (masqués par JS pour nature 10)
-        $this->assertStringContainsString('dossier[commission]', $content, 'Le champ commission devrait être dans le HTML');
-        $this->assertStringContainsString('dossier[dateCommission]', $content, 'Le champ dateCommission devrait être dans le HTML');
+        $this->assertStringContainsString('dossier[commission]', (string) $content, 'Le champ commission devrait être dans le HTML');
+        $this->assertStringContainsString('dossier[dateCommission]', (string) $content, 'Le champ dateCommission devrait être dans le HTML');
     }
 
     protected function tearDown(): void

@@ -14,8 +14,17 @@ parameters:
     symfony:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
     ignoreErrors:
+        # Les ID d'entités sont assignés par Doctrine via reflection (auto-increment ou clé
+        # naturelle), jamais par du code PHP visible : PHPStan ne peut pas le détecter et
+        # signale à tort le typage nullable comme mort et le retour comme incohérent.
         -
-            identifier: property.onlyRead
+            message: '#^Property .*::\$id \(.*\) is never assigned .* so it can be removed from the property type\.$#'
+            identifier: property.unusedType
+            paths:
+                - src/Entity
+        -
+            message: '#^Method .*::getId\(\) should return .* but returns .*\.$#'
+            identifier: return.type
             paths:
                 - src/Entity
         -

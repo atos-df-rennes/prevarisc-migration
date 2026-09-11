@@ -3,28 +3,26 @@
 namespace App\Entity;
 
 use App\Repository\ChampValeurListeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChampValeurListeRepository::class)]
 #[ORM\Table(name: 'champvaleurliste')]
 class ChampValeurListe
 {
-    /**
-     * @var int
-     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_VALEURLISTE', type: 'integer')]
-    private $id;
+    #[ORM\Column(name: 'ID_VALEURLISTE', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(name: 'VALEUR', type: 'string', length: 255, nullable: false)]
+    #[ORM\Column(name: 'VALEUR', type: Types::STRING, length: 255, nullable: false)]
     private string $valeur;
 
     #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'valeursListe')]
     #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false)]
     private ?Champ $champ = null;
 
-    #[ORM\Column(type: 'integer', nullable: false)]
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private ?int $idx = null;
 
     public function getId(): ?int

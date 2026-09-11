@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Dossier;
@@ -13,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel pour l'édition d'un dossier de nature 64 (Visite conseil).
  */
 #[Group('functional')]
-class DossierEditNature64Test extends WebTestCase
+final class DossierEditNature64Test extends WebTestCase
 {
     private EntityManagerInterface $entityManager;
 
@@ -74,7 +76,7 @@ class DossierEditNature64Test extends WebTestCase
         $content = $client->getResponse()->getContent();
 
         foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent", $label));
+            $this->assertStringContainsString($label, (string) $content, sprintf("Le label '%s' devrait être présent", $label));
         }
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Builder\VersionBuilder;
@@ -25,16 +27,14 @@ final class VersionTest extends KernelTestCase
         $this->assertSame($expected['link'], $version->link());
     }
 
-    public static function envProvider(): array
+    public static function envProvider(): \Iterator
     {
-        return [
+        yield [
+            '3.0',
+            '0',
             [
-                '3.0',
-                '0',
-                [
-                    'version' => 'v3.0.0',
-                    'link' => 'https://github.com/atos-df-rennes/prevarisc/releases/tag/v3.0.0',
-                ],
+                'version' => 'v3.0.0',
+                'link' => 'https://github.com/atos-df-rennes/prevarisc/releases/tag/v3.0.0',
             ],
         ];
     }

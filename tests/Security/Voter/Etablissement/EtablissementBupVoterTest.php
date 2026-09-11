@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
@@ -24,10 +26,16 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementBupVoterTest extends TestCase
+final class EtablissementBupVoterTest extends TestCase
 {
+    /**
+     * @var MockObject&ResourcesRepository
+     */
     private MockObject $resourcesRepository;
 
+    /**
+     * @var MockObject&PrivilegesRepository
+     */
     private MockObject $privilegesRepository;
 
     private EtablissementBupVoter $voter;
@@ -94,7 +102,7 @@ class EtablissementBupVoterTest extends TestCase
         $this->resourcesRepository->method('findRessourcesSpecialiseesEtablissementBup')
             ->willReturn([$this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_bup_1_1'])]);
         $privilege = new Privileges();
-        $commune = $this->createMock(Commune::class);
+        $commune = $this->createStub(Commune::class);
         $user = $this->createConfiguredMock(Utilisateur::class, [
             'getGroupe' => $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]),
             'getGroupements' => new ArrayCollection([$this->createConfiguredMock(Groupement::class, ['getCommunes' => new ArrayCollection([$commune])])]),
@@ -120,11 +128,11 @@ class EtablissementBupVoterTest extends TestCase
         $user = $this->createConfiguredMock(Utilisateur::class, [
             'getGroupe' => $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]),
             'getGroupements' => new ArrayCollection([$this->createConfiguredMock(Groupement::class, ['getCommunes' => new ArrayCollection()])]),
-            'getCommune' => $this->createMock(Commune::class)
+            'getCommune' => $this->createStub(Commune::class)
         ]);
         $etablissement = $this->createEtablissementMock();
         $etablissement->method('getAdresses')->willReturn(new ArrayCollection([
-            $this->createConfiguredMock(EtablissementAdresse::class, ['getCommune' => $this->createMock(Commune::class)])
+            $this->createConfiguredMock(EtablissementAdresse::class, ['getCommune' => $this->createStub(Commune::class)])
         ]));
         $this->privilegesRepository->method('findOneBy')->willReturn($privilege);
 

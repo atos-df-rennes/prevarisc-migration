@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Privilege;
 
 use App\Entity\Groupe;
@@ -12,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
+final class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
 {
     public function testVoteReturnsAccessGrantedWhenUserHasPrivilege(): void
     {
@@ -35,6 +37,6 @@ class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
 
         $result = $voter->vote($token, null, ['mon_privilege']);
 
-        $this->assertEquals(VoterInterface::ACCESS_GRANTED, $result);
+        $this->assertSame(VoterInterface::ACCESS_GRANTED, $result);
     }
 }
