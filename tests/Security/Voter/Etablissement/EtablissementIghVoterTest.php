@@ -25,6 +25,7 @@ use App\Service\Voter\VoterUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -34,7 +35,7 @@ final class EtablissementIghVoterTest extends TestCase
     /**
      * @param Privileges&MockObject $privilege
      */
-    private function createMockUserWithPrivileges(MockObject $privilege, array $groupements = [], ?MockObject $commune = null): MockObject
+    private function createMockUserWithPrivileges(MockObject $privilege, array $groupements = [], MockObject|Stub|null $commune = null): MockObject
     {
         $userPrivileges = $this->createMock(Collection::class);
         $userPrivileges->method('contains')->with($privilege)->willReturn(true);
@@ -50,7 +51,7 @@ final class EtablissementIghVoterTest extends TestCase
         return $user;
     }
 
-    private function createMockEtablissement(?MockObject $classe, array $communes = [], ?MockObject $commission = null): MockObject
+    private function createMockEtablissement(?MockObject $classe, array $communes = [], MockObject|Stub|null $commission = null): MockObject
     {
         $adresses = array_map(function ($commune): MockObject {
             $adresse = $this->createMock(EtablissementAdresse::class);
