@@ -2,7 +2,7 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% set texte_liste = app.request.get('texteListe') %}
+{% set texte_liste = app.request.attributes.get('texteListe') %}
 
 {% if texte_liste is null %}
     {% set title = 'Ajout d\'un nouveau texte' %}

@@ -9,7 +9,7 @@ final class ContactCriteria
 {
     public static function sortedByName(): Criteria
     {
-        return Criteria::create()
+        return Criteria::create(true)
             ->orderBy(['nom' => Order::Ascending, 'prenom' => Order::Ascending]);
     }
 }

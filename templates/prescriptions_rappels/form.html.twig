@@ -2,7 +2,7 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% set rappel_reg = app.request.get('rappelReg') %}
+{% set rappel_reg = app.request.attributes.get('rappelReg') %}
 
 {% if rappel_reg is null %}
     {% set title = 'Ajout d\'un nouveau rappel réglementaire' %}

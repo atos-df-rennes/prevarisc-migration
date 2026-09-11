@@ -2,7 +2,7 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% set article_liste = app.request.get('articleListe') %}
+{% set article_liste = app.request.attributes.get('articleListe') %}
 
 {% if article_liste is null %}
     {% set title = 'Ajout d\'un nouveau article' %}
