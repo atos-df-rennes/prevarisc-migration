@@ -44,7 +44,7 @@ final class NumeroIdGeneratorTest extends TestCase
             ->with(self::anything(), ['minId' => 1000, 'maxId' => 39999])
             ->willReturn(1042);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('getConnection')->willReturn($connection);
 
         $generator = new NumeroIdGenerator($entityManager);
@@ -56,10 +56,10 @@ final class NumeroIdGeneratorTest extends TestCase
 
     public function testGenerateRacineAppendsCelluleSuffix(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = $this->createStub(Connection::class);
         $connection->method('fetchOne')->willReturn(500);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('getConnection')->willReturn($connection);
 
         $generator = new NumeroIdGenerator($entityManager);
@@ -90,7 +90,7 @@ final class NumeroIdGeneratorTest extends TestCase
                 ['numeroid' => '01042.01'],
             ]);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('getConnection')->willReturn($connection);
 
         $generator = new NumeroIdGenerator($entityManager);
@@ -122,7 +122,7 @@ final class NumeroIdGeneratorTest extends TestCase
                 ['numeroid' => '01042.00.01'],
             ]);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('getConnection')->willReturn($connection);
 
         $generator = new NumeroIdGenerator($entityManager);
@@ -145,7 +145,7 @@ final class NumeroIdGeneratorTest extends TestCase
                 ['numeroid' => '01042.B'],
             ]);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('getConnection')->willReturn($connection);
 
         $generator = new NumeroIdGenerator($entityManager);

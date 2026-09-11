@@ -11,7 +11,6 @@ use App\Entity\CommissionTypeEvenement;
 use App\Entity\DateCommission;
 use App\Service\Commission\CommissionDatesTransformer;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -19,13 +18,9 @@ final class CommissionDatesTransformerTest extends TestCase
 {
     private CommissionDatesTransformer $transformer;
 
-    /** @var MockObject&LoggerInterface */
-    private MockObject $logger;
-
     protected function setUp(): void
     {
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->transformer = new CommissionDatesTransformer($this->logger);
+        $this->transformer = new CommissionDatesTransformer($this->createStub(LoggerInterface::class));
     }
 
     /**
@@ -173,7 +168,8 @@ final class CommissionDatesTransformerTest extends TestCase
         $dto->addDate($dateItem);
 
         // Vérifier que le logger est appelé avec le bon contexte
-        $this->logger->expects($this->once())
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
             ->method('error')
             ->with(
                 $this->stringContains('Informations manquantes'),
@@ -184,7 +180,8 @@ final class CommissionDatesTransformerTest extends TestCase
                 })
             );
 
-        $result = $this->transformer->transformToEntities($dto);
+        $transformer = new CommissionDatesTransformer($logger);
+        $result = $transformer->transformToEntities($dto);
 
         // Aucune entité ne devrait être créée
         $this->assertIsArray($result);

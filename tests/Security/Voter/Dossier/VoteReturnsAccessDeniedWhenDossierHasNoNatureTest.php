@@ -18,17 +18,17 @@ final class VoteReturnsAccessDeniedWhenDossierHasNoNatureTest extends TestCase
 {
     public function testVoteReturnsAccessDeniedWhenDossierHasNoNature(): void
     {
-        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $resourcesRepository = $this->createStub(ResourcesRepository::class);
         $privilegesRepository = $this->createStub(PrivilegesRepository::class);
         $collectionAccessChecker = $this->createStub(EtablissementCollectionAccessChecker::class);
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $user = $this->createStub(Utilisateur::class);
         $token->method('getUser')->willReturn($user);
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn(['resource_1']);
 
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getNature')->willReturn(null);
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);

@@ -33,7 +33,7 @@ final class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
 
     protected function setUp(): void
     {
-        $dossierRepository = $this->createMock(DossierRepository::class);
+        $dossierRepository = $this->createStub(DossierRepository::class);
         $dossierRepository->method('hasAlerteReceptionTravauxBulk')->willReturn([]);
         $dossierRepository->method('hasEcheancierTravauxBulk')->willReturn([]);
         $dossierRepository->method('countPiecesJointesBulk')->willReturn([]);

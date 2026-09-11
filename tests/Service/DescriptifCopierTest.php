@@ -31,18 +31,43 @@ use Psr\Log\LoggerInterface;
  */
 final class DescriptifCopierTest extends TestCase
 {
-    /** @var MockObject&EntityManagerInterface */
-    private MockObject $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var MockObject&LoggerInterface */
-    private MockObject $logger;
+    private LoggerInterface $logger;
 
     private DescriptifCopier $service;
 
     protected function setUp(): void
     {
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->recreateService($this->createStub(EntityManagerInterface::class), $this->createStub(LoggerInterface::class));
+    }
+
+    /**
+     * @return MockObject&EntityManagerInterface
+     */
+    private function useEntityManagerMock(): MockObject
+    {
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->recreateService($entityManager, $this->logger);
+
+        return $entityManager;
+    }
+
+    /**
+     * @return MockObject&LoggerInterface
+     */
+    private function useLoggerMock(): MockObject
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $this->recreateService($this->entityManager, $logger);
+
+        return $logger;
+    }
+
+    private function recreateService(EntityManagerInterface $entityManager, LoggerInterface $logger): void
+    {
+        $this->entityManager = $entityManager;
+        $this->logger = $logger;
         $this->service = new DescriptifCopier($this->entityManager, $this->logger);
     }
 
@@ -94,7 +119,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieSimpleSkipSiSourceNull(): void
     {
-        $this->entityManager->expects($this->never())->method('persist');
+        $this->useEntityManagerMock()->expects($this->never())->method('persist');
 
         $etablissement = $this->buildEtablissementAvecValeurs([]);
         $targetChamp = $this->buildSimpleChamp(20, 'Largeur');
@@ -121,7 +146,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieSimpleUpdateValeurExistante(): void
     {
-        $this->entityManager->expects($this->never())->method('persist');
+        $this->useEntityManagerMock()->expects($this->never())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('texte source');
         $targetValeur = new Valeur()->setStr('ancien texte');
@@ -150,7 +175,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieSimpleCreationSiTargetNull(): void
     {
-        $this->entityManager->expects($this->once())->method('persist')
+        $this->useEntityManagerMock()->expects($this->once())->method('persist')
             ->with(self::isInstanceOf(Valeur::class));
 
         $sourceValeur = new Valeur()->setStr('texte source');
@@ -219,7 +244,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testRubriqueAbsenteDansCibleEstIgnoree(): void
     {
-        $this->entityManager->expects($this->never())->method('persist');
+        $this->useEntityManagerMock()->expects($this->never())->method('persist');
 
         $sourceRubriques = [
             $this->buildRubriqueItem('Rubrique Absente', [
@@ -240,7 +265,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testRubriqueAbsenteDansCibleLoggue(): void
     {
-        $this->logger->expects($this->once())->method('warning')
+        $this->useLoggerMock()->expects($this->once())->method('warning')
             ->with(self::stringContains('rubrique'));
 
         $sourceRubriques = [
@@ -258,7 +283,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testChampAbsentDansCibleEstIgnore(): void
     {
-        $this->entityManager->expects($this->never())->method('persist');
+        $this->useEntityManagerMock()->expects($this->never())->method('persist');
 
         $sourceRubriques = [
             $this->buildRubriqueItem('Accès', [
@@ -279,7 +304,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testChampAbsentDansCibleLoggue(): void
     {
-        $this->logger->expects($this->once())->method('warning')
+        $this->useLoggerMock()->expects($this->once())->method('warning')
             ->with(self::stringContains('champ'));
 
         $sourceRubriques = [
@@ -302,7 +327,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieParentNonTableauCopieEnfantsParNom(): void
     {
-        $this->entityManager->expects($this->once())->method('persist');
+        $this->useEntityManagerMock()->expects($this->once())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('valeur enfant');
         $targetChampEnfant = $this->buildSimpleChamp(21, 'Sous-champ A');
@@ -347,7 +372,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieParentNonTableauEnfantAbsentDansCibleIgnore(): void
     {
-        $this->entityManager->expects($this->never())->method('persist');
+        $this->useEntityManagerMock()->expects($this->never())->method('persist');
 
         $sourceParent = $this->buildParentChamp(10, 'ParentChamp', false);
         $sourceEnfant = $this->buildSimpleChamp(11, 'Sous-champ Absent');
@@ -392,7 +417,7 @@ final class DescriptifCopierTest extends TestCase
     public function testCopieParentTableauSupprimeLignesExistantes(): void
     {
         $valeurExistante = new Valeur();
-        $this->entityManager->expects($this->once())->method('remove')->with($valeurExistante);
+        $this->useEntityManagerMock()->expects($this->once())->method('remove')->with($valeurExistante);
 
         $sourceParent = $this->buildParentChamp(10, 'Tableau', true);
         $targetParent = $this->buildParentChamp(20, 'Tableau', true);
@@ -422,7 +447,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieParentTableauCreeLignesSourceAvecIdxCorrect(): void
     {
-        $this->entityManager->expects($this->exactly(2))->method('persist');
+        $this->useEntityManagerMock()->expects($this->exactly(2))->method('persist');
 
         $sourceParent = $this->buildParentChamp(10, 'Tableau', true);
         $sourceEnfantA = $this->buildSimpleChamp(11, 'Col A');
@@ -468,7 +493,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieParentTableauColonneAbsenteDansCibleIgnoree(): void
     {
-        $this->entityManager->expects($this->never())->method('persist');
+        $this->useEntityManagerMock()->expects($this->never())->method('persist');
 
         $sourceParent = $this->buildParentChamp(10, 'Tableau', true);
         $sourceEnfant = $this->buildSimpleChamp(11, 'Col Absente');
@@ -506,7 +531,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieEtablissementVersDossier(): void
     {
-        $this->entityManager->expects($this->once())->method('persist');
+        $this->useEntityManagerMock()->expects($this->once())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('valeur établissement');
         $targetChamp = $this->buildSimpleChamp(20, 'Champ A');
@@ -535,7 +560,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieDossierVersDossier(): void
     {
-        $this->entityManager->expects($this->once())->method('persist');
+        $this->useEntityManagerMock()->expects($this->once())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('valeur dossier source');
         $targetChamp = $this->buildSimpleChamp(30, 'Champ A');
@@ -560,7 +585,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testCopieDossierVersDossierNeModifiePasDossierSource(): void
     {
-        $this->entityManager->expects($this->once())->method('persist');
+        $this->useEntityManagerMock()->expects($this->once())->method('persist');
 
         $sourceValeur = new Valeur()->setStr('valeur originale');
         $targetChamp = $this->buildSimpleChamp(31, 'Champ A');
@@ -590,7 +615,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testFlushEstAppelee(): void
     {
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->copyFromDossierToEtablissement(
             [],

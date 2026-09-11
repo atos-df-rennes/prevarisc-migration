@@ -20,8 +20,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
 {
     private string $tmpDir;
 
-    /** @var MockObject&EntityManagerInterface */
-    private MockObject $entityManager;
+    private EntityManagerInterface $entityManager;
 
     private CommissionDocumentCrService $service;
 
@@ -30,20 +29,34 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $this->tmpDir = sys_get_temp_dir().'/commission_cr_test_'.uniqid().'/';
         mkdir($this->tmpDir, 0777, true);
 
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $logger = $this->createStub(LoggerInterface::class);
-
-        $this->service = new CommissionDocumentCrService(
-            $this->tmpDir,
-            $this->entityManager,
-            new Filesystem(),
-            $logger
-        );
+        $this->recreateService($this->createStub(EntityManagerInterface::class));
     }
 
     protected function tearDown(): void
     {
         new Filesystem()->remove($this->tmpDir);
+    }
+
+    /**
+     * @return MockObject&EntityManagerInterface
+     */
+    private function useEntityManagerMock(): MockObject
+    {
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->recreateService($entityManager);
+
+        return $entityManager;
+    }
+
+    private function recreateService(EntityManagerInterface $entityManager): void
+    {
+        $this->entityManager = $entityManager;
+        $this->service = new CommissionDocumentCrService(
+            $this->tmpDir,
+            $this->entityManager,
+            new Filesystem(),
+            $this->createStub(LoggerInterface::class)
+        );
     }
 
     public function testUploadFichierOdtValide(): void
@@ -55,7 +68,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
 
         $commission = new Commission();
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->upload($commission, $uploadedFile);
 
@@ -76,7 +89,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
 
         $uploadedFile = new UploadedFile($tmpFile, 'nouveau.odt', 'application/vnd.oasis.opendocument.text', null, true);
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->upload($commission, $uploadedFile);
 
@@ -93,7 +106,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $commission = new Commission();
         $commission->setDocumentCr('compte_rendu.odt');
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->delete($commission);
 
@@ -105,7 +118,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
     {
         $commission = new Commission();
 
-        $this->entityManager->expects($this->never())->method('flush');
+        $this->useEntityManagerMock()->expects($this->never())->method('flush');
 
         $this->service->delete($commission);
 
@@ -117,7 +130,7 @@ final class CommissionDocumentCrServiceTest extends TestCase
         $commission = new Commission();
         $commission->setDocumentCr('fichier_inexistant.odt');
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         // Ne doit pas lever d'exception même si le fichier n'existe pas
         $this->service->delete($commission);

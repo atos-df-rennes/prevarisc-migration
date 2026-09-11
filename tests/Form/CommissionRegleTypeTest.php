@@ -209,10 +209,10 @@ final class CommissionRegleTypeTest extends TestCase
     public function testIgnorePostSubmitSiDataNestPasCommissionRegle(): void
     {
         // getData() retourne null → aucune exception, les collections ne sont pas modifiées
-        $localSommeilField = $this->createMock(FormInterface::class);
+        $localSommeilField = $this->createStub(FormInterface::class);
         $localSommeilField->method('getData')->willReturn([1]);
 
-        $etudeVisiteField = $this->createMock(FormInterface::class);
+        $etudeVisiteField = $this->createStub(FormInterface::class);
         $etudeVisiteField->method('getData')->willReturn([1]);
 
         $form = $this->createMock(FormInterface::class);
@@ -223,7 +223,7 @@ final class CommissionRegleTypeTest extends TestCase
             ['etudeVisite', $etudeVisiteField],
         ]);
 
-        $event = $this->createMock(FormEvent::class);
+        $event = $this->createStub(FormEvent::class);
         $event->method('getForm')->willReturn($form);
 
         // Aucune exception ne doit être levée
@@ -261,7 +261,7 @@ final class CommissionRegleTypeTest extends TestCase
      */
     private function buildFormMockCapturingAddOptions(array &$capturedOptions): FormInterface
     {
-        $form = $this->createMock(FormInterface::class);
+        $form = $this->createStub(FormInterface::class);
         $form->method('add')->willReturnCallback(
             function (string $child, string $type, array $options) use (&$capturedOptions, $form): FormInterface {
                 $capturedOptions[$child] = $options;
@@ -275,7 +275,7 @@ final class CommissionRegleTypeTest extends TestCase
 
     private function buildPreSetDataEvent(FormInterface $form, ?CommissionRegle $data): FormEvent
     {
-        $event = $this->createMock(FormEvent::class);
+        $event = $this->createStub(FormEvent::class);
         $event->method('getForm')->willReturn($form);
         $event->method('getData')->willReturn($data);
 
@@ -288,20 +288,20 @@ final class CommissionRegleTypeTest extends TestCase
      */
     private function buildPostSubmitEvent(CommissionRegle $regle, array $localSommeilValues, array $etudeVisiteValues): FormEvent
     {
-        $localSommeilField = $this->createMock(FormInterface::class);
+        $localSommeilField = $this->createStub(FormInterface::class);
         $localSommeilField->method('getData')->willReturn($localSommeilValues);
 
-        $etudeVisiteField = $this->createMock(FormInterface::class);
+        $etudeVisiteField = $this->createStub(FormInterface::class);
         $etudeVisiteField->method('getData')->willReturn($etudeVisiteValues);
 
-        $form = $this->createMock(FormInterface::class);
+        $form = $this->createStub(FormInterface::class);
         $form->method('getData')->willReturn($regle);
         $form->method('get')->willReturnMap([
             ['localSommeil', $localSommeilField],
             ['etudeVisite', $etudeVisiteField],
         ]);
 
-        $event = $this->createMock(FormEvent::class);
+        $event = $this->createStub(FormEvent::class);
         $event->method('getForm')->willReturn($form);
 
         return $event;

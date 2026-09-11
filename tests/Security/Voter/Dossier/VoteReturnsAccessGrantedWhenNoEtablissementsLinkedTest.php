@@ -28,8 +28,8 @@ final class VoteReturnsAccessGrantedWhenNoEtablissementsLinkedTest extends TestC
 {
     public function testVoteReturnsAccessGrantedWhenNoEtablissementsLinked(): void
     {
-        $resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $resourcesRepository = $this->createStub(ResourcesRepository::class);
+        $privilegesRepository = $this->createStub(PrivilegesRepository::class);
 
         // Le checker ne doit pas être appelé car aucun établissement n'est lié
         $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
@@ -37,23 +37,23 @@ final class VoteReturnsAccessGrantedWhenNoEtablissementsLinkedTest extends TestC
 
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
-        $token = $this->createMock(TokenInterface::class);
-        $user = $this->createMock(Utilisateur::class);
+        $token = $this->createStub(TokenInterface::class);
+        $user = $this->createStub(Utilisateur::class);
         $token->method('getUser')->willReturn($user);
 
-        $resource = $this->createMock(Resources::class);
+        $resource = $this->createStub(Resources::class);
         $resource->method('getName')->willReturn('dossier_1');
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resource]);
 
         $privilege = $this->createStub(Privileges::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);
 
-        $group = $this->createMock(Groupe::class);
+        $group = $this->createStub(Groupe::class);
         $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
         $user->method('getGroupe')->willReturn($group);
 
-        $dossier = $this->createMock(Dossier::class);
-        $nature = $this->createMock(DossierNatureListe::class);
+        $dossier = $this->createStub(Dossier::class);
+        $nature = $this->createStub(DossierNatureListe::class);
         $nature->method('getId')->willReturn(1);
         $dossier->method('getNature')->willReturn($nature);
         $dossier->method('getEtablissements')->willReturn(new ArrayCollection([]));

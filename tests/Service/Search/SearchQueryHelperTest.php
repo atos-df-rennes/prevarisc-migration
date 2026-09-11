@@ -33,7 +33,7 @@ final class SearchQueryHelperTest extends TestCase
 
     public function testSafeQuoteRetourneLeResultatDeConnectionQuote(): void
     {
-        $this->connection->method('quote')->with('test')->willReturn("'test'");
+        $this->connection->expects($this->once())->method('quote')->with('test')->willReturn("'test'");
 
         $this->assertSame("'test'", $this->helper->safeQuote('test'));
     }
@@ -98,7 +98,8 @@ final class SearchQueryHelperTest extends TestCase
     #[DataProvider('buildCriteriaExactProvider')]
     public function testBuildCriteriaExactProduitConditionEgalite(string $key, string|int|bool $value, string $quoteInput, string $expected): void
     {
-        $this->connection->method('quote')
+        $this->connection->expects($this->once())
+            ->method('quote')
             ->with($quoteInput)
             ->willReturn(sprintf("'%s'", $quoteInput));
 
@@ -128,7 +129,8 @@ final class SearchQueryHelperTest extends TestCase
 
     public function testBuildCriteriaExactAvecTableauDUnElement(): void
     {
-        $this->connection->method('quote')
+        $this->connection->expects($this->once())
+            ->method('quote')
             ->with('5')
             ->willReturn("'5'");
 
@@ -149,7 +151,8 @@ final class SearchQueryHelperTest extends TestCase
 
     public function testBuildCriteriaLikeProduitConditionLike(): void
     {
-        $this->connection->method('quote')
+        $this->connection->expects($this->once())
+            ->method('quote')
             ->with('%mairie%')
             ->willReturn("'%mairie%'");
 
@@ -174,7 +177,8 @@ final class SearchQueryHelperTest extends TestCase
 
     public function testBuildCriteriaExactVraiParDefaut(): void
     {
-        $this->connection->method('quote')
+        $this->connection->expects($this->exactly(2))
+            ->method('quote')
             ->with('abc')
             ->willReturn("'abc'");
 

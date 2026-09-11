@@ -18,7 +18,6 @@ use App\Service\TexteApplicable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversMethod;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -42,11 +41,9 @@ final class EtablissementSaveTest extends TestCase
         ?Etablissement $filsEtablissement = null,
         ?Etablissement $pereEtablissement = null
     ): EtablissementService {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('beginTransaction');
-        $connection->method('rollBack');
+        $connection = $this->createStub(Connection::class);
 
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->createStub(EntityManagerInterface::class);
         $em->method('getConnection')->willReturn($connection);
         // On simule la persistance en affectant l'ID=1 via réflexion
         $em->method('persist')->willReturnCallback(static function (object $entity): void {
@@ -57,9 +54,9 @@ final class EtablissementSaveTest extends TestCase
             }
         });
         $em->method('flush');
-        $em->method('getReference')->willReturnCallback(fn (string $class, $id): MockObject => $this->createMock($class));
+        $em->method('getReference')->willReturnCallback(fn (string $class, $id): object => $this->createStub($class));
 
-        $etablissementRepo = $this->createMock(EtablissementRepository::class);
+        $etablissementRepo = $this->createStub(EtablissementRepository::class);
         $etablissementRepo->method('find')->willReturnCallback(
             function ($id) use ($filsEtablissement, $pereEtablissement): ?Etablissement {
                 if (null !== $filsEtablissement && 10 === (int) $id) {
@@ -93,13 +90,13 @@ final class EtablissementSaveTest extends TestCase
      */
     private function createEtablissementWithGenre(int $genreId): Etablissement
     {
-        $genre = $this->createMock(Genre::class);
+        $genre = $this->createStub(Genre::class);
         $genre->method('getId')->willReturn($genreId);
 
-        $informations = $this->createMock(EtablissementInformations::class);
+        $informations = $this->createStub(EtablissementInformations::class);
         $informations->method('getGenre')->willReturn($genre);
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
         $etablissement->method('getId')->willReturn(10);
 

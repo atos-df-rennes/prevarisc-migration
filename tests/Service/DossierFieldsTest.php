@@ -86,7 +86,7 @@ final class DossierFieldsTest extends TestCase
 
     public function testGetFieldsToDisplayReturnsEmptyArrayWhenNoNature(): void
     {
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getNature')->willReturn(null);
 
         $this->assertEmpty($this->service->getFieldsToDisplay($dossier));
@@ -107,10 +107,10 @@ final class DossierFieldsTest extends TestCase
 
     private function createDossierWithNature(int $natureId): Dossier
     {
-        $nature = $this->createMock(DossierNatureListe::class);
+        $nature = $this->createStub(DossierNatureListe::class);
         $nature->method('getId')->willReturn($natureId);
 
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getNature')->willReturn($nature);
 
         return $dossier;
