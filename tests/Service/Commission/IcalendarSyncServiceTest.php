@@ -7,9 +7,11 @@ namespace App\Tests\Service\Commission;
 use App\Repository\DateCommissionRepository;
 use App\Service\Commission\IcalendarSyncService;
 use App\Service\Commission\IcsVTimezoneBuilder;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 final class IcalendarSyncServiceTest extends TestCase
 {
     protected function setUp(): void

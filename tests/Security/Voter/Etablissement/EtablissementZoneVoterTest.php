@@ -18,39 +18,32 @@ use App\Repository\ResourcesRepository;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Security\Voter\Etablissement\EtablissementZoneVoter;
 use Doctrine\Common\Collections\ArrayCollection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 final class EtablissementZoneVoterTest extends TestCase
 {
-    /**
-     * @var MockObject&ResourcesRepository
-     */
-    private MockObject $resourcesRepository;
+    private ResourcesRepository $resourcesRepository;
 
-    /**
-     * @var MockObject&PrivilegesRepository
-     */
-    private MockObject $privilegesRepository;
+    private PrivilegesRepository $privilegesRepository;
 
     private EtablissementZoneVoter $voter;
 
     protected function setUp(): void
     {
-        $this->resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $this->privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $this->resourcesRepository = $this->createStub(ResourcesRepository::class);
+        $this->privilegesRepository = $this->createStub(PrivilegesRepository::class);
         $this->voter = new EtablissementZoneVoter($this->resourcesRepository, $this->privilegesRepository);
     }
 
     private function createEtablissementMock(?Classement $classement = null): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::ZONE]);
-        $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
+        $genre = $this->createConfiguredStub(Genre::class, ['getId' => GenreEtablissement::ZONE]);
+        $latestInformations = $this->createConfiguredStub(EtablissementInformations::class, ['getGenre' => $genre]);
         $latestInformations->method('getClassement')->willReturn($classement);
 
-        return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
+        return $this->createConfiguredStub(Etablissement::class, ['getLatestInformations' => $latestInformations]);
     }
 
     public function testAbstainIfParentDoesNotSupport(): void
@@ -81,7 +74,7 @@ final class EtablissementZoneVoterTest extends TestCase
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementZone')
             ->willReturn([$this->createStub(Resources::class)]);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
         $etablissement = $this->createEtablissementMock();
         $this->assertSame(
@@ -92,14 +85,14 @@ final class EtablissementZoneVoterTest extends TestCase
 
     public function testGrantIfPrivilegeAllExists(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_zone_0_0_0']);
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_zone_0_0_0']);
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementZone')
             ->willReturn([$resource]);
         $privilege = new Privileges();
-        $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
-        $token = $this->createMock(TokenInterface::class);
+        $userGroup = $this->createConfiguredStub(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
+        $user = $this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $userGroup]);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
         $etablissement = $this->createEtablissementMock();
         $this->privilegesRepository
@@ -113,13 +106,13 @@ final class EtablissementZoneVoterTest extends TestCase
 
     public function testDenyIfNoMatchingPrivileges(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_zone_0_0_0']);
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_zone_0_0_0']);
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementZone')
             ->willReturn([$resource]);
-        $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection()]);
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
-        $token = $this->createMock(TokenInterface::class);
+        $userGroup = $this->createConfiguredStub(Groupe::class, ['getPrivileges' => new ArrayCollection()]);
+        $user = $this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $userGroup]);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
         $etablissement = $this->createEtablissementMock();
         $this->privilegesRepository
@@ -133,16 +126,16 @@ final class EtablissementZoneVoterTest extends TestCase
 
     public function testGrantIfPrivilegeSpecificClassementExists(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_zone_4_0_0']);
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_zone_4_0_0']);
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementZone')
             ->willReturn([$resource]);
         $privilege = new Privileges();
-        $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
-        $token = $this->createMock(TokenInterface::class);
+        $userGroup = $this->createConfiguredStub(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
+        $user = $this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $userGroup]);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
-        $classement = $this->createConfiguredMock(Classement::class, ['getId' => 4]);
+        $classement = $this->createConfiguredStub(Classement::class, ['getId' => 4]);
         $etablissement = $this->createEtablissementMock($classement);
         // On simule le classement de la zone à 4
         $this->privilegesRepository
@@ -156,17 +149,17 @@ final class EtablissementZoneVoterTest extends TestCase
 
     public function testGrantIfPrivilegeOnAnyMatchingClassementRule(): void
     {
-        $resourceSingle = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_zone_4_0_0']);
-        $resourceMulti = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_zone_4-5_0_0']);
+        $resourceSingle = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_zone_4_0_0']);
+        $resourceMulti = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_zone_4-5_0_0']);
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementZone')
             ->willReturn([$resourceSingle, $resourceMulti]);
         $privilege = new Privileges();
-        $userGroup = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
-        $token = $this->createMock(TokenInterface::class);
+        $userGroup = $this->createConfiguredStub(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
+        $user = $this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $userGroup]);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
-        $classement = $this->createConfiguredMock(Classement::class, ['getId' => 4]);
+        $classement = $this->createConfiguredStub(Classement::class, ['getId' => 4]);
         $etablissement = $this->createEtablissementMock($classement);
         // On simule le classement de la zone à 4
         $this->privilegesRepository

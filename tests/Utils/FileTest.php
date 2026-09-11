@@ -72,7 +72,7 @@ final class FileTest extends TestCase
     public function testSanitizeException(string $input): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Le nom du fichier n'est pas correct.");
+        $this->expectExceptionMessageIsOrContains("Le nom du fichier n'est pas correct.");
 
         File::sanitize($input);
     }

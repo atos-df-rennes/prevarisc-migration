@@ -14,7 +14,7 @@ final class VoteReturnsAccessAbstainWhenPrivilegeIsUnknownTest extends TestCase
 {
     public function testVoteReturnsAccessAbstainWhenPrivilegeIsUnknown(): void
     {
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $privilegesRepository = $this->createStub(PrivilegesRepository::class);
         $privilegesRepository->method('findAll')->willReturn([]);
 
         $voter = new PrivilegeVoter($privilegesRepository);

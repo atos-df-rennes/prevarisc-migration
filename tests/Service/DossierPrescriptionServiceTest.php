@@ -88,6 +88,7 @@ final class DossierPrescriptionServiceTest extends TestCase
 
         $callArgs = [];
         $this->repository
+            ->expects($this->exactly(2))
             ->method('renumeroterParIds')
             ->willReturnCallback(function (Dossier $d, array $ids) use (&$callArgs): void {
                 $callArgs[] = $ids;
@@ -108,8 +109,21 @@ final class DossierPrescriptionServiceTest extends TestCase
         $security = $this->createStub(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
-        $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
-        $this->repository->method('findByDossierAndType')->willReturn([]);
+        $this->repository->expects($this->once())
+            ->method('findMaxNumeroByDossierAndTypes')
+            ->with($this->identicalTo($dossier), [TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION])
+            ->willReturn(0);
+        $this->repository->expects($this->exactly(2))
+            ->method('findByDossierAndType')
+            ->willReturnCallback(function (Dossier $currentDossier, int $type) use ($dossier): array {
+                $this->assertSame($dossier, $currentDossier);
+                $this->assertContains($type, [TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION]);
+
+                return [];
+            });
+        $this->repository->expects($this->once())
+            ->method('renumeroterParIds')
+            ->with($this->identicalTo($dossier), []);
 
         $em->method('wrapInTransaction')->willReturnCallback(fn (callable $callback) => $callback($em));
         $em->expects($this->once())->method('persist')
@@ -127,13 +141,22 @@ final class DossierPrescriptionServiceTest extends TestCase
     {
         $dossier = $this->createStub(Dossier::class);
         $prescriptionType = $this->createStub(PrescriptionType::class);
-        $em = $this->createMock(EntityManager::class);
+        $em = $this->createStub(EntityManager::class);
         $logger = $this->createStub(LoggerInterface::class);
         $security = $this->createStub(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
-        $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(3);
-        $this->repository->method('findByDossierAndType')->willReturn([]);
+        $this->repository->expects($this->once())
+            ->method('findMaxNumeroByDossierAndTypes')
+            ->with($this->identicalTo($dossier), [TypePrescription::REGLEMENTAIRE])
+            ->willReturn(3);
+        $this->repository->expects($this->once())
+            ->method('findByDossierAndType')
+            ->with($this->identicalTo($dossier), TypePrescription::REGLEMENTAIRE)
+            ->willReturn([]);
+        $this->repository->expects($this->once())
+            ->method('renumeroterParIds')
+            ->with($this->identicalTo($dossier), []);
 
         $em->method('wrapInTransaction')->willReturnCallback(fn (callable $callback) => $callback($em));
 
@@ -146,13 +169,26 @@ final class DossierPrescriptionServiceTest extends TestCase
     {
         $dossier = $this->createStub(Dossier::class);
         $prescriptionType = $this->createStub(PrescriptionType::class);
-        $em = $this->createMock(EntityManager::class);
+        $em = $this->createStub(EntityManager::class);
         $logger = $this->createStub(LoggerInterface::class);
         $security = $this->createStub(Security::class);
         $service = new DossierPrescriptionService($this->repository, $em, $logger, $security);
 
-        $this->repository->method('findMaxNumeroByDossierAndTypes')->willReturn(0);
-        $this->repository->method('findByDossierAndType')->willReturn([]);
+        $this->repository->expects($this->once())
+            ->method('findMaxNumeroByDossierAndTypes')
+            ->with($this->identicalTo($dossier), [TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION])
+            ->willReturn(0);
+        $this->repository->expects($this->exactly(2))
+            ->method('findByDossierAndType')
+            ->willReturnCallback(function (Dossier $currentDossier, int $type) use ($dossier): array {
+                $this->assertSame($dossier, $currentDossier);
+                $this->assertContains($type, [TypePrescription::EXPLOITATION, TypePrescription::AMELIORATION]);
+
+                return [];
+            });
+        $this->repository->expects($this->once())
+            ->method('renumeroterParIds')
+            ->with($this->identicalTo($dossier), []);
 
         $em->method('wrapInTransaction')->willReturnCallback(fn (callable $callback) => $callback($em));
 

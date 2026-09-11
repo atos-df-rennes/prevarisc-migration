@@ -123,7 +123,7 @@ final class DateAffectationTest extends KernelTestCase
             ->with('Le type de dossier est null.', ['id_dossier' => 1]);
 
         $dateAffectation = new DateAffectation($logger);
-        $dossier = $this->createConfiguredMock(Dossier::class, ['getId' => 1, 'getType' => null]);
+        $dossier = $this->createConfiguredStub(Dossier::class, ['getId' => 1, 'getType' => null]);
         $dateCommission = $this->createDateCommissionOfType();
 
         $this->assertNull($dateAffectation->getIdDateCommission($dossier, $dateCommission));
@@ -145,19 +145,20 @@ final class DateAffectationTest extends KernelTestCase
 
     private function createDossierOfType(int $typeId): Dossier
     {
-        return $this->createConfiguredMock(Dossier::class, ['getId' => 1, 'getType' => $this->createConfiguredMock(DossierType::class, ['getId' => $typeId])]);
+        return $this->createConfiguredStub(Dossier::class, [
+            'getId' => 1,
+            'getType' => $this->createConfiguredStub(DossierType::class, ['getId' => $typeId]),
+        ]);
     }
 
     private function createDateCommissionOfType(?int $typeId = null): DateCommission
     {
-        $dateCommission = $this->createConfiguredMock(DateCommission::class, ['getId' => 2]);
+        $configuration = ['getId' => 2];
 
         if (null !== $typeId) {
-            $dateCommission->method('getTypeEvenement')->willReturn(
-                $this->createConfiguredMock(CommissionTypeEvenement::class, ['getId' => $typeId])
-            );
+            $configuration['getTypeEvenement'] = $this->createConfiguredStub(CommissionTypeEvenement::class, ['getId' => $typeId]);
         }
 
-        return $dateCommission;
+        return $this->createConfiguredStub(DateCommission::class, $configuration);
     }
 }

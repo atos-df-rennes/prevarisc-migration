@@ -27,7 +27,7 @@ final class PlatauHealthcheckServiceTest extends TestCase
      */
     private function buildService(): PlatauHealthcheckService
     {
-        $proxy = $this->createMock(ProxyConfigurationService::class);
+        $proxy = $this->createStub(ProxyConfigurationService::class);
         $proxy->method('getCurlOptions')->willReturn([]);
 
         return new PlatauHealthcheckService(

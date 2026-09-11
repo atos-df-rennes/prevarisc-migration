@@ -26,11 +26,11 @@ final class GeobretagneUrlBuilderTest extends TestCase
 
     public function testBuildEtablissementViewerUrlReturnsNullWithoutGeolocatedAddress(): void
     {
-        $adresse = $this->createMock(EtablissementAdresse::class);
+        $adresse = $this->createStub(EtablissementAdresse::class);
         $adresse->method('getLongitude')->willReturn(null);
         $adresse->method('getLatitude')->willReturn(null);
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
         $etablissement->method('getAdresses')->willReturn(new ArrayCollection([$adresse]));
 
         $result = $this->builder->buildEtablissementViewerUrl(
@@ -45,14 +45,14 @@ final class GeobretagneUrlBuilderTest extends TestCase
 
     public function testBuildEtablissementViewerUrlBuildsExpectedUrl(): void
     {
-        $adresse = $this->createMock(EtablissementAdresse::class);
+        $adresse = $this->createStub(EtablissementAdresse::class);
         $adresse->method('getLongitude')->willReturn(-4.0);
         $adresse->method('getLatitude')->willReturn(48.0);
 
-        $informations = $this->createMock(EtablissementInformations::class);
+        $informations = $this->createStub(EtablissementInformations::class);
         $informations->method('getLibelle')->willReturn('Caserne de test');
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
         $etablissement->method('getAdresses')->willReturn(new ArrayCollection([$adresse]));
         $etablissement->method('getLatestInformationsOrNull')->willReturn($informations);
 

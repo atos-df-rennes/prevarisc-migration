@@ -27,15 +27,9 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 final class EtablissementIopVoterTest extends TestCase
 {
-    /**
-     * @var MockObject&ResourcesRepository
-     */
-    private MockObject $resourcesRepository;
+    private ResourcesRepository $resourcesRepository;
 
-    /**
-     * @var MockObject&PrivilegesRepository
-     */
-    private MockObject $privilegesRepository;
+    private PrivilegesRepository $privilegesRepository;
 
     /**
      * @var MockObject&LoggerInterface
@@ -44,17 +38,14 @@ final class EtablissementIopVoterTest extends TestCase
 
     private EtablissementIopVoter $voter;
 
-    /**
-     * @var MockObject&TokenInterface
-     */
-    private MockObject $token;
+    private TokenInterface $token;
 
     protected function setUp(): void
     {
-        $this->resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $this->privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $this->resourcesRepository = $this->createStub(ResourcesRepository::class);
+        $this->privilegesRepository = $this->createStub(PrivilegesRepository::class);
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->token = $this->createMock(TokenInterface::class);
+        $this->token = $this->createStub(TokenInterface::class);
 
         $this->voter = new EtablissementIopVoter(
             $this->resourcesRepository,
@@ -65,14 +56,15 @@ final class EtablissementIopVoterTest extends TestCase
 
     private function createEtablissementMock(): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::IOP]);
-        $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
+        $genre = $this->createConfiguredStub(Genre::class, ['getId' => GenreEtablissement::IOP]);
+        $latestInformations = $this->createConfiguredStub(EtablissementInformations::class, ['getGenre' => $genre]);
 
-        return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
+        return $this->createConfiguredStub(Etablissement::class, ['getLatestInformations' => $latestInformations]);
     }
 
     public function testAbstainIfParentDoesNotSupport(): void
     {
+        $this->logger->expects($this->never())->method('warning');
         $etablissement = $this->createStub(Etablissement::class);
 
         $this->assertSame(
@@ -92,7 +84,7 @@ final class EtablissementIopVoterTest extends TestCase
             ->method('warning')
             ->with("Aucune règle trouvée pour les IOP. Il est recommandé d'en ajouter une.");
 
-        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
+        $this->token->method('getUser')->willReturn($this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
 
         $etablissement = $this->createEtablissementMock();
 
@@ -113,7 +105,7 @@ final class EtablissementIopVoterTest extends TestCase
             ->method('warning')
             ->with('Plusieurs règles trouvées pour les IOP. Il est recommandé de supprimer les doublons.');
 
-        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
+        $this->token->method('getUser')->willReturn($this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
 
         $etablissement = $this->createEtablissementMock();
 
@@ -125,7 +117,8 @@ final class EtablissementIopVoterTest extends TestCase
 
     public function testDenyIfUserIsNotInstanceOfUtilisateur(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_iop_0_0']);
+        $this->logger->expects($this->never())->method('warning');
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_iop_0_0']);
 
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementIop')
@@ -143,13 +136,14 @@ final class EtablissementIopVoterTest extends TestCase
 
     public function testDenyIfUserGroupIsNull(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_iop_0_0']);
+        $this->logger->expects($this->never())->method('warning');
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_iop_0_0']);
 
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementIop')
             ->willReturn($resource);
 
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => null]);
+        $user = $this->createConfiguredStub(Utilisateur::class, ['getGroupe' => null]);
         $this->token->method('getUser')->willReturn($user);
 
         $etablissement = $this->createEtablissementMock();
@@ -162,7 +156,8 @@ final class EtablissementIopVoterTest extends TestCase
 
     public function testGrantIfPrivilegeExistsInUserGroup(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_iop_0_0']);
+        $this->logger->expects($this->never())->method('warning');
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_iop_0_0']);
 
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementIop')
@@ -171,14 +166,17 @@ final class EtablissementIopVoterTest extends TestCase
         $privilege = $this->createStub(Privileges::class);
         $this->privilegesRepository
             ->method('findOneBy')
-            ->with(['name' => EtablissementVoter::LECTURE, 'resource' => $resource])
-            ->willReturn($privilege);
+            ->willReturnCallback(function (array $criteria) use ($privilege, $resource): ?Privileges {
+                $this->assertSame(['name' => EtablissementVoter::LECTURE, 'resource' => $resource], $criteria);
 
-        $userGroup = $this->createConfiguredMock(Groupe::class, [
+                return $privilege;
+            });
+
+        $userGroup = $this->createConfiguredStub(Groupe::class, [
             'getPrivileges' => new ArrayCollection([$privilege])
         ]);
 
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
+        $user = $this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $userGroup]);
         $this->token->method('getUser')->willReturn($user);
 
         $etablissement = $this->createEtablissementMock();

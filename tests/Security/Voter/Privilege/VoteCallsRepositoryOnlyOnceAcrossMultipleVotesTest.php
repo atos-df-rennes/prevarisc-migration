@@ -17,7 +17,7 @@ final class VoteCallsRepositoryOnlyOnceAcrossMultipleVotesTest extends TestCase
 {
     public function testFindAllIsCalledOnlyOnceOnMultipleVotes(): void
     {
-        $privilege = $this->createMock(Privileges::class);
+        $privilege = $this->createStub(Privileges::class);
         $privilege->method('getName')->willReturn('mon_privilege');
 
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
@@ -27,13 +27,13 @@ final class VoteCallsRepositoryOnlyOnceAcrossMultipleVotesTest extends TestCase
 
         $voter = new PrivilegeVoter($privilegesRepository);
 
-        $group = $this->createMock(Groupe::class);
+        $group = $this->createStub(Groupe::class);
         $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
 
-        $user = $this->createMock(Utilisateur::class);
+        $user = $this->createStub(Utilisateur::class);
         $user->method('getGroupe')->willReturn($group);
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
         $voter->vote($token, null, ['mon_privilege']);

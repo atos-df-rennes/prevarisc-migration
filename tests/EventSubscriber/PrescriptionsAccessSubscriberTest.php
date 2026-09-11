@@ -32,6 +32,8 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
 
     public function testSubscribesToKernelController(): void
     {
+        $this->dossierRepository->expects($this->never())->method('find');
+
         $events = PrescriptionsAccessSubscriber::getSubscribedEvents();
 
         $this->assertArrayHasKey('kernel.controller', $events);
@@ -46,7 +48,7 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
 
     public function testThrowsNotFoundWhenDossierDoesNotExist(): void
     {
-        $this->dossierRepository->method('find')->with(1)->willReturn(null);
+        $this->dossierRepository->expects($this->once())->method('find')->with(1)->willReturn(null);
 
         $this->expectException(NotFoundHttpException::class);
 
@@ -57,7 +59,7 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
     {
         // Dérogation
         $dossier = $this->creerDossier($this->creerNature(31), $this->creerType(1));
-        $this->dossierRepository->method('find')->willReturn($dossier);
+        $this->dossierRepository->expects($this->once())->method('find')->with(1)->willReturn($dossier);
 
         $this->expectException(NotFoundHttpException::class);
 
@@ -68,7 +70,7 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
     {
         // Courrier / Courriel
         $dossier = $this->creerDossier($this->creerNature(1), $this->creerType(5));
-        $this->dossierRepository->method('find')->willReturn($dossier);
+        $this->dossierRepository->expects($this->once())->method('find')->with(1)->willReturn($dossier);
 
         $this->expectException(NotFoundHttpException::class);
 
@@ -78,7 +80,7 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
     public function testAllowsAccessWhenNatureEtTypeAutorisent(): void
     {
         $dossier = $this->creerDossier($this->creerNature(1), $this->creerType(1));
-        $this->dossierRepository->method('find')->willReturn($dossier);
+        $this->dossierRepository->expects($this->once())->method('find')->with(1)->willReturn($dossier);
 
         $this->subscriber->onKernelController($this->buildEvent($this->prescriptionsController(), 1));
 

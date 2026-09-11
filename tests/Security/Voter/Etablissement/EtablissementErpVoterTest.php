@@ -24,66 +24,51 @@ use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\Voter\VoterUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 final class EtablissementErpVoterTest extends TestCase
 {
-    /**
-     * @param Privileges&MockObject $privilege
-     */
-    private function createMockUserWithPrivileges(MockObject $privilege, array $groupements = [], $commune = null): MockObject
+    private function createMockUserWithPrivileges(Privileges $privilege, array $groupements = [], $commune = null): Utilisateur
     {
-        $userPrivileges = $this->createMock(Collection::class);
-        $userPrivileges->method('contains')->with($privilege)->willReturn(true);
+        $userPrivileges = $this->createStub(Collection::class);
+        $userPrivileges->method('contains')->willReturnCallback(static fn (mixed $candidate): bool => $candidate === $privilege);
 
-        $groupe = $this->createMock(Groupe::class);
-        $groupe->method('getPrivileges')->willReturn($userPrivileges);
-
-        $user = $this->createMock(Utilisateur::class);
-        $user->method('getGroupe')->willReturn($groupe);
-        $user->method('getGroupements')->willReturn(new ArrayCollection($groupements));
-        $user->method('getCommune')->willReturn($commune);
-
-        return $user;
+        return $this->createConfiguredStub(Utilisateur::class, [
+            'getGroupe' => $this->createConfiguredStub(Groupe::class, ['getPrivileges' => $userPrivileges]),
+            'getGroupements' => new ArrayCollection($groupements),
+            'getCommune' => $commune,
+        ]);
     }
 
-    private function createMockEtablissement(int $typeActivite, int $categorie, array $communes = []): MockObject
+    private function createMockEtablissement(int $typeActivite, int $categorie, array $communes = []): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::ERP]);
-        $typeActivite = $this->createConfiguredMock(EtablissementActivite::class, ['getId' => $typeActivite]);
-        $categorie = $this->createConfiguredMock(EtablissementCategorie::class, ['getId' => $categorie]);
+        $genre = $this->createConfiguredStub(Genre::class, ['getId' => GenreEtablissement::ERP]);
+        $typeActivite = $this->createConfiguredStub(EtablissementActivite::class, ['getId' => $typeActivite]);
+        $categorie = $this->createConfiguredStub(EtablissementCategorie::class, ['getId' => $categorie]);
+        $latestInformations = $this->createConfiguredStub(EtablissementInformations::class, [
+            'getGenre' => $genre,
+            'getTypeActivite' => $typeActivite,
+            'getCategorie' => $categorie,
+        ]);
+        $adresses = array_map(
+            fn ($commune): EtablissementAdresse => $this->createConfiguredStub(EtablissementAdresse::class, ['getCommune' => $commune]),
+            $communes
+        );
 
-        $latestInformations = $this->createMock(EtablissementInformations::class);
-        $latestInformations->method('getGenre')->willReturn($genre);
-        $latestInformations->method('getTypeActivite')->willReturn($typeActivite);
-        $latestInformations->method('getCategorie')->willReturn($categorie);
-
-        $adresses = array_map(function ($commune): MockObject {
-            $adresse = $this->createMock(EtablissementAdresse::class);
-            $adresse->method('getCommune')->willReturn($commune);
-
-            return $adresse;
-        }, $communes);
-
-        $etablissement = $this->createMock(Etablissement::class);
-        $etablissement->method('getLatestInformations')->willReturn($latestInformations);
-        $etablissement->method('getAdresses')->willReturn(new ArrayCollection($adresses));
-
-        return $etablissement;
+        return $this->createConfiguredStub(Etablissement::class, [
+            'getLatestInformations' => $latestInformations,
+            'getAdresses' => new ArrayCollection($adresses),
+        ]);
     }
 
-    /**
-     * @param Privileges&MockObject $privilege
-     */
-    private function createVoter(array $resources, MockObject $privilege): EtablissementErpVoter
+    private function createVoter(array $resources, Privileges $privilege): EtablissementErpVoter
     {
-        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $resourcesRepository = $this->createStub(ResourcesRepository::class);
         $resourcesRepository->method('findRessourcesSpecialiseesEtablissementErp')->willReturn($resources);
 
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $privilegesRepository = $this->createStub(PrivilegesRepository::class);
         $privilegesRepository->method('findOneBy')->willReturn($privilege);
 
         return new EtablissementErpVoter($resourcesRepository, $privilegesRepository, new VoterUtils());
@@ -91,13 +76,12 @@ final class EtablissementErpVoterTest extends TestCase
 
     public function testAccessSingleCategoryGrantsAccess(): void
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_erp_1_2_0_0_0');
-        $privilege = $this->createMock(Privileges::class);
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_erp_1_2_0_0_0']);
+        $privilege = $this->createStub(Privileges::class);
 
         $user = $this->createMockUserWithPrivileges($privilege);
         $subject = $this->createMockEtablissement(1, 2);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
         $voter = $this->createVoter([$resource], $privilege);
@@ -107,14 +91,13 @@ final class EtablissementErpVoterTest extends TestCase
 
     public function testAccessMultipleCategoriesGrantsAccess(): void
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_erp_1_2-3_0_0_0');
-        $privilege = $this->createMock(Privileges::class);
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_erp_1_2-3_0_0_0']);
+        $privilege = $this->createStub(Privileges::class);
 
         $user = $this->createMockUserWithPrivileges($privilege);
         $subjectCat2 = $this->createMockEtablissement(1, 2);
         $subjectCat3 = $this->createMockEtablissement(1, 3);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
         $voter = $this->createVoter([$resource], $privilege);
@@ -125,19 +108,17 @@ final class EtablissementErpVoterTest extends TestCase
 
     public function testAccessWithGroupementsGrantsAccessOnlyForMatchingGroupements(): void
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_erp_1_2_0_1_0');
-        $privilege = $this->createMock(Privileges::class);
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_erp_1_2_0_1_0']);
+        $privilege = $this->createStub(Privileges::class);
 
-        $commune10 = $this->createConfiguredMock(Commune::class, ['getId' => '100']);
-        $commune30 = $this->createConfiguredMock(Commune::class, ['getId' => '300']);
-        $groupement10 = $this->createMock(Groupement::class);
-        $groupement10->method('getCommunes')->willReturn(new ArrayCollection([$commune10]));
+        $commune10 = $this->createConfiguredStub(Commune::class, ['getId' => '100']);
+        $commune30 = $this->createConfiguredStub(Commune::class, ['getId' => '300']);
+        $groupement10 = $this->createConfiguredStub(Groupement::class, ['getCommunes' => new ArrayCollection([$commune10])]);
 
         $user = $this->createMockUserWithPrivileges($privilege, [$groupement10]);
         $subjectCommune10 = $this->createMockEtablissement(1, 2, [$commune10]);
         $subjectCommune30 = $this->createMockEtablissement(1, 2, [$commune30]);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
         $voter = $this->createVoter([$resource], $privilege);
@@ -148,17 +129,16 @@ final class EtablissementErpVoterTest extends TestCase
 
     public function testAccessWithCommuneGrantsAccessOnlyForMatchingCommune(): void
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_erp_1_2_0_0_1');
-        $privilege = $this->createMock(Privileges::class);
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_erp_1_2_0_0_1']);
+        $privilege = $this->createStub(Privileges::class);
 
-        $commune100 = $this->createConfiguredMock(Commune::class, ['getId' => '100']);
-        $commune200 = $this->createConfiguredMock(Commune::class, ['getId' => '200']);
+        $commune100 = $this->createConfiguredStub(Commune::class, ['getId' => '100']);
+        $commune200 = $this->createConfiguredStub(Commune::class, ['getId' => '200']);
 
         $user = $this->createMockUserWithPrivileges($privilege, [], $commune100);
         $subjectCommune100 = $this->createMockEtablissement(1, 2, [$commune100]);
         $subjectCommune200 = $this->createMockEtablissement(1, 2, [$commune200]);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
         $voter = $this->createVoter([$resource], $privilege);
@@ -169,16 +149,14 @@ final class EtablissementErpVoterTest extends TestCase
 
     public function testAccessWithMultipleResourcesGrantsAccessIfOneIsValid(): void
     {
-        $resource1 = $this->createMock(Resources::class);
-        $resource1->method('getName')->willReturn('etablissement_erp_1_2_0_0_0');
-        $resource2 = $this->createMock(Resources::class);
-        $resource2->method('getName')->willReturn('etablissement_erp_1_3_0_0_0');
-        $privilege = $this->createMock(Privileges::class);
+        $resource1 = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_erp_1_2_0_0_0']);
+        $resource2 = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_erp_1_3_0_0_0']);
+        $privilege = $this->createStub(Privileges::class);
 
         $user = $this->createMockUserWithPrivileges($privilege);
         $subjectCat2 = $this->createMockEtablissement(1, 2);
         $subjectCat3 = $this->createMockEtablissement(1, 3);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
         $voter = $this->createVoter([$resource1, $resource2], $privilege);
@@ -189,19 +167,16 @@ final class EtablissementErpVoterTest extends TestCase
 
     public function testAccessDeniedIfNoResourceIsValid(): void
     {
-        $resource = $this->createMock(Resources::class);
-        $resource->method('getName')->willReturn('etablissement_erp_1_2_0_0_0');
-        $privilege = $this->createMock(Privileges::class);
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_erp_1_2_0_0_0']);
+        $privilege = $this->createStub(Privileges::class);
 
-        $userPrivileges = $this->createMock(Collection::class);
-        $userPrivileges->method('contains')->with($privilege)->willReturn(false);
-        $groupe = $this->createMock(Groupe::class);
-        $groupe->method('getPrivileges')->willReturn($userPrivileges);
-        $user = $this->createMock(Utilisateur::class);
-        $user->method('getGroupe')->willReturn($groupe);
+        $userPrivileges = $this->createStub(Collection::class);
+        $userPrivileges->method('contains')->willReturn(false);
+        $groupe = $this->createConfiguredStub(Groupe::class, ['getPrivileges' => $userPrivileges]);
+        $user = $this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $groupe]);
 
         $subject = $this->createMockEtablissement(1, 2);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
         $voter = $this->createVoter([$resource], $privilege);

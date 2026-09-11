@@ -257,10 +257,10 @@ final class DescriptifFormHydratorTest extends TestCase
 
     private function makeChamp(int $id, int $typeId, bool $tableau = false): Champ
     {
-        $typeEntity = $this->createMock(TypeChampEntity::class);
+        $typeEntity = $this->createStub(TypeChampEntity::class);
         $typeEntity->method('getId')->willReturn($typeId);
 
-        $champ = $this->createMock(Champ::class);
+        $champ = $this->createStub(Champ::class);
         $champ->method('getId')->willReturn($id);
         $champ->method('getType')->willReturn($typeEntity);
         $champ->method('getTableau')->willReturn($tableau);
@@ -281,7 +281,7 @@ final class DescriptifFormHydratorTest extends TestCase
 
     private function makeRubrique(int $id): Rubrique
     {
-        $rubrique = $this->createMock(Rubrique::class);
+        $rubrique = $this->createStub(Rubrique::class);
         $rubrique->method('getId')->willReturn($id);
 
         return $rubrique;

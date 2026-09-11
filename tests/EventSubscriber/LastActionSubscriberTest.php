@@ -8,6 +8,7 @@ use App\Entity\Utilisateur;
 use App\EventSubscriber\LastActionSubscriber;
 use App\Service\LastActionUpdater;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,8 +19,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class LastActionSubscriberTest extends TestCase
 {
-    /** @var MockObject&Security */
-    private MockObject $security;
+    /** @var Stub&Security */
+    private Security $security;
 
     /** @var MockObject&LastActionUpdater */
     private MockObject $lastActionUpdater;
@@ -28,7 +29,7 @@ final class LastActionSubscriberTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->security = $this->createMock(Security::class);
+        $this->security = $this->createStub(Security::class);
         $this->lastActionUpdater = $this->createMock(LastActionUpdater::class);
         $this->subscriber = new LastActionSubscriber($this->security, $this->lastActionUpdater);
     }
@@ -44,6 +45,8 @@ final class LastActionSubscriberTest extends TestCase
 
     public function testSubscribesToKernelTerminate(): void
     {
+        $this->lastActionUpdater->expects($this->never())->method('update');
+
         $events = LastActionSubscriber::getSubscribedEvents();
 
         $this->assertArrayHasKey('kernel.terminate', $events);

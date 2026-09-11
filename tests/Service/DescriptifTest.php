@@ -17,6 +17,7 @@ use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
 use App\Repository\ValeurRepository;
 use App\Service\Descriptif;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -32,6 +33,7 @@ use PHPUnit\Framework\TestCase;
  * - Chaîne de résolution de la préférence d'affichage (user pref > defaultDisplay > true)
  * - Préservation de l'ordre des rubriques, champs et sous-champs
  */
+#[AllowMockObjectsWithoutExpectations]
 final class DescriptifTest extends TestCase
 {
     /** @var MockObject&CapsuleRubriqueRepository */
