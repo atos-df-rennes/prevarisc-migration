@@ -380,7 +380,7 @@ class Etablissement
      */
     public static function createLatestInformationsCriteria(): Criteria
     {
-        return Criteria::create()
+        return Criteria::create(true)
             ->orderBy(['id' => Order::Descending])
             ->setMaxResults(1);
     }
@@ -426,7 +426,7 @@ class Etablissement
         assert($this->informations instanceof Selectable);
 
         $anterieures = $this->informations->matching(
-            Criteria::create()->where(Criteria::expr()->lte('date', $date))->orderBy(['date' => Order::Descending])
+            Criteria::create(true)->where(Criteria::expr()->lte('date', $date))->orderBy(['date' => Order::Descending])
                 ->setMaxResults(1)
         );
 
@@ -438,7 +438,7 @@ class Etablissement
         }
 
         $plusAncienne = $this->informations->matching(
-            Criteria::create()->orderBy(['date' => Order::Ascending])
+            Criteria::create(true)->orderBy(['date' => Order::Ascending])
                 ->setMaxResults(1)
         );
 
