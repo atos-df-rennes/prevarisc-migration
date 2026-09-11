@@ -2,9 +2,7 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% set texte_liste = app.request.attributes.get('texteListe') %}
-
-{% if texte_liste is null %}
+{% if texte_liste.id is null %}
     {% set title = 'Ajout d\'un nouveau texte' %}
 {% else %}
     {% set title = 'Modification d\'un texte existant' %}
@@ -28,7 +26,7 @@
         <div class="row text-right">
             <div class="col-sm-12">
                 <a class="btn btn-default" href="{{ path('admin_prescriptions_textes') }}">
-                    {% if texte_liste is null %}
+                    {% if texte_liste.id is null %}
                         Retourner à la liste des textes
                     {% else %}
                         Annuler la modification
@@ -45,7 +43,7 @@
             </div>
         </div>
 
-        {% if texte_liste is not null %}
+        {% if texte_liste.id is not null %}
             <div class="text-center">
                 <a class="btn btn-warning" href="{{ path('admin_prescriptions_textes_suppression', {texteListe: texte_liste.id}) }}">
                     Supprimer le texte et le remplacer par un autre
