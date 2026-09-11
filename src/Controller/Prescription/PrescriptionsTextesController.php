@@ -55,6 +55,7 @@ class PrescriptionsTextesController extends AbstractController
 
         return $this->render('prescriptions_textes/form.html.twig', [
             'form' => $form,
+            'texte_liste' => $texteListe,
         ]);
     }
 
@@ -85,6 +86,7 @@ class PrescriptionsTextesController extends AbstractController
 
         return $this->render('prescriptions_textes/replacement_form.html.twig', [
             'form' => $form,
+            'texte_liste' => $texteListe,
         ]);
     }
 }
