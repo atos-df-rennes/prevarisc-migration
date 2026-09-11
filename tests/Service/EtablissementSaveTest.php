@@ -115,7 +115,7 @@ final class EtablissementSaveTest extends TestCase
         $service = $this->buildService($filsZone);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('ne peut contenir que des cellules');
+        $this->expectExceptionMessageIsOrContains('ne peut contenir que des cellules');
 
         $service->save(GenreEtablissement::ERP, [
             'ID_FILS_ETABLISSEMENT' => ['10'],
@@ -131,7 +131,7 @@ final class EtablissementSaveTest extends TestCase
         $service = $this->buildService(null, $pere);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('ne peut pas avoir de père');
+        $this->expectExceptionMessageIsOrContains('ne peut pas avoir de père');
 
         $service->save(GenreEtablissement::SITE, [
             'ID_PERE' => '99',
@@ -147,7 +147,7 @@ final class EtablissementSaveTest extends TestCase
         $service = $this->buildService(null, $pere);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('ERP ou un IGH');
+        $this->expectExceptionMessageIsOrContains('ERP ou un IGH');
 
         $service->save(GenreEtablissement::CELLULE, [
             'ID_PERE' => '99',
@@ -163,7 +163,7 @@ final class EtablissementSaveTest extends TestCase
         $service = $this->buildService($fils);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("n'est pas compatible avec un site");
+        $this->expectExceptionMessageIsOrContains("n'est pas compatible avec un site");
 
         $service->save(GenreEtablissement::SITE, [
             'ID_FILS_ETABLISSEMENT' => ['10'],

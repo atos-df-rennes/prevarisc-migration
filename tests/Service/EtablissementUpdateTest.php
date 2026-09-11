@@ -135,7 +135,7 @@ final class EtablissementUpdateTest extends TestCase
         $service = $this->buildService($etablissementRepo, $informationsRepo);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Établissement 999 introuvable');
+        $this->expectExceptionMessageIsOrContains('Établissement 999 introuvable');
 
         $service->update(GenreEtablissement::SITE, [], 999);
     }

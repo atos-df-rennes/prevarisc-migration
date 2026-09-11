@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use App\Constant\TypeChamp as TypeChampConstant;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
@@ -32,6 +33,7 @@ use PHPUnit\Framework\TestCase;
  * - Chaîne de résolution de la préférence d'affichage (user pref > defaultDisplay > true)
  * - Préservation de l'ordre des rubriques, champs et sous-champs
  */
+#[AllowMockObjectsWithoutExpectations]
 final class DescriptifTest extends TestCase
 {
     /** @var MockObject&CapsuleRubriqueRepository */

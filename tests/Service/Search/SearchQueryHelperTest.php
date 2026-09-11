@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Search;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use App\Service\Search\SearchQueryHelper;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -12,6 +13,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(SearchQueryHelper::class)]
+#[AllowMockObjectsWithoutExpectations]
 final class SearchQueryHelperTest extends TestCase
 {
     /** @var MockObject&Connection */
@@ -42,7 +44,7 @@ final class SearchQueryHelperTest extends TestCase
         $this->connection->method('quote')->willReturn(false);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Connection::quote() returned a non-string value');
+        $this->expectExceptionMessageIsOrContains('Connection::quote() returned a non-string value');
 
         $this->helper->safeQuote('hello');
     }
@@ -54,7 +56,7 @@ final class SearchQueryHelperTest extends TestCase
         $this->connection->method('quote')->willReturn(false);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Connection::quote() returned a non-string value');
+        $this->expectExceptionMessageIsOrContains('Connection::quote() returned a non-string value');
 
         $this->helper->safeQuote("it's fine");
     }
@@ -136,7 +138,7 @@ final class SearchQueryHelperTest extends TestCase
     public function testBuildCriteriaAvecTableauVideLeveUneException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('buildCriteria() requires a non-empty value.');
+        $this->expectExceptionMessageIsOrContains('buildCriteria() requires a non-empty value.');
 
         $this->helper->buildCriteria('id', []);
     }
