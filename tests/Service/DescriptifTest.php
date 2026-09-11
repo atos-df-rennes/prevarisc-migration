@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Service;
 
-use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use App\Constant\TypeChamp as TypeChampConstant;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
@@ -18,6 +17,7 @@ use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
 use App\Repository\ValeurRepository;
 use App\Service\Descriptif;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

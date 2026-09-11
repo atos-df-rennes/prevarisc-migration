@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Search;
 
-use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use App\Service\Search\SearchQueryHelper;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
