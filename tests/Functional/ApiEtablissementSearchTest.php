@@ -182,6 +182,9 @@ final class ApiEtablissementSearchTest extends WebTestCase
 
         self::ensureKernelShutdown();
 
-        return static::createClient();
+        $client = static::createClient();
+        $client->loginUser($utilisateur);
+
+        return $client;
     }
 }

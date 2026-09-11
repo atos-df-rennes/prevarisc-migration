@@ -161,18 +161,11 @@ final class DossierEditNatureTest extends WebTestCase
             $this->markTestSkipped('Utilisateur root non trouvé');
         }
 
-        $_SESSION ??= [];
-
-        $_SESSION['Zend_Auth'] = [
-            'storage' => [
-                'USERNAME_UTILISATEUR' => 'root',
-            ],
-        ];
-
         self::ensureKernelShutdown();
 
         $client = static::createClient();
 
+        $client->loginUser($utilisateur);
         $client->request(Request::METHOD_GET, '/dossier/'.$dossierId.'/modifier');
 
         $this->assertResponseIsSuccessful();
