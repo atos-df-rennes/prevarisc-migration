@@ -16,14 +16,24 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel pour l'édition d'un dossier selon sa nature.
  *
  * Consolide les anciens fichiers DossierEditNature<id>Test.php (un par nature) en
- * un seul jeu de scénarios nommés, en conservant les 46 identifiants de nature
- * historiquement couverts (2-27, 33, 37-42, 44-46, 48, 56, 61-64, 66-68), y
- * compris le cas d'état vide dédié à la nature 21.
+ * un seul jeu de scénarios nommés, en conservant les 45 identifiants de nature
+ * historiquement couverts (2-27, 33, 37-42, 44-46, 48, 56, 61-64, 66-68).
  *
- * Ce sont des tests de rendu HTTP (présence de labels/champs dans le HTML), pas
- * des tests de visibilité navigateur : la visibilité réelle est décidée côté
- * JavaScript par public/js/dossier/modules/type-nature.js. Un champ peut donc
- * être présent dans le HTML tout en étant masqué visuellement.
+ * Portée volontairement réduite à un contrôle de non-régression HTTP (200, pas
+ * d'exception serveur) : le formulaire d'édition (`DossierType::buildForm()` et
+ * `templates/dossier/edit.html.twig`) ajoute et affiche INCONDITIONNELLEMENT tous
+ * les champs pour toutes les natures ; seul `public/js/dossier/modules/type-nature.js`
+ * masque/affiche les champs côté client, après le rendu HTTP. Le filtre Twig
+ * `should_display_field` (basé sur `DossierFields`) n'est utilisé que sur la page
+ * de consultation (`dossier/index.html.twig`), jamais sur le formulaire d'édition.
+ *
+ * Autrement dit : vérifier la présence d'un label/champ précis dans le HTML de
+ * cette page ne prouve rien de spécifique à la nature, puisque le même
+ * superset de champs est rendu quelle que soit la nature. Ces assertions ont
+ * donc été retirées ici. La couverture de "quel champ est visible pour quelle
+ * nature" doit être apportée par Cypress (JS exécuté) pour ce formulaire, et par
+ * des tests dédiés à `DossierFields`/`should_display_field` pour la page de
+ * consultation.
  */
 #[Group('functional')]
 final class DossierEditNatureTest extends WebTestCase
@@ -38,12 +48,8 @@ final class DossierEditNatureTest extends WebTestCase
         $this->entityManager = $kernel->getContainer()->get('doctrine')->getManager();
     }
 
-    /**
-     * @param list<string> $labels      labels attendus dans le formulaire de modification
-     * @param list<string> $extraChecks fragments HTML supplémentaires (champs spécifiques à la nature)
-     */
     #[DataProvider('provideNatures')]
-    public function testFormDisplaysCorrectFieldsForNature(int $natureId, array $labels, array $extraChecks): void
+    public function testEditFormRendersSuccessfullyForNature(int $natureId): void
     {
         $dossier = $this->findDossierForNature($natureId);
 
@@ -51,22 +57,14 @@ final class DossierEditNatureTest extends WebTestCase
             $this->markTestSkipped(sprintf('Aucun dossier de nature %d disponible', $natureId));
         }
 
-        $content = $this->requestDossierEditPage($dossier->getId());
-
-        foreach ($labels as $label) {
-            $this->assertStringContainsString($label, $content, sprintf("Le label '%s' devrait être présent dans le formulaire", $label));
-        }
-
-        foreach ($extraChecks as $fragment) {
-            $this->assertStringContainsString($fragment, $content, sprintf("Le champ/fragment '%s' devrait être présent dans le HTML", $fragment));
-        }
+        $this->requestDossierEditPage($dossier->getId());
     }
 
     /**
      * Nature 21 (Visite périodique) : le formulaire doit rester affichable avec succès
      * même lorsque avisDiffere et absenceDeQuorum sont vides (pas de rechute HTTP).
      */
-    public function testFormHidesFieldsWhenValuesAreEmptyForNature21(): void
+    public function testEditFormRendersSuccessfullyForNature21WithEmptyAvisDiffere(): void
     {
         $dossier = $this->entityManager
             ->getRepository(Dossier::class)
@@ -87,632 +85,56 @@ final class DossierEditNatureTest extends WebTestCase
     }
 
     /**
-     * @return iterable<string, array{0: int, 1: list<string>, 2: list<string>}>
+     * @return iterable<string, array{0: int}>
      */
     public static function provideNatures(): iterable
     {
         yield from [
-            '2 (Autorisation de travaux - AT)' => [
-                2,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réponse',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'documentsUrbanisme',
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '3 (Dérogation)' => [
-                3,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réponse',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'Justification de la dérogation',
-                    'Mesures compensatoires',
-                    'Mesures complémentaires',
-                    'Règles de dérogation',
-                    'documentsUrbanisme',
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '4 (Cahier des charges fonctionnel du SSI)' => [
-                4,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réponse',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                    'documentsUrbanisme',
-                    'serviceInstructeur',
-                ],
-            ],
-            '5 (Cahier des charges de type T)' => [
-                5,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réponse',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                    'dossier[type]',
-                ],
-            ],
-            '6 (Salon type T)' => [
-                6,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réponse',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                    'Chargé de sécurité (T)',
-                    'dossier[chargeSecurite]',
-                ],
-            ],
-            '7 (RVRMD diag sécu => Levée de prescriptions)' => [
-                7,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réception SDIS',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                    'dossier[dateReception]',
-                    'dossier[chargeSecurite]',
-                ],
-            ],
-            '8 (Documents divers)' => [
-                8,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réponse',
-                    'Date de réception SDIS',
-                    'Date réception préfecture',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                    'dossier[datePrefecture]',
-                ],
-            ],
-            '9 (Changement de DUS)' => [
-                9,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réponse',
-                    'Date de réception SDIS',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                    'dossier[datePrefecture]',
-                ],
-            ],
-            '10 (Suivi organisme formation SSIAP)' => [
-                10,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Date de réponse',
-                    'Date de réception SDIS',
-                    'Date réception préfecture',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                    'dossier[commission]',
-                    'dossier[dateCommission]',
-                ],
-            ],
-            '11 (Demande de registre de sécurité CTS)' => [
-                11,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réponse',
-                    'Date de réception SDIS',
-                    'Date réception préfecture',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '12 (Demande d\'implantation CTS < 6mois)' => [
-                12,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Date de réception mairie',
-                    'Commission concernée',
-                    'Date de commission',
-                    'Date de réponse',
-                    'Date de réception SDIS',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                    'dossier[datePrefecture]',
-                ],
-            ],
-            '13 (Implantation CTS > 6mois)' => [
-                13,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '14 (Permis d\'aménager)' => [
-                14,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '15 (Permis de démolir)' => [
-                15,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '16 (CR visite organismes inspection sécurité)' => [
-                16,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '17 (Etude suite à avis différé)' => [
-                17,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '18 (Utilisation exceptionnelle de locaux)' => [
-                18,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '19 (Levée réserves suite avis défavorable)' => [
-                19,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Commission concernée',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [
-                    'incomplet',
-                    'horsDelai',
-                ],
-            ],
-            '20 (Réception de travaux)' => [
-                20,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [],
-            ],
-            '21 (Visite périodique)' => [
-                21,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Date de réponse',
-                    'Préventionniste(s) du dossier',
-                    'Avis du rapporteur',
-                    'Avis de la commission',
-                    'Analyse de risque',
-                    'Observations',
-                    'Date avant laquelle les prescriptions doivent être levées',
-                ],
-                [
-                    'avisDiffere',
-                    'absenceDeQuorum',
-                ],
-            ],
-            '22 (Chantier)' => [
-                22,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [],
-            ],
-            '23 (Contrôle)' => [
-                23,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [],
-            ],
-            '24 (Inopinée)' => [
-                24,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [],
-            ],
-            '25 (Réception de travaux)' => [
-                25,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [],
-            ],
-            '26 (Périodique)' => [
-                26,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [],
-            ],
-            '27 (Chantier)' => [
-                27,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Avis de la commission',
-                    'Observations',
-                ],
-                [],
-            ],
-            '33 (RVRMD (diag sécu))' => [
-                33,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '37 (Incendie)' => [
-                37,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '38 (SAP)' => [
-                38,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '39 (Inter. div.)' => [
-                39,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '40 (Ouverture)' => [
-                40,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '41 (Fermeture)' => [
-                41,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '42 (Mise en demeure)' => [
-                42,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '44 (Utilisation exceptionnelle de locaux)' => [
-                44,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '45 (Courrier)' => [
-                45,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '46 (Echéancier de travaux)' => [
-                46,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '48 (Avant ouverture)' => [
-                48,
-                [
-                    'Date de création du dossier',
-                    'Commission concernée',
-                    'Date de visite',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '56 (Demande de visite de contrôle)' => [
-                56,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '61 (Autorisation d\\\'une ICPE)' => [
-                61,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '62 (Certificats d\\\'urbanisme)' => [
-                62,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '63 (Demande organisation manifestation)' => [
-                63,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '64 (Visite conseil)' => [
-                64,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '66 (Déclassement / Reclassement)' => [
-                66,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '67 (Demande de plans)' => [
-                67,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
-            '68 (Enregistrement déclaration)' => [
-                68,
-                [
-                    'Date de création du dossier',
-                    'Objet',
-                    'Préventionniste(s)',
-                    'Observations',
-                ],
-                [],
-            ],
+            '2 (Autorisation de travaux - AT)' => [2],
+            '3 (Dérogation)' => [3],
+            '4 (Cahier des charges fonctionnel du SSI)' => [4],
+            '5 (Cahier des charges de type T)' => [5],
+            '6 (Salon type T)' => [6],
+            '7 (RVRMD diag sécu => Levée de prescriptions)' => [7],
+            '8 (Documents divers)' => [8],
+            '9 (Changement de DUS)' => [9],
+            '10 (Suivi organisme formation SSIAP)' => [10],
+            '11 (Demande de registre de sécurité CTS)' => [11],
+            '12 (Demande d\'implantation CTS < 6mois)' => [12],
+            '13 (Implantation CTS > 6mois)' => [13],
+            '14 (Permis d\'aménager)' => [14],
+            '15 (Permis de démolir)' => [15],
+            '16 (CR visite organismes inspection sécurité)' => [16],
+            '17 (Etude suite à avis différé)' => [17],
+            '18 (Utilisation exceptionnelle de locaux)' => [18],
+            '19 (Levée réserves suite avis défavorable)' => [19],
+            '20 (Réception de travaux)' => [20],
+            '21 (Visite périodique)' => [21],
+            '22 (Chantier)' => [22],
+            '23 (Contrôle)' => [23],
+            '24 (Inopinée)' => [24],
+            '25 (Réception de travaux)' => [25],
+            '26 (Périodique)' => [26],
+            '27 (Chantier)' => [27],
+            '33 (RVRMD (diag sécu))' => [33],
+            '37 (Incendie)' => [37],
+            '38 (SAP)' => [38],
+            '39 (Inter. div.)' => [39],
+            '40 (Ouverture)' => [40],
+            '41 (Fermeture)' => [41],
+            '42 (Mise en demeure)' => [42],
+            '44 (Utilisation exceptionnelle de locaux)' => [44],
+            '45 (Courrier)' => [45],
+            '46 (Echéancier de travaux)' => [46],
+            '48 (Avant ouverture)' => [48],
+            '56 (Demande de visite de contrôle)' => [56],
+            '61 (Autorisation d\'une ICPE)' => [61],
+            '62 (Certificats d\'urbanisme)' => [62],
+            '63 (Demande organisation manifestation)' => [63],
+            '64 (Visite conseil)' => [64],
+            '66 (Déclassement / Reclassement)' => [66],
+            '67 (Demande de plans)' => [67],
+            '68 (Enregistrement déclaration)' => [68],
         ];
     }
 
