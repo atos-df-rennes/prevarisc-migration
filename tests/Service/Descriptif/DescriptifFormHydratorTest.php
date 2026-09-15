@@ -159,6 +159,7 @@ final class DescriptifFormHydratorTest extends TestCase
             [
                 'rubrique' => $rubrique,
                 'display' => false,
+                'opened' => true,
                 'champs' => [
                     ['champ' => $champ, 'valeur' => $valeur],
                 ],
@@ -192,6 +193,7 @@ final class DescriptifFormHydratorTest extends TestCase
             [
                 'rubrique' => $rubrique,
                 'display' => true,
+                'opened' => true,
                 'champs' => [['champ' => $champ, 'valeur' => $valeur]],
             ],
         ];
@@ -215,6 +217,7 @@ final class DescriptifFormHydratorTest extends TestCase
             [
                 'rubrique' => $rubrique,
                 'display' => true,
+                'opened' => true,
                 'champs' => [
                     ['champ' => $champ, 'valeur' => $valeur],
                 ],
@@ -240,6 +243,7 @@ final class DescriptifFormHydratorTest extends TestCase
             [
                 'rubrique' => $rubrique,
                 'display' => true,
+                'opened' => true,
                 'champs' => [
                     ['champ' => $parentChamp, 'valeur' => null, 'lignes' => $lignes],
                 ],

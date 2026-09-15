@@ -31,6 +31,8 @@ use Psr\Log\LoggerInterface;
  * Port direct des actions generationconvocAction, generationodjAction, generationpvAction,
  * generationcompterenduAction du CalendrierDesCommissionsController legacy et de leurs templates
  * phtml associés.
+ *
+ * @phpstan-import-type RubriqueData from Descriptif
  */
 class CommissionDocumentGenerationService
 {
@@ -716,7 +718,7 @@ class CommissionDocumentGenerationService
      * getChampsForRubrique, getChampsFils) en réutilisant le service partagé
      * avec DossierRapportOdtService.
      *
-     * @return array<string, array{capsule: CapsuleRubrique|null, rubriques: list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>}>
+     * @return array<string, array{capsule: CapsuleRubrique|null, rubriques: list<RubriqueData>}>
      */
     private function loadFormulaires(Dossier $dossier, Etablissement $etablissement): array
     {

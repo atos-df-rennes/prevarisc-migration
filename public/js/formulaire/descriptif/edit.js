@@ -18,6 +18,21 @@ $(document).ready(function() {
         $('[data-display-checkbox="' + rubriqueId + '"]').prop('checked', isChecked);
     });
 
+    /**
+     * Synchronise le champ caché "opened" avec l'état réel du collapse Bootstrap
+     * (panel-collapse), afin que l'état d'ouverture/repliement soit soumis avec le formulaire.
+     *
+     * Chaque panneau de rubrique porte l'attribut data-opened-checkbox="{rubriqueId}"
+     * sur son champ opened (CheckboxType caché).
+     */
+    $(document).on('show.bs.collapse hide.bs.collapse', '.panel-formulaire-perso .panel-collapse', function(e) {
+        const panel = $(this).closest('.panel-formulaire-perso');
+        const rubriqueId = panel.attr('id') ? panel.attr('id').replace('afficher_rubrique-', '') : null;
+        if (!rubriqueId) return;
+
+        $('[data-opened-checkbox="' + rubriqueId + '"]').prop('checked', e.type === 'show');
+    });
+
     $('.table-responsive').each(function() {
         if ($(this)[0].scrollWidth > $(this)[0].clientWidth) {
             $(this).find('.colonne-edition').each(function() {

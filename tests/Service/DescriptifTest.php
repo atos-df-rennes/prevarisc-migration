@@ -31,6 +31,7 @@ use PHPUnit\Framework\TestCase;
  * - Tri des lignes de tableau par idx (ksort)
  * - Exclusion des enfants du niveau racine
  * - Chaîne de résolution de la préférence d'affichage (user pref > defaultDisplay > true)
+ * - Chaîne de résolution de la préférence d'ouverture (user pref > ouverte par défaut) — RG-FOR-028
  * - Préservation de l'ordre des rubriques, champs et sous-champs
  */
 #[AllowMockObjectsWithoutExpectations]
@@ -330,6 +331,54 @@ final class DescriptifTest extends TestCase
         yield 'sans pref utilisateur, utilise defaultDisplay true' => [null, true, true];
         yield 'sans pref utilisateur, utilise defaultDisplay false' => [null, false, false];
         yield 'sans pref ni defaultDisplay, vaut true par défaut' => [null, null, true];
+    }
+
+    // -------------------------------------------------------------------------
+    // Chaîne de résolution de la préférence d'ouverture (RG-FOR-028)
+    // -------------------------------------------------------------------------
+    #[DataProvider('openedPreferenceProvider')]
+    public function testResolutionDePreferenceOuverture(
+        ?bool $prefUtilisateur,
+        bool $ouverteParDefaut,
+        bool $openedAttendu
+    ): void {
+        // Arrange
+        $rubrique = new Rubrique();
+        $this->setEntityId($rubrique, 5);
+        $rubrique->setOuverte($ouverteParDefaut);
+
+        $displayPrefs = [];
+        if (null !== $prefUtilisateur) {
+            $displayPrefs = [
+                new DossierDisplayRubrique()
+                    ->setRubrique($rubrique)
+                    ->setUserDisplay(true)
+                    ->setUserOpened($prefUtilisateur),
+            ];
+        }
+
+        $dossier = new Dossier();
+        $this->capsuleRepo->method('findByNomInterneWithFullData')
+            ->willReturn($this->buildCapsule($rubrique));
+        $this->valeurRepo->method('findByDossier')->willReturn([]);
+        $this->dossierDisplayRepo->method('findBy')->willReturn($displayPrefs);
+
+        // Act
+        $result = $this->service->getForDossier($dossier, 'descriptifEtablissement');
+
+        // Assert
+        $this->assertSame($openedAttendu, $result['rubriques'][0]['opened']);
+    }
+
+    /**
+     * @return \Iterator<string, array{(bool | null), bool, bool}>
+     */
+    public static function openedPreferenceProvider(): \Iterator
+    {
+        yield 'pref utilisateur true surpasse ouverte par défaut false' => [true, false, true];
+        yield 'pref utilisateur false surpasse ouverte par défaut true' => [false, true, false];
+        yield 'sans pref utilisateur, utilise ouverte par défaut true' => [null, true, true];
+        yield 'sans pref utilisateur, utilise ouverte par défaut false' => [null, false, false];
     }
 
     // -------------------------------------------------------------------------

@@ -20,6 +20,7 @@ use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
 use App\Repository\ValeurRepository;
 use App\Service\Descriptif\DescriptifFormPersister;
+use App\ValueObject\RubriqueEtat;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -387,15 +388,52 @@ final class DescriptifFormPersisterTest extends TestCase
         $dossier->method('getId')->willReturn(1);
 
         $champValueData = new ChampValueData(1, null); // valeur vide
-        $formData = $this->makeFormData(10, false, [1 => $champValueData]); // display=false
+        $formData = $this->makeFormData(10, false, [1 => $champValueData], false); // display=false, opened=false
 
         $rubriques = $this->makeRubriquesStructure(10, [['champ' => $champ, 'valeur' => null]]);
 
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
-        // Un objet DossierDisplayRubrique doit avoir été persisté
-        $displayPrefs = array_filter($persisted, static fn ($obj): bool => $obj instanceof DossierDisplayRubrique);
+        // Un objet DossierDisplayRubrique doit avoir été persisté, avec USER_DISPLAY et USER_OPENED à jour
+        $displayPrefs = array_values(array_filter($persisted, static fn ($obj): bool => $obj instanceof DossierDisplayRubrique));
         $this->assertNotEmpty($displayPrefs);
+        $this->assertFalse($displayPrefs[0]->getUserDisplay());
+        $this->assertFalse($displayPrefs[0]->getUserOpened());
+    }
+
+    public function testPersistDisplayPrefMetAJourUserOpened(): void
+    {
+        $champ = $this->makeChamp(1, TypeChamp::TEXT);
+
+        $this->valeurRepository->method('findByDossier')->willReturn([]);
+        $this->champRepository->method('find')->willReturn($champ);
+
+        // Préférence existante → doit être mise à jour (pas de persist())
+        $existing = new DossierDisplayRubrique();
+        $existing->setUserDisplay(false);
+        $existing->setUserOpened(false);
+
+        $this->dossierDisplayRubriqueRepository
+            ->method('findOneBy')
+            ->willReturn($existing);
+
+        $this->entityManager->expects($this->never())->method('persist');
+        $this->entityManager->expects($this->once())->method('flush');
+
+        $collection = new ArrayCollection();
+        $dossier = $this->createStub(Dossier::class);
+        $dossier->method('getValeurs')->willReturn($collection);
+        $dossier->method('getId')->willReturn(1);
+
+        $champValueData = new ChampValueData(1, null); // valeur vide
+        $formData = $this->makeFormData(10, true, [1 => $champValueData], true); // display=true, opened=true
+
+        $rubriques = $this->makeRubriquesStructure(10, [['champ' => $champ, 'valeur' => null]]);
+
+        $this->persister->persistForDossier($dossier, $formData, $rubriques);
+
+        $this->assertTrue($existing->getUserDisplay());
+        $this->assertTrue($existing->getUserOpened());
     }
 
     // --- Helpers ---
@@ -437,9 +475,9 @@ final class DescriptifFormPersisterTest extends TestCase
     /**
      * @param array<int, ChampValueData> $champs
      */
-    private function makeFormData(int $rubriqueId, bool $display, array $champs): DescriptifFormData
+    private function makeFormData(int $rubriqueId, bool $display, array $champs, bool $opened = true): DescriptifFormData
     {
-        $rubriqueData = new RubriqueFormData($display, $champs);
+        $rubriqueData = new RubriqueFormData(new RubriqueEtat($display, $opened), $champs);
 
         return new DescriptifFormData([$rubriqueId => $rubriqueData]);
     }
@@ -455,6 +493,7 @@ final class DescriptifFormPersisterTest extends TestCase
             [
                 'rubrique' => $this->makeRubrique($rubriqueId),
                 'display' => true,
+                'opened' => true,
                 'champs' => $champs,
             ],
         ];
