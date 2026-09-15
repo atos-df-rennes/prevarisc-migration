@@ -97,7 +97,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "App\\Tests\\": "tests/",
+            "Mate\\": "mate/src/"
         }
     },
     "replace": {
@@ -137,6 +138,15 @@
         "symfony": {
             "allow-contrib": false,
             "require": "7.4.*"
+        },
+        "ai-mate": {
+            "extension": false,
+            "scan-dirs": [
+                "mate/src"
+            ],
+            "includes": [
+                "mate/config.php"
+            ]
         }
     },
     "version": "3.0.0-rc.1"
