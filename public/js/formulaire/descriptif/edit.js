@@ -33,6 +33,27 @@ $(document).ready(function() {
         $('[data-opened-checkbox="' + rubriqueId + '"]').prop('checked', e.type === 'show');
     });
 
+    /**
+     * Réconciliation au submit : bootstrap-3.min.js est chargé dans base.html.twig, donc le
+     * collapse est opérationnel avant que ce script n'enregistre le handler ci-dessus. Un clic
+     * joué dans cette fenêtre bascule le panneau sans mettre à jour la checkbox cachée, et le
+     * formulaire resoumet alors la valeur rendue par le serveur (le défaut administré), qui est
+     * ensuite figée comme préférence utilisateur.
+     *
+     * On relit donc l'état réel juste avant l'envoi. aria-expanded est écrit synchroniquement par
+     * Bootstrap dès le clic (contrairement à la classe "in", posée en fin de transition) et
+     * indépendamment de ce script : un clic antérieur à son chargement est donc bien récupéré.
+     */
+    $(document).on('submit', 'form', function() {
+        $(this).find('.panel-formulaire-perso').each(function() {
+            const rubriqueId = this.id ? this.id.replace('afficher_rubrique-', '') : null;
+            if (!rubriqueId) return;
+
+            const estOuverte = $(this).find('.panel-title__link').attr('aria-expanded') === 'true';
+            $('[data-opened-checkbox="' + rubriqueId + '"]').prop('checked', estOuverte);
+        });
+    });
+
     $('.table-responsive').each(function() {
         if ($(this)[0].scrollWidth > $(this)[0].clientWidth) {
             $(this).find('.colonne-edition').each(function() {
