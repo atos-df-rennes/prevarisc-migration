@@ -43,9 +43,10 @@ describe('Descriptif personnalisé — mémorisation de l\'état d\'ouverture de
             checkboxCachee().then(($checkbox) => {
                 const etaitOuverte = $checkbox.is(':checked')
 
-                // Bascule le collapse Bootstrap et vérifie que la checkbox cachée se synchronise (JS)
+                // Bascule le collapse Bootstrap : aria-expanded est la source de vérité,
+                // la checkbox cachée n'est renseignée qu'au submit.
                 toggle().click()
-                checkboxCachee().should(etaitOuverte ? 'not.be.checked' : 'be.checked')
+                toggle().should('have.attr', 'aria-expanded', etaitOuverte ? 'false' : 'true')
 
                 // Enregistre le formulaire avec le nouvel état
                 cy.get('#js-btn-enregistrer-descriptif').click()
@@ -76,8 +77,9 @@ describe('Descriptif personnalisé — mémorisation de l\'état d\'ouverture de
                     const etatAvantFermeture = $checkbox.is(':checked')
 
                     // Force l'état inverse via le collapse, enregistre, puis recharge la page d'édition
-                    cy.get(`#afficher_rubrique-${rubriqueId} .panel-title__link`).click()
-                    checkboxCachee().should(etatAvantFermeture ? 'not.be.checked' : 'be.checked')
+                    cy.get(`#afficher_rubrique-${rubriqueId} .panel-title__link`)
+                        .click()
+                        .should('have.attr', 'aria-expanded', etatAvantFermeture ? 'false' : 'true')
                     cy.get('#js-btn-enregistrer-descriptif').click()
                     cy.url().should('not.include', '/modifier')
 

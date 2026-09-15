@@ -19,30 +19,17 @@ $(document).ready(function() {
     });
 
     /**
-     * Synchronise le champ caché "opened" avec l'état réel du collapse Bootstrap
-     * (panel-collapse), afin que l'état d'ouverture/repliement soit soumis avec le formulaire.
+     * Synchronise les champs cachés "opened" (data-opened-checkbox="{rubriqueId}") avec l'état
+     * réel des collapses Bootstrap, afin que l'ouverture/repliement soit soumis avec le formulaire.
      *
-     * Chaque panneau de rubrique porte l'attribut data-opened-checkbox="{rubriqueId}"
-     * sur son champ opened (CheckboxType caché).
-     */
-    $(document).on('show.bs.collapse hide.bs.collapse', '.panel-formulaire-perso .panel-collapse', function(e) {
-        const panel = $(this).closest('.panel-formulaire-perso');
-        const rubriqueId = panel.attr('id') ? panel.attr('id').replace('afficher_rubrique-', '') : null;
-        if (!rubriqueId) return;
-
-        $('[data-opened-checkbox="' + rubriqueId + '"]').prop('checked', e.type === 'show');
-    });
-
-    /**
-     * Réconciliation au submit : bootstrap-3.min.js est chargé dans base.html.twig, donc le
-     * collapse est opérationnel avant que ce script n'enregistre le handler ci-dessus. Un clic
-     * joué dans cette fenêtre bascule le panneau sans mettre à jour la checkbox cachée, et le
-     * formulaire resoumet alors la valeur rendue par le serveur (le défaut administré), qui est
-     * ensuite figée comme préférence utilisateur.
+     * La lecture se fait au submit plutôt qu'au fil des événements show/hide.bs.collapse :
+     * bootstrap-3.min.js est chargé par base.html.twig avant ce script, donc un collapse basculé
+     * dans cet intervalle échapperait à tout handler enregistré ici. Le formulaire resoumettrait
+     * alors la valeur rendue par le serveur (le défaut administré), ensuite figée comme préférence
+     * utilisateur. Relire l'état au moment de l'envoi supprime cette course.
      *
-     * On relit donc l'état réel juste avant l'envoi. aria-expanded est écrit synchroniquement par
-     * Bootstrap dès le clic (contrairement à la classe "in", posée en fin de transition) et
-     * indépendamment de ce script : un clic antérieur à son chargement est donc bien récupéré.
+     * aria-expanded est la source de vérité : Bootstrap l'écrit sur le déclencheur de façon
+     * synchrone dès le clic, contrairement à la classe "in" posée en fin de transition.
      */
     $(document).on('submit', 'form', function() {
         $(this).find('.panel-formulaire-perso').each(function() {

@@ -55,7 +55,7 @@
                     <div class="panel-body">
                         {# Rendu caché — valeur soumise avec le formulaire ; le TOC modal (mirror checkbox) le synchronise via JS #}
                         {{ form_row(rubrique_form.display, {row_attr: {style: 'display:none'}, attr: {'data-display-checkbox': rubrique_id}}) }}
-                        {# Rendu caché — synchronisé avec l'état réel du collapse Bootstrap via JS (cf. formulaire/descriptif/edit.js) #}
+                        {# Rendu caché — renseigné au submit depuis l'état réel du collapse Bootstrap (cf. formulaire/descriptif/edit.js) #}
                         {{ form_row(rubrique_form.opened, {row_attr: {style: 'display:none'}, attr: {'data-opened-checkbox': rubrique_id}}) }}
 
                         {% for champ_key, champ_form in rubrique_form %}
