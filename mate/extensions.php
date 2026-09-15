@@ -34,6 +34,23 @@ return [
             ],
         ],
     ],
+    'symfony/ai-monolog-mate-extension' => [
+        'enabled' => true,
+        'skills' => [
+            'symfony-log-investigation' => [
+                'enabled' => true,
+                'mode' => 'managed',
+                'state' => 'managed',
+                'source' => 'vendor/symfony/ai-monolog-mate-extension/skills/symfony-log-investigation',
+                'source_hash' => 'sha256:061adaf34bc73cabd4be47b56e4834b584d5b4848ca09a964d20651b471cd590',
+                'hash' => 'sha256:83967b3e29d7f51a55b144db7e6af4f0716fee68379b6d69c62e1669c04aa8a2',
+                'targets' => [
+                    '.agents/skills/mate-symfony-log-investigation',
+                    '.claude/skills/mate-symfony-log-investigation',
+                ],
+            ],
+        ],
+    ],
     'symfony/ai-symfony-mate-extension' => [
         'enabled' => true,
         'skills' => [

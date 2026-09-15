@@ -70,6 +70,7 @@
         "phpunit/phpunit": "^13.0",
         "rector/jack": "^1.0",
         "symfony/ai-mate": "^0.13.0",
+        "symfony/ai-monolog-mate-extension": "^0.13.0",
         "symfony/ai-symfony-mate-extension": "^0.13.0",
         "symfony/browser-kit": "7.4.*",
         "symfony/css-selector": "7.4.*",
