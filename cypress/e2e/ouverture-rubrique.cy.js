@@ -22,41 +22,7 @@ describe('Descriptif personnalisé — mémorisation de l\'état d\'ouverture de
         })
     }
 
-    it('Bascule le collapse d\'une rubrique et enregistre le nouvel état', () => {
-        naviguerVersEditionDescriptif()
-
-        cy.get('body').then(($body) => {
-            const rubriquePanels = $body.find('.panel-formulaire-perso')
-
-            if (0 === rubriquePanels.length) {
-                cy.log('Aucune rubrique configurée pour cet établissement — test ignoré')
-
-                return
-            }
-
-            const premierPanel = rubriquePanels.first()
-            const rubriqueId = premierPanel.attr('id').replace('afficher_rubrique-', '')
-            const toggle = () => cy.get(`#afficher_rubrique-${rubriqueId} .panel-title__link`)
-            const checkboxCachee = () => cy.get(`[data-opened-checkbox="${rubriqueId}"]`)
-
-            // État initial (dépend de la préférence déjà enregistrée / valeur par défaut admin)
-            checkboxCachee().then(($checkbox) => {
-                const etaitOuverte = $checkbox.is(':checked')
-
-                // Bascule le collapse Bootstrap : aria-expanded est la source de vérité,
-                // la checkbox cachée n'est renseignée qu'au submit.
-                toggle().click()
-                toggle().should('have.attr', 'aria-expanded', etaitOuverte ? 'false' : 'true')
-
-                // Enregistre le formulaire avec le nouvel état
-                cy.get('#js-btn-enregistrer-descriptif').click()
-                cy.url().should('include', '/descriptif')
-                cy.url().should('not.include', '/modifier')
-            })
-        })
-    })
-
-    it('Rouvre la page d\'édition et vérifie que l\'état d\'ouverture persiste', () => {
+    it('Bascule le collapse d\'une rubrique, enregistre et vérifie que l\'état persiste', () => {
         naviguerVersEditionDescriptif()
 
         cy.url().then((editUrl) => {
@@ -76,11 +42,13 @@ describe('Descriptif personnalisé — mémorisation de l\'état d\'ouverture de
                 checkboxCachee().then(($checkbox) => {
                     const etatAvantFermeture = $checkbox.is(':checked')
 
-                    // Force l'état inverse via le collapse, enregistre, puis recharge la page d'édition
+                    // Force l'état inverse via le collapse : aria-expanded est la source de vérité,
+                    // la checkbox cachée n'est renseignée qu'au submit.
                     cy.get(`#afficher_rubrique-${rubriqueId} .panel-title__link`)
                         .click()
                         .should('have.attr', 'aria-expanded', etatAvantFermeture ? 'false' : 'true')
                     cy.get('#js-btn-enregistrer-descriptif').click()
+                    cy.url().should('include', '/descriptif')
                     cy.url().should('not.include', '/modifier')
 
                     // Revisite explicitement (nouvelle requête serveur, pas de bfcache) la page d'édition
