@@ -84,58 +84,53 @@ final class DossierEditNatureTest extends WebTestCase
         $this->requestDossierEditPage($dossier->getId());
     }
 
-    /**
-     * @return iterable<string, array{0: int}>
-     */
-    public static function provideNatures(): iterable
+    public static function provideNatures(): \Iterator
     {
-        yield from [
-            '2 (Autorisation de travaux - AT)' => [2],
-            '3 (Dérogation)' => [3],
-            '4 (Cahier des charges fonctionnel du SSI)' => [4],
-            '5 (Cahier des charges de type T)' => [5],
-            '6 (Salon type T)' => [6],
-            '7 (RVRMD diag sécu => Levée de prescriptions)' => [7],
-            '8 (Documents divers)' => [8],
-            '9 (Changement de DUS)' => [9],
-            '10 (Suivi organisme formation SSIAP)' => [10],
-            '11 (Demande de registre de sécurité CTS)' => [11],
-            '12 (Demande d\'implantation CTS < 6mois)' => [12],
-            '13 (Implantation CTS > 6mois)' => [13],
-            '14 (Permis d\'aménager)' => [14],
-            '15 (Permis de démolir)' => [15],
-            '16 (CR visite organismes inspection sécurité)' => [16],
-            '17 (Etude suite à avis différé)' => [17],
-            '18 (Utilisation exceptionnelle de locaux)' => [18],
-            '19 (Levée réserves suite avis défavorable)' => [19],
-            '20 (Réception de travaux)' => [20],
-            '21 (Visite périodique)' => [21],
-            '22 (Chantier)' => [22],
-            '23 (Contrôle)' => [23],
-            '24 (Inopinée)' => [24],
-            '25 (Réception de travaux)' => [25],
-            '26 (Périodique)' => [26],
-            '27 (Chantier)' => [27],
-            '33 (RVRMD (diag sécu))' => [33],
-            '37 (Incendie)' => [37],
-            '38 (SAP)' => [38],
-            '39 (Inter. div.)' => [39],
-            '40 (Ouverture)' => [40],
-            '41 (Fermeture)' => [41],
-            '42 (Mise en demeure)' => [42],
-            '44 (Utilisation exceptionnelle de locaux)' => [44],
-            '45 (Courrier)' => [45],
-            '46 (Echéancier de travaux)' => [46],
-            '48 (Avant ouverture)' => [48],
-            '56 (Demande de visite de contrôle)' => [56],
-            '61 (Autorisation d\'une ICPE)' => [61],
-            '62 (Certificats d\'urbanisme)' => [62],
-            '63 (Demande organisation manifestation)' => [63],
-            '64 (Visite conseil)' => [64],
-            '66 (Déclassement / Reclassement)' => [66],
-            '67 (Demande de plans)' => [67],
-            '68 (Enregistrement déclaration)' => [68],
-        ];
+        yield '2 (Autorisation de travaux - AT)' => [2];
+        yield '3 (Dérogation)' => [3];
+        yield '4 (Cahier des charges fonctionnel du SSI)' => [4];
+        yield '5 (Cahier des charges de type T)' => [5];
+        yield '6 (Salon type T)' => [6];
+        yield '7 (RVRMD diag sécu => Levée de prescriptions)' => [7];
+        yield '8 (Documents divers)' => [8];
+        yield '9 (Changement de DUS)' => [9];
+        yield '10 (Suivi organisme formation SSIAP)' => [10];
+        yield '11 (Demande de registre de sécurité CTS)' => [11];
+        yield "12 (Demande d'implantation CTS < 6mois)" => [12];
+        yield '13 (Implantation CTS > 6mois)' => [13];
+        yield '14 (Permis d\'aménager)' => [14];
+        yield '15 (Permis de démolir)' => [15];
+        yield '16 (CR visite organismes inspection sécurité)' => [16];
+        yield '17 (Etude suite à avis différé)' => [17];
+        yield '18 (Utilisation exceptionnelle de locaux)' => [18];
+        yield '19 (Levée réserves suite avis défavorable)' => [19];
+        yield '20 (Réception de travaux)' => [20];
+        yield '21 (Visite périodique)' => [21];
+        yield '22 (Chantier)' => [22];
+        yield '23 (Contrôle)' => [23];
+        yield '24 (Inopinée)' => [24];
+        yield '25 (Réception de travaux)' => [25];
+        yield '26 (Périodique)' => [26];
+        yield '27 (Chantier)' => [27];
+        yield '33 (RVRMD (diag sécu))' => [33];
+        yield '37 (Incendie)' => [37];
+        yield '38 (SAP)' => [38];
+        yield '39 (Inter. div.)' => [39];
+        yield '40 (Ouverture)' => [40];
+        yield '41 (Fermeture)' => [41];
+        yield '42 (Mise en demeure)' => [42];
+        yield '44 (Utilisation exceptionnelle de locaux)' => [44];
+        yield '45 (Courrier)' => [45];
+        yield '46 (Echéancier de travaux)' => [46];
+        yield '48 (Avant ouverture)' => [48];
+        yield '56 (Demande de visite de contrôle)' => [56];
+        yield "61 (Autorisation d'une ICPE)" => [61];
+        yield "62 (Certificats d'urbanisme)" => [62];
+        yield '63 (Demande organisation manifestation)' => [63];
+        yield '64 (Visite conseil)' => [64];
+        yield '66 (Déclassement / Reclassement)' => [66];
+        yield '67 (Demande de plans)' => [67];
+        yield '68 (Enregistrement déclaration)' => [68];
     }
 
     private function findDossierForNature(int $natureId): ?Dossier
