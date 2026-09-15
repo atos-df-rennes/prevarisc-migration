@@ -15,7 +15,11 @@ use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
 use App\Repository\ValeurRepository;
+use App\ValueObject\RubriquePreferences;
 
+/**
+ * @phpstan-type RubriqueData array{rubrique: Rubrique, display: bool, opened: bool, champs: list<array<string, mixed>>}
+ */
 class Descriptif
 {
     public function __construct(private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly ValeurRepository $valeurRepository, private readonly DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private readonly EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository)
@@ -25,28 +29,28 @@ class Descriptif
     /**
      * Charge les rubriques/champs/valeurs pour un dossier et une capsule donnée.
      *
-     * @return array{capsule: CapsuleRubrique|null, rubriques: list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>}
+     * @return array{capsule: CapsuleRubrique|null, rubriques: list<RubriqueData>}
      */
     public function getForDossier(Dossier $dossier, string $capsuleNomInterne): array
     {
         return $this->buildData(
             $capsuleNomInterne,
             $this->valeurRepository->findByDossier($dossier),
-            $this->buildDisplayPrefs($this->dossierDisplayRubriqueRepository->findBy(['dossier' => $dossier]))
+            $this->buildPreferences($this->dossierDisplayRubriqueRepository->findBy(['dossier' => $dossier]))
         );
     }
 
     /**
      * Charge les rubriques/champs/valeurs pour un établissement et une capsule donnée.
      *
-     * @return array{capsule: CapsuleRubrique|null, rubriques: list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>}
+     * @return array{capsule: CapsuleRubrique|null, rubriques: list<RubriqueData>}
      */
     public function getForEtablissement(Etablissement $etablissement, string $capsuleNomInterne): array
     {
         return $this->buildData(
             $capsuleNomInterne,
             $this->valeurRepository->findByEtablissement($etablissement),
-            $this->buildDisplayPrefs($this->etablissementDisplayRubriqueRepository->findBy(['etablissement' => $etablissement]))
+            $this->buildPreferences($this->etablissementDisplayRubriqueRepository->findBy(['etablissement' => $etablissement]))
         );
     }
 
@@ -56,12 +60,12 @@ class Descriptif
      * Les valeurs sont pré-chargées en une seule requête et indexées par champId
      * pour éviter les requêtes N+1 lors de l'assemblage.
      *
-     * @param array<int, Valeur[]> $valeurs      valeurs indexées par champId
-     * @param array<int, bool>     $displayPrefs prefs indexées par rubriqueId
+     * @param array<int, Valeur[]>            $valeurs     valeurs indexées par champId
+     * @param array<int, RubriquePreferences> $preferences préférences indexées par rubriqueId
      *
-     * @return array{capsule: CapsuleRubrique|null, rubriques: list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>}
+     * @return array{capsule: CapsuleRubrique|null, rubriques: list<RubriqueData>}
      */
-    private function buildData(string $capsuleNomInterne, array $valeurs, array $displayPrefs): array
+    private function buildData(string $capsuleNomInterne, array $valeurs, array $preferences): array
     {
         $capsule = $this->capsuleRubriqueRepository->findByNomInterneWithFullData($capsuleNomInterne);
 
@@ -71,24 +75,26 @@ class Descriptif
 
         return [
             'capsule' => $capsule,
-            'rubriques' => $this->buildRubriques($capsule, $valeurs, $displayPrefs),
+            'rubriques' => $this->buildRubriques($capsule, $valeurs, $preferences),
         ];
     }
 
     /**
-     * Construit la structure rubriques enrichie avec display et valeurs résolues.
+     * Construit la structure rubriques enrichie avec display, opened et valeurs résolues.
      *
-     * @param array<int, Valeur[]> $valeurs      valeurs indexées par champId
-     * @param array<int, bool>     $displayPrefs prefs indexées par rubriqueId
+     * @param array<int, Valeur[]>            $valeurs     valeurs indexées par champId
+     * @param array<int, RubriquePreferences> $preferences préférences indexées par rubriqueId
      *
-     * @return list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>
+     * @return list<RubriqueData>
      */
-    private function buildRubriques(CapsuleRubrique $capsule, array $valeurs, array $displayPrefs): array
+    private function buildRubriques(CapsuleRubrique $capsule, array $valeurs, array $preferences): array
     {
         $result = [];
 
         foreach ($capsule->getRubriques() as $rubrique) {
-            $display = $displayPrefs[$rubrique->getIdOrFail()] ?? $rubrique->getDefaultDisplay() ?? true;
+            $prefs = $preferences[$rubrique->getIdOrFail()] ?? RubriquePreferences::aucune();
+            $display = $prefs->resolveDisplay($rubrique->getDefaultDisplay() ?? true);
+            $opened = $prefs->resolveOpened($rubrique->getOuverte() ?? false);
 
             $champs = [];
             foreach ($rubrique->getRootChamps() as $champ) {
@@ -98,6 +104,7 @@ class Descriptif
             $result[] = [
                 'rubrique' => $rubrique,
                 'display' => $display,
+                'opened' => $opened,
                 'champs' => $champs,
             ];
         }
@@ -203,20 +210,20 @@ class Descriptif
     }
 
     /**
-     * Construit un index [rubriqueId => bool] depuis les préférences d'affichage.
+     * Construit un index [rubriqueId => RubriquePreferences] depuis les préférences d'affichage.
      *
      * @param DossierDisplayRubrique[]|EtablissementDisplayRubrique[] $displayRubriques
      *
-     * @return array<int, bool>
+     * @return array<int, RubriquePreferences>
      */
-    private function buildDisplayPrefs(array $displayRubriques): array
+    private function buildPreferences(array $displayRubriques): array
     {
         $prefs = [];
         foreach ($displayRubriques as $displayRubrique) {
             $rubrique = $displayRubrique->getRubrique();
             $rubriqueId = null !== $rubrique ? $rubrique->getId() : null;
             if (null !== $rubriqueId) {
-                $prefs[$rubriqueId] = (bool) $displayRubrique->getUserDisplay();
+                $prefs[$rubriqueId] = new RubriquePreferences($displayRubrique->getUserDisplay(), $displayRubrique->getUserOpened());
             }
         }
 

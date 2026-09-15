@@ -238,7 +238,7 @@ final class DescriptifInspectorTest extends TestCase
      */
     private function buildRubriqueItem(array $champs): array
     {
-        return ['rubrique' => new Rubrique(), 'display' => true, 'champs' => $champs];
+        return ['rubrique' => new Rubrique(), 'display' => true, 'opened' => true, 'champs' => $champs];
     }
 
     private function buildChamp(int $typeId): Champ

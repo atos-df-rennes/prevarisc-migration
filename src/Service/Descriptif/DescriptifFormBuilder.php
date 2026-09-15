@@ -7,6 +7,7 @@ use App\Dto\Descriptif\RubriqueFormData;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
 use App\Form\Type\Descriptif\ChampValueType;
+use App\Service\Descriptif;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -16,13 +17,15 @@ use Symfony\Component\Form\FormInterface;
  * Construit le FormInterface Symfony pour les formulaires personnalisés.
  *
  * La structure (rubriques, champs) est dynamique (stockée en BDD) → construction programmatique.
+ *
+ * @phpstan-import-type RubriqueData from Descriptif
  */
 class DescriptifFormBuilder
 {
     /**
      * Construit le formulaire Symfony depuis un DescriptifFormData et la structure de rubriques.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $rubriques
+     * @param list<RubriqueData> $rubriques
      */
     public function buildForm(
         FormFactoryInterface $formFactory,
@@ -50,11 +53,15 @@ class DescriptifFormBuilder
                     'label' => $rubrique->getNom(),
                     'property_path' => '[rubrique_'.$rubriqueId.']',
                     'data_class' => RubriqueFormData::class,
-                    'attr' => ['data-ouverte' => $rubrique->getOuverte() ?? false],
                 ]
             );
 
             $rubriqueBuilder->add('display', CheckboxType::class, [
+                'required' => false,
+                'label' => $rubrique->getNom(),
+            ]);
+
+            $rubriqueBuilder->add('opened', CheckboxType::class, [
                 'required' => false,
                 'label' => $rubrique->getNom(),
             ]);

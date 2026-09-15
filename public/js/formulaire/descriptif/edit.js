@@ -18,6 +18,29 @@ $(document).ready(function() {
         $('[data-display-checkbox="' + rubriqueId + '"]').prop('checked', isChecked);
     });
 
+    /**
+     * Synchronise les champs cachés "opened" (data-opened-checkbox="{rubriqueId}") avec l'état
+     * réel des collapses Bootstrap, afin que l'ouverture/repliement soit soumis avec le formulaire.
+     *
+     * La lecture se fait au submit plutôt qu'au fil des événements show/hide.bs.collapse :
+     * bootstrap-3.min.js est chargé par base.html.twig avant ce script, donc un collapse basculé
+     * dans cet intervalle échapperait à tout handler enregistré ici. Le formulaire resoumettrait
+     * alors la valeur rendue par le serveur (le défaut administré), ensuite figée comme préférence
+     * utilisateur. Relire l'état au moment de l'envoi supprime cette course.
+     *
+     * aria-expanded est la source de vérité : Bootstrap l'écrit sur le déclencheur de façon
+     * synchrone dès le clic, contrairement à la classe "in" posée en fin de transition.
+     */
+    $(document).on('submit', 'form', function() {
+        $(this).find('.panel-formulaire-perso').each(function() {
+            const rubriqueId = this.id ? this.id.replace('afficher_rubrique-', '') : null;
+            if (!rubriqueId) return;
+
+            const estOuverte = $(this).find('.panel-title__link').attr('aria-expanded') === 'true';
+            $('[data-opened-checkbox="' + rubriqueId + '"]').prop('checked', estOuverte);
+        });
+    });
+
     $('.table-responsive').each(function() {
         if ($(this)[0].scrollWidth > $(this)[0].clientWidth) {
             $(this).find('.colonne-edition').each(function() {

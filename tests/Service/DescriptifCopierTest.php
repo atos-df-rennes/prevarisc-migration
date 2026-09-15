@@ -78,7 +78,7 @@ final class DescriptifCopierTest extends TestCase
     public function testMatchRubriqueByNomRetourneItemCorrespondant(): void
     {
         $rubrique = $this->buildRubrique(1, 'Accès');
-        $rubriques = [['rubrique' => $rubrique, 'display' => true, 'champs' => []]];
+        $rubriques = [['rubrique' => $rubrique, 'display' => true, 'opened' => true, 'champs' => []]];
 
         $result = $this->service->matchRubriqueByNom($rubriques, 'Accès');
 
@@ -87,7 +87,7 @@ final class DescriptifCopierTest extends TestCase
 
     public function testMatchRubriqueByNomRetourneNullSiAbsent(): void
     {
-        $rubriques = [['rubrique' => $this->buildRubrique(1, 'Accès'), 'display' => true, 'champs' => []]];
+        $rubriques = [['rubrique' => $this->buildRubrique(1, 'Accès'), 'display' => true, 'opened' => true, 'champs' => []]];
 
         $this->assertNull($this->service->matchRubriqueByNom($rubriques, 'Inconnu'));
     }
@@ -679,7 +679,7 @@ final class DescriptifCopierTest extends TestCase
         static $id = 100;
         $rubrique = $this->buildRubrique($id++, $nom);
 
-        return ['rubrique' => $rubrique, 'display' => true, 'champs' => $champs];
+        return ['rubrique' => $rubrique, 'display' => true, 'opened' => true, 'champs' => $champs];
     }
 
     /**

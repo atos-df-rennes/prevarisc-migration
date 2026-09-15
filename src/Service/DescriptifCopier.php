@@ -17,6 +17,8 @@ use Psr\Log\LoggerInterface;
  *
  * Le matching se fait strictement par nom de rubrique et de champ.
  * Si un nom ne correspond pas entre source et cible, le champ est ignoré et loggué.
+ *
+ * @phpstan-import-type RubriqueData from Descriptif
  */
 class DescriptifCopier
 {
@@ -27,8 +29,8 @@ class DescriptifCopier
     /**
      * Copie les valeurs du dossier vers l'établissement.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $sourceRubriques
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $targetRubriques
+     * @param list<RubriqueData> $sourceRubriques
+     * @param list<RubriqueData> $targetRubriques
      */
     public function copyFromDossierToEtablissement(
         array $sourceRubriques,
@@ -41,8 +43,8 @@ class DescriptifCopier
     /**
      * Copie les valeurs de l'établissement vers le dossier.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $sourceRubriques
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $targetRubriques
+     * @param list<RubriqueData> $sourceRubriques
+     * @param list<RubriqueData> $targetRubriques
      */
     public function copyFromEtablissementToDossier(
         array $sourceRubriques,
@@ -55,8 +57,8 @@ class DescriptifCopier
     /**
      * Copie les valeurs d'un dossier source vers un dossier cible.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $sourceRubriques
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $targetRubriques
+     * @param list<RubriqueData> $sourceRubriques
+     * @param list<RubriqueData> $targetRubriques
      */
     public function copyFromDossierToDossier(
         array $sourceRubriques,
@@ -72,8 +74,8 @@ class DescriptifCopier
      * Pour chaque rubrique source, cherche une rubrique cible de même nom.
      * Pour chaque champ correspondant, copie la valeur vers la cible.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $sourceRubriques
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $targetRubriques
+     * @param list<RubriqueData> $sourceRubriques
+     * @param list<RubriqueData> $targetRubriques
      */
     private function doCopy(array $sourceRubriques, array $targetRubriques, Etablissement|Dossier $targetEntity): void
     {
@@ -311,9 +313,9 @@ class DescriptifCopier
     /**
      * Cherche un élément rubrique par nom dans la liste des rubriques.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $rubriques
+     * @param list<RubriqueData> $rubriques
      *
-     * @return array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}|null
+     * @return RubriqueData|null
      */
     public function matchRubriqueByNom(array $rubriques, string $nom): ?array
     {

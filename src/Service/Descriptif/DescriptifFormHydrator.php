@@ -12,20 +12,24 @@ use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Entity\Rubrique;
 use App\Entity\Valeur;
+use App\Service\Descriptif;
+use App\ValueObject\RubriqueEtat;
 
 /**
  * Transforme la structure de données retournée par le service Descriptif en DTOs
  * prêts à alimenter les FormTypes Symfony.
  *
- * @see \App\Service\Descriptif::getForDossier()
- * @see \App\Service\Descriptif::getForEtablissement()
+ * @see Descriptif::getForDossier()
+ * @see Descriptif::getForEtablissement()
+ *
+ * @phpstan-import-type RubriqueData from Descriptif
  */
 class DescriptifFormHydrator
 {
     /**
      * Hydrate un DescriptifFormData depuis les données d'un Dossier.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $rubriques
+     * @param list<RubriqueData> $rubriques
      */
     public function hydrateFromDossier(Dossier $dossier, array $rubriques): DescriptifFormData
     {
@@ -35,7 +39,7 @@ class DescriptifFormHydrator
     /**
      * Hydrate un DescriptifFormData depuis les données d'un Établissement.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $rubriques
+     * @param list<RubriqueData> $rubriques
      */
     public function hydrateFromEtablissement(Etablissement $etablissement, array $rubriques): DescriptifFormData
     {
@@ -45,7 +49,7 @@ class DescriptifFormHydrator
     /**
      * Construit le DescriptifFormData depuis la structure de rubriques.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $rubriques
+     * @param list<RubriqueData> $rubriques
      */
     private function hydrate(array $rubriques): DescriptifFormData
     {
@@ -72,7 +76,7 @@ class DescriptifFormHydrator
             }
 
             $rubriqueFormDatas[$rubriqueId] = new RubriqueFormData(
-                (bool) $item['display'],
+                new RubriqueEtat($item['display'], $item['opened']),
                 $champs
             );
         }
