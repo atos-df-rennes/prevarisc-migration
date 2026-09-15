@@ -22,8 +22,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 {
     private string $tmpDir;
 
-    /** @var MockObject&EntityManagerInterface */
-    private MockObject $entityManager;
+    private EntityManagerInterface $entityManager;
 
     private CommissionMembreCourrierService $service;
 
@@ -32,20 +31,34 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $this->tmpDir = sys_get_temp_dir().'/commission_courrier_test_'.uniqid().'/';
         mkdir($this->tmpDir, 0777, true);
 
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $logger = $this->createStub(LoggerInterface::class);
-
-        $this->service = new CommissionMembreCourrierService(
-            $this->tmpDir,
-            $this->entityManager,
-            new Filesystem(),
-            $logger
-        );
+        $this->recreateService($this->createStub(EntityManagerInterface::class));
     }
 
     protected function tearDown(): void
     {
         new Filesystem()->remove($this->tmpDir);
+    }
+
+    /**
+     * @return MockObject&EntityManagerInterface
+     */
+    private function useEntityManagerMock(): MockObject
+    {
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->recreateService($entityManager);
+
+        return $entityManager;
+    }
+
+    private function recreateService(EntityManagerInterface $entityManager): void
+    {
+        $this->entityManager = $entityManager;
+        $this->service = new CommissionMembreCourrierService(
+            $this->tmpDir,
+            $this->entityManager,
+            new Filesystem(),
+            $this->createStub(LoggerInterface::class)
+        );
     }
 
     #[DataProvider('uploadTypesProvider')]
@@ -58,7 +71,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 
         $membre = $this->createMembreWithId(42);
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->upload($membre, $type, $uploadedFile);
 
@@ -90,7 +103,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 
         $uploadedFile = new UploadedFile($tmpFile, 'nouveau.odt', 'application/vnd.oasis.opendocument.text', null, true);
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->upload($membre, CommissionMembreCourrierType::CONVOCATIONVISITE, $uploadedFile);
 
@@ -107,7 +120,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierOrdreDuJour('odj.odt');
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->delete($membre, CommissionMembreCourrierType::ODJ);
 
@@ -119,7 +132,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
     {
         $membre = $this->createMembreWithId(42);
 
-        $this->entityManager->expects($this->never())->method('flush');
+        $this->useEntityManagerMock()->expects($this->never())->method('flush');
 
         $this->service->delete($membre, CommissionMembreCourrierType::CONVOCATIONSALLE);
 
@@ -131,7 +144,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierProcesVerbal('fichier_inexistant.odt');
 
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->delete($membre, CommissionMembreCourrierType::PV);
 

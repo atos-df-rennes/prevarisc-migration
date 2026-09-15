@@ -11,10 +11,12 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
 use App\Service\Contact;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 final class ContactTest extends TestCase
 {
     private UtilisateurInformations $contact;

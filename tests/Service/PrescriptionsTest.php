@@ -55,25 +55,25 @@ final class PrescriptionsTest extends TestCase
     public function testBuildAssociationsFromRawWithValidInput(): void
     {
         // Mocking entities
-        $association1 = $this->createMock(PrescriptionReglementaireAssociation::class);
+        $association1 = $this->createStub(PrescriptionReglementaireAssociation::class);
         $association1->method('getTexte')->willReturn(1);
         $association1->method('getArticle')->willReturn(101);
 
-        $association2 = $this->createMock(PrescriptionReglementaireAssociation::class);
+        $association2 = $this->createStub(PrescriptionReglementaireAssociation::class);
         $association2->method('getTexte')->willReturn(1);
         $association2->method('getArticle')->willReturn(102);
 
-        $association3 = $this->createMock(PrescriptionReglementaireAssociation::class);
+        $association3 = $this->createStub(PrescriptionReglementaireAssociation::class);
         $association3->method('getTexte')->willReturn(1);
         $association3->method('getArticle')->willReturn(101);
 
-        $texte1 = $this->createMock(PrescriptionTexteListe::class);
+        $texte1 = $this->createStub(PrescriptionTexteListe::class);
         $texte1->method('getId')->willReturn(1);
 
-        $article1 = $this->createMock(PrescriptionArticleListe::class);
+        $article1 = $this->createStub(PrescriptionArticleListe::class);
         $article1->method('getId')->willReturn(101);
 
-        $article2 = $this->createMock(PrescriptionArticleListe::class);
+        $article2 = $this->createStub(PrescriptionArticleListe::class);
         $article2->method('getId')->willReturn(102);
 
         $rawItems = [$association1, $texte1, $article1, $association2, $article2, $association3];
@@ -111,7 +111,7 @@ final class PrescriptionsTest extends TestCase
     public function testBuildAssociationsFromRawWithMissingTextOrArticle(): void
     {
         // Mocking association without texte and article
-        $association1 = $this->createMock(PrescriptionReglementaireAssociation::class);
+        $association1 = $this->createStub(PrescriptionReglementaireAssociation::class);
         $association1->method('getTexte')->willReturn(null);
         $association1->method('getArticle')->willReturn(null);
 
@@ -135,7 +135,7 @@ final class PrescriptionsTest extends TestCase
     public function testBuildAssociationsFromRawWithUnrelatedEntities(): void
     {
         // Mocking unrelated entities
-        $texte1 = $this->createMock(PrescriptionTexteListe::class);
+        $texte1 = $this->createStub(PrescriptionTexteListe::class);
         $texte1->method('getId')->willReturn(1);
 
         $rawItems = [$texte1];

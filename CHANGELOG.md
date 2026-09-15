@@ -4,6 +4,26 @@
 
 <!--- END HEADER -->
 
+## [2.10.6](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.5...v2.10.6) (14-09-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Avis-derogations
+
+* Affiche l'indicateur en prenant en comtpe les cellules (#411) ([90d3e1](https://github.com/atos-df-rennes/prevarisc-migration/commit/90d3e18ab44370edd45045f70e7b1cb202aec068))
+
+##### Commission
+
+* Prend en compte l'ensemble des valeurs indiquant qu'un document n'est pas renseigné (#412) ([91db8d](https://github.com/atos-df-rennes/prevarisc-migration/commit/91db8d645766de2d9679fc81303883d0d42599f5))
+
+##### Pieces-jointes
+
+* Crash lors du téléchargement d'une pièce contenant un slash dans son nom (#410) ([0f3cf0](https://github.com/atos-df-rennes/prevarisc-migration/commit/0f3cf070cf7c706aaeb0c559511901113549bba8))
+
+
+---
+
 ## [2.10.5](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.4...v2.10.5) (03-09-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections

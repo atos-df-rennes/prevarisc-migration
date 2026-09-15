@@ -126,7 +126,7 @@ final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
         $type = new DossierType();
         $type->setLibelle('Étude');
 
-        $nature = $this->createMock(DossierNatureListe::class);
+        $nature = $this->createStub(DossierNatureListe::class);
         $nature
             ->method('getId')
             ->willReturn($natureId)

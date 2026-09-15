@@ -15,7 +15,6 @@ use App\Repository\ResourcesRepository;
 use App\Security\Voter\DossierVoter;
 use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Doctrine\Common\Collections\ArrayCollection;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
@@ -24,34 +23,34 @@ final class VoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfA
 {
     public function testVoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfAllNaturesDenied(): void
     {
-        $resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $resourcesRepository = $this->createStub(ResourcesRepository::class);
+        $privilegesRepository = $this->createStub(PrivilegesRepository::class);
         $collectionAccessChecker = $this->createStub(EtablissementCollectionAccessChecker::class);
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
-        $token = $this->createMock(TokenInterface::class);
-        $user = $this->createMock(Utilisateur::class);
+        $token = $this->createStub(TokenInterface::class);
+        $user = $this->createStub(Utilisateur::class);
         $token->method('getUser')->willReturn($user);
 
-        $dossier = $this->createMock(Dossier::class);
-        $nature = $this->createMock(DossierNatureListe::class);
+        $dossier = $this->createStub(Dossier::class);
+        $nature = $this->createStub(DossierNatureListe::class);
         $nature->method('getId')->willReturn(3);
         $dossier->method('getNature')->willReturn($nature);
         $dossier->method('getEtablissements')->willReturn(new ArrayCollection([]));
 
-        $resourceAll = $this->createMock(Resources::class);
+        $resourceAll = $this->createStub(Resources::class);
         $resourceAll->method('getName')->willReturn('resource_0');
-        $privilegeAll = $this->createMock(Privileges::class);
+        $privilegeAll = $this->createStub(Privileges::class);
         $privilegeAll->method('getResource')->willReturn($resourceAll);
 
-        $resourceSpecific = $this->createMock(Resources::class);
+        $resourceSpecific = $this->createStub(Resources::class);
         $resourceSpecific->method('getName')->willReturn('resource_3');
-        $privilegeSpecific = $this->createMock(Privileges::class);
+        $privilegeSpecific = $this->createStub(Privileges::class);
         $privilegeSpecific->method('getResource')->willReturn($resourceSpecific);
 
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([$resourceAll, $resourceSpecific]);
 
-        $privilegesRepository->method('findOneBy')->willReturnCallback(function (array $criteria) use ($privilegeSpecific, $resourceSpecific): ?MockObject {
+        $privilegesRepository->method('findOneBy')->willReturnCallback(function (array $criteria) use ($privilegeSpecific, $resourceSpecific): ?Privileges {
             if ($criteria['resource'] === $resourceSpecific) {
                 return $privilegeSpecific;
             }
@@ -59,7 +58,7 @@ final class VoteReturnsAccessGrantedWhenUserHasPrivilegeForSpecificNatureEvenIfA
             return null;
         });
 
-        $group = $this->createMock(Groupe::class);
+        $group = $this->createStub(Groupe::class);
         $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilegeSpecific]));
         $user->method('getGroupe')->willReturn($group);
 

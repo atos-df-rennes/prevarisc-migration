@@ -44,7 +44,10 @@ final class DossierVisiteConvocationServiceTest extends TestCase
         $affectation->setDateCommission($dateCommission);
 
         $affectationRepository = $this->createMock(DossierAffectationRepository::class);
-        $affectationRepository->method('findAffectationByDossierAndType')->willReturn($affectation);
+        $affectationRepository->expects($this->once())
+            ->method('findAffectationByDossierAndType')
+            ->with($dossier, [TypeEvenement::TYPE_VISITE, TypeEvenement::TYPE_GROUPE_VISITE])
+            ->willReturn($affectation);
 
         $dateCommissionRepository = $this->createMock(DateCommissionRepository::class);
         $dateCommissionRepository->expects($this->once())
@@ -73,10 +76,16 @@ final class DossierVisiteConvocationServiceTest extends TestCase
         ];
 
         $affectationRepository = $this->createMock(DossierAffectationRepository::class);
-        $affectationRepository->method('findAffectationByDossierAndType')->willReturn($affectation);
+        $affectationRepository->expects($this->once())
+            ->method('findAffectationByDossierAndType')
+            ->with($dossier, [TypeEvenement::TYPE_VISITE, TypeEvenement::TYPE_GROUPE_VISITE])
+            ->willReturn($affectation);
 
         $dateCommissionRepository = $this->createMock(DateCommissionRepository::class);
-        $dateCommissionRepository->method('findGroupeDatesLiees')->with($dateCommissionAffectee)->willReturn($groupeDates);
+        $dateCommissionRepository->expects($this->once())
+            ->method('findGroupeDatesLiees')
+            ->with($dateCommissionAffectee)
+            ->willReturn($groupeDates);
 
         $service = new DossierVisiteConvocationService($affectationRepository, $dateCommissionRepository);
 
@@ -92,7 +101,10 @@ final class DossierVisiteConvocationServiceTest extends TestCase
         $affectation = new DossierAffectation();
 
         $affectationRepository = $this->createMock(DossierAffectationRepository::class);
-        $affectationRepository->method('findAffectationByDossierAndType')->willReturn($affectation);
+        $affectationRepository->expects($this->once())
+            ->method('findAffectationByDossierAndType')
+            ->with($dossier, [TypeEvenement::TYPE_VISITE, TypeEvenement::TYPE_GROUPE_VISITE])
+            ->willReturn($affectation);
 
         $dateCommissionRepository = $this->createMock(DateCommissionRepository::class);
         $dateCommissionRepository->expects($this->never())->method('findGroupeDatesLiees');

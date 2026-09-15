@@ -54,7 +54,7 @@ final class LogoutHandlerTest extends TestCase
     {
         $utilisateur = new Utilisateur();
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($utilisateur);
 
         $this->lastActionUpdater->expects($this->once())->method('update')->with($utilisateur);
@@ -64,7 +64,7 @@ final class LogoutHandlerTest extends TestCase
 
     public function testLogoutSkipsLastActionWhenUserIsNotUtilisateur(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
 
         $this->lastActionUpdater->expects($this->never())->method('update');
@@ -79,7 +79,7 @@ final class LogoutHandlerTest extends TestCase
         // a UserInterface implementation that is not an App\Entity\Utilisateur.
         $otherUser = $this->createStub(UserInterface::class);
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($otherUser);
 
         $this->lastActionUpdater->expects($this->never())->method('update');
@@ -91,8 +91,9 @@ final class LogoutHandlerTest extends TestCase
     {
         $_SESSION['phpCAS'] = ['ticket' => 'ST-123'];
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
+        $this->lastActionUpdater->expects($this->never())->method('update');
 
         $this->buildHandler(true)->onLogout($this->buildLogoutEvent($token));
 
@@ -103,8 +104,9 @@ final class LogoutHandlerTest extends TestCase
     {
         $_SESSION['phpCAS'] = ['ticket' => 'ST-123'];
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
+        $this->lastActionUpdater->expects($this->never())->method('update');
 
         $this->buildHandler(false)->onLogout($this->buildLogoutEvent($token));
 

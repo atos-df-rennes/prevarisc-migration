@@ -20,43 +20,35 @@ use App\Repository\EtablissementAdresseRepository;
 use App\Repository\UtilisateurRepository;
 use App\Service\FusionDesCommunes;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 final class FusionDesCommunesTest extends TestCase
 {
-    /** @var MockObject&SerializerInterface */
-    private MockObject $serializer;
+    private SerializerInterface $serializer;
 
-    /** @var MockObject&EntityManagerInterface */
-    private MockObject $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var MockObject&CommuneRepository */
-    private MockObject $communeRepository;
+    private CommuneRepository $communeRepository;
 
-    /** @var MockObject&EtablissementAdresseRepository */
-    private MockObject $etablissementAdresseRepository;
+    private EtablissementAdresseRepository $etablissementAdresseRepository;
 
-    /** @var MockObject&AdresseRueRepository */
-    private MockObject $adresseRueRepository;
+    private AdresseRueRepository $adresseRueRepository;
 
-    /** @var MockObject&UtilisateurRepository */
-    private MockObject $utilisateurRepository;
+    private UtilisateurRepository $utilisateurRepository;
 
-    /** @var MockObject&CommissionRegleRepository */
-    private MockObject $commissionRegleRepository;
+    private CommissionRegleRepository $commissionRegleRepository;
 
     protected function setUp(): void
     {
-        $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->communeRepository = $this->createMock(CommuneRepository::class);
-        $this->etablissementAdresseRepository = $this->createMock(EtablissementAdresseRepository::class);
-        $this->adresseRueRepository = $this->createMock(AdresseRueRepository::class);
-        $this->utilisateurRepository = $this->createMock(UtilisateurRepository::class);
-        $this->commissionRegleRepository = $this->createMock(CommissionRegleRepository::class);
+        $this->serializer = $this->createStub(SerializerInterface::class);
+        $this->entityManager = $this->createStub(EntityManagerInterface::class);
+        $this->communeRepository = $this->createStub(CommuneRepository::class);
+        $this->etablissementAdresseRepository = $this->createStub(EtablissementAdresseRepository::class);
+        $this->adresseRueRepository = $this->createStub(AdresseRueRepository::class);
+        $this->utilisateurRepository = $this->createStub(UtilisateurRepository::class);
+        $this->commissionRegleRepository = $this->createStub(CommissionRegleRepository::class);
     }
 
     private function buildService(): FusionDesCommunes
@@ -105,7 +97,7 @@ final class FusionDesCommunesTest extends TestCase
 
         $this->serializer->method('deserialize')->willReturn([$fusion]);
 
-        $this->communeRepository->expects($this->atLeast(2))->method('find')->willReturnMap([
+        $this->communeRepository->method('find')->willReturnMap([
             ['NEW01', null, null, $nouvelleCommune],
             ['OLD01', null, null, $ancienneCommune],
         ]);
@@ -149,7 +141,7 @@ final class FusionDesCommunesTest extends TestCase
 
         $this->serializer->method('deserialize')->willReturn([$fusion]);
 
-        $this->communeRepository->expects($this->atLeast(2))->method('find')->willReturnMap([
+        $this->communeRepository->method('find')->willReturnMap([
             ['NEW01', null, null, $nouvelleCommune],
             ['OLD01', null, null, $ancienneCommune],
         ]);
@@ -157,7 +149,7 @@ final class FusionDesCommunesTest extends TestCase
         $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
         $this->adresseRueRepository->method('findBy')->willReturn([]);
         $this->utilisateurRepository->method('findOneBy')->willReturn($utilisateur);
-        $this->commissionRegleRepository->expects($this->atLeast(1))->method('findBy')->willReturnMap([
+        $this->commissionRegleRepository->method('findBy')->willReturnMap([
             [['commune' => $ancienneCommune], null, null, null, [$regle]],
         ]);
 
@@ -191,7 +183,7 @@ final class FusionDesCommunesTest extends TestCase
         ]);
 
         $this->serializer->method('deserialize')->willReturn([$fusion]);
-        $this->communeRepository->expects($this->atLeast(2))->method('find')->willReturnMap([
+        $this->communeRepository->method('find')->willReturnMap([
             ['NEW01', null, null, $nouvelleCommune],
             ['OLD01', null, null, $ancienneCommune],
         ]);
@@ -251,7 +243,7 @@ final class FusionDesCommunesTest extends TestCase
         ]);
 
         $this->serializer->method('deserialize')->willReturn([$fusionKo, $fusionOk]);
-        $this->communeRepository->expects($this->atLeast(3))->method('find')->willReturnMap([
+        $this->communeRepository->method('find')->willReturnMap([
             ['GHOST', null, null, null],
             ['NEW01', null, null, $nouvelleCommune],
             ['OLD01', null, null, $ancienneCommune],

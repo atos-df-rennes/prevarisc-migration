@@ -52,7 +52,7 @@ final class EtablissementHistoriqueServiceTest extends TestCase
         $property = $reflectionClass->getProperty('libelle');
         $property->setValue($avis, $avisLibelle);
 
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getAvisCommission')->willReturn($avis);
         $dossier->method('getDateCommission')->willReturn(null);
         $dossier->method('getDateVisite')->willReturn($date);

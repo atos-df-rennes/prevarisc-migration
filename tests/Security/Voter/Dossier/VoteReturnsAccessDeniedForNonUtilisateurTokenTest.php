@@ -17,12 +17,12 @@ final class VoteReturnsAccessDeniedForNonUtilisateurTokenTest extends TestCase
 {
     public function testVoteReturnsAccessDeniedForNonUtilisateurToken(): void
     {
-        $resourcesRepository = $this->createMock(ResourcesRepository::class);
+        $resourcesRepository = $this->createStub(ResourcesRepository::class);
         $privilegesRepository = $this->createStub(PrivilegesRepository::class);
         $collectionAccessChecker = $this->createStub(EtablissementCollectionAccessChecker::class);
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
         $dossier = $this->createStub(Dossier::class);
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn(['resource_1']);

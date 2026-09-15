@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Form;
 
 use App\Form\FusionDesCommunesType;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
@@ -23,9 +22,9 @@ final class FusionDesCommunesTypeTest extends TestCase
         $type = new FusionDesCommunesType();
 
         $addedFields = [];
-        $builder = $this->createMock(FormBuilderInterface::class);
+        $builder = $this->createStub(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(
-            function (string $name, ?string $fieldType = null, array $options = []) use (&$addedFields, $builder): MockObject {
+            function (string $name, ?string $fieldType = null, array $options = []) use (&$addedFields, $builder): FormBuilderInterface {
                 $addedFields[$name] = ['type' => $fieldType, 'options' => $options];
 
                 return $builder;
@@ -43,9 +42,9 @@ final class FusionDesCommunesTypeTest extends TestCase
         $type = new FusionDesCommunesType();
 
         $addedFields = [];
-        $builder = $this->createMock(FormBuilderInterface::class);
+        $builder = $this->createStub(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(
-            function (string $name, ?string $fieldType = null, array $options = []) use (&$addedFields, $builder): MockObject {
+            function (string $name, ?string $fieldType = null, array $options = []) use (&$addedFields, $builder): FormBuilderInterface {
                 $addedFields[$name] = ['type' => $fieldType, 'options' => $options];
 
                 return $builder;
@@ -67,9 +66,9 @@ final class FusionDesCommunesTypeTest extends TestCase
         $type = new FusionDesCommunesType();
 
         $addedFields = [];
-        $builder = $this->createMock(FormBuilderInterface::class);
+        $builder = $this->createStub(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(
-            function (string $name, ?string $fieldType = null, array $options = []) use (&$addedFields, $builder): MockObject {
+            function (string $name, ?string $fieldType = null, array $options = []) use (&$addedFields, $builder): FormBuilderInterface {
                 $addedFields[$name] = ['type' => $fieldType, 'options' => $options];
 
                 return $builder;
