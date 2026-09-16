@@ -1,8 +1,110 @@
-<!--- BEGIN HEADER -->
+<!-- BEGIN HEADER -->
 # Changelog
 
 
-<!--- END HEADER -->
+<!-- END HEADER -->
+
+## [3.0.0-rc.2](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.6...v3.0.0-rc.2) (16-09-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gauge-high.svg" width="20" height="20"> Performances
+
+* Diverses optimisations de chargement de liste (#398) ([c005b3](https://github.com/atos-df-rennes/prevarisc-migration/commit/c005b3506cf00986b32ad8a2e56b1087422ab640))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Aligne le format des dates dans les documents générés (#387) ([c5af22](https://github.com/atos-df-rennes/prevarisc-migration/commit/c5af2211f48880f6be306784f2f67751d53b5a42))
+* La génération des documents ne fonctionnait pas si la variable PREVARISC_REAL_DATA_PATH contenait un slash de fin (#376) ([dce73d](https://github.com/atos-df-rennes/prevarisc-migration/commit/dce73d171aff52537e00ffc765af05728eac4da6))
+* Crash applicatif sur une troncature au milieu d'un caractère accentué (#375) ([6c001d](https://github.com/atos-df-rennes/prevarisc-migration/commit/6c001daf351e66142438a2ec198cbd8055237aec))
+
+##### Administration
+
+* Affiche le chemin vers les fichiers tel qu'utilisé ([aaea7c](https://github.com/atos-df-rennes/prevarisc-migration/commit/aaea7c642ae4d246d98afa48ebb08c1b78f14f9e))
+
+##### Adresse
+
+* Affiche la bonne adresse d'une cellule sur sa fiche, dans l'odj et lors de la génération des documents de commission (#384) ([a8564d](https://github.com/atos-df-rennes/prevarisc-migration/commit/a8564d6c34d2e056ec057e0a694a0805fe82189d))
+
+##### Assets
+
+* Utilise le numéro de version applicatif pour invalider la mise en cache (#390) ([fd8309](https://github.com/atos-df-rennes/prevarisc-migration/commit/fd8309fba853c7bec06121ffa5412a149f92325a))
+
+##### Avis-derogations
+
+* Affiche l'indicateur en prenant en comtpe les cellules (#411) ([90d3e1](https://github.com/atos-df-rennes/prevarisc-migration/commit/90d3e18ab44370edd45045f70e7b1cb202aec068))
+
+##### Commission
+
+* Prend en compte l'ensemble des valeurs indiquant qu'un document n'est pas renseigné (#412) ([91db8d](https://github.com/atos-df-rennes/prevarisc-migration/commit/91db8d645766de2d9679fc81303883d0d42599f5))
+* VTIMEZONE manquant dans l'export ICS Outlook (#407) ([966b0e](https://github.com/atos-df-rennes/prevarisc-migration/commit/966b0e9e07a0a12aee72951e9971520f3c3e8c6f))
+
+##### Dashboard
+
+* Erreur de chargement sur certains blocs (#399) ([fab5dc](https://github.com/atos-df-rennes/prevarisc-migration/commit/fab5dc906404187500b73adb501a5738055b24d9))
+
+##### Documents
+
+* Préserve les chemins d'accès UNC Windows (#381) ([c6d49c](https://github.com/atos-df-rennes/prevarisc-migration/commit/c6d49cba74e1583bec4238d2e64f24602e7fc758))
+
+##### Documents-consultes
+
+* Les champs référence et date ne sont pas obligatoires (#382) ([6d7ddf](https://github.com/atos-df-rennes/prevarisc-migration/commit/6d7ddfabd50052e171f54f966d1958a99f564c31))
+
+##### Dossier
+
+* Nettoie les informations de commission invalides et rend la relation plus stricte (#420) ([40c55a](https://github.com/atos-df-rennes/prevarisc-migration/commit/40c55a16c725848153fc74766c1be920fda98f66))
+* Autorise l'utilisation des prescriptions sur les études Dérogation (#409) ([034d26](https://github.com/atos-df-rennes/prevarisc-migration/commit/034d261d840dd12bce8e0cfba94c027882c7740f))
+* Affiche/masque l'onglet "Prescriptions" en fonction du type et de la nature (#408) ([ba8174](https://github.com/atos-df-rennes/prevarisc-migration/commit/ba8174248645a74162b26da9ecfddc1f524ef24a))
+* Le champ "Objet" n'est pas obligatoire pour certaines natures (#395) ([9063b8](https://github.com/atos-df-rennes/prevarisc-migration/commit/9063b83d8d7cd7c5a378230c3f57208636fbdfad))
+* Bouton pour effacer les dates de visite/commission (#394) ([623363](https://github.com/atos-df-rennes/prevarisc-migration/commit/623363d08d87cbb06f0133cf4ad2d02e50a23e73))
+* Crash lors d'une indication d'incomplétude (#392) ([8a6de0](https://github.com/atos-df-rennes/prevarisc-migration/commit/8a6de07cee16ec7946a0d268e0c0ce1a6e515814))
+* Utilise les bonnes permissions pour accéder aux pièces jointes (#388) ([0a8746](https://github.com/atos-df-rennes/prevarisc-migration/commit/0a8746dee1d77a6703e92cc33262a5b7f89ba32c))
+* Vérifie correctement les permissions d'accès aux dossiers d'un site (#386) ([323ef0](https://github.com/atos-df-rennes/prevarisc-migration/commit/323ef0c71bb78d945a41f55d2104ffd6c1821e59))
+* Présélectionne la commission de l'établissement à la création (#385) ([fb0722](https://github.com/atos-df-rennes/prevarisc-migration/commit/fb07224480f154b0b18db05baa491ad4a2f46ff6))
+* Permet la sélection d'une commune comme service instructeur (#383) ([9cb874](https://github.com/atos-df-rennes/prevarisc-migration/commit/9cb874ca40cae13d905a2af8b9dc58f37ccbc320))
+
+##### Etablissement
+
+* Conserve l'activité sauvegardée lors de la modification (#406) ([cf4d4b](https://github.com/atos-df-rennes/prevarisc-migration/commit/cf4d4b96146c88aca6b458ed1fa2604ca22d5456))
+* Permet la suppression des rubriques ICPE sur toutes les tailles d'écran (#405) ([87adf3](https://github.com/atos-df-rennes/prevarisc-migration/commit/87adf3d2f1c56523249b43a8baeb58171a015a4f))
+* Lien de création d'un établissement enfant manquant (#396) ([e0ca06](https://github.com/atos-df-rennes/prevarisc-migration/commit/e0ca06fe9596397c935a8a442273f09568e589bc))
+* Affiche le bon libellé sur la liste des dossiers en fonction de leur date de création (#380) ([33c994](https://github.com/atos-df-rennes/prevarisc-migration/commit/33c9942d07cbdb08864c779e9fb2de05270f1454))
+
+##### Pieces-jointes
+
+* Crash lors du téléchargement d'une pièce contenant un slash dans son nom (#410) ([0f3cf0](https://github.com/atos-df-rennes/prevarisc-migration/commit/0f3cf070cf7c706aaeb0c559511901113549bba8))
+
+##### Prescriptions
+
+* Crash sur les pages de modification/remplacement (#415) ([21b1c5](https://github.com/atos-df-rennes/prevarisc-migration/commit/21b1c5ed0af157d8022711260b00ba40f21e51d6))
+
+##### Rapport
+
+* Aggrège les dates et heures de visite du dossier (#393) ([0a9bd3](https://github.com/atos-df-rennes/prevarisc-migration/commit/0a9bd31be9488425f507443b91923a460e81e2f1))
+* Certaines balises avait toujours une chaîne vide pour valeur (#378) ([4d36d6](https://github.com/atos-df-rennes/prevarisc-migration/commit/4d36d6343ae6ec523ae89cb17894f3b67053dfb0))
+
+##### Recherche
+
+* Rétablissement de la recherche par numéro d'identifiant d'établissement et harmonisation sur tous les usages à travers l'application (#379) ([100d64](https://github.com/atos-df-rennes/prevarisc-migration/commit/100d64bc6dc84c653a5d3c4630268336548e4e88))
+* Renvoie uniquement l'établissement correspondant à l'identifiant renseigné (#377) ([94ef91](https://github.com/atos-df-rennes/prevarisc-migration/commit/94ef91404b7970ee48dd967502d5dd502e2a7363))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/palette.svg" width="20" height="20"> Style
+
+* Aligne le visuel du TomSelect de navigation globale avec les autres éléments (#389) ([f579da](https://github.com/atos-df-rennes/prevarisc-migration/commit/f579dad0d15d4259f00ac1499a1c5210adc43d63))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="20" height="20"> Migration
+
+
+##### Etablissement
+
+* Route d'aperçu (#401) ([ae136e](https://github.com/atos-df-rennes/prevarisc-migration/commit/ae136ea778f585cd96131dad935bca8a89026b30))
+
+##### Modules
+
+* Changement de libellés prescriptions et facteur de criticité (#397) ([8e508a](https://github.com/atos-df-rennes/prevarisc-migration/commit/8e508acae907b1df7ab95f6cc29a2daf2198f5b8))
+* Port des modules personnalisés (#391) ([fd9237](https://github.com/atos-df-rennes/prevarisc-migration/commit/fd92371dcb12883f70bc290464ef8eace52920d9))
+
+
+---
 
 ## [2.10.6](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.5...v2.10.6) (14-09-2026)
 
