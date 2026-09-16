@@ -351,7 +351,7 @@ class Dossier
      *
      * @ORM\ManyToOne(targetEntity=Commission::class)
      *
-     * @ORM\JoinColumn(name="COMMISSION_DOSSIER", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true})
+     * @ORM\JoinColumn(name="COMMISSION_DOSSIER", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true}, onDelete="SET NULL")
      */
     private $commission;
 
