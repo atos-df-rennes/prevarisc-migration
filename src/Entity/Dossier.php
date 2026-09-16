@@ -213,7 +213,7 @@ class Dossier
     private ?\DateTimeInterface $dateReception = null;
 
     #[ORM\ManyToOne(targetEntity: Commission::class)]
-    #[ORM\JoinColumn(name: 'COMMISSION_DOSSIER', referencedColumnName: 'ID_COMMISSION', nullable: true, options: ['unsigned' => true])]
+    #[ORM\JoinColumn(name: 'COMMISSION_DOSSIER', referencedColumnName: 'ID_COMMISSION', nullable: true, onDelete: 'SET NULL', options: ['unsigned' => true])]
     private ?Commission $commission = null;
 
     #[ORM\Column(name: 'DATEMAIRIE_DOSSIER', type: Types::DATETIME_MUTABLE, nullable: true)]
