@@ -2,6 +2,7 @@
 
 return [
     'headerDescription' => '',
+    'path' => 'CHANGELOG-3.x.md',
     'sortBy' => 'date',
     'preset' => [
         'feat' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions', 'description' => 'Nouvelles fonctionnalités'],
