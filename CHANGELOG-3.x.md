@@ -133,7 +133,3 @@
 ##### Calendrier-des-commissions
 
 * Téléchargement des pièces jointes (#228) ([5cc6ce](https://github.com/atos-df-rennes/prevarisc-migration/commit/5cc6ce2c8480881e83a439ba3a670f67f31092b6))
-
-
----
-
