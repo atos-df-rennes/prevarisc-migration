@@ -203,8 +203,6 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
      */
     public function getSalt(): ?string
     {
-        // Retourné pour l'encodeur MD5 legacy via migrate_from.
-        // Les encodeurs modernes (bcrypt/argon2) ignorent ce champ.
         return $this->username;
     }
 

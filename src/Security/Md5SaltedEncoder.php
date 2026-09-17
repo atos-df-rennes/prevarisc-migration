@@ -59,21 +59,8 @@ class Md5SaltedEncoder implements LegacyPasswordHasherInterface
         return $this->isPasswordValid($hashedPassword, $plainPassword, $salt);
     }
 
-    /**
-     * Indique qu'aucun re-hash n'est nécessaire pendant la période de transition.
-     *
-     * Retourne false pour bloquer la migration automatique MD5 → bcrypt sur login,
-     * ce qui garantit que le fallback legacy (PREVARISC_SYMFONY_LOGIN=0) reste
-     * opérationnel à tout moment.
-     *
-     * À passer à true (ou supprimer cette méthode) une fois le legacy retiré.
-     *
-     * @param string $encoded Le hash actuel (ignoré)
-     *
-     * @return bool Toujours false pendant la transition
-     */
-    public function needsRehash(string $encoded): bool
+    public function needsRehash(string $hashedPassword): bool
     {
-        return false;
+        return true;
     }
 }
