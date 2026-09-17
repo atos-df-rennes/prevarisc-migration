@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Deprecated;
 use Symfony\Component\PasswordHasher\LegacyPasswordHasherInterface;
 
-#[Deprecated(message: 'Ce mécanisme est un reliquat et ne doit plus être utilisé. Préférez les algorithmes modernes.', since: '3.0.0')]
+#[\Deprecated(message: 'Ce mécanisme est un reliquat et ne doit plus être utilisé. Préférez les algorithmes modernes.', since: '3.0.0')]
 /**
  * Encodeur MD5 legacy compatible avec le format de hachage Prévarisc.
  *
