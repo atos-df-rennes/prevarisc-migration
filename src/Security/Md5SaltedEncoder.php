@@ -6,6 +6,7 @@ namespace App\Security;
 
 use Symfony\Component\PasswordHasher\LegacyPasswordHasherInterface;
 
+#[\Deprecated(message: 'Ce mécanisme est un reliquat et ne doit plus être utilisé. Préférez les algorithmes modernes.', since: '3.0.0')]
 /**
  * Encodeur MD5 legacy compatible avec le format de hachage Prévarisc.
  *
@@ -59,21 +60,8 @@ class Md5SaltedEncoder implements LegacyPasswordHasherInterface
         return $this->isPasswordValid($hashedPassword, $plainPassword, $salt);
     }
 
-    /**
-     * Indique qu'aucun re-hash n'est nécessaire pendant la période de transition.
-     *
-     * Retourne false pour bloquer la migration automatique MD5 → bcrypt sur login,
-     * ce qui garantit que le fallback legacy (PREVARISC_SYMFONY_LOGIN=0) reste
-     * opérationnel à tout moment.
-     *
-     * À passer à true (ou supprimer cette méthode) une fois le legacy retiré.
-     *
-     * @param string $encoded Le hash actuel (ignoré)
-     *
-     * @return bool Toujours false pendant la transition
-     */
-    public function needsRehash(string $encoded): bool
+    public function needsRehash(string $hashedPassword): bool
     {
-        return false;
+        return true;
     }
 }

@@ -26,17 +26,20 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
     }
 
     /**
-     * No-op pendant la période de transition Zend → Symfony.
+     * Persiste le mot de passe rehashé (migration MD5 legacy → bcrypt/argon2).
      *
-     * La migration automatique MD5 → bcrypt sur login est désactivée pour garantir
-     * que le fallback legacy (PREVARISC_SYMFONY_LOGIN=0) reste opérationnel à tout
-     * moment. L'upgrade est également bloqué côté Md5SaltedEncoder::needsRehash().
-     *
-     * À réactiver (supprimer le return anticipé) une fois le legacy définitivement retiré.
+     * Appelée explicitement par FormLoginAuthenticator::checkCredentials() après une
+     * connexion réussie via l'encodeur legacy, puisque le CustomCredentials utilisé ne
+     * déclenche pas le mécanisme standard PasswordUpgradeBadge de Symfony.
      */
     public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
-        // Upgrade désactivé pendant la transition : voir Md5SaltedEncoder::needsRehash()
+        if (!$user instanceof Utilisateur) {
+            return;
+        }
+
+        $user->setPassword($newHashedPassword);
+        $this->_em->flush();
     }
 
     /**
