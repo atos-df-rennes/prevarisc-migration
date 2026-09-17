@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\Utilisateur;
+use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -332,10 +333,17 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
         // 5. Vérification dbtable — passwordEncoder gère migrate_from (MD5 → bcrypt) automatiquement
         $isValid = $this->passwordEncoder->isPasswordValid($utilisateur, (string) $credentials['password']);
 
-        // @todo Migration MD5 → bcrypt : activer le rehachage automatique au login une fois la
-        //       migration Symfony validée en production. Désactivé intentionnellement pour conserver
-        //       la réversibilité vers Zend (les mots de passe bcrypt sont incompatibles avec le legacy MD5).
-        //       Implémenter via une commande dédiée (ex: app:migrate-passwords) pour contrôler le périmètre.
+        // Migration MD5 → bcrypt/argon2 : le CustomCredentials utilisé ci-dessus ne déclenche pas
+        // le mécanisme standard PasswordUpgradeBadge de Symfony, donc l'upgrade est déclenché
+        // manuellement ici. Le hash legacy MD5 est irréversiblement remplacé dès la première
+        // connexion réussie de l'utilisateur.
+        if ($isValid && $this->passwordEncoder->needsRehash($utilisateur)) {
+            $newHashedPassword = $this->passwordEncoder->hashPassword($utilisateur, (string) $credentials['password']);
+
+            /** @var UtilisateurRepository $repository */
+            $repository = $this->entityManager->getRepository(Utilisateur::class);
+            $repository->upgradePassword($utilisateur, $newHashedPassword);
+        }
 
         return $isValid;
     }

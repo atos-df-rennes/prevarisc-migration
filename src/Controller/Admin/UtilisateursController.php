@@ -22,8 +22,14 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('admin')]
 class UtilisateursController extends AbstractController
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly UtilisateurRepository $utilisateurRepository, private readonly GroupeRepository $groupeRepository, private readonly Avatar $avatar, private readonly Image $image, private readonly UtilisateurManager $utilisateurManager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UtilisateurRepository $utilisateurRepository,
+        private readonly GroupeRepository $groupeRepository,
+        private readonly Avatar $avatar,
+        private readonly Image $image,
+        private readonly UtilisateurManager $utilisateurManager,
+    ) {
     }
 
     #[Route(path: '/admin/utilisateurs/', name: 'admin_utilisateurs_index')]

@@ -11,6 +11,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'algorithm'    => 'auto',
                 'migrate_from' => ['legacy_md5_prevarisc'],
             ],
+            // @todo: à retirer (ainsi que le migrate_from) une fois les mots de passe réhashés
             'legacy_md5_prevarisc' => [
                 'id' => 'App\Security\Md5SaltedEncoder',
             ],

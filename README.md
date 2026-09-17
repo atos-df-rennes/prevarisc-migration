@@ -1,11 +1,11 @@
-![Static Badge](https://img.shields.io/badge/status-rc-orange)
+![Static Badge](https://img.shields.io/badge/status-rc.2-orange)
 ![Static Badge](https://img.shields.io/badge/php-8.5-blue)
 ![Static Badge](https://img.shields.io/badge/symfony-7.4-green)
 ![Static Badge](https://img.shields.io/badge/license-CeCILL--B-yellow)
 
 # Prevarisc
 
-Ceci est le dépôt de la nouvelle version technique de [Prevarisc](https://github.com/atos-df-rennes/prevarisc).
+Application web open-source gérant l'ensemble de l'activité du service prévention au sein d'un Service Départemental d'Incendie et de Secours (SDIS).
 
 ## Table des matières
 
@@ -29,35 +29,25 @@ Consultez la [documentation dédiée](docs/guide.md).
 
 ## Installation
 
-Prevarisc 3.0 est une refonte complète utilisant Symfony 7.4 LTS et PHP 8.5. Pour l'installer, suivez les étapes ci-dessous :
-
 1. Clonez le dépôt :
 ```sh
-$ git clone https://github.com/atos-df-rennes/prevarisc-migration.git
-$ cd prevarisc-migration
+$ git clone https://github.com/atos-df-rennes/prevarisc-migration.git prevarisc
+$ cd prevarisc
 $ git checkout release/3.0
 ```
-> [!NOTE]
-> Prevarisc 3.0 utilise la branche `release/3.0`. Les versions précédentes (2.8, 2.10) restent sur leurs branches respectives.
 
 2. Copiez le fichier de variables d'environnement d'exemple et renseignez les valeurs suivant votre configuration :
 ```sh
-$ cd prevarisc-migration
 $ cp .env.example .env
 ```
 ```
 APP_ENV=prod
 APP_DEBUG=false
 APP_SECRET=<chaine_de_caractere>
-(cf. pour générer un secret : http://nux.net/secret)
-DATABASE_URL="mysql://<user>:<password>@<host>:<port>/<database_name>?serverVersion=5.6&charset=utf8mb4"
-(e.g. mysql://root:root@localhost:3306/PRV_prevarisc_v2?serverVersion=5.6&charset=utf8mb4)
-PREVARISC_PATH=/chemin/absolu/vers/Prevarisc
-(Optionnel, si valeur différente de l'exemple : e.g. /var/www/html/prevarisc)
+(pour générer un secret : php -r "echo bin2hex(random_bytes(16));")
+DATABASE_URL="mysql://<user>:<password>@<host>:<port>/<database_name>?serverVersion=11.8.8-MariaDB&charset=utf8mb4"
+(e.g. mysql://root:root@localhost:3306/PRV_prevarisc_v2?serverVersion=11.8.8-MariaDB&charset=utf8mb4)
 ```
-
-> [!TIP]
-> Si l'un des paramètres de la variable DATABASE_URL contient des caractères spéciaux, ils doivent être encodés : + => %2B, @ => %40, $ => %24, # => %23, / => %2F, : => %3A, * => %2A, ! => %21
 
 3. Installez les dépendances (Composer 2.x requis) :
 ```sh
@@ -74,7 +64,7 @@ $ composer dump-env prod
 
 5. Jouez les migrations pour avoir un schéma de base de données à jour :
 ```sh
-$ php bin/console doctrine:migrations:migrate
+$ php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
 > [!IMPORTANT]
@@ -94,8 +84,8 @@ $ chmod -R 755 vendor/bin
 ```apache
 <VirtualHost *:80>
     ServerName prevarisc.local
-    DocumentRoot /var/www/html/prevarisc-migration/public
-    <Directory /var/www/html/prevarisc-migration/public>
+    DocumentRoot /var/www/html/prevarisc/public
+    <Directory /var/www/html/prevarisc/public>
         DirectoryIndex index.php
         AllowOverride all
         Order allow,deny

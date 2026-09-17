@@ -76,6 +76,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
         ->arg('$ldapEnabled', '%app.ldap_enabled%');
 
+    // @todo: à retirer une fois les mots de passe réhashés
     $services->set('App\Security\Md5SaltedEncoder')
         ->arg('$globalSalt', '%app.security_salt%');
 
