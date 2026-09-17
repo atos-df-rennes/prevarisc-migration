@@ -5,36 +5,17 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\Entity\Utilisateur;
-use App\Security\Md5SaltedEncoder;
 use App\Service\UtilisateurManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UtilisateurManagerTest extends TestCase
 {
-    private string $globalSalt = 'globalsalt';
-
-    public static function providePasswordCases(): \Iterator
-    {
-        // initialPassword, sso, plainPassword, expectedPasswordDescription
-        // expectedPasswordDescription: 'encoded:<raw>' means encoded value expected,
-        // null means password should be null,
-        // 'keep' means initialPassword must be kept.
-        yield 'create sso no plain' => [null, true, null, null];
-        yield 'create non-sso no plain' => [null, false, null, 'keep'];
-        yield 'create non-sso empty plain' => [null, false, '', 'keep'];
-        yield 'create non-sso with plain' => [null, false, 'secret', 'encoded:secret'];
-        yield 'update non-sso keep existing' => ['oldhash', false, null, 'keep'];
-        yield 'update to sso clears password' => ['oldhash', true, null, null];
-        yield 'update non-sso replace with empty plain keeps old' => ['oldhash', false, '', 'keep'];
-        yield 'update non-sso replace with new plain' => ['oldhash', false, 'newpw', 'encoded:newpw'];
-    }
-
     #[DataProvider('providePasswordCases')]
     public function testProcessPasswordBeforePersist(?string $initialPassword, bool $sso, ?string $plainPassword, ?string $expectedDesc): void
     {
-        $encoder = new Md5SaltedEncoder($this->globalSalt);
-        $service = new UtilisateurManager($encoder);
+        $service = new UtilisateurManager($this->createStub(UserPasswordHasherInterface::class));
 
         $user = new Utilisateur();
         $user->setUsername('jsmith'); // username used as salt by encoder
@@ -68,5 +49,21 @@ final class UtilisateurManagerTest extends TestCase
         }
 
         $this->fail('Unexpected expectedDesc: '.$expectedDesc);
+    }
+
+    public static function providePasswordCases(): \Iterator
+    {
+        // initialPassword, sso, plainPassword, expectedPasswordDescription
+        // expectedPasswordDescription: 'encoded:<raw>' means encoded value expected,
+        // null means password should be null,
+        // 'keep' means initialPassword must be kept.
+        yield 'create sso no plain' => [null, true, null, null];
+        yield 'create non-sso no plain' => [null, false, null, 'keep'];
+        yield 'create non-sso empty plain' => [null, false, '', 'keep'];
+        yield 'create non-sso with plain' => [null, false, 'secret', 'encoded:secret'];
+        yield 'update non-sso keep existing' => ['oldhash', false, null, 'keep'];
+        yield 'update to sso clears password' => ['oldhash', true, null, null];
+        yield 'update non-sso replace with empty plain keeps old' => ['oldhash', false, '', 'keep'];
+        yield 'update non-sso replace with new plain' => ['oldhash', false, 'newpw', 'encoded:newpw'];
     }
 }
