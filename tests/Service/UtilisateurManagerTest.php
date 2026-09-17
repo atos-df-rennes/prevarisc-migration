@@ -15,10 +15,10 @@ final class UtilisateurManagerTest extends TestCase
     #[DataProvider('providePasswordCases')]
     public function testProcessPasswordBeforePersist(?string $initialPassword, bool $sso, ?string $plainPassword, ?string $expectedDesc): void
     {
-        $service = new UtilisateurManager($this->createStub(UserPasswordHasherInterface::class));
+        $hasher = $this->createMock(UserPasswordHasherInterface::class);
 
         $user = new Utilisateur();
-        $user->setUsername('jsmith'); // username used as salt by encoder
+        $user->setUsername('jsmith');
         $user->setPassword($initialPassword);
         $user->setSso($sso);
 
@@ -26,6 +26,21 @@ final class UtilisateurManagerTest extends TestCase
             $user->setPlainPassword($plainPassword);
         }
 
+        if (null !== $expectedDesc && str_starts_with($expectedDesc, 'encoded:')) {
+            // The concrete hash produced by the "auto" algorithm is salted/versioned and
+            // therefore not reproducible in a test: we only assert that the manager
+            // delegates hashing to the hasher and persists whatever it returns.
+            $raw = substr($expectedDesc, strlen('encoded:'));
+            $hashed = 'hashed:'.$raw;
+            $hasher->expects($this->once())
+                ->method('hashPassword')
+                ->with($user, $raw)
+                ->willReturn($hashed);
+        } else {
+            $hasher->expects($this->never())->method('hashPassword');
+        }
+
+        $service = new UtilisateurManager($hasher);
         $service->processPasswordBeforePersist($user);
 
         if (null === $expectedDesc) {
@@ -42,8 +57,7 @@ final class UtilisateurManagerTest extends TestCase
 
         if (str_starts_with($expectedDesc, 'encoded:')) {
             $raw = substr($expectedDesc, strlen('encoded:'));
-            $expected = md5($user->getSalt().$this->globalSalt.$raw);
-            $this->assertSame($expected, $user->getPassword());
+            $this->assertSame('hashed:'.$raw, $user->getPassword());
 
             return;
         }
@@ -54,7 +68,8 @@ final class UtilisateurManagerTest extends TestCase
     public static function providePasswordCases(): \Iterator
     {
         // initialPassword, sso, plainPassword, expectedPasswordDescription
-        // expectedPasswordDescription: 'encoded:<raw>' means encoded value expected,
+        // expectedPasswordDescription: 'encoded:<raw>' means the hasher must be called
+        // with <raw> and its return value persisted,
         // null means password should be null,
         // 'keep' means initialPassword must be kept.
         yield 'create sso no plain' => [null, true, null, null];
