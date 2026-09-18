@@ -7,6 +7,7 @@ namespace App\Tests\Service;
 use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Service\DossierFields;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class DossierFieldsTest extends TestCase
@@ -18,70 +19,82 @@ final class DossierFieldsTest extends TestCase
         $this->service = new DossierFields();
     }
 
-    public function testShouldDisplayFieldReturnsTrueForOperationSdisInIntervention(): void
+    #[DataProvider('etudePcProvider')]
+    public function testShouldDisplayFieldForEtudePc(string $field, bool $expected): void
     {
-        $dossier = $this->createDossierWithNature(37); // Nature Incendie
-        $this->assertTrue($this->service->shouldDisplayField($dossier, 'operationSdis'));
+        $dossier = $this->createDossierWithNature(1);
+        $this->assertSame($expected, $this->service->shouldDisplayField($dossier, $field));
     }
 
-    public function testShouldDisplayFieldReturnsFalseForOperationSdisInEtude(): void
+    public static function etudePcProvider(): \Iterator
     {
-        $dossier = $this->createDossierWithNature(1); // Nature PC
-        $this->assertFalse($this->service->shouldDisplayField($dossier, 'operationSdis'));
+        yield ['operationSdis', false];
+        yield ['rex', false];
+        yield ['chargeSecurite', false];
+        yield ['dateSignature', false];
     }
 
-    public function testShouldDisplayFieldReturnsTrueForRcciInIncendie(): void
+    #[DataProvider('etudeDiaProvider')]
+    public function testShouldDisplayFieldForEtudeDia(string $field, bool $expected): void
     {
-        $dossier = $this->createDossierWithNature(37); // Nature Incendie
-        $this->assertTrue($this->service->shouldDisplayField($dossier, 'rcci'));
+        $dossier = $this->createDossierWithNature(6);
+        $this->assertSame($expected, $this->service->shouldDisplayField($dossier, $field));
     }
 
-    public function testShouldDisplayFieldReturnsFalseForRcciInSap(): void
+    public static function etudeDiaProvider(): \Iterator
     {
-        $dossier = $this->createDossierWithNature(38); // Nature SAP
-        $this->assertFalse($this->service->shouldDisplayField($dossier, 'rcci'));
+        yield ['chargeSecurite', true];
     }
 
-    public function testShouldDisplayFieldReturnsTrueForRexInAllInterventions(): void
+    #[DataProvider('interventionIncendieProvider')]
+    public function testShouldDisplayFieldForInterventionIncendie(string $field, bool $expected): void
     {
-        $dossier37 = $this->createDossierWithNature(37); // Incendie
-        $this->assertTrue($this->service->shouldDisplayField($dossier37, 'rex'));
-
-        $dossier38 = $this->createDossierWithNature(38); // SAP
-        $this->assertTrue($this->service->shouldDisplayField($dossier38, 'rex'));
-
-        $dossier39 = $this->createDossierWithNature(39); // Intervention div
-        $this->assertTrue($this->service->shouldDisplayField($dossier39, 'rex'));
+        $dossier = $this->createDossierWithNature(37);
+        $this->assertSame($expected, $this->service->shouldDisplayField($dossier, $field));
     }
 
-    public function testShouldDisplayFieldReturnsFalseForRexInEtude(): void
+    public static function interventionIncendieProvider(): \Iterator
     {
-        $dossier = $this->createDossierWithNature(1); // Nature PC
-        $this->assertFalse($this->service->shouldDisplayField($dossier, 'rex'));
+        yield ['operationSdis', true];
+        yield ['rcci', true];
+        yield ['rex', true];
     }
 
-    public function testShouldDisplayFieldReturnsTrueForChargeSecuriteInDia(): void
+    #[DataProvider('interventionSapProvider')]
+    public function testShouldDisplayFieldForInterventionSap(string $field, bool $expected): void
     {
-        $dossier = $this->createDossierWithNature(6); // DIA
-        $this->assertTrue($this->service->shouldDisplayField($dossier, 'chargeSecurite'));
+        $dossier = $this->createDossierWithNature(38);
+        $this->assertSame($expected, $this->service->shouldDisplayField($dossier, $field));
     }
 
-    public function testShouldDisplayFieldReturnsFalseForChargeSecuriteInPc(): void
+    public static function interventionSapProvider(): \Iterator
     {
-        $dossier = $this->createDossierWithNature(1); // PC
-        $this->assertFalse($this->service->shouldDisplayField($dossier, 'chargeSecurite'));
+        yield ['operationSdis', true];
+        yield ['rcci', false];
     }
 
-    public function testShouldDisplayFieldReturnsTrueForDateSignInArrete(): void
+    #[DataProvider('interventionDivProvider')]
+    public function testShouldDisplayFieldForInterventionDiv(string $field, bool $expected): void
     {
-        $dossier = $this->createDossierWithNature(40); // Arrêté d'ouverture
-        $this->assertTrue($this->service->shouldDisplayField($dossier, 'dateSignature'));
+        $dossier = $this->createDossierWithNature(39);
+        $this->assertSame($expected, $this->service->shouldDisplayField($dossier, $field));
     }
 
-    public function testShouldDisplayFieldReturnsFalseForDateSignInEtude(): void
+    public static function interventionDivProvider(): \Iterator
     {
-        $dossier = $this->createDossierWithNature(1); // PC
-        $this->assertFalse($this->service->shouldDisplayField($dossier, 'dateSignature'));
+        yield ['rex', true];
+    }
+
+    #[DataProvider('arreteOuvertureProvider')]
+    public function testShouldDisplayFieldForArreteOuverture(string $field, bool $expected): void
+    {
+        $dossier = $this->createDossierWithNature(40);
+        $this->assertSame($expected, $this->service->shouldDisplayField($dossier, $field));
+    }
+
+    public static function arreteOuvertureProvider(): \Iterator
+    {
+        yield ['dateSignature', true];
     }
 
     public function testGetFieldsToDisplayReturnsEmptyArrayWhenNoNature(): void
