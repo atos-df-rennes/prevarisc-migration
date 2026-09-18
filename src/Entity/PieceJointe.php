@@ -52,6 +52,9 @@ class PieceJointe
     #[ORM\Column(name: 'DATE_DEPOT', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateDepot = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $noVersion = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -197,6 +200,18 @@ class PieceJointe
     public function setDateDepot(?\DateTimeInterface $dateDepot): self
     {
         $this->dateDepot = $dateDepot;
+
+        return $this;
+    }
+
+    public function getNoVersion(): ?int
+    {
+        return $this->noVersion;
+    }
+
+    public function setNoVersion(?int $noVersion): static
+    {
+        $this->noVersion = $noVersion;
 
         return $this;
     }
