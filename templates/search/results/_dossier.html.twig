@@ -71,6 +71,13 @@
             {% endif %}
         {% endif %}
 
+        {% if item.DELAIPRESC_DOSSIER is not empty %}
+            {% set date = item.DELAIPRESC_DOSSIER|slice(0, 10) != '0000-00-00' ? date_str|date('d/m/Y') : '00/00/0000' %}
+            <span class="label label-default ml-2">
+                <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>&nbsp;Date de levée de prescription : {{ date }}
+            </span>
+        {% endif %}
+
         {% if item.IS_NEW is defined and item.IS_NEW %}
             <span class="label label-danger">
                 <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;Nouveau dossier !
