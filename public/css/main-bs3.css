@@ -1416,3 +1416,8 @@ form.checkbox--checked__label--bold div.checkbox label:has(input[checked='checke
     display: flex;
     align-items: stretch;
 }
+
+.commission-group__legend {
+    font-size: 18px;
+    margin-bottom: 0;
+}

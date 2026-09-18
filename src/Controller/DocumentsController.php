@@ -13,7 +13,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,11 +66,11 @@ class DocumentsController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
-                $commission = $form->get('commission')->getData();
+                $commissionsSelectionnees = $form->get('commission')->getData();
                 $fichier = $form->get('file')->getData();
 
-                if (!$commission instanceof FormDocument) {
-                    throw new \Exception("La commission n'est pas correcte.");
+                if (!is_iterable($commissionsSelectionnees)) {
+                    throw new \Exception('Les commissions ne sont pas correctes.');
                 }
 
                 if (!$fichier instanceof UploadedFile) {
@@ -80,11 +79,24 @@ class DocumentsController extends AbstractController
 
                 try {
                     // @todo: Générer un nom de fichier plus sûr
-                    $fichier->move(PathNormalizer::join($documentsRealDataPath, (string) $commission->id()), File::sanitize($fichier->getClientOriginalName()));
+                    $nomFichier = File::sanitize($fichier->getClientOriginalName());
+                    $cheminOrigine = $fichier->getPathname();
+
+                    foreach ($commissionsSelectionnees as $commission) {
+                        if (!$commission instanceof FormDocument) {
+                            throw new \Exception("La commission n'est pas correcte.");
+                        }
+
+                        $this->filesystem->copy(
+                            $cheminOrigine,
+                            PathNormalizer::join($documentsRealDataPath, (string) $commission->id(), $nomFichier),
+                            true,
+                        );
+                    }
 
                     $this->addFlash('success', 'Le document a bien été ajouté.');
-                } catch (FileException $fileException) {
-                    $this->logger->error('Erreur lors du déplacement du document dans la Gestion des documents : '.$fileException->getMessage());
+                } catch (IOException $ioException) {
+                    $this->logger->error('Erreur lors de la copie du document dans la Gestion des documents : '.$ioException->getMessage());
 
                     $this->addFlash('danger', "Erreur lors de l'ajout du document.");
                 } catch (\InvalidArgumentException $invalidArgumentException) {
