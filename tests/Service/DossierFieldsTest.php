@@ -46,6 +46,21 @@ final class DossierFieldsTest extends TestCase
         yield ['chargeSecurite', true];
     }
 
+    #[DataProvider('documentsUrbanismeProvider')]
+    public function testShouldDisplayDocumentsUrbanismeForDossier(int $natureId, bool $expected): void
+    {
+        $dossier = $this->createDossierWithNature($natureId);
+        $this->assertSame($expected, $this->service->shouldDisplayField($dossier, 'documentsUrbanisme'));
+    }
+
+    public static function documentsUrbanismeProvider(): \Iterator
+    {
+        yield [20, true];
+        yield [25, true];
+        yield [47, true];
+        yield [48, true];
+    }
+
     #[DataProvider('interventionIncendieProvider')]
     public function testShouldDisplayFieldForInterventionIncendie(string $field, bool $expected): void
     {
