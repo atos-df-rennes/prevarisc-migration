@@ -65,9 +65,9 @@ final class DossierFields
         '66' => ['dateInsert', 'objet', 'dateMairie', 'dateSecretariat', 'commission', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],
         // VISITE DE COMMISSION
         // Réception de travaux - OK
-        '20' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'absenceDeQuorum', 'nePeutSePrononcer', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
+        '20' => ['dateInsert', 'objet', 'documentsUrbanisme', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'absenceDeQuorum', 'nePeutSePrononcer', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Avant ouverture - OK
-        '47' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'absenceDeQuorum', 'nePeutSePrononcer', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
+        '47' => ['dateInsert', 'objet', 'documentsUrbanisme', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'absenceDeQuorum', 'nePeutSePrononcer', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Périodique - OK
         // Note: analyseDeRisque (ANOMALIE) n'est pas dans la liste car affiché uniquement si valeur existe (comportement legacy)
         '21' => ['dateInsert', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avis', 'avisCommission', 'observations', 'dateLimitePrescription'],
@@ -81,9 +81,9 @@ final class DossierFields
         '64' => ['dateInsert', 'objet', 'commission', 'dateVisite', 'dateReponse', 'preventionnistes', 'observations', 'dateLimitePrescription'],
         // GROUPE DE VISITE
         // Réception de travaux - OK
-        '25' => ['type', 'dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
+        '25' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Avant ouverture - OK
-        '48' => ['dateInsert', 'objet', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
+        '48' => ['dateInsert', 'objet', 'documentsUrbanisme',  'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'nePeutSePrononcer', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateReceptionRvrat', 'dateLimitePrescription'],
         // Périodique - OK
         '26' => ['dateInsert', 'commission', 'dateCommission', 'dateVisite', 'avis', 'dateReponse', 'preventionnistes', 'avisDiffere', 'absenceDeQuorum', 'avisCommission', 'observations', 'dateLimitePrescription'],
         // Chantier - OK
