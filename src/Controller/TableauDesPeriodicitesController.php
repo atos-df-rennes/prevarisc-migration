@@ -9,55 +9,21 @@ use App\Repository\IghClasseRepository;
 use App\Repository\PeriodiciteRepository;
 use App\ValueObject\ClesTableauDesPeriodicites;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-/**
- * @IsGranted("periodicites")
- */
+#[IsGranted('periodicites')]
 class TableauDesPeriodicitesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var PeriodiciteRepository */
-    private $periodiciteRepository;
-
-    /** @var EtablissementTypeRepository */
-    private $etablissementTypeRepository;
-
-    /** @var EtablissementCategorieRepository */
-    private $etablissementCategorieRepository;
-
-    /** @var IghClasseRepository */
-    private $ighClasseRepository;
-
-    /** @var UrlGeneratorInterface */
-    private $urlGenerator;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        PeriodiciteRepository $periodiciteRepository,
-        EtablissementTypeRepository $etablissementTypeRepository,
-        EtablissementCategorieRepository $etablissementCategorieRepository,
-        IghClasseRepository $ighClasseRepository,
-        UrlGeneratorInterface $urlGenerator
-    ) {
-        $this->entityManager = $entityManager;
-        $this->periodiciteRepository = $periodiciteRepository;
-        $this->etablissementTypeRepository = $etablissementTypeRepository;
-        $this->etablissementCategorieRepository = $etablissementCategorieRepository;
-        $this->ighClasseRepository = $ighClasseRepository;
-        $this->urlGenerator = $urlGenerator;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PeriodiciteRepository $periodiciteRepository, private readonly EtablissementTypeRepository $etablissementTypeRepository, private readonly EtablissementCategorieRepository $etablissementCategorieRepository, private readonly IghClasseRepository $ighClasseRepository, private readonly TagAwareCacheInterface $searchCache)
+    {
     }
 
-    /**
-     * @Route("/admin/tableau-des-periodicites", name="admin_tableau_des_periodicites")
-     */
+    #[Route(path: '/admin/tableau-des-periodicites', name: 'admin_tableau_des_periodicites')]
     public function index(): Response
     {
         $periodicites = $this->periodiciteRepository->findAll();
@@ -80,9 +46,7 @@ class TableauDesPeriodicitesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/tableau-des-periodicites/sauvegarder", name="admin_tableau_des_periodicites_save")
-     */
+    #[Route(path: '/admin/tableau-des-periodicites/sauvegarder', name: 'admin_tableau_des_periodicites_save')]
     public function save(Request $request): Response
     {
         foreach ($request->request->all() as $periodiciteKey => $periodicite) {
@@ -97,6 +61,10 @@ class TableauDesPeriodicitesController extends AbstractController
 
             if (false === $periodicite) {
                 throw new \InvalidArgumentException("Le type de la périodicité n'est pas correct. Type attendu : entier.");
+            }
+
+            if ($periodicite < 0 || $periodicite > 999) {
+                throw new \InvalidArgumentException('La périodicité doit être comprise entre 0 et 999 mois inclus.');
             }
 
             if (null !== $periodiciteEntity) {
@@ -123,9 +91,7 @@ class TableauDesPeriodicitesController extends AbstractController
         return $this->redirectToRoute('admin_tableau_des_periodicites');
     }
 
-    /**
-     * @Route("/admin/tableau-des-periodicites/appliquer", name="admin_tableau_des_periodicites_apply", methods={"POST"})
-     */
+    #[Route(path: '/admin/tableau-des-periodicites/appliquer', name: 'admin_tableau_des_periodicites_apply', methods: ['POST'])]
     public function apply(Request $request): Response
     {
         /** @var string $csrfToken */
@@ -140,11 +106,9 @@ class TableauDesPeriodicitesController extends AbstractController
             $this->periodiciteRepository->applyPeriodicites();
             $this->addFlash('success', 'Les périodicités ont bien été appliquées à tous les établissements.');
 
-            $target = $this->urlGenerator->generate('admin_tableau_des_periodicites');
+            $this->searchCache->invalidateTags(['search']);
 
-            // @todo Décommissionnement legacy : remplacer par return $this->redirect($target);
-            // Cette redirection via le legacy ne sert qu'à vider le cacheSearch Zend (inutile une fois le legacy retiré).
-            return $this->redirect('/legacy/admin/clear-search-cache-and-redirect?target='.$target);
+            return $this->redirectToRoute('admin_tableau_des_periodicites');
         } catch (\Throwable $throwable) {
             $this->addFlash('danger', 'Erreur lors de l\'application des périodicités : '.$throwable->getMessage());
         }

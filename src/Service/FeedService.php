@@ -14,23 +14,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class FeedService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var NewsRepository */
-    private $newsRepository;
-
-    /** @var GroupeRepository */
-    private $groupeRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        NewsRepository $newsRepository,
-        GroupeRepository $groupeRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->newsRepository = $newsRepository;
-        $this->groupeRepository = $groupeRepository;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly NewsRepository $newsRepository, private readonly GroupeRepository $groupeRepository)
+    {
     }
 
     /**

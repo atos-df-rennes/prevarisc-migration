@@ -60,9 +60,9 @@ L'onglet « Dossiers » est actif par défaut.
 | Information | Description |
 |-------------|-------------|
 | Supprimé par | Nom de l'utilisateur ayant effectué la suppression, accompagné de son avatar. Si l'auteur est inconnu, la mention « Inconnu » est affichée avec un avatar par défaut. |
-| Date de suppression | Affichée au format lisible (ex. : « Le lundi 12 janvier 2025 »). |
+| Date de suppression | Affichée au format lisible (ex. : « Le dimanche 12 Jan 2025 »). |
 | Nom du dossier | Composé du type de dossier, de la nature du dossier et de l'objet du dossier, séparés par des tirets. L'objet est tronqué à 70 caractères avec la mention « (...) » si nécessaire. |
-| Établissement lié | Libellé de l'établissement associé au dossier, affiché entre crochets devant le nom du dossier. |
+| Établissement lié | Libellés des établissements associés au dossier, affichés sous forme de badges visuels après le nom du dossier pour meilleure lisibilité. |
 | Lien de consultation | Le nom du dossier est un lien cliquable vers la fiche du dossier. |
 | Bouton « Rétablir le dossier » | Permet de rétablir le dossier en un clic. |
 
@@ -85,7 +85,7 @@ La liste est triée par **date de suppression décroissante**.
 
 ### 4.2 Rétablir un établissement
 
-**Déclencheur :** L'utilisateur clique sur le bouton « Rétablir l'établissement ».
+**Déclencheur :** L'utilisateur clique sur le bouton « Rétablir l'établissement » depuis l'écran de gestion des éléments supprimés.
 
 **Traitement :**
 
@@ -94,13 +94,13 @@ La liste est triée par **date de suppression décroissante**.
 3. L'établissement redevient visible dans les recherches et les listes.
 4. Le cache de recherche est entièrement vidé pour refléter le changement.
 5. Un message de succès est affiché : « L'établissement a bien été rétabli ».
-6. L'utilisateur est redirigé vers la page précédente (l'écran de gestion des éléments supprimés).
+6. L'utilisateur est redirigé vers l'écran de gestion des éléments supprimés (point de départ unique du rétablissement).
 
 ---
 
 ### 4.3 Rétablir un dossier
 
-**Déclencheur :** L'utilisateur clique sur le bouton « Rétablir le dossier ».
+**Déclencheur :** L'utilisateur clique sur le bouton « Rétablir le dossier » depuis l'écran de gestion des éléments supprimés ou depuis la fiche du dossier.
 
 **Traitement :**
 
@@ -109,7 +109,7 @@ La liste est triée par **date de suppression décroissante**.
 3. Le dossier redevient visible dans les recherches et les listes.
 4. Le cache de recherche est entièrement vidé pour refléter le changement.
 5. Un message de succès est affiché : « Le dossier a bien été rétabli ».
-6. L'utilisateur est redirigé vers la page précédente.
+6. L'utilisateur est redirigé vers la page d'où l'action a été déclenchée (écran de gestion ou fiche du dossier).
 
 ---
 
@@ -128,7 +128,7 @@ La liste est triée par **date de suppression décroissante**.
 | **RG-RET-009** | Le rétablissement d'un établissement efface sa date de suppression et l'identité du supprimeur. L'établissement redevient actif immédiatement. |
 | **RG-RET-010** | Le rétablissement d'un élément provoque l'invalidation complète du cache de recherche. |
 | **RG-RET-011** | Un message de succès est affiché après chaque rétablissement réussi. |
-| **RG-RET-012** | Après le rétablissement, l'utilisateur est automatiquement redirigé vers la page d'où il a déclenché l'action. |
+| **RG-RET-012** | Après le rétablissement d'un **dossier**, l'utilisateur est automatiquement redirigé vers la page d'où il a déclenché l'action (écran de gestion ou fiche du dossier). Le rétablissement d'un **établissement** se fait uniquement depuis l'écran de gestion et redirige vers celui-ci. |
 | **RG-RET-013** | Lorsqu'un dossier est associé à un établissement unique, la suppression du dossier entraîne son marquage. Lorsque le dossier est partagé entre plusieurs établissements, il n'est supprimé logiquement que si la demande provient d'un contexte mono-établissement. |
 | **RG-RET-014** | La suppression d'un établissement entraîne automatiquement la suppression logique de tous ses dossiers associés. Le rétablissement de l'établissement, en revanche, **ne rétablit pas automatiquement** ses dossiers. |
 | **RG-RET-015** | Un établissement marqué comme supprimé est inaccessible. Toute tentative de consultation de sa fiche génère un message d'erreur indiquant que l'établissement n'existe pas. |

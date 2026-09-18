@@ -3,77 +3,38 @@
 namespace App\EventSubscriber;
 
 use App\Entity\Utilisateur;
-use App\Repository\UtilisateurRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
+use App\Service\LastActionUpdater;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
-use Symfony\Component\Security\Core\Security;
 
 /**
  * Met à jour la date de dernière action de l'utilisateur connecté.
+ *
+ * Note : kernel.terminate s'exécute APRÈS l'envoi de la réponse HTTP. Lors d'un
+ * logout, le token Symfony est invalidé avant cet événement ; c'est pourquoi la
+ * mise à jour au logout est prise en charge directement par LogoutHandler (via
+ * $token->getUser(), encore disponible à ce stade).
  */
 class LastActionSubscriber implements EventSubscriberInterface
 {
-    /** @var Security */
-    private $security;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
-
-    public function __construct(
-        Security $security,
-        EntityManagerInterface $entityManager,
-        LoggerInterface $logger,
-        UtilisateurRepository $utilisateurRepository
-    ) {
-        $this->security = $security;
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
-        $this->utilisateurRepository = $utilisateurRepository;
+    public function __construct(private readonly Security $security, private readonly LastActionUpdater $lastActionUpdater)
+    {
     }
 
-    /**
-     * Utilise kernel.terminate pour exécuter après l'envoi de la réponse HTTP.
-     * Utilise clear() pour ne flush() que la modification effectuée dans cette méthode.
-     * Cela prévient notamment la mise à jour d'une entité comportant des erreurs de validation.
-     */
     public function onKernelTerminate(TerminateEvent $event): void
     {
-        // @todo SF 5.3: remplacer isMasterRequest() par isMainRequest() (déprécié en 5.3, supprimé en 7.0)
-        if (!$event->isMasterRequest()) {
+        if (!$event->isMainRequest()) {
             return;
         }
-
-        $this->entityManager->clear();
 
         $utilisateur = $this->security->getUser();
 
-        if (!$utilisateur instanceof Utilisateur || null === $utilisateur->getId()) {
+        if (!$utilisateur instanceof Utilisateur) {
             return;
         }
 
-        // Recharger l'utilisateur depuis la BDD (après clear())
-        $utilisateur = $this->utilisateurRepository->find($utilisateur->getId());
-
-        if (null === $utilisateur) {
-            return;
-        }
-
-        $utilisateur->setLastAction(new \DateTime());
-
-        try {
-            $this->entityManager->persist($utilisateur);
-            $this->entityManager->flush();
-        } catch (\Exception $exception) {
-            $this->logger->error('LastActionSubscriber: '.$exception->getMessage());
-        }
+        $this->lastActionUpdater->update($utilisateur);
     }
 
     /**
@@ -82,7 +43,6 @@ class LastActionSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            // kernel.terminate s'exécute après l'envoi de la réponse HTTP
             'kernel.terminate' => 'onKernelTerminate',
         ];
     }

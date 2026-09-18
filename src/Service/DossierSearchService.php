@@ -5,6 +5,8 @@ namespace App\Service;
 use App\Dto\Repository\DossierSearchResultDto;
 use App\Service\Search\SearchQueryHelper;
 use Doctrine\DBAL\Connection;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * Recherche et export des dossiers.
@@ -14,16 +16,8 @@ class DossierSearchService
 {
     public const MAX_LIMIT_PAGES_DOSSIERS = 100;
 
-    /** @var Connection */
-    private $connection;
-
-    /** @var SearchQueryHelper */
-    private $queryHelper;
-
-    public function __construct(Connection $connection, SearchQueryHelper $queryHelper)
+    public function __construct(private readonly Connection $connection, private readonly SearchQueryHelper $queryHelper, private readonly TagAwareCacheInterface $searchCache)
     {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
     }
 
     /**
@@ -64,11 +58,19 @@ class DossierSearchService
         int $page = 1,
         ?array $criterias = null
     ): array {
-        $effectiveCount = $count > self::MAX_LIMIT_PAGES_DOSSIERS
-            ? self::MAX_LIMIT_PAGES_DOSSIERS
-            : $count;
+        $searchId = 'search_dossiers_'.md5(serialize(func_get_args()));
 
-        $sqlSelect = 'SELECT d.*,
+        /** @var array{results: array<string, DossierSearchResultDto>, search_metadata: array{count: int, current_page: int}} $cached */
+        $cached = $this->searchCache->get($searchId, function (ItemInterface $item) use (
+            $types, $objet, $numDocUrba, $parent, $avisDiffere, $count, $page, $criterias
+        ): array {
+            $item->tag(['search']);
+
+            $effectiveCount = $count > self::MAX_LIMIT_PAGES_DOSSIERS
+                ? self::MAX_LIMIT_PAGES_DOSSIERS
+                : $count;
+
+            $sqlSelect = 'SELECT d.*,
             ( SELECT group_concat(dossierdocurba2.NUM_DOCURBA, \', \')
                 FROM dossier d3
                 INNER JOIN dossierdocurba dossierdocurba2 ON dossierdocurba2.ID_DOSSIER = d3.ID_DOSSIER
@@ -97,7 +99,7 @@ class DossierSearchService
             adressecommune.CODEPOSTAL_COMMUNE, adressecommune.LIBELLE_COMMUNE,
             platauconsultation.DATE_REPONSE_ATTENDUE';
 
-        $sqlFrom = ' FROM dossier d
+            $sqlFrom = ' FROM dossier d
             LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
             INNER JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
             INNER JOIN dossiernatureliste ON dossiernatureliste.ID_DOSSIERNATURE = dossiernature.ID_NATURE
@@ -112,348 +114,351 @@ class DossierSearchService
             LEFT JOIN adressecommune ON ea.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE
             LEFT JOIN platauconsultation ON d.ID_PLATAU = platauconsultation.ID_PLATAU';
 
-        $whereConditions = ['d.DATESUPPRESSION_DOSSIER IS NULL'];
-        $havingConditions = [];
-        $hasAdditionalConditions = false;
+            $whereConditions = ['d.DATESUPPRESSION_DOSSIER IS NULL'];
+            $havingConditions = [];
+            $hasAdditionalConditions = false;
 
-        // JOINs conditionnels
-        $commissionsJoin = '';
-        $preventionnisteJoin = '';
-        $groupementJoin = '';
+            // JOINs conditionnels
+            $commissionsJoin = '';
+            $preventionnisteJoin = '';
+            $groupementJoin = '';
 
-        // Flags COUNT lean : JOINs supplémentaires nécessaires uniquement pour certains filtres
-        $needsAdresseCommune = false;
-        $needsDocUrba = false;
-        /** @var string[] $countWhereFromHaving */
-        $countWhereFromHaving = [];
+            // Flags COUNT lean : JOINs supplémentaires nécessaires uniquement pour certains filtres
+            $needsAdresseCommune = false;
+            $needsDocUrba = false;
+            /** @var string[] $countWhereFromHaving */
+            $countWhereFromHaving = [];
 
-        // Critères : numéro de doc urba
-        if (null !== $numDocUrba) {
-            $nbUrbaPattern = $this->queryHelper->safeQuote('%'.$numDocUrba.'%');
-            $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
-            $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
-        }
-
-        // Critères : objet
-        if (null !== $objet) {
-            $cleanObjet = trim($objet);
-            if ('#' === substr($cleanObjet, 0, 1)) {
-                $nbUrbaPattern = $this->queryHelper->safeQuote('%'.substr($cleanObjet, 1).'%');
+            // Critères : numéro de doc urba
+            if (null !== $numDocUrba) {
+                $nbUrbaPattern = $this->queryHelper->safeQuote('%'.$numDocUrba.'%');
                 $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
                 $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
-            } elseif (1 === preg_match('/^[0-9A-Z\.]+$/', $cleanObjet)) {
-                $nbUrbaPattern = $this->queryHelper->safeQuote('%'.$cleanObjet.'%');
-                $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
-                $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
-            } elseif (1 === preg_match('/^[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}$/', $cleanObjet)) {
-                $whereConditions[] = 'd.ID_PLATAU='.$this->queryHelper->safeQuote($cleanObjet);
-                $hasAdditionalConditions = true;
-            } else {
-                $whereConditions[] = $this->queryHelper->buildCriteria('OBJET_DOSSIER', $cleanObjet, false);
-                $hasAdditionalConditions = true;
-            }
-        }
-
-        // Critères : parent
-        if (null !== $parent) {
-            if (0 === $parent) {
-                $whereConditions[] = 'dossierlie.ID_DOSSIER1 IS NULL';
-            } else {
-                $whereConditions[] = 'dossierlie.ID_DOSSIER1='.$this->queryHelper->safeQuote((string) $parent);
             }
 
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : type
-        if (null !== $types) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('dossiertype.ID_DOSSIERTYPE', $types);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : avis différé
-        if (null !== $avisDiffere) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('d.DIFFEREAVIS_DOSSIER', $avisDiffere);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères issus du tableau criterias
-        if (null !== $criterias) {
-            // Critères : commissions
-            if (isset($criterias['commissions'])) {
-                $commissionsJoin = '
-                    LEFT JOIN dossieraffectation ON dossieraffectation.ID_DOSSIER_AFFECT = d.ID_DOSSIER
-                    LEFT JOIN datecommission ON datecommission.ID_DATECOMMISSION = dossieraffectation.ID_DATECOMMISSION_AFFECT';
-                /** @var array<int|string, int|string>|int|string $commissionsValue */
-                $commissionsValue = $criterias['commissions'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('datecommission.COMMISSION_CONCERNE', $commissionsValue);
-                $hasAdditionalConditions = true;
+            // Critères : objet
+            if (null !== $objet) {
+                $cleanObjet = trim($objet);
+                if (str_starts_with($cleanObjet, '#')) {
+                    $nbUrbaPattern = $this->queryHelper->safeQuote('%'.substr($cleanObjet, 1).'%');
+                    $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
+                    $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
+                } elseif (1 === preg_match('/^[0-9A-Z\.]+$/', $cleanObjet)) {
+                    $nbUrbaPattern = $this->queryHelper->safeQuote('%'.$cleanObjet.'%');
+                    $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
+                    $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
+                } elseif (1 === preg_match('/^[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}$/', $cleanObjet)) {
+                    $whereConditions[] = 'd.ID_PLATAU='.$this->queryHelper->safeQuote($cleanObjet);
+                    $hasAdditionalConditions = true;
+                } else {
+                    $whereConditions[] = $this->queryHelper->buildCriteria('OBJET_DOSSIER', $cleanObjet, false);
+                    $hasAdditionalConditions = true;
+                }
             }
 
-            // Critères : avis commission
-            if (isset($criterias['avisCommission'])) {
-                /** @var array<int|string, int|string>|int|string $avisCommissionValue */
-                $avisCommissionValue = $criterias['avisCommission'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('d.AVIS_DOSSIER_COMMISSION', $avisCommissionValue);
-                $hasAdditionalConditions = true;
-            }
-
-            // Critères : avis rapporteur
-            if (isset($criterias['avisRapporteur'])) {
-                /** @var array<int|string, int|string>|int|string $avisRapporteurValue */
-                $avisRapporteurValue = $criterias['avisRapporteur'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('d.AVIS_DOSSIER', $avisRapporteurValue);
-                $hasAdditionalConditions = true;
-            }
-
-            // Critères : avis différé (depuis criterias)
-            if (isset($criterias['avisDiffere'])) {
-                /** @var array<int|string, int|string>|bool|int|string $avisDiffereValue */
-                $avisDiffereValue = $criterias['avisDiffere'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('d.DIFFEREAVIS_DOSSIER', $avisDiffereValue);
-                $hasAdditionalConditions = true;
-            }
-
-            // Critères : permis
-            if (isset($criterias['permis'])) {
-                /** @var array<int|string, int|string>|int|string $permisValue */
-                $permisValue = $criterias['permis'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('dossierdocurba.NUM_DOCURBA', $permisValue);
-                $hasAdditionalConditions = true;
-                $needsDocUrba = true;
-            }
-
-            // Critères : courrier
-            if (isset($criterias['courrier'])) {
-                /** @var array<int|string, int|string>|int|string $courrierValue */
-                $courrierValue = $criterias['courrier'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('d.REFCOURRIER_DOSSIER', $courrierValue, false);
-                $hasAdditionalConditions = true;
-            }
-
-            // Critères : preventionniste
-            if (isset($criterias['preventionniste'])) {
-                $preventionnisteJoin = '
-                    LEFT JOIN dossierpreventionniste ON dossierpreventionniste.ID_DOSSIER = d.ID_DOSSIER';
-                /** @var array<int|string, int|string>|int|string $preventionnisteValue */
-                $preventionnisteValue = $criterias['preventionniste'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('dossierpreventionniste.ID_PREVENTIONNISTE', $preventionnisteValue);
-                $hasAdditionalConditions = true;
-            }
-
-            if (isset($criterias['commune'])) {
-                /** @var array<int|string, int|string>|int|string $communeValue */
-                $communeValue = $criterias['commune'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('ea.NUMINSEE_COMMUNE', $communeValue);
-                $hasAdditionalConditions = true;
-                $needsAdresseCommune = true;
-            }
-
-            if (isset($criterias['voie'])) {
-                /** @var array<int|string, int|string>|int|string $voieValue */
-                $voieValue = $criterias['voie'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('ea.ID_RUE', $voieValue);
-                $hasAdditionalConditions = true;
-                $needsAdresseCommune = true;
-            }
-
-            if (isset($criterias['numero'])) {
-                /** @var array<int|string, int|string>|int|string $numeroValue */
-                $numeroValue = $criterias['numero'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('ea.NUMERO_ADRESSE', $numeroValue);
-                $hasAdditionalConditions = true;
-                $needsAdresseCommune = true;
-            }
-
-            // Critère : groupement territorial
-            if (isset($criterias['groupements_territoriaux'])) {
-                $groupementJoin = '
-                    LEFT JOIN groupementcommune ON groupementcommune.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE
-                    LEFT JOIN groupement ON groupement.ID_GROUPEMENT = groupementcommune.ID_GROUPEMENT';
-                /** @var array<int|string, int|string>|int|string $groupementValue */
-                $groupementValue = $criterias['groupements_territoriaux'];
-                $whereConditions[] = $this->queryHelper->buildCriteria('groupement.ID_GROUPEMENT', $groupementValue);
-                $hasAdditionalConditions = true;
-                $needsAdresseCommune = true;
-            }
-
-            if (isset($criterias['dateCreationStart']) && is_string($criterias['dateCreationStart'])) {
-                $whereConditions[] = 'd.DATEINSERT_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateCreationStart']).", '%d/%m/%Y')";
-                $hasAdditionalConditions = true;
-            }
-
-            if (isset($criterias['dateCreationEnd']) && is_string($criterias['dateCreationEnd'])) {
-                $whereConditions[] = 'd.DATEINSERT_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateCreationEnd']).", '%d/%m/%Y')";
-                $hasAdditionalConditions = true;
-            }
-
-            if (isset($criterias['dateReceptionStart']) && is_string($criterias['dateReceptionStart'])) {
-                $whereConditions[] = 'd.DATESDIS_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReceptionStart']).", '%d/%m/%Y')";
-                $hasAdditionalConditions = true;
-            }
-
-            if (isset($criterias['dateReceptionEnd']) && is_string($criterias['dateReceptionEnd'])) {
-                $whereConditions[] = 'd.DATESDIS_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReceptionEnd']).", '%d/%m/%Y')";
-                $hasAdditionalConditions = true;
-            }
-
-            if (isset($criterias['dateReponseStart']) && is_string($criterias['dateReponseStart'])) {
-                $whereConditions[] = 'd.DATEREP_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReponseStart']).", '%d/%m/%Y')";
-                $hasAdditionalConditions = true;
-            }
-
-            if (isset($criterias['dateReponseEnd']) && is_string($criterias['dateReponseEnd'])) {
-                $whereConditions[] = 'd.DATEREP_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReponseEnd']).", '%d/%m/%Y')";
-                $hasAdditionalConditions = true;
-            }
-
-            $provenanceValue = isset($criterias['provenance']) && is_string($criterias['provenance']) ? $criterias['provenance'] : null;
-            if (null !== $provenanceValue) {
-                if ('1' === $provenanceValue) {
-                    $whereConditions[] = 'd.ID_PLATAU IS NOT NULL';
-                } elseif ('2' === $provenanceValue) {
-                    $whereConditions[] = 'd.ID_PLATAU IS NULL';
+            // Critères : parent
+            if (null !== $parent) {
+                if (0 === $parent) {
+                    $whereConditions[] = 'dossierlie.ID_DOSSIER1 IS NULL';
+                } else {
+                    $whereConditions[] = 'dossierlie.ID_DOSSIER1='.$this->queryHelper->safeQuote((string) $parent);
                 }
 
                 $hasAdditionalConditions = true;
             }
-        }
 
-        $sqlFull = $sqlSelect
-            .$sqlFrom
-            .$commissionsJoin
-            .$preventionnisteJoin
-            .$groupementJoin
-            .' WHERE '.implode(' AND ', $whereConditions)
-            .' GROUP BY d.ID_DOSSIER';
+            // Critères : type
+            if (null !== $types) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('dossiertype.ID_DOSSIERTYPE', $types);
+                $hasAdditionalConditions = true;
+            }
 
-        if (!empty($havingConditions)) {
-            $sqlFull .= ' HAVING '.implode(' AND ', $havingConditions);
-        }
+            // Critères : avis différé
+            if (null !== $avisDiffere) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('d.DIFFEREAVIS_DOSSIER', $avisDiffere);
+                $hasAdditionalConditions = true;
+            }
 
-        // Performance optimisation : tri uniquement si critères supplémentaires
-        if ($hasAdditionalConditions || !empty($havingConditions)) {
-            $sqlFull .= ' ORDER BY d.DATEINSERT_DOSSIER DESC';
-        }
+            // Critères issus du tableau criterias
+            if (null !== $criterias) {
+                // Critères : commissions
+                if (isset($criterias['commissions'])) {
+                    $commissionsJoin = '
+                    LEFT JOIN dossieraffectation ON dossieraffectation.ID_DOSSIER_AFFECT = d.ID_DOSSIER
+                    LEFT JOIN datecommission ON datecommission.ID_DATECOMMISSION = dossieraffectation.ID_DATECOMMISSION_AFFECT';
+                    /** @var array<int|string, int|string>|int|string $commissionsValue */
+                    $commissionsValue = $criterias['commissions'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('datecommission.COMMISSION_CONCERNE', $commissionsValue);
+                    $hasAdditionalConditions = true;
+                }
 
-        // COUNT lean : sans les sous-requêtes corrélées d'affichage
-        // (NB_URBA, ALERTE_RECEPTION_TRAVAUX, ECHEANCIER_TRAVAUX)
-        // ni les JOINs d'affichage uniquement (eia, type, genre, avis, platauconsultation).
-        // Les conditions HAVING sur NB_URBA sont converties en WHERE EXISTS pour ne pas dépendre de la sous-requête SELECT.
-        // Gain : évite ~3×N sous-requêtes corrélées sur la totalité des lignes.
-        $sqlFromCountBase = ' FROM dossier d
+                // Critères : avis commission
+                if (isset($criterias['avisCommission'])) {
+                    /** @var array<int|string, int|string>|int|string $avisCommissionValue */
+                    $avisCommissionValue = $criterias['avisCommission'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('d.AVIS_DOSSIER_COMMISSION', $avisCommissionValue);
+                    $hasAdditionalConditions = true;
+                }
+
+                // Critères : avis rapporteur
+                if (isset($criterias['avisRapporteur'])) {
+                    /** @var array<int|string, int|string>|int|string $avisRapporteurValue */
+                    $avisRapporteurValue = $criterias['avisRapporteur'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('d.AVIS_DOSSIER', $avisRapporteurValue);
+                    $hasAdditionalConditions = true;
+                }
+
+                // Critères : avis différé (depuis criterias)
+                if (isset($criterias['avisDiffere'])) {
+                    /** @var array<int|string, int|string>|bool|int|string $avisDiffereValue */
+                    $avisDiffereValue = $criterias['avisDiffere'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('d.DIFFEREAVIS_DOSSIER', $avisDiffereValue);
+                    $hasAdditionalConditions = true;
+                }
+
+                // Critères : permis
+                if (isset($criterias['permis'])) {
+                    /** @var array<int|string, int|string>|int|string $permisValue */
+                    $permisValue = $criterias['permis'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('dossierdocurba.NUM_DOCURBA', $permisValue);
+                    $hasAdditionalConditions = true;
+                    $needsDocUrba = true;
+                }
+
+                // Critères : courrier
+                if (isset($criterias['courrier'])) {
+                    /** @var array<int|string, int|string>|int|string $courrierValue */
+                    $courrierValue = $criterias['courrier'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('d.REFCOURRIER_DOSSIER', $courrierValue, false);
+                    $hasAdditionalConditions = true;
+                }
+
+                // Critères : preventionniste
+                if (isset($criterias['preventionniste'])) {
+                    $preventionnisteJoin = '
+                    LEFT JOIN dossierpreventionniste ON dossierpreventionniste.ID_DOSSIER = d.ID_DOSSIER';
+                    /** @var array<int|string, int|string>|int|string $preventionnisteValue */
+                    $preventionnisteValue = $criterias['preventionniste'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('dossierpreventionniste.ID_PREVENTIONNISTE', $preventionnisteValue);
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['commune'])) {
+                    /** @var array<int|string, int|string>|int|string $communeValue */
+                    $communeValue = $criterias['commune'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('ea.NUMINSEE_COMMUNE', $communeValue);
+                    $hasAdditionalConditions = true;
+                    $needsAdresseCommune = true;
+                }
+
+                if (isset($criterias['voie'])) {
+                    /** @var array<int|string, int|string>|int|string $voieValue */
+                    $voieValue = $criterias['voie'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('ea.ID_RUE', $voieValue);
+                    $hasAdditionalConditions = true;
+                    $needsAdresseCommune = true;
+                }
+
+                if (isset($criterias['numero'])) {
+                    /** @var array<int|string, int|string>|int|string $numeroValue */
+                    $numeroValue = $criterias['numero'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('ea.NUMERO_ADRESSE', $numeroValue);
+                    $hasAdditionalConditions = true;
+                    $needsAdresseCommune = true;
+                }
+
+                // Critère : groupement territorial
+                if (isset($criterias['groupements_territoriaux'])) {
+                    $groupementJoin = '
+                    LEFT JOIN groupementcommune ON groupementcommune.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE
+                    LEFT JOIN groupement ON groupement.ID_GROUPEMENT = groupementcommune.ID_GROUPEMENT';
+                    /** @var array<int|string, int|string>|int|string $groupementValue */
+                    $groupementValue = $criterias['groupements_territoriaux'];
+                    $whereConditions[] = $this->queryHelper->buildCriteria('groupement.ID_GROUPEMENT', $groupementValue);
+                    $hasAdditionalConditions = true;
+                    $needsAdresseCommune = true;
+                }
+
+                if (isset($criterias['dateCreationStart']) && is_string($criterias['dateCreationStart'])) {
+                    $whereConditions[] = 'd.DATEINSERT_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateCreationStart']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateCreationEnd']) && is_string($criterias['dateCreationEnd'])) {
+                    $whereConditions[] = 'd.DATEINSERT_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateCreationEnd']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateReceptionStart']) && is_string($criterias['dateReceptionStart'])) {
+                    $whereConditions[] = 'd.DATESDIS_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReceptionStart']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateReceptionEnd']) && is_string($criterias['dateReceptionEnd'])) {
+                    $whereConditions[] = 'd.DATESDIS_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReceptionEnd']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateReponseStart']) && is_string($criterias['dateReponseStart'])) {
+                    $whereConditions[] = 'd.DATEREP_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReponseStart']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateReponseEnd']) && is_string($criterias['dateReponseEnd'])) {
+                    $whereConditions[] = 'd.DATEREP_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReponseEnd']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                $provenanceValue = isset($criterias['provenance']) && is_string($criterias['provenance']) ? $criterias['provenance'] : null;
+                if (null !== $provenanceValue) {
+                    if ('1' === $provenanceValue) {
+                        $whereConditions[] = 'd.ID_PLATAU IS NOT NULL';
+                    } elseif ('2' === $provenanceValue) {
+                        $whereConditions[] = 'd.ID_PLATAU IS NULL';
+                    }
+
+                    $hasAdditionalConditions = true;
+                }
+            }
+
+            $sqlFull = $sqlSelect
+                .$sqlFrom
+                .$commissionsJoin
+                .$preventionnisteJoin
+                .$groupementJoin
+                .' WHERE '.implode(' AND ', $whereConditions)
+                .' GROUP BY d.ID_DOSSIER';
+
+            if (!empty($havingConditions)) {
+                $sqlFull .= ' HAVING '.implode(' AND ', $havingConditions);
+            }
+
+            // Performance optimisation : tri uniquement si critères supplémentaires
+            if ($hasAdditionalConditions || !empty($havingConditions)) {
+                $sqlFull .= ' ORDER BY d.DATEINSERT_DOSSIER DESC';
+            }
+
+            // COUNT lean : sans les sous-requêtes corrélées d'affichage
+            // (NB_URBA, ALERTE_RECEPTION_TRAVAUX, ECHEANCIER_TRAVAUX)
+            // ni les JOINs d'affichage uniquement (eia, type, genre, avis, platauconsultation).
+            // Les conditions HAVING sur NB_URBA sont converties en WHERE EXISTS pour ne pas dépendre de la sous-requête SELECT.
+            // Gain : évite ~3×N sous-requêtes corrélées sur la totalité des lignes.
+            $sqlFromCountBase = ' FROM dossier d
             LEFT JOIN dossierlie ON d.ID_DOSSIER = dossierlie.ID_DOSSIER2
             INNER JOIN dossiernature ON dossiernature.ID_DOSSIER = d.ID_DOSSIER
             INNER JOIN dossiernatureliste ON dossiernatureliste.ID_DOSSIERNATURE = dossiernature.ID_NATURE
             INNER JOIN dossiertype ON dossiertype.ID_DOSSIERTYPE = dossiernatureliste.ID_DOSSIERTYPE';
-        $sqlFromCountAdresse = '
+            $sqlFromCountAdresse = '
             LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
             LEFT JOIN etablissementadresse ea ON ea.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
             LEFT JOIN adressecommune ON ea.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE';
-        $sqlFromCountDocUrba = '
+            $sqlFromCountDocUrba = '
             LEFT JOIN dossierdocurba ON dossierdocurba.ID_DOSSIER = d.ID_DOSSIER';
 
-        $sqlFromCount = $sqlFromCountBase
-            .($needsAdresseCommune ? $sqlFromCountAdresse : '')
-            .($needsDocUrba ? $sqlFromCountDocUrba : '')
-            .$commissionsJoin
-            .$preventionnisteJoin
-            .$groupementJoin;
+            $sqlFromCount = $sqlFromCountBase
+                .($needsAdresseCommune ? $sqlFromCountAdresse : '')
+                .($needsDocUrba ? $sqlFromCountDocUrba : '')
+                .$commissionsJoin
+                .$preventionnisteJoin
+                .$groupementJoin;
 
-        $countWhereAllConditions = array_merge($whereConditions, $countWhereFromHaving);
-        $countSql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)'
-            .$sqlFromCount
-            .' WHERE '.implode(' AND ', $countWhereAllConditions);
-        $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne();
-        $totalCount = is_numeric($totalCountRaw) ? (int) $totalCountRaw : 0;
+            $countWhereAllConditions = array_merge($whereConditions, $countWhereFromHaving);
+            $countSql = 'SELECT COUNT(DISTINCT d.ID_DOSSIER)'
+                .$sqlFromCount
+                .' WHERE '.implode(' AND ', $countWhereAllConditions);
+            $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne();
+            $totalCount = is_numeric($totalCountRaw) ? (int) $totalCountRaw : 0;
 
-        // Requête paginée
-        $offset = ($page - 1) * $effectiveCount;
-        $paginatedSql = $sqlFull.' LIMIT '.$effectiveCount.' OFFSET '.$offset;
+            // Requête paginée
+            $offset = ($page - 1) * $effectiveCount;
+            $paginatedSql = $sqlFull.' LIMIT '.$effectiveCount.' OFFSET '.$offset;
 
-        /** @var array<int, array<string, mixed>> $rows */
-        $rows = $this->connection->executeQuery($paginatedSql)->fetchAllAssociative();
+            /** @var array<int, array<string, mixed>> $rows */
+            $rows = $this->connection->executeQuery($paginatedSql)->fetchAllAssociative();
 
-        // Index par ID_DOSSIER (comme le legacy), mappé vers DTO
-        /** @var array<string, DossierSearchResultDto> $newResults */
-        $newResults = [];
-        foreach ($rows as $row) {
-            $dossierIdValue = $row['ID_DOSSIER'];
-            $dossierIdStr = is_int($dossierIdValue) || is_string($dossierIdValue) ? (string) $dossierIdValue : '';
-            if ('' !== $dossierIdStr) {
-                $newResults[$dossierIdStr] = DossierSearchResultDto::fromArray($row);
+            // Index par ID_DOSSIER (comme le legacy), mappé vers DTO
+            /** @var array<string, DossierSearchResultDto> $newResults */
+            $newResults = [];
+            foreach ($rows as $row) {
+                $dossierIdValue = $row['ID_DOSSIER'];
+                $dossierIdStr = is_int($dossierIdValue) || is_string($dossierIdValue) ? (string) $dossierIdValue : '';
+                if ('' !== $dossierIdStr) {
+                    $newResults[$dossierIdStr] = DossierSearchResultDto::fromArray($row);
+                }
             }
-        }
 
-        /** @var string[] $sIDsTable */
-        $sIDsTable = array_keys($newResults);
+            /** @var string[] $sIDsTable */
+            $sIDsTable = array_keys($newResults);
 
-        // Post-traitement batch : préventionnistes et PJ sur les IDs résultats
-        if ([] !== $sIDsTable) {
-            // Préventionnistes
-            $prevSql = 'SELECT u.ID_UTILISATEUR, ui.PRENOM_UTILISATEURINFORMATIONS, ui.NOM_UTILISATEURINFORMATIONS,
+            // Post-traitement batch : préventionnistes et PJ sur les IDs résultats
+            if ([] !== $sIDsTable) {
+                // Préventionnistes
+                $prevSql = 'SELECT u.ID_UTILISATEUR, ui.PRENOM_UTILISATEURINFORMATIONS, ui.NOM_UTILISATEURINFORMATIONS,
                     dp.ID_DOSSIER
                 FROM utilisateur u
                 INNER JOIN utilisateurinformations ui ON u.ID_UTILISATEURINFORMATIONS = ui.ID_UTILISATEURINFORMATIONS
                 INNER JOIN dossierpreventionniste dp ON dp.ID_PREVENTIONNISTE = u.ID_UTILISATEUR
                 WHERE dp.ID_DOSSIER IN (?)';
 
-            /** @var array<int, array<string, mixed>> $preventionnistes */
-            $preventionnistes = $this->connection->executeQuery(
-                $prevSql,
-                [$sIDsTable],
-                [Connection::PARAM_STR_ARRAY]
-            )->fetchAllAssociative();
+                /** @var array<int, array<string, mixed>> $preventionnistes */
+                $preventionnistes = $this->connection->executeQuery(
+                    $prevSql,
+                    [$sIDsTable],
+                    [Connection::PARAM_STR_ARRAY]
+                )->fetchAllAssociative();
 
-            foreach ($preventionnistes as $prev) {
-                $prevDossId = $prev['ID_DOSSIER'];
-                if (null !== $prevDossId && (is_string($prevDossId) || is_int($prevDossId))) {
-                    $dossId = (string) $prevDossId;
-                    if (isset($newResults[$dossId])) {
-                        $existingPrevList = \is_array($newResults[$dossId]->PREVENTIONNISTES)
-                            ? $newResults[$dossId]->PREVENTIONNISTES
-                            : [];
-                        $existingPrevList[] = $prev;
-                        $newResults[$dossId]->PREVENTIONNISTES = $existingPrevList;
+                foreach ($preventionnistes as $prev) {
+                    $prevDossId = $prev['ID_DOSSIER'];
+                    if (null !== $prevDossId && (is_string($prevDossId) || is_int($prevDossId))) {
+                        $dossId = (string) $prevDossId;
+                        if (isset($newResults[$dossId])) {
+                            $existingPrevList = \is_array($newResults[$dossId]->PREVENTIONNISTES)
+                                ? $newResults[$dossId]->PREVENTIONNISTES
+                                : [];
+                            $existingPrevList[] = $prev;
+                            $newResults[$dossId]->PREVENTIONNISTES = $existingPrevList;
+                        }
                     }
                 }
-            }
 
-            // Pièces jointes
-            $pjSql = 'SELECT pj.NOM_PIECEJOINTE, pj.EXTENSION_PIECEJOINTE, dpj.ID_DOSSIER
+                // Pièces jointes
+                $pjSql = 'SELECT pj.NOM_PIECEJOINTE, pj.EXTENSION_PIECEJOINTE, dpj.ID_DOSSIER
                 FROM piecejointe pj
                 INNER JOIN dossierpj dpj ON dpj.ID_PIECEJOINTE = pj.ID_PIECEJOINTE
                 WHERE dpj.ID_DOSSIER IN (?)';
 
-            /** @var array<int, array<string, mixed>> $piecesjointes */
-            $piecesjointes = $this->connection->executeQuery(
-                $pjSql,
-                [$sIDsTable],
-                [Connection::PARAM_STR_ARRAY]
-            )->fetchAllAssociative();
+                /** @var array<int, array<string, mixed>> $piecesjointes */
+                $piecesjointes = $this->connection->executeQuery(
+                    $pjSql,
+                    [$sIDsTable],
+                    [Connection::PARAM_STR_ARRAY]
+                )->fetchAllAssociative();
 
-            foreach ($piecesjointes as $pj) {
-                $pjDossId = $pj['ID_DOSSIER'];
-                if (null !== $pjDossId && (is_string($pjDossId) || is_int($pjDossId))) {
-                    $dossId = (string) $pjDossId;
-                    if (isset($newResults[$dossId])) {
-                        $existingPjList = \is_array($newResults[$dossId]->PIECESJOINTES)
-                            ? $newResults[$dossId]->PIECESJOINTES
-                            : [];
-                        $existingPjList[] = $pj;
-                        $newResults[$dossId]->PIECESJOINTES = $existingPjList;
+                foreach ($piecesjointes as $pj) {
+                    $pjDossId = $pj['ID_DOSSIER'];
+                    if (null !== $pjDossId && (is_string($pjDossId) || is_int($pjDossId))) {
+                        $dossId = (string) $pjDossId;
+                        if (isset($newResults[$dossId])) {
+                            $existingPjList = \is_array($newResults[$dossId]->PIECESJOINTES)
+                                ? $newResults[$dossId]->PIECESJOINTES
+                                : [];
+                            $existingPjList[] = $pj;
+                            $newResults[$dossId]->PIECESJOINTES = $existingPjList;
+                        }
                     }
                 }
             }
-        }
 
-        return [
-            'results' => $newResults,
-            'search_metadata' => [
-                'count' => $totalCount,
-                'current_page' => $page,
-            ],
-        ];
+            return [
+                'results' => $newResults,
+                'search_metadata' => [
+                    'count' => $totalCount,
+                    'current_page' => $page,
+                ],
+            ];
+        });
+
+        return $cached;
     }
 
     /**
@@ -561,7 +566,7 @@ class DossierSearchService
         // Critères : objet
         if (null !== $objet) {
             $cleanObjet = trim($objet);
-            if ('#' === substr($cleanObjet, 0, 1)) {
+            if (str_starts_with($cleanObjet, '#')) {
                 $havingConditions[] = 'NB_URBA LIKE '.$this->queryHelper->safeQuote('%'.substr($cleanObjet, 1).'%');
             } elseif (1 === preg_match('/^[0-9A-Z\.]+$/', $cleanObjet)) {
                 $havingConditions[] = 'NB_URBA LIKE '.$this->queryHelper->safeQuote('%'.$cleanObjet.'%');
@@ -670,7 +675,7 @@ class DossierSearchService
             // Critères : label établissement
             if (isset($criterias['label']) && is_string($criterias['label'])) {
                 $cleanLabel = trim($criterias['label']);
-                if ('#' === substr($cleanLabel, 0, 1)) {
+                if (str_starts_with($cleanLabel, '#')) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
                 } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $cleanLabel, false);

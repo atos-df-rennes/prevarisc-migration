@@ -19,9 +19,11 @@ use App\Service\DossierPrescriptionService;
 use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
+use App\Utils\PathNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
+use Odtphp\Odf;
+use Odtphp\Segment;
 use Psr\Log\LoggerInterface;
-use Segment;
 
 /**
  * Service de génération des documents ODT de commission (convocations, ODJ, PV, compte-rendu).
@@ -29,66 +31,13 @@ use Segment;
  * Port direct des actions generationconvocAction, generationodjAction, generationpvAction,
  * generationcompterenduAction du CalendrierDesCommissionsController legacy et de leurs templates
  * phtml associés.
+ *
+ * @phpstan-import-type RubriqueData from Descriptif
  */
 class CommissionDocumentGenerationService
 {
-    /** @var EntityManagerInterface */
-    private $em;
-
-    /** @var DataStore */
-    private $dataStore;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var CommissionMembreEligibilityChecker */
-    private $eligibilityChecker;
-
-    /** @var string */
-    private $courriersMembresRealDataPath;
-
-    /** @var string */
-    private $documentsCommissionRealDataPath;
-
-    /** @var Descriptif */
-    private $descriptif;
-
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepo;
-
-    /** @var OdtWriter */
-    private $odtWriter;
-
-    /** @var DossierPrescriptionService */
-    private $prescriptionService;
-
-    /** @var CommissionDataProvider */
-    private $dataProvider;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        DataStore $dataStore,
-        LoggerInterface $logger,
-        CommissionMembreEligibilityChecker $eligibilityChecker,
-        Descriptif $descriptif,
-        DateCommissionRepository $dateCommissionRepo,
-        OdtWriter $odtWriter,
-        DossierPrescriptionService $prescriptionService,
-        CommissionDataProvider $dataProvider,
-        string $courriersMembresRealDataPath,
-        string $documentsCommissionRealDataPath
-    ) {
-        $this->em = $em;
-        $this->dataStore = $dataStore;
-        $this->logger = $logger;
-        $this->eligibilityChecker = $eligibilityChecker;
-        $this->descriptif = $descriptif;
-        $this->dateCommissionRepo = $dateCommissionRepo;
-        $this->odtWriter = $odtWriter;
-        $this->prescriptionService = $prescriptionService;
-        $this->dataProvider = $dataProvider;
-        $this->courriersMembresRealDataPath = $courriersMembresRealDataPath;
-        $this->documentsCommissionRealDataPath = $documentsCommissionRealDataPath;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly DataStore $dataStore, private readonly LoggerInterface $logger, private readonly CommissionMembreEligibilityChecker $eligibilityChecker, private readonly Descriptif $descriptif, private readonly DateCommissionRepository $dateCommissionRepo, private readonly OdtWriter $odtWriter, private readonly DossierPrescriptionService $prescriptionService, private readonly CommissionDataProvider $dataProvider, private readonly string $courriersMembresRealDataPath, private readonly string $documentsCommissionRealDataPath)
+    {
     }
 
     /**
@@ -199,7 +148,7 @@ class CommissionDocumentGenerationService
                 continue;
             }
 
-            $templatePath = $this->courriersMembresRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
+            $templatePath = PathNormalizer::join($this->courriersMembresRealDataPath, $nomFichier);
 
             if (!file_exists($templatePath)) {
                 $results[] = [
@@ -314,7 +263,7 @@ class CommissionDocumentGenerationService
             /** @var string|null $courrierOdjRaw */
             $courrierOdjRaw = $membreFile['COURRIER_ODJ'] ?? '';
             $nomFichier = $membreIdOdjRaw.'ODJ_'.($courrierOdjRaw ?? '');
-            $templatePath = $this->courriersMembresRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
+            $templatePath = PathNormalizer::join($this->courriersMembresRealDataPath, $nomFichier);
 
             if (!file_exists($templatePath)) {
                 $results[] = [
@@ -448,7 +397,7 @@ class CommissionDocumentGenerationService
             /** @var string|null $courrierPvRaw */
             $courrierPvRaw = $membre['COURRIER_PV'] ?? '';
             $nomFichier = $membreIdPvRaw2.'PV_'.($courrierPvRaw ?? '');
-            $templatePath = $this->courriersMembresRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
+            $templatePath = PathNormalizer::join($this->courriersMembresRealDataPath, $nomFichier);
 
             if (!file_exists($templatePath)) {
                 $results[] = [
@@ -540,7 +489,7 @@ class CommissionDocumentGenerationService
             return $results;
         }
 
-        $templatePath = $this->documentsCommissionRealDataPath.DIRECTORY_SEPARATOR.$nomFichier;
+        $templatePath = PathNormalizer::join($this->documentsCommissionRealDataPath, $nomFichier);
 
         if (!file_exists($templatePath)) {
             $results[] = [
@@ -703,7 +652,7 @@ class CommissionDocumentGenerationService
             if (!empty($etablissementLies)) {
                 /** @var array<int, int|string> $etabLiesColumn */
                 $etabLiesColumn = array_column($etablissementLies, 'ID_ETABLISSEMENT');
-                $etabLiesIds = array_map('intval', $etabLiesColumn);
+                $etabLiesIds = array_map(intval(...), $etabLiesColumn);
                 $idsEtablissements = array_merge($idsEtablissements, $etabLiesIds);
             }
 
@@ -769,7 +718,7 @@ class CommissionDocumentGenerationService
      * getChampsForRubrique, getChampsFils) en réutilisant le service partagé
      * avec DossierRapportOdtService.
      *
-     * @return array<string, array{capsule: CapsuleRubrique|null, rubriques: list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}>}>
+     * @return array<string, array{capsule: CapsuleRubrique|null, rubriques: list<RubriqueData>}>
      */
     private function loadFormulaires(Dossier $dossier, Etablissement $etablissement): array
     {
@@ -837,15 +786,7 @@ class CommissionDocumentGenerationService
 
             /** @var string $numInsee */
             $numInsee = $adresse['NUMINSEE_COMMUNE'] ?? '';
-
-            $existe = false;
-            foreach ($tabCommune as $value) {
-                if ($value[0] === $libelleCommune) {
-                    $existe = true;
-
-                    break;
-                }
-            }
+            $existe = array_any($tabCommune, fn ($value): bool => $value[0] === $libelleCommune);
 
             if (!$existe) {
                 $tabCommune[] = [$libelleCommune, $this->dataProvider->getCommuneContactInfo($numInsee)];
@@ -875,7 +816,7 @@ class CommissionDocumentGenerationService
         string $heureDeb,
         int $dateCommId
     ): int {
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
         $villeODF = $odf->setSegment('villeDoss');
 
         foreach ($listeCommunes as $commune) {
@@ -928,7 +869,7 @@ class CommissionDocumentGenerationService
 
             // Segment infosDoss
             $infosDossName = 'infosDoss';
-            /** @var \Segment $infosDoss */
+            /** @var Segment $infosDoss */
             // @phpstan-ignore-next-line
             $infosDoss = $villeODF->$infosDossName;
             foreach ($listeDossiers as $dossierInfos) {
@@ -1016,7 +957,7 @@ class CommissionDocumentGenerationService
             ['id' => $groupementId]
         );
 
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
 
         $this->fillGroupementCommissionInfo($odf, $commissionInfos, $heureDeb, $dateComm, $infosGroupement, $listeCommunes);
 
@@ -1084,7 +1025,7 @@ class CommissionDocumentGenerationService
      *
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillConvocationDossierInfos(\Segment $segment, array $dossierInfos): void
+    private function fillConvocationDossierInfos(Segment $segment, array $dossierInfos): void
     {
         /** @var array<string, mixed> $infosEtab */
         $infosEtab = $dossierInfos['infosEtab'] ?? [];
@@ -1185,12 +1126,11 @@ class CommissionDocumentGenerationService
     }
 
     /**
-     * @param \Odf|\Segment                                                     $odf
      * @param array<string, mixed>                                              $commissionInfos
      * @param array<string, string|null>                                        $infosGroupement
      * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
      */
-    private function fillGroupementCommissionInfo($odf, array $commissionInfos, string $heureDeb, string $dateComm, array $infosGroupement, array $listeCommunes): void
+    private function fillGroupementCommissionInfo(Odf|Segment $odf, array $commissionInfos, string $heureDeb, string $dateComm, array $infosGroupement, array $listeCommunes): void
     {
         $this->addChamp($odf, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
 
@@ -1251,7 +1191,7 @@ class CommissionDocumentGenerationService
         int $dateCommId
     ): array {
         $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'A', 'E', 'I', 'O', 'U', 'Y'];
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
         $membreLoop = $odf->setSegment('membresComm');
         $communesWithoutContact = [];
 
@@ -1300,7 +1240,7 @@ class CommissionDocumentGenerationService
                     && $this->eligibilityChecker->isDossierConcerneMembre($membre, $dossierInfos)
                 ) {
                     $this->fillOdjDossierInfos($membreLoop, $dossierInfos);
-                    /** @var \Segment $infosDossOdj */
+                    /** @var Segment $infosDossOdj */
                     // @phpstan-ignore-next-line
                     $infosDossOdj = $membreLoop->$infosDossOdjName;
                     $infosDossOdj->merge();
@@ -1363,7 +1303,7 @@ class CommissionDocumentGenerationService
             $infosGroupement = [];
         }
 
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
         $grpLoop = $odf->setSegment('grpLoop');
 
         $this->addChamp($grpLoop, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
@@ -1383,7 +1323,7 @@ class CommissionDocumentGenerationService
         $infosDossGrpName = 'infosDoss';
         foreach ($listeDossiers as $dossierInfos) {
             $this->fillOdjDossierInfos($grpLoop, $dossierInfos);
-            /** @var \Segment $infosDossGrp */
+            /** @var Segment $infosDossGrp */
             // @phpstan-ignore-next-line
             $infosDossGrp = $grpLoop->$infosDossGrpName;
             $infosDossGrp->merge();
@@ -1411,10 +1351,10 @@ class CommissionDocumentGenerationService
      *
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillOdjDossierInfos(\Segment $segment, array $dossierInfos): void
+    private function fillOdjDossierInfos(Segment $segment, array $dossierInfos): void
     {
         $infosDossOdjFillName = 'infosDoss';
-        /** @var \Segment $infosDoss */
+        /** @var Segment $infosDoss */
         // @phpstan-ignore-next-line
         $infosDoss = $segment->$infosDossOdjFillName;
         /** @var array<string, mixed> $infosEtab */
@@ -1557,7 +1497,7 @@ class CommissionDocumentGenerationService
         string $dateComm,
         int $dateCommId
     ): int {
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
         $dossInfos = $odf->setSegment('dossierInfos');
 
         foreach ($listeDossiers as $dossierInfos) {
@@ -1717,7 +1657,7 @@ class CommissionDocumentGenerationService
         string $dateComm,
         int $dateCommId
     ): int {
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
 
         $dateDuJour = new \DateTime();
         $this->addChamp($odf, 'dateGeneration', DateFormatterFr::formatLong($dateDuJour));
@@ -1778,7 +1718,7 @@ class CommissionDocumentGenerationService
                 // numWinPrev
                 try {
                     $dossInfos->setVars('numWinPrev', $crGeneral['NUMEROID_ETABLISSEMENT'] ?? '', true, 'UTF-8');
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     // Silencieux
                 }
 
@@ -1879,20 +1819,18 @@ class CommissionDocumentGenerationService
     /**
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillAvisDerogationsSegment(\Segment $segment, array $dossierInfos): void
+    private function fillAvisDerogationsSegment(Segment $segment, array $dossierInfos): void
     {
         /** @var string $avisDerogationsPropName */
         $avisDerogationsPropName = 'avisDerogations';
-        /** @var \Segment|null $avisDerogations */
+        /** @var Segment|null $avisDerogations */
         $avisDerogations = null;
         try {
             $avisDerogationsRaw = $segment->$avisDerogationsPropName;
-            if ($avisDerogationsRaw instanceof \Segment) {
+            if ($avisDerogationsRaw instanceof Segment) {
                 $avisDerogations = $avisDerogationsRaw;
             }
-
-            // @phpstan-ignore-next-line
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         if (null !== $avisDerogations) {
@@ -1903,16 +1841,14 @@ class CommissionDocumentGenerationService
 
         /** @var string $avisDerogationsEtabPropName */
         $avisDerogationsEtabPropName = 'avisDerogationsEtablissement';
-        /** @var \Segment|null $avisDerogationsEtablissement */
+        /** @var Segment|null $avisDerogationsEtablissement */
         $avisDerogationsEtablissement = null;
         try {
             $avisDerogationsEtabRaw = $segment->$avisDerogationsEtabPropName;
-            if ($avisDerogationsEtabRaw instanceof \Segment) {
+            if ($avisDerogationsEtabRaw instanceof Segment) {
                 $avisDerogationsEtablissement = $avisDerogationsEtabRaw;
             }
-
-            // @phpstan-ignore-next-line
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         if (null !== $avisDerogationsEtablissement) {
@@ -1925,7 +1861,7 @@ class CommissionDocumentGenerationService
     /**
      * @param array<int, array<string, string|null>> $derogations
      */
-    private function fillDerogationSegmentData(\Segment $derogationSegment, array $derogations): void
+    private function fillDerogationSegmentData(Segment $derogationSegment, array $derogations): void
     {
         if (!empty($derogations)) {
             foreach ($derogations as $avisDerogation) {
@@ -1977,7 +1913,7 @@ class CommissionDocumentGenerationService
      *
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillPrescriptionsSegment(\Segment $odfSegment, array $dossierInfos): void
+    private function fillPrescriptionsSegment(Segment $odfSegment, array $dossierInfos): void
     {
         $prescriptionTypes = [
             ['key' => 'prescriptionReglDossier', 'type' => TypePrescription::REGLEMENTAIRE, 'contenu' => 'default'],
@@ -2010,20 +1946,18 @@ class CommissionDocumentGenerationService
      * @param array<int, array<int, array<string, string|null>>> $listePrescription Tableau issu de withoutLevees/withoutActuals/withoutPrevious (clés non nécessairement séquentielles)
      * @param string                                             $typeContenu       'default', 'reprises', 'actuelles'
      */
-    private function addPrescription(array $listePrescription, int $type, \Segment $odf, string $typeContenu): void
+    private function addPrescription(array $listePrescription, int $type, Segment $odf, string $typeContenu): void
     {
         $segmentName = $this->getPrescriptionSegmentNameLegacy($type, $typeContenu);
-        /** @var \Segment|null $prescription */
+        /** @var Segment|null $prescription */
         $prescription = null;
 
         try {
             $prescriptionRaw = $odf->$segmentName;
-            if ($prescriptionRaw instanceof \Segment) {
+            if ($prescriptionRaw instanceof Segment) {
                 $prescription = $prescriptionRaw;
             }
-
-            // @phpstan-ignore-next-line
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         if (null === $prescription) {
@@ -2038,7 +1972,7 @@ class CommissionDocumentGenerationService
 
                 // Port direct : num et libelle viennent du premier élément du groupe
                 /** @var array<string, string|null> $firstAssoc */
-                $firstAssoc = reset($prescRow) ?: [];
+                $firstAssoc = reset($prescRow);
                 $this->addChamp($prescription, 'num', (string) ($firstAssoc['NUM_PRESCRIPTION_DOSSIER'] ?? ''));
                 if ('' === (string) ($firstAssoc['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '')) {
                     $this->addChamp($prescription, 'libelle', (string) ($firstAssoc['PRESCRIPTIONTYPE_LIBELLE'] ?? ''));
@@ -2102,7 +2036,7 @@ class CommissionDocumentGenerationService
     /**
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillFormulairesSegment(\Segment $segment, array $dossierInfos): void
+    private function fillFormulairesSegment(Segment $segment, array $dossierInfos): void
     {
         /** @var array<string, array{capsule: mixed, rubriques: array<int, array{rubrique: Rubrique, champs: array<int, array<string, mixed>>}>}> $formulaires */
         $formulaires = $dossierInfos['FORMULAIRES'] ?? [];
@@ -2114,8 +2048,8 @@ class CommissionDocumentGenerationService
     // ========================================================================
 
     /**
-     * @param \Odf|\Segment $odf
-     * @param mixed         $variable
+     * @param Odf|Segment $odf
+     * @param mixed       $variable
      */
     private function addChamp($odf, string $nomOdf, $variable): void
     {

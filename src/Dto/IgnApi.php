@@ -2,36 +2,14 @@
 
 namespace App\Dto;
 
-final class IgnApi
+final readonly class IgnApi
 {
-    /** @var string */
-    private $nom;
+    private bool $transparent;
 
-    /** @var string */
-    private $url;
+    private bool $baseLayer;
 
-    /** @var string */
-    private $type;
-
-    /** @var string */
-    private $layers;
-
-    /** @var string */
-    private $format;
-
-    /** @var bool */
-    private $transparent;
-
-    /** @var bool */
-    private $baseLayer;
-
-    public function __construct(string $nom, string $url, string $type, string $layers, string $format)
+    public function __construct(private string $nom, private string $url, private string $type, private string $layers, private string $format)
     {
-        $this->nom = $nom;
-        $this->url = $url;
-        $this->type = $type;
-        $this->layers = $layers;
-        $this->format = $format;
         $this->transparent = false;
         $this->baseLayer = false;
     }

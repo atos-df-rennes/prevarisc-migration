@@ -15,32 +15,12 @@ use App\Repository\PrescriptionDossierRepository;
 use App\Security\Voter\DossierVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class DossierPrescriptionService
 {
-    /** @var PrescriptionDossierRepository */
-    private $repository;
-
-    /** @var EntityManagerInterface */
-    private $em;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var Security */
-    private $security;
-
-    public function __construct(
-        PrescriptionDossierRepository $repository,
-        EntityManagerInterface $em,
-        LoggerInterface $logger,
-        Security $security
-    ) {
-        $this->repository = $repository;
-        $this->em = $em;
-        $this->logger = $logger;
-        $this->security = $security;
+    public function __construct(private readonly PrescriptionDossierRepository $repository, private readonly EntityManagerInterface $em, private readonly LoggerInterface $logger, private readonly Security $security)
+    {
     }
 
     /**
@@ -261,7 +241,7 @@ class DossierPrescriptionService
     {
         if (TypePrescription::REGLEMENTAIRE === $type) {
             $ids = array_map(
-                function (PrescriptionDossier $p): int { return (int) $p->getId(); },
+                fn (PrescriptionDossier $p): int => (int) $p->getId(),
                 $this->repository->findByDossierAndType($dossier, TypePrescription::REGLEMENTAIRE)
             );
         } else {
@@ -269,7 +249,7 @@ class DossierPrescriptionService
             $amelioration = $this->repository->findByDossierAndType($dossier, TypePrescription::AMELIORATION);
 
             $ids = array_map(
-                function (PrescriptionDossier $p): int { return (int) $p->getId(); },
+                fn (PrescriptionDossier $p): int => (int) $p->getId(),
                 array_merge($exploitation, $amelioration)
             );
         }

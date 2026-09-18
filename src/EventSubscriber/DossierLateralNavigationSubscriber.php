@@ -16,33 +16,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class DossierLateralNavigationSubscriber implements EventSubscriberInterface
 {
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var DossierAffectationRepository */
-    private $dossierAffectationRepository;
-
-    /** @var CapsuleRubriqueRepository */
-    private $capsuleRubriqueRepository;
-
-    /** @var DateAffectation */
-    private $dateAffectation;
-
-    /** @var Dossier */
-    private $serviceDossier;
-
-    public function __construct(
-        DossierRepository $dossierRepository,
-        DossierAffectationRepository $dossierAffectationRepository,
-        CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        DateAffectation $dateAffectation,
-        Dossier $serviceDossier
-    ) {
-        $this->dossierRepository = $dossierRepository;
-        $this->dossierAffectationRepository = $dossierAffectationRepository;
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->dateAffectation = $dateAffectation;
-        $this->serviceDossier = $serviceDossier;
+    public function __construct(private readonly DossierRepository $dossierRepository, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly DateAffectation $dateAffectation, private readonly Dossier $serviceDossier)
+    {
     }
 
     public function onKernelController(ControllerEvent $event): void

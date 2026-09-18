@@ -9,7 +9,7 @@ use App\Entity\Dossier;
  */
 final class DossierFields
 {
-    private const LISTE_CHAMPS = [
+    private const array LISTE_CHAMPS = [
         // ETUDES
         // PC - OK
         '1' => ['type', 'dateInsert', 'objet', 'documentsUrbanisme', 'dateMairie', 'dateSecretariat', 'serviceInstructeur', 'commission', 'dateCommission', 'avis', 'dateReponse', 'dateReception', 'preventionnistes', 'absenceDeQuorum', 'demandeur', 'incomplet', 'horsDelai', 'avisCommission', 'observations'],

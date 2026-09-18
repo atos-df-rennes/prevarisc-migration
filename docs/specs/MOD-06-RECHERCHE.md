@@ -203,10 +203,6 @@ Un champ texte libre permet de rechercher un dossier :
 | 12 | **Date de création** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
 | 13 | **Date de réception** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
 | 14 | **Date de réponse** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
-| 15 | **Date de passage en commission** | Plage de dates (du/au) | Format JJ/MM/AAAA | Supporté en traitement mais non affiché dans l'interface |
-| 16 | **Date de visite** | Plage de dates (du/au) | Format JJ/MM/AAAA | Supporté en traitement mais non affiché dans l'interface |
-
-> **Note :** les critères 15 (date de commission) et 16 (date de visite) sont traités par le moteur de recherche mais ne disposent pas de champ visible dans le formulaire de recherche actuel.
 
 > **Critère conditionnel :** le filtre « Provenance » (Plat'AU) n'est affiché que si l'intégration Plat'AU est activée dans la configuration de l'application.
 
@@ -259,7 +255,7 @@ Les résultats sont affichés sous forme de tableau à 5 colonnes :
 
 #### 4.2.3 Navigation hiérarchique
 
-Les dossiers ayant des **dossiers liés** (enfants) peuvent être dépliés d'un clic pour afficher leur arborescence.
+La navigation hiérarchique au clic (dépliage des dossiers liés) est définie dans la spec originale mais n'est pas implémentée : la ligne `slide` est mal positionnée dans le legacy, rendant le dépliage inopérant. Ce comportement n'est pas porté en Symfony.
 
 #### 4.2.4 Pagination
 
@@ -349,12 +345,9 @@ Pour la recherche de dossiers, l'adressage fonctionne par **listes déroulantes 
 
 ### 5.3 Chargement hiérarchique des sous-éléments
 
-Lors de l'affichage des résultats, un chargement asynchrone permet d'afficher :
+Lors de l'affichage des résultats, un chargement asynchrone permet d'afficher les **sous-établissements** d'un établissement (sites contenant des établissements, établissements contenant des cellules). Ce chargement se fait au clic sur un résultat comportant des enfants.
 
-- Les **sous-établissements** d'un établissement (sites contenant des établissements, établissements contenant des cellules)
-- Les **dossiers liés** à un dossier parent
-
-Ce chargement se fait au clic sur un résultat comportant des enfants. Un indicateur visuel de chargement est affiché pendant le traitement.
+Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté (ni en legacy, ni en Symfony) : voir §4.2.3.
 
 ---
 
@@ -399,7 +392,7 @@ Ce chargement se fait au clic sur un résultat comportant des enfants. Un indica
 | **RG-RCH-031** | La saisie de `#` suivi d'un texte dans le champ objet est interprétée comme une recherche sur le **numéro de document d'urbanisme**. |
 | **RG-RCH-032** | La saisie d'une chaîne au format `XXX-XXX-XXX` (3 groupes de 3 caractères alphanumériques) est interprétée comme une recherche par **identifiant de consultation Plat'AU**. |
 | **RG-RCH-033** | La saisie d'une chaîne composée uniquement de chiffres, lettres majuscules et points est interprétée comme une recherche sur le **numéro de document d'urbanisme**. |
-| **RG-RCH-034** | Les informations de l'établissement lié à un dossier sont celles **à la date la plus pertinente** parmi : date d'insertion du dossier, date de visite, date de commission. En cas d'absence, ce sont les informations les plus anciennes. |
+| **RG-RCH-034** | Les informations de l'établissement lié à un dossier sont celles **à la date la plus pertinente** parmi : date d'insertion du dossier, date de visite, date de commission. En cas d'absence, ce sont les informations les plus anciennes. ⚠️ *Écart documenté* : ni le legacy ni Symfony n'implémentent cette règle — les deux utilisent la fiche courante (`etablissementinformationsactuel`). Le legacy fait autorité. |
 | **RG-RCH-035** | Le filtre **provenance Plat'AU** n'est disponible que si la fonctionnalité Plat'AU est activée dans la configuration de l'application. |
 | **RG-RCH-036** | Les plages de dates sont validées au format `JJ/MM/AAAA`. Une date invalide est ignorée. |
 | **RG-RCH-037** | Le tri par date de création décroissante n'est appliqué que si au moins un critère de filtrage personnalisé est actif. |
@@ -455,8 +448,4 @@ La date affichée sous chaque dossier suit la priorité suivante :
 
 ### 7.8 Critères non exposés dans l'interface
 
-Deux plages de dates sont supportées par le moteur de recherche des dossiers mais ne disposent pas de champs dans le formulaire :
-- **Date de passage en commission** (du/au)
-- **Date de visite** (du/au)
-
-Ces critères pourraient être activés par un enrichissement de l'interface sans modification du moteur de recherche.
+Les filtres par date de passage en commission et par date de visite n'ont jamais été exposés dans le formulaire de recherche des dossiers. Les valeurs ne sont pas transmises au contrôleur, le code de traitement est du code mort. Ces critères ont été supprimés du moteur de recherche Symfony (voir écart MOD-06-ECART-02).

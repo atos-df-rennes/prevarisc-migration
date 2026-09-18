@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -16,14 +17,14 @@ final class Version20260401090000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
 
         $count = (int) $this->connection->createQueryBuilder()
             ->select('COUNT(*)')
             ->from('privileges')
             ->where('name = :name')
             ->setParameter('name', 'view_doss_incomplets')
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
         $this->skipIf($count > 0, 'Privilège view_doss_incomplets déjà existant.');
 
@@ -32,14 +33,14 @@ final class Version20260401090000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
 
         $count = (int) $this->connection->createQueryBuilder()
             ->select('COUNT(*)')
             ->from('privileges')
             ->where('name = :name')
             ->setParameter('name', 'view_doss_incomplets')
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
         $this->skipIf(0 === $count, 'Privilège view_doss_incomplets déjà supprimé.');
 

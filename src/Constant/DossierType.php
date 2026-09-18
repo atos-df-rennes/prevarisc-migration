@@ -9,15 +9,17 @@ namespace App\Constant;
  */
 final class DossierType
 {
-    public const ETUDE = 1;
+    public const int ETUDE = 1;
 
-    public const GROUPE_DE_VISITE = 3;
+    public const int GROUPE_DE_VISITE = 3;
 
-    public const COURRIER = 5;
+    public const int COURRIER = 5;
 
-    public const TYPES_PRINCIPAUX = [1, 2, 3];
+    public const array TYPES_PRINCIPAUX = [1, 2, 3];
 
-    public const TYPES_VISITE = [2, 3];
+    public const array TYPES_VISITE = [2, 3];
+
+    public const array TYPES_SANS_PRESCRIPTIONS = [5];
 
     /**
      * Empêche l'instanciation de la classe.

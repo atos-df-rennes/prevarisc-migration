@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Commission;
 
 use App\Entity\CommissionMembre;
 use App\Enum\CommissionMembreCourrierType;
 use App\Service\Commission\CommissionMembreCourrierService;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -17,42 +20,48 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 final class CommissionMembreCourrierServiceTest extends TestCase
 {
-    /** @var string */
-    private $tmpDir;
+    private string $tmpDir;
 
-    /** @var EntityManagerInterface|MockObject */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var LoggerInterface|MockObject */
-    private $logger;
-
-    /** @var CommissionMembreCourrierService */
-    private $service;
+    private CommissionMembreCourrierService $service;
 
     protected function setUp(): void
     {
         $this->tmpDir = sys_get_temp_dir().'/commission_courrier_test_'.uniqid().'/';
         mkdir($this->tmpDir, 0777, true);
 
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-
-        $this->service = new CommissionMembreCourrierService(
-            $this->tmpDir,
-            $this->entityManager,
-            new Filesystem(),
-            $this->logger
-        );
+        $this->recreateService($this->createStub(EntityManagerInterface::class));
     }
 
     protected function tearDown(): void
     {
-        (new Filesystem())->remove($this->tmpDir);
+        new Filesystem()->remove($this->tmpDir);
     }
 
     /**
-     * @dataProvider uploadTypesProvider
+     * @return MockObject&EntityManagerInterface
      */
+    private function useEntityManagerMock(): MockObject
+    {
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->recreateService($entityManager);
+
+        return $entityManager;
+    }
+
+    private function recreateService(EntityManagerInterface $entityManager): void
+    {
+        $this->entityManager = $entityManager;
+        $this->service = new CommissionMembreCourrierService(
+            $this->tmpDir,
+            $this->entityManager,
+            new Filesystem(),
+            $this->createStub(LoggerInterface::class)
+        );
+    }
+
+    #[DataProvider('uploadTypesProvider')]
     public function testUploadCourrierValide(string $type, string $getter): void
     {
         $tmpFile = $this->tmpDir.'source.odt';
@@ -62,25 +71,23 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 
         $membre = $this->createMembreWithId(42);
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->upload($membre, $type, $uploadedFile);
 
-        self::assertSame('courrier.odt', $membre->$getter());
-        self::assertFileExists($this->tmpDir.'42'.$type.'_courrier.odt');
+        $this->assertSame('courrier.odt', $membre->$getter());
+        $this->assertFileExists($this->tmpDir.'42'.$type.'_courrier.odt');
     }
 
     /**
-     * @return array<string, array{string, string}>
+     * @return \Iterator<string, array{string, string}>
      */
-    public function uploadTypesProvider(): array
+    public static function uploadTypesProvider(): \Iterator
     {
-        return [
-            'convocation visite' => [CommissionMembreCourrierType::CONVOCATIONVISITE, 'getCourrierConvocationVisite'],
-            'convocation salle' => [CommissionMembreCourrierType::CONVOCATIONSALLE, 'getCourrierConvocationSalle'],
-            'ordre du jour' => [CommissionMembreCourrierType::ODJ, 'getCourrierOrdreDuJour'],
-            'pv' => [CommissionMembreCourrierType::PV, 'getCourrierProcesVerbal'],
-        ];
+        yield 'convocation visite' => [CommissionMembreCourrierType::CONVOCATIONVISITE, 'getCourrierConvocationVisite'];
+        yield 'convocation salle' => [CommissionMembreCourrierType::CONVOCATIONSALLE, 'getCourrierConvocationSalle'];
+        yield 'ordre du jour' => [CommissionMembreCourrierType::ODJ, 'getCourrierOrdreDuJour'];
+        yield 'pv' => [CommissionMembreCourrierType::PV, 'getCourrierProcesVerbal'];
     }
 
     public function testUploadRemplaceAncienCourrier(): void
@@ -96,13 +103,13 @@ final class CommissionMembreCourrierServiceTest extends TestCase
 
         $uploadedFile = new UploadedFile($tmpFile, 'nouveau.odt', 'application/vnd.oasis.opendocument.text', null, true);
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->upload($membre, CommissionMembreCourrierType::CONVOCATIONVISITE, $uploadedFile);
 
-        self::assertSame('nouveau.odt', $membre->getCourrierConvocationVisite());
-        self::assertFileNotExists($ancienFichier);
-        self::assertFileExists($this->tmpDir.'42CONVOCATIONVISITE_nouveau.odt');
+        $this->assertSame('nouveau.odt', $membre->getCourrierConvocationVisite());
+        $this->assertFileDoesNotExist($ancienFichier);
+        $this->assertFileExists($this->tmpDir.'42CONVOCATIONVISITE_nouveau.odt');
     }
 
     public function testDeleteSupprimeFichierEtVideBdd(): void
@@ -113,23 +120,23 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierOrdreDuJour('odj.odt');
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->delete($membre, CommissionMembreCourrierType::ODJ);
 
-        self::assertNull($membre->getCourrierOrdreDuJour());
-        self::assertFileNotExists($fichier);
+        $this->assertNull($membre->getCourrierOrdreDuJour());
+        $this->assertFileDoesNotExist($fichier);
     }
 
     public function testDeleteSansCourrierNeFaitRien(): void
     {
         $membre = $this->createMembreWithId(42);
 
-        $this->entityManager->expects(self::never())->method('flush');
+        $this->useEntityManagerMock()->expects($this->never())->method('flush');
 
         $this->service->delete($membre, CommissionMembreCourrierType::CONVOCATIONSALLE);
 
-        self::assertNull($membre->getCourrierConvocationSalle());
+        $this->assertNull($membre->getCourrierConvocationSalle());
     }
 
     public function testDeleteFichierAbsentNeLeveAucuneException(): void
@@ -137,11 +144,11 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierProcesVerbal('fichier_inexistant.odt');
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->useEntityManagerMock()->expects($this->once())->method('flush');
 
         $this->service->delete($membre, CommissionMembreCourrierType::PV);
 
-        self::assertNull($membre->getCourrierProcesVerbal());
+        $this->assertNull($membre->getCourrierProcesVerbal());
     }
 
     public function testUploadTypeInvalideLeveException(): void
@@ -174,14 +181,14 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierOrdreDuJour('odj.odt');
 
-        self::assertTrue($this->service->courrierExists($membre, CommissionMembreCourrierType::ODJ));
+        $this->assertTrue($this->service->courrierExists($membre, CommissionMembreCourrierType::ODJ));
     }
 
     public function testCourrierExistsRetourneFalseSiAucunCourrier(): void
     {
         $membre = $this->createMembreWithId(42);
 
-        self::assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::CONVOCATIONVISITE));
+        $this->assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::CONVOCATIONVISITE));
     }
 
     public function testCourrierExistsRetourneFalseSiFichierAbsent(): void
@@ -189,7 +196,7 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = $this->createMembreWithId(42);
         $membre->setCourrierProcesVerbal('fichier_absent.odt');
 
-        self::assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::PV));
+        $this->assertFalse($this->service->courrierExists($membre, CommissionMembreCourrierType::PV));
     }
 
     public function testCourrierExistsTypeInvalideLeveException(): void
@@ -209,7 +216,6 @@ final class CommissionMembreCourrierServiceTest extends TestCase
         $membre = new CommissionMembre();
         $reflection = new \ReflectionClass($membre);
         $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
         $property->setValue($membre, $id);
 
         return $membre;

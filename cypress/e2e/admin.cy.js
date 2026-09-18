@@ -22,11 +22,9 @@ describe("Administration", () => {
         cy.contains('a', 'Ajouter un utilisateur').click()
         cy.contains("Ajout d'un utilisateur").should('be.visible')
 
-        cy.go('back')
         cy.contains('a', 'Créer un groupe').click()
         cy.contains("Ajout d'un groupe").should('be.visible')
 
-        cy.go('back')
         cy.contains('a', 'Gérer les droits des groupes').click()
         cy.contains('Matrice des droits').should('be.visible')
     })

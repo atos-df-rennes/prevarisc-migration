@@ -26,57 +26,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-final class Etablissement
+final readonly class Etablissement
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var AvisDerogationsRepository */
-    private $avisDerogationsRepository;
-
-    /**
-     * @var ParameterBagInterface
-     */
-    private $parameterBag;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var TexteApplicable */
-    private $texteApplicableService;
-
-    /** @var EtablissementPersistenceService */
-    private $persistenceService;
-
-    /** @var EtablissementInformationsRepository */
-    private $informationsRepository;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        AvisDerogationsRepository $avisDerogationsRepository,
-        ParameterBagInterface $parameterBag,
-        EntityManagerInterface $entityManager,
-        LoggerInterface $logger,
-        TexteApplicable $texteApplicableService,
-        EtablissementPersistenceService $persistenceService,
-        EtablissementInformationsRepository $informationsRepository
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->avisDerogationsRepository = $avisDerogationsRepository;
-        $this->parameterBag = $parameterBag;
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
-        $this->texteApplicableService = $texteApplicableService;
-        $this->persistenceService = $persistenceService;
-        $this->informationsRepository = $informationsRepository;
+    public function __construct(private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private AvisDerogationsRepository $avisDerogationsRepository, private ParameterBagInterface $parameterBag, private EntityManagerInterface $entityManager, private LoggerInterface $logger, private TexteApplicable $texteApplicableService, private EtablissementPersistenceService $persistenceService, private EtablissementInformationsRepository $informationsRepository)
+    {
     }
 
     /**
@@ -316,7 +269,7 @@ final class Etablissement
 
         // Site (genre 1)
         if (1 === $genreId) {
-            $dureeVisiteTotal = (new \DateTime())->setTime(0, 0, 0);
+            $dureeVisiteTotal = new \DateTime()->setTime(0, 0, 0);
 
             foreach ($etablissement->getFils() as $enfant) {
                 $dureeVisite = $enfant->getDureeVisite();
@@ -1012,7 +965,7 @@ final class Etablissement
      *
      * @return int|false Le type de changement (TypeChangement::STATUT ou TypeChangement::CLASSEMENT), ou false
      */
-    public function checkAlerte(EtablissementEntity $etablissement, array $postData)
+    public function checkAlerte(EtablissementEntity $etablissement, array $postData): int|false
     {
         $alerte = false;
         $informations = $etablissement->getLatestInformations();

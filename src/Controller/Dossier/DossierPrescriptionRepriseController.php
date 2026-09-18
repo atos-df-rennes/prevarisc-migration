@@ -2,52 +2,39 @@
 
 namespace App\Controller\Dossier;
 
+use App\Controller\Contract\DossierPrescriptionsAccessInterface;
 use App\Entity\Dossier;
 use App\Repository\DossierRepository;
 use App\Service\DossierPrescriptionService;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class DossierPrescriptionRepriseController extends AbstractController
+class DossierPrescriptionRepriseController extends AbstractController implements DossierPrescriptionsAccessInterface
 {
-    /** @var DossierPrescriptionService */
-    private $service;
-
-    /** @var DossierRepository */
-    private $dossierRepo;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(
-        DossierPrescriptionService $service,
-        DossierRepository $dossierRepo,
-        LoggerInterface $logger
-    ) {
-        $this->service = $service;
-        $this->dossierRepo = $dossierRepo;
-        $this->logger = $logger;
+    public function __construct(private readonly DossierPrescriptionService $service, private readonly DossierRepository $dossierRepo, private readonly LoggerInterface $logger)
+    {
     }
 
     /**
      * Retourne le contenu de la modale "Reprendre les prescriptions d'autres dossiers".
      *
      * Disponible uniquement si le dossier est lié à un seul établissement.
-     *
-     * @Route("/dossier/{id}/prescriptions/modal-reprise", name="dossier_prescriptions_modal_reprise", requirements={"id"="\d+"}, methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/prescriptions/modal-reprise', name: 'dossier_prescriptions_modal_reprise', requirements: ['id' => '\d+'], methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function repriseModal(Dossier $dossier): Response
     {
         $etablissements = $dossier->getEtablissements();
 
         if (1 !== $etablissements->count()) {
-            return new Response('', Response::HTTP_BAD_REQUEST);
+            return new Response(
+                'Pour pouvoir utiliser cette fonctionnalité, le dossier ne doit concerner qu\'un seul établissement.',
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $etablissement = $etablissements->first();
@@ -67,11 +54,9 @@ class DossierPrescriptionRepriseController extends AbstractController
 
     /**
      * Reprend les prescriptions des dossiers sélectionnés vers le dossier courant.
-     *
-     * @Route("/dossier/{id}/prescriptions/reprendre", name="dossier_prescriptions_reprendre", requirements={"id"="\d+"}, methods={"POST"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/prescriptions/reprendre', name: 'dossier_prescriptions_reprendre', requirements: ['id' => '\d+'], methods: ['POST'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function reprendre(Request $request, Dossier $dossier): Response
     {
         /** @var string $csrfToken */
@@ -81,8 +66,9 @@ class DossierPrescriptionRepriseController extends AbstractController
             throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
         }
 
-        $dossierIds = $request->request->get('dossierIds', []);
-        $dossierIds = is_array($dossierIds) ? array_map(function ($v): int { return (int) (is_scalar($v) ? $v : 0); }, $dossierIds) : [];
+        $requestData = $request->request->all();
+        $dossierIds = $requestData['dossierIds'] ?? [];
+        $dossierIds = is_array($dossierIds) ? array_map(fn ($v): int => (int) (is_scalar($v) ? $v : 0), $dossierIds) : [];
         $dossierIds = array_filter($dossierIds);
 
         if ([] === $dossierIds) {
@@ -92,7 +78,7 @@ class DossierPrescriptionRepriseController extends AbstractController
         }
 
         $sources = array_filter(
-            array_map(function (int $id) { return $this->dossierRepo->find($id); }, $dossierIds)
+            array_map(fn (int $id) => $this->dossierRepo->find($id), $dossierIds)
         );
 
         try {

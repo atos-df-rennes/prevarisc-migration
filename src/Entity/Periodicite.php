@@ -3,48 +3,28 @@
 namespace App\Entity;
 
 use App\Repository\PeriodiciteRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PeriodiciteRepository::class)
- */
+#[ORM\Entity(repositoryClass: PeriodiciteRepository::class)]
 class Periodicite
 {
-    /**
-     * @var bool
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="LOCALSOMMEIL_PERIODICITE", type="boolean", nullable=false)
-     */
-    private $localSommeil;
+    #[ORM\Id]
+    #[ORM\Column(name: 'LOCALSOMMEIL_PERIODICITE', type: Types::BOOLEAN, nullable: false)]
+    private bool $localSommeil;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="PERIODICITE_PERIODICITE", type="integer", nullable=false, options={"unsigned":true})
-     */
-    private $periodicite;
+    #[ORM\Column(name: 'PERIODICITE_PERIODICITE', type: Types::INTEGER, nullable: false, options: ['unsigned' => true])]
+    private ?int $periodicite = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="ID_CATEGORIE", type="integer", nullable=false, options={"unsigned":true})
-     */
-    private $categorie;
+    #[ORM\Id]
+    #[ORM\Column(name: 'ID_CATEGORIE', type: Types::INTEGER, nullable: false, options: ['unsigned' => true])]
+    private int $categorie;
 
-    /**
-     * @var string
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="ID_TYPE", type="string", length=10, nullable=false)
-     */
-    private $type;
+    #[ORM\Id]
+    #[ORM\Column(name: 'ID_TYPE', type: Types::STRING, length: 10, nullable: false)]
+    private string $type;
 
-    public function getLocalSommeil(): ?bool
+    public function getLocalSommeil(): bool
     {
         return $this->localSommeil;
     }
@@ -68,7 +48,7 @@ class Periodicite
         return $this;
     }
 
-    public function getCategorie(): ?int
+    public function getCategorie(): int
     {
         return $this->categorie;
     }
@@ -80,7 +60,7 @@ class Periodicite
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->type;
     }

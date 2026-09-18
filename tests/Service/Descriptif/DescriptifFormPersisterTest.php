@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Descriptif;
 
 use App\Constant\TypeChamp;
@@ -18,47 +20,40 @@ use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
 use App\Repository\ValeurRepository;
 use App\Service\Descriptif\DescriptifFormPersister;
+use App\ValueObject\RubriqueEtat;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \App\Service\Descriptif\DescriptifFormPersister
- */
-class DescriptifFormPersisterTest extends TestCase
+#[CoversClass(DescriptifFormPersister::class)]
+final class DescriptifFormPersisterTest extends TestCase
 {
-    /** @var ValeurRepository|MockObject */
-    private $valeurRepository;
+    private ValeurRepository $valeurRepository;
 
-    /** @var ChampRepository|MockObject */
-    private $champRepository;
+    private ChampRepository $champRepository;
 
-    /** @var DossierDisplayRubriqueRepository|MockObject */
-    private $dossierDisplayRubriqueRepository;
+    private DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository;
 
-    /** @var EtablissementDisplayRubriqueRepository|MockObject */
-    private $etablissementDisplayRubriqueRepository;
+    /** @var MockObject&EntityManagerInterface */
+    private MockObject $entityManager;
 
-    /** @var EntityManagerInterface|MockObject */
-    private $entityManager;
-
-    /** @var DescriptifFormPersister */
-    private $persister;
+    private DescriptifFormPersister $persister;
 
     protected function setUp(): void
     {
-        $this->valeurRepository = $this->createMock(ValeurRepository::class);
-        $this->champRepository = $this->createMock(ChampRepository::class);
-        $this->dossierDisplayRubriqueRepository = $this->createMock(DossierDisplayRubriqueRepository::class);
-        $this->etablissementDisplayRubriqueRepository = $this->createMock(EtablissementDisplayRubriqueRepository::class);
+        $this->valeurRepository = $this->createStub(ValeurRepository::class);
+        $this->champRepository = $this->createStub(ChampRepository::class);
+        $this->dossierDisplayRubriqueRepository = $this->createStub(DossierDisplayRubriqueRepository::class);
+        $etablissementDisplayRubriqueRepository = $this->createStub(EtablissementDisplayRubriqueRepository::class);
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
 
         $this->persister = new DescriptifFormPersister(
             $this->valeurRepository,
             $this->champRepository,
             $this->dossierDisplayRubriqueRepository,
-            $this->etablissementDisplayRubriqueRepository,
+            $etablissementDisplayRubriqueRepository,
             $this->entityManager
         );
     }
@@ -84,7 +79,7 @@ class DescriptifFormPersisterTest extends TestCase
             ->method('findOneBy')
             ->willReturn(null);
 
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $dossier = $this->makeDossier([$existing]);
         $rubriques = $this->makeRubriquesStructure(10, [['champ' => $champ, 'valeur' => $existing]]);
@@ -94,7 +89,7 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
-        self::assertSame('nouvelle valeur', $existing->getStr());
+        $this->assertSame('nouvelle valeur', $existing->getStr());
     }
 
     public function testPersistChampSimpleCree(): void
@@ -107,8 +102,11 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->champRepository
             ->method('find')
-            ->with(2)
-            ->willReturn($champ);
+            ->willReturnCallback(function (int $champId) use ($champ): Champ {
+                $this->assertSame(2, $champId);
+
+                return $champ;
+            });
 
         $this->dossierDisplayRubriqueRepository
             ->method('findOneBy')
@@ -116,15 +114,15 @@ class DescriptifFormPersisterTest extends TestCase
 
         $persisted = null;
         $this->entityManager
-            ->expects(self::atLeastOnce())
+            ->expects($this->atLeastOnce())
             ->method('persist')
-            ->willReturnCallback(static function ($obj) use (&$persisted): void {
+            ->willReturnCallback(static function (object $obj) use (&$persisted): void {
                 $persisted = $obj;
             });
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $collection = new ArrayCollection();
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getValeurs')->willReturn($collection);
         $dossier->method('getId')->willReturn(1);
 
@@ -134,8 +132,8 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
-        self::assertInstanceOf(Valeur::class, $persisted);
-        self::assertSame('nouvelle valeur', $persisted->getStr());
+        $this->assertInstanceOf(Valeur::class, $persisted);
+        $this->assertSame('nouvelle valeur', $persisted->getStr());
     }
 
     public function testPersistChampSimpleVideSupprime(): void
@@ -153,8 +151,11 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->champRepository
             ->method('find')
-            ->with(3)
-            ->willReturn($champ);
+            ->willReturnCallback(function (int $champId) use ($champ): Champ {
+                $this->assertSame(3, $champId);
+
+                return $champ;
+            });
 
         $this->dossierDisplayRubriqueRepository
             ->method('findOneBy')
@@ -162,15 +163,15 @@ class DescriptifFormPersisterTest extends TestCase
 
         $removed = null;
         $this->entityManager
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('remove')
-            ->willReturnCallback(static function ($obj) use (&$removed): void {
+            ->willReturnCallback(static function (object $obj) use (&$removed): void {
                 $removed = $obj;
             });
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $collection = new ArrayCollection([$existing]);
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getValeurs')->willReturn($collection);
         $dossier->method('getId')->willReturn(1);
 
@@ -180,7 +181,7 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
-        self::assertSame($existing, $removed);
+        $this->assertSame($existing, $removed);
     }
 
     public function testPersistTableauNouvelleLigne(): void
@@ -213,13 +214,13 @@ class DescriptifFormPersisterTest extends TestCase
         $persisted = [];
         $this->entityManager
             ->method('persist')
-            ->willReturnCallback(static function ($obj) use (&$persisted): void {
+            ->willReturnCallback(static function (object $obj) use (&$persisted): void {
                 $persisted[] = $obj;
             });
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $collection = new ArrayCollection();
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getValeurs')->willReturn($collection);
         $dossier->method('getId')->willReturn(1);
 
@@ -230,13 +231,13 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
-        $valeurs = array_filter($persisted, static function ($obj): bool { return $obj instanceof Valeur; });
-        self::assertNotEmpty($valeurs);
+        $valeurs = array_filter($persisted, static fn ($obj): bool => $obj instanceof Valeur);
+        $this->assertNotEmpty($valeurs);
 
-        $created = array_values($valeurs)[0];
-        self::assertInstanceOf(Valeur::class, $created);
-        self::assertSame('ligne1', $created->getStr());
-        self::assertSame(1, $created->getIdx()); // idx = position 1-based
+        $created = array_first($valeurs);
+        $this->assertInstanceOf(Valeur::class, $created);
+        $this->assertSame('ligne1', $created->getStr());
+        $this->assertSame(1, $created->getIdx()); // idx = position 1-based
     }
 
     public function testPersistTableauSupprimeLigneAbsente(): void
@@ -277,13 +278,13 @@ class DescriptifFormPersisterTest extends TestCase
         $removed = [];
         $this->entityManager
             ->method('remove')
-            ->willReturnCallback(static function ($obj) use (&$removed): void {
+            ->willReturnCallback(static function (object $obj) use (&$removed): void {
                 $removed[] = $obj;
             });
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $collection = new ArrayCollection([$existingValeur]);
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getValeurs')->willReturn($collection);
         $dossier->method('getId')->willReturn(1);
 
@@ -294,7 +295,7 @@ class DescriptifFormPersisterTest extends TestCase
 
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
-        self::assertContains($existingValeur, $removed);
+        $this->assertContains($existingValeur, $removed);
     }
 
     public function testPersistTableauNeSupprimesPasValeursDAutreOnglet(): void
@@ -339,13 +340,13 @@ class DescriptifFormPersisterTest extends TestCase
         $removed = [];
         $this->entityManager
             ->method('remove')
-            ->willReturnCallback(static function ($obj) use (&$removed): void {
+            ->willReturnCallback(static function (object $obj) use (&$removed): void {
                 $removed[] = $obj;
             });
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $collection = new ArrayCollection([$valeurAutreOnglet]);
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getValeurs')->willReturn($collection);
         $dossier->method('getId')->willReturn(1);
 
@@ -358,7 +359,7 @@ class DescriptifFormPersisterTest extends TestCase
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
         // La valeur de l'autre onglet ne doit PAS être supprimée
-        self::assertNotContains($valeurAutreOnglet, $removed);
+        $this->assertNotContains($valeurAutreOnglet, $removed);
     }
 
     public function testPersistDisplayPrefCree(): void
@@ -376,28 +377,63 @@ class DescriptifFormPersisterTest extends TestCase
         $persisted = [];
         $this->entityManager
             ->method('persist')
-            ->willReturnCallback(static function ($obj) use (&$persisted): void {
+            ->willReturnCallback(static function (object $obj) use (&$persisted): void {
                 $persisted[] = $obj;
             });
-        $this->entityManager->expects(self::once())->method('flush');
+        $this->entityManager->expects($this->once())->method('flush');
 
         $collection = new ArrayCollection();
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getValeurs')->willReturn($collection);
         $dossier->method('getId')->willReturn(1);
 
         $champValueData = new ChampValueData(1, null); // valeur vide
-        $formData = $this->makeFormData(10, false, [1 => $champValueData]); // display=false
+        $formData = $this->makeFormData(10, false, [1 => $champValueData], false); // display=false, opened=false
 
         $rubriques = $this->makeRubriquesStructure(10, [['champ' => $champ, 'valeur' => null]]);
 
         $this->persister->persistForDossier($dossier, $formData, $rubriques);
 
-        // Un objet DossierDisplayRubrique doit avoir été persisté
-        $displayPrefs = array_filter($persisted, static function ($obj): bool {
-            return $obj instanceof DossierDisplayRubrique;
-        });
-        self::assertNotEmpty($displayPrefs);
+        // Un objet DossierDisplayRubrique doit avoir été persisté, avec USER_DISPLAY et USER_OPENED à jour
+        $displayPrefs = array_values(array_filter($persisted, static fn ($obj): bool => $obj instanceof DossierDisplayRubrique));
+        $this->assertNotEmpty($displayPrefs);
+        $this->assertFalse($displayPrefs[0]->getUserDisplay());
+        $this->assertFalse($displayPrefs[0]->getUserOpened());
+    }
+
+    public function testPersistDisplayPrefMetAJourUserOpened(): void
+    {
+        $champ = $this->makeChamp(1, TypeChamp::TEXT);
+
+        $this->valeurRepository->method('findByDossier')->willReturn([]);
+        $this->champRepository->method('find')->willReturn($champ);
+
+        // Préférence existante → doit être mise à jour (pas de persist())
+        $existing = new DossierDisplayRubrique();
+        $existing->setUserDisplay(false);
+        $existing->setUserOpened(false);
+
+        $this->dossierDisplayRubriqueRepository
+            ->method('findOneBy')
+            ->willReturn($existing);
+
+        $this->entityManager->expects($this->never())->method('persist');
+        $this->entityManager->expects($this->once())->method('flush');
+
+        $collection = new ArrayCollection();
+        $dossier = $this->createStub(Dossier::class);
+        $dossier->method('getValeurs')->willReturn($collection);
+        $dossier->method('getId')->willReturn(1);
+
+        $champValueData = new ChampValueData(1, null); // valeur vide
+        $formData = $this->makeFormData(10, true, [1 => $champValueData], true); // display=true, opened=true
+
+        $rubriques = $this->makeRubriquesStructure(10, [['champ' => $champ, 'valeur' => null]]);
+
+        $this->persister->persistForDossier($dossier, $formData, $rubriques);
+
+        $this->assertTrue($existing->getUserDisplay());
+        $this->assertTrue($existing->getUserOpened());
     }
 
     // --- Helpers ---
@@ -407,10 +443,10 @@ class DescriptifFormPersisterTest extends TestCase
      */
     private function makeChamp(int $id, int $typeId, bool $tableau = false, array $enfants = []): Champ
     {
-        $typeEntity = $this->createMock(TypeChampEntity::class);
+        $typeEntity = $this->createStub(TypeChampEntity::class);
         $typeEntity->method('getId')->willReturn($typeId);
 
-        $champ = $this->createMock(Champ::class);
+        $champ = $this->createStub(Champ::class);
         $champ->method('getId')->willReturn($id);
         $champ->method('getType')->willReturn($typeEntity);
         $champ->method('getTableau')->willReturn($tableau);
@@ -421,7 +457,7 @@ class DescriptifFormPersisterTest extends TestCase
 
     private function makeRubrique(int $id): Rubrique
     {
-        $rubrique = $this->createMock(Rubrique::class);
+        $rubrique = $this->createStub(Rubrique::class);
         $rubrique->method('getId')->willReturn($id);
 
         return $rubrique;
@@ -429,7 +465,7 @@ class DescriptifFormPersisterTest extends TestCase
 
     private function makeDossier(array $valeurs = []): Dossier
     {
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getValeurs')->willReturn(new ArrayCollection($valeurs));
         $dossier->method('getId')->willReturn(1);
 
@@ -439,9 +475,9 @@ class DescriptifFormPersisterTest extends TestCase
     /**
      * @param array<int, ChampValueData> $champs
      */
-    private function makeFormData(int $rubriqueId, bool $display, array $champs): DescriptifFormData
+    private function makeFormData(int $rubriqueId, bool $display, array $champs, bool $opened = true): DescriptifFormData
     {
-        $rubriqueData = new RubriqueFormData($display, $champs);
+        $rubriqueData = new RubriqueFormData(new RubriqueEtat($display, $opened), $champs);
 
         return new DescriptifFormData([$rubriqueId => $rubriqueData]);
     }
@@ -457,6 +493,7 @@ class DescriptifFormPersisterTest extends TestCase
             [
                 'rubrique' => $this->makeRubrique($rubriqueId),
                 'display' => true,
+                'opened' => true,
                 'champs' => $champs,
             ],
         ];
@@ -466,7 +503,6 @@ class DescriptifFormPersisterTest extends TestCase
     {
         $ref = new \ReflectionClass($valeur);
         $prop = $ref->getProperty('id');
-        $prop->setAccessible(true);
         $prop->setValue($valeur, $id);
     }
 }

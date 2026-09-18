@@ -7,13 +7,11 @@ use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
 class PrivilegeVoter implements VoterInterface
 {
-    /** @var PrivilegesRepository */
-    private $privilegesRepository;
-
     /**
      * Index en mémoire des privileges (name → entité), chargé en une seule requête.
      * Ce voter est stateful par conception : acceptable dans un contexte web classique
@@ -25,7 +23,7 @@ class PrivilegeVoter implements VoterInterface
      */
     private $privilegesIndex;
 
-    private const EXCLUDED_ATTRIBUTES = [
+    private const array EXCLUDED_ATTRIBUTES = [
         DossierVoter::LECTURE,
         DossierVoter::MODIFICATION,
         DossierVoter::MODIFICATION_IGNORE_VERROU,
@@ -34,16 +32,15 @@ class PrivilegeVoter implements VoterInterface
         EtablissementVoter::MODIFICATION,
     ];
 
-    public function __construct(PrivilegesRepository $privilegesRepository)
+    public function __construct(private readonly PrivilegesRepository $privilegesRepository)
     {
-        $this->privilegesRepository = $privilegesRepository;
     }
 
-    public function vote(TokenInterface $token, $subject, array $attributes)
+    public function vote(TokenInterface $token, $subject, array $attributes, ?Vote $vote = null): int
     {
         $attribute = $attributes[0];
 
-        if (!is_string($attribute) || in_array($attribute, self::EXCLUDED_ATTRIBUTES)) {
+        if (!is_string($attribute) || in_array($attribute, self::EXCLUDED_ATTRIBUTES, true)) {
             return self::ACCESS_ABSTAIN;
         }
 

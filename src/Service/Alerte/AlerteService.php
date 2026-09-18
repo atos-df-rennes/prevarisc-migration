@@ -32,23 +32,8 @@ class AlerteService
         TypeChangement::CLASSEMENT => 'alerte_classement',
     ];
 
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
-
-    /** @var ObjetService */
-    private $objetService;
-
-    /** @var MessageService */
-    private $messageService;
-
-    public function __construct(
-        UtilisateurRepository $utilisateurRepository,
-        ObjetService $objetService,
-        MessageService $messageService
-    ) {
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->objetService = $objetService;
-        $this->messageService = $messageService;
+    public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly ObjetService $objetService, private readonly MessageService $messageService)
+    {
     }
 
     /**

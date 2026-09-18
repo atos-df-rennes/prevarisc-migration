@@ -2,33 +2,24 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\TypeTexteApplicableRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=TypeTexteApplicableRepository::class)
- *
- * @ORM\Table(name="typetextesappl")
- */
+#[ORM\Entity(repositoryClass: TypeTexteApplicableRepository::class)]
+#[ORM\Table(name: 'typetextesappl')]
 class TypeTexteApplicable
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_TYPETEXTEAPPL", type="bigint")
-     */
-    private $id;
+    use GetIdOrFailTrait;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_TYPETEXTEAPPL", type="text", nullable=false)
-     */
-    private $libelle;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_TYPETEXTEAPPL', type: Types::BIGINT)]
+    private ?int $id = null;
+
+    #[ORM\Column(name: 'LIBELLE_TYPETEXTEAPPL', type: Types::TEXT, nullable: false)]
+    private ?string $libelle = null;
 
     public function getId(): ?int
     {

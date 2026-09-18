@@ -4,18 +4,10 @@ namespace App\Service;
 
 use Psr\Log\LoggerInterface;
 
-final class Doc
+final readonly class Doc
 {
-    /** @var string */
-    private $srcDir;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(string $srcDir, LoggerInterface $logger)
+    public function __construct(private string $srcDir, private LoggerInterface $logger)
     {
-        $this->srcDir = $srcDir;
-        $this->logger = $logger;
     }
 
     public function get(string $filename): string

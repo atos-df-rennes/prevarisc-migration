@@ -4,7 +4,7 @@
     Macro principale : rendu d'une liste de rubriques avec leurs champs et valeurs.
     Usage : {{ forms.rubriques(rubriques) }}
 
-    @param rubriques list<{rubrique: Rubrique, display: bool, champs: list}>
+    @param rubriques list<{rubrique: Rubrique, display: bool, opened: bool, champs: list}>
 #}
 {% macro rubriques(rubriques) %}
     {% import _self as forms %}
@@ -29,10 +29,10 @@
             <div class="panel-heading" role="tab">
                 <h4 id="{{ rubrique.nom|lower|replace({' ': '-', "'": '-'}) }}" class="panel-title">
                     <a role="button"
-                       class="panel-title__link{% if not rubrique.ouverte %} collapsed{% endif %}"
+                       class="panel-title__link{% if not item.opened %} collapsed{% endif %}"
                        data-toggle="collapse"
                        data-target="#rubrique-body-{{ rubrique.id }}"
-                       aria-expanded="{{ rubrique.ouverte ? 'true' : 'false' }}"
+                       aria-expanded="{{ item.opened ? 'true' : 'false' }}"
                        aria-controls="rubrique-body-{{ rubrique.id }}">
                         {{ rubrique.nom }}
                         <span class="pull-right caret-toggle glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
@@ -40,7 +40,7 @@
                 </h4>
             </div>
 
-            <div id="rubrique-body-{{ rubrique.id }}" class="panel-collapse collapse{% if rubrique.ouverte %} in{% endif %}">
+            <div id="rubrique-body-{{ rubrique.id }}" class="panel-collapse collapse{% if item.opened %} in{% endif %}">
                 <div class="panel-body">
                     {% if item.champs is empty %}
                         <p class="text-muted"><em>Aucun champ renseigné. Contactez un administrateur Prevarisc.</em></p>
@@ -108,7 +108,7 @@
         <span>{{ (champ_data.valeur.longStr ?? '')|nl2br }}</span>
 
     {% elseif type_id == constant('App\\Constant\\TypeChamp::DATE') %}
-        <span>{{ champ_data.valeur.date ? champ_data.valeur.date|date('d/m/Y') : '' }}</span>
+        <span>{{ champ_data.valeur.date|date_fr }}</span>
 
     {% else %}
         <span class="text-muted">Aucune donnée</span>
@@ -152,7 +152,7 @@
                                 {% elseif type_id == constant('App\\Constant\\TypeChamp::TEXTAREA') %}
                                     {{ (valeur.longStr ?? '')|nl2br }}
                                 {% elseif type_id == constant('App\\Constant\\TypeChamp::DATE') %}
-                                    {{ valeur.date ? valeur.date|date('d/m/Y') : '' }}
+                                    {{ valeur.date|date_fr }}
                                 {% endif %}
                             </td>
                         {% endfor %}

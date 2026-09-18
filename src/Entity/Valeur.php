@@ -3,74 +3,38 @@
 namespace App\Entity;
 
 use App\Repository\ValeurRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ValeurRepository::class)
- */
+#[ORM\Entity(repositoryClass: ValeurRepository::class)]
 class Valeur
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_VALEUR", type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_VALEUR', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="VALEUR_STR", type="string", length=255, nullable=true)
-     */
-    private $str;
+    #[ORM\Column(name: 'VALEUR_STR', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $str = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="VALEUR_LONG_STR", type="text", nullable=true)
-     */
-    private $longStr;
+    #[ORM\Column(name: 'VALEUR_LONG_STR', type: Types::TEXT, nullable: true)]
+    private ?string $longStr = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="VALEUR_INT", type="integer", nullable=true)
-     */
-    private $number;
+    #[ORM\Column(name: 'VALEUR_INT', type: Types::INTEGER, nullable: true)]
+    private ?int $number = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="VALEUR_CHECKBOX", type="boolean", nullable=true)
-     */
-    private $checkbox;
+    #[ORM\Column(name: 'VALEUR_CHECKBOX', type: Types::BOOLEAN, nullable: true)]
+    private ?bool $checkbox = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="VALEUR_DATE", type="date", nullable=true)
-     */
-    private $date;
+    #[ORM\Column(name: 'VALEUR_DATE', type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $date = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $idx;
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $idx = null;
 
-    /**
-     * @var ?Champ
-     *
-     * @ORM\ManyToOne(targetEntity=Champ::class, inversedBy="valeurs")
-     *
-     * @ORM\JoinColumn(name="ID_CHAMP", referencedColumnName="ID_CHAMP", nullable=false)
-     */
-    private $champ;
+    #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'valeurs')]
+    #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false)]
+    private ?Champ $champ = null;
 
     public function getId(): ?int
     {

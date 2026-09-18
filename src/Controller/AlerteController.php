@@ -13,7 +13,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Controller pour la gestion des alertes email.
@@ -22,38 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AlerteController extends AbstractController
 {
-    /**
-     * @var EtablissementRepository
-     */
-    private $etablissementRepository;
-
-    /**
-     * @var ChangementRepository
-     */
-    private $changementRepository;
-
-    /**
-     * @var AlerteService
-     */
-    private $alerteService;
-
-    /**
-     * @var MailerInterface
-     */
-    private $mailer;
-
-    /**
-     * @var MailerConfiguration
-     */
-    private $mailerConfig;
-
-    public function __construct(EtablissementRepository $etablissementRepository, ChangementRepository $changementRepository, AlerteService $alerteService, MailerInterface $mailer, MailerConfiguration $mailerConfig)
+    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly ChangementRepository $changementRepository, private readonly AlerteService $alerteService, private readonly MailerInterface $mailer, private readonly MailerConfiguration $mailerConfig)
     {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->changementRepository = $changementRepository;
-        $this->alerteService = $alerteService;
-        $this->mailer = $mailer;
-        $this->mailerConfig = $mailerConfig;
     }
 
     /**
@@ -61,9 +31,8 @@ class AlerteController extends AbstractController
      *
      * Équivalent legacy : ChangementController::alerteformAction()
      * Route legacy : /changement/alerteform
-     *
-     * @Route("/symfony/alerte/formulaire", name="alerte_formulaire", methods={"GET"}, options={"expose"=true})
      */
+    #[Route(path: '/symfony/alerte/formulaire', name: 'alerte_formulaire', methods: ['GET'], options: ['expose' => true])]
     public function formulaire(
         Request $request
     ): Response {
@@ -120,10 +89,9 @@ class AlerteController extends AbstractController
      * Équivalent legacy : ChangementController::sendmailalerteAction()
      * Route legacy : /changement/sendmailalerte
      *
-     * @Route("/symfony/alerte/envoyer", name="alerte_envoyer", methods={"POST"}, options={"expose"=true})
-     *
      * @param Request $request Requête HTTP
      */
+    #[Route(path: '/symfony/alerte/envoyer', name: 'alerte_envoyer', methods: ['POST'], options: ['expose' => true])]
     public function envoyer(Request $request): Response
     {
         $emailsRaw = $request->request->get('emails');
@@ -159,9 +127,7 @@ class AlerteController extends AbstractController
         }
 
         // Extraction destinataires
-        $destinataires = array_filter(array_map('trim', explode(';', $emailsRaw)), function (string $email): bool {
-            return false !== filter_var($email, FILTER_VALIDATE_EMAIL);
-        });
+        $destinataires = array_filter(array_map(trim(...), explode(';', $emailsRaw)), fn (string $email): bool => false !== filter_var($email, FILTER_VALIDATE_EMAIL));
         if ([] === $destinataires) {
             return $this->json([
                 'success' => false,

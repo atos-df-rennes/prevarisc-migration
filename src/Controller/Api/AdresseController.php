@@ -6,7 +6,8 @@ use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * API d'autocomplétion des adresses.
@@ -14,39 +15,37 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AdresseController extends AbstractController
 {
-    private const LONGUEUR_CODE_POSTAL = 5;
+    private const int LONGUEUR_CODE_POSTAL = 5;
 
-    /** @var Connection */
-    private $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
      * Autocomplete des communes par nom ou code postal.
-     *
-     * @Route("/api/2.0/adresse/get_communes", name="api_adresse_get_communes", methods={"GET"})
      */
-    public function getCommunes(Request $request): JsonResponse
-    {
-        $q = $this->extractString($request->query->get('q', ''));
-
+    #[Route(path: '/api/2.0/adresse/get_communes', name: 'api_adresse_get_communes', methods: ['GET'], options: ['expose' => true])]
+    public function getCommunes(
+        #[MapQueryParameter] string $q = '',
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $limit = 50,
+    ): JsonResponse {
         if ('' === $q) {
             return new JsonResponse(['response' => []]);
         }
 
+        $limit ??= 50;
+        $limit = max(1, min(50, $limit));
+
         if (self::LONGUEUR_CODE_POSTAL === strlen($q) && is_numeric($q)) {
             /** @var array<int, array<string, mixed>> $rows */
             $rows = $this->connection->executeQuery(
-                'SELECT * FROM adressecommune WHERE CODEPOSTAL_COMMUNE = ?',
+                'SELECT * FROM adressecommune WHERE CODEPOSTAL_COMMUNE = ? LIMIT '.$limit,
                 [$q]
             )->fetchAllAssociative();
         } else {
             /** @var array<int, array<string, mixed>> $rows */
             $rows = $this->connection->executeQuery(
-                'SELECT * FROM adressecommune WHERE LIBELLE_COMMUNE LIKE ? ORDER BY LENGTH(LIBELLE_COMMUNE)',
+                'SELECT * FROM adressecommune WHERE LIBELLE_COMMUNE LIKE ? ORDER BY LENGTH(LIBELLE_COMMUNE) LIMIT '.$limit,
                 ['%'.$q.'%']
             )->fetchAllAssociative();
         }
@@ -57,13 +56,12 @@ class AdresseController extends AbstractController
     /**
      * Voies d'une commune pour autocomplete.
      * Accepte GET (autocomplete) et POST (dossier search via AJAX).
-     *
-     * @Route("/api/2.0/adresse/get_voies", name="api_adresse_get_voies", methods={"GET", "POST"})
      */
+    #[Route(path: '/api/2.0/adresse/get_voies', name: 'api_adresse_get_voies', methods: ['GET', 'POST'])]
     public function getVoies(Request $request): JsonResponse
     {
-        $codeInsee = $this->extractString($request->get('code_insee', ''));
-        $q = $this->extractString($request->get('q', ''));
+        $codeInsee = $this->extractString($request->query->get('code_insee') ?? $request->request->get('code_insee', ''));
+        $q = $this->extractString($request->query->get('q') ?? $request->request->get('q', ''));
 
         if ('' === $codeInsee) {
             return new JsonResponse(['response' => []]);
@@ -89,12 +87,11 @@ class AdresseController extends AbstractController
     /**
      * Numéros de rue pour une voie donnée.
      * Accepte GET et POST.
-     *
-     * @Route("/api/2.0/adresse/get_numeros", name="api_adresse_get_numeros", methods={"GET", "POST"})
      */
+    #[Route(path: '/api/2.0/adresse/get_numeros', name: 'api_adresse_get_numeros', methods: ['GET', 'POST'])]
     public function getNumeros(Request $request): JsonResponse
     {
-        $idRue = $this->extractString($request->get('id_rue', ''));
+        $idRue = $this->extractString($request->query->get('id_rue') ?? $request->request->get('id_rue', ''));
 
         if ('' === $idRue) {
             return new JsonResponse(['response' => []]);
@@ -112,13 +109,10 @@ class AdresseController extends AbstractController
     /**
      * Récupère le libellé d'une commune par code INSEE.
      * Port de Api_Service_Adresse::getLibelleCommune.
-     *
-     * @Route("/api/2.0/adresse/get_libelle_commune", name="api_adresse_get_libelle_commune", methods={"GET"})
      */
-    public function getLibelleCommune(Request $request): JsonResponse
+    #[Route(path: '/api/2.0/adresse/get_libelle_commune', name: 'api_adresse_get_libelle_commune', methods: ['GET'])]
+    public function getLibelleCommune(#[MapQueryParameter(name: 'code_insee')] string $codeInsee = ''): JsonResponse
     {
-        $codeInsee = $this->extractString($request->query->get('code_insee', ''));
-
         if ('' === $codeInsee) {
             return new JsonResponse(['response' => null]);
         }
@@ -139,13 +133,10 @@ class AdresseController extends AbstractController
     /**
      * Récupère le libellé d'une rue par son ID.
      * Port de Api_Service_Adresse::getLibelleRue.
-     *
-     * @Route("/api/2.0/adresse/get_libelle_rue", name="api_adresse_get_libelle_rue", methods={"GET"})
      */
-    public function getLibelleRue(Request $request): JsonResponse
+    #[Route(path: '/api/2.0/adresse/get_libelle_rue', name: 'api_adresse_get_libelle_rue', methods: ['GET'])]
+    public function getLibelleRue(#[MapQueryParameter] string $idRue = ''): JsonResponse
     {
-        $idRue = $this->extractString($request->query->get('idRue', ''));
-
         if ('' === $idRue) {
             return new JsonResponse(['response' => null]);
         }
@@ -165,10 +156,8 @@ class AdresseController extends AbstractController
 
     /**
      * Extrait une valeur string depuis une valeur mixed de ParameterBag.
-     *
-     * @param mixed $value
      */
-    private function extractString($value): string
+    private function extractString(string|int|float|bool|null $value): string
     {
         if (is_string($value)) {
             return $value;

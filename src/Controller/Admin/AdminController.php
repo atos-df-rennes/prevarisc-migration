@@ -6,35 +6,20 @@ use App\Builder\VersionBuilder;
 use App\Dto\Ldap;
 use App\Repository\UtilisateurRepository;
 use App\Service\Informations;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use App\Utils\PathNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("admin")
- */
+#[IsGranted('admin')]
 class AdminController extends AbstractController
 {
-    /**
-     * @var UtilisateurRepository
-     */
-    private $utilisateurRepository;
-
-    /**
-     * @var VersionBuilder
-     */
-    private $versionBuilder;
-
-    public function __construct(UtilisateurRepository $utilisateurRepository, VersionBuilder $versionBuilder)
+    public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly VersionBuilder $versionBuilder)
     {
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->versionBuilder = $versionBuilder;
     }
 
-    /**
-     * @Route("/admin/", name="admin_index")
-     */
+    #[Route(path: '/admin/', name: 'admin_index')]
     public function index(): Response
     {
         $versionService = $this->versionBuilder->build();
@@ -45,7 +30,7 @@ class AdminController extends AbstractController
             'controller_name' => 'AdminController',
             'db_name' => $this->getParameter('app.db_name'),
             'db_url' => Informations::dbUrl($this->getParameter('app.db_host'), $this->getParameter('app.db_port')),
-            'files_path' => $this->getParameter('app.files_path'),
+            'files_path' => PathNormalizer::normalize($this->getParameter('app.files_path')),
             'cache_enabled' => $this->getParameter('app.cache_lifetime') > 0,
             'cache_adapter' => $this->getParameter('app.cache_adapter'),
             'cache_url' => Informations::cacheUrl($this->getParameter('app.cache_host'), $this->getParameter('app.cache_port')),
@@ -56,7 +41,7 @@ class AdminController extends AbstractController
                 'URL' => $this->getParameter('app.geoconcept_url'),
                 'Layer' => $this->getParameter('app.geoconcept_layer'),
                 'App ID' => $this->getParameter('app.geoconcept_app_id'),
-                'Projection' => $this->getParameter('app.geoconcept_projection'),
+                'Projection' => $this->getParameter('app.geoconcept_projection') ?: 'Non paramétrée',
                 'Token' => $this->getParameter('app.geoconcept_token'),
                 'Geocoder URL' => $this->getParameter('app.geoconcept_geocoder'),
             ],

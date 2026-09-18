@@ -16,18 +16,10 @@ namespace App\Dto\Descriptif;
 class DescriptifFormData implements \ArrayAccess
 {
     /**
-     * Données des rubriques indexées par rubriqueId.
-     *
-     * @var array<int, RubriqueFormData>
+     * @param array<int, RubriqueFormData> $rubriques Données des rubriques indexées par rubriqueId
      */
-    private $rubriques;
-
-    /**
-     * @param array<int, RubriqueFormData> $rubriques
-     */
-    public function __construct(array $rubriques = [])
+    public function __construct(private array $rubriques = [])
     {
-        $this->rubriques = $rubriques;
     }
 
     /**
@@ -71,10 +63,7 @@ class DescriptifFormData implements \ArrayAccess
         return null !== $this->getRubrique($this->parseRubriqueId($offset));
     }
 
-    /**
-     * @return RubriqueFormData|null
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?RubriqueFormData
     {
         if (!is_string($offset)) {
             return null;

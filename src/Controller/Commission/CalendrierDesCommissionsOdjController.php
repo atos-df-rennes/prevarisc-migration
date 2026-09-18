@@ -3,16 +3,20 @@
 namespace App\Controller\Commission;
 
 use App\Dto\Repository\DossierAffectationDto;
+use App\Entity\Commune;
+use App\Entity\EtablissementAdresse;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
+use App\Repository\EtablissementAdresseRepository;
 use App\Utils\Date;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gestion de l'ordre du jour (ODJ) d'une date de commission.
@@ -20,44 +24,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CalendrierDesCommissionsOdjController extends AbstractController
 {
-    /**
-     * @var DateCommissionRepository
-     */
-    private $dateCommissionRepository;
-
-    /**
-     * @var DossierAffectationRepository
-     */
-    private $dossierAffectationRepository;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    public function __construct(
-        DateCommissionRepository $dateCommissionRepository,
-        DossierAffectationRepository $dossierAffectationRepository,
-        EntityManagerInterface $entityManager
-    ) {
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->dossierAffectationRepository = $dossierAffectationRepository;
-        $this->entityManager = $entityManager;
+    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly EntityManagerInterface $entityManager)
+    {
     }
 
     /**
      * Page principale de gestion de l'ordre du jour (ODJ).
      * Port direct de gestionodjAction().
-     *
-     * @Route("/commissions/calendrier/gestion-odj", name="calendrier_des_commissions_gestion_odj", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("modification_odj")
      */
-    public function gestionOdj(Request $request): Response
+    #[Route(path: '/commissions/calendrier/gestion-odj', name: 'calendrier_des_commissions_gestion_odj', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('modification_odj')]
+    public function gestionOdj(#[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $dateCommId = 0): Response
     {
-        /** @var string $rawDateCommId */
-        $rawDateCommId = $request->query->get('dateCommId', '0');
-        $dateCommId = (int) $rawDateCommId;
+        $dateCommId ??= 0;
 
         $dateCommission = $this->dateCommissionRepository->find($dateCommId);
         if (null === $dateCommission) {
@@ -113,24 +92,19 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Retourne les événements FullCalendar JSON pour les dossiers affectés à une date de commission (ODJ).
      * Port direct de recupevenementodjAction().
-     *
-     * @Route("/commissions/calendrier/recup-evenement-odj", name="calendrier_des_commissions_recup_evenement_odj", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("modification_odj")
      */
-    public function recupEvenementOdj(Request $request): JsonResponse
-    {
-        /** @var string $rawStart */
-        $rawStart = $request->query->get('start', '0');
-        /** @var string $rawEnd */
-        $rawEnd = $request->query->get('end', '0');
-        /** @var string $rawDateCommId */
-        $rawDateCommId = $request->query->get('dateCommId', '0');
-        $dateCommId = (int) $rawDateCommId;
+    #[Route(path: '/commissions/calendrier/recup-evenement-odj', name: 'calendrier_des_commissions_recup_evenement_odj', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('modification_odj')]
+    public function recupEvenementOdj(
+        #[MapQueryParameter] string $start = '0',
+        #[MapQueryParameter] string $end = '0',
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $dateCommId = 0,
+    ): JsonResponse {
+        $dateCommId ??= 0;
 
         // Conversion ms → sec → date 'Y-m-d' (port de Zend_Date::TIMESTAMP + format YEAR-MONTH-DAY)
-        $dateDebut = date('Y-m-d', (int) substr($rawStart, 0, -3));
-        $dateFin = date('Y-m-d', (int) substr($rawEnd, 0, -3));
+        $dateDebut = date('Y-m-d', (int) substr($start, 0, -3));
+        $dateFin = date('Y-m-d', (int) substr($end, 0, -3));
 
         $listeDossiersAffect = $this->dateCommissionRepository->findDossierAffectForCommission($dateCommId);
 
@@ -170,8 +144,6 @@ class CalendrierDesCommissionsOdjController extends AbstractController
             $informations = isset($infosEtab['informations']) ? (array) $infosEtab['informations'] : [];
             /** @var array<int, array<string, mixed>> $adresses */
             $adresses = isset($infosEtab['adresses']) ? (array) $infosEtab['adresses'] : [];
-            /** @var array<int, array<string, mixed>> $parents */
-            $parents = isset($infosEtab['parents']) ? (array) $infosEtab['parents'] : [];
 
             // Extraction typée des champs scalaires
             $idDossier = (int) $dossierAffect->ID_DOSSIER;
@@ -182,12 +154,10 @@ class CalendrierDesCommissionsOdjController extends AbstractController
             $libelleEtab = isset($informations['LIBELLE_ETABLISSEMENTINFORMATIONS']) && is_string($informations['LIBELLE_ETABLISSEMENTINFORMATIONS'])
                 ? $informations['LIBELLE_ETABLISSEMENTINFORMATIONS'] : '';
 
-            $affichage = '';
-            if (isset($parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS']) && is_string($parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS'])) {
-                $affichage .= $parents[0]['LIBELLE_ETABLISSEMENTINFORMATIONS'].' - ';
-            }
-
-            $affichage .= $libelleEtab;
+            // Note : le libellé du parent n'est volontairement pas préfixé à l'affichage
+            // (cf. legacy CalendrierDesCommissionsController::gestionodjAction() où le préfixe
+            // calculé est écrasé par une ré-affectation de $affichage juste après).
+            $affichage = $libelleEtab;
 
             $nbAdresse = count($adresses);
             if (0 !== $nbAdresse) {
@@ -262,11 +232,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Affecte un dossier à un créneau horaire (drop depuis le panneau latéral vers le calendrier).
      * Port direct de affectedossodjAction().
-     *
-     * @Route("/commissions/calendrier/affecte-doss-odj", name="calendrier_des_commissions_affecte_doss_odj", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/affecte-doss-odj', name: 'calendrier_des_commissions_affecte_doss_odj', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('modification_odj')]
     public function affecteOdj(Request $request): JsonResponse
     {
         try {
@@ -318,11 +286,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Redimensionne un événement ODJ (mise à jour de l'heure de fin uniquement).
      * Port direct de resizeodjAction().
-     *
-     * @Route("/commissions/calendrier/resize-odj", name="calendrier_des_commissions_resize_odj", methods={"POST"})
-     *
-     * @IsGranted("lecture_commission")
      */
+    #[Route(path: '/commissions/calendrier/resize-odj', name: 'calendrier_des_commissions_resize_odj', methods: ['POST'])]
+    #[IsGranted('lecture_commission')]
     public function resizeOdj(Request $request): Response
     {
         try {
@@ -360,11 +326,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Déplace un événement ODJ (mise à jour heure de début et de fin).
      * Port direct de dropodjAction().
-     *
-     * @Route("/commissions/calendrier/drop-odj", name="calendrier_des_commissions_drop_odj", methods={"POST"})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/drop-odj', name: 'calendrier_des_commissions_drop_odj', methods: ['POST'])]
+    #[IsGranted('modification_odj')]
     public function dropOdj(Request $request): Response
     {
         try {
@@ -406,11 +370,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Bascule entre mode horaire (GESTION_HEURES=1) et séquentiel (GESTION_HEURES=0).
      * Port direct de gestionheuresAction().
-     *
-     * @Route("/commissions/calendrier/gestion-heures", name="calendrier_des_commissions_gestion_heures", methods={"POST"})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/gestion-heures', name: 'calendrier_des_commissions_gestion_heures', methods: ['POST'])]
+    #[IsGranted('modification_odj')]
     public function gestionHeures(Request $request): Response
     {
         try {
@@ -493,11 +455,9 @@ class CalendrierDesCommissionsOdjController extends AbstractController
     /**
      * Réordonnancement séquentiel des dossiers par drag & drop.
      * Port direct de changementordreAction().
-     *
-     * @Route("/commissions/calendrier/changement-ordre", name="calendrier_des_commissions_changement_ordre", methods={"POST"})
-     *
-     * @IsGranted("modification_odj")
      */
+    #[Route(path: '/commissions/calendrier/changement-ordre', name: 'calendrier_des_commissions_changement_ordre', methods: ['POST'])]
+    #[IsGranted('modification_odj')]
     public function changementOrdre(Request $request): Response
     {
         try {
@@ -597,14 +557,13 @@ class CalendrierDesCommissionsOdjController extends AbstractController
             ['id' => $idEtab]
         );
 
-        // Adresses (communes)
-        /** @var array<int, array<string, mixed>> $adresses */
-        $adresses = $conn->fetchAllAssociative(
-            'SELECT c.LIBELLE_COMMUNE
-             FROM etablissementadresse ea
-             JOIN adressecommune c ON ea.NUMINSEE_COMMUNE = c.NUMINSEE_COMMUNE
-             WHERE ea.ID_ETABLISSEMENT = :id',
-            ['id' => $idEtab]
+        // Adresses (communes) : résolution en fonction du genre de l'établissement
+        // (site => enfant à l'effectif max, cellule => établissement parent direct, cf. EtablissementAdresseRepository::get()).
+        /** @var array<int, EtablissementAdresse> $etablissementAdresses */
+        $etablissementAdresses = $this->etablissementAdresseRepository->get($idEtab);
+        $adresses = array_map(
+            static fn (EtablissementAdresse $adresse): array => ['LIBELLE_COMMUNE' => $adresse->getCommune() instanceof Commune ? $adresse->getCommune()->getLibelle() : null],
+            $etablissementAdresses
         );
 
         // Parents directs (table etablissementlie : ID_FILS_ETABLISSEMENT = enfant, ID_ETABLISSEMENT = parent)

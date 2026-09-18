@@ -4,60 +4,43 @@ namespace App\Twig;
 
 use App\Enum\PlatauStatutAvisEnum;
 use App\Enum\PlatauStatutPecEnum;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
+use Twig\Attribute\AsTwigFilter;
 
-class PlatauExtension extends AbstractExtension
+class PlatauExtension
 {
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('platau_pec_label', [$this, 'getPecLabel']),
-            new TwigFilter('platau_pec_class', [$this, 'getPecClass']),
-            new TwigFilter('platau_avis_label', [$this, 'getAvisLabel']),
-            new TwigFilter('platau_avis_class', [$this, 'getAvisClass']),
-        ];
-    }
-
+    #[AsTwigFilter(name: 'platau_pec_label')]
     public function getPecLabel(?string $statut): string
     {
         return PlatauStatutPecEnum::getLabel($statut);
     }
 
+    #[AsTwigFilter(name: 'platau_pec_class')]
     public function getPecClass(?string $statut): string
     {
-        switch ($statut) {
-            case PlatauStatutPecEnum::EN_ATTENTE:
-                return 'text-info';
-            case PlatauStatutPecEnum::PRISE_EN_COMPTE:
-                return 'text-success';
-            case PlatauStatutPecEnum::A_RENVOYER:
-                return 'text-warning';
-            case PlatauStatutPecEnum::EN_ERREUR:
-                return 'text-danger';
-            default:
-                return 'text-muted';
-        }
+        return match ($statut) {
+            PlatauStatutPecEnum::EN_ATTENTE => 'text-info',
+            PlatauStatutPecEnum::PRISE_EN_COMPTE => 'text-success',
+            PlatauStatutPecEnum::A_RENVOYER => 'text-warning',
+            PlatauStatutPecEnum::EN_ERREUR => 'text-danger',
+            default => 'text-muted',
+        };
     }
 
+    #[AsTwigFilter(name: 'platau_avis_label')]
     public function getAvisLabel(?string $statut): string
     {
         return PlatauStatutAvisEnum::getLabel($statut);
     }
 
+    #[AsTwigFilter(name: 'platau_avis_class')]
     public function getAvisClass(?string $statut): string
     {
-        switch ($statut) {
-            case PlatauStatutAvisEnum::EN_COURS:
-                return 'text-info';
-            case PlatauStatutAvisEnum::TRAITE:
-                return 'text-success';
-            case PlatauStatutAvisEnum::A_RENVOYER:
-                return 'text-warning';
-            case PlatauStatutAvisEnum::EN_ERREUR:
-                return 'text-danger';
-            default:
-                return 'text-muted';
-        }
+        return match ($statut) {
+            PlatauStatutAvisEnum::EN_COURS => 'text-info',
+            PlatauStatutAvisEnum::TRAITE => 'text-success',
+            PlatauStatutAvisEnum::A_RENVOYER => 'text-warning',
+            PlatauStatutAvisEnum::EN_ERREUR => 'text-danger',
+            default => 'text-muted',
+        };
     }
 }

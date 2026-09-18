@@ -13,16 +13,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DescriptifOriginalType extends AbstractType
 {
-    /** @var string */
-    private $risquesNaturelsExemples;
-
-    /** @var string */
-    private $risquesTechnologiquesExemples;
-
-    public function __construct(string $risquesNaturelsExemples, string $risquesTechnologiquesExemples)
+    public function __construct(private readonly string $risquesNaturelsExemples, private readonly string $risquesTechnologiquesExemples)
     {
-        $this->risquesNaturelsExemples = $risquesNaturelsExemples;
-        $this->risquesTechnologiquesExemples = $risquesTechnologiquesExemples;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

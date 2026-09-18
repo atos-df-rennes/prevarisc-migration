@@ -5,25 +5,25 @@ namespace App\Dto\Historique;
 class Informations
 {
     /** @var DonneeHistorique[] */
-    private $statut;
+    private array $statut;
 
     /** @var DonneeHistorique[] */
-    private $type;
+    private array $type;
 
     /** @var DonneeHistorique[] */
-    private $classe;
+    private array $classe;
 
     /** @var DonneeHistorique[] */
-    private $famille;
+    private array $famille;
 
     /** @var DonneeHistorique[] */
-    private $libelle;
+    private array $libelle;
 
     /** @var DonneeHistorique[] */
-    private $categorie;
+    private array $categorie;
 
     /** @var DonneeHistorique[] */
-    private $avis;
+    private array $avis;
 
     public function __construct()
     {

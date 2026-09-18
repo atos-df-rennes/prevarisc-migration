@@ -19,13 +19,9 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UtilisateurInformationsRepository extends ServiceEntityRepository
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
+    public function __construct(ManagerRegistry $registry, private readonly EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, UtilisateurInformations::class);
-        $this->entityManager = $entityManager;
     }
 
     public function createNotInUserQueryBuilder(): QueryBuilder
@@ -62,7 +58,7 @@ class UtilisateurInformationsRepository extends ServiceEntityRepository
                 )
             )
             ->setParameter('name', '%'.$name.'%')
-            ->setMaxResults(10)
+            ->setMaxResults(100)
             ->getQuery()
             ->getResult()
         ;

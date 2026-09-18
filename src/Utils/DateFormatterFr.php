@@ -19,7 +19,7 @@ final class DateFormatterFr
             'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre',
         ];
 
-        return $dt->format('j').' '.$moisLongs[(int) $dt->format('n') - 1].' '.$dt->format('Y');
+        return $dt->format('d').' '.$moisLongs[(int) $dt->format('n') - 1].' '.$dt->format('Y');
     }
 
     /**

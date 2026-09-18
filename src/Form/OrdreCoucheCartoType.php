@@ -8,6 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 
 class OrdreCoucheCartoType extends AbstractType
 {
@@ -20,6 +21,13 @@ class OrdreCoucheCartoType extends AbstractType
             ])
             ->add('ordre', IntegerType::class, [
                 'label' => false,
+                'required' => true,
+                'constraints' => [
+                    new GreaterThanOrEqual(value: 1, message: 'L\'ordre doit être au minimum 1.'),
+                ],
+                'attr' => [
+                    'min' => 1,
+                ],
             ])
         ;
     }

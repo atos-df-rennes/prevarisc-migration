@@ -5,43 +5,29 @@ namespace App\Controller\Api;
 use App\Repository\GroupementRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * API pour les groupements (autocomplete service instructeur).
  */
 class GroupementController extends AbstractController
 {
-    /** @var GroupementRepository */
-    private $groupementRepository;
-
-    public function __construct(GroupementRepository $groupementRepository)
+    public function __construct(private readonly GroupementRepository $groupementRepository)
     {
-        $this->groupementRepository = $groupementRepository;
     }
 
     /**
      * Recherche de groupements pour autocomplete.
      * Filtre uniquement les groupements de type "Service Instructeur" (ID 10).
-     *
-     * @Route("/api/groupements/search", name="api_groupements_search", methods={"GET"})
      */
-    public function search(Request $request): JsonResponse
-    {
-        $query = $request->query->get('q', '');
-
-        if (!\is_string($query)) {
-            throw new \InvalidArgumentException('Query must be a string.');
-        }
-
-        $limit = filter_var($request->query->get('limit', 50), FILTER_VALIDATE_INT);
-
-        if (false === $limit) {
-            $limit = 50;
-        }
-
+    #[Route(path: '/api/groupements/search', name: 'api_groupements_search', methods: ['GET'], options: ['expose' => true])]
+    public function search(
+        #[MapQueryParameter(name: 'q')] string $query = '',
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $limit = 50,
+    ): JsonResponse {
+        $limit ??= 50;
         $limit = max(1, min(50, $limit));
 
         // Filtrer uniquement les groupements de type "Service Instructeur" (ID 10).
@@ -60,9 +46,8 @@ class GroupementController extends AbstractController
 
     /**
      * Liste tous les groupements (pour initialisation).
-     *
-     * @Route("/api/groupements", name="api_groupements_list", methods={"GET"})
      */
+    #[Route(path: '/api/groupements', name: 'api_groupements_list', methods: ['GET'])]
     public function list(): JsonResponse
     {
         $groupements = $this->groupementRepository->findAllOrdered();

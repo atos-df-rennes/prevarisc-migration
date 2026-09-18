@@ -12,25 +12,10 @@ use App\Repository\TypeChampRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-final class FormulairesImporter
+final readonly class FormulairesImporter
 {
-    /** @var CapsuleRubriqueRepository */
-    private $capsuleRubriqueRepository;
-
-    /** @var TypeChampRepository */
-    private $typeChampRepository;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(
-        CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        TypeChampRepository $typeChampRepository,
-        LoggerInterface $logger
-    ) {
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->typeChampRepository = $typeChampRepository;
-        $this->logger = $logger;
+    public function __construct(private CapsuleRubriqueRepository $capsuleRubriqueRepository, private TypeChampRepository $typeChampRepository, private LoggerInterface $logger)
+    {
     }
 
     /**
@@ -202,12 +187,6 @@ final class FormulairesImporter
         $entityManager->persist($champ);
 
         foreach ($exportedChamp->getValeursListe() as $exportedValeurListe) {
-            if (null === $exportedValeurListe->getValeur()) {
-                $this->logger->warning('La valeur de la liste doit être renseignée.');
-
-                continue;
-            }
-
             $valeurListe = new ChampValeurListe();
             $valeurListe->setValeur($exportedValeurListe->getValeur());
             $valeurListe->setChamp($champ);
@@ -235,10 +214,7 @@ final class FormulairesImporter
         $map = [];
 
         foreach ($typeChamps as $typeChamp) {
-            $id = $typeChamp->getId();
-            if (null !== $id) {
-                $map[$typeChamp->getType()] = $id;
-            }
+            $map[$typeChamp->getType()] = $typeChamp->getIdOrFail();
         }
 
         return $map;

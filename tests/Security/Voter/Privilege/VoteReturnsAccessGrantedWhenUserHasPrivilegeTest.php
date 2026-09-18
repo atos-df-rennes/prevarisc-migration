@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Privilege;
 
 use App\Entity\Groupe;
@@ -12,29 +14,29 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
+final class VoteReturnsAccessGrantedWhenUserHasPrivilegeTest extends TestCase
 {
     public function testVoteReturnsAccessGrantedWhenUserHasPrivilege(): void
     {
-        $privilege = $this->createMock(Privileges::class);
+        $privilege = $this->createStub(Privileges::class);
         $privilege->method('getName')->willReturn('mon_privilege');
 
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $privilegesRepository = $this->createStub(PrivilegesRepository::class);
         $privilegesRepository->method('findAll')->willReturn([$privilege]);
 
         $voter = new PrivilegeVoter($privilegesRepository);
 
-        $group = $this->createMock(Groupe::class);
+        $group = $this->createStub(Groupe::class);
         $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
 
-        $user = $this->createMock(Utilisateur::class);
+        $user = $this->createStub(Utilisateur::class);
         $user->method('getGroupe')->willReturn($group);
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
         $result = $voter->vote($token, null, ['mon_privilege']);
 
-        $this->assertEquals(VoterInterface::ACCESS_GRANTED, $result);
+        $this->assertSame(VoterInterface::ACCESS_GRANTED, $result);
     }
 }

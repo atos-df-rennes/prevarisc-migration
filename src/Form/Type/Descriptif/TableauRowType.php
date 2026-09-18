@@ -7,6 +7,7 @@ use App\Dto\Descriptif\TableauRowData;
 use App\Entity\Champ;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -59,24 +60,17 @@ class TableauRowType extends AbstractType
     /**
      * Retourne le FQCN du FormType feuille correspondant au TypeChamp.
      *
-     * @return string FQCN
+     * @return class-string<FormTypeInterface> FQCN
      */
     private function resolveLeafType(?int $typeId): string
     {
-        switch ($typeId) {
-            case TypeChamp::TEXT:
-            default:
-                return ChampTextType::class;
-            case TypeChamp::TEXTAREA:
-                return ChampTextareaType::class;
-            case TypeChamp::SELECT:
-                return ChampSelectType::class;
-            case TypeChamp::NUMBER:
-                return ChampNumberType::class;
-            case TypeChamp::CHECKBOX:
-                return ChampCheckboxType::class;
-            case TypeChamp::DATE:
-                return ChampDateType::class;
-        }
+        return match ($typeId) {
+            TypeChamp::TEXTAREA => ChampTextareaType::class,
+            TypeChamp::SELECT => ChampSelectType::class,
+            TypeChamp::NUMBER => ChampNumberType::class,
+            TypeChamp::CHECKBOX => ChampCheckboxType::class,
+            TypeChamp::DATE => ChampDateType::class,
+            default => ChampTextType::class,
+        };
     }
 }

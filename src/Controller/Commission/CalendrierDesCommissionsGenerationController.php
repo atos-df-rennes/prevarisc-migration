@@ -4,33 +4,28 @@ namespace App\Controller\Commission;
 
 use App\Entity\DateCommission;
 use App\Service\Commission\CommissionDocumentGenerationService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Génération des documents de commission (convocation, ODJ, PV, compte-rendu).
- *
- * @IsGranted("generation_doc_com")
  */
+#[IsGranted('generation_doc_com')]
 class CalendrierDesCommissionsGenerationController extends AbstractController
 {
-    /** @var CommissionDocumentGenerationService */
-    private $generationService;
-
-    public function __construct(CommissionDocumentGenerationService $generationService)
+    public function __construct(private readonly CommissionDocumentGenerationService $generationService, private readonly ManagerRegistry $managerRegistry)
     {
-        $this->generationService = $generationService;
     }
 
     /**
      * Génère les convocations pour une date de commission.
-     *
-     * @Route("/commission/calendrier/{dateCommId}/generation/convocation", name="commission_calendrier_generation_convocation", requirements={"dateCommId"="\d+"}, methods={"POST"})
      */
+    #[Route(path: '/commission/calendrier/{dateCommId}/generation/convocation', name: 'commission_calendrier_generation_convocation', requirements: ['dateCommId' => '\d+'], methods: ['POST'])]
     public function generationConvocation(int $dateCommId, Request $request): Response
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_convocation');
@@ -45,9 +40,8 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
 
     /**
      * Génère les ordres du jour pour une date de commission.
-     *
-     * @Route("/commission/calendrier/{dateCommId}/generation/odj", name="commission_calendrier_generation_odj", requirements={"dateCommId"="\d+"}, methods={"POST"})
      */
+    #[Route(path: '/commission/calendrier/{dateCommId}/generation/odj', name: 'commission_calendrier_generation_odj', requirements: ['dateCommId' => '\d+'], methods: ['POST'])]
     public function generationOdj(int $dateCommId, Request $request): Response
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_odj');
@@ -62,9 +56,8 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
 
     /**
      * Génère les procès-verbaux pour une date de commission.
-     *
-     * @Route("/commission/calendrier/{dateCommId}/generation/pv", name="commission_calendrier_generation_pv", requirements={"dateCommId"="\d+"}, methods={"POST"})
      */
+    #[Route(path: '/commission/calendrier/{dateCommId}/generation/pv', name: 'commission_calendrier_generation_pv', requirements: ['dateCommId' => '\d+'], methods: ['POST'])]
     public function generationPv(int $dateCommId, Request $request): Response
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_pv');
@@ -79,9 +72,8 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
 
     /**
      * Génère le compte-rendu pour une date de commission.
-     *
-     * @Route("/commission/calendrier/{dateCommId}/generation/compte-rendu", name="commission_calendrier_generation_compte_rendu", requirements={"dateCommId"="\d+"}, methods={"POST"})
      */
+    #[Route(path: '/commission/calendrier/{dateCommId}/generation/compte-rendu', name: 'commission_calendrier_generation_compte_rendu', requirements: ['dateCommId' => '\d+'], methods: ['POST'])]
     public function generationCompteRendu(int $dateCommId, Request $request): Response
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_compte_rendu');
@@ -113,7 +105,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
         }
 
         /** @var DateCommission|null $dateCommission */
-        $dateCommission = $this->getDoctrine()->getManager()->find(DateCommission::class, $dateCommId);
+        $dateCommission = $this->managerRegistry->getManager()->find(DateCommission::class, $dateCommId);
         if (null === $dateCommission) {
             return new JsonResponse([
                 'success' => false,

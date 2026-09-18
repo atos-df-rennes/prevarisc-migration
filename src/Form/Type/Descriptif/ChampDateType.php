@@ -22,6 +22,7 @@ class ChampDateType extends AbstractType
         ]);
     }
 
+    #[\Override]
     public function getParent(): string
     {
         return DateType::class;

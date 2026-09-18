@@ -17,21 +17,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 final class CommissionDocumentCrService extends AbstractOdtDocumentService
 {
-    /** @var string */
-    private $documentsCommissionRealDataPath;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
     public function __construct(
-        string $documentsCommissionRealDataPath,
-        EntityManagerInterface $entityManager,
+        private readonly string $documentsCommissionRealDataPath,
+        private readonly EntityManagerInterface $entityManager,
         Filesystem $filesystem,
         LoggerInterface $logger
     ) {
         parent::__construct($filesystem, $logger);
-        $this->documentsCommissionRealDataPath = $documentsCommissionRealDataPath;
-        $this->entityManager = $entityManager;
     }
 
     protected function getStoragePath(): string

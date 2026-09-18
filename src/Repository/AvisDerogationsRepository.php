@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\AvisDerogations;
 use App\Entity\Dossier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -48,10 +48,37 @@ class AvisDerogationsRepository extends ServiceEntityRepository
             ->leftJoin('dl.type', 't')
             ->where('e.id IN (:ids)')
             ->andWhere('a.displayHistorique = 1')
-            ->setParameter('ids', $idsEtablissements, Connection::PARAM_INT_ARRAY)
+            ->setParameter('ids', $idsEtablissements, ArrayParameterType::INTEGER)
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    /**
+     * Vérifie si au moins un avis/dérogation historisé existe pour une liste d'établissements
+     * (parent + enfants). Doit rester cohérent avec findForEtablissements(), utilisée pour
+     * l'affichage, afin que le témoin (pastille verte) reflète bien les données affichées.
+     *
+     * @param int[] $idsEtablissements
+     */
+    public function hasForEtablissements(array $idsEtablissements): bool
+    {
+        if ([] === $idsEtablissements) {
+            return false;
+        }
+
+        $count = $this->createQueryBuilder('a')
+            ->select('COUNT(a.id)')
+            ->join('a.dossier', 'd')
+            ->join('d.etablissements', 'e')
+            ->where('e.id IN (:ids)')
+            ->andWhere('a.displayHistorique = 1')
+            ->setParameter('ids', $idsEtablissements, ArrayParameterType::INTEGER)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+
+        return $count > 0;
     }
 
     /**

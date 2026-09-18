@@ -5,43 +5,28 @@ namespace App\Controller\Api;
 use App\Repository\UtilisateurRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * API pour les utilisateurs (autocomplete préventionnistes).
  */
 class UtilisateurController extends AbstractController
 {
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
-
-    public function __construct(UtilisateurRepository $utilisateurRepository)
+    public function __construct(private readonly UtilisateurRepository $utilisateurRepository)
     {
-        $this->utilisateurRepository = $utilisateurRepository;
     }
 
     /**
      * Recherche de préventionnistes pour autocomplete.
      * Conforme au legacy /api/1.0/search/users (lignes 81-129).
-     *
-     * @Route("/api/utilisateurs/search", name="api_utilisateurs_search", methods={"GET"})
      */
-    public function search(Request $request): JsonResponse
-    {
-        $query = $request->query->get('q', '');
-
-        if (!\is_string($query)) {
-            throw new \InvalidArgumentException('Query must be a string.');
-        }
-
-        $limit = filter_var($request->query->get('limit', 100), FILTER_VALIDATE_INT);
-
-        if (false === $limit) {
-            throw new \InvalidArgumentException('Limit must be an integer.');
-        }
-
+    #[Route(path: '/api/utilisateurs/search', name: 'api_utilisateurs_search', methods: ['GET'], options: ['expose' => true])]
+    public function search(
+        #[MapQueryParameter(name: 'q')] string $query = '',
+        #[MapQueryParameter] int $limit = 100,
+    ): JsonResponse {
         // Minimum 3 caractères pour lancer la recherche (comme legacy minLength: 3)
         if (strlen($query) < 3) {
             return new JsonResponse([]);

@@ -1,5 +1,10 @@
 # Documentation d'installation
 
+> [!IMPORTANT]
+> Cette documentation s'adresse principalement aux installations Prevarisc 2.x (Zend Framework). 
+> Pour **Prevarisc 3.0+** (Symfony 7.4), consultez le [README.md](../README.md) pour les instructions modernes.
+> Les sections ci-dessous restent disponibles comme référence historique.
+
 ## Table des matières
 
 1. [Installation d'un serveur web Debian](#installation-dun-serveur-web-debian)
@@ -147,7 +152,7 @@ PREVARISC_DOSSIERS_MAX_A_AFFICHER | [FACULTATIF] Permet de configurer le nombre 
 
 ## Installation de Prevarisc
 
-* Depuis le navigateur Iceweasel, télécharger le fichier compressé de prevarisc depuis "https://github.com/atos-df-rennes/prevarisc" dans votre dossier "Downloads"
+* Depuis le navigateur Iceweasel, télécharger le fichier compressé de prevarisc depuis "https://github.com/atos-df-rennes/prevarisc-migration" dans votre dossier "Downloads"
 * Taper : ```mv /home/$USER/Downloads/prevarisc-master.zip /var/www/``` ou $USER est votre nom d’utilisateur de la session
 * Taper : ```7z x prevarisc-master.zip```
 * Taper : ```mv prevarisc-master prevarisc```

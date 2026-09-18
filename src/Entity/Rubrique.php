@@ -2,72 +2,45 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\RubriqueRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=RubriqueRepository::class)
- */
+#[ORM\Entity(repositoryClass: RubriqueRepository::class)]
 class Rubrique
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_RUBRIQUE", type="integer")
-     */
-    private $id;
+    use GetIdOrFailTrait;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="NOM", type="string", length=255, nullable=false)
-     */
-    private $nom;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_RUBRIQUE', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="DEFAULT_DISPLAY", type="boolean", nullable=true)
-     */
-    private $defaultDisplay;
+    #[ORM\Column(name: 'NOM', type: Types::STRING, length: 255, nullable: false)]
+    private ?string $nom = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(type="integer", nullable=false)
-     */
-    private $idx;
+    #[ORM\Column(name: 'DEFAULT_DISPLAY', type: Types::BOOLEAN, nullable: true)]
+    private ?bool $defaultDisplay = null;
 
-    /**
-     * @var ?CapsuleRubrique
-     *
-     * @ORM\ManyToOne(targetEntity=CapsuleRubrique::class, inversedBy="rubriques")
-     *
-     * @ORM\JoinColumn(name="ID_CAPSULERUBRIQUE", referencedColumnName="ID_CAPSULERUBRIQUE", nullable=false)
-     */
-    private $capsuleRubrique;
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    private ?int $idx = null;
+
+    #[ORM\ManyToOne(targetEntity: CapsuleRubrique::class, inversedBy: 'rubriques')]
+    #[ORM\JoinColumn(name: 'ID_CAPSULERUBRIQUE', referencedColumnName: 'ID_CAPSULERUBRIQUE', nullable: false)]
+    private ?CapsuleRubrique $capsuleRubrique = null;
 
     /**
      * @var Collection<int, Champ>
-     *
-     * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="rubrique", orphanRemoval=true, cascade={"persist"})
-     *
-     * @ORM\OrderBy({"idx" = "ASC", "id" = "ASC"})
      */
-    private $champs;
+    #[ORM\OneToMany(targetEntity: Champ::class, mappedBy: 'rubrique', orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\OrderBy(['idx' => 'ASC', 'id' => 'ASC'])]
+    private Collection $champs;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(type="boolean")
-     */
-    private $ouverte = false;
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $ouverte = false;
 
     public function __construct()
     {
@@ -145,9 +118,7 @@ class Rubrique
      */
     public function getRootChamps(): Collection
     {
-        return $this->champs->filter(function (Champ $champ): bool {
-            return null === $champ->getParent();
-        });
+        return $this->champs->filter(fn (Champ $champ): bool => null === $champ->getParent());
     }
 
     public function addChamp(Champ $champ): self
@@ -155,9 +126,7 @@ class Rubrique
         if (!$this->champs->contains($champ)) {
             $this->champs[] = $champ;
             $champ->setRubrique($this);
-            $champ->setIdx($this->champs->filter(function (Champ $champ): bool {
-                return null === $champ->getParent();
-            })->count() - 1);
+            $champ->setIdx($this->champs->filter(fn (Champ $champ): bool => null === $champ->getParent())->count() - 1);
         }
 
         return $this;

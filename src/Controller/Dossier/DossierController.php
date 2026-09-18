@@ -9,6 +9,7 @@ use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Dto\Descriptif\DescriptifFormData;
 use App\Entity\AvisDerogations;
 use App\Entity\Dossier;
+use App\Entity\DossierAffectation;
 use App\Entity\DossierNatureListe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
@@ -36,6 +37,7 @@ use App\Service\Dossier\DocumentConsulteTransferService;
 use App\Service\Dossier\DossierAffectationService;
 use App\Service\Dossier\DossierCreationService;
 use App\Service\Dossier\DossierSauvegardeService;
+use App\Service\Dossier\DossierSuppressionService;
 use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\EtablissementHistoriqueService;
@@ -44,190 +46,25 @@ use App\Service\PlatauConsultation;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var PlatauConsultation */
-    private $platauConsultationService;
-
-    /** @var DateCommission */
-    private $dateCommissionService;
-
-    /**
-     * @var DossierTypeRepository
-     */
-    private $dossierTypeRepository;
-
-    /**
-     * @var AvisDerogationsRepository
-     */
-    private $avisDerogationsRepository;
-
-    /**
-     * @var AvisRepository
-     */
-    private $avisRepository;
-
-    /**
-     * @var CommissionTypeRepository
-     */
-    private $commissionTypeRepository;
-
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
-
-    /**
-     * @var EtablissementRepository
-     */
-    private $etablissementRepository;
-
-    /**
-     * @var UtilisateurRepository
-     */
-    private $utilisateurRepository;
-
-    /**
-     * @var DossierFields
-     */
-    private $dossierFieldsService;
-
-    /** @var EtablissementHistoriqueService */
-    private $etablissementHistoriqueService;
-
-    /**
-     * @var DossierDocumentManquantService
-     */
-    private $documentManquantService;
-
-    /**
-     * @var PieceJointeExportService
-     */
-    private $pieceJointeExportService;
-
-    /**
-     * @var DossierAffectationService
-     */
-    private $dossierAffectationService;
-
-    /**
-     * @var DossierAffectationRepository
-     */
-    private $dossierAffectationRepository;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /** @var bool */
-    private $deactivatePlatau;
-
-    /** @var DossierService */
-    private $dossierService;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var DossierCreationService */
-    private $dossierCreationService;
-
-    /** @var DossierSauvegardeService */
-    private $dossierSauvegardeService;
-
-    /** @var DescriptifService */
-    private $descriptifService;
-
-    /** @var DescriptifFormHydrator */
-    private $descriptifFormHydrator;
-
-    /** @var DescriptifFormBuilder */
-    private $descriptifFormBuilder;
-
-    /** @var DescriptifFormPersister */
-    private $descriptifFormPersister;
-
-    /**
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        PlatauConsultation $platauConsultationService,
-        DateCommission $dateCommissionService,
-        DossierTypeRepository $dossierTypeRepository,
-        AvisRepository $avisRepository,
-        AvisDerogationsRepository $avisDerogationsRepository,
-        CommissionTypeRepository $commissionTypeRepository,
-        CommissionRepository $commissionRepository,
-        EtablissementRepository $etablissementRepository,
-        UtilisateurRepository $utilisateurRepository,
-        DossierFields $dossierFieldsService,
-        DossierDocumentManquantService $documentManquantService,
-        PieceJointeExportService $pieceJointeExportService,
-        DossierAffectationService $dossierAffectationService,
-        DossierAffectationRepository $dossierAffectationRepository,
-        LoggerInterface $logger,
-        DossierService $dossierService,
-        DossierRepository $dossierRepository,
-        DossierCreationService $dossierCreationService,
-        DossierSauvegardeService $dossierSauvegardeService,
-        DescriptifService $descriptifService,
-        DescriptifFormHydrator $descriptifFormHydrator,
-        DescriptifFormBuilder $descriptifFormBuilder,
-        DescriptifFormPersister $descriptifFormPersister,
-        FormFactoryInterface $formFactory,
-        EtablissementHistoriqueService $etablissementHistoriqueService,
-        bool $deactivatePlatau = false
-    ) {
-        $this->entityManager = $entityManager;
-        $this->platauConsultationService = $platauConsultationService;
-        $this->dateCommissionService = $dateCommissionService;
-        $this->dossierTypeRepository = $dossierTypeRepository;
-        $this->avisRepository = $avisRepository;
-        $this->avisDerogationsRepository = $avisDerogationsRepository;
-        $this->commissionTypeRepository = $commissionTypeRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->etablissementRepository = $etablissementRepository;
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->dossierFieldsService = $dossierFieldsService;
-        $this->documentManquantService = $documentManquantService;
-        $this->pieceJointeExportService = $pieceJointeExportService;
-        $this->dossierAffectationService = $dossierAffectationService;
-        $this->dossierAffectationRepository = $dossierAffectationRepository;
-        $this->logger = $logger;
-        $this->deactivatePlatau = $deactivatePlatau;
-        $this->dossierService = $dossierService;
-        $this->dossierRepository = $dossierRepository;
-        $this->dossierCreationService = $dossierCreationService;
-        $this->dossierSauvegardeService = $dossierSauvegardeService;
-        $this->descriptifService = $descriptifService;
-        $this->descriptifFormHydrator = $descriptifFormHydrator;
-        $this->descriptifFormBuilder = $descriptifFormBuilder;
-        $this->descriptifFormPersister = $descriptifFormPersister;
-        $this->formFactory = $formFactory;
-        $this->etablissementHistoriqueService = $etablissementHistoriqueService;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PlatauConsultation $platauConsultationService, private readonly DateCommission $dateCommissionService, private readonly DossierTypeRepository $dossierTypeRepository, private readonly AvisRepository $avisRepository, private readonly AvisDerogationsRepository $avisDerogationsRepository, private readonly CommissionTypeRepository $commissionTypeRepository, private readonly CommissionRepository $commissionRepository, private readonly EtablissementRepository $etablissementRepository, private readonly UtilisateurRepository $utilisateurRepository, private readonly DossierFields $dossierFieldsService, private readonly DossierDocumentManquantService $documentManquantService, private readonly PieceJointeExportService $pieceJointeExportService, private readonly DossierAffectationService $dossierAffectationService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly LoggerInterface $logger, private readonly DossierService $dossierService, private readonly DossierRepository $dossierRepository, private readonly DossierCreationService $dossierCreationService, private readonly DossierSauvegardeService $dossierSauvegardeService, private readonly DossierSuppressionService $dossierSuppressionService, private readonly TagAwareCacheInterface $searchCache, private readonly DescriptifService $descriptifService, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly FormFactoryInterface $formFactory, private readonly EtablissementHistoriqueService $etablissementHistoriqueService, private readonly DocumentConsulteTransferService $documentConsulteTransferService, private readonly bool $deactivatePlatau = false)
+    {
     }
 
     /**
      * Affichage des informations générales d'un dossier (lecture seule).
-     *
-     * @Route("/dossier/{id}", name="dossier_index", requirements={"id"="\d+"}, methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("view_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}', name: 'dossier_index', requirements: ['id' => '\d+'], methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function index(Dossier $dossier): Response
     {
         $afficherAvis = !$dossier->hasAbsenceDeQuorum()
@@ -257,11 +94,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Création d'un nouveau dossier.
      *
      * L'établissement est optionnel : /dossier/ajouter?etablissement=42
-     *
-     * @Route("/dossier/ajouter", name="dossier_new", methods={"GET", "POST"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("add_dossier")
      */
+    #[Route(path: '/dossier/ajouter', name: 'dossier_new', methods: ['GET', 'POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('add_dossier')]
     public function new(
         Request $request,
         bool $mailEnabled
@@ -283,6 +118,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
             $anciensAvis[$etablissement->getId()] = $dossierDonnantAvis
                 ? $dossierDonnantAvis->getAvisCommission()
                 : null;
+
+            // Pré-sélection de la commission de l'établissement (cf. legacy)
+            $informationsEtablissement = $etablissement->getLatestInformationsOrNull();
+            if (null !== $informationsEtablissement) {
+                $dossier->setCommission($informationsEtablissement->getCommission());
+            }
         }
 
         // Définir le créateur (utilisateur connecté)
@@ -305,6 +146,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
                     $idAffectationCommission = $form->get('idAffectationDossierCommission')->getData();
                     /** @var string|null $idAffectationVisite */
                     $idAffectationVisite = $form->get('idAffectationDossierVisite')->getData();
+
+                    // Attribution des numéros pour les documents manquants (évite NUM_DOCSMANQUANT null)
+                    $this->documentManquantService->assignerNumeros($dossier);
 
                     // Persist du dossier avant les opérations dépendantes de l'ID
                     $this->dossierSauvegardeService->nullifierChampsNonApplicables($dossier);
@@ -363,7 +207,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         $commissionsParType = [];
         foreach ($this->commissionTypeRepository->findAll() as $type) {
-            $commissionsParType[$type->getId()] = [
+            $commissionsParType[$type->getIdOrFail()] = [
                 'libelle' => $type->getLibelle(),
                 'commissions' => $this->commissionRepository->findBy(['type' => $type]),
             ];
@@ -380,7 +224,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/new.html.twig', [
             'dossier' => $dossier,
-            'form' => $form->createView(),
+            'form' => $form,
             'dossierTypes' => $dossierTypes,
             'avis' => $avis,
             'commissionsParType' => $commissionsParType,
@@ -397,15 +241,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
      */
     /**
      * Édition des informations générales d'un dossier.
-     *
-     * @Route("/dossier/{id}/modifier", name="dossier_edit", requirements={"id"="\d+"}, methods={"GET", "POST"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/modifier', name: 'dossier_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function edit(
         Request $request,
         Dossier $dossier,
-        DocumentConsulteTransferService $documentConsulteTransferService,
         bool $mailEnabled
     ): Response {
         // Vérification Plat'AU désactivé
@@ -445,12 +286,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
         );
 
         $form->get('idAffectationDossierCommission')->setData(
-            $affectationCommission && $affectationCommission->getDateCommission()
+            $affectationCommission instanceof DossierAffectation && $affectationCommission->getDateCommission() instanceof \App\Entity\DateCommission
                 ? (string) $affectationCommission->getDateCommission()->getId()
                 : null
         );
         $form->get('idAffectationDossierVisite')->setData(
-            $affectationVisite && $affectationVisite->getDateCommission()
+            $affectationVisite instanceof DossierAffectation && $affectationVisite->getDateCommission() instanceof \App\Entity\DateCommission
                 ? (string) $affectationVisite->getDateCommission()->getId()
                 : null
         );
@@ -466,8 +307,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $nouveauType = $dossier->getType();
                 $nouvelleNature = $dossier->getNature();
 
-                if ($nouveauType && ($ancienType !== $nouveauType || $ancienneNature !== $nouvelleNature)) {
-                    $documentConsulteTransferService->transfertOuSupprimeDocumentsConsultes(
+                if ($nouveauType instanceof \App\Entity\DossierType && ($ancienType !== $nouveauType || $ancienneNature !== $nouvelleNature)) {
+                    $this->documentConsulteTransferService->transfertOuSupprimeDocumentsConsultes(
                         $dossier,
                         $nouveauType,
                         $nouvelleNature
@@ -510,6 +351,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $repercuterAvis = (bool) $form->get('repercuterAvis')->getData();
                 $etablissementsIds = $this->dossierSauvegardeService->gererDossierDonnantAvis($dossier, $repercuterAvis, $ancienneNature);
 
+                // Attribution des numéros pour les nouveaux documents manquants (évite NUM_DOCSMANQUANT null)
+                $this->documentManquantService->assignerNumeros($dossier);
+
                 // Persist et flush toutes les modifications
                 $this->dossierSauvegardeService->nullifierChampsNonApplicables($dossier);
                 $this->entityManager->persist($dossier);
@@ -547,7 +391,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         // Récupération des commissions par type
         $commissionsParType = [];
         foreach ($this->commissionTypeRepository->findAll() as $type) {
-            $commissionsParType[$type->getId()] = [
+            $commissionsParType[$type->getIdOrFail()] = [
                 'libelle' => $type->getLibelle(),
                 'commissions' => $this->commissionRepository->findBy(['type' => $type]),
             ];
@@ -597,7 +441,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/edit.html.twig', [
             'dossier' => $dossier,
-            'form' => $form->createView(),
+            'form' => $form,
             'dossierTypes' => $dossierTypes,
             'avis' => $avis,
             'commissionsParType' => $commissionsParType,
@@ -614,11 +458,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/verrouiller", name="dossier_verrouiller", defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("verrouillage_dossier", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/verrouiller', name: 'dossier_verrouiller', defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('verrouillage_dossier', subject: 'dossier')]
     public function verrouiller(Request $request, Dossier $dossier): Response
     {
         $referer = $request->headers->get('referer');
@@ -637,11 +478,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         return $this->redirect($referer);
     }
 
-    /**
-     * @Route("/dossier/{id}/deverrouiller", name="dossier_deverrouiller", defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("verrouillage_dossier", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/deverrouiller', name: 'dossier_deverrouiller', defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('verrouillage_dossier', subject: 'dossier')]
     public function deverrouiller(Request $request, Dossier $dossier): Response
     {
         $referer = $request->headers->get('referer');
@@ -658,11 +496,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         return $this->redirect($referer);
     }
 
-    /**
-     * @Route("/dossier/{id}/descriptif", name="dossier_descriptif", methods={"GET"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/descriptif', name: 'dossier_descriptif', methods: ['GET'])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function descriptif(Dossier $dossier): Response
     {
         return $this->render('dossier/descriptif/descriptif.html.twig', [
@@ -670,11 +505,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/descriptif/modifier", name="dossier_descriptif_edit", methods={"GET", "POST"})
-     *
-     * @IsGranted("edit_doss", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/descriptif/modifier', name: 'dossier_descriptif_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
     public function editDescriptif(Request $request, Dossier $dossier): Response
     {
         $form = $this->createForm(DossierDescriptifType::class, $dossier);
@@ -700,15 +532,12 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/descriptif/edit_descriptif.html.twig', [
             'dossier' => $dossier,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/textes-applicables", name="dossier_textes_applicables", methods={"GET"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/textes-applicables', name: 'dossier_textes_applicables', methods: ['GET'])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function textesApplicables(Dossier $dossier): Response
     {
         $textesApplicablesData = [];
@@ -723,11 +552,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/textes-applicables/modifier", name="dossier_textes_applicables_edit", methods={"GET", "POST"})
-     *
-     * @IsGranted("edit_doss_ignore_verrou", subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/textes-applicables/modifier', name: 'dossier_textes_applicables_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function editTextesApplicables(Request $request, Dossier $dossier): Response
     {
         // Pré-charge les relations
@@ -739,6 +565,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            // Synchronise les textes applicables vers le premier établissement (pour visites et groupes de visites)
+            // avant le flush pour éviter les transactions multiples
+            $this->dossierCreationService->synchroniserTextesApplicablesVersEtablissement($dossier);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'Les textes applicables ont été mis à jour avec succès.');
@@ -748,17 +577,16 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         return $this->render('dossier/textes_applicables/edit_textes_applicables.html.twig', [
             'dossier' => $dossier,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
     /**
      * Affiche l'onglet Vérifications techniques du dossier.
-     *
-     * @Route("/dossier/{id}/verifications-techniques", name="dossier_verifications_techniques", methods={"GET"})
-     *
-     * @Security("is_granted('verifications_techniques') and is_granted('view_doss', dossier)")
      */
+    #[Route(path: '/dossier/{id}/verifications-techniques', name: 'dossier_verifications_techniques', methods: ['GET'])]
+    #[IsGranted('verifications_techniques')]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function verificationsTechniques(Dossier $dossier): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
@@ -772,11 +600,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
     /**
      * Affiche et traite le formulaire d'édition des vérifications techniques du dossier.
-     *
-     * @Route("/dossier/{id}/verifications-techniques/modifier", name="dossier_verifications_techniques_edit", methods={"GET", "POST"})
-     *
-     * @Security("is_granted('verifications_techniques') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
+    #[Route(path: '/dossier/{id}/verifications-techniques/modifier', name: 'dossier_verifications_techniques_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('verifications_techniques')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function editVerificationsTechniques(Dossier $dossier, Request $request): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES);
@@ -796,7 +623,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                     'dossier_id' => $dossier->getId(),
                     'exception' => $e->getMessage(),
                 ]);
-                $this->addFlash('error', 'Les vérifications techniques n\'ont pas été mises à jour. Veuillez réessayer.');
+                $this->addFlash('danger', 'Les vérifications techniques n\'ont pas été mises à jour. Veuillez réessayer.');
             }
 
             return $this->redirectToRoute('dossier_verifications_techniques', ['id' => $dossier->getId()]);
@@ -806,17 +633,16 @@ class DossierController extends AbstractController implements DossierLateralNavi
             'dossier' => $dossier,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
     /**
      * Affiche et gère les avis et dérogations d'un dossier.
-     *
-     * @Route("/dossier/{id}/avis-et-derogations", name="dossier_avis_et_derogations", requirements={"id"="\d+"}, methods={"GET", "POST"})
-     *
-     * @Security("is_granted('avis_derogations') and is_granted('view_doss', dossier)")
      */
+    #[Route(path: '/dossier/{id}/avis-et-derogations', name: 'dossier_avis_et_derogations', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('avis_derogations')]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function avisEtDerogations(Request $request, Dossier $dossier): Response
     {
         $listeAvis = $this->avisRepository->findAll();
@@ -899,11 +725,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
     /**
      * Édite un avis ou une dérogation.
-     *
-     * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier", name="dossier_avis_et_derogations_edit", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"GET", "POST"})
-     *
-     * @Security("is_granted('avis_derogations') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
+    #[Route(path: '/dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier', name: 'dossier_avis_et_derogations_edit', requirements: ['id' => '\d+', 'avisDerogationId' => '\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('avis_derogations')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function avisEtDerogationsEdit(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
         $avisDerogation = $this->avisDerogationsRepository->findOneBy(['id' => $avisDerogationId, 'dossier' => $dossier]);
@@ -986,11 +811,10 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
     /**
      * Supprime un avis ou une dérogation (appel AJAX POST).
-     *
-     * @Route("/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer", name="dossier_avis_et_derogations_delete", requirements={"id"="\d+", "avisDerogationId"="\d+"}, methods={"POST"})
-     *
-     * @Security("is_granted('avis_derogations') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
+    #[Route(path: '/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer', name: 'dossier_avis_et_derogations_delete', requirements: ['id' => '\d+', 'avisDerogationId' => '\d+'], methods: ['POST'])]
+    #[IsGranted('avis_derogations')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function avisEtDerogationsDelete(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
         /** @var string $csrfToken */
@@ -1007,5 +831,56 @@ class DossierController extends AbstractController implements DossierLateralNavi
         }
 
         return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Suppression logique d'un dossier.
+     *
+     * Port direct de DossierController::deleteAction() (legacy).
+     * Suppression logique (date de suppression + auteur), nettoyage des affectations commission,
+     * recalcul du dossier donnant avis pour les établissements concernés, invalidation du cache.
+     */
+    #[Route(path: '/dossier/{id}/supprimer', name: 'dossier_supprimer', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('delete_dossier')]
+    #[IsGranted('view_doss', subject: 'dossier')]
+    public function supprimer(Request $request, Dossier $dossier): Response
+    {
+        /** @var string $csrfToken */
+        $csrfToken = $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid('dossier_suppression_'.$dossier->getId(), $csrfToken)) {
+            throw $this->createAccessDeniedException('Token de sécurité invalide. Veuillez réessayer.');
+        }
+
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé et ne peut pas être supprimé.');
+        }
+
+        /** @var Utilisateur $user */
+        $user = $this->getUser();
+
+        try {
+            // @fixme: variable non utilisée mais conservée une fois les caches entité implémentés à nouveau
+            /** @var int[] $etablissementsIds */
+            $etablissementsIds = $this->entityManager->wrapInTransaction(
+                fn (): array => $this->dossierSuppressionService->supprimer($dossier, $user)
+            );
+
+            $this->addFlash('success', 'Le dossier a bien été supprimé.');
+
+            $this->searchCache->invalidateTags(['search']);
+
+            return $this->redirectToRoute('search_dossier', ['objet' => '']);
+        } catch (\Throwable $throwable) {
+            $this->logger->error('Erreur lors de la suppression du dossier', [
+                'dossier_id' => $dossier->getId(),
+                'exception' => $throwable->getMessage(),
+                'trace' => $throwable->getTraceAsString(),
+            ]);
+
+            $this->addFlash('danger', 'Le dossier n\'a pas été supprimé. Veuillez réessayer ou contacter le service informatique.');
+
+            return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
+        }
     }
 }

@@ -21,53 +21,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  */
 class EtablissementVoterFactory
 {
-    /** @var EtablissementErpVoter */
-    private $erpVoter;
-
-    /** @var EtablissementCelluleVoter */
-    private $celluleVoter;
-
-    /** @var EtablissementHabitationVoter */
-    private $habitationVoter;
-
-    /** @var EtablissementIghVoter */
-    private $ighVoter;
-
-    /** @var EtablissementBupVoter */
-    private $bupVoter;
-
-    /** @var EtablissementCampingVoter */
-    private $campingVoter;
-
-    /** @var EtablissementManifestationTemporaireVoter */
-    private $manifestationTemporaireVoter;
-
-    /** @var EtablissementIopVoter */
-    private $iopVoter;
-
-    /** @var EtablissementZoneVoter */
-    private $zoneVoter;
-
-    public function __construct(
-        EtablissementErpVoter $erpVoter,
-        EtablissementCelluleVoter $celluleVoter,
-        EtablissementHabitationVoter $habitationVoter,
-        EtablissementIghVoter $ighVoter,
-        EtablissementBupVoter $bupVoter,
-        EtablissementCampingVoter $campingVoter,
-        EtablissementManifestationTemporaireVoter $manifestationTemporaireVoter,
-        EtablissementIopVoter $iopVoter,
-        EtablissementZoneVoter $zoneVoter
-    ) {
-        $this->erpVoter = $erpVoter;
-        $this->celluleVoter = $celluleVoter;
-        $this->habitationVoter = $habitationVoter;
-        $this->ighVoter = $ighVoter;
-        $this->bupVoter = $bupVoter;
-        $this->campingVoter = $campingVoter;
-        $this->manifestationTemporaireVoter = $manifestationTemporaireVoter;
-        $this->iopVoter = $iopVoter;
-        $this->zoneVoter = $zoneVoter;
+    public function __construct(private readonly EtablissementErpVoter $erpVoter, private readonly EtablissementCelluleVoter $celluleVoter, private readonly EtablissementHabitationVoter $habitationVoter, private readonly EtablissementIghVoter $ighVoter, private readonly EtablissementBupVoter $bupVoter, private readonly EtablissementCampingVoter $campingVoter, private readonly EtablissementManifestationTemporaireVoter $manifestationTemporaireVoter, private readonly EtablissementIopVoter $iopVoter, private readonly EtablissementZoneVoter $zoneVoter)
+    {
     }
 
     /**
@@ -77,36 +32,17 @@ class EtablissementVoterFactory
      */
     public function getVoterForGenre(int $genreId): ?VoterInterface
     {
-        switch ($genreId) {
-            case GenreEtablissement::ERP:
-                return $this->erpVoter;
-
-            case GenreEtablissement::CELLULE:
-                return $this->celluleVoter;
-
-            case GenreEtablissement::HABITATION:
-                return $this->habitationVoter;
-
-            case GenreEtablissement::IGH:
-                return $this->ighVoter;
-
-            case GenreEtablissement::BUP:
-                return $this->bupVoter;
-
-            case GenreEtablissement::CAMPING:
-                return $this->campingVoter;
-
-            case GenreEtablissement::MANIFESTATION_TEMPORAIRE:
-                return $this->manifestationTemporaireVoter;
-
-            case GenreEtablissement::IOP:
-                return $this->iopVoter;
-
-            case GenreEtablissement::ZONE:
-                return $this->zoneVoter;
-
-            default:
-                return null;
-        }
+        return match ($genreId) {
+            GenreEtablissement::ERP => $this->erpVoter,
+            GenreEtablissement::CELLULE => $this->celluleVoter,
+            GenreEtablissement::HABITATION => $this->habitationVoter,
+            GenreEtablissement::IGH => $this->ighVoter,
+            GenreEtablissement::BUP => $this->bupVoter,
+            GenreEtablissement::CAMPING => $this->campingVoter,
+            GenreEtablissement::MANIFESTATION_TEMPORAIRE => $this->manifestationTemporaireVoter,
+            GenreEtablissement::IOP => $this->iopVoter,
+            GenreEtablissement::ZONE => $this->zoneVoter,
+            default => null,
+        };
     }
 }

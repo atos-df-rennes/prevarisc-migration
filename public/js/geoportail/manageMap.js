@@ -62,6 +62,8 @@ function addUserLayers(viewer, layers) {
 }
 
 function addWmsLayer(viewer, wmsLayer) {
+    const nom = symfonyValueFallbackToZendValue(wmsLayer.nom, wmsLayer.NOM_COUCHECARTO)
+
     const source = new ol.source.TileWMS({
         url: symfonyValueFallbackToZendValue(wmsLayer.url, wmsLayer.URL_COUCHECARTO),
         params: {
@@ -73,7 +75,7 @@ function addWmsLayer(viewer, wmsLayer) {
 
     const layer = new ol.layer.Tile({
         source: source,
-        visible: symfonyValueFallbackToZendValue(wmsLayer.transparent, wmsLayer.TRANSPARENT_COUCHECARTO) !== 1
+        visible: !symfonyValueFallbackToZendValue(wmsLayer.transparent, wmsLayer.TRANSPARENT_COUCHECARTO)
     })
 
     const ordre = symfonyValueFallbackToZendValue(wmsLayer.ordre, wmsLayer.ORDRE_COUCHECARTO)
@@ -81,16 +83,14 @@ function addWmsLayer(viewer, wmsLayer) {
         layer.setZIndex(ordre)
     }
 
-    viewer.getLibMap().addLayer(layer);
-
-    const nom = symfonyValueFallbackToZendValue(wmsLayer.nom, wmsLayer.NOM_COUCHECARTO)
-    // On renomme les couches utilisateurs
-    $('.GPlayerName').eq(-(viewer.getLibMap().getLayers().getLength())).text(nom)
-    .attr('title', nom)
+    // Le SDK lit getLayerInfo(layer).id pour nommer la couche dans le switcher
+    layer.set('id', nom)
+    viewer.getLibMap().addLayer(layer)
 }
 
 // @fixme: on a autant d'appels au getCapabilities que de couches => Il faut faire 1 appel / format
 function addWmtsLayer(viewer, wmtsLayer) {
+    const nom = symfonyValueFallbackToZendValue(wmtsLayer.nom, wmtsLayer.NOM_COUCHECARTO)
     const format = 'wmts'
     const baseFormat = 'wmts'
     // Projection EPSG:3857
@@ -131,6 +131,11 @@ function addWmtsLayer(viewer, wmtsLayer) {
             Permet d'avoir des informations complémentaires non renseignées par l'utilisateur pour l'ajout de la couche */
             const wmtsLayerCapability = wmtsCapabilities.find(wmtsCapability => wmtsCapability.internalName === symfonyValueFallbackToZendValue(wmtsLayer.layer, wmtsLayer.LAYERS_COUCHECARTO))
 
+            if (!wmtsLayerCapability) {
+                console.error('Couche WMTS introuvable dans les capabilities : ' + symfonyValueFallbackToZendValue(wmtsLayer.layer, wmtsLayer.LAYERS_COUCHECARTO))
+                return
+            }
+
             const source = new ol.source.WMTS({
                 url: symfonyValueFallbackToZendValue(wmtsLayer.url, wmtsLayer.URL_COUCHECARTO),
                 layer: symfonyValueFallbackToZendValue(wmtsLayer.layer, wmtsLayer.LAYERS_COUCHECARTO),
@@ -146,7 +151,7 @@ function addWmtsLayer(viewer, wmtsLayer) {
 
             const layer = new ol.layer.Tile({
                 source: source,
-                visible: symfonyValueFallbackToZendValue(wmtsLayer.transparent, wmtsLayer.TRANSPARENT_COUCHECARTO) !== 1
+                visible: !symfonyValueFallbackToZendValue(wmtsLayer.transparent, wmtsLayer.TRANSPARENT_COUCHECARTO)
             })
 
             const ordre = symfonyValueFallbackToZendValue(wmtsLayer.ordre, wmtsLayer.ORDRE_COUCHECARTO)
@@ -154,12 +159,8 @@ function addWmtsLayer(viewer, wmtsLayer) {
                 layer.setZIndex(ordre)
             }
 
-            viewer.getLibMap().addLayer(layer);
-
-            const nom = symfonyValueFallbackToZendValue(wmtsLayer.nom, wmtsLayer.NOM_COUCHECARTO)
-            // On renomme les couches utilisateurs
-            $('.GPlayerName').eq(-(viewer.getLibMap().getLayers().getLength())).text(nom)
-              .attr('title', nom)
+            layer.set('id', nom)
+            viewer.getLibMap().addLayer(layer)
         }
     })
 }
@@ -267,9 +268,10 @@ function getCapabilitiesLayers(parser, format, baseFormat, result) {
 }
 
 function putMarkerAt(viewer, center) {
-    // Retrait du marqueur si déjà présent
+    // Retrait du marqueur si déjà présent — on cible uniquement la couche marqueur
+    // (l'ancienne condition source.layer_===undefined supprimait aussi les couches WMS utilisateur)
     viewer.getLayers().forEach((layer) => {
-        if (layer.get('source').layer_ === undefined) {
+        if (layer.get('id') === 'Position du marqueur') {
             viewer.removeLayer(layer)
         }
     })
@@ -291,10 +293,8 @@ function putMarkerAt(viewer, center) {
         source: vectorSource,
         style: styleMarker
     });
+    vectorLayer.set('id', 'Position du marqueur')
     viewer.addLayer(vectorLayer);
-
-    // On renomme la couche
-    $('.GPlayerName').eq(-(viewer.getLayers().getLength())).text('Position du marqueur');
 }
 
 function updateCoordinates(center, sourceProj, destProj) {

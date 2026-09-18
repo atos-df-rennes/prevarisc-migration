@@ -9,45 +9,10 @@ use App\Entity\DateCommission;
  * Value Object représentant un événement de calendrier pour FullCalendar.
  * Immutable avec validation des données requises.
  */
-final class CalendarEventDto
+final readonly class CalendarEventDto
 {
-    /** @var int */
-    private $id;
-
-    /** @var string */
-    private $title;
-
-    /** @var string */
-    private $start;
-
-    /** @var string */
-    private $end;
-
-    /** @var string */
-    private $url;
-
-    /** @var string */
-    private $className;
-
-    /** @var bool */
-    private $allDay;
-
-    private function __construct(
-        int $id,
-        string $title,
-        string $start,
-        string $end,
-        string $url,
-        string $className,
-        bool $allDay
-    ) {
-        $this->id = $id;
-        $this->title = $title;
-        $this->start = $start;
-        $this->end = $end;
-        $this->url = $url;
-        $this->className = $className;
-        $this->allDay = $allDay;
+    private function __construct(private int $id, private string $title, private string $start, private string $end, private string $url, private string $className, private bool $allDay)
+    {
     }
 
     /**

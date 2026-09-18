@@ -1,60 +1,21 @@
 <?php
 
 use App\Kernel;
-use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
 
-require dirname(__DIR__).'/config/bootstrap.php';
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
-/*
- * The kernel will always be available globally, allowing you to
- * access it from your existing application and through it the
- * service container. This allows for introducing new features in
- * the existing application.
- */
-global $kernel;
-
-if ($_SERVER['APP_DEBUG']) {
-    umask(0000);
-
-    Debug::enable();
-}
-
-if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? false) {
-    Request::setTrustedProxies(explode(',', $trustedProxies), Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST);
-}
-
-if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false) {
-    Request::setTrustedHosts([$trustedHosts]);
-}
-
-$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
-$request = Request::createFromGlobals();
-$response = $kernel->handle($request);
-
-// Strangler Pattern : Fallback vers legacy si route Symfony pas trouvée
-// Note : On vérifie le header X-Symfony-Route-Found pour distinguer :
-// - Route pas trouvée dans Symfony (pas de header) → fallback legacy
-// - Route trouvée mais 404 métier (header présent) → retourner la 404 Symfony
-$isSymfonyRouteFound = $response->headers->has('X-Symfony-Route-Found');
-
-if (!$isSymfonyRouteFound && true === $response->isNotFound()) {
-    // Le firewall Symfony démarre la session PHP sur chaque requête non-login (via
-    // LegacySessionAuthenticator::supports()). Zend_Session::start() appelé par
-    // Bootstrap::_initAuth() lèverait une exception "session has already been started"
-    // si la session PHP est encore ouverte. On la ferme proprement ici : les données
-    // sont écrites en stockage et Zend peut rouvrir la session avec le même identifiant.
-    if (PHP_SESSION_ACTIVE === session_status()) {
-        session_write_close();
+return static function (array $context) {
+    if ($trustedProxies = $context['TRUSTED_PROXIES'] ?? false) {
+        Request::setTrustedProxies(
+            explode(',', $trustedProxies),
+            Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO
+        );
     }
 
-    $prevariscPath = $_SERVER['PREVARISC_PATH'] ?? $_ENV['PREVARISC_PATH'] ?? '/home/prv/current/prevarisc';
+    if ($trustedHosts = $context['TRUSTED_HOSTS'] ?? false) {
+        Request::setTrustedHosts([$trustedHosts]);
+    }
 
-    require realpath($prevariscPath.'/public/index.php');
-} else {
-    // Supprimer le header technique avant d'envoyer la réponse
-    $response->headers->remove('X-Symfony-Route-Found');
-    $response->send();
-}
-
-$kernel->terminate($request, $response);
+    return new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+};

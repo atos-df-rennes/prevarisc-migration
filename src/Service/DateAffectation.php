@@ -6,14 +6,10 @@ use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use Psr\Log\LoggerInterface;
 
-final class DateAffectation
+final readonly class DateAffectation
 {
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     /*

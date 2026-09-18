@@ -93,14 +93,19 @@
             <dl class="dl-horizontal">
                 <dt>Genre</dt>
                 <dd>
-                    <select name="ID_GENRE" id="ID_GENRE" class="form-control">
-                        {% for genre in genres %}
-                            <option value="{{ genre.id }}"
-                                {{ (not add and etablissement.latestInformations.genre.id == genre.id) ? 'selected' : '' }}>
-                                {{ genre.libelle }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                    <div class="{{ (sdis29_custom_enabled and add) ? 'input-group' : '' }}">
+                        <select name="ID_GENRE" id="ID_GENRE" class="form-control">
+                            {% for genre in genres %}
+                                <option value="{{ genre.id }}"
+                                    {{ (not add and etablissement.latestInformations.genre.id == genre.id) ? 'selected' : '' }}>
+                                    {{ genre.libelle }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if sdis29_custom_enabled and add %}
+                            {{ include('sdis29/_generer_identifiant.html.twig') }}
+                        {% endif %}
+                    </div>
                 </dd>
 
                 <dt class="champ_icpe champs">ICPE ?</dt>
@@ -236,21 +241,31 @@
                     Ajouter une rubrique
                 </a>
             </h4>
-            <table class="table table-condensed champs_icpe champs rubrique">
-                <thead>
-                    <tr>
-                        <th>Rubrique</th><th>Numéro</th><th>Nom</th><th>Valeur</th><th>Classement</th><th></th>
-                    </tr>
-                </thead>
-                <tbody id="rubriques_tbody">
-                    {{ include('etablissement/_partial_rubrique.html.twig', {prototype: true}) }}
-                    {% if not add %}
-                        {% for rubrique in etablissement.latestInformations.rubriquesIcpe %}
-                            {{ include('etablissement/_partial_rubrique.html.twig', {rubrique: rubrique}) }}
-                        {% endfor %}
-                    {% endif %}
-                </tbody>
-            </table>
+            <div class="table-scroll-x">
+                <table class="table table-condensed champs_icpe champs rubrique">
+                    <colgroup>
+                        <col style="width: 20%;">
+                        <col style="width: 16%;">
+                        <col style="width: 26%;">
+                        <col style="width: 16%;">
+                        <col style="width: 14%;">
+                        <col style="width: 8%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Rubrique</th><th>Numéro</th><th>Nom</th><th>Valeur</th><th>Classement</th><th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="rubriques_tbody">
+                        {{ include('etablissement/_partial_rubrique.html.twig', {prototype: true}) }}
+                        {% if not add %}
+                            {% for rubrique in etablissement.latestInformations.rubriquesIcpe %}
+                                {{ include('etablissement/_partial_rubrique.html.twig', {rubrique: rubrique}) }}
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
 
             {# Effectifs ERP/Cellule/IGH #}
             <h4 class="champ_effectifs champs h4_subtitle">Effectifs</h4>
@@ -331,7 +346,16 @@
             </table>
 
             {# Établissements liés #}
-            <h4 class="h4_subtitle etablissements_lies">Établissements liés</h4>
+            <h4 class="h4_subtitle etablissements_lies">
+                Établissements liés
+                {% if not add %}
+                    <a id="add_etablissement"
+                       href="{{ path('etablissement_ajouter', {pere: etablissement.id, libelle: etablissement.latestInformations.libelle|default('')}) }}"
+                       class="edit" style="font-size: 0.85em; float: right; font-weight: normal;">
+                        Créer un établissement enfant
+                    </a>
+                {% endif %}
+            </h4>
             <dl class="dl-horizontal etablissements_lies">
                 <dt class="etablissement_pere">Père</dt>
                 <dd class="etablissement_pere">
@@ -349,7 +373,8 @@
                         <tbody id="enfants_tbody">
                             {{ include('etablissement/_partial_etablissement_enfant.html.twig', {prototype: true}) }}
                             {% if not add %}
-                                {% for fils in etablissement.fils %}
+                                {# Aligné sur le legacy : on n'affiche que les établissements fils non supprimés #}
+                                {% for fils in etablissement.filsActifs %}
                                     {{ include('etablissement/_partial_etablissement_enfant.html.twig', {fils: fils}) }}
                                 {% endfor %}
                             {% endif %}

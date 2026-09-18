@@ -39,7 +39,9 @@ L'objet de l'e-mail est automatiquement complété par le **libellé de l'établ
 
 **Format de l'objet :** `<libellé établissement> (<commune>) - <description du changement>`
 
-Le déclenchement est **manuel** : l'utilisateur clique sur un bouton « Alerter » présent sur la fiche de l'établissement ou la fiche du dossier.
+Le déclenchement est **manuel** : lorsqu'un changement d'avis, statut ou classement survient sur un établissement, l'utilisateur reçoit un **lien « Alerter »** dans le message de succès de la sauvegarde. Ce lien permet d'ouvrir le formulaire d'alerte pour envoyer une notification aux utilisateurs habilités.
+
+**Note sur le lien « Alerter »** : Le lien « Alerter » n'est pas un bouton permanent sur la fiche dossier ou établissement. Il apparaît exclusivement dans le **message flash de succès** affiché après la sauvegarde de l'entité lorsqu'un changement significatif est détecté (changement d'avis, statut ou classement). Cet accès contextuel assure que l'utilisateur est informé de la possibilité d'alerter au moment où c'est pertinent.
 
 ### 3.2 Destinataires automatiques
 
@@ -139,7 +141,7 @@ Le bouton « Envoyer » est alors remplacé par « Fermer ».
 | **RG-ALT-010** | Les e-mails sont envoyés en **copie cachée** (BCC). Les destinataires ne voient pas les adresses des autres. |
 | **RG-ALT-011** | Le contenu de l'e-mail est envoyé au **format HTML**. |
 | **RG-ALT-012** | L'envoi d'e-mails est conditionné à l'**activation globale** du service de messagerie dans la configuration de l'application. Si le service est désactivé, aucun e-mail n'est envoyé. |
-| **RG-ALT-013** | La balise `{etablissementAvis}` est résolue selon la logique suivante, dans l'ordre de priorité : (a) Si un dossier avec avis différé existe → « Présence d'un dossier avec avis différé ». (b) Si l'avis est favorable → « Favorable à l'exploitation » (sauf pour les cellules : « Favorable » sans complément). (c) Si l'avis est défavorable → « Défavorable à l'exploitation » (sauf pour les cellules : « Défavorable » sans complément). (d) Si aucun avis n'est disponible → « Avis d'exploitation indisponible ». |
+| **RG-ALT-013** | La balise `{etablissementAvis}` est résolue selon la logique suivante, dans l'ordre de priorité : (a) Si un dossier avec avis différé existe → « Présence d'un dossier avec avis différé ». (b) Si un avis est disponible → utilise le libellé de l'avis tel que défini en base de données (ex. : « Favorable à l'exploitation », « Défavorable à l'exploitation », ou tout autre libellé configuré). Pour les cellules, la mention « à l'exploitation » est supprimée. (c) Si aucun avis n'est disponible → « Avis d'exploitation indisponible ». **Note** : Les libellés d'avis sont extensibles et gérés dynamiquement via la base de données (table `avis`). Tout nouvel avis ajouté en base sera automatiquement utilisé sans modification de code. |
 | **RG-ALT-014** | L'objet et le message sont **modifiables** par l'utilisateur avant envoi. Les valeurs pré-remplies servent de proposition par défaut. |
 | **RG-ALT-015** | La sauvegarde des modèles en administration met à jour **tous les modèles affichés** en une seule opération. |
 | **RG-ALT-016** | L'accès à la configuration des modèles d'alerte est réservé au **périmètre d'administration** de l'application. |
@@ -152,10 +154,11 @@ Le bouton « Envoyer » est alors remplacé par « Fermer ».
 |---|---|
 | **Établissement sans adresse** | La commune est vide dans l'objet de l'e-mail. Le périmètre géographique ne peut pas être évalué ; aucun destinataire n'est retourné. |
 | **Établissement avec parent** | Le libellé du parent est préfixé au libellé de l'établissement dans l'objet de l'e-mail (ex. : « Centre commercial X Boutique Y (Rennes) - … »). |
-| **Établissement de genre « cellule »** | La mention « à l'exploitation » est supprimée de l'avis. L'avis affiché est simplement « Favorable » ou « Défavorable ». |
+| **Établissement de genre « cellule »** | La mention « à l'exploitation » est supprimée de l'avis. |
 | **Avis différé** | Si un dossier avec avis différé existe sur l'établissement, l'avis affiché est « Présence d'un dossier avec avis différé », indépendamment de l'avis courant. |
+| **Libellés d'avis extensibles** | Les libellés d'avis (Favorable, Défavorable, etc.) sont gérés dynamiquement via la base de données. Tout nouvel avis ajouté (ex. : « Pas d'avis - à motiver... ») sera automatiquement utilisé dans la balise `{etablissementAvis}` sans modification de code. |
 | **Aucun avis disponible** | La balise avis est résolue en « Avis d'exploitation indisponible ». |
-| **Service de messagerie désactivé** | Aucun e-mail n'est envoyé. L'envoi échoue silencieusement (retour négatif). |
-| **Erreur technique lors de l'envoi** | L'envoi retourne un résultat négatif. Aucune notification d'erreur spécifique n'est affichée à l'utilisateur dans la fenêtre modale (la modale se ferme normalement). |
+| **Service de messagerie désactivé** | Aucun e-mail n'est envoyé. L'utilisateur reçoit un message d'erreur explicite dans une notification toast : « L'envoi d'email est désactivé dans la configuration ». La modale reste ouverte pour permettre une éventuelle correction. |
+| **Erreur technique lors de l'envoi** | L'envoi retourne un résultat négatif. Un message d'erreur est affiché dans une notification toast. La modale reste ouverte pour permettre la réédition du message et une nouvelle tentative. |
 | **Tous les destinataires retirés** | Le formulaire bascule en mode « aucun destinataire ». Le bouton « Envoyer » devient « Fermer ». L'utilisateur peut fermer et rouvrir la modale pour retrouver la liste initiale. |
 | **Balise non résolvable** | Si une donnée de l'établissement est absente ou non renseignée, la balise est remplacée par une chaîne vide. |

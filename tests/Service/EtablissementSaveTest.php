@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Constant\GenreEtablissement;
@@ -15,7 +17,7 @@ use App\Service\EtablissementPersistenceService;
 use App\Service\TexteApplicable;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -25,10 +27,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  *
  * Ces tests vérifient la logique de validation des genres (fils/père)
  * sans nécessiter de base de données.
- *
- * @covers \App\Service\Etablissement::save
  */
-class EtablissementSaveTest extends TestCase
+#[CoversMethod(EtablissementService::class, 'save')]
+final class EtablissementSaveTest extends TestCase
 {
     /**
      * Crée le service avec des mocks minimaux pour tester la logique de validation.
@@ -40,27 +41,22 @@ class EtablissementSaveTest extends TestCase
         ?Etablissement $filsEtablissement = null,
         ?Etablissement $pereEtablissement = null
     ): EtablissementService {
-        $connection = $this->createMock(Connection::class);
-        $connection->method('beginTransaction');
-        $connection->method('rollBack');
+        $connection = $this->createStub(Connection::class);
 
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->createStub(EntityManagerInterface::class);
         $em->method('getConnection')->willReturn($connection);
         // On simule la persistance en affectant l'ID=1 via réflexion
-        $em->method('persist')->willReturnCallback(static function ($entity): void {
+        $em->method('persist')->willReturnCallback(static function (object $entity): void {
             if ($entity instanceof Etablissement) {
                 $r = new \ReflectionClass($entity);
                 $p = $r->getProperty('id');
-                $p->setAccessible(true);
                 $p->setValue($entity, 1);
             }
         });
         $em->method('flush');
-        $em->method('getReference')->willReturnCallback(function (string $class, $id): MockObject {
-            return $this->createMock($class);
-        });
+        $em->method('getReference')->willReturnCallback(fn (string $class, $id): object => $this->createStub($class));
 
-        $etablissementRepo = $this->createMock(EtablissementRepository::class);
+        $etablissementRepo = $this->createStub(EtablissementRepository::class);
         $etablissementRepo->method('find')->willReturnCallback(
             function ($id) use ($filsEtablissement, $pereEtablissement): ?Etablissement {
                 if (null !== $filsEtablissement && 10 === (int) $id) {
@@ -74,25 +70,18 @@ class EtablissementSaveTest extends TestCase
                 return null;
             }
         );
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $dossierRepo = $this->createMock(DossierRepository::class);
-        $avisDerogationsRepo = $this->createMock(AvisDerogationsRepository::class);
-        $parameterBag = $this->createMock(ParameterBagInterface::class);
-        $texteApplicable = $this->createMock(TexteApplicable::class);
         $persistenceService = new EtablissementPersistenceService($etablissementRepo);
-        $informationsRepo = $this->createMock(EtablissementInformationsRepository::class);
 
         return new EtablissementService(
             $etablissementRepo,
-            $dossierRepo,
-            $avisDerogationsRepo,
-            $parameterBag,
+            $this->createStub(DossierRepository::class),
+            $this->createStub(AvisDerogationsRepository::class),
+            $this->createStub(ParameterBagInterface::class),
             $em,
-            $logger,
-            $texteApplicable,
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(TexteApplicable::class),
             $persistenceService,
-            $informationsRepo
+            $this->createStub(EtablissementInformationsRepository::class)
         );
     }
 
@@ -101,13 +90,13 @@ class EtablissementSaveTest extends TestCase
      */
     private function createEtablissementWithGenre(int $genreId): Etablissement
     {
-        $genre = $this->createMock(Genre::class);
+        $genre = $this->createStub(Genre::class);
         $genre->method('getId')->willReturn($genreId);
 
-        $informations = $this->createMock(EtablissementInformations::class);
+        $informations = $this->createStub(EtablissementInformations::class);
         $informations->method('getGenre')->willReturn($genre);
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
         $etablissement->method('getId')->willReturn(10);
 
@@ -123,7 +112,7 @@ class EtablissementSaveTest extends TestCase
         $service = $this->buildService($filsZone);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('ne peut contenir que des cellules');
+        $this->expectExceptionMessageIsOrContains('ne peut contenir que des cellules');
 
         $service->save(GenreEtablissement::ERP, [
             'ID_FILS_ETABLISSEMENT' => ['10'],
@@ -139,7 +128,7 @@ class EtablissementSaveTest extends TestCase
         $service = $this->buildService(null, $pere);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('ne peut pas avoir de père');
+        $this->expectExceptionMessageIsOrContains('ne peut pas avoir de père');
 
         $service->save(GenreEtablissement::SITE, [
             'ID_PERE' => '99',
@@ -155,7 +144,7 @@ class EtablissementSaveTest extends TestCase
         $service = $this->buildService(null, $pere);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('ERP ou un IGH');
+        $this->expectExceptionMessageIsOrContains('ERP ou un IGH');
 
         $service->save(GenreEtablissement::CELLULE, [
             'ID_PERE' => '99',
@@ -171,7 +160,7 @@ class EtablissementSaveTest extends TestCase
         $service = $this->buildService($fils);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("n'est pas compatible avec un site");
+        $this->expectExceptionMessageIsOrContains("n'est pas compatible avec un site");
 
         $service->save(GenreEtablissement::SITE, [
             'ID_FILS_ETABLISSEMENT' => ['10'],

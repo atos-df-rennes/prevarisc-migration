@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Commission;
 
 use App\Entity\Commission;
@@ -19,8 +21,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class CommissionRegleCompetenceServiceTest extends TestCase
 {
-    /** @var CommissionRegleCompetenceService */
-    private $service;
+    private CommissionRegleCompetenceService $service;
 
     protected function setUp(): void
     {
@@ -34,7 +35,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testErpMatchantParCommuneDirecteEstRetourne(): void
@@ -45,7 +46,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([42], $result);
+        $this->assertSame([42], $result);
     }
 
     public function testErpNonMatchantCommuneDifferente(): void
@@ -56,7 +57,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testErpNonMatchantTypeAbsentDeLaRegle(): void
@@ -67,7 +68,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testErpNonMatchantCategorieAbsenteDeLaRegle(): void
@@ -78,7 +79,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testErpNonMatchantLocalSommeilAbsentDeLaRegle(): void
@@ -90,7 +91,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testErpAvecCollectionTypesVideNaCorrespond(): void
@@ -102,7 +103,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testErpAvecLocalSommeilFalseMatcheRegleAvecValeur0(): void
@@ -113,7 +114,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([42], $result);
+        $this->assertSame([42], $result);
     }
 
     public function testIghMatchantParCommuneEtClasseEstRetourne(): void
@@ -124,7 +125,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([7], $result);
+        $this->assertSame([7], $result);
     }
 
     public function testIghNonMatchantClasseAbsenteDeLaRegle(): void
@@ -135,7 +136,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testIghNonMatchantCommuneDifferente(): void
@@ -146,7 +147,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testMatchViaGroupementEstRetourne(): void
@@ -166,7 +167,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([42], $result);
+        $this->assertSame([42], $result);
     }
 
     public function testNonMatchGroupementNePossedantPasLaCommune(): void
@@ -186,7 +187,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testNonMatchSansGroupementNiCommune(): void
@@ -202,7 +203,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testGenreNonSupporteNonRetourne(): void
@@ -222,7 +223,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([], $result);
+        $this->assertSame([], $result);
     }
 
     public function testEtablissementRetournuUneSeuleFoisAvecPlusieursReglesCompatibles(): void
@@ -238,8 +239,8 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([42], $result);
-        self::assertCount(1, $result);
+        $this->assertSame([42], $result);
+        $this->assertCount(1, $result);
     }
 
     public function testMultiplesEtablissementsMatchantsSontTousRetournes(): void
@@ -253,7 +254,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([10, 11], $result);
+        $this->assertSame([10, 11], $result);
     }
 
     public function testErpNonMatchantNestPasRetourne(): void
@@ -267,7 +268,7 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
 
         $result = $this->service->findMatchingEtablissementIds($commission, $ets);
 
-        self::assertSame([10], $result);
+        $this->assertSame([10], $result);
     }
 
     // -------------------------------------------------------------------------
@@ -358,7 +359,6 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
     {
         $commune = new Commune();
         $prop = new \ReflectionProperty(Commune::class, 'id');
-        $prop->setAccessible(true);
         $prop->setValue($commune, $numInsee);
 
         return $commune;
@@ -368,7 +368,6 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
     {
         $type = new EtablissementType();
         $prop = new \ReflectionProperty(EtablissementType::class, 'id');
-        $prop->setAccessible(true);
         $prop->setValue($type, $id);
 
         return $type;
@@ -378,7 +377,6 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
     {
         $categorie = new EtablissementCategorie();
         $prop = new \ReflectionProperty(EtablissementCategorie::class, 'id');
-        $prop->setAccessible(true);
         $prop->setValue($categorie, $id);
 
         return $categorie;
@@ -388,7 +386,6 @@ final class CommissionRegleCompetenceServiceTest extends TestCase
     {
         $classe = new IghClasse();
         $prop = new \ReflectionProperty(IghClasse::class, 'id');
-        $prop->setAccessible(true);
         $prop->setValue($classe, $id);
 
         return $classe;

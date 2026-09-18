@@ -9,32 +9,16 @@ use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Service\Voter\VoterUtils;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EtablissementHabitationVoter extends EtablissementVoter
 {
-    /**
-     * @var ResourcesRepository
-     */
-    private $resourcesRepository;
-
-    /**
-     * @var PrivilegesRepository
-     */
-    private $privilegesRepository;
-
-    /**
-     * @var VoterUtils
-     */
-    private $voterUtils;
-
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, VoterUtils $voterUtils)
+    public function __construct(private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository, private readonly VoterUtils $voterUtils)
     {
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
-        $this->voterUtils = $voterUtils;
     }
 
-    protected function supports($attribute, $subject): bool
+    #[\Override]
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (!parent::supports($attribute, $subject)) {
             return false;
@@ -43,7 +27,8 @@ class EtablissementHabitationVoter extends EtablissementVoter
         return parent::isSubjectGenreAllowed($subject, GenreEtablissement::HABITATION);
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    #[\Override]
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;

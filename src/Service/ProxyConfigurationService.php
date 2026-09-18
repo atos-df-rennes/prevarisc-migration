@@ -8,44 +8,23 @@ namespace App\Service;
  */
 class ProxyConfigurationService
 {
-    /** @var bool */
-    private $proxyEnabled;
-
     // @fixme: La variable a pour valeur "HTTP", ce qui n'est pas correct mais fonctionne avec le legacy car (int) "HTTP" = 0
     // Modifier l'env var processor pour utiliser int après modification de la configuration chez tous les SDIS
     // + constructeur et suppression du cast (int)
-    /** @var int */
-    private $proxyProtocol;
-
-    /** @var int */
-    private $proxyPort;
-
-    /** @var string */
-    private $proxyHost;
-
-    /** @var string */
-    private $proxyUsername;
-
-    /** @var string */
-    private $proxyPassword;
+    private readonly int $proxyProtocol;
 
     /**
      * @param string $proxyProtocol Constante cURL : 0 = CURLPROXY_HTTP, 5 = CURLPROXY_SOCKS5 -> Legacy = "HTTP", à corriger
      */
     public function __construct(
-        bool $proxyEnabled,
+        private readonly bool $proxyEnabled,
         string $proxyProtocol,
-        int $proxyPort,
-        string $proxyHost,
-        string $proxyUsername,
-        string $proxyPassword
+        private readonly int $proxyPort,
+        private readonly string $proxyHost,
+        private readonly string $proxyUsername,
+        private readonly string $proxyPassword
     ) {
-        $this->proxyEnabled = $proxyEnabled;
         $this->proxyProtocol = (int) $proxyProtocol;
-        $this->proxyPort = $proxyPort;
-        $this->proxyHost = $proxyHost;
-        $this->proxyUsername = $proxyUsername;
-        $this->proxyPassword = $proxyPassword;
     }
 
     public function isEnabled(): bool
@@ -55,10 +34,8 @@ class ProxyConfigurationService
 
     /**
      * Applique la configuration proxy sur un handle cURL si le proxy est activé.
-     *
-     * @param resource $ch Handle cURL
      */
-    public function applyCurlOptions($ch): void
+    public function applyCurlOptions(\CurlHandle $ch): void
     {
         if (!$this->proxyEnabled) {
             return;
@@ -68,7 +45,7 @@ class ProxyConfigurationService
         curl_setopt($ch, CURLOPT_PROXYPORT, $this->proxyPort);
         curl_setopt($ch, CURLOPT_PROXY, $this->proxyHost);
 
-        if ($this->proxyUsername) {
+        if ('' !== $this->proxyUsername && '0' !== $this->proxyUsername) {
             curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->proxyUsername.':'.$this->proxyPassword);
         }
     }
@@ -90,7 +67,7 @@ class ProxyConfigurationService
             CURLOPT_PROXY => $this->proxyHost,
         ];
 
-        if ($this->proxyUsername) {
+        if ('' !== $this->proxyUsername && '0' !== $this->proxyUsername) {
             $options[CURLOPT_PROXYUSERPWD] = $this->proxyUsername.':'.$this->proxyPassword;
         }
 

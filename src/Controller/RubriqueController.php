@@ -10,49 +10,26 @@ use App\Form\RubriqueType;
 use App\Repository\ChampValeurListeRepository;
 use App\Repository\RubriqueRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("gestion_formulaires")
- */
+#[IsGranted('gestion_formulaires')]
 class RubriqueController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /**
-     * @var RubriqueRepository
-     */
-    private $rubriqueRepository;
-
-    /**
-     * @var ChampValeurListeRepository
-     */
-    private $champValeurListeRepository;
-
-    public function __construct(EntityManagerInterface $entityManager, RubriqueRepository $rubriqueRepository, ChampValeurListeRepository $champValeurListeRepository)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly RubriqueRepository $rubriqueRepository, private readonly ChampValeurListeRepository $champValeurListeRepository)
     {
-        $this->entityManager = $entityManager;
-        $this->rubriqueRepository = $rubriqueRepository;
-        $this->champValeurListeRepository = $champValeurListeRepository;
     }
 
-    /**
-     * @Route("/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier", name="admin_formulaires_edit_rubrique", methods={"GET", "POST"})
-     *
-     * @ParamConverter("formulaire", options={"id" = "formulaire"})
-     * @ParamConverter("rubrique", options={"id" = "rubrique"})
-     */
+    #[Route(path: '/admin/formulaires/{formulaire}/rubriques/{rubrique}/modifier', name: 'admin_formulaires_edit_rubrique', methods: ['GET', 'POST'])]
     public function edit(
         Request $request,
-        CapsuleRubrique $formulaire,
-        Rubrique $rubrique
+        #[MapEntity(id: 'formulaire')] CapsuleRubrique $formulaire,
+        #[MapEntity(id: 'rubrique')] Rubrique $rubrique
     ): Response {
         $rubrique = $this->rubriqueRepository->findAllInformations($rubrique);
         $formRubrique = $this->createForm(RubriqueType::class, $rubrique);
@@ -89,15 +66,13 @@ class RubriqueController extends AbstractController
         return $this->render('formulaires/rubrique/modification.html.twig', [
             'formulaire' => $formulaire,
             'rubrique' => $rubrique,
-            'form_rubrique' => $formRubrique->createView(),
-            'form_champ' => $formChamp->createView(),
-            'champ_valeurs_liste' => $this->champValeurListeRepository->findAll(),
+            'form_rubrique' => $formRubrique,
+            'form_champ' => $formChamp,
+            'champ_valeurs_liste' => $this->champValeurListeRepository->findDistinctValeurs(),
         ]);
     }
 
-    /**
-     * @Route("/admin/formulaires/rubriques/{id}/supprimer", name="admin_formulaires_delete_rubrique", methods={"DELETE"})
-     */
+    #[Route(path: '/admin/formulaires/rubriques/{id}/supprimer', name: 'admin_formulaires_delete_rubrique', methods: ['DELETE'])]
     public function delete(Rubrique $rubrique): JsonResponse
     {
         $this->entityManager->remove($rubrique);
@@ -106,9 +81,7 @@ class RubriqueController extends AbstractController
         return $this->json([]);
     }
 
-    /**
-     * @Route("/admin/formulaires/rubriques/{id}/index/{idx}", name="admin_formulaires_index_rubrique")
-     */
+    #[Route(path: '/admin/formulaires/rubriques/{id}/index/{idx}', name: 'admin_formulaires_index_rubrique')]
     public function index(Rubrique $rubrique, int $idx): JsonResponse
     {
         $rubrique->setIdx($idx);

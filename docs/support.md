@@ -11,7 +11,7 @@ Si vous rencontrez des problèmes ou avez des questions concernant l'utilisation
 
 ### Forums et Communauté
 
-- **Issues GitHub** : Si vous avez un problème ou une question, vous pouvez ouvrir une [issue sur le dépôt GitHub](https://github.com/atos-df-rennes/prevarisc/issues). Assurez-vous de fournir des détails clairs sur le problème rencontré.
+- **Issues GitHub** : Si vous avez un problème ou une question, vous pouvez ouvrir une [issue sur le dépôt GitHub](https://github.com/atos-df-rennes/prevarisc-migration/issues). Assurez-vous de fournir des détails clairs sur le problème rencontré.
 - **Groupes de discussion** : Rejoignez notre groupe de discussion pour échanger avec d'autres utilisateurs et contributeurs.
 
 ## Contribuer
@@ -22,7 +22,7 @@ Si vous souhaitez contribuer au projet, voici quelques étapes à suivre :
 2. **Créez une branche** : Pour chaque fonctionnalité ou correction de bug, créez une nouvelle branche.
 3. **Soumettez une Pull Request** : Une fois vos modifications prêtes, soumettez une Pull Request pour que nous puissions les examiner.
 
-Pour plus de détails sur la contribution, consultez le fichier [CONTRIBUTING.md](../CONTRIBUTING.md).
+Pour plus de détails sur la contribution, consultez le fichier [CONTRIBUTING.md](https://github.com/atos-df-rennes/prevarisc-migration/blob/main/CONTRIBUTING.md).
 
 ## Signaler un problème
 
@@ -34,7 +34,7 @@ Si vous trouvez un bug ou un problème de sécurité, veuillez le signaler en ou
 
 ## Contact
 
-Pour toute question ou demande de support, n'hésitez pas à nous contacter via les [issues du dépôt GitHub](https://github.com/atos-df-rennes/prevarisc/issues) ou par email à [prevarisc.ext@atos.net](mailto:prevarisc.ext@atos.net).
+Pour toute question ou demande de support, n'hésitez pas à nous contacter via les [issues du dépôt GitHub](https://github.com/atos-df-rennes/prevarisc-migration/issues) ou par email à [prevarisc.ext@atos.net](mailto:prevarisc.ext@atos.net).
 
 ---
 

@@ -6,7 +6,7 @@
       - capsule   : CapsuleRubrique|null
 
     Le form contient des sub-forms nommés 'rubrique_X' (RubriqueFormData),
-    chacun contenant 'display' (CheckboxType) et 'champ_Y' (ChampValueType).
+    chacun contenant 'display' (CheckboxType), 'opened' (CheckboxType) et 'champ_Y' (ChampValueType).
 #}
 {% form_theme form 'form/descriptif_theme.html.twig' %}
 
@@ -40,10 +40,10 @@
                 <div class="panel-heading" role="tab">
                     <h4 class="panel-title">
                         <a role="button"
-                           class="panel-title__link{% if not rubrique_form.vars.attr['data-ouverte'] %} collapsed{% endif %}"
+                           class="panel-title__link{% if not rubrique_form.opened.vars.data %} collapsed{% endif %}"
                            data-toggle="collapse"
                            data-target="#rubrique-edit-body-{{ rubrique_id }}"
-                           aria-expanded="{{ rubrique_form.vars.attr['data-ouverte'] ? 'true' : 'false' }}"
+                           aria-expanded="{{ rubrique_form.opened.vars.data ? 'true' : 'false' }}"
                            aria-controls="rubrique-edit-body-{{ rubrique_id }}">
                             {{ rubrique_form.vars.label }}
                             <span class="pull-right caret-toggle glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
@@ -51,10 +51,12 @@
                     </h4>
                 </div>
 
-                <div id="rubrique-edit-body-{{ rubrique_id }}" class="panel-collapse collapse{% if rubrique_form.vars.attr['data-ouverte'] %} in{% endif %}">
+                <div id="rubrique-edit-body-{{ rubrique_id }}" class="panel-collapse collapse{% if rubrique_form.opened.vars.data %} in{% endif %}">
                     <div class="panel-body">
                         {# Rendu caché — valeur soumise avec le formulaire ; le TOC modal (mirror checkbox) le synchronise via JS #}
                         {{ form_row(rubrique_form.display, {row_attr: {style: 'display:none'}, attr: {'data-display-checkbox': rubrique_id}}) }}
+                        {# Rendu caché — renseigné au submit depuis l'état réel du collapse Bootstrap (cf. formulaire/descriptif/edit.js) #}
+                        {{ form_row(rubrique_form.opened, {row_attr: {style: 'display:none'}, attr: {'data-opened-checkbox': rubrique_id}}) }}
 
                         {% for champ_key, champ_form in rubrique_form %}
                             {% if champ_key starts with 'champ_' %}

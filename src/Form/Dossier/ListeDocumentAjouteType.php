@@ -14,10 +14,13 @@ class ListeDocumentAjouteType extends AbstractType
     {
         $builder
             ->add('libelle')
-            ->add('reference')
+            ->add('reference', null, [
+                'required' => false,
+            ])
             ->add('date', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date',
+                'required' => false,
             ])
         ;
     }

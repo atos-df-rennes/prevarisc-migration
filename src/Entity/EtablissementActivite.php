@@ -3,41 +3,24 @@
 namespace App\Entity;
 
 use App\Repository\EtablissementActiviteRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EtablissementActiviteRepository::class)
- *
- * @ORM\Table(name="typeactivite")
- */
+#[ORM\Entity(repositoryClass: EtablissementActiviteRepository::class)]
+#[ORM\Table(name: 'typeactivite')]
 class EtablissementActivite
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_TYPEACTIVITE", type="integer", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_TYPEACTIVITE', type: Types::INTEGER, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="LIBELLE_ACTIVITE", type="string", length=255, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_ACTIVITE', type: Types::STRING, length: 255, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var ?EtablissementType
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementType::class, inversedBy="activites")
-     *
-     * @ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", nullable=false, options={"unsigned":true})
-     */
-    private $type;
+    #[ORM\ManyToOne(targetEntity: EtablissementType::class, inversedBy: 'activites')]
+    #[ORM\JoinColumn(name: 'ID_TYPE', referencedColumnName: 'ID_TYPE', nullable: false, options: ['unsigned' => true])]
+    private ?EtablissementType $type = null;
 
     public function getId(): ?int
     {

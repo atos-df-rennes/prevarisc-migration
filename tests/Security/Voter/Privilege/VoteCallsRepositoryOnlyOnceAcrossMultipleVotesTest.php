@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Privilege;
 
 use App\Entity\Groupe;
@@ -11,11 +13,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class VoteCallsRepositoryOnlyOnceAcrossMultipleVotesTest extends TestCase
+final class VoteCallsRepositoryOnlyOnceAcrossMultipleVotesTest extends TestCase
 {
     public function testFindAllIsCalledOnlyOnceOnMultipleVotes(): void
     {
-        $privilege = $this->createMock(Privileges::class);
+        $privilege = $this->createStub(Privileges::class);
         $privilege->method('getName')->willReturn('mon_privilege');
 
         $privilegesRepository = $this->createMock(PrivilegesRepository::class);
@@ -25,13 +27,13 @@ class VoteCallsRepositoryOnlyOnceAcrossMultipleVotesTest extends TestCase
 
         $voter = new PrivilegeVoter($privilegesRepository);
 
-        $group = $this->createMock(Groupe::class);
+        $group = $this->createStub(Groupe::class);
         $group->method('getPrivileges')->willReturn(new ArrayCollection([$privilege]));
 
-        $user = $this->createMock(Utilisateur::class);
+        $user = $this->createStub(Utilisateur::class);
         $user->method('getGroupe')->willReturn($group);
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($user);
 
         $voter->vote($token, null, ['mon_privilege']);

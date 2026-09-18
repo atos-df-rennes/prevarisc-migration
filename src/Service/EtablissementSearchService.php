@@ -4,6 +4,8 @@ namespace App\Service;
 
 use App\Service\Search\SearchQueryHelper;
 use Doctrine\DBAL\Connection;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * Recherche et export des établissements.
@@ -13,16 +15,8 @@ class EtablissementSearchService
 {
     public const MAX_LIMIT_PAGES_ETABLISSEMENTS = 1000;
 
-    /** @var Connection */
-    private $connection;
-
-    /** @var SearchQueryHelper */
-    private $queryHelper;
-
-    public function __construct(Connection $connection, SearchQueryHelper $queryHelper)
+    public function __construct(private readonly Connection $connection, private readonly SearchQueryHelper $queryHelper, private readonly TagAwareCacheInterface $searchCache)
     {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
     }
 
     /**
@@ -62,11 +56,21 @@ class EtablissementSearchService
         int $count = 50,
         int $page = 1
     ): array {
-        $effectiveCount = $count > self::MAX_LIMIT_PAGES_ETABLISSEMENTS
-            ? self::MAX_LIMIT_PAGES_ETABLISSEMENTS
-            : $count;
+        $searchId = 'search_etablissements_'.md5(serialize(func_get_args()));
 
-        $sqlSelect = 'SELECT e.NUMEROID_ETABLISSEMENT, e.DUREEVISITE_ETABLISSEMENT, e.NBPREV_ETABLISSEMENT,
+        /** @var array{results: array<int|string, array<string, mixed>>, search_metadata: array{count: int, current_page: int}} $cached */
+        $cached = $this->searchCache->get($searchId, function (ItemInterface $item) use (
+            $label, $identifiant, $genres, $categories, $classes, $familles, $typesActivites,
+            $avisFavorable, $statuts, $localSommeil, $lon, $lat, $parent, $city, $street, $number,
+            $commissions, $groupementsTerritoriaux, $preventionniste, $count, $page
+        ): array {
+            $item->tag(['search']);
+
+            $effectiveCount = $count > self::MAX_LIMIT_PAGES_ETABLISSEMENTS
+                ? self::MAX_LIMIT_PAGES_ETABLISSEMENTS
+                : $count;
+
+            $sqlSelect = 'SELECT e.NUMEROID_ETABLISSEMENT, e.DUREEVISITE_ETABLISSEMENT, e.NBPREV_ETABLISSEMENT,
             ( SELECT COUNT(etablissementlie2.ID_FILS_ETABLISSEMENT)
                 FROM etablissement etab2
                 INNER JOIN etablissementlie etablissementlie2 ON etab2.ID_ETABLISSEMENT = etablissementlie2.ID_ETABLISSEMENT
@@ -97,8 +101,8 @@ class EtablissementSearchService
             etablissementadressecell.ID_RUE AS ID_RUE_CELL,
             adressecommunecell.LIBELLE_COMMUNE AS LIBELLE_COMMUNE_ADRESSE_CELLULE';
 
-        // FROM de base : tables nécessaires aux filtres ET à l'affichage
-        $sqlFromBase = ' FROM etablissement e
+            // FROM de base : tables nécessaires aux filtres ET à l'affichage
+            $sqlFromBase = ' FROM etablissement e
             INNER JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
                 AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
                     SELECT MAX(ei2.DATE_ETABLISSEMENTINFORMATIONS)
@@ -115,10 +119,10 @@ class EtablissementSearchService
             LEFT JOIN adressecommune ON etablissementadresse.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE
             LEFT JOIN adresserue ON adresserue.ID_RUE = etablissementadresse.ID_RUE';
 
-        // JOINs adressesite/adressecell : utilisés pour l'affichage ET pour les filtres géographiques.
-        // Ces JOINs contiennent des sous-requêtes corrélées : on les inclut conditionnellement
-        // dans la requête de COUNT (uniquement si un filtre géographique est actif).
-        $sqlFromAdresseSiteCell = '
+            // JOINs adressesite/adressecell : utilisés pour l'affichage ET pour les filtres géographiques.
+            // Ces JOINs contiennent des sous-requêtes corrélées : on les inclut conditionnellement
+            // dans la requête de COUNT (uniquement si un filtre géographique est actif).
+            $sqlFromAdresseSiteCell = '
             LEFT JOIN etablissementadresse AS etablissementadressesite
                 ON etablissementadressesite.ID_ETABLISSEMENT = (
                     SELECT ID_FILS_ETABLISSEMENT FROM etablissementlie WHERE ID_ETABLISSEMENT = e.ID_ETABLISSEMENT LIMIT 1
@@ -132,209 +136,212 @@ class EtablissementSearchService
             LEFT JOIN adressecommune AS adressecommunecell
                 ON etablissementadressecell.NUMINSEE_COMMUNE = adressecommunecell.NUMINSEE_COMMUNE';
 
-        // Requête de données : inclut toujours adressesite/adressecell pour l'affichage
-        $sqlFrom = $sqlFromBase.$sqlFromAdresseSiteCell;
+            // Requête de données : inclut toujours adressesite/adressecell pour l'affichage
+            $sqlFrom = $sqlFromBase.$sqlFromAdresseSiteCell;
 
-        $whereConditions = ['e.DATESUPPRESSION_ETABLISSEMENT IS NULL'];
-        $hasAdditionalConditions = false;
+            $whereConditions = ['e.DATESUPPRESSION_ETABLISSEMENT IS NULL'];
+            $hasAdditionalConditions = false;
 
-        // Critères : nom de l'établissement
-        if (null !== $label) {
-            $cleanLabel = trim($label);
-            if ('#' === substr($cleanLabel, 0, 1)) {
-                $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
-            } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
-                $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $cleanLabel, false);
-            } else {
-                $whereConditions[] = $this->queryHelper->buildCriteria('LIBELLE_ETABLISSEMENTINFORMATIONS', $cleanLabel, false);
+            // Critères : nom de l'établissement
+            if (null !== $label) {
+                $cleanLabel = trim($label);
+                if (str_starts_with($cleanLabel, '#')) {
+                    $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
+                } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
+                    $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $cleanLabel, false);
+                } else {
+                    $whereConditions[] = $this->queryHelper->buildCriteria('LIBELLE_ETABLISSEMENTINFORMATIONS', $cleanLabel, false);
+                }
+
+                $hasAdditionalConditions = true;
             }
 
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : identifiant
-        if (null !== $identifiant) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $identifiant);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : genre
-        if (null !== $genres) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('genre.ID_GENRE', $genres);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : catégorie
-        if (null !== $categories) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('ID_CATEGORIE', $categories);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : classe
-        if (null !== $classes) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('ID_CLASSE', $classes);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : famille
-        if (null !== $familles) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('ID_FAMILLE', $familles);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : type d'activité
-        if (null !== $typesActivites) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('typeactivite.ID_TYPEACTIVITE', $typesActivites);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : avis favorable
-        if (null !== $avisFavorable) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('avis.ID_AVIS', $avisFavorable ? 1 : 2);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : statuts
-        if (null !== $statuts) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('ID_STATUT', $statuts);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : local à sommeil
-        if (null !== $localSommeil) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS', $localSommeil);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : numéro de rue
-        if (null !== $number) {
-            $clauses = [];
-            $clauses[] = 'etablissementadresse.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
-            if (null === $genres || in_array('1', $genres)) {
-                $clauses[] = 'etablissementadressesite.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
+            // Critères : identifiant
+            if (null !== $identifiant) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $identifiant);
+                $hasAdditionalConditions = true;
             }
 
-            if (null === $genres || in_array('3', $genres)) {
-                $clauses[] = 'etablissementadressecell.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
+            // Critères : genre
+            if (null !== $genres) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('genre.ID_GENRE', $genres);
+                $hasAdditionalConditions = true;
             }
 
-            $whereConditions[] = '('.implode(' OR ', $clauses).')';
-            $hasAdditionalConditions = true;
-        }
-
-        // Critère : commune et rue
-        if (null !== $street) {
-            $clauses = [];
-            $clauses[] = 'etablissementadresse.ID_RUE='.$this->queryHelper->safeQuote($street);
-            if (null === $genres || in_array('1', $genres)) {
-                $clauses[] = 'etablissementadressesite.ID_RUE='.$this->queryHelper->safeQuote($street);
+            // Critères : catégorie
+            if (null !== $categories) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('ID_CATEGORIE', $categories);
+                $hasAdditionalConditions = true;
             }
 
-            if (null === $genres || in_array('3', $genres)) {
-                $clauses[] = 'etablissementadressecell.ID_RUE='.$this->queryHelper->safeQuote($street);
+            // Critères : classe
+            if (null !== $classes) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('ID_CLASSE', $classes);
+                $hasAdditionalConditions = true;
             }
 
-            $whereConditions[] = '('.implode(' OR ', $clauses).')';
-            $hasAdditionalConditions = true;
-        } elseif (null !== $city) {
-            $clauses = [];
-            $clauses[] = 'etablissementadresse.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
-            if (null === $genres || in_array('1', $genres)) {
-                $clauses[] = 'etablissementadressesite.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
+            // Critères : famille
+            if (null !== $familles) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('ID_FAMILLE', $familles);
+                $hasAdditionalConditions = true;
             }
 
-            if (null === $genres || in_array('3', $genres)) {
-                $clauses[] = 'etablissementadressecell.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
+            // Critères : type d'activité
+            if (null !== $typesActivites) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('typeactivite.ID_TYPEACTIVITE', $typesActivites);
+                $hasAdditionalConditions = true;
             }
 
-            $whereConditions[] = '('.implode(' OR ', $clauses).')';
-            $hasAdditionalConditions = true;
-        }
+            // Critères : avis favorable
+            if (null !== $avisFavorable) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('avis.ID_AVIS', $avisFavorable ? 1 : 2);
+                $hasAdditionalConditions = true;
+            }
 
-        // Critère : commission
-        if (null !== $commissions) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('ID_COMMISSION', $commissions);
-            $hasAdditionalConditions = true;
-        }
+            // Critères : statuts
+            if (null !== $statuts) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('ID_STATUT', $statuts);
+                $hasAdditionalConditions = true;
+            }
 
-        // Critère : groupement territorial (JOIN conditionnel)
-        $groupementJoin = '';
-        if (null !== $groupementsTerritoriaux) {
-            $groupementJoin = '
+            // Critères : local à sommeil
+            if (null !== $localSommeil) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS', $localSommeil);
+                $hasAdditionalConditions = true;
+            }
+
+            // Critères : numéro de rue
+            if (null !== $number) {
+                $clauses = [];
+                $clauses[] = 'etablissementadresse.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
+                if (null === $genres || in_array('1', $genres)) {
+                    $clauses[] = 'etablissementadressesite.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
+                }
+
+                if (null === $genres || in_array('3', $genres)) {
+                    $clauses[] = 'etablissementadressecell.NUMERO_ADRESSE='.$this->queryHelper->safeQuote($number);
+                }
+
+                $whereConditions[] = '('.implode(' OR ', $clauses).')';
+                $hasAdditionalConditions = true;
+            }
+
+            // Critère : commune et rue
+            if (null !== $street) {
+                $clauses = [];
+                $clauses[] = 'etablissementadresse.ID_RUE='.$this->queryHelper->safeQuote($street);
+                if (null === $genres || in_array('1', $genres)) {
+                    $clauses[] = 'etablissementadressesite.ID_RUE='.$this->queryHelper->safeQuote($street);
+                }
+
+                if (null === $genres || in_array('3', $genres)) {
+                    $clauses[] = 'etablissementadressecell.ID_RUE='.$this->queryHelper->safeQuote($street);
+                }
+
+                $whereConditions[] = '('.implode(' OR ', $clauses).')';
+                $hasAdditionalConditions = true;
+            } elseif (null !== $city) {
+                $clauses = [];
+                $clauses[] = 'etablissementadresse.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
+                if (null === $genres || in_array('1', $genres)) {
+                    $clauses[] = 'etablissementadressesite.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
+                }
+
+                if (null === $genres || in_array('3', $genres)) {
+                    $clauses[] = 'etablissementadressecell.NUMINSEE_COMMUNE='.$this->queryHelper->safeQuote($city);
+                }
+
+                $whereConditions[] = '('.implode(' OR ', $clauses).')';
+                $hasAdditionalConditions = true;
+            }
+
+            // Critère : commission
+            if (null !== $commissions) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('ID_COMMISSION', $commissions);
+                $hasAdditionalConditions = true;
+            }
+
+            // Critère : groupement territorial (JOIN conditionnel)
+            $groupementJoin = '';
+            if (null !== $groupementsTerritoriaux) {
+                $groupementJoin = '
                 LEFT JOIN groupementcommune ON groupementcommune.NUMINSEE_COMMUNE = adressecommune.NUMINSEE_COMMUNE
                 LEFT JOIN groupement ON groupement.ID_GROUPEMENT = groupementcommune.ID_GROUPEMENT AND groupement.ID_GROUPEMENTTYPE = 5';
-            $whereConditions[] = $this->queryHelper->buildCriteria('groupement.ID_GROUPEMENT', $groupementsTerritoriaux);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : géolocalisation
-        if (null !== $lon && null !== $lat) {
-            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementadresse.LON_ETABLISSEMENTADRESSE', $lon);
-            $whereConditions[] = $this->queryHelper->buildCriteria('etablissementadresse.LAT_ETABLISSEMENTADRESSE', $lat);
-            $hasAdditionalConditions = true;
-        }
-
-        // Critères : parent
-        if (null !== $parent) {
-            if (0 === $parent) {
-                $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT IS NULL';
-            } else {
-                $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT='.$this->queryHelper->safeQuote((string) $parent);
+                $whereConditions[] = $this->queryHelper->buildCriteria('groupement.ID_GROUPEMENT', $groupementsTerritoriaux);
+                $hasAdditionalConditions = true;
             }
 
-            $hasAdditionalConditions = true;
-        }
+            // Critères : géolocalisation
+            if (null !== $lon && null !== $lat) {
+                $whereConditions[] = $this->queryHelper->buildCriteria('etablissementadresse.LON_ETABLISSEMENTADRESSE', $lon);
+                $whereConditions[] = $this->queryHelper->buildCriteria('etablissementadresse.LAT_ETABLISSEMENTADRESSE', $lat);
+                $hasAdditionalConditions = true;
+            }
 
-        // Critère : preventionniste (JOIN conditionnel)
-        $preventionnisteJoin = '';
-        if (null !== $preventionniste) {
-            $preventionnisteJoin = '
+            // Critères : parent
+            if (null !== $parent) {
+                if (0 === $parent) {
+                    $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT IS NULL';
+                } else {
+                    $whereConditions[] = 'etablissementlie.ID_ETABLISSEMENT='.$this->queryHelper->safeQuote((string) $parent);
+                }
+
+                $hasAdditionalConditions = true;
+            }
+
+            // Critère : preventionniste (JOIN conditionnel)
+            $preventionnisteJoin = '';
+            if (null !== $preventionniste) {
+                $preventionnisteJoin = '
                 LEFT JOIN etablissementinformationspreventionniste
                     ON etablissementinformationspreventionniste.ID_ETABLISSEMENTINFORMATIONS = etablissementinformations.ID_ETABLISSEMENTINFORMATIONS';
-            $whereConditions[] = 'etablissementinformationspreventionniste.ID_UTILISATEUR='.$this->queryHelper->safeQuote((string) $preventionniste);
-            $hasAdditionalConditions = true;
-        }
+                $whereConditions[] = 'etablissementinformationspreventionniste.ID_UTILISATEUR='.$this->queryHelper->safeQuote((string) $preventionniste);
+                $hasAdditionalConditions = true;
+            }
 
-        $sqlFull = $sqlSelect
-            .$sqlFrom
-            .$groupementJoin
-            .$preventionnisteJoin
-            .' WHERE '.implode(' AND ', $whereConditions)
-            .' GROUP BY e.ID_ETABLISSEMENT';
+            $sqlFull = $sqlSelect
+                .$sqlFrom
+                .$groupementJoin
+                .$preventionnisteJoin
+                .' WHERE '.implode(' AND ', $whereConditions)
+                .' GROUP BY e.ID_ETABLISSEMENT';
 
-        // Performance optimisation : tri uniquement si critères supplémentaires
-        if ($hasAdditionalConditions) {
-            $sqlFull .= ' ORDER BY etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS ASC';
-        }
+            // Performance optimisation : tri uniquement si critères supplémentaires
+            if ($hasAdditionalConditions) {
+                $sqlFull .= ' ORDER BY etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS ASC';
+            }
 
-        // COUNT lean : sans les sous-requêtes corrélées d'affichage (NB_ENFANTS, PRESENCE_ECHEANCIER_TRAVAUX)
-        // ni les JOINs adressesite/adressecell sauf si un filtre géographique les requiert.
-        // Gain : évite d'exécuter ~N×2 sous-requêtes corrélées sur la totalité des lignes.
-        $needsAdresseFiltering = null !== $city || null !== $street || null !== $number;
-        $sqlFromCount = $sqlFromBase
-            .($needsAdresseFiltering ? $sqlFromAdresseSiteCell : '')
-            .$groupementJoin
-            .$preventionnisteJoin;
-        $countSql = 'SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)'
-            .$sqlFromCount
-            .' WHERE '.implode(' AND ', $whereConditions);
-        $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne();
-        $totalCount = is_numeric($totalCountRaw) ? (int) $totalCountRaw : 0;
+            // COUNT lean : sans les sous-requêtes corrélées d'affichage (NB_ENFANTS, PRESENCE_ECHEANCIER_TRAVAUX)
+            // ni les JOINs adressesite/adressecell sauf si un filtre géographique les requiert.
+            // Gain : évite d'exécuter ~N×2 sous-requêtes corrélées sur la totalité des lignes.
+            $needsAdresseFiltering = null !== $city || null !== $street || null !== $number;
+            $sqlFromCount = $sqlFromBase
+                .($needsAdresseFiltering ? $sqlFromAdresseSiteCell : '')
+                .$groupementJoin
+                .$preventionnisteJoin;
+            $countSql = 'SELECT COUNT(DISTINCT e.ID_ETABLISSEMENT)'
+                .$sqlFromCount
+                .' WHERE '.implode(' AND ', $whereConditions);
+            $totalCountRaw = $this->connection->executeQuery($countSql)->fetchOne();
+            $totalCount = is_numeric($totalCountRaw) ? (int) $totalCountRaw : 0;
 
-        // Requête paginée
-        $offset = ($page - 1) * $effectiveCount;
-        $paginatedSql = $sqlFull.' LIMIT '.$effectiveCount.' OFFSET '.$offset;
+            // Requête paginée
+            $offset = ($page - 1) * $effectiveCount;
+            $paginatedSql = $sqlFull.' LIMIT '.$effectiveCount.' OFFSET '.$offset;
 
-        /** @var array<int, array<string, mixed>> $rows */
-        $rows = $this->connection->executeQuery($paginatedSql)->fetchAllAssociative();
+            /** @var array<int, array<string, mixed>> $rows */
+            $rows = $this->connection->executeQuery($paginatedSql)->fetchAllAssociative();
 
-        return [
-            'results' => $rows,
-            'search_metadata' => [
-                'count' => $totalCount,
-                'current_page' => $page,
-            ],
-        ];
+            return [
+                'results' => $rows,
+                'search_metadata' => [
+                    'count' => $totalCount,
+                    'current_page' => $page,
+                ],
+            ];
+        });
+
+        return $cached;
     }
 
     /**
@@ -475,7 +482,7 @@ class EtablissementSearchService
         // Critères : nom de l'établissement
         if (null !== $label) {
             $cleanLabel = trim($label);
-            if ('#' === substr($cleanLabel, 0, 1)) {
+            if (str_starts_with($cleanLabel, '#')) {
                 $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
             } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
                 $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $cleanLabel, false);

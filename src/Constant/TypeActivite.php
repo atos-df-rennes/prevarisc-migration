@@ -14,7 +14,7 @@ final class TypeActivite
      *
      * Legacy : DossierController::ID_ACTIVITE_CENTRE_COMMERCIAL = 29.
      */
-    public const CENTRE_COMMERCIAL = 29;
+    public const int CENTRE_COMMERCIAL = 29;
 
     /**
      * Empêche l'instanciation de la classe.

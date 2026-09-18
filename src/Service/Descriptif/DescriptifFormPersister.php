@@ -17,6 +17,8 @@ use App\Repository\ChampRepository;
 use App\Repository\DossierDisplayRubriqueRepository;
 use App\Repository\EtablissementDisplayRubriqueRepository;
 use App\Repository\ValeurRepository;
+use App\Service\Descriptif;
+use App\ValueObject\RubriqueEtat;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -29,42 +31,19 @@ use Doctrine\ORM\EntityManagerInterface;
  * - Toutes les lignes (existantes et nouvelles) reçoivent leur idx recalculé à chaque save.
  * - Cela garantit la cohérence après un drag & drop (le JS renomme les indices CollectionType
  *   dans l'ordre affiché, le Persister normalise ensuite les idx en base).
+ *
+ * @phpstan-import-type RubriqueData from Descriptif
  */
 class DescriptifFormPersister
 {
-    /** @var ValeurRepository */
-    private $valeurRepository;
-
-    /** @var ChampRepository */
-    private $champRepository;
-
-    /** @var DossierDisplayRubriqueRepository */
-    private $dossierDisplayRubriqueRepository;
-
-    /** @var EtablissementDisplayRubriqueRepository */
-    private $etablissementDisplayRubriqueRepository;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    public function __construct(
-        ValeurRepository $valeurRepository,
-        ChampRepository $champRepository,
-        DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository,
-        EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository,
-        EntityManagerInterface $entityManager
-    ) {
-        $this->valeurRepository = $valeurRepository;
-        $this->champRepository = $champRepository;
-        $this->dossierDisplayRubriqueRepository = $dossierDisplayRubriqueRepository;
-        $this->etablissementDisplayRubriqueRepository = $etablissementDisplayRubriqueRepository;
-        $this->entityManager = $entityManager;
+    public function __construct(private readonly ValeurRepository $valeurRepository, private readonly ChampRepository $champRepository, private readonly DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private readonly EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository, private readonly EntityManagerInterface $entityManager)
+    {
     }
 
     /**
      * Persiste les valeurs d'un formulaire personnalisé pour un Dossier.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<mixed>}> $rubriques
+     * @param list<RubriqueData> $rubriques
      */
     public function persistForDossier(
         Dossier $dossier,
@@ -78,7 +57,7 @@ class DescriptifFormPersister
     /**
      * Persiste les valeurs d'un formulaire personnalisé pour un Établissement.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<mixed>}> $rubriques
+     * @param list<RubriqueData> $rubriques
      */
     public function persistForEtablissement(
         Etablissement $etablissement,
@@ -92,11 +71,10 @@ class DescriptifFormPersister
     /**
      * Logique commune de persistance.
      *
-     * @param Dossier|Etablissement                                               $entity
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<mixed>}> $rubriques
-     * @param array<int, Valeur[]>                                                $existingValeurs indexées par champId
+     * @param list<RubriqueData>   $rubriques
+     * @param array<int, Valeur[]> $existingValeurs indexées par champId
      */
-    private function doPersist($entity, DescriptifFormData $formData, array $rubriques, array $existingValeurs): void
+    private function doPersist(Dossier|Etablissement $entity, DescriptifFormData $formData, array $rubriques, array $existingValeurs): void
     {
         $lookup = $this->buildLookup($existingValeurs);
         /** @var int[] $touchedValeurIds IDs des Valeur tableau traitées (pour détection des suppressions) */
@@ -112,7 +90,7 @@ class DescriptifFormPersister
                 continue;
             }
 
-            $this->upsertDisplayPref($entity, $rubrique, $rubriqueData->isDisplay());
+            $this->upsertPreferences($entity, $rubrique, $rubriqueData->getEtat());
 
             foreach ($rubriqueData->getChamps() as $champValueData) {
                 $this->persistChampValue($entity, $champValueData, $lookup, $existingValeurs, $touchedValeurIds);
@@ -253,10 +231,7 @@ class DescriptifFormPersister
 
                 // Ligne existante : mise à jour valeur ET idx (pour drag & drop)
                 $existing = $lookup[$champId]['i'.$idx] ?? null;
-                if (null === $existing) {
-                    // Cherche par valeurId dans tous les idx (cas du drag & drop)
-                    $existing = $this->findValeurById($lookup[$champId] ?? [], $valeurId);
-                }
+                $existing ??= $this->findValeurById($lookup[$champId] ?? [], $valeurId);
 
                 if (null !== $existing) {
                     $champ = $existing->getChamp();
@@ -349,21 +324,19 @@ class DescriptifFormPersister
     }
 
     /**
-     * Crée ou met à jour la préférence d'affichage d'une rubrique.
+     * Crée ou met à jour les préférences (affichage + ouverture) d'une rubrique.
      * La Rubrique est passée directement depuis la boucle appelante (déjà chargée).
-     *
-     * @param Dossier|Etablissement $entity
      */
-    private function upsertDisplayPref($entity, Rubrique $rubrique, bool $display): void
+    private function upsertPreferences(Dossier|Etablissement $entity, Rubrique $rubrique, RubriqueEtat $etat): void
     {
         if ($entity instanceof Dossier) {
-            $this->upsertDossierDisplayPref($entity, $rubrique, $display);
+            $this->upsertDossierPreferences($entity, $rubrique, $etat);
         } elseif ($entity instanceof Etablissement) {
-            $this->upsertEtablissementDisplayPref($entity, $rubrique, $display);
+            $this->upsertEtablissementPreferences($entity, $rubrique, $etat);
         }
     }
 
-    private function upsertDossierDisplayPref(Dossier $dossier, Rubrique $rubrique, bool $display): void
+    private function upsertDossierPreferences(Dossier $dossier, Rubrique $rubrique, RubriqueEtat $etat): void
     {
         $existing = $this->dossierDisplayRubriqueRepository->findOneBy([
             'dossier' => $dossier,
@@ -371,7 +344,8 @@ class DescriptifFormPersister
         ]);
 
         if (null !== $existing) {
-            $existing->setUserDisplay($display);
+            $existing->setUserDisplay($etat->isDisplay());
+            $existing->setUserOpened($etat->isOpened());
 
             return;
         }
@@ -379,12 +353,13 @@ class DescriptifFormPersister
         $pref = new DossierDisplayRubrique();
         $pref->setDossier($dossier);
         $pref->setRubrique($rubrique);
-        $pref->setUserDisplay($display);
+        $pref->setUserDisplay($etat->isDisplay());
+        $pref->setUserOpened($etat->isOpened());
 
         $this->entityManager->persist($pref);
     }
 
-    private function upsertEtablissementDisplayPref(Etablissement $etablissement, Rubrique $rubrique, bool $display): void
+    private function upsertEtablissementPreferences(Etablissement $etablissement, Rubrique $rubrique, RubriqueEtat $etat): void
     {
         $existing = $this->etablissementDisplayRubriqueRepository->findOneBy([
             'etablissement' => $etablissement,
@@ -392,7 +367,8 @@ class DescriptifFormPersister
         ]);
 
         if (null !== $existing) {
-            $existing->setUserDisplay($display);
+            $existing->setUserDisplay($etat->isDisplay());
+            $existing->setUserOpened($etat->isOpened());
 
             return;
         }
@@ -400,7 +376,8 @@ class DescriptifFormPersister
         $pref = new EtablissementDisplayRubrique();
         $pref->setEtablissement($etablissement);
         $pref->setRubrique($rubrique);
-        $pref->setUserDisplay($display);
+        $pref->setUserDisplay($etat->isDisplay());
+        $pref->setUserOpened($etat->isOpened());
 
         $this->entityManager->persist($pref);
     }
@@ -410,12 +387,11 @@ class DescriptifFormPersister
      * Seuls les champIds appartenant aux rubriques soumises ($scopedChampIds) sont concernés,
      * pour ne pas affecter les valeurs des autres onglets du formulaire personnalisé.
      *
-     * @param Dossier|Etablissement $entity
-     * @param array<int, Valeur[]>  $existingValeurs
-     * @param int[]                 $touchedValeurIds
-     * @param int[]                 $scopedChampIds
+     * @param array<int, Valeur[]> $existingValeurs
+     * @param int[]                $touchedValeurIds
+     * @param int[]                $scopedChampIds
      */
-    private function deleteUntouchedTableauValeurs($entity, array $existingValeurs, array $touchedValeurIds, array $scopedChampIds): void
+    private function deleteUntouchedTableauValeurs(Dossier|Etablissement $entity, array $existingValeurs, array $touchedValeurIds, array $scopedChampIds): void
     {
         foreach ($existingValeurs as $champId => $valeurs) {
             if (!in_array($champId, $scopedChampIds, true)) {
@@ -442,7 +418,7 @@ class DescriptifFormPersister
      * Collecte tous les IDs de champs (parent + enfants directs) appartenant aux rubriques soumises.
      * Permet de restreindre la suppression des valeurs tableau aux champs de l'onglet courant.
      *
-     * @param list<array{rubrique: Rubrique, display: bool, champs: list<mixed>}> $rubriques
+     * @param list<RubriqueData> $rubriques
      *
      * @return int[]
      */

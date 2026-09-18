@@ -17,25 +17,10 @@ use Doctrine\ORM\EntityManagerInterface;
  *
  * @see prevarisc/application/services/Dossier.php::transfertOuSupprimeDocumentsConsultes()
  */
-final class DocumentConsulteTransferService
+final readonly class DocumentConsulteTransferService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var DossierDocumentConsulteRepository */
-    private $documentConsulteRepository;
-
-    /** @var ListeDocumentAjouteRepository */
-    private $documentAjouteRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierDocumentConsulteRepository $documentConsulteRepository,
-        ListeDocumentAjouteRepository $documentAjouteRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->documentConsulteRepository = $documentConsulteRepository;
-        $this->documentAjouteRepository = $documentAjouteRepository;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierDocumentConsulteRepository $documentConsulteRepository, private ListeDocumentAjouteRepository $documentAjouteRepository)
+    {
     }
 
     /**

@@ -6,38 +6,14 @@ use App\Entity\Dossier as DossierEntity;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\Utilisateur;
 use App\Repository\DossierRepository;
+use App\Utils\StringHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
-final class Dossier
+final readonly class Dossier
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var Security */
-    private $security;
-
-    /** @var PlatauTempsRestant */
-    private $servicePlatauTempsRestant;
-
-    /** @var TexteApplicable */
-    private $texteApplicableService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierRepository $dossierRepository,
-        Security $security,
-        PlatauTempsRestant $servicePlatauTempsRestant,
-        TexteApplicable $texteApplicableService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->dossierRepository = $dossierRepository;
-        $this->security = $security;
-        $this->servicePlatauTempsRestant = $servicePlatauTempsRestant;
-        $this->texteApplicableService = $texteApplicableService;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private Security $security, private PlatauTempsRestant $servicePlatauTempsRestant, private TexteApplicable $texteApplicableService)
+    {
     }
 
     /**
@@ -55,22 +31,55 @@ final class Dossier
      * Effectue la suppression logique de tous les dossiers non encore supprimés
      * associés à un établissement (RG-ETB-019).
      *
-     * Utilise une mise à jour SQL directe pour éviter de charger toutes les entités en mémoire.
+     * Utilise des requêtes SQL directes pour éviter de charger toutes les entités en mémoire.
+     *
+     * Iso-legacy (Service_Dossier::deleteByEtab + delete($id, $date, $uniqueEtab=true)) :
+     * - Seuls les dossiers liés EXCLUSIVEMENT à cet établissement sont supprimés.
+     *   Un dossier partagé avec d'autres établissements non supprimés est préservé.
+     * - Les affectations commission (dossieraffectation) sont supprimées pour chaque
+     *   dossier effectivement supprimé.
      */
     public function deleteByEtablissement(EtablissementEntity $etablissement, Utilisateur $user): void
     {
-        $date = (new \DateTime())->format('Y-m-d');
+        $date = new \DateTime()->format('Y-m-d');
         $conn = $this->entityManager->getConnection();
+        $etabId = $etablissement->getId();
+        $userId = $user->getId();
 
+        // Condition iso-legacy $uniqueEtab : le dossier n'est lié qu'à au plus
+        // 1 établissement non supprimé (l'établissement courant en cours de suppression).
+        $exclusif = '(
+            SELECT COUNT(*)
+            FROM etablissementdossier ed2
+            INNER JOIN etablissement e2 ON e2.ID_ETABLISSEMENT = ed2.ID_ETABLISSEMENT
+            WHERE ed2.ID_DOSSIER = d.ID_DOSSIER
+              AND e2.DATESUPPRESSION_ETABLISSEMENT IS NULL
+        ) <= 1';
+
+        // Suppression des affectations commission des dossiers exclusifs
+        $conn->executeStatement(
+            'DELETE da
+             FROM dossieraffectation da
+             INNER JOIN dossier d ON d.ID_DOSSIER = da.ID_DOSSIER_AFFECT
+             INNER JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
+             WHERE ed.ID_ETABLISSEMENT = :etabId
+               AND d.DATESUPPRESSION_DOSSIER IS NULL
+               AND '.$exclusif,
+            ['etabId' => $etabId]
+        );
+
+        // Suppression logique des dossiers exclusivement liés à cet établissement
         $conn->executeStatement(
             'UPDATE dossier d
              INNER JOIN etablissementdossier ed ON ed.ID_DOSSIER = d.ID_DOSSIER
              SET d.DATESUPPRESSION_DOSSIER = :date, d.DELETED_BY = :userId
-             WHERE ed.ID_ETABLISSEMENT = :etabId AND d.DATESUPPRESSION_DOSSIER IS NULL',
+             WHERE ed.ID_ETABLISSEMENT = :etabId
+               AND d.DATESUPPRESSION_DOSSIER IS NULL
+               AND '.$exclusif,
             [
                 'date' => $date,
-                'userId' => $user->getId(),
-                'etabId' => $etablissement->getId(),
+                'userId' => $userId,
+                'etabId' => $etabId,
             ]
         );
     }
@@ -135,7 +144,7 @@ final class Dossier
         foreach ($dossiers as $dossierEntity) {
             $donneeUtile = [];
             $donneeUtile['nbDossiersLies'] = count($dossierEntity->getDossiersLies());
-            $id = $dossierEntity->getId();
+            $id = $dossierEntity->getIdOrFail();
             $donneeUtile['alerteReceptionTravaux'] = $alertes[$id] ?? false;
             $donneeUtile['echeancierTravaux'] = $echeanciers[$id] ?? false;
 
@@ -154,9 +163,7 @@ final class Dossier
                 : null;
 
             if (null !== $donneeUtile['objet']) {
-                if (strlen($donneeUtile['objet']) > 70) {
-                    $donneeUtile['objet'] = substr($donneeUtile['objet'], 0, 70).'(...)';
-                }
+                $donneeUtile['objet'] = StringHelper::truncate($donneeUtile['objet'], 70);
 
                 if (!$dossierEntity->getDocumentsUrbanisme()->isEmpty()) {
                     $donneeUtile['objet'] .= ' - '.$dossierEntity->getNumerosUrbanisme();
@@ -197,8 +204,10 @@ final class Dossier
             }
 
             $donneeUtile['objet'] = $libelle;
-            if ($dossierEntity->getEtablissements()->first()) {
-                $donneeUtile['etablissement'] = $dossierEntity->getEtablissements()->first()->getLatestInformations()->getLibelle();
+            $etablissement = $dossierEntity->getEtablissements()->first();
+            if (false !== $etablissement) {
+                $informationsAtDate = $etablissement->getInformationsAtDate($this->getDateReferenceLibelleEtablissement($dossierEntity));
+                $donneeUtile['etablissement'] = null !== $informationsAtDate ? $informationsAtDate->getLibelle() : null;
             } else {
                 $donneeUtile['etablissement'] = null;
             }
@@ -239,6 +248,26 @@ final class Dossier
     }
 
     /**
+     * Détermine la date de référence utilisée pour résoudre le libellé établissement en vigueur.
+     *
+     * Iso-legacy (Search.php, jointure etablissementinformations) : quand DATECOMM_DOSSIER est
+     * renseignée, le legacy compare en réalité à DATEINSERT_DOSSIER (et non DATECOMM_DOSSIER) —
+     * quirk historique volontairement reproduit à l'identique.
+     */
+    private function getDateReferenceLibelleEtablissement(DossierEntity $dossier): \DateTimeInterface
+    {
+        if (null !== $dossier->getDateCommission()) {
+            return $dossier->getDateInsert() ?? new \DateTime();
+        }
+
+        if (null !== $dossier->getDateVisite()) {
+            return $dossier->getDateVisite();
+        }
+
+        return $dossier->getDateInsert() ?? new \DateTime();
+    }
+
+    /**
      * Récupère les textes applicables d'un dossier et les trie par type.
      *
      * @return array{}|array{int, array{'titre': ?string, 'textes': array{int, ?string}}}
@@ -265,9 +294,7 @@ final class Dossier
         $end = new \DateTime();
         $interval = $end->diff($start);
 
-        $doPlural = function (int $nb, string $str): string {
-            return $nb > 1 ? $str.'s' : $str;
-        };
+        $doPlural = (fn (int $nb, string $str): string => $nb > 1 ? $str.'s' : $str);
 
         $format = [];
         if (0 !== $interval->y) {

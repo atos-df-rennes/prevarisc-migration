@@ -3,34 +3,21 @@
 namespace App\Entity;
 
 use App\Repository\CommissionRegleEtudeVisiteRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CommissionRegleEtudeVisiteRepository::class)
- *
- * @ORM\Table(name="commissionregleetudevisite")
- */
+#[ORM\Entity(repositoryClass: CommissionRegleEtudeVisiteRepository::class)]
+#[ORM\Table(name: 'commissionregleetudevisite')]
 class CommissionRegleEtudeVisite
 {
-    /**
-     * @var ?CommissionRegle
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=CommissionRegle::class, inversedBy="etudeVisite")
-     *
-     * @ORM\JoinColumn(name="ID_REGLE", referencedColumnName="ID_REGLE", nullable=false, options={"unsigned":true})
-     */
-    private $regle;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: CommissionRegle::class, inversedBy: 'etudeVisite')]
+    #[ORM\JoinColumn(name: 'ID_REGLE', referencedColumnName: 'ID_REGLE', nullable: false, options: ['unsigned' => true])]
+    private ?CommissionRegle $regle = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="ETUDEVISITE", type="smallint", nullable=false)
-     */
-    private $etudeVisite;
+    #[ORM\Id]
+    #[ORM\Column(name: 'ETUDEVISITE', type: Types::SMALLINT, nullable: false)]
+    private int $etudeVisite;
 
     public function getRegle(): ?CommissionRegle
     {
@@ -44,7 +31,7 @@ class CommissionRegleEtudeVisite
         return $this;
     }
 
-    public function getEtudeVisite(): ?int
+    public function getEtudeVisite(): int
     {
         return $this->etudeVisite;
     }

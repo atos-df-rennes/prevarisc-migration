@@ -62,19 +62,23 @@ Une **rubrique** est une section au sein d'une capsule. Elle porte :
 - Un **nom** (texte libre, obligatoire).
 - Un indicateur **« Afficher par défaut »** : détermine si la rubrique est visible dès l'ouverture du descriptif ou masquée.
 - Un **rang d'affichage** (position ordinale au sein de la capsule).
-- Un état **ouverte / repliée** : dans le descriptif, chaque rubrique se présente sous forme de panneau pliable.
+- Un état **ouverte / repliée par défaut** : détermine si le panneau pliable de la rubrique est déplié ou replié dès l'ouverture du descriptif, tant qu'aucune préférence utilisateur n'a été enregistrée.
 
 L'administrateur peut :
 
 - Ajouter une rubrique dans une capsule.
-- Modifier le nom et l'option d'affichage par défaut.
+- Modifier le nom, l'option d'affichage par défaut et l'option d'ouverture par défaut.
 - Supprimer une rubrique (et tous ses champs associés).
 - Réordonner les rubriques par glisser-déposer.
 
 L'utilisateur final peut, lors de la consultation d'un descriptif :
 
-- Plier ou déplier chaque rubrique.
-- Masquer ou afficher les rubriques à l'aide d'une table des matières latérale avec recherche textuelle et case « Tous ».
+- Plier ou déplier chaque rubrique. Cet état est mémorisé lors de l'enregistrement du formulaire (cf. §5.1) et prévaut ensuite sur la valeur par défaut définie en administration.
+- Masquer ou afficher les rubriques à l'aide d'une table des matières (modale en édition, liste d'ancres en lecture).
+
+**Note (2026-07-03)** : Une specification antérieure décrivait une table des matières latérale riche avec recherche et case « Tous ». Validation du legacy a révélé que cette interface n'a jamais existé en production (masquée par CSS). Cette version simplifiée (modale/ancres) représente le comportement réel du système.
+
+**Note (2026-09-15)** : L'état d'ouverture/repliement d'une rubrique, jusqu'ici uniquement piloté par la valeur par défaut administrable, est désormais mémorisé par entité (établissement ou dossier) lors de l'enregistrement du descriptif, selon le même principe que la mémorisation de l'affichage (cf. RG-FOR-019 et RG-FOR-028).
 
 ### 3.3 Champs
 
@@ -267,11 +271,17 @@ Une **table des matières** latérale liste les rubriques, avec :
 
 L'état d'affichage (visible/masqué) de chaque rubrique est **mémorisé par établissement** : chaque utilisateur (ou établissement) peut avoir un paramétrage d'affichage différent du réglage par défaut.
 
+L'état d'ouverture (dépliée/repliée) de chaque rubrique est également **mémorisé par établissement**, selon le même principe : il est enregistré à chaque sauvegarde du descriptif et prévaut alors sur la valeur par défaut définie en administration (cf. RG-FOR-028). Ce comportement s'applique aussi bien en mode consultation qu'en mode édition.
+
+**Note (2026-07-03)** : Validation du legacy Zend a révélé que cette table des matières latérale n'était jamais affichée en production. Bien que le template soit présent dans le DOM, il est masqué par CSS (`.hidden-tablet { display: none; }`). L'interface réelle en édition utilise une modale minimaliste. Cette spécification décrit un comportement aspirationnel plutôt que celui réellement implémenté dans le legacy.
+
 ### 5.2 Descriptif de dossier
 
-La fiche d'un dossier comporte des onglets personnalisables similaires, alimentés par les capsules de la famille « Dossier ». Le fonctionnement est identique à celui du descriptif d'établissement, avec les mêmes modes consultation / édition et la même table des matières.
+La fiche d'un dossier comporte des onglets personnalisables similaires, alimentés par les capsules de la famille « Dossier ». Le fonctionnement est identique à celui du descriptif d'établissement, avec les mêmes modes consultation / édition et la même table des matières (modale en édition, liste d'ancres en lecture).
 
 Les capsules « dossier » incluent notamment les onglets de vérifications techniques et d'effectifs & dégagements du dossier.
+
+**Note (2026-07-03)** : Comme pour le descriptif d'établissement, la table des matières riche décrite en §5.1 n'était pas affichée en production dans le legacy.
 
 Le descriptif de dossier peut également être inclus dans la **génération de documents** (publipostage), où chaque champ est identifié par son **nom de fusion**.
 
@@ -308,6 +318,7 @@ Le descriptif de dossier peut également être inclus dans la **génération de 
 | **RG-FOR-025** | Un champ de type « Case à cocher » est toujours visible, y compris en mode lecture ; il est alors désactivé pour empêcher toute modification. |
 | **RG-FOR-026** | Le nom de fusion d'un champ enfant dans un parent non-tableau est composé du nom interne de la capsule, du nom de la rubrique, du nom du parent et du nom de l'enfant. |
 | **RG-FOR-027** | Les capsules de la famille « Établissement » sont identifiées par les noms internes « descriptifEtablissement » et « effectifsDegagementsEtablissement ». Toutes les autres capsules appartiennent à la famille « Dossier ». |
+| **RG-FOR-028** | L'état d'ouverture (dépliée / repliée) d'une rubrique dans un descriptif est mémorisé par entité (établissement ou dossier) lors de l'enregistrement du formulaire. Tant qu'aucun enregistrement n'a eu lieu, la valeur par défaut définie en administration (« Ouverte par défaut ») s'applique. |
 
 ---
 
@@ -329,7 +340,7 @@ Un champ de type « Parent » sans champ enfant est affiché avec un avertisseme
 
 - Supprimer une **rubrique** entraîne la suppression de tous ses champs, champs enfants et valeurs de liste associées.
 - Supprimer un **champ parent** entraîne la suppression de tous ses champs enfants.
-- Supprimer une **valeur de liste** est immédiate et ne nécessite pas de sauvegarde du champ.
+- Supprimer une **valeur de liste** : la suppression intervient lors de la sauvegarde du champ (soumission du formulaire). Cela permet à l'utilisateur de revenir en arrière en cas d'erreur et constitue une protection contre d'éventuelles suppressions involontaires.
 
 ### 7.5 Import destructif
 

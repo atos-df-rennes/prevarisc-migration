@@ -15,15 +15,11 @@ use App\Service\Changement;
  */
 class MessageService
 {
-    /** @var AvisService */
-    private $avisService;
-
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis
      */
-    public function __construct(AvisService $avisService)
+    public function __construct(private readonly AvisService $avisService)
     {
-        $this->avisService = $avisService;
     }
 
     /**

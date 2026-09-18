@@ -5,53 +5,32 @@ namespace App\Entity;
 use App\Repository\PrivilegesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrivilegesRepository::class)
- */
+#[ORM\Entity(repositoryClass: PrivilegesRepository::class)]
 class Privileges
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="id_privilege", type="bigint", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'id_privilege', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(type="string", length=45, nullable=true)
-     */
-    private $name;
+    #[ORM\Column(type: Types::STRING, length: 45, nullable: true)]
+    private ?string $name = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(type="string", length=45, nullable=true)
-     */
-    private $text;
+    #[ORM\Column(type: Types::STRING, length: 45, nullable: true)]
+    private ?string $text = null;
 
-    /**
-     * @var ?Resources
-     *
-     * @ORM\ManyToOne(targetEntity=Resources::class, inversedBy="privileges")
-     *
-     * @ORM\JoinColumn(name="id_resource", referencedColumnName="id_resource", nullable=false, options={"unsigned":true})
-     */
-    private $resource;
+    #[ORM\ManyToOne(targetEntity: Resources::class, inversedBy: 'privileges')]
+    #[ORM\JoinColumn(name: 'id_resource', referencedColumnName: 'id_resource', nullable: false, options: ['unsigned' => true])]
+    private ?Resources $resource = null;
 
     /**
      * @var Collection<int, Groupe>
-     *
-     * @ORM\ManyToMany(targetEntity=Groupe::class, mappedBy="privileges")
      */
-    private $groupes;
+    #[ORM\ManyToMany(targetEntity: Groupe::class, mappedBy: 'privileges')]
+    private Collection $groupes;
 
     public function __construct()
     {

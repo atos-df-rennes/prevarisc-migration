@@ -5,7 +5,6 @@ namespace App\Dto\Commission;
 use App\Entity\Commission;
 use App\Entity\CommissionTypeEvenement;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -14,59 +13,32 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  */
 final class CommissionDatesDto
 {
-    /**
-     * @var ?string
-     *
-     * @Assert\Length(max=255, maxMessage="Le libellé ne peut pas dépasser {{ limit }} caractères")
-     */
-    private $libelle;
+    #[Assert\Length(max: 255, maxMessage: 'Le libellé ne peut pas dépasser {{ limit }} caractères')]
+    private ?string $libelle = null;
+
+    #[Assert\NotNull(message: 'La commission est obligatoire')]
+    private ?Commission $commission = null;
+
+    #[Assert\NotNull(message: "Le type d'événement est obligatoire")]
+    private ?CommissionTypeEvenement $typeEvenement = null;
 
     /**
-     * @var ?Commission
-     *
-     * @Assert\NotNull(message="La commission est obligatoire")
+     * @var ArrayCollection<int, DateCommissionItemDto>
      */
-    private $commission;
+    #[Assert\Valid]
+    #[Assert\Count(min: 1, minMessage: 'Au moins une date est requise')]
+    private ArrayCollection $dates;
 
-    /**
-     * @var ?CommissionTypeEvenement
-     *
-     * @Assert\NotNull(message="Le type d'événement est obligatoire")
-     */
-    private $typeEvenement;
+    private bool $withPeriodicite = false;
 
-    /**
-     * @var Collection<int, DateCommissionItemDto>
-     *
-     * @Assert\Valid
-     *
-     * @Assert\Count(
-     *     min=1,
-     *     minMessage="Au moins une date est requise"
-     * )
-     */
-    private $dates;
+    private ?\DateTimeInterface $dateFin = null;
 
-    /**
-     * @var bool
-     */
-    private $withPeriodicite = false;
-
-    /**
-     * @var ?\DateTimeInterface
-     */
-    private $dateFin;
-
-    /**
-     * @var int
-     */
-    private $periodicite = 1;
+    private int $periodicite = 1;
 
     /**
      * Valide que dateFin est renseignée quand withPeriodicite est activée.
-     *
-     * @Assert\Callback
      */
+    #[Assert\Callback]
     public function validatePeriodicite(ExecutionContextInterface $context): void
     {
         if ($this->withPeriodicite && null === $this->dateFin) {
@@ -118,9 +90,9 @@ final class CommissionDatesDto
     }
 
     /**
-     * @return Collection<int, DateCommissionItemDto>
+     * @return ArrayCollection<int, DateCommissionItemDto>
      */
-    public function getDates(): Collection
+    public function getDates(): ArrayCollection
     {
         return $this->dates;
     }

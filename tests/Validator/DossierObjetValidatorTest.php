@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Validator;
 
 use App\Entity\Dossier;
@@ -7,13 +9,14 @@ use App\Entity\DossierNatureListe;
 use App\Entity\DossierType;
 use App\Validator\DossierObjet;
 use App\Validator\DossierObjetValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
  * Tests unitaires pour le validator DossierObjet.
  *
  * Ce validator vérifie que le champ OBJET est renseigné
- * sauf pour les natures 21 et 26 (visites périodiques).
+ * sauf pour les natures 21, 26 (visites périodiques) et 40, 41, 42, 44 (arrêtés).
  */
 final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
 {
@@ -38,9 +41,8 @@ final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
     /**
      * Test avec une nature requérant OBJET mais objet vide ou null.
      * Une violation doit être levée.
-     *
-     * @dataProvider provideObjetVideOuNull
      */
+    #[DataProvider('provideObjetVideOuNull')]
     public function testValidateAvecObjetRequisMaisVide(?string $objet): void
     {
         $dossier = $this->createDossier(1, $objet);
@@ -69,9 +71,8 @@ final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
     /**
      * Test avec des natures NE requérant PAS OBJET (21, 26).
      * Aucune violation ne doit être levée même si objet est vide.
-     *
-     * @dataProvider provideNaturesSansObjet
      */
+    #[DataProvider('provideNaturesSansObjet')]
     public function testValidateAvecNatureSansObjet(int $natureId): void
     {
         $dossier = $this->createDossier($natureId, '');
@@ -90,6 +91,10 @@ final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
     {
         yield 'nature 21 - Visite périodique' => [21];
         yield 'nature 26 - Groupe visite périodique' => [26];
+        yield 'nature 40 - Arrêté ouverture' => [40];
+        yield 'nature 41 - Arrêté' => [41];
+        yield 'nature 42 - Arrêté' => [42];
+        yield 'nature 44 - Arrêté' => [44];
     }
 
     /**
@@ -121,7 +126,7 @@ final class DossierObjetValidatorTest extends ConstraintValidatorTestCase
         $type = new DossierType();
         $type->setLibelle('Étude');
 
-        $nature = $this->createMock(DossierNatureListe::class);
+        $nature = $this->createStub(DossierNatureListe::class);
         $nature
             ->method('getId')
             ->willReturn($natureId)

@@ -8,45 +8,10 @@ use App\Entity\DateCommission;
  * DTO pour les dates de commission liées.
  * Contient uniquement les informations basiques nécessaires.
  */
-final class DateCommissionLieeDto
+final readonly class DateCommissionLieeDto
 {
-    /** @var int */
-    private $id;
-
-    /** @var string */
-    private $dateCommission;
-
-    /** @var string */
-    private $heureDebut;
-
-    /** @var string */
-    private $heureFin;
-
-    /** @var string|null */
-    private $libelle;
-
-    /** @var int */
-    private $idCommission;
-
-    /** @var int */
-    private $idTypeEvenement;
-
-    private function __construct(
-        int $id,
-        string $dateCommission,
-        string $heureDebut,
-        string $heureFin,
-        ?string $libelle,
-        int $idCommission,
-        int $idTypeEvenement
-    ) {
-        $this->id = $id;
-        $this->dateCommission = $dateCommission;
-        $this->heureDebut = $heureDebut;
-        $this->heureFin = $heureFin;
-        $this->libelle = $libelle;
-        $this->idCommission = $idCommission;
-        $this->idTypeEvenement = $idTypeEvenement;
+    private function __construct(private int $id, private string $dateCommission, private string $heureDebut, private string $heureFin, private ?string $libelle, private int $idCommission, private int $idTypeEvenement)
+    {
     }
 
     /**

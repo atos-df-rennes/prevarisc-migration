@@ -7,7 +7,10 @@ use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
+use App\Security\Voter\Etablissement\EtablissementVoter;
+use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class DossierVoter extends Voter
@@ -26,27 +29,15 @@ class DossierVoter extends Voter
     public const VERROUILLAGE = 'verrouillage_dossier';
 
     /**
-     * @var ResourcesRepository
-     */
-    private $resourcesRepository;
-
-    /**
-     * @var PrivilegesRepository
-     */
-    private $privilegesRepository;
-
-    /**
      * @var Resources[]
      */
-    private $resources;
+    private array $resources = [];
 
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
+    public function __construct(private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository, private readonly EtablissementCollectionAccessChecker $collectionAccessChecker)
     {
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
     }
 
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::MODIFICATION_IGNORE_VERROU, self::VERROUILLAGE], true)) {
             return false;
@@ -62,7 +53,7 @@ class DossierVoter extends Voter
         return $subject instanceof Dossier;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
 
@@ -114,6 +105,10 @@ class DossierVoter extends Voter
             $resourcesById[$natureId] = $resource;
         }
 
+        if (!$this->checkEtablissementsAccess($subject, $token)) {
+            return false;
+        }
+
         if (self::MODIFICATION === $attribute) {
             return $this->canEdit($subject, $userPrivileges, $resourcesById, $natureDossierId);
         }
@@ -123,6 +118,22 @@ class DossierVoter extends Voter
         }
 
         return $this->canView($attribute, $userPrivileges, $resourcesById, $natureDossierId);
+    }
+
+    /**
+     * Vérifie que l'utilisateur a le droit view_ets sur au moins un établissement lié au dossier.
+     * Aligne sur le comportement du Plugin_ACL legacy (lignes 278–302) : si le dossier n'a aucun
+     * établissement lié, la vérification est ignorée (cas $i === 0 du legacy).
+     */
+    private function checkEtablissementsAccess(Dossier $dossier, TokenInterface $token): bool
+    {
+        $etablissements = $dossier->getEtablissements();
+
+        if ($etablissements->isEmpty()) {
+            return true;
+        }
+
+        return $this->collectionAccessChecker->hasAtLeastOneAccessible($etablissements, EtablissementVoter::LECTURE, $token);
     }
 
     /**

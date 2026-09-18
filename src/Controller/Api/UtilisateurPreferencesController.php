@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * API pour les préférences utilisateur.
@@ -17,19 +17,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UtilisateurPreferencesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
     /**
      * Sauvegarde les préférences utilisateur (blocs dashboard).
-     *
-     * @Route("/api/utilisateur/preferences", name="api_utilisateur_preferences", methods={"POST"}, options={"expose"=true})
      */
+    #[Route(path: '/api/utilisateur/preferences', name: 'api_utilisateur_preferences', methods: ['POST'], options: ['expose' => true])]
     public function update(Request $request): JsonResponse
     {
         $user = $this->getUser();

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -49,8 +50,7 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
         }
 
         switch ($genre->getId()) {
-            // Adresse d'un site
-            case 1:
+            case GenreEtablissement::SITE:
                 $enfants = $this->getEnfantsAvecEffectifs($idEtablissement);
 
                 if (!empty($enfants)) {
@@ -61,9 +61,8 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
 
                 return [];
 
-                // Adresse d'une cellule
-            case 3:
-                $parent = $this->getParentRacine($etablissement);
+            case GenreEtablissement::CELLULE:
+                $parent = $etablissement->getParent();
 
                 if (null !== $parent) {
                     return $this->get($parent->getId());
@@ -120,29 +119,6 @@ class EtablissementAdresseRepository extends ServiceEntityRepository
         }
 
         return $enfantMax;
-    }
-
-    /**
-     * Récupère l'établissement racine parent d'un établissement donné.
-     *
-     * Parcourt la hiérarchie des parents d'un établissement pour trouver le parent racine.
-     * Retourne null si l'établissement fourni est déjà à la racine.
-     *
-     * @param Etablissement $etablissement L'établissement pour lequel chercher le parent racine
-     *
-     * @return Etablissement|null le parent racine si trouvé, ou null si l'établissement est déjà à la racine
-     */
-    private function getParentRacine(Etablissement $etablissement): ?Etablissement
-    {
-        $current = $etablissement;
-        $parent = $current->getParent();
-
-        while (null !== $parent) {
-            $current = $parent;
-            $parent = $current->getParent();
-        }
-
-        return $current !== $etablissement ? $current : null;
     }
 
     /**

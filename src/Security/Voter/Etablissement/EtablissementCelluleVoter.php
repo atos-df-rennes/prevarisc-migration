@@ -7,32 +7,23 @@ use App\Entity\Etablissement;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EtablissementCelluleVoter extends EtablissementVoter
 {
-    /**
-     * @var ResourcesRepository
-     */
-    private $resourcesRepository;
-
-    /**
-     * @var PrivilegesRepository
-     */
-    private $privilegesRepository;
-
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
+    public function __construct(private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository)
     {
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
     }
 
-    protected function supports($attribute, $subject): bool
+    #[\Override]
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return parent::supports($attribute, $subject)
             && parent::isSubjectGenreAllowed($subject, GenreEtablissement::CELLULE);
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    #[\Override]
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;

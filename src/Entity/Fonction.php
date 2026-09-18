@@ -5,37 +5,25 @@ namespace App\Entity;
 use App\Repository\FonctionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=FonctionRepository::class)
- */
+#[ORM\Entity(repositoryClass: FonctionRepository::class)]
 class Fonction
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_FONCTION", type="bigint", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_FONCTION', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_FONCTION", type="string", length=50, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_FONCTION', type: Types::STRING, length: 50, nullable: false)]
+    private ?string $libelle = null;
 
     /**
      * @var Collection<int, UtilisateurInformations>
-     *
-     * @ORM\OneToMany(targetEntity=UtilisateurInformations::class, mappedBy="fonction")
      */
-    private $utilisateurInformations;
+    #[ORM\OneToMany(targetEntity: UtilisateurInformations::class, mappedBy: 'fonction')]
+    private Collection $utilisateurInformations;
 
     public function __construct()
     {

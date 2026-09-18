@@ -3,80 +3,41 @@
 namespace App\Entity;
 
 use App\Repository\EtablissementAdresseRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EtablissementAdresseRepository::class)
- *
- * @ORM\Table(name="etablissementadresse")
- */
+#[ORM\Entity(repositoryClass: EtablissementAdresseRepository::class)]
+#[ORM\Table(name: 'etablissementadresse')]
 class EtablissementAdresse
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_ADRESSE", type="bigint", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_ADRESSE', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="NUMERO_ADRESSE", type="string", length=255, nullable=true)
-     */
-    private $numero;
+    #[ORM\Column(name: 'NUMERO_ADRESSE', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $numero = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="COMPLEMENT_ADRESSE", type="string", length=255, nullable=true)
-     */
-    private $complement;
+    #[ORM\Column(name: 'COMPLEMENT_ADRESSE', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $complement = null;
 
-    /**
-     * @var ?float
-     *
-     * @ORM\Column(name="LON_ETABLISSEMENTADRESSE", type="float", nullable=true)
-     */
-    private $longitude;
+    #[ORM\Column(name: 'LON_ETABLISSEMENTADRESSE', type: Types::FLOAT, nullable: true)]
+    private ?float $longitude = null;
 
-    /**
-     * @var ?float
-     *
-     * @ORM\Column(name="LAT_ETABLISSEMENTADRESSE", type="float", nullable=true)
-     */
-    private $latitude;
+    #[ORM\Column(name: 'LAT_ETABLISSEMENTADRESSE', type: Types::FLOAT, nullable: true)]
+    private ?float $latitude = null;
 
-    /**
-     * @var Commune
-     *
-     * @ORM\ManyToOne(targetEntity=Commune::class)
-     *
-     * @ORM\JoinColumn(name="NUMINSEE_COMMUNE", referencedColumnName="NUMINSEE_COMMUNE", nullable=false, options={"fixed":true})
-     */
-    private $commune;
+    #[ORM\ManyToOne(targetEntity: Commune::class)]
+    #[ORM\JoinColumn(name: 'NUMINSEE_COMMUNE', referencedColumnName: 'NUMINSEE_COMMUNE', nullable: false, options: ['fixed' => true])]
+    private ?Commune $commune = null;
 
-    /**
-     * @var ?Etablissement
-     *
-     * @ORM\ManyToOne(targetEntity=Etablissement::class, inversedBy="adresses")
-     *
-     * @ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", nullable=false, options={"unsigned":true})
-     */
-    private $etablissement;
+    #[ORM\ManyToOne(targetEntity: Etablissement::class, inversedBy: 'adresses')]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', nullable: false, options: ['unsigned' => true])]
+    private ?Etablissement $etablissement = null;
 
-    /**
-     * @var ?AdresseRue
-     *
-     * @ORM\ManyToOne(targetEntity=AdresseRue::class)
-     *
-     * @ORM\JoinColumn(name="ID_RUE", referencedColumnName="ID_RUE", nullable=true, options={"unsigned":true})
-     */
-    private $rue;
+    #[ORM\ManyToOne(targetEntity: AdresseRue::class)]
+    #[ORM\JoinColumn(name: 'ID_RUE', referencedColumnName: 'ID_RUE', nullable: true, options: ['unsigned' => true])]
+    private ?AdresseRue $rue = null;
 
     public function getId(): ?int
     {

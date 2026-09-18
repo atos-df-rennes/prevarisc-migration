@@ -3,43 +3,28 @@
 namespace App\Entity;
 
 use App\Repository\DossierDisplayRubriqueRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DossierDisplayRubriqueRepository::class)
- *
- * @ORM\Table(name="displayrubriquedossier")
- */
+#[ORM\Entity(repositoryClass: DossierDisplayRubriqueRepository::class)]
+#[ORM\Table(name: 'displayrubriquedossier')]
 class DossierDisplayRubrique
 {
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="displayRubriques")
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'displayRubriques')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false)]
+    private ?Dossier $dossier = null;
 
-    /**
-     * @var Rubrique
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=Rubrique::class)
-     *
-     * @ORM\JoinColumn(name="ID_RUBRIQUE", referencedColumnName="ID_RUBRIQUE", nullable=false)
-     */
-    private $rubrique;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Rubrique::class)]
+    #[ORM\JoinColumn(name: 'ID_RUBRIQUE', referencedColumnName: 'ID_RUBRIQUE', nullable: false)]
+    private ?Rubrique $rubrique = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="USER_DISPLAY", type="boolean", nullable=false)
-     */
-    private $userDisplay;
+    #[ORM\Column(name: 'USER_DISPLAY', type: Types::BOOLEAN, nullable: false)]
+    private ?bool $userDisplay = null;
+
+    #[ORM\Column(name: 'USER_OPENED', type: Types::BOOLEAN, nullable: true)]
+    private ?bool $userOpened = null;
 
     public function getDossier(): ?Dossier
     {
@@ -73,6 +58,18 @@ class DossierDisplayRubrique
     public function setUserDisplay(bool $userDisplay): self
     {
         $this->userDisplay = $userDisplay;
+
+        return $this;
+    }
+
+    public function getUserOpened(): ?bool
+    {
+        return $this->userOpened;
+    }
+
+    public function setUserOpened(?bool $userOpened): self
+    {
+        $this->userOpened = $userOpened;
 
         return $this;
     }

@@ -2,6 +2,8 @@
 
 namespace App\Service\Commission;
 
+use App\Entity\EtablissementAdresse;
+use App\Repository\EtablissementAdresseRepository;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -12,12 +14,8 @@ use Doctrine\DBAL\Connection;
  */
 class CommissionDataProvider
 {
-    /** @var Connection */
-    private $conn;
-
-    public function __construct(Connection $conn)
+    public function __construct(private readonly Connection $conn, private readonly EtablissementAdresseRepository $etablissementAdresseRepository)
     {
-        $this->conn = $conn;
     }
 
     /**
@@ -203,21 +201,29 @@ class CommissionDataProvider
             $informationsMap[(int) $infoEtabId] = $info;
         }
 
-        // Adresses
-        $adressesRows = $this->conn->fetchAllAssociative(
-            'SELECT ea.ID_ETABLISSEMENT, ea.NUMERO_ADRESSE, ar.LIBELLE_RUE, ac.LIBELLE_COMMUNE,
-                    ac.CODEPOSTAL_COMMUNE, ac.NUMINSEE_COMMUNE
-             FROM etablissementadresse ea
-             JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE
-             JOIN adressecommune ac ON ea.NUMINSEE_COMMUNE = ac.NUMINSEE_COMMUNE
-             WHERE ea.ID_ETABLISSEMENT IN ('.$placeholders.')',
-            $uniqueIds
-        );
+        // Adresses : résolution par genre d'établissement (site => enfant à l'effectif max,
+        // cellule => établissement parent direct, cf. EtablissementAdresseRepository::get()),
+        // comme le fait Service_Etablissement::get() dans le legacy.
         $adressesMap = [];
-        foreach ($adressesRows as $adr) {
-            /** @var int|string $adrEtabId */
-            $adrEtabId = $adr['ID_ETABLISSEMENT'] ?? 0;
-            $adressesMap[(int) $adrEtabId][] = $adr;
+        foreach ($uniqueIds as $etabId) {
+            /** @var array<int, EtablissementAdresse> $etablissementAdresses */
+            $etablissementAdresses = $this->etablissementAdresseRepository->get($etabId);
+            foreach ($etablissementAdresses as $adresse) {
+                $rue = $adresse->getRue();
+                if (null === $rue) {
+                    continue;
+                }
+
+                $commune = $adresse->getCommune();
+                $adressesMap[$etabId][] = [
+                    'ID_ETABLISSEMENT' => $etabId,
+                    'NUMERO_ADRESSE' => $adresse->getNumero(),
+                    'LIBELLE_RUE' => $rue->getLibelle(),
+                    'LIBELLE_COMMUNE' => null !== $commune ? $commune->getLibelle() : null,
+                    'CODEPOSTAL_COMMUNE' => null !== $commune ? $commune->getCodePostal() : null,
+                    'NUMINSEE_COMMUNE' => null !== $commune ? $commune->getId() : null,
+                ];
+            }
         }
 
         // Parents
@@ -302,6 +308,7 @@ class CommissionDataProvider
         }
 
         $placeholders = implode(',', array_fill(0, count($dossierIds), '?'));
+        $params = array_values($dossierIds);
         $rows = $this->conn->fetchAllAssociative(
             'SELECT ad.*, d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
                     a.LIBELLE_AVIS, dl.TYPE_DOSSIER, dl.OBJET_DOSSIER
@@ -310,7 +317,7 @@ class CommissionDataProvider
              JOIN avis a ON ad.AVIS = a.ID_AVIS
              LEFT JOIN dossier dl ON ad.ID_DOSSIER_LIE = dl.ID_DOSSIER
              WHERE d.ID_DOSSIER IN ('.$placeholders.')',
-            $dossierIds
+            $params
         );
 
         $grouped = [];
@@ -339,6 +346,8 @@ class CommissionDataProvider
 
         $placeholders = implode(',', array_fill(0, count($idsEtablissements), '?'));
 
+        $params = array_values($idsEtablissements);
+
         return $this->conn->fetchAllAssociative(
             'SELECT d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
                     ad.*, a.LIBELLE_AVIS, d2.TYPE_DOSSIER
@@ -350,7 +359,7 @@ class CommissionDataProvider
              LEFT JOIN dossier d2 ON d2.ID_DOSSIER = ad.ID_DOSSIER_LIE
              WHERE e.ID_ETABLISSEMENT IN ('.$placeholders.')
                AND ad.DISPLAY_HISTORIQUE = 1',
-            $idsEtablissements
+            $params
         );
     }
 
@@ -368,9 +377,10 @@ class CommissionDataProvider
         }
 
         $placeholders = implode(',', array_fill(0, count($dossierIds), '?'));
+        $params = array_values($dossierIds);
         $rows = $this->conn->fetchAllAssociative(
             'SELECT * FROM dossierdocurba WHERE ID_DOSSIER IN ('.$placeholders.')',
-            $dossierIds
+            $params
         );
 
         $grouped = [];
@@ -415,9 +425,10 @@ class CommissionDataProvider
         }
 
         $placeholders = implode(',', array_fill(0, count($membreIds), '?'));
+        $params = array_values($membreIds);
         $rows = $this->conn->fetchAllAssociative(
             'SELECT * FROM '.$table.' WHERE ID_COMMISSIONMEMBRE IN ('.$placeholders.')',
-            $membreIds
+            $params
         );
 
         $grouped = [];

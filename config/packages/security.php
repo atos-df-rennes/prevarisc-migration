@@ -6,11 +6,12 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->extension('security', [
-        'encoders' => [
+        'password_hashers' => [
             'App\Entity\Utilisateur' => [
                 'algorithm'    => 'auto',
                 'migrate_from' => ['legacy_md5_prevarisc'],
             ],
+            // @todo: à retirer (ainsi que le migrate_from) une fois les mots de passe réhashés
             'legacy_md5_prevarisc' => [
                 'id' => 'App\Security\Md5SaltedEncoder',
             ],
@@ -36,29 +37,21 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'security' => false,
             ],
             'main' => [
-                'anonymous' => 'lazy',
+                'lazy' => true,
                 'provider'  => 'app_user_provider',
-                'guard'     => [
-                    'authenticators' => [
-                        'App\Security\FormLoginAuthenticator',
-                        'App\Security\LegacySessionAuthenticator',
-                    ],
-                    'entry_point' => 'App\Security\FormLoginAuthenticator',
+                'custom_authenticators' => [
+                    'App\Security\FormLoginAuthenticator',
                 ],
-                // Logout géré par le firewall : invalide le token Symfony et la session PHP.
-                // Le nettoyage complémentaire (Zend_Auth, username, phpCAS) est délégué à LogoutHandler.
-                // CSRF non requis pour permettre la déconnexion via lien GET (pages legacy non encore migrées).
+                'entry_point' => 'App\Security\FormLoginAuthenticator',
                 'logout' => [
-                    'path'            => 'session_logout',
-                    'success_handler' => 'App\Security\CasLogoutSuccessHandler',
-                    'handlers'        => ['App\Security\LogoutHandler'],
+                    'path' => 'session_logout',
                 ],
             ],
         ],
         'access_control' => [
             [
                 'path'  => '^/session/login',
-                'roles' => 'IS_AUTHENTICATED_ANONYMOUSLY',
+                'roles' => 'PUBLIC_ACCESS',
             ],
             [
                 'path'  => '^/',

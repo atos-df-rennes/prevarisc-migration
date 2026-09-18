@@ -23,21 +23,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 final class CommissionMembreCourrierService extends AbstractOdtDocumentService
 {
-    /** @var string */
-    private $courriersMembresRealDataPath;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
     public function __construct(
-        string $courriersMembresRealDataPath,
-        EntityManagerInterface $entityManager,
+        private readonly string $courriersMembresRealDataPath,
+        private readonly EntityManagerInterface $entityManager,
         Filesystem $filesystem,
         LoggerInterface $logger
     ) {
         parent::__construct($filesystem, $logger);
-        $this->courriersMembresRealDataPath = $courriersMembresRealDataPath;
-        $this->entityManager = $entityManager;
     }
 
     protected function getStoragePath(): string
@@ -62,7 +54,7 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
             return false;
         }
 
-        return $this->storedFileExists($this->buildStoredFilename($membre, $type, $filename));
+        return $this->storedFileExists($this->buildStoredFilename($membre->getId(), $type, $filename));
     }
 
     /**
@@ -79,11 +71,11 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
         }
 
         $originalFilename = File::sanitize($file->getClientOriginalName());
-        $storedFilename = $this->buildStoredFilename($membre, $type, $originalFilename);
+        $storedFilename = $this->buildStoredFilename($membre->getId(), $type, $originalFilename);
 
         $existingFilename = $this->getCourrierFilename($membre, $type);
         if (null !== $existingFilename) {
-            $existingStoredFilename = $this->buildStoredFilename($membre, $type, $existingFilename);
+            $existingStoredFilename = $this->buildStoredFilename($membre->getId(), $type, $existingFilename);
             if ($existingStoredFilename !== $storedFilename) {
                 $this->removeFile($existingStoredFilename);
             }
@@ -93,6 +85,20 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
 
         $this->setCourrierFilename($membre, $type, $originalFilename);
         $this->entityManager->flush();
+    }
+
+    /**
+     * Supprime tous les fichiers ODT associés à un membre, sans toucher la base de données.
+     * À utiliser après la suppression de l'entité membre. Ceci nécessite l'utilisation séparée de l'id qui est nullifié après suppression.
+     */
+    public function deleteAllFiles(CommissionMembre $membre, int $membreId): void
+    {
+        foreach (CommissionMembreCourrierType::ALL as $type) {
+            $filename = $this->getCourrierFilename($membre, $type);
+            if (null !== $filename) {
+                $this->removeFile($this->buildStoredFilename($membreId, $type, $filename));
+            }
+        }
     }
 
     /**
@@ -113,7 +119,7 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
             return;
         }
 
-        $storedFilename = $this->buildStoredFilename($membre, $type, $existingFilename);
+        $storedFilename = $this->buildStoredFilename($membre->getId(), $type, $existingFilename);
         $this->removeFile($storedFilename);
 
         $this->setCourrierFilename($membre, $type, null);
@@ -124,9 +130,13 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
      * Construit le nom du fichier tel qu'il est stocké sur le disque.
      * Convention : {idMembre}{type}_{originalFilename}.
      */
-    private function buildStoredFilename(CommissionMembre $membre, string $type, string $originalFilename): string
+    private function buildStoredFilename(?int $membreId, string $type, string $originalFilename): string
     {
-        return $membre->getId().$type.'_'.$originalFilename;
+        if (null === $membreId) {
+            throw new \InvalidArgumentException("L'identifiant du membre n'a pas pu être récupéré. Impossible de déterminer le nom du fichier.");
+        }
+
+        return $membreId.$type.'_'.$originalFilename;
     }
 
     /**
@@ -134,18 +144,13 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
      */
     private function getCourrierFilename(CommissionMembre $membre, string $type): ?string
     {
-        switch ($type) {
-            case CommissionMembreCourrierType::CONVOCATIONVISITE:
-                return $membre->getCourrierConvocationVisite();
-            case CommissionMembreCourrierType::CONVOCATIONSALLE:
-                return $membre->getCourrierConvocationSalle();
-            case CommissionMembreCourrierType::ODJ:
-                return $membre->getCourrierOrdreDuJour();
-            case CommissionMembreCourrierType::PV:
-                return $membre->getCourrierProcesVerbal();
-            default:
-                return null;
-        }
+        return match ($type) {
+            CommissionMembreCourrierType::CONVOCATIONVISITE => $membre->getCourrierConvocationVisite(),
+            CommissionMembreCourrierType::CONVOCATIONSALLE => $membre->getCourrierConvocationSalle(),
+            CommissionMembreCourrierType::ODJ => $membre->getCourrierOrdreDuJour(),
+            CommissionMembreCourrierType::PV => $membre->getCourrierProcesVerbal(),
+            default => null,
+        };
     }
 
     /**

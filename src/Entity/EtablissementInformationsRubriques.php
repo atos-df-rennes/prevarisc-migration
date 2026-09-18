@@ -3,69 +3,36 @@
 namespace App\Entity;
 
 use App\Repository\EtablissementInformationsRubriqueRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EtablissementInformationsRubriqueRepository::class)
- *
- * @ORM\Table(name="etablissementinformationsrubrique")
- */
+#[ORM\Entity(repositoryClass: EtablissementInformationsRubriqueRepository::class)]
+#[ORM\Table(name: 'etablissementinformationsrubrique')]
 class EtablissementInformationsRubriques
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_ETABLISSEMENTINFORMATIONSRUBRIQUE", type="bigint")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE", type="integer")
-     */
-    private $numero;
+    #[ORM\Column(name: 'NUMERO_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::INTEGER)]
+    private ?int $numero = null;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE",type="float")
-     */
-    private $valeur;
+    #[ORM\Column(name: 'VALEUR_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::FLOAT)]
+    private ?float $valeur = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE",type="string", length=500)
-     */
-    private $nom;
+    #[ORM\Column(name: 'NOM_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::STRING, length: 500)]
+    private ?string $nom = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="ID_RUBRIQUE",type="smallint")
-     */
-    private $rubrique;
+    #[ORM\Column(name: 'ID_RUBRIQUE', type: Types::SMALLINT)]
+    private ?int $rubrique = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE",type="string", length=50)
-     */
-    private $classement;
+    #[ORM\Column(name: 'CLASSEMENT_ETABLISSEMENTINFORMATIONSRUBRIQUE', type: Types::STRING, length: 50)]
+    private ?string $classement = null;
 
-    /**
-     * @var ?EtablissementInformations
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementInformations::class, inversedBy="rubriquesIcpe")
-     *
-     * @ORM\JoinColumn(name="ID_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_ETABLISSEMENTINFORMATIONS", nullable=false, options={"unsigned":true})
-     */
-    private $etablissementInformations;
+    #[ORM\ManyToOne(targetEntity: EtablissementInformations::class, inversedBy: 'rubriquesIcpe')]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENTINFORMATIONS', referencedColumnName: 'ID_ETABLISSEMENTINFORMATIONS', nullable: false, options: ['unsigned' => true])]
+    private ?EtablissementInformations $etablissementInformations = null;
 
     public function getId(): ?int
     {

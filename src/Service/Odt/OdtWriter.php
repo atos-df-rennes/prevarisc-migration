@@ -8,9 +8,9 @@ use App\Entity\Rubrique;
 use App\Entity\Valeur;
 use App\Service\Formulaires\Fusion\ChampNamer;
 use App\Service\Formulaires\ValeurResolver;
-use Odf;
+use Odtphp\Odf;
+use Odtphp\Segment;
 use Psr\Log\LoggerInterface;
-use Segment;
 
 /**
  * Service commun pour l'écriture de variables et formulaires dans les documents ODT.
@@ -23,7 +23,7 @@ class OdtWriter
     /**
      * Écrit une variable dans un document ODT (Odf ou Segment).
      *
-     * @param \Odf|\Segment        $target Cible ODT
+     * @param Odf|Segment          $target Cible ODT
      * @param string               $name   Nom du champ dans le template
      * @param string|null          $value  Valeur à injecter
      * @param LoggerInterface|null $logger Logger optionnel (canal rapport)
@@ -33,10 +33,10 @@ class OdtWriter
         try {
             $target->setVars($name, $value ?? '', true, 'UTF8');
             if (null !== $logger) {
-                $prefix = $target instanceof \Segment ? '['.$target->getName().'] ' : '';
+                $prefix = $target instanceof Segment ? '['.$target->getName().'] ' : '';
                 $logger->debug($prefix.'{'.$name.'} : '.json_encode($value, JSON_UNESCAPED_UNICODE));
             }
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // Silencieux — variable absente du template ODT
         }
     }
@@ -48,7 +48,7 @@ class OdtWriter
      *
      * @param array<string, array{capsule: mixed, rubriques: array<int, array{rubrique: Rubrique, champs: array<int, array<string, mixed>>}>}> $capsules
      */
-    public function applyFormulairesToOdf(\Odf $odf, array $capsules): void
+    public function applyFormulairesToOdf(Odf $odf, array $capsules): void
     {
         foreach ($capsules as $nomInterne => $data) {
             if (null === $data['capsule']) {
@@ -72,7 +72,7 @@ class OdtWriter
      *
      * @param array<string, array{capsule: mixed, rubriques: array<int, array{rubrique: Rubrique, champs: array<int, array<string, mixed>>}>}> $capsules
      */
-    public function applyFormulairesToSegment(\Segment $segment, array $capsules): void
+    public function applyFormulairesToSegment(Segment $segment, array $capsules): void
     {
         foreach ($capsules as $nomInterne => $data) {
             if (null === $data['capsule']) {
@@ -94,7 +94,7 @@ class OdtWriter
      *
      * @param array<string, mixed> $champData
      */
-    private function processChampOnOdf(\Odf $odf, string $nomInterne, Rubrique $rubrique, array $champData): void
+    private function processChampOnOdf(Odf $odf, string $nomInterne, Rubrique $rubrique, array $champData): void
     {
         /** @var Champ $champ */
         $champ = $champData['champ'];
@@ -116,7 +116,7 @@ class OdtWriter
      *
      * @param array<string, mixed> $champData
      */
-    private function processChampOnSegment(\Segment $segment, string $nomInterne, Rubrique $rubrique, array $champData): void
+    private function processChampOnSegment(Segment $segment, string $nomInterne, Rubrique $rubrique, array $champData): void
     {
         /** @var Champ $champ */
         $champ = $champData['champ'];
@@ -138,7 +138,7 @@ class OdtWriter
      *
      * @param array<string, mixed> $champData
      */
-    private function processTableauOnOdf(\Odf $odf, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
+    private function processTableauOnOdf(Odf $odf, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
     {
         // En-têtes de colonnes
         foreach ($champ->getEnfants() as $enfant) {
@@ -154,7 +154,7 @@ class OdtWriter
             $segmentTableau = $odf->setSegment($segName);
             $this->fillTableauRows($segmentTableau, $champ, $champData);
             $odf->mergeSegment($segmentTableau);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             // Segment absent du template
         }
     }
@@ -164,7 +164,7 @@ class OdtWriter
      *
      * @param array<string, mixed> $champData
      */
-    private function processTableauOnSegment(\Segment $segment, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
+    private function processTableauOnSegment(Segment $segment, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
     {
         // En-têtes de colonnes
         foreach ($champ->getEnfants() as $enfant) {
@@ -176,15 +176,15 @@ class OdtWriter
         }
 
         $segName = ChampNamer::getLoopName($nomInterne.' '.($rubrique->getNom() ?? '').' '.($champ->getNom() ?? '').' valeurs');
-        /** @var \Segment|null $segmentTableau */
+        /** @var Segment|null $segmentTableau */
         $segmentTableau = null;
         try {
             $segmentTableau = $segment->$segName;
-        } catch (\Exception $exception) { // @phpstan-ignore catch.neverThrown
+        } catch (\Exception) {
             // Segment absent du template
         }
 
-        /** @var \Segment|null $segmentTableau */
+        /** @var Segment|null $segmentTableau */
         if (null !== $segmentTableau) {
             $this->fillTableauRows($segmentTableau, $champ, $champData);
         }
@@ -195,7 +195,7 @@ class OdtWriter
      *
      * @param array<string, mixed> $champData
      */
-    private function fillTableauRows(\Segment $segmentTableau, Champ $champ, array $champData): void
+    private function fillTableauRows(Segment $segmentTableau, Champ $champ, array $champData): void
     {
         /** @var array<int, array<int, Valeur|null>> $lignes */
         $lignes = $champData['lignes'] ?? [];
@@ -223,10 +223,9 @@ class OdtWriter
     /**
      * Traite un champ parent non-tableau (sous-champs directs).
      *
-     * @param \Odf|\Segment        $target
      * @param array<string, mixed> $champData
      */
-    private function processParentNonTableau($target, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
+    private function processParentNonTableau(Odf|Segment $target, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
     {
         /** @var array<int, array{champ: Champ, valeur: Valeur|null}> $sousChamps */
         $sousChamps = $champData['sous_champs'] ?? [];
@@ -247,10 +246,9 @@ class OdtWriter
     /**
      * Traite un champ feuille (scalaire simple).
      *
-     * @param \Odf|\Segment        $target
      * @param array<string, mixed> $champData
      */
-    private function processLeafChamp($target, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
+    private function processLeafChamp(Odf|Segment $target, string $nomInterne, Rubrique $rubrique, Champ $champ, array $champData): void
     {
         /** @var Valeur|null $valeur */
         $valeur = $champData['valeur'] ?? null;

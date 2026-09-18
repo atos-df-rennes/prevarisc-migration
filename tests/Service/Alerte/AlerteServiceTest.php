@@ -1,28 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Alerte;
 
 use App\Service\Alerte\AlerteService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class AlerteServiceTest extends KernelTestCase
+final class AlerteServiceTest extends KernelTestCase
 {
-    /** @var AlerteService */
-    private $alerteService;
+    private AlerteService $alerteService;
 
     protected function setUp(): void
     {
         self::ensureKernelShutdown();
         self::bootKernel();
 
-        $container = self::$container;
+        $container = self::getContainer();
 
         $this->alerteService = $container->get(AlerteService::class);
     }
 
-    /**
-     * @dataProvider alerteProvider
-     */
+    #[DataProvider('alerteProvider')]
     public function testGetLink(int $idTypeChangement, ?int $idEtablissement, string $expected): void
     {
         $link = $this->alerteService->getLink($idTypeChangement, $idEtablissement);

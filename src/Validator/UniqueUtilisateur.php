@@ -10,9 +10,8 @@ use Symfony\Component\Validator\Constraint;
  * Règles métier :
  * - Si login (username) renseigné → vérifier unicité du login
  * - Si login vide → vérifier unicité du mail (dans UtilisateurInformations)
- *
- * @Annotation
  */
+#[\Attribute]
 final class UniqueUtilisateur extends Constraint
 {
     /** @var string Message d'erreur pour login déjà utilisé */
@@ -24,6 +23,7 @@ final class UniqueUtilisateur extends Constraint
     /**
      * La contrainte s'applique à la classe entière (pas à une propriété).
      */
+    #[\Override]
     public function getTargets(): string
     {
         return self::CLASS_CONSTRAINT;

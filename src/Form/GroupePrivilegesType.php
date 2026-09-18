@@ -26,9 +26,7 @@ class GroupePrivilegesType extends AbstractType
 
                     return ['data-resource' => $resource->getText().' ('.$resource->getName().')'];
                 },
-                'choice_label' => function (Privileges $privilege): string {
-                    return $privilege->getText().' ('.$privilege->getName().')';
-                },
+                'choice_label' => fn (Privileges $privilege): string => $privilege->getText().' ('.$privilege->getName().')',
                 'expanded' => true,
                 'multiple' => true,
                 'group_by' => function (Privileges $privilege): ?string {

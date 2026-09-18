@@ -4,54 +4,55 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Http\Logout\LogoutHandlerInterface;
+use App\Entity\Utilisateur;
+use App\Service\LastActionUpdater;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 /**
- * Gestionnaire de déconnexion Symfony (Symfony 4.4, Guard).
+ * Gestionnaire de déconnexion Symfony.
  *
  * Appelé par le LogoutListener du firewall AVANT l'invalidation de la session PHP.
- * Effectue le nettoyage complémentaire : session Zend_Auth, username en session,
- * et logout CAS si le SSO CAS est actif.
+ * Effectue le nettoyage complémentaire : logout CAS si le SSO CAS est actif.
  *
- * Enregistré via security.firewalls.main.logout.handlers dans security.php.
+ * La mise à jour de LASTACTION_UTILISATEUR est effectuée ici (et non uniquement dans
+ * LastActionSubscriber) car kernel.terminate se déclenche APRÈS l'invalidation du token,
+ * rendant $security->getUser() null au moment du logout.
+ *
+ * Enregistré automatiquement comme subscriber du LogoutEvent.
  */
-class LogoutHandler implements LogoutHandlerInterface
+class LogoutHandler implements EventSubscriberInterface
 {
-    /** @var ZendSessionBridge */
-    private $zendSessionBridge;
-
-    /** @var bool */
-    private $casEnabled;
-
-    public function __construct(ZendSessionBridge $zendSessionBridge, bool $casEnabled)
+    public function __construct(private readonly LastActionUpdater $lastActionUpdater, private readonly bool $casEnabled)
     {
-        $this->zendSessionBridge = $zendSessionBridge;
-        $this->casEnabled = $casEnabled;
     }
 
-    /**
-     * Nettoyage à la déconnexion.
-     *
-     * @param Request        $request  La requête HTTP
-     * @param Response       $response La réponse HTTP (modifiable, ex. redirect vers CAS)
-     * @param TokenInterface $token    Le token Symfony en cours d'invalidation
-     */
-    public function logout(Request $request, Response $response, TokenInterface $token): void
+    public function onLogout(LogoutEvent $logoutEvent): void
     {
-        // 1. Effacer la session Zend_Auth (compatibilité controllers legacy)
-        $this->zendSessionBridge->clearAuthentication();
+        $token = $logoutEvent->getToken();
+        if (null !== $token) {
+            // Mettre à jour la dernière action avant l'invalidation du token.
+            // $token->getUser() est encore disponible à ce stade, contrairement à
+            // kernel.terminate où le token a déjà été invalidé.
+            $utilisateur = $token->getUser();
+            if ($utilisateur instanceof Utilisateur) {
+                $this->lastActionUpdater->update($utilisateur);
+            }
+        }
 
-        // 2. Effacer le username stocké pour LegacySessionAuthenticator
-        $request->getSession()->remove('username');
-
-        // 3. Nettoyer la session phpCAS si activé.
+        // Nettoyer la session phpCAS si activé.
         // phpCAS::client() n'est pas encore initialisé dans ce contexte (nouveau process mod_php),
         // donc on nettoie directement la clé de session phpCAS sans passer par l'API statique.
         if ($this->casEnabled && isset($_SESSION['phpCAS'])) {
             unset($_SESSION['phpCAS']);
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getSubscribedEvents(): array
+    {
+        return [LogoutEvent::class => 'onLogout'];
     }
 }

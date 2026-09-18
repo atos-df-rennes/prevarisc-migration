@@ -2,12 +2,13 @@
 
 namespace App\Repository;
 
+use App\Constant\Fonction;
 use App\Entity\Utilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @extends ServiceEntityRepository<Utilisateur>
@@ -19,29 +20,33 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UtilisateurRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
-    private const FONCTION_PREVENTIONNISTE = 13;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Utilisateur::class);
     }
 
     /**
-     * No-op pendant la période de transition Zend → Symfony.
+     * Persiste le mot de passe rehashé (migration MD5 legacy → bcrypt/argon2).
      *
-     * La migration automatique MD5 → bcrypt sur login est désactivée pour garantir
-     * que le fallback legacy (PREVARISC_SYMFONY_LOGIN=0) reste opérationnel à tout
-     * moment. L'upgrade est également bloqué côté Md5SaltedEncoder::needsRehash().
-     *
-     * À réactiver (supprimer le return anticipé) une fois le legacy définitivement retiré.
+     * Appelée explicitement par FormLoginAuthenticator::checkCredentials() après une
+     * connexion réussie via l'encodeur legacy, puisque le CustomCredentials utilisé ne
+     * déclenche pas le mécanisme standard PasswordUpgradeBadge de Symfony.
      */
-    public function upgradePassword(UserInterface $user, string $newHashedPassword): void
+    public function upgradePassword(PasswordAuthenticatedUserInterface $user, string $newHashedPassword): void
     {
-        // Upgrade désactivé pendant la transition : voir Md5SaltedEncoder::needsRehash()
+        if (!$user instanceof Utilisateur) {
+            return;
+        }
+
+        $user->setPassword($newHashedPassword);
+        $this->_em->flush();
     }
 
     /**
      * Renvoie les utilisateurs actifs dont la dernière action date de moins d'un jour.
+     *
+     * Limité à 1000 utilisateurs maximum, en cohérence avec le legacy.
+     * Comportement métier : évaluation d'un échantillon d'utilisateurs plutôt que la totalité.
      */
     public function findConnected(): array
     {
@@ -59,6 +64,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->setParameter('session', date('Y-m-d H:i:s', time() - ini_get('session.gc_maxlifetime')))
             ->groupBy('u.id')
             ->orderBy('ui.nom', 'ASC')
+            ->setMaxResults(1000)
             ->getQuery()
         ;
 
@@ -134,7 +140,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->innerJoin('u.informations', 'i')
             ->innerJoin('i.fonction', 'f')
             ->where('f.id = :fonction')
-            ->setParameter('fonction', self::FONCTION_PREVENTIONNISTE)
+            ->setParameter('fonction', Fonction::PREVENTIONNISTE)
             ->orderBy('i.nom', 'ASC')
             ->addOrderBy('i.prenom', 'ASC');
     }
@@ -161,7 +167,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->innerJoin('u.informations', 'i')
             ->innerJoin('i.fonction', 'f')
             ->where('f.id = :fonction')
-            ->setParameter('fonction', self::FONCTION_PREVENTIONNISTE)
+            ->setParameter('fonction', Fonction::PREVENTIONNISTE)
             ->andWhere('u.id IN (:submittedIds)')
             ->setParameter('submittedIds', $submittedIds)
             ->orderBy('i.nom', 'ASC')

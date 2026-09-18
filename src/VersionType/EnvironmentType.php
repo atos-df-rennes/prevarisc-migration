@@ -9,22 +9,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class EnvironmentType implements VersionType
+final readonly class EnvironmentType implements VersionType
 {
-    /** @var HttpClientInterface */
-    private $client;
-
-    /** @var SerializerInterface */
-    private $serializer;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(HttpClientInterface $client, SerializerInterface $serializer, LoggerInterface $logger)
+    public function __construct(private HttpClientInterface $client, private SerializerInterface $serializer, private LoggerInterface $logger)
     {
-        $this->client = $client;
-        $this->serializer = $serializer;
-        $this->logger = $logger;
     }
 
     public function version(): string
@@ -52,16 +40,14 @@ final class EnvironmentType implements VersionType
 
         $githubApiResponseToDto = $this->serializer->deserialize($githubApiResponse, GithubApi::class.'[]', 'json');
 
-        $tagRefs = array_map(function ($tag) {
-            return $tag->ref();
-        }, $githubApiResponseToDto);
+        $tagRefs = array_map(fn ($tag) => $tag->ref(), $githubApiResponseToDto);
         $latestTagRef = end($tagRefs);
 
         if (false === $latestTagRef) {
             throw new \Exception('Aucune référence trouvée.');
         }
 
-        $latestTag = explode('/', $latestTagRef);
+        $latestTag = explode('/', (string) $latestTagRef);
         $latestTag = end($latestTag);
 
         return Comparator::equalTo($latestTag, $this->version());

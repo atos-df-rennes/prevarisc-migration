@@ -16,15 +16,11 @@ use App\Repository\DossierRepository;
  */
 class AvisService
 {
-    /** @var DossierRepository */
-    private $dossierRepository;
-
     /**
      * @param DossierRepository $dossierRepository Pour vérifier avis différé
      */
-    public function __construct(DossierRepository $dossierRepository)
+    public function __construct(private readonly DossierRepository $dossierRepository)
     {
-        $this->dossierRepository = $dossierRepository;
     }
 
     /**

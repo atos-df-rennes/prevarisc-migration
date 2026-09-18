@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Symfony\Set\SymfonySetList;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -11,22 +12,28 @@ return RectorConfig::configure()
         __DIR__.'/tests',
     ])
     ->withRootFiles()
-    ->withPhpVersion(PhpVersion::PHP_71)
-    ->withPhpSets(php71: true)
+    ->withPhpVersion(PhpVersion::PHP_85)
+    ->withPhpSets(php85: true)
     ->withTypeCoverageLevel(50)
     ->withDeadCodeLevel(50)
     ->withCodeQualityLevel(50)
-    ->withImportNames(removeUnusedImports: true, importShortClasses: false)
+    ->withAttributesSets(symfony: true, doctrine: true, phpunit: true)
+    ->withImportNames(importShortClasses: false, removeUnusedImports: true)
+    ->withSets([
+        SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
+    ])
     ->withPreparedSets(
         codingStyle: true,
         privatization: true,
-        earlyReturn: true,
-        symfonyConfigs: true,
+        phpunitCodeQuality: true,
+        doctrineCodeQuality: true,
         symfonyCodeQuality: true,
+        symfonyConfigs: true,
     )
     ->withComposerBased(
-        doctrine: true,
         twig: true,
+        doctrine: true,
+        phpunit: true,
         symfony: true,
     )
 ;

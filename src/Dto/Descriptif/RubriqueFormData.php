@@ -2,10 +2,12 @@
 
 namespace App\Dto\Descriptif;
 
+use App\ValueObject\RubriqueEtat;
+
 /**
  * DTO représentant une rubrique dans le formulaire personnalisé.
  *
- * Contient la préférence d'affichage et les données des champs racines
+ * Contient l'état résolu (affichage + ouverture) et les données des champs racines
  * (champs sans parent) de la rubrique.
  *
  * Implémente ArrayAccess pour permettre à Symfony Forms d'utiliser
@@ -16,36 +18,37 @@ namespace App\Dto\Descriptif;
 class RubriqueFormData implements \ArrayAccess
 {
     /**
-     * Préférence d'affichage de la rubrique (true = visible, false = masquée).
-     *
-     * @var bool
+     * @param array<int, ChampValueData> $champs Données des champs racines indexées par champId
      */
-    private $display;
-
-    /**
-     * Données des champs racines indexées par champId.
-     *
-     * @var array<int, ChampValueData>
-     */
-    private $champs;
-
-    /**
-     * @param array<int, ChampValueData> $champs
-     */
-    public function __construct(bool $display = true, array $champs = [])
+    public function __construct(private RubriqueEtat $etat = new RubriqueEtat(), private array $champs = [])
     {
-        $this->display = $display;
-        $this->champs = $champs;
+    }
+
+    public function getEtat(): RubriqueEtat
+    {
+        return $this->etat;
     }
 
     public function isDisplay(): bool
     {
-        return $this->display;
+        return $this->etat->isDisplay();
     }
 
     public function setDisplay(bool $display): self
     {
-        $this->display = $display;
+        $this->etat = $this->etat->withDisplay($display);
+
+        return $this;
+    }
+
+    public function isOpened(): bool
+    {
+        return $this->etat->isOpened();
+    }
+
+    public function setOpened(bool $opened): self
+    {
+        $this->etat = $this->etat->withOpened($opened);
 
         return $this;
     }
@@ -91,10 +94,7 @@ class RubriqueFormData implements \ArrayAccess
         return null !== $this->getChamp($this->parseChampId($offset));
     }
 
-    /**
-     * @return ChampValueData|null
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?ChampValueData
     {
         if (!is_string($offset)) {
             return null;

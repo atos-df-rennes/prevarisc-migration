@@ -7,25 +7,10 @@ use App\Entity\Etablissement;
 use App\Repository\DossierRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class DossierLiaisonsService
+final readonly class DossierLiaisonsService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var DossierDonnantAvisService */
-    private $dossierDonnantAvisService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierRepository $dossierRepository,
-        DossierDonnantAvisService $dossierDonnantAvisService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->dossierRepository = $dossierRepository;
-        $this->dossierDonnantAvisService = $dossierDonnantAvisService;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private DossierDonnantAvisService $dossierDonnantAvisService)
+    {
     }
 
     /**
@@ -42,7 +27,7 @@ final class DossierLiaisonsService
 
         $unique = [];
         foreach ($lies as $lie) {
-            $unique[$lie->getId()] = $lie;
+            $unique[$lie->getIdOrFail()] = $lie;
         }
 
         return array_values($unique);
@@ -67,9 +52,7 @@ final class DossierLiaisonsService
      */
     public function getDossiersDisponiblesGroupesParEtablissement(Dossier $dossier): array
     {
-        $liaisonIds = array_map(function (Dossier $lie): ?int {
-            return $lie->getId();
-        }, $this->getLiaisons($dossier));
+        $liaisonIds = array_map(fn (Dossier $lie): ?int => $lie->getId(), $this->getLiaisons($dossier));
 
         $result = [];
 
@@ -79,9 +62,7 @@ final class DossierLiaisonsService
             foreach (['visites', 'etudes', 'autres'] as $key) {
                 $groupes[$key] = array_values(array_filter(
                     $groupes[$key],
-                    function (Dossier $d) use ($liaisonIds): bool {
-                        return !in_array($d->getId(), $liaisonIds, true);
-                    }
+                    fn (Dossier $d): bool => !in_array($d->getId(), $liaisonIds, true)
                 ));
             }
 
@@ -109,7 +90,7 @@ final class DossierLiaisonsService
         foreach ($this->getDossiersDisponiblesGroupesParEtablissement($dossier) as $group) {
             foreach (['visites', 'etudes', 'autres'] as $key) {
                 foreach ($group[$key] as $d) {
-                    $disponibles[$d->getId()] = $d;
+                    $disponibles[$d->getIdOrFail()] = $d;
                 }
             }
         }

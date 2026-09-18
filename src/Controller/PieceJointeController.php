@@ -2,38 +2,26 @@
 
 namespace App\Controller;
 
+use App\Constant\DataStoreObjectTypes;
+use App\Repository\DateCommissionRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\PieceJointeRepository;
 use App\Service\DataStore\DataStore;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use App\Utils\File;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Port direct de PieceJointeController (Zend).
  */
 class PieceJointeController extends AbstractController
 {
-    /** @var DataStore */
-    private $dataStore;
-
-    /** @var EtablissementPieceJointeRepository */
-    private $etablissementPieceJointeRepository;
-
-    /** @var PieceJointeRepository */
-    private $pieceJointeRepository;
-
-    public function __construct(
-        DataStore $dataStore,
-        EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
-        PieceJointeRepository $pieceJointeRepository
-    ) {
-        $this->dataStore = $dataStore;
-        $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
-        $this->pieceJointeRepository = $pieceJointeRepository;
+    public function __construct(private readonly DataStore $dataStore, private readonly EtablissementPieceJointeRepository $etablissementPieceJointeRepository, private readonly PieceJointeRepository $pieceJointeRepository, private readonly DateCommissionRepository $dateCommissionRepository)
+    {
     }
 
     /**
@@ -41,10 +29,10 @@ class PieceJointeController extends AbstractController
      *
      * Port direct de PieceJointeController::getAction() pour le type "etablissement".
      *
-     * @Route("/piece-jointe/etablissement/{id}/recuperer/{idpj}", name="piece_jointe_get_etablissement", methods={"GET"}, requirements={"id"="\d+","idpj"="\d+"})
-     *
-     * @IsGranted("ROLE_USER")
+     * @todo: vérifier le droit à appliquer
      */
+    #[Route(path: '/piece-jointe/etablissement/{id}/recuperer/{idpj}', name: 'piece_jointe_get_etablissement', methods: ['GET'], requirements: ['id' => '\d+', 'idpj' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
     public function getEtablissement(int $id, int $idpj): Response
     {
         $pieceJointe = $this->pieceJointeRepository->find($idpj);
@@ -61,18 +49,57 @@ class PieceJointeController extends AbstractController
             throw $this->createNotFoundException('Pièce jointe non rattachée à cet établissement.');
         }
 
-        $filePath = $this->dataStore->getFilePath($pieceJointe, 'etablissement', $id);
+        $filePath = $this->dataStore->getFilePath($pieceJointe, DataStoreObjectTypes::ETABLISSEMENT, $id);
 
         if (!is_readable($filePath)) {
             throw $this->createNotFoundException('Fichier introuvable ou illisible.');
         }
 
-        $filename = $this->dataStore->getFormattedFilename($pieceJointe, 'etablissement', $id);
+        $filename = $this->dataStore->getFormattedFilename($pieceJointe, DataStoreObjectTypes::ETABLISSEMENT, $id);
 
         $response = new BinaryFileResponse($filePath);
         $response->setContentDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            $filename ?? ($pieceJointe->getNom().$pieceJointe->getExtension())
+            File::sanitizeForContentDisposition($filename ?? ($pieceJointe->getNom().$pieceJointe->getExtension()))
+        );
+
+        return $response;
+    }
+
+    /**
+     * Télécharge une pièce jointe de date de commission.
+     *
+     * Port direct de PieceJointeController::getAction() pour le type "dateCommission".
+     *
+     * @todo: vérifier le droit à appliquer
+     */
+    #[Route(path: '/piece-jointe/date-commission/{id}/recuperer/{idpj}', name: 'piece_jointe_get_date_commission', methods: ['GET'], requirements: ['id' => '\d+', 'idpj' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
+    public function getDateCommission(int $id, int $idpj): Response
+    {
+        $pieceJointe = $this->pieceJointeRepository->find($idpj);
+        if (null === $pieceJointe) {
+            throw $this->createNotFoundException('Pièce jointe introuvable.');
+        }
+
+        $dateCommission = $this->dateCommissionRepository->findOneByPieceJointe($id, $idpj);
+
+        if (null === $dateCommission) {
+            throw $this->createNotFoundException('Pièce jointe non rattachée à cette date de commission.');
+        }
+
+        $filePath = $this->dataStore->getFilePath($pieceJointe, DataStoreObjectTypes::DATE_COMMISSION, $id);
+
+        if (!is_readable($filePath)) {
+            throw $this->createNotFoundException('Fichier introuvable ou illisible.');
+        }
+
+        $filename = $this->dataStore->getFormattedFilename($pieceJointe, DataStoreObjectTypes::DATE_COMMISSION, $id);
+
+        $response = new BinaryFileResponse($filePath);
+        $response->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            File::sanitizeForContentDisposition($filename ?? ($pieceJointe->getNom().$pieceJointe->getExtension()))
         );
 
         return $response;

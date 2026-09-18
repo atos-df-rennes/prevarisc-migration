@@ -12,82 +12,40 @@ use App\Repository\GroupementTypeRepository;
 use App\Service\Contact;
 use App\Service\GroupementCommunes;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Route(requirements={"id"="\d+"})
- *
- * @IsGranted("groupement_communes")
- */
+#[Route(requirements: ['id' => '\d+'])]
+#[IsGranted('groupement_communes')]
 class GroupementController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var CommuneRepository */
-    private $communeRepository;
-
-    /**
-     * @var GroupementTypeRepository
-     */
-    private $groupementTypeRepository;
-
-    /**
-     * @var GroupementCommunes
-     */
-    private $groupementCommunes;
-
-    /**
-     * @var Contact
-     */
-    private $contactService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        CommuneRepository $communeRepository,
-        GroupementTypeRepository $groupementTypeRepository,
-        GroupementCommunes $groupementCommunes,
-        Contact $contactService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->communeRepository = $communeRepository;
-        $this->groupementTypeRepository = $groupementTypeRepository;
-        $this->groupementCommunes = $groupementCommunes;
-        $this->contactService = $contactService;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommuneRepository $communeRepository, private readonly GroupementTypeRepository $groupementTypeRepository, private readonly GroupementCommunes $groupementCommunes, private readonly Contact $contactService, private readonly TagAwareAdapterInterface $searchCache)
+    {
     }
 
-    /**
-     * @Route("/admin/groupements", name="admin_groupement")
-     */
-    public function index(Request $request): Response
+    #[Route(path: '/admin/groupements', name: 'admin_groupement')]
+    public function index(#[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $id = null): Response
     {
         $groupementTypes = $this->groupementTypeRepository->findAll();
         $communes = $this->communeRepository->findAll();
-
-        // Récupérer l'ID du groupement à présélectionner (peut être string ou int)
-        $selectedGroupementId = $request->query->get('id');
-        if (is_numeric($selectedGroupementId)) {
-            $selectedGroupementId = (int) $selectedGroupementId;
-        }
 
         return $this->render('groupement/index.html.twig', [
             'title' => 'Groupements de communes',
             'admin_groupement_types' => $groupementTypes,
             'communes' => $communes,
-            'selected_groupement_id' => $selectedGroupementId,
+            'selected_groupement_id' => $id,
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/creer", name="admin_groupement_creation")
-     */
+    #[Route(path: '/admin/groupements/creer', name: 'admin_groupement_creation')]
     public function create(Request $request): Response
     {
         $groupement = new Groupement();
@@ -104,17 +62,15 @@ class GroupementController extends AbstractController
 
             $this->addFlash('success', 'Le groupement '.$groupement->getLibelle().' a été créé.');
 
-            return $this->redirectToRoute('admin_groupement');
+            return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
         }
 
         return $this->render('groupement/_form_ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/form/{scope}", name="admin_groupement_form_scope", requirements={"scope"="general|affectations|coordonnees"})
-     */
+    #[Route(path: '/admin/groupements/{id}/form/{scope}', name: 'admin_groupement_form_scope', requirements: ['scope' => 'general|affectations|coordonnees'])]
     public function formByScope(Groupement $groupement, string $scope, Request $request): Response
     {
         $form = $this->createForm(GroupementFormType::class, $groupement, [
@@ -128,8 +84,9 @@ class GroupementController extends AbstractController
 
             if ($form->has('reaffectationAutomatique')) {
                 $reaffectationAutomatique = $form->get('reaffectationAutomatique')->getData();
-                if ('1' === $reaffectationAutomatique) {
+                if ('1' === $reaffectationAutomatique && $groupement->getPreventionnistes()->count() > 0) {
                     $this->groupementCommunes->reaffectationPreventioniste($groupement);
+                    $this->searchCache->invalidateTags(['search']);
                 }
             }
 
@@ -157,9 +114,7 @@ class GroupementController extends AbstractController
         return $this->render(sprintf('groupement/_form_%s.html.twig', $scope), $templateData);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/supprimer", name="admin_groupement_delete", methods={"GET", "POST"})
-     */
+    #[Route(path: '/admin/groupements/{id}/supprimer', name: 'admin_groupement_delete', methods: ['GET', 'POST'])]
     public function delete(Request $request, Groupement $groupement): Response
     {
         $form = $this->createFormBuilder()
@@ -187,14 +142,20 @@ class GroupementController extends AbstractController
         }
 
         return $this->render('groupement/_form_delete.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'groupement' => $groupement,
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/contacts", name="admin_groupement_contacts")
-     */
+    #[Route(path: '/groupement/{id}/informations', name: 'groupement_informations', methods: ['GET'])]
+    public function informations(Groupement $groupement): Response
+    {
+        return $this->render('groupement/informations.html.twig', [
+            'groupement' => $groupement,
+        ]);
+    }
+
+    #[Route(path: '/admin/groupements/{id}/contacts', name: 'admin_groupement_contacts')]
     public function contacts(Groupement $groupement): Response
     {
         return $this->render('components/_contacts_panel.html.twig', [
@@ -208,9 +169,7 @@ class GroupementController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/contacts/ajouter", name="admin_groupement_contacts_add")
-     */
+    #[Route(path: '/admin/groupements/{id}/contacts/ajouter', name: 'admin_groupement_contacts_add')]
     public function addNewContact(Request $request, Groupement $groupement): Response
     {
         $contact = new UtilisateurInformations();
@@ -231,13 +190,11 @@ class GroupementController extends AbstractController
         }
 
         return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/contacts/ajouter/existant", name="admin_groupement_contacts_add_existing")
-     */
+    #[Route(path: '/admin/groupements/{id}/contacts/ajouter/existant', name: 'admin_groupement_contacts_add_existing')]
     public function addExistingContact(
         Request $request,
         Groupement $groupement
@@ -264,20 +221,15 @@ class GroupementController extends AbstractController
         }
 
         return $this->render('components/_form_contact_existant.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/groupements/{id}/contacts/{contact}/supprimer", name="admin_groupement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true})
-     *
-     * @ParamConverter("groupement", options={"id" = "id"})
-     * @ParamConverter("contact", options={"id" = "contact"})
-     */
+    #[Route(path: '/admin/groupements/{id}/contacts/{contact}/supprimer', name: 'admin_groupement_contacts_delete', methods: ['GET', 'DELETE'], options: ['expose' => true])]
     public function deleteContact(
         Request $request,
-        Groupement $groupement,
-        UtilisateurInformations $contact
+        #[MapEntity(id: 'id')] Groupement $groupement,
+        #[MapEntity(id: 'contact')] UtilisateurInformations $contact
     ): Response {
         $form = $this->createFormBuilder()
             ->setMethod(Request::METHOD_DELETE)
@@ -296,9 +248,11 @@ class GroupementController extends AbstractController
                 return $this->redirectToRoute('admin_groupement', ['id' => $groupement->getId()]);
             }
 
+            $isStillUsed = $this->contactService->isUsed($contact, Contact::GROUPEMENT);
+
             $groupement->removeContact($contact);
 
-            if (!$this->contactService->isUsed($contact, Contact::GROUPEMENT)) {
+            if (!$isStillUsed) {
                 $this->entityManager->remove($contact);
             }
 
@@ -310,7 +264,7 @@ class GroupementController extends AbstractController
         }
 
         return $this->render('components/_form_delete_contact.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'contact' => $contact,
             'entity_article' => 'du groupement',
             'entity_libelle' => $groupement->getLibelle(),

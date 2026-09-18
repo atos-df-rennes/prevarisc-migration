@@ -5,55 +5,33 @@ namespace App\Entity;
 use App\Repository\PrescriptionTexteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrescriptionTexteRepository::class)
- *
- * @ORM\Table(name="prescriptiontexte")
- */
+#[ORM\Entity(repositoryClass: PrescriptionTexteRepository::class)]
+#[ORM\Table(name: 'prescriptiontexte')]
 class PrescriptionTexte
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_PRESCRIPTIONTEXTE", type="bigint")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_PRESCRIPTIONTEXTE', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="LIBELLE_PRESCRIPTIONTEXTE", type="string", length=255, nullable=true)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_PRESCRIPTIONTEXTE', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $libelle = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="NUM_PRESCRIPTIONTEXTE", type="integer", nullable=false)
-     */
-    private $numero;
+    #[ORM\Column(name: 'NUM_PRESCRIPTIONTEXTE', type: Types::INTEGER, nullable: false)]
+    private ?int $numero = null;
 
-    /**
-     * @var ?PrescriptionCategorie
-     *
-     * @ORM\ManyToOne(targetEntity=PrescriptionCategorie::class, inversedBy="textes")
-     *
-     * @ORM\JoinColumn(name="ID_PRESCRIPTIONCAT", referencedColumnName="ID_PRESCRIPTION_CAT", nullable=false)
-     */
-    private $categorie;
+    #[ORM\ManyToOne(targetEntity: PrescriptionCategorie::class, inversedBy: 'textes')]
+    #[ORM\JoinColumn(name: 'ID_PRESCRIPTIONCAT', referencedColumnName: 'ID_PRESCRIPTION_CAT', nullable: false)]
+    private ?PrescriptionCategorie $categorie = null;
 
     /**
      * @var Collection<int, PrescriptionArticle>
-     *
-     * @ORM\OneToMany(targetEntity=PrescriptionArticle::class, mappedBy="texte", orphanRemoval=true)
      */
-    private $articles;
+    #[ORM\OneToMany(targetEntity: PrescriptionArticle::class, mappedBy: 'texte', orphanRemoval: true)]
+    private Collection $articles;
 
     public function __construct()
     {

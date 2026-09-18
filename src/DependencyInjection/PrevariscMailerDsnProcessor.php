@@ -17,12 +17,8 @@ use Symfony\Component\DependencyInjection\EnvVarProcessorInterface;
  */
 class PrevariscMailerDsnProcessor implements EnvVarProcessorInterface
 {
-    /** @var MailerConfiguration */
-    private $mailerConfiguration;
-
-    public function __construct(MailerConfiguration $mailerConfiguration)
+    public function __construct(private readonly MailerConfiguration $mailerConfiguration)
     {
-        $this->mailerConfiguration = $mailerConfiguration;
     }
 
     public static function getProvidedTypes(): array

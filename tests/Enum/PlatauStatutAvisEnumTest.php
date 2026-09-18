@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Enum;
 
 use App\Enum\PlatauStatutAvisEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class PlatauStatutAvisEnumTest extends TestCase
+final class PlatauStatutAvisEnumTest extends TestCase
 {
-    /** @dataProvider labelProvider */
+    #[DataProvider('labelProvider')]
     public function testGetLabelReturnsCorrectValueForStatus(?string $status, string $expected): void
     {
         $this->assertSame($expected, PlatauStatutAvisEnum::getLabel($status));
@@ -24,7 +27,7 @@ class PlatauStatutAvisEnumTest extends TestCase
         yield 'invalide' => ['invalid_status', 'Statut inconnu'];
     }
 
-    /** @dataProvider constantProvider */
+    #[DataProvider('constantProvider')]
     public function testConstantValues(string $constant, string $expected): void
     {
         $this->assertSame($expected, $constant);

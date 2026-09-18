@@ -18,9 +18,9 @@
             <div class="form-group">
                 <label for="typePrescriptionDossier">Cette prescription est :</label>
                 <select id="typePrescriptionDossier" name="typePrescriptionDossier" class="form-control modal__select--type-prescription">
-                    <option value="0">Rappels réglementaires</option>
-                    <option value="1">Liée à l'exploitation</option>
-                    <option value="2">Liée à l'amélioration</option>
+                    <option value="0">{{ libelle_dossier_prescriptions_custom_enabled ? 'Essais réalisés' : 'Rappels réglementaires' }}</option>
+                    <option value="1">{{ libelle_dossier_prescriptions_custom_enabled ? 'Prescriptions' : "Liée à l'exploitation" }}</option>
+                    <option value="2">{{ libelle_dossier_prescriptions_custom_enabled ? 'Conclusions types' : "Liée à l'amélioration" }}</option>
                 </select>
             </div>
 

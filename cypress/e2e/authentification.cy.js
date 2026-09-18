@@ -2,8 +2,10 @@
 describe('Authentification', () => {
     it('Identifiants valides → redirection vers l\'accueil', () => {
         cy.visit('/session/login');
-        cy.get('[name=_username]').type(Cypress.env('username'));
-        cy.get('[name=_password]').type(Cypress.env('password'));
+        cy.env(['username', 'password']).then(({ username, password }) => {
+            cy.get('[name=_username]').type(username);
+            cy.get('[name=_password]').type(password);
+        });
         cy.contains('button', 'Connexion').click();
         cy.contains('Bonjour ROOT').should('exist');
     });

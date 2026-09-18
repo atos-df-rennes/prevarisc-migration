@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
@@ -17,29 +19,33 @@ use App\Security\Voter\Etablissement\EtablissementVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementCampingVoterTest extends TestCase
+final class EtablissementCampingVoterTest extends TestCase
 {
-    private $resourcesRepository;
+    private ResourcesRepository $resourcesRepository;
 
-    private $privilegesRepository;
+    private PrivilegesRepository $privilegesRepository;
 
-    private $logger;
+    /**
+     * @var MockObject&LoggerInterface
+     */
+    private MockObject $logger;
 
-    private $voter;
+    private EtablissementCampingVoter $voter;
 
-    private $token;
+    private TokenInterface $token;
 
     protected function setUp(): void
     {
-        $this->resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $this->privilegesRepository = $this->createMock(PrivilegesRepository::class);
+        $this->resourcesRepository = $this->createStub(ResourcesRepository::class);
+        $this->privilegesRepository = $this->createStub(PrivilegesRepository::class);
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->token = $this->createMock(TokenInterface::class);
+        $this->token = $this->createStub(TokenInterface::class);
 
         $this->voter = new EtablissementCampingVoter(
             $this->resourcesRepository,
@@ -50,15 +56,16 @@ class EtablissementCampingVoterTest extends TestCase
 
     private function createEtablissementMock(): Etablissement
     {
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::CAMPING]);
-        $latestInformations = $this->createConfiguredMock(EtablissementInformations::class, ['getGenre' => $genre]);
+        $genre = $this->createConfiguredStub(Genre::class, ['getId' => GenreEtablissement::CAMPING]);
+        $latestInformations = $this->createConfiguredStub(EtablissementInformations::class, ['getGenre' => $genre]);
 
-        return $this->createConfiguredMock(Etablissement::class, ['getLatestInformations' => $latestInformations]);
+        return $this->createConfiguredStub(Etablissement::class, ['getLatestInformations' => $latestInformations]);
     }
 
     public function testAbstainIfParentDoesNotSupport(): void
     {
-        $etablissement = $this->createMock(Etablissement::class);
+        $this->logger->expects($this->never())->method('warning');
+        $etablissement = $this->createStub(Etablissement::class);
 
         $this->assertSame(
             VoterInterface::ACCESS_ABSTAIN,
@@ -75,9 +82,9 @@ class EtablissementCampingVoterTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('warning')
-            ->with($this->equalTo("Aucune règle trouvée pour les campings. Il est recommandé d'en ajouter une."));
+            ->with("Aucune règle trouvée pour les campings. Il est recommandé d'en ajouter une.");
 
-        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createMock(Groupe::class)]));
+        $this->token->method('getUser')->willReturn($this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
 
         $etablissement = $this->createEtablissementMock();
 
@@ -96,9 +103,9 @@ class EtablissementCampingVoterTest extends TestCase
         $this->logger
             ->expects($this->once())
             ->method('warning')
-            ->with($this->equalTo('Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons.'));
+            ->with('Plusieurs règles trouvées pour les campings. Il est recommandé de supprimer les doublons.');
 
-        $this->token->method('getUser')->willReturn($this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $this->createMock(Groupe::class)]));
+        $this->token->method('getUser')->willReturn($this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $this->createStub(Groupe::class)]));
 
         $etablissement = $this->createEtablissementMock();
 
@@ -110,7 +117,8 @@ class EtablissementCampingVoterTest extends TestCase
 
     public function testDenyIfUserIsNotInstanceOfUtilisateur(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_camp_0_0']);
+        $this->logger->expects($this->never())->method('warning');
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_camp_0_0']);
 
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementCamping')
@@ -128,13 +136,14 @@ class EtablissementCampingVoterTest extends TestCase
 
     public function testDenyIfUserGroupIsNull(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_camp_0_0']);
+        $this->logger->expects($this->never())->method('warning');
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_camp_0_0']);
 
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementCamping')
             ->willReturn($resource);
 
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => null]);
+        $user = $this->createConfiguredStub(Utilisateur::class, ['getGroupe' => null]);
         $this->token->method('getUser')->willReturn($user);
 
         $etablissement = $this->createEtablissementMock();
@@ -147,23 +156,27 @@ class EtablissementCampingVoterTest extends TestCase
 
     public function testGrantIfPrivilegeExistsInUserGroup(): void
     {
-        $resource = $this->createConfiguredMock(Resources::class, ['getName' => 'etablissement_camp_0_0']);
+        $this->logger->expects($this->never())->method('warning');
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_camp_0_0']);
 
         $this->resourcesRepository
             ->method('findRessourcesSpecialiseesEtablissementCamping')
             ->willReturn($resource);
 
-        $privilege = $this->createMock(Privileges::class);
+        $privilege = $this->createStub(Privileges::class);
         $this->privilegesRepository
             ->method('findOneBy')
-            ->with(['name' => EtablissementVoter::LECTURE, 'resource' => $resource])
-            ->willReturn($privilege);
+            ->willReturnCallback(function (array $criteria) use ($privilege, $resource): ?Privileges {
+                $this->assertSame(['name' => EtablissementVoter::LECTURE, 'resource' => $resource], $criteria);
 
-        $userGroup = $this->createConfiguredMock(Groupe::class, [
+                return $privilege;
+            });
+
+        $userGroup = $this->createConfiguredStub(Groupe::class, [
             'getPrivileges' => new ArrayCollection([$privilege])
         ]);
 
-        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $userGroup]);
+        $user = $this->createConfiguredStub(Utilisateur::class, ['getGroupe' => $userGroup]);
         $this->token->method('getUser')->willReturn($user);
 
         $etablissement = $this->createEtablissementMock();

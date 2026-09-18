@@ -2,30 +2,31 @@
 
 namespace App\Service;
 
-final class Avatar
+use App\Utils\PathNormalizer;
+
+final readonly class Avatar
 {
-    /** @var string */
-    private $basePath;
+    private string $basePath;
 
-    public const SMALL_DIRECTORY = 'small';
+    public const string SMALL_DIRECTORY = 'small';
 
-    public const SMALL_WIDTH = 25;
+    public const int SMALL_WIDTH = 25;
 
-    public const MEDIUM_DIRECTORY = 'medium';
+    public const string MEDIUM_DIRECTORY = 'medium';
 
-    public const MEDIUM_WIDTH = 150;
+    public const int MEDIUM_WIDTH = 150;
 
-    public const LARGE_DIRECTORY = 'large';
+    public const string LARGE_DIRECTORY = 'large';
 
-    public const LARGE_WIDTH = 224;
+    public const int LARGE_WIDTH = 224;
 
     public function __construct(string $realDataPath)
     {
-        $this->basePath = $realDataPath.DIRECTORY_SEPARATOR.'uploads'.DIRECTORY_SEPARATOR.'avatars';
+        $this->basePath = PathNormalizer::join($realDataPath, 'uploads', 'avatars');
     }
 
     public function path(string $directory, int $userId): string
     {
-        return $this->basePath.DIRECTORY_SEPARATOR.$directory.DIRECTORY_SEPARATOR.$userId.'.jpg';
+        return PathNormalizer::join($this->basePath, $directory, $userId.'.jpg');
     }
 }

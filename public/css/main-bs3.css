@@ -104,8 +104,64 @@ body > .navbar {
   margin-right: 0;
 }
 
-#nav-main-search-field:focus {
+/* TomSelect remplace le <select> original par un wrapper (.ts-wrapper) qui reçoit
+   la classe .focus au focus : le sélecteur ci-dessus ne matche donc plus. */
+#nav-main-search-form .ts-wrapper.focus {
   width: 300px;
+}
+
+/* Le wrapper TomSelect impose une min-height de 36px et hérite de la taille
+   de police 14px de .form-control, ce qui le rend plus haut que les boutons
+   voisins (loupe et "Avancée", en 12px comme le reste de la navbar). Plutôt
+   que d'essayer de faire correspondre police/line-height (peu fiable), on
+   fixe une hauteur identique à celle des .btn-default (34px, cf. Bootstrap
+   .btn : padding 6px 12px + line-height 1.42857 + bordures) en box-sizing
+   border-box, et on centre le contenu verticalement avec flex. */
+#nav-main-search-form .ts-wrapper {
+  min-height: 0;
+  height: 34px;
+  box-sizing: border-box;
+}
+
+#nav-main-search-form .ts-control {
+  background: #fff;
+  padding: 6px 12px;
+  border-color: #ccc;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#nav-main-search-form .ts-control input {
+  font-size: 12px;
+}
+
+/* .input-group-btn est une cellule de tableau (Bootstrap) qui adopte déjà les
+   34px de la cellule TomSelect, mais les <button>/<a> qu'elle contient
+   gardent leur hauteur intrinsèque (~33.6px) et restent simplement centrés
+   verticalement dedans : d'où l'écart résiduel. On leur donne la même
+   hauteur explicite qu'au champ de recherche (height:100% ne se résout pas
+   de façon fiable sur un <button> dans une cellule de tableau). */
+#nav-main-search-form .input-group-btn .btn {
+  box-sizing: border-box;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Le caret natif de TomSelect (menu déroulant) n'apporte rien dans ce champ
+   de recherche libre : on le supprime et on récupère l'espace réservé entre
+   le texte et le bord droit du champ. */
+#nav-main-search-form .ts-wrapper.single .ts-control {
+  --ts-pr-caret: 0px;
+}
+
+#nav-main-search-form .ts-control:after {
+  display: none;
 }
 
 /* Style de la page d'erreur
@@ -182,17 +238,19 @@ form#etablissement dt,
 form#etablissement dd {
   line-height: 30px;
 }
-form#etablissement .champs_icpe_rubrique_no {
-  width: 50px;
+/* Tableau des rubriques ICPE : colonnes en pourcentage (table-layout: fixed) pour
+   que la largeur reste fluide et tienne dans la colonne (col-lg-6) sans jamais
+   dépasser sur "Données prévention". Les <input>/<select> (form-control, width:100%)
+   remplissent alors naturellement leur cellule.
+   .table-scroll-x reste un filet de sécurité (overflow ne s'applique pas de façon
+   fiable sur un <table> lui-même) pour les très petites largeurs. */
+form#etablissement .champs_icpe {
+  table-layout: fixed;
+  width: 100%;
 }
-
-@media screen and (max-width: 1500px) {
-  form#etablissement .champs_icpe_rubrique_id {
-    width: 90px;
-  }
-  form#etablissement .champs_icpe_rubrique_nom {
-    width: 160px;
-  }
+form#etablissement .table-scroll-x {
+  overflow-x: auto;
+  width: 100%;
 }
 
 
@@ -1219,7 +1277,7 @@ p.muted {
   color: #999;
 }
 
-form[name='textes_applicables_etablissement'] div.checkbox label:has(input[checked='checked']) {
+form.checkbox--checked__label--bold div.checkbox label:has(input[checked='checked']) {
   font-weight: bold;
 }
 

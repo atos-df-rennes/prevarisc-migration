@@ -40,7 +40,7 @@ Le panneau est organisé en deux blocs visuels : « Informations générales » 
 | **Version applicative** | Numéro de version de l'instance Prevarisc déployée. |
 | **Indicateur de mise à jour** | Comparaison entre la révision locale et la dernière révision publiée sur le dépôt officiel (branche stable). Si une mise à jour est disponible, un badge informatif « Mise à jour disponible » s'affiche à côté de la version. |
 
-> Si la branche de déploiement est explicitement définie dans la configuration de l'environnement, la vérification de mise à jour est désactivée (la comparaison avec le dépôt officiel n'a pas lieu).
+> La vérification de mise à jour est **toujours activée**, même quand la branche de déploiement est explicitement définie dans la configuration de l'environnement. Cela permet à l'administrateur de savoir si une nouvelle version est disponible, indépendamment du mode de déploiement. La requête distante gère les erreurs réseau sans exposer les défaillances à l'utilisateur.
 
 ### 3.2 Configuration des services cartographiques
 
@@ -70,14 +70,20 @@ Trois fournisseurs de cartographie peuvent être configurés indépendamment :
 | **Jeton d'accès** | Jeton d'authentification auprès du service. |
 | **Adresse du géocodeur** | URL du service de géocodage associé. |
 
-### 3.3 Connexion à la base de données
+### 3.3 Chemin des fichiers
+
+| Donnée | Description |
+|---|---|
+| **Chemin des fichiers** | Chemin complet du répertoire où les fichiers de l'application sont stockés. Ce répertoire contient les documents, les pièces jointes et autres fichiers gérés par Prevarisc. |
+
+### 3.4 Connexion à la base de données
 
 | Donnée | Description |
 |---|---|
 | **Nom de la base** | Nom de la base de données utilisée par l'application. |
-| **Adresse du serveur** | Hôte et port du serveur de base de données (format `hôte:port`). Le port est omis s'il n'est pas explicitement configuré. |
+| **Adresse du serveur** | Hôte et port du serveur de base de données (format `hôte:port`). Le port par défaut MySQL (3306) est toujours affiché. |
 
-### 3.4 Méthode d'authentification
+### 3.5 Méthode d'authentification
 
 Le panneau affiche la méthode d'authentification active parmi les quatre possibles (une seule est active à un instant donné) :
 
@@ -94,7 +100,7 @@ Une information complémentaire est affichée indépendamment de la méthode :
 |---|---|
 | **Renforcement de la sécurité** | Indique si le mode de sécurité renforcée est activé ou désactivé. |
 
-### 3.5 État du cache
+### 3.6 État du cache
 
 | Donnée | Affiché si le cache est… |
 |---|---|
@@ -105,7 +111,7 @@ Une information complémentaire est affichée indépendamment de la méthode :
 
 Si le cache est désactivé, seul le libellé « Désactivé » est affiché.
 
-### 3.6 Sessions utilisateurs actives
+### 3.7 Sessions utilisateurs actives
 
 Un tableau liste les utilisateurs **actuellement connectés** à l'application :
 
@@ -119,13 +125,41 @@ Un tableau liste les utilisateurs **actuellement connectés** à l'application :
 
 Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affiché à la place du tableau.
 
-### 3.7 Composants tiers
+### 3.8 Composants tiers
 
 | Donnée | Description |
 |---|---|
 | **API HTTP** | Indique si l'API HTTP est activée ou désactivée. L'API est considérée comme activée lorsqu'une clé de sécurité API est configurée. |
 | **Proxy HTTP** | Indique si le proxy HTTP sortant est activé ou désactivé. |
-| **Plugins tiers** | Liste des plugins tiers installés, séparés par des virgules. Si aucun plugin n'est installé, le message « Aucuns » est affiché. |
+| **Plugins tiers** | Liste des plugins tiers installés, séparés par des virgules. Si aucun plugin n'est installé, le message « Aucun » est affiché. |
+
+### 3.9 Paramètres de plateforme
+
+Cette section regroupe les paramètres de configuration spécifiques à la plateforme de déploiement :
+
+#### 3.9.1 Relance de périodicité
+
+| Donnée | Description |
+|---|---|
+| **Relance périodicité** | Base de calcul de la relance automatique des dossiers : « Date de commission » si la relance est basée sur la date de commission, ou « Date de visite » si elle est basée sur la date de visite. |
+
+#### 3.9.2 Unité de périodicité
+
+| Donnée | Description |
+|---|---|
+| **Unité periodicité** | Unité utilisée pour exprimer les délais de renouvellement des dossiers : « Années » si les durées sont exprimées en années, ou « Mois » si elles sont exprimées en mois. |
+
+#### 3.9.3 Connexion à Plat'AU
+
+| Donnée | Description |
+|---|---|
+| **Connexion à Plat'AU** | État de la connexion au service Plat'AU : « Activée » si la plateforme Plat'AU est accessible et configurée, ou « Désactivée » si le service est désactivé. |
+
+#### 3.9.4 Nombre de dossiers affichés
+
+| Donnée | Description |
+|---|---|
+| **Nb dossiers affichés** | Nombre maximal de dossiers affichés dans les listes de l'application. Ce paramètre contrôle la pagination ou la limitation des résultats de recherche. |
 
 ---
 
@@ -138,8 +172,8 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 | **RG-ADM-001** | La version applicative est toujours affichée en haut du panneau d'administration. |
 | **RG-ADM-002** | La vérification de mise à jour compare la révision locale à la dernière révision de la branche stable du dépôt officiel. |
 | **RG-ADM-003** | Si la révision locale diffère de la révision distante, le badge « Mise à jour disponible » est affiché. |
-| **RG-ADM-004** | Si la branche de déploiement est explicitement définie dans la configuration d'environnement, la vérification de mise à jour est entièrement ignorée. |
-| **RG-ADM-005** | Si la vérification de mise à jour échoue (réseau indisponible, délai d'attente dépassé), aucune erreur n'est affichée à l'utilisateur et le badge de mise à jour n'apparaît pas. Le délai d'attente maximal pour contacter le dépôt officiel est de 3 secondes. |
+| **RG-ADM-004** | La vérification de mise à jour est toujours effectuée, indépendamment de la configuration de la branche de déploiement. Cela offre une visibilité complète sur la disponibilité d'une nouvelle version, quel que soit le contexte de déploiement. |
+| **RG-ADM-005** | Si la vérification de mise à jour échoue (réseau indisponible, délai d'attente dépassé), aucune erreur n'est affichée à l'utilisateur et le badge de mise à jour n'apparaît pas. Le délai d'attente maximal pour contacter le dépôt officiel est de **3 secondes**. La branche stable ciblée est `refs/heads/2.5` (ou équivalent `2.x` pour les dépôts configurés différemment). |
 
 ### Services cartographiques
 
@@ -185,14 +219,24 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 |---|---|
 | **RG-ADM-024** | L'API HTTP est considérée comme activée si et seulement si une clé de sécurité API est configurée (valeur non vide). |
 | **RG-ADM-025** | Le proxy HTTP est considéré comme activé si son paramètre de configuration vaut explicitement la valeur d'activation. |
-| **RG-ADM-026** | Les plugins tiers sont affichés sous forme de liste à plat séparée par des virgules. Si aucun plugin n'est configuré, le texte « Aucuns » est affiché. |
+| **RG-ADM-026** | Les plugins tiers sont affichés sous forme de liste à plat séparée par des virgules. Si aucun plugin n'est configuré, le texte « Aucun » est affiché. |
+
+### Paramètres de plateforme
+
+| # | Règle |
+|---|---|
+| **RG-ADM-029** | Le chemin des fichiers est affiché à titre informatif pour permettre à l'administrateur de localiser le répertoire de stockage des fichiers gérés par l'application. |
+| **RG-ADM-030** | La base de calcul de la relance automatique (commission ou visite) est affichée pour indiquer le critère utilisé pour évaluer les délais de renouvellement des dossiers. |
+| **RG-ADM-031** | L'unité de périodicité (années ou mois) est affichée pour indiquer l'unité de temps utilisée dans le calcul des délais de renouvellement. |
+| **RG-ADM-032** | L'état de la connexion à Plat'AU est affiché comme « Activée » ou « Désactivée » selon la configuration de la plateforme. |
+| **RG-ADM-033** | Le nombre maximal de dossiers affichés est indiqué pour documenter la limite de pagination appliquée aux listes de dossiers. |
 
 ### Accès et sécurité
 
 | # | Règle |
 |---|---|
-| **RG-ADM-027** | Le panneau d'administration est accessible uniquement depuis le menu d'administration. L'utilisateur doit disposer des droits d'administration. |
-| **RG-ADM-028** | Le panneau est en lecture seule. Aucune action de modification de configuration n'est proposée. |
+| **RG-ADM-034** | Le panneau d'administration est accessible uniquement depuis le menu d'administration. L'utilisateur doit disposer des droits d'administration. |
+| **RG-ADM-035** | Le panneau est en lecture seule. Aucune action de modification de configuration n'est proposée. |
 
 ---
 
@@ -201,13 +245,13 @@ Si aucun utilisateur n'est connecté, le message « Aucun résultat. » est affi
 | Cas | Comportement attendu |
 |---|---|
 | **Réseau indisponible lors de la vérification de mise à jour** | Aucune erreur n'est affichée. Le badge de mise à jour n'apparaît simplement pas. L'administrateur ne peut pas distinguer « application à jour » de « vérification impossible ». |
-| **Branche de déploiement définie** | La vérification de mise à jour est totalement ignorée. Cela concerne typiquement les environnements de développement ou de test déployés sur une branche spécifique. |
+| **Branche de déploiement définie** | La vérification de mise à jour reste **activée** et en continu. L'administrateur bénéficie d'une visibilité complète sur la disponibilité d'une nouvelle version, sans distinction de contexte de déploiement. |
 | **Aucun service cartographique configuré** | Chaque service affiche indépendamment « Aucune clé » ou « Désactivé ». L'application reste fonctionnelle sans cartographie. |
 | **Plusieurs clés IGN** | Les clés multiples (séparées par des virgules dans la configuration) sont affichées chacune sur une ligne distincte. |
-| **Port de base de données non configuré** | Seul l'hôte est affiché, sans séparateur « : ». |
+| **Port de base de données non configuré** | L'application n'étant officiellement compatible qu'avec MySQL, le port par défaut 3306 est toujours affiché au format `hôte:3306`. |
 | **Port LDAP non configuré** | Le port par défaut 389 est utilisé dans l'affichage. |
 | **Projection Geoconcept absente** | La valeur « Non paramétrée » est affichée comme valeur par défaut. |
 | **Aucun utilisateur connecté** | Le tableau des sessions est remplacé par le message « Aucun résultat. ». |
 | **Plus de 1 000 utilisateurs dans l'annuaire** | Seuls les 1 000 premiers utilisateurs sont évalués pour déterminer les sessions actives. Des sessions actives au-delà de cette limite pourraient ne pas être affichées. |
-| **Aucun plugin tiers configuré** | Le texte « Aucuns » est affiché. |
+| **Aucun plugin tiers configuré** | Le texte « Aucun » est affiché. |
 | **Clé de sécurité API absente ou vide** | L'API HTTP est affichée comme « Désactivé ». |

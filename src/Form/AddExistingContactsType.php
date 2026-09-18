@@ -12,15 +12,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AddExistingContactsType extends AbstractType
 {
-    /**
-     * @var UtilisateurInformationsRepository
-     */
-    private $utilisateurInformationsRepository;
-
-    public function __construct(
-        UtilisateurInformationsRepository $utilisateurInformationsRepository
-    ) {
-        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
+    public function __construct(private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository)
+    {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -37,9 +30,7 @@ class AddExistingContactsType extends AbstractType
                     // Retourne tous les contacts non associés à un utilisateur
                     return $this->utilisateurInformationsRepository->createNotInUserQueryBuilder()->getQuery()->getResult();
                 }),
-                'choice_label' => function (UtilisateurInformations $contact): string {
-                    return $contact->getPrenom().' '.$contact->getNom();
-                },
+                'choice_label' => fn (UtilisateurInformations $contact): string => $contact->getPrenom().' '.$contact->getNom(),
                 'multiple' => true,
                 'label' => 'Rechercher des contacts',
                 'mapped' => false,

@@ -17,6 +17,7 @@ use App\Repository\DossierPieceJointeRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -31,21 +32,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class DossierType extends AbstractType
 {
-    /** @var Security */
-    private $security;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    public function __construct(Security $security, EntityManagerInterface $entityManager)
+    public function __construct(private readonly Security $security, private readonly EntityManagerInterface $entityManager, private readonly bool $facteurCriticiteCustomEnabled)
     {
-        $this->security = $security;
-        $this->entityManager = $entityManager;
     }
 
     // Note : Possibilité future de séparer en plusieurs FormTypes selon le type de dossier
@@ -147,7 +139,7 @@ class DossierType extends AbstractType
                     ]),
                 ],
                 'constraints' => [
-                    new Assert\Length(['max' => 255]),
+                    new Assert\Length(max: 255),
                 ],
             ])
             ->add('incomplet', ChoiceType::class, [
@@ -160,9 +152,6 @@ class DossierType extends AbstractType
                 'expanded' => true, // Radios au lieu de select
                 'required' => false, // Pas required car champ masqué dynamiquement
                 'empty_data' => '', // Valeur par défaut si radios désactivés (sera null en base)
-                'attr' => [
-                    'class' => 'incomplet-radios',
-                ],
             ])
             ->add('documentsManquants', CollectionType::class, [
                 'entry_type' => DossierDocumentManquantType::class,
@@ -264,9 +253,12 @@ class DossierType extends AbstractType
                 'attr' => ['class' => 'form-check-input absquorum hideavis'],
             ])
             ->add('facteurDangerosite', ChoiceType::class, [
-                'label' => 'Facteur de criticité',
+                'label' => $this->facteurCriticiteCustomEnabled ? 'Signalement' : 'Facteur de criticité',
                 'required' => false,
-                'choices' => [
+                'choices' => $this->facteurCriticiteCustomEnabled ? [
+                    'Non' => 0,
+                    'Oui' => 1,
+                ] : [
                     1 => 1,
                     2 => 2,
                     3 => 3,
@@ -413,9 +405,7 @@ class DossierType extends AbstractType
                     'label' => 'Liste des pièces jointes pouvant être envoyées vers Plat\'AU',
                     'class' => PieceJointe::class,
                     'choices' => $this->getPiecesJointesExportables($options),
-                    'choice_label' => function (PieceJointe $pieceJointe): string {
-                        return $pieceJointe->getNom().$pieceJointe->getExtension();
-                    },
+                    'choice_label' => fn (PieceJointe $pieceJointe): string => $pieceJointe->getNom().$pieceJointe->getExtension(),
                     'multiple' => true,
                     'expanded' => true,
                     // Affiche des checkboxes au lieu d'un select multiple
@@ -454,7 +444,7 @@ class DossierType extends AbstractType
             // IDs soumis par TomSelect (dédoublonnés et castés en int)
             $submittedIds = isset($data['preventionnistes']) && is_array($data['preventionnistes'])
                 ? array_values(array_unique(array_filter(array_map(
-                    static function ($id): int { return is_scalar($id) ? (int) $id : 0; },
+                    static fn ($id): int => is_scalar($id) ? (int) $id : 0,
                     $data['preventionnistes']
                 ))))
                 : [];
@@ -463,7 +453,7 @@ class DossierType extends AbstractType
             $dossier = $form->getData();
             $existingIds = $dossier instanceof Dossier
                 ? array_values(array_unique($dossier->getPreventionnistes()->map(
-                    static function (Utilisateur $u): int { return (int) $u->getId(); }
+                    static fn (Utilisateur $u): int => (int) $u->getId()
                 )->toArray()))
                 : [];
 

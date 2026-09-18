@@ -9,9 +9,9 @@ namespace App\Constant;
  */
 final class Avis
 {
-    public const FAVORABLE = 1;
+    public const int FAVORABLE = 1;
 
-    public const DEFAVORABLE = 2;
+    public const int DEFAVORABLE = 2;
 
     /**
      * Empêche l'instanciation de la classe.

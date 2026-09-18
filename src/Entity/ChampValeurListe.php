@@ -3,55 +3,34 @@
 namespace App\Entity;
 
 use App\Repository\ChampValeurListeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="champvaleurliste")
- *
- * @ORM\Entity(repositoryClass=ChampValeurListeRepository::class)
- */
+#[ORM\Entity(repositoryClass: ChampValeurListeRepository::class)]
+#[ORM\Table(name: 'champvaleurliste')]
 class ChampValeurListe
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_VALEURLISTE", type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_VALEURLISTE', type: Types::INTEGER)]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="VALEUR", type="string", length=255, nullable=false)
-     */
-    private $valeur;
+    #[ORM\Column(name: 'VALEUR', type: Types::STRING, length: 255, nullable: false)]
+    private string $valeur;
 
-    /**
-     * @var ?Champ
-     *
-     * @ORM\ManyToOne(targetEntity=Champ::class, inversedBy="valeursListe")
-     *
-     * @ORM\JoinColumn(name="ID_CHAMP", referencedColumnName="ID_CHAMP", nullable=false)
-     */
-    private $champ;
+    #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'valeursListe')]
+    #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false)]
+    private ?Champ $champ = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(type="integer", nullable=false)
-     */
-    private $idx;
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    private ?int $idx = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getValeur(): ?string
+    public function getValeur(): string
     {
         return $this->valeur;
     }

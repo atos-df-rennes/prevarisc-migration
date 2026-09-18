@@ -14,45 +14,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-final class EtablissementPieceJointeService
+final readonly class EtablissementPieceJointeService
 {
-    /** @var EtablissementPieceJointeRepository */
-    private $etablissementPJRepository;
-
-    /** @var DataStore */
-    private $dataStore;
-
-    /** @var LoggerInterface */
-    private $datastoreLogger;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var PieceJointeRepository */
-    private $pieceJointeRepository;
-
-    /** @var Image */
-    private $imageService;
-
-    /** @var Filesystem */
-    private $filesystem;
-
-    public function __construct(
-        EtablissementPieceJointeRepository $etablissementPJRepository,
-        DataStore $dataStore,
-        LoggerInterface $datastoreLogger,
-        EntityManagerInterface $entityManager,
-        PieceJointeRepository $pieceJointeRepository,
-        Image $imageService,
-        Filesystem $filesystem
-    ) {
-        $this->etablissementPJRepository = $etablissementPJRepository;
-        $this->dataStore = $dataStore;
-        $this->datastoreLogger = $datastoreLogger;
-        $this->entityManager = $entityManager;
-        $this->pieceJointeRepository = $pieceJointeRepository;
-        $this->imageService = $imageService;
-        $this->filesystem = $filesystem;
+    public function __construct(private EtablissementPieceJointeRepository $etablissementPJRepository, private DataStore $dataStore, private LoggerInterface $datastoreLogger, private EntityManagerInterface $entityManager, private PieceJointeRepository $pieceJointeRepository, private Image $imageService, private Filesystem $filesystem)
+    {
     }
 
     /**
@@ -86,12 +51,12 @@ final class EtablissementPieceJointeService
     {
         $extension = strtolower('.'.$file->getClientOriginalExtension());
 
-        if (in_array($extension, ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'])) {
+        if (in_array($extension, ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'], true)) {
             throw new \Exception("Ce type de fichier n'est pas autorisé en upload");
         }
 
         $imageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-        $placement = in_array($mise_en_avant, PlacementEtablissementPj::ALL) && in_array($extension, $imageExtensions)
+        $placement = in_array($mise_en_avant, PlacementEtablissementPj::MISES_EN_AVANT, true) && in_array($extension, $imageExtensions, true)
             ? $mise_en_avant
             : PlacementEtablissementPj::LISTE;
 
@@ -121,7 +86,10 @@ final class EtablissementPieceJointeService
             $this->entityManager->persist($etablissementPJ);
             $this->entityManager->flush();
 
-            if (in_array($extension, $imageExtensions)) {
+            if (
+                in_array($extension, $imageExtensions, true)
+                && in_array($placement, PlacementEtablissementPj::MISES_EN_AVANT, true)
+            ) {
                 $miniaturePjHelper = clone $pieceJointe;
                 $miniaturePjHelper->setExtension('.jpg');
                 $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId(), true);
@@ -174,7 +142,7 @@ final class EtablissementPieceJointeService
 
         $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId());
 
-        $this->filesystem->remove(array_filter([$filePath, $miniaturePath], 'file_exists'));
+        $this->filesystem->remove(array_filter([$filePath, $miniaturePath], file_exists(...)));
 
         $this->entityManager->remove($etablissementPJ);
         $this->entityManager->remove($pieceJointe);
@@ -219,7 +187,7 @@ final class EtablissementPieceJointeService
             if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
                 $path = $store->getURLPath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
 
-                if (in_array($pj->getPieceJointe()->getExtension(), $imageExtensions)) {
+                if (in_array($pj->getPieceJointe()->getExtension(), $imageExtensions, true)) {
                     $miniaturePjHelper = clone $pj->getPieceJointe();
                     $miniaturePjHelper->setExtension('.jpg');
                     $miniatureUrl = $store->getURLPath($miniaturePjHelper, 'etablissement_miniature', $pj->getEtablissement()->getId());

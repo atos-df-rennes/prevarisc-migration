@@ -1,0 +1,287 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Service;
+
+use App\Dto\FusionDesCommunes\Commune as CommuneDto;
+use App\Dto\FusionDesCommunes\FusionDeCommunes;
+use App\Entity\Commission;
+use App\Entity\CommissionRegle;
+use App\Entity\Commune;
+use App\Entity\Groupement;
+use App\Entity\Utilisateur;
+use App\Entity\UtilisateurInformations;
+use App\Exception\FusionTechnicalException;
+use App\Repository\AdresseRueRepository;
+use App\Repository\CommissionRegleRepository;
+use App\Repository\CommuneRepository;
+use App\Repository\EtablissementAdresseRepository;
+use App\Repository\UtilisateurRepository;
+use App\Service\FusionDesCommunes;
+use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Serializer\SerializerInterface;
+
+final class FusionDesCommunesTest extends TestCase
+{
+    private SerializerInterface $serializer;
+
+    private EntityManagerInterface $entityManager;
+
+    private CommuneRepository $communeRepository;
+
+    private EtablissementAdresseRepository $etablissementAdresseRepository;
+
+    private AdresseRueRepository $adresseRueRepository;
+
+    private UtilisateurRepository $utilisateurRepository;
+
+    private CommissionRegleRepository $commissionRegleRepository;
+
+    protected function setUp(): void
+    {
+        $this->serializer = $this->createStub(SerializerInterface::class);
+        $this->entityManager = $this->createStub(EntityManagerInterface::class);
+        $this->communeRepository = $this->createStub(CommuneRepository::class);
+        $this->etablissementAdresseRepository = $this->createStub(EtablissementAdresseRepository::class);
+        $this->adresseRueRepository = $this->createStub(AdresseRueRepository::class);
+        $this->utilisateurRepository = $this->createStub(UtilisateurRepository::class);
+        $this->commissionRegleRepository = $this->createStub(CommissionRegleRepository::class);
+    }
+
+    private function buildService(): FusionDesCommunes
+    {
+        return new FusionDesCommunes(
+            $this->serializer,
+            $this->createStub(LoggerInterface::class),
+            $this->entityManager,
+            $this->communeRepository,
+            $this->etablissementAdresseRepository,
+            $this->adresseRueRepository,
+            $this->utilisateurRepository,
+            $this->commissionRegleRepository
+        );
+    }
+
+    /**
+     * E-01 : lors d'une fusion, les liaisons groupement-commune des communes
+     * absorbées doivent être supprimées.
+     */
+    public function testFusionSupprimeLesLiaisonsGroupementCommune(): void
+    {
+        $nouvelleCommune = new Commune();
+        $nouvelleCommune->setLibelle('Nouvelle Commune');
+        $nouvelleCommune->setCodePostal('00000');
+
+        $ancienneCommune = new Commune();
+        $ancienneCommune->setLibelle('Ancienne Commune');
+        $ancienneCommune->setCodePostal('00000');
+
+        $informations = new UtilisateurInformations();
+        $ancienneCommune->setUtilisateurInformations($informations);
+
+        $utilisateur = new Utilisateur();
+
+        $groupement = new Groupement();
+        $groupement->addCommune($ancienneCommune);
+
+        $ancienneCommune->addGroupement($groupement);
+
+        $this->assertTrue($groupement->getCommunes()->contains($ancienneCommune));
+
+        $fusion = new FusionDeCommunes('Nouvelle Commune', 'NEW01', [
+            new CommuneDto('Ancienne Commune', 'OLD01'),
+        ]);
+
+        $this->serializer->method('deserialize')->willReturn([$fusion]);
+
+        $this->communeRepository->method('find')->willReturnMap([
+            ['NEW01', null, null, $nouvelleCommune],
+            ['OLD01', null, null, $ancienneCommune],
+        ]);
+
+        $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
+        $this->adresseRueRepository->method('findBy')->willReturn([]);
+        $this->utilisateurRepository->method('findOneBy')->willReturn($utilisateur);
+        $this->commissionRegleRepository->method('findBy')->willReturn([]);
+
+        $this->buildService()->fusionner('{}');
+
+        $this->assertFalse($groupement->getCommunes()->contains($ancienneCommune));
+    }
+
+    /**
+     * E-02 : lors d'une fusion, les règles de commission liées aux communes
+     * absorbées doivent être supprimées.
+     */
+    public function testFusionSupprimeLesReglesDeCommission(): void
+    {
+        $nouvelleCommune = new Commune();
+        $nouvelleCommune->setLibelle('Nouvelle Commune');
+        $nouvelleCommune->setCodePostal('00000');
+
+        $ancienneCommune = new Commune();
+        $ancienneCommune->setLibelle('Ancienne Commune');
+        $ancienneCommune->setCodePostal('00000');
+
+        $informations = new UtilisateurInformations();
+        $ancienneCommune->setUtilisateurInformations($informations);
+
+        $utilisateur = new Utilisateur();
+
+        $regle = new CommissionRegle();
+        $regle->setCommune($ancienneCommune);
+        $regle->setCommission(new Commission());
+
+        $fusion = new FusionDeCommunes('Nouvelle Commune', 'NEW01', [
+            new CommuneDto('Ancienne Commune', 'OLD01'),
+        ]);
+
+        $this->serializer->method('deserialize')->willReturn([$fusion]);
+
+        $this->communeRepository->method('find')->willReturnMap([
+            ['NEW01', null, null, $nouvelleCommune],
+            ['OLD01', null, null, $ancienneCommune],
+        ]);
+
+        $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
+        $this->adresseRueRepository->method('findBy')->willReturn([]);
+        $this->utilisateurRepository->method('findOneBy')->willReturn($utilisateur);
+        $this->commissionRegleRepository->method('findBy')->willReturnMap([
+            [['commune' => $ancienneCommune], null, null, null, [$regle]],
+        ]);
+
+        $removedEntities = [];
+        $this->entityManager->method('remove')->willReturnCallback(static function (object $entity) use (&$removedEntities): void {
+            $removedEntities[] = $entity;
+        });
+
+        $this->buildService()->fusionner('{}');
+
+        $this->assertContains($regle, $removedEntities);
+    }
+
+    /**
+     * V-03 : lorsque tous les lots réussissent, le résultat indique un succès
+     * global sans aucun avertissement.
+     */
+    public function testFusionRetourneUnSuccesGlobal(): void
+    {
+        $nouvelleCommune = new Commune();
+        $nouvelleCommune->setLibelle('Nouvelle Commune');
+        $nouvelleCommune->setCodePostal('00000');
+
+        $ancienneCommune = new Commune();
+        $ancienneCommune->setLibelle('Ancienne Commune');
+        $ancienneCommune->setCodePostal('00000');
+        $ancienneCommune->setUtilisateurInformations(new UtilisateurInformations());
+
+        $fusion = new FusionDeCommunes('Nouvelle Commune', 'NEW01', [
+            new CommuneDto('Ancienne Commune', 'OLD01'),
+        ]);
+
+        $this->serializer->method('deserialize')->willReturn([$fusion]);
+        $this->communeRepository->method('find')->willReturnMap([
+            ['NEW01', null, null, $nouvelleCommune],
+            ['OLD01', null, null, $ancienneCommune],
+        ]);
+        $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
+        $this->adresseRueRepository->method('findBy')->willReturn([]);
+        $this->utilisateurRepository->method('findOneBy')->willReturn(new Utilisateur());
+        $this->commissionRegleRepository->method('findBy')->willReturn([]);
+
+        $resultat = $this->buildService()->fusionner('{}');
+
+        $this->assertTrue($resultat->hasSuccess());
+        $this->assertFalse($resultat->hasFailures());
+        $this->assertSame(['Nouvelle Commune'], $resultat->succes());
+    }
+
+    /**
+     * V-03 : l'échec fonctionnel d'un lot (commune cible introuvable) ne lève pas
+     * d'exception mais est enregistré comme un échec dans le résultat.
+     */
+    public function testLotIntrouvableEstUnEchecFonctionnel(): void
+    {
+        $fusion = new FusionDeCommunes('Commune Fantôme', 'GHOST', [
+            new CommuneDto('Ancienne Commune', 'OLD01'),
+        ]);
+
+        $this->serializer->method('deserialize')->willReturn([$fusion]);
+        $this->communeRepository->method('find')->willReturn(null);
+
+        $resultat = $this->buildService()->fusionner('{}');
+
+        $this->assertFalse($resultat->hasSuccess());
+        $this->assertTrue($resultat->hasFailures());
+        $this->assertCount(1, $resultat->echecs());
+        $this->assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
+    }
+
+    /**
+     * V-03 : lorsqu'un lot échoue et qu'un autre réussit, le traitement continue
+     * et le résultat combine succès et avertissement (succès partiel).
+     */
+    public function testFusionPartielleContinueApresUnEchec(): void
+    {
+        $nouvelleCommune = new Commune();
+        $nouvelleCommune->setLibelle('Nouvelle Commune');
+        $nouvelleCommune->setCodePostal('00000');
+
+        $ancienneCommune = new Commune();
+        $ancienneCommune->setLibelle('Ancienne Commune');
+        $ancienneCommune->setCodePostal('00000');
+        $ancienneCommune->setUtilisateurInformations(new UtilisateurInformations());
+
+        $fusionKo = new FusionDeCommunes('Commune Fantôme', 'GHOST', [
+            new CommuneDto('Ancienne KO', 'OLDKO'),
+        ]);
+        $fusionOk = new FusionDeCommunes('Nouvelle Commune', 'NEW01', [
+            new CommuneDto('Ancienne Commune', 'OLD01'),
+        ]);
+
+        $this->serializer->method('deserialize')->willReturn([$fusionKo, $fusionOk]);
+        $this->communeRepository->method('find')->willReturnMap([
+            ['GHOST', null, null, null],
+            ['NEW01', null, null, $nouvelleCommune],
+            ['OLD01', null, null, $ancienneCommune],
+        ]);
+        $this->etablissementAdresseRepository->method('findBy')->willReturn([]);
+        $this->adresseRueRepository->method('findBy')->willReturn([]);
+        $this->utilisateurRepository->method('findOneBy')->willReturn(new Utilisateur());
+        $this->commissionRegleRepository->method('findBy')->willReturn([]);
+
+        $resultat = $this->buildService()->fusionner('{}');
+
+        $this->assertTrue($resultat->hasSuccess());
+        $this->assertTrue($resultat->hasFailures());
+        $this->assertSame(['Nouvelle Commune'], $resultat->succes());
+        $this->assertSame('Commune Fantôme', $resultat->echecs()[0]['nom']);
+    }
+
+    /**
+     * V-03 : un contenu de fichier illisible constitue une erreur technique qui
+     * interrompt tout le traitement.
+     */
+    public function testFichierIllisibleLeveUneExceptionTechnique(): void
+    {
+        $this->expectException(FusionTechnicalException::class);
+
+        $this->buildService()->fusionner(false);
+    }
+
+    /**
+     * V-03 : un JSON invalide constitue une erreur technique qui interrompt tout
+     * le traitement.
+     */
+    public function testJsonInvalideLeveUneExceptionTechnique(): void
+    {
+        $this->serializer->method('deserialize')->willThrowException(new \RuntimeException('JSON invalide'));
+
+        $this->expectException(FusionTechnicalException::class);
+
+        $this->buildService()->fusionner('{invalide');
+    }
+}

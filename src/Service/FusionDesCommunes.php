@@ -4,7 +4,11 @@ namespace App\Service;
 
 use App\Dto\FusionDesCommunes\Commune;
 use App\Dto\FusionDesCommunes\FusionDeCommunes;
+use App\Dto\FusionDesCommunes\ResultatFusion;
+use App\Exception\FusionFunctionalException;
+use App\Exception\FusionTechnicalException;
 use App\Repository\AdresseRueRepository;
+use App\Repository\CommissionRegleRepository;
 use App\Repository\CommuneRepository;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\UtilisateurRepository;
@@ -12,96 +16,79 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-final class FusionDesCommunes
+final readonly class FusionDesCommunes
 {
-    /** @var SerializerInterface */
-    private $serializer;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var CommuneRepository */
-    private $communeRepository;
-
-    /** @var EtablissementAdresseRepository */
-    private $etablissementAdresseRepository;
-
-    /** @var AdresseRueRepository */
-    private $adresseRueRepository;
-
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
-
-    public function __construct(
-        SerializerInterface $serializer,
-        LoggerInterface $logger,
-        EntityManagerInterface $entityManager,
-        CommuneRepository $communeRepository,
-        EtablissementAdresseRepository $etablissementAdresseRepository,
-        AdresseRueRepository $adresseRueRepository,
-        UtilisateurRepository $utilisateurRepository
-    ) {
-        $this->serializer = $serializer;
-        $this->logger = $logger;
-        $this->entityManager = $entityManager;
-        $this->communeRepository = $communeRepository;
-        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
-        $this->adresseRueRepository = $adresseRueRepository;
-        $this->utilisateurRepository = $utilisateurRepository;
+    public function __construct(private SerializerInterface $serializer, private LoggerInterface $logger, private EntityManagerInterface $entityManager, private CommuneRepository $communeRepository, private EtablissementAdresseRepository $etablissementAdresseRepository, private AdresseRueRepository $adresseRueRepository, private UtilisateurRepository $utilisateurRepository, private CommissionRegleRepository $commissionRegleRepository)
+    {
     }
 
     /**
+     * Traite un fichier de fusion de communes.
+     *
+     * Une erreur technique (fichier illisible, JSON invalide) interrompt tout le
+     * traitement via une {@see FusionTechnicalException}. À l'inverse, l'échec
+     * fonctionnel d'un lot (commune introuvable, libellé incohérent, informations
+     * manquantes…) n'interrompt pas le traitement : le lot est ignoré et signalé
+     * dans le {@see ResultatFusion} retourné, les lots suivants continuent.
+     *
      * @param false|string $fileContent
      *
-     * @throws \Exception
+     * @throws FusionTechnicalException
      */
-    public function fusionner($fileContent): void
+    public function fusionner($fileContent): ResultatFusion
     {
         if (false === $fileContent) {
-            throw new \Exception('Le contenu du fichier est incorrect.');
+            throw new FusionTechnicalException('Le contenu du fichier est incorrect.');
         }
 
-        /** @var FusionDeCommunes[] $listeFusionCommunes */
-        $listeFusionCommunes = $this->serializer->deserialize($fileContent, FusionDeCommunes::class.'[]', 'json');
+        try {
+            /** @var FusionDeCommunes[] $listeFusionCommunes */
+            $listeFusionCommunes = $this->serializer->deserialize($fileContent, FusionDeCommunes::class.'[]', 'json');
+        } catch (\Exception $exception) {
+            throw new FusionTechnicalException('Le fichier de fusion est invalide et n\'a pas pu être analysé.', 0, $exception);
+        }
+
+        $resultat = new ResultatFusion();
 
         foreach ($listeFusionCommunes as $fusionCommune) {
-            if (!$this->communeExists($fusionCommune)) {
-                continue;
+            try {
+                $this->verifierCommune($fusionCommune);
+
+                $this->updateAdressesEtablissements($fusionCommune);
+                $this->updateRues($fusionCommune);
+
+                $this->deleteCommunes($fusionCommune->listeCommunes());
+
+                $resultat->ajouterSucces($fusionCommune->nom());
+            } catch (FusionFunctionalException $exception) {
+                $this->logger->error($exception->getMessage());
+                $resultat->ajouterEchec($fusionCommune->nom(), $exception->getMessage());
             }
-
-            $this->updateAdressesEtablissements($fusionCommune);
-            $this->updateRues($fusionCommune);
-
-            $this->deleteCommunes($fusionCommune->listeCommunes());
         }
+
+        return $resultat;
     }
 
-    private function communeExists(FusionDeCommunes $fusionCommune): bool
+    /**
+     * Vérifie que la commune cible d'une fusion existe et est cohérente.
+     *
+     * @throws FusionFunctionalException si la commune est introuvable ou incohérente
+     */
+    private function verifierCommune(FusionDeCommunes $fusionCommune): void
     {
         $commune = $this->communeRepository->find($fusionCommune->numinsee());
 
         if (null === $commune) {
-            $this->logger->error(\sprintf("La commune ayant pour code INSEE %s n'a pas été trouvée dans la base de données.", $fusionCommune->numinsee()));
-
-            return false;
+            throw new FusionFunctionalException(\sprintf("La commune ayant pour code INSEE %s n'a pas été trouvée dans la base de données.", $fusionCommune->numinsee()));
         }
 
         if (null === $commune->getLibelle()) {
-            $this->logger->error(\sprintf("La commune d'identifiant %s a été trouvée mais ne comporte pas de libellé.", $fusionCommune->numinsee()));
-
-            return false;
+            throw new FusionFunctionalException(\sprintf("La commune d'identifiant %s a été trouvée mais ne comporte pas de libellé.", $fusionCommune->numinsee()));
         }
 
         if (0 !== strcmp($fusionCommune->nom(), $commune->getLibelle())) {
-            $this->logger->error(\sprintf("La commune ayant pour code INSEE %s n'a pas pour libellé %s dans la base de données. Libellé en base de données : %s", $fusionCommune->numinsee(), $fusionCommune->nom(), $commune->getLibelle()));
-
-            return false;
+            throw new FusionFunctionalException(\sprintf("La commune ayant pour code INSEE %s n'a pas pour libellé %s dans la base de données. Libellé en base de données : %s", $fusionCommune->numinsee(), $fusionCommune->nom(), $commune->getLibelle()));
         }
-
-        return true;
     }
 
     private function updateAdressesEtablissements(FusionDeCommunes $fusionCommune): void
@@ -110,9 +97,7 @@ final class FusionDesCommunes
             $newCommune = $this->communeRepository->find($fusionCommune->numinsee());
 
             if (null === $newCommune) {
-                $this->logger->error(\sprintf("La commune d'identifiant %s n'existe pas en base de données.", $fusionCommune->numinsee()));
-
-                throw new \Exception('Impossible de fusionner dans la nouvelle commune. Veuillez consulter les logs.');
+                throw new FusionFunctionalException(\sprintf("Impossible de fusionner dans la commune %s : elle n'existe pas en base de données.", $fusionCommune->numinsee()));
             }
 
             $addressesToUpdate = $this->etablissementAdresseRepository->findBy(['commune' => $commune->numinsee()]);
@@ -151,6 +136,40 @@ final class FusionDesCommunes
     }
 
     /**
+     * Supprime les liaisons groupement-commune associées à la commune absorbée.
+     *
+     * La commune est le côté inverse de la relation ManyToMany ; le retrait se fait
+     * donc via chaque groupement (côté propriétaire), ce qui provoque la suppression
+     * automatique des lignes correspondantes dans la table de jointure groupementcommune.
+     */
+    private function deleteGroupementCommuneLiaisons(\App\Entity\Commune $commune): void
+    {
+        foreach ($commune->getGroupements() as $groupement) {
+            $groupement->removeCommune($commune);
+            $this->entityManager->persist($groupement);
+        }
+    }
+
+    /**
+     * Supprime les règles de commission associées à la commune absorbée.
+     *
+     * Contrairement à la contrainte de clé étrangère NUMINSEE_COMMUNE (ON DELETE CASCADE),
+     * les tables de jointure liées (commissionreglecategorie, commissionregleclasse,
+     * commissionregletype) n'ont pas de contrainte de clé étrangère en base : une
+     * suppression au niveau SQL laisserait donc des lignes orphelines. On passe donc
+     * explicitement par Doctrine pour que les collections ManyToMany et les entités
+     * liées (étude/visite, local sommeil) soient nettoyées correctement.
+     */
+    private function deleteCommissionRegles(\App\Entity\Commune $commune): void
+    {
+        $regles = $this->commissionRegleRepository->findBy(['commune' => $commune]);
+
+        foreach ($regles as $regle) {
+            $this->entityManager->remove($regle);
+        }
+    }
+
+    /**
      * @param Commune[] $communes
      */
     private function deleteCommunes(array $communes): void
@@ -160,8 +179,11 @@ final class FusionDesCommunes
                 $communeEntity = $this->communeRepository->find($commune->numinsee());
 
                 if (null === $communeEntity) {
-                    throw new \Exception(sprintf("La commune %s n'existe pas en base de données.", $commune->numinsee()));
+                    throw new FusionFunctionalException(sprintf("La commune %s n'existe pas en base de données.", $commune->numinsee()));
                 }
+
+                $this->deleteGroupementCommuneLiaisons($communeEntity);
+                $this->deleteCommissionRegles($communeEntity);
 
                 $utilisateur = $this->utilisateurRepository->findOneBy(['informations' => $communeEntity->getUtilisateurInformations()]);
                 $utilisateurInformations = $communeEntity->getUtilisateurInformations();
@@ -175,7 +197,7 @@ final class FusionDesCommunes
                         $this->logger->error(\sprintf('Aucune information utilisateur associée à la commune %s (%s).', $communeEntity->getLibelle(), $communeEntity->getId()));
                     }
 
-                    throw new \Exception("Des éléments d'informations sont manquants. Veuillez consulter les logs.");
+                    throw new FusionFunctionalException("Des éléments d'informations sont manquants. Veuillez consulter les logs.");
                 }
 
                 $this->entityManager->remove($utilisateur);
@@ -186,8 +208,51 @@ final class FusionDesCommunes
             } catch (\Exception $e) {
                 $this->logger->error(\sprintf('Erreur lors de la suppression de la commune %s (%s) : %s', $commune->nom(), $commune->numinsee(), $e->getMessage()));
 
-                throw new \Exception(\sprintf('Erreur lors de la suppression de la commune %s (%s)', $commune->nom(), $commune->numinsee()), $e->getCode(), $e);
+                throw new FusionFunctionalException(\sprintf('Erreur lors de la suppression de la commune %s (%s)', $commune->nom(), $commune->numinsee()), $e->getCode(), $e);
             }
         }
+    }
+
+    /**
+     * Compose les messages flash à partir du résultat de fusion :
+     * succès global, succès partiel avec avertissements par lot KO, ou
+     * information si aucune fusion n'était à traiter.
+     *
+     * @return list<array{type: string, message: string}>
+     */
+    public function composerFlashsResultat(ResultatFusion $resultat): array
+    {
+        $flashs = [];
+
+        foreach ($resultat->echecs() as $echec) {
+            $flashs[] = [
+                'type' => 'warning',
+                'message' => \sprintf(
+                    "La commune %s n'a pas pu être fusionnée : %s",
+                    htmlspecialchars($echec['nom'], \ENT_QUOTES),
+                    htmlspecialchars($echec['message'], \ENT_QUOTES)
+                ),
+            ];
+        }
+
+        if ($resultat->hasSuccess()) {
+            $flashs[] = [
+                'type' => 'success',
+                'message' => $resultat->hasFailures()
+                    ? 'Certaines communes ont bien été fusionnées. Consultez les avertissements pour les communes non traitées.'
+                    : 'Les communes ont bien été fusionnées.',
+            ];
+
+            return $flashs;
+        }
+
+        if (!$resultat->hasFailures()) {
+            $flashs[] = [
+                'type' => 'info',
+                'message' => 'Aucune commune à fusionner.',
+            ];
+        }
+
+        return $flashs;
     }
 }

@@ -3,20 +3,13 @@
 namespace App\Service;
 
 use App\Dto\Document;
+use App\Utils\PathNormalizer;
 use Symfony\Component\Finder\Finder;
 
-final class Documents
+final readonly class Documents
 {
-    /** @var string */
-    private $dataPath;
-
-    /** @var string */
-    private $realDataPath;
-
-    public function __construct(string $documentsDataPath, string $documentsRealDataPath)
+    public function __construct(private string $documentsDataPath, private string $documentsRealDataPath)
     {
-        $this->dataPath = $documentsDataPath;
-        $this->realDataPath = $documentsRealDataPath;
     }
 
     /**
@@ -29,8 +22,9 @@ final class Documents
 
         $finder
             ->files()
-            ->in($this->realDataPath.$idCommission)
+            ->in(PathNormalizer::join($this->documentsRealDataPath, (string) $idCommission))
             ->ignoreVCS(true)
+            ->name('*.odt')
             ->sortByName();
 
         if (!$finder->hasResults()) {
@@ -40,7 +34,7 @@ final class Documents
         foreach ($finder as $file) {
             $documents[] = new Document(
                 $file->getFilename(),
-                $this->dataPath.$idCommission.DIRECTORY_SEPARATOR.$file->getFilename()
+                PathNormalizer::join($this->documentsDataPath, (string) $idCommission, $file->getFilename())
             );
         }
 

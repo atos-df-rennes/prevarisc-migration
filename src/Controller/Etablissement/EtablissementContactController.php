@@ -9,77 +9,40 @@ use App\Form\ContactType;
 use App\Repository\EtablissementRepository;
 use App\Repository\UtilisateurInformationsRepository;
 use App\Service\Contact;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gère les contacts d'un établissement.
- *
- * @Route(requirements={"id"="\d+"})
  */
+#[Route(requirements: ['id' => '\d+'])]
 class EtablissementContactController extends AbstractController implements EtablissementLateralNavigationInterface
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    /** @var UtilisateurInformationsRepository */
-    private $utilisateurInformationsRepository;
-
-    /** @var Contact */
-    private $contactService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        EtablissementRepository $etablissementRepository,
-        UtilisateurInformationsRepository $utilisateurInformationsRepository,
-        Contact $contactService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->etablissementRepository = $etablissementRepository;
-        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
-        $this->contactService = $contactService;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly EtablissementRepository $etablissementRepository, private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly Contact $contactService)
+    {
     }
 
-    /**
-     * @Route("/etablissement/{id}/contacts", name="etablissement_contacts")
-     *
-     * @IsGranted("view_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/contacts', name: 'etablissement_contacts')]
+    #[IsGranted('view_ets', subject: 'etablissement')]
     public function contacts(Etablissement $etablissement): Response
     {
-        $contacts = $this->etablissementRepository->findContactsOrderedByNom($etablissement->getId())->getSortedContacts();
-        $contactsParents = new ArrayCollection();
-
-        foreach ($etablissement->getParents() as $parent) {
-            $parentWithContacts = $this->etablissementRepository->findContactsOrderedByNom($parent->getId());
-
-            foreach ($parentWithContacts->getSortedContacts() as $contactParent) {
-                $contactsParents->add($contactParent);
-            }
-        }
+        $dto = $this->etablissementRepository->findContactsWithInheritance($etablissement->getId());
 
         return $this->render('etablissement/contacts.html.twig', [
             'etablissement' => $etablissement,
-            'contacts' => $contacts,
-            'contacts_parents' => $contactsParents,
+            'contacts' => $dto->contacts,
+            'contacts_parents' => $dto->contactsParents,
         ]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/contacts/ajouter", name="etablissement_contacts_add", defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/contacts/ajouter', name: 'etablissement_contacts_add', defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function addContact(Request $request, Etablissement $etablissement): Response
     {
         $contact = new UtilisateurInformations();
@@ -100,15 +63,12 @@ class EtablissementContactController extends AbstractController implements Etabl
         }
 
         return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/etablissement/{id}/contacts/ajouter/existant", name="etablissement_contacts_add_existing", methods={"POST"}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     */
+    #[Route(path: '/etablissement/{id}/contacts/ajouter/existant', name: 'etablissement_contacts_add_existing', methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function addExistingContact(
         Request $request,
         Etablissement $etablissement
@@ -146,18 +106,12 @@ class EtablissementContactController extends AbstractController implements Etabl
         return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
     }
 
-    /**
-     * @Route("etablissement/{id}/contacts/{contact}/supprimer", name="etablissement_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true}, defaults={"_etablissement_lateral_nav": false})
-     *
-     * @IsGranted("edit_ets", subject="etablissement")
-     *
-     * @ParamConverter("etablissement", options={"id" = "id"})
-     * @ParamConverter("contact", options={"id" = "contact"})
-     */
+    #[Route(path: 'etablissement/{id}/contacts/{contact}/supprimer', name: 'etablissement_contacts_delete', methods: ['GET', 'DELETE'], options: ['expose' => true], defaults: ['_etablissement_lateral_nav' => false])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
     public function deleteContact(
         Request $request,
-        Etablissement $etablissement,
-        UtilisateurInformations $contact
+        #[MapEntity(id: 'id')] Etablissement $etablissement,
+        #[MapEntity(id: 'contact')] UtilisateurInformations $contact
     ): Response {
         $form = $this->createFormBuilder()
             ->setMethod(Request::METHOD_DELETE)
@@ -176,9 +130,11 @@ class EtablissementContactController extends AbstractController implements Etabl
                 return $this->redirectToRoute('etablissement_contacts', ['id' => $etablissement->getId()]);
             }
 
+            $isStillUsed = $this->contactService->isUsed($contact, Contact::ETABLISSEMENT);
+
             $etablissement->removeContact($contact);
 
-            if (!$this->contactService->isUsed($contact, Contact::ETABLISSEMENT)) {
+            if (!$isStillUsed) {
                 $this->entityManager->remove($contact);
             }
 
@@ -190,7 +146,7 @@ class EtablissementContactController extends AbstractController implements Etabl
         }
 
         return $this->render('etablissement/_form_delete_contact.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'etablissement' => $etablissement,
             'contact' => $contact,
         ]);

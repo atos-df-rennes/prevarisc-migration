@@ -10,48 +10,28 @@ use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Repository\GroupementRepository;
 
-final class Contact
+final readonly class Contact
 {
-    public const ETABLISSEMENT = 'etablissement';
+    public const string ETABLISSEMENT = 'etablissement';
 
-    public const DOSSIER = 'dossier';
+    public const string DOSSIER = 'dossier';
 
-    public const GROUPEMENT = 'groupement';
+    public const string GROUPEMENT = 'groupement';
 
-    public const COMMISSION = 'commission';
+    public const string COMMISSION = 'commission';
 
-    public const COMMUNE = 'commune';
-
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var GroupementRepository */
-    private $groupementRepository;
-
-    /** @var CommissionRepository */
-    private $commissionRepository;
-
-    /** @var CommuneRepository */
-    private $communeRepository;
+    public const string COMMUNE = 'commune';
 
     /** @var array<string, HasContacts> */
-    private $repositories;
+    private array $repositories;
 
     public function __construct(
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        GroupementRepository $groupementRepository,
-        CommissionRepository $commissionRepository,
-        CommuneRepository $communeRepository
+        private EtablissementRepository $etablissementRepository,
+        private DossierRepository $dossierRepository,
+        private GroupementRepository $groupementRepository,
+        private CommissionRepository $commissionRepository,
+        private CommuneRepository $communeRepository
     ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->groupementRepository = $groupementRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->communeRepository = $communeRepository;
         $this->repositories = [
             self::ETABLISSEMENT => $this->etablissementRepository,
             self::DOSSIER => $this->dossierRepository,

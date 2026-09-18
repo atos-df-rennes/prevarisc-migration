@@ -7,10 +7,6 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
 
-    $parameters->set('env(PREVARISC_PATH)', '/home/prv/current/prevarisc');
-
-    $parameters->set('app.prevarisc_path', '%env(string:PREVARISC_PATH)%');
-
     $parameters->set('env(PREVARISC_DEBUG_ENABLED)', 0);
 
     $parameters->set('app.debug', '%env(bool:PREVARISC_DEBUG_ENABLED)%');
@@ -110,6 +106,26 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.security_key', '%env(string:PREVARISC_SECURITY_KEY)%');
 
+    // Active les portions de code Symfony équivalentes au plugin legacy Plugin_SDIS29
+    // (cf. PREVARISC_THIRDPARTY_PLUGINS côté legacy Zend, déjà déclaré plus bas pour
+    // app.third_party_plugins), un seul flag pour tout le périmètre du portage
+    // (footer, JS d'aide à la saisie, endpoints /sdis29/...).
+    $parameters->set('app.sdis29_custom_enabled', '%env(sdis29_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    // Active les portages Symfony des plugins legacy de personnalisation de libellés
+    // (Plugin_FacteurCriticite, Plugin_LibelleDossierObservations, Plugin_LibelleDossierPrescriptions),
+    // pilotés par la même variable PREVARISC_THIRDPARTY_PLUGINS que le legacy Zend.
+    $parameters->set('app.facteur_criticite_custom_enabled', '%env(facteur_criticite_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    $parameters->set('app.libelle_dossier_observations_custom_enabled', '%env(libelle_dossier_observations_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    $parameters->set('app.libelle_dossier_prescriptions_custom_enabled', '%env(libelle_dossier_prescriptions_plugin_enabled:PREVARISC_THIRDPARTY_PLUGINS)%');
+
+    $parameters->set('env(PREVARISC_PLUGIN_GEOBRETAGNE)', '');
+
+    // URL du visualiseur cartographique Géobretagne (sviewer), utilisée par les portages SDIS29.
+    $parameters->set('app.geobretagne_url', '%env(string:PREVARISC_PLUGIN_GEOBRETAGNE)%');
+
     $parameters->set('env(PREVARISC_MAIL_ENABLED)', 0);
 
     $parameters->set('app.mail_enabled', '%env(bool:PREVARISC_MAIL_ENABLED)%');
@@ -150,7 +166,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.data_path', '%env(string:PREVARISC_DATA_PATH)%');
 
-    $parameters->set('env(PREVARISC_REAL_DATA_PATH)', '%app.prevarisc_path%/public/data');
+    $parameters->set('env(PREVARISC_REAL_DATA_PATH)', '%kernel.project_dir%/public/data');
 
     $parameters->set('app.files_path', '%env(resolve:PREVARISC_REAL_DATA_PATH)%');
 
@@ -166,9 +182,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.carto_default_lat', '%env(float:PREVARISC_CARTO_DEFAULT_LAT)%');
 
-    $parameters->set('env(PREVARISC_CARTO_AUTOCONF_PATH)', '');
+    $parameters->set('env(PREVARISC_IGN_AUTOCONF)', '');
 
-    $parameters->set('app.carto_autoconf_path', '%env(string:PREVARISC_CARTO_AUTOCONF_PATH)%');
+    $parameters->set('app.carto_autoconf_path', '%kernel.project_dir%/public%env(string:PREVARISC_IGN_AUTOCONF)%');
 
     $parameters->set('env(PREVARISC_PLUGIN_GOOGLEMAPKEY)', '');
 
@@ -244,11 +260,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_NTLM_ENABLED)', 0);
 
     $parameters->set('app.ntlm_enabled', '%env(bool:PREVARISC_NTLM_ENABLED)%');
-
-    // @todo: Variable à retirer une fois le legacy retiré
-    $parameters->set('env(PREVARISC_SYMFONY_LOGIN)', 1);
-
-    $parameters->set('app.symfony_login', '%env(bool:PREVARISC_SYMFONY_LOGIN)%');
 
     $parameters->set('env(PREVARISC_LDAP_ACCOUNT_FORM)', '');
 

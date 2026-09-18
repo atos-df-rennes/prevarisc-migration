@@ -9,13 +9,13 @@ namespace App\Constant;
  */
 final class NomInterneCapsule
 {
-    public const DESCRIPTIF_ETABLISSEMENT = 'descriptifEtablissement';
+    public const string DESCRIPTIF_ETABLISSEMENT = 'descriptifEtablissement';
 
-    public const DESCRIPTIF_VERIFICATIONS_TECHNIQUES = 'descriptifVerificationsTechniques';
+    public const string DESCRIPTIF_VERIFICATIONS_TECHNIQUES = 'descriptifVerificationsTechniques';
 
-    public const EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT = 'effectifsDegagementsEtablissement';
+    public const string EFFECTIFS_DEGAGEMENTS_ETABLISSEMENT = 'effectifsDegagementsEtablissement';
 
-    public const EFFECTIFS_DEGAGEMENTS_DOSSIER = 'effectifsDegagementsDossier';
+    public const string EFFECTIFS_DEGAGEMENTS_DOSSIER = 'effectifsDegagementsDossier';
 
     /**
      * Empêche l'instanciation de la classe.

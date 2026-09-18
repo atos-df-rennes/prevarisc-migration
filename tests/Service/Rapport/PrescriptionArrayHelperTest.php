@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Rapport;
 
 use App\Constant\TypePrescription;
 use App\Service\Rapport\PrescriptionArrayHelper;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class PrescriptionArrayHelperTest extends TestCase
@@ -21,8 +24,8 @@ final class PrescriptionArrayHelperTest extends TestCase
 
         $result = PrescriptionArrayHelper::withoutLevees($input);
 
-        self::assertArrayHasKey(0, $result);
-        self::assertArrayNotHasKey(1, $result);
+        $this->assertArrayHasKey(0, $result);
+        $this->assertArrayNotHasKey(1, $result);
     }
 
     public function testWithoutLeveesRetourneVideSiToutesSontLevees(): void
@@ -32,7 +35,7 @@ final class PrescriptionArrayHelperTest extends TestCase
             1 => [0 => ['DATE_LEVEE' => '15/03/2023', 'ID_DOSSIER_REPRISE' => '']],
         ];
 
-        self::assertSame([], PrescriptionArrayHelper::withoutLevees($input));
+        $this->assertSame([], PrescriptionArrayHelper::withoutLevees($input));
     }
 
     public function testWithoutLeveesRetourneTableauInchangeSiAucuneLevee(): void
@@ -42,12 +45,12 @@ final class PrescriptionArrayHelperTest extends TestCase
             1 => [0 => ['DATE_LEVEE' => '', 'ID_DOSSIER_REPRISE' => '5']],
         ];
 
-        self::assertSame($input, PrescriptionArrayHelper::withoutLevees($input));
+        $this->assertSame($input, PrescriptionArrayHelper::withoutLevees($input));
     }
 
     public function testWithoutLeveesAvecTableauVide(): void
     {
-        self::assertSame([], PrescriptionArrayHelper::withoutLevees([]));
+        $this->assertSame([], PrescriptionArrayHelper::withoutLevees([]));
     }
 
     // =========================================================================
@@ -63,8 +66,8 @@ final class PrescriptionArrayHelperTest extends TestCase
 
         $result = PrescriptionArrayHelper::withoutActuals($input);
 
-        self::assertArrayHasKey(0, $result);
-        self::assertArrayNotHasKey(1, $result);
+        $this->assertArrayHasKey(0, $result);
+        $this->assertArrayNotHasKey(1, $result);
     }
 
     public function testWithoutActualsRetourneVideSiToutesActuelles(): void
@@ -74,7 +77,7 @@ final class PrescriptionArrayHelperTest extends TestCase
             1 => [0 => ['DATE_LEVEE' => '', 'ID_DOSSIER_REPRISE' => '']],
         ];
 
-        self::assertSame([], PrescriptionArrayHelper::withoutActuals($input));
+        $this->assertSame([], PrescriptionArrayHelper::withoutActuals($input));
     }
 
     public function testWithoutActualsRetourneTableauInchangeSiToutesReprises(): void
@@ -84,12 +87,12 @@ final class PrescriptionArrayHelperTest extends TestCase
             1 => [0 => ['DATE_LEVEE' => '', 'ID_DOSSIER_REPRISE' => '9']],
         ];
 
-        self::assertSame($input, PrescriptionArrayHelper::withoutActuals($input));
+        $this->assertSame($input, PrescriptionArrayHelper::withoutActuals($input));
     }
 
     public function testWithoutActualsAvecTableauVide(): void
     {
-        self::assertSame([], PrescriptionArrayHelper::withoutActuals([]));
+        $this->assertSame([], PrescriptionArrayHelper::withoutActuals([]));
     }
 
     // =========================================================================
@@ -105,8 +108,8 @@ final class PrescriptionArrayHelperTest extends TestCase
 
         $result = PrescriptionArrayHelper::withoutPrevious($input);
 
-        self::assertArrayHasKey(0, $result);
-        self::assertArrayNotHasKey(1, $result);
+        $this->assertArrayHasKey(0, $result);
+        $this->assertArrayNotHasKey(1, $result);
     }
 
     public function testWithoutPreviousRetourneVideSiToutesReprises(): void
@@ -116,7 +119,7 @@ final class PrescriptionArrayHelperTest extends TestCase
             1 => [0 => ['DATE_LEVEE' => '', 'ID_DOSSIER_REPRISE' => '2']],
         ];
 
-        self::assertSame([], PrescriptionArrayHelper::withoutPrevious($input));
+        $this->assertSame([], PrescriptionArrayHelper::withoutPrevious($input));
     }
 
     public function testWithoutPreviousRetourneTableauInchangeSiAucuneReprise(): void
@@ -126,12 +129,12 @@ final class PrescriptionArrayHelperTest extends TestCase
             1 => [0 => ['DATE_LEVEE' => '', 'ID_DOSSIER_REPRISE' => '']],
         ];
 
-        self::assertSame($input, PrescriptionArrayHelper::withoutPrevious($input));
+        $this->assertSame($input, PrescriptionArrayHelper::withoutPrevious($input));
     }
 
     public function testWithoutPreviousAvecTableauVide(): void
     {
-        self::assertSame([], PrescriptionArrayHelper::withoutPrevious([]));
+        $this->assertSame([], PrescriptionArrayHelper::withoutPrevious([]));
     }
 
     // =========================================================================
@@ -140,14 +143,14 @@ final class PrescriptionArrayHelperTest extends TestCase
 
     public function testBuildTextearticleAvecTableauVide(): void
     {
-        self::assertSame('', PrescriptionArrayHelper::buildTextearticle([]));
+        $this->assertSame('', PrescriptionArrayHelper::buildTextearticle([]));
     }
 
     public function testBuildTextearticleAvecUnePrescription(): void
     {
         $presc = [['LIBELLE_TEXTE' => 'R123', 'LIBELLE_ARTICLE' => 'Art.1']];
 
-        self::assertSame('R123 - Art.1 ', PrescriptionArrayHelper::buildTextearticle($presc));
+        $this->assertSame('R123 - Art.1 ', PrescriptionArrayHelper::buildTextearticle($presc));
     }
 
     public function testBuildTextearticleAvecDeuxPrescriptionsUtiliseVirgule(): void
@@ -157,52 +160,47 @@ final class PrescriptionArrayHelperTest extends TestCase
             ['LIBELLE_TEXTE' => 'R456', 'LIBELLE_ARTICLE' => 'Art.2'],
         ];
 
-        self::assertSame('R123 - Art.1, R456 - Art.2 ', PrescriptionArrayHelper::buildTextearticle($presc));
+        $this->assertSame('R123 - Art.1, R456 - Art.2 ', PrescriptionArrayHelper::buildTextearticle($presc));
     }
 
     public function testBuildTextearticleAvecTexteVideUtiliseSeparateurSeulement(): void
     {
         $presc = [['LIBELLE_TEXTE' => '', 'LIBELLE_ARTICLE' => 'Art.1']];
 
-        self::assertSame(' - Art.1 ', PrescriptionArrayHelper::buildTextearticle($presc));
+        $this->assertSame(' - Art.1 ', PrescriptionArrayHelper::buildTextearticle($presc));
     }
 
     public function testBuildTextearticleAvecArticleVideLaisseEspaceApres(): void
     {
         $presc = [['LIBELLE_TEXTE' => 'R123', 'LIBELLE_ARTICLE' => '']];
 
-        self::assertSame('R123 -  ', PrescriptionArrayHelper::buildTextearticle($presc));
+        $this->assertSame('R123 -  ', PrescriptionArrayHelper::buildTextearticle($presc));
     }
 
     // =========================================================================
     // getPrescriptionSegmentName
     // =========================================================================
-
-    /**
-     * @dataProvider segmentNameProvider
-     */
+    #[DataProvider('segmentNameProvider')]
     public function testGetPrescriptionSegmentName(int $type, string $contenu, string $expected): void
     {
-        self::assertSame($expected, PrescriptionArrayHelper::getPrescriptionSegmentName($type, $contenu));
+        $this->assertSame($expected, PrescriptionArrayHelper::getPrescriptionSegmentName($type, $contenu));
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return \Iterator<string, array<mixed>>
      */
-    public function segmentNameProvider(): array
+    public static function segmentNameProvider(): \Iterator
     {
-        return [
-            'reglementaire all' => [TypePrescription::REGLEMENTAIRE, 'all',       'listeReg'],
-            'reglementaire reprises' => [TypePrescription::REGLEMENTAIRE, 'reprises',  'listeRegReprises'],
-            'reglementaire actuelles' => [TypePrescription::REGLEMENTAIRE, 'actuelles', 'listeRegActuelles'],
-            'exploitation all' => [TypePrescription::EXPLOITATION,  'all',       'listeExploitation'],
-            'exploitation reprises' => [TypePrescription::EXPLOITATION,  'reprises',  'listeExploitationReprises'],
-            'exploitation actuelles' => [TypePrescription::EXPLOITATION,  'actuelles', 'listeExploitationActuelles'],
-            'amelioration all' => [TypePrescription::AMELIORATION,  'all',       'listeAmelioration'],
-            'amelioration reprises' => [TypePrescription::AMELIORATION,  'reprises',  'listeAmeliorationReprises'],
-            'amelioration actuelles' => [TypePrescription::AMELIORATION,  'actuelles', 'listeAmeliorationActuelles'],
-            'type inconnu' => [99,                              'all',       ''],
-            'contenu inconnu' => [TypePrescription::REGLEMENTAIRE, 'inconnu',   ''],
-        ];
+        yield 'reglementaire all' => [TypePrescription::REGLEMENTAIRE, 'all',       'listeReg'];
+        yield 'reglementaire reprises' => [TypePrescription::REGLEMENTAIRE, 'reprises',  'listeRegReprises'];
+        yield 'reglementaire actuelles' => [TypePrescription::REGLEMENTAIRE, 'actuelles', 'listeRegActuelles'];
+        yield 'exploitation all' => [TypePrescription::EXPLOITATION,  'all',       'listeExploitation'];
+        yield 'exploitation reprises' => [TypePrescription::EXPLOITATION,  'reprises',  'listeExploitationReprises'];
+        yield 'exploitation actuelles' => [TypePrescription::EXPLOITATION,  'actuelles', 'listeExploitationActuelles'];
+        yield 'amelioration all' => [TypePrescription::AMELIORATION,  'all',       'listeAmelioration'];
+        yield 'amelioration reprises' => [TypePrescription::AMELIORATION,  'reprises',  'listeAmeliorationReprises'];
+        yield 'amelioration actuelles' => [TypePrescription::AMELIORATION,  'actuelles', 'listeAmeliorationActuelles'];
+        yield 'type inconnu' => [99,                              'all',       ''];
+        yield 'contenu inconnu' => [TypePrescription::REGLEMENTAIRE, 'inconnu',   ''];
     }
 }

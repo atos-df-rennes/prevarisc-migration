@@ -3,71 +3,37 @@
 namespace App\Entity;
 
 use App\Repository\DossierDocumentConsulteRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DossierDocumentConsulteRepository::class)
- *
- * @ORM\Table(name="dossierdocconsulte")
- */
+#[ORM\Entity(repositoryClass: DossierDocumentConsulteRepository::class)]
+#[ORM\Table(name: 'dossierdocconsulte')]
 class DossierDocumentConsulte
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_DOSSIERDOCCONSULTE", type="bigint")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_DOSSIERDOCCONSULTE', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="REF_CONSULTE", type="string", length=255, nullable=false)
-     */
-    private $reference;
+    #[ORM\Column(name: 'REF_CONSULTE', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $reference = null;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_CONSULTE", type="date", nullable=false)
-     */
-    private $date;
+    #[ORM\Column(name: 'DATE_CONSULTE', type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $date = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="DOC_CONSULTE", type="boolean", nullable=false)
-     */
-    private $consulte;
+    #[ORM\Column(name: 'DOC_CONSULTE', type: Types::BOOLEAN, nullable: false)]
+    private ?bool $consulte = null;
 
-    /**
-     * @var DossierNatureListe
-     *
-     * @ORM\ManyToOne(targetEntity=DossierNatureListe::class)
-     *
-     * @ORM\JoinColumn(name="ID_NATURE", referencedColumnName="ID_DOSSIERNATURE", nullable=false)
-     */
-    private $nature;
+    #[ORM\ManyToOne(targetEntity: DossierNatureListe::class)]
+    #[ORM\JoinColumn(name: 'ID_NATURE', referencedColumnName: 'ID_DOSSIERNATURE', nullable: false)]
+    private ?DossierNatureListe $nature = null;
 
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="documentsConsultes")
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'documentsConsultes')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false)]
+    private ?Dossier $dossier = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ID_DOC", type="bigint", nullable=false)
-     */
-    private $document;
+    #[ORM\Column(name: 'ID_DOC', type: Types::BIGINT, nullable: false)]
+    private string $document;
 
     public function getId(): ?int
     {
@@ -79,7 +45,7 @@ class DossierDocumentConsulte
         return $this->reference;
     }
 
-    public function setReference(string $reference): self
+    public function setReference(?string $reference): self
     {
         $this->reference = $reference;
 
@@ -91,7 +57,7 @@ class DossierDocumentConsulte
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(?\DateTimeInterface $date): self
     {
         $this->date = $date;
 
@@ -134,7 +100,7 @@ class DossierDocumentConsulte
         return $this;
     }
 
-    public function getDocument(): ?string
+    public function getDocument(): string
     {
         return $this->document;
     }

@@ -89,6 +89,7 @@ final class DossierDateCommissionEchuDto extends DossierDashboardDto
      *
      * @return self
      */
+    #[\Override]
     public static function fromArray(array $row)
     {
         /** @var self $dto */

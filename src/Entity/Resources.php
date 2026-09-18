@@ -5,44 +5,28 @@ namespace App\Entity;
 use App\Repository\ResourcesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ResourcesRepository::class)
- */
+#[ORM\Entity(repositoryClass: ResourcesRepository::class)]
 class Resources
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="id_resource", type="bigint", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'id_resource', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $name;
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $name = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $text;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $text = null;
 
     /**
      * @var Collection<int, Privileges>
-     *
-     * @ORM\OneToMany(targetEntity=Privileges::class, mappedBy="resource", orphanRemoval=true)
      */
-    private $privileges;
+    #[ORM\OneToMany(targetEntity: Privileges::class, mappedBy: 'resource', orphanRemoval: true)]
+    private Collection $privileges;
 
     public function __construct()
     {

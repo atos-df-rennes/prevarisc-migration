@@ -12,50 +12,26 @@ use App\Security\Voter\DossierVoter;
 use App\Service\Contact;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gère les contacts d'un dossier.
- *
- * @Route(requirements={"id"="\d+"})
  */
+#[Route(requirements: ['id' => '\d+'])]
 class DossierContactController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var UtilisateurInformationsRepository */
-    private $utilisateurInformationsRepository;
-
-    /** @var Contact */
-    private $contactService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierRepository $dossierRepository,
-        UtilisateurInformationsRepository $utilisateurInformationsRepository,
-        Contact $contactService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->dossierRepository = $dossierRepository;
-        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
-        $this->contactService = $contactService;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierRepository $dossierRepository, private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly Contact $contactService)
+    {
     }
 
-    /**
-     * @Route("/dossier/{id}/contacts", name="dossier_contacts", methods={"GET"})
-     *
-     * @IsGranted(DossierVoter::LECTURE, subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/contacts', name: 'dossier_contacts', methods: ['GET'])]
+    #[IsGranted(DossierVoter::LECTURE, subject: 'dossier')]
     public function contacts(Dossier $dossier): Response
     {
         $idDossier = $dossier->getId();
@@ -71,11 +47,8 @@ class DossierContactController extends AbstractController implements DossierLate
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/contacts/ajouter", name="dossier_contacts_add", methods={"GET", "POST"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted(DossierVoter::MODIFICATION, subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/contacts/ajouter', name: 'dossier_contacts_add', methods: ['GET', 'POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted(DossierVoter::MODIFICATION, subject: 'dossier')]
     public function addContact(Request $request, Dossier $dossier): Response
     {
         $contact = new UtilisateurInformations();
@@ -96,18 +69,12 @@ class DossierContactController extends AbstractController implements DossierLate
         }
 
         return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/contacts/ajouter/existant",
-     *     name="dossier_contacts_add_existing",
-     *     methods={"POST"},
-     *     defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted(DossierVoter::MODIFICATION, subject="dossier")
-     */
+    #[Route(path: '/dossier/{id}/contacts/ajouter/existant', name: 'dossier_contacts_add_existing', methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted(DossierVoter::MODIFICATION, subject: 'dossier')]
     public function addExistingContact(Request $request, Dossier $dossier): Response
     {
         if (!is_string($request->request->get('token')) || !$this->isCsrfTokenValid('dossier_contacts_add_existing_'.$dossier->getId(), $request->request->get('token'))) {
@@ -143,18 +110,12 @@ class DossierContactController extends AbstractController implements DossierLate
         return $this->redirectToRoute('dossier_contacts', ['id' => $dossier->getId()]);
     }
 
-    /**
-     * @Route("/dossier/{id}/contacts/{contact}/supprimer", name="dossier_contacts_delete", methods={"GET", "DELETE"}, options={"expose"=true}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted(DossierVoter::MODIFICATION, subject="dossier")
-     *
-     * @ParamConverter("dossier", options={"id" = "id"})
-     * @ParamConverter("contact", options={"id" = "contact"})
-     */
+    #[Route(path: '/dossier/{id}/contacts/{contact}/supprimer', name: 'dossier_contacts_delete', methods: ['GET', 'DELETE'], options: ['expose' => true], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted(DossierVoter::MODIFICATION, subject: 'dossier')]
     public function deleteContact(
         Request $request,
-        Dossier $dossier,
-        UtilisateurInformations $contact
+        #[MapEntity(id: 'id')] Dossier $dossier,
+        #[MapEntity(id: 'contact')] UtilisateurInformations $contact
     ): Response {
         if (!$dossier->getContacts()->contains($contact)) {
             $this->addFlash('warning', "Le contact n'appartient pas à ce dossier.");
@@ -173,9 +134,11 @@ class DossierContactController extends AbstractController implements DossierLate
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $isStillUsed = $this->contactService->isUsed($contact, Contact::DOSSIER);
+
             $dossier->removeContact($contact);
 
-            if (!$this->contactService->isUsed($contact, Contact::DOSSIER)) {
+            if (!$isStillUsed) {
                 $this->entityManager->remove($contact);
             }
 
@@ -187,7 +150,7 @@ class DossierContactController extends AbstractController implements DossierLate
         }
 
         return $this->render('dossier/contacts/_form_delete_contact.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'dossier' => $dossier,
             'contact' => $contact,
         ]);

@@ -217,58 +217,70 @@ Au-delà des ressources génériques, le système permet de créer des **ressour
 
 #### 5.2.1 Ressources spécialisées pour les établissements
 
-Une ressource spécialisée sur les établissements combine plusieurs critères de filtrage qui varient selon le **genre** de l'établissement :
+Une ressource spécialisée sur les établissements combine plusieurs critères de filtrage qui varient selon le **genre** de l'établissement.
 
-**Établissement recevant du public (ERP) :**
+> **Principe universel de sérialisation** : Lors de la création d'une ressource spécialisée, **seuls les critères visibles dans le formulaire front** sont sérialisés dans le nom de la ressource. Les paramètres **non affichés au formulaire** sont marqués `0` (ou `1` s'il s'agit de critères dynamiques utilisateur). Cette approche permet une configuration centralisée : les champs masqués au front auront toujours la valeur `0` en base, ce qui signifie "ignorer ce filtre" ou "s'adapter au runtime selon le profil de l'utilisateur".
 
-| Critère | Options |
-|---|---|
-| Types d'activité | Un ou plusieurs types sélectionnés, ou « Tous les types » |
-| Catégories | Une ou plusieurs catégories sélectionnées, ou « Toutes les catégories » |
-| Commissions | « Ignorer les commissions » ou « Sur les commissions de l'utilisateur » |
-| Groupements | « Ignorer les groupements » ou « Sur les groupements de l'utilisateur » |
-| Commune | « Ignorer la commune » ou « Sur la commune de l'utilisateur » |
+Par exemple :
+- Pour une **Cellule**, seul le type d'activité est sélectionnable au front → la catégorie est toujours `0`
+- Pour une **Habitation**, seule la famille est sélectionnable → commissions/groupements ne sont pas exposées, donc toujours `0` ou `1` (remplaçable)
+- Pour un **BUP**, aucun critère technique n'est sélectionnable → tous les critères (groupements, commune) sont toujours `0` ou `1`
 
-**Cellule :**
+**Établissement recevant du public (ERP) — Formulaire front affiche :** Types d'activité, Catégories
 
-| Critère | Options |
-|---|---|
-| Types d'activité | Un ou plusieurs types, ou « Tous les types » |
-| Catégories | Une ou plusieurs catégories, ou « Toutes les catégories » |
+| Critère | Valeur en ressource | Notes |
+|---|---|---|
+| Types d'activité | ✅ Sérialisé | Sélection multiple au front (ex: `erp_2-5_3-7_...`) |
+| Catégories | ✅ Sérialisé | Sélection multiple au front (ex: `erp_..._0_0_0`) |
+| Commissions | `0` ou `1` | Paramètre invisible au front → toujours `0` (ignorer) ou `1` (remplaçable par profil utilisateur) |
+| Groupements | `0` ou `1` | Paramètre invisible au front → toujours `0` ou `1` |
+| Commune | `0` ou `1` | Paramètre invisible au front → toujours `0` ou `1` |
 
-**Habitation :**
+**Cellule — Formulaire front affiche :** Types d'activité UNIQUEMENT
 
-| Critère | Options |
-|---|---|
-| Familles | Une ou plusieurs familles sélectionnées, ou « Toutes les familles » |
-| Groupements | « Ignorer les groupements » ou « Sur les groupements de l'utilisateur » |
-| Commune | « Ignorer la commune » ou « Sur la commune de l'utilisateur » |
+| Critère | Valeur en ressource | Notes |
+|---|---|---|
+| Types d'activité | ✅ Sérialisé | Sélection multiple au front (ex: `cell_2-5_0`) |
+| Catégories | `0` | Paramètre **invisible** au front → toujours `0` (ignorer) |
 
-**Immeuble de grande hauteur (IGH) :**
+**Habitation — Formulaire front affiche :** Familles UNIQUEMENT
 
-| Critère | Options |
-|---|---|
-| Classes | Une ou plusieurs classes sélectionnées, ou « Toutes les classes » |
-| Commissions | « Ignorer les commissions » ou « Sur les commissions de l'utilisateur » |
-| Groupements | « Ignorer les groupements » ou « Sur les groupements de l'utilisateur » |
-| Commune | « Ignorer la commune » ou « Sur la commune de l'utilisateur » |
+| Critère | Valeur en ressource | Notes |
+|---|---|---|
+| Familles | ✅ Sérialisé | Sélection multiple au front (ex: `hab_1-3_0_0`) |
+| Groupements | `0` ou `1` | Paramètre invisible au front → toujours `0` ou `1` |
+| Commune | `0` ou `1` | Paramètre invisible au front → toujours `0` ou `1` |
 
-**Bâtiment d'utilité publique (BUP), Camping, Manifestation temporaire, Installation ouverte au public (IOP) :**
+**Immeuble de grande hauteur (IGH) — Formulaire front affiche :** Classes UNIQUEMENT
 
-| Critère | Options |
-|---|---|
-| Groupements | « Ignorer les groupements » ou « Sur les groupements de l'utilisateur » |
-| Commune | « Ignorer la commune » ou « Sur la commune de l'utilisateur » |
+| Critère | Valeur en ressource | Notes |
+|---|---|---|
+| Classes | ✅ Sérialisé | Sélection multiple au front (ex: `igh_A-B_0_0_0`) |
+| Commissions | `0` ou `1` | Paramètre invisible au front → toujours `0` ou `1` |
+| Groupements | `0` ou `1` | Paramètre invisible au front → toujours `0` ou `1` |
+| Commune | `0` ou `1` | Paramètre invisible au front → toujours `0` ou `1` |
 
-**Zone :**
+**Bâtiment d'Utilité Publique (BUP), Camping, Manifestation temporaire, IOP — Formulaire front affiche :** Aucun critère
 
-| Critère | Options |
-|---|---|
-| Classements | Un ou plusieurs classements, ou « Tous les classements » |
-| Groupements | « Ignorer les groupements » ou « Sur les groupements de l'utilisateur » |
-| Commune | « Ignorer la commune » ou « Sur la commune de l'utilisateur » |
+| Critère | Valeur en ressource | Notes |
+|---|---|---|
+| Groupements | `0` ou `1` | Aucun sélecteur au front → toujours `0` ou `1` |
+| Commune | `0` ou `1` | Aucun sélecteur au front → toujours `0` ou `1` |
 
-Lorsqu'un critère est paramétré sur « Sur les commissions / groupements / commune de l'utilisateur », le système injecte dynamiquement les commissions, groupements ou la commune rattachés à l'utilisateur connecté au moment du contrôle d'accès. Cela signifie que **deux utilisateurs du même groupe peuvent avoir accès à des établissements différents** en fonction de leurs domaines de compétences respectifs.
+**Zone — Formulaire front affiche :** Classements UNIQUEMENT
+
+| Critère | Valeur en ressource | Notes |
+|---|---|---|
+| Classements | ✅ Sérialisé | Sélection multiple au front (ex: `zone_1-3_0_0`) |
+| Groupements | `0` ou `1` | Paramètre invisible au front → toujours `0` ou `1` |
+| Commune | `0` ou `1` | Paramètre invisible au front → toujours `0` ou `1` |
+
+**Interprétation des valeurs `0` et `1` pour les critères dynamiques :**
+
+- `0` = **Ignorer ce filtre** — tout utilisateur a accès (sans considération de son profil pour ce critère)
+- `1` = **Adapter au profil utilisateur** — seuls les utilisateurs ayant ce critère dans leur profil ont accès (ex: leurs commissions, groupements, commune)
+
+Lorsqu'un critère est configuré sur `1`, le système injecte dynamiquement les valeurs réelles de l'utilisateur au moment du contrôle d'accès. Cela signifie que **deux utilisateurs du même groupe peuvent avoir accès à des établissements différents** en fonction de leurs domaines de compétences respectifs.
 
 Chaque ressource spécialisée pour les établissements génère automatiquement deux privilèges : **Lecture** et **Modifier**.
 
@@ -281,6 +293,12 @@ Une ressource spécialisée sur les dossiers se définit par :
 | Natures de dossier | Une ou plusieurs natures sélectionnées, ou « Toutes les natures » |
 
 Chaque ressource spécialisée pour les dossiers génère automatiquement trois privilèges : **Lecture**, **Modifier** et **Verrouillage d'un dossier**.
+
+> ⚠️ **Limitation implémentée** : Le formulaire d'administration accepte une sélection de plusieurs natures, mais **les ressources multi-natures (ex: `dossier_1-2`) ne sont pas résolues par le moteur de contrôle d'accès**. Seules les ressources simples de type `dossier_<ID_NATURE>` sont traitées lors des vérifications d'accès. Cette limitation existe aussi dans l'implémentation legacy et n'a pas été changée lors de la migration.
+>
+> **Options de correction à envisager** :
+> - Implémenter réellement la résolution des ressources multi-natures dans le moteur ACL.
+> - Modifier le formulaire d'administration pour imposer une sélection unique de nature (remplacer le sélecteur multiple par un simple `<select>`).
 
 #### 5.2.3 Nommage et affichage
 

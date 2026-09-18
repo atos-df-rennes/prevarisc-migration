@@ -213,24 +213,34 @@
             $('#js-btn-annuler-etab').on('click', function () {
                 $('#js-form-ajouter-etab').hide();
                 $('#js-btn-ajouter-etab').show();
-                etabSelect.clear();
             });
         });
     </script>
-    <script type="module">
-        import { initTomSelectEtablissement } from '{{ asset('js/modules/tom-select-etablissement.js') }}';
-        import { initLoadingButton } from '{{ asset('js/modules/loading-button.js') }}';
+    {% if not dossier.verrou %}
+        <script type="module">
+            import { initTomSelectEtablissement } from '{{ asset('js/modules/tom-select-etablissement.js') }}';
+            import { initLoadingButton } from '{{ asset('js/modules/loading-button.js') }}';
 
-        const hiddenField = document.getElementById('{{ formAjouterEtab.idEtablissement.vars.id }}');
-        const submitBtn = document.getElementById('js-btn-valider-etab');
+            const hiddenField = document.getElementById('{{ formAjouterEtab.idEtablissement.vars.id }}');
+            const submitBtn = document.getElementById('js-btn-valider-etab');
 
-        const etabSelect = initTomSelectEtablissement(
-            '#js-etab-search',
-            '{{ path('api_etablissements_search') }}',
-            () => { hiddenField.value = etabSelect.getValue(); submitBtn.disabled = false; },
-            () => { hiddenField.value = ''; submitBtn.disabled = true; }
-        );
+            const etabSelect = initTomSelectEtablissement(
+                '#js-etab-search',
+                '{{ path('api_etablissements_search') }}',
+                {
+                    placeholder: 'Libellé, identifiant (#123) ou numéro de l\'établissement…',
+                    onSelect: () => { hiddenField.value = etabSelect.getValue(); submitBtn.disabled = false; },
+                    onDeselect: () => { hiddenField.value = ''; submitBtn.disabled = true; },
+                }
+            );
 
-        initLoadingButton('#js-btn-valider-etab', 'Liaison en cours...');
-    </script>
+            initLoadingButton('#js-btn-valider-etab', 'Liaison en cours...');
+
+            // Réinitialisation de la sélection à l'annulation (etabSelect n'est pas accessible
+            // depuis les scripts classiques : la remise à zéro est branchée ici).
+            document.getElementById('js-btn-annuler-etab').addEventListener('click', function () {
+                etabSelect.clear();
+            });
+        </script>
+    {% endif %}
 {% endblock %}

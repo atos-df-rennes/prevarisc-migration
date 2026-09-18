@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Descriptif;
 
 use App\Constant\TypeChamp;
 use App\Dto\Descriptif\ChampValueData;
+use App\Dto\Descriptif\RubriqueFormData;
 use App\Dto\Descriptif\TableauRowData;
 use App\Entity\Champ;
 use App\Entity\Dossier;
@@ -12,15 +15,13 @@ use App\Entity\Rubrique;
 use App\Entity\TypeChamp as TypeChampEntity;
 use App\Entity\Valeur;
 use App\Service\Descriptif\DescriptifFormHydrator;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \App\Service\Descriptif\DescriptifFormHydrator
- */
-class DescriptifFormHydratorTest extends TestCase
+#[CoversClass(DescriptifFormHydrator::class)]
+final class DescriptifFormHydratorTest extends TestCase
 {
-    /** @var DescriptifFormHydrator */
-    private $hydrator;
+    private DescriptifFormHydrator $hydrator;
 
     protected function setUp(): void
     {
@@ -35,9 +36,9 @@ class DescriptifFormHydratorTest extends TestCase
 
         $data = $this->hydrateSimple($champ, $valeur);
 
-        self::assertSame('valeur test', $data->getValue());
-        self::assertSame(10, $data->getValeurId());
-        self::assertSame(1, $data->getChampId());
+        $this->assertSame('valeur test', $data->getValue());
+        $this->assertSame(10, $data->getValeurId());
+        $this->assertSame(1, $data->getChampId());
     }
 
     public function testHydrateChampSimpleSansValeur(): void
@@ -46,8 +47,8 @@ class DescriptifFormHydratorTest extends TestCase
 
         $data = $this->hydrateSimple($champ, null);
 
-        self::assertNull($data->getValue());
-        self::assertNull($data->getValeurId());
+        $this->assertNull($data->getValue());
+        $this->assertNull($data->getValeurId());
     }
 
     public function testHydrateChampCheckboxVrai(): void
@@ -58,7 +59,7 @@ class DescriptifFormHydratorTest extends TestCase
 
         $data = $this->hydrateSimple($champ, $valeur);
 
-        self::assertTrue($data->getValue());
+        $this->assertTrue($data->getValue());
     }
 
     public function testHydrateChampCheckboxFaux(): void
@@ -69,7 +70,7 @@ class DescriptifFormHydratorTest extends TestCase
 
         $data = $this->hydrateSimple($champ, $valeur);
 
-        self::assertFalse($data->getValue());
+        $this->assertFalse($data->getValue());
     }
 
     public function testHydrateChampDate(): void
@@ -81,8 +82,8 @@ class DescriptifFormHydratorTest extends TestCase
 
         $data = $this->hydrateSimple($champ, $valeur);
 
-        self::assertInstanceOf(\DateTimeInterface::class, $data->getValue());
-        self::assertSame('15/06/2025', $data->getValue()->format('d/m/Y'));
+        $this->assertInstanceOf(\DateTimeInterface::class, $data->getValue());
+        $this->assertSame('15/06/2025', $data->getValue()->format('d/m/Y'));
     }
 
     public function testHydrateChampNumber(): void
@@ -93,7 +94,7 @@ class DescriptifFormHydratorTest extends TestCase
 
         $data = $this->hydrateSimple($champ, $valeur);
 
-        self::assertSame(42, $data->getValue());
+        $this->assertSame(42, $data->getValue());
     }
 
     public function testHydrateChampSelect(): void
@@ -104,7 +105,7 @@ class DescriptifFormHydratorTest extends TestCase
 
         $data = $this->hydrateSimple($champ, $valeur);
 
-        self::assertSame('Option A', $data->getValue());
+        $this->assertSame('Option A', $data->getValue());
     }
 
     public function testHydrateTableauAvecLignesExistantes(): void
@@ -127,14 +128,14 @@ class DescriptifFormHydratorTest extends TestCase
 
         $data = $this->hydrateTableauChamp($parentChamp, $lignes);
 
-        self::assertCount(1, $data->getLignes());
+        $this->assertCount(1, $data->getLignes());
 
         $row = $data->getLignes()[0];
-        self::assertInstanceOf(TableauRowData::class, $row);
-        self::assertSame('abc', $row->getCell(11));
-        self::assertSame(99, $row->getCell(12));
-        self::assertSame(100, $row->getValeurId(11));
-        self::assertSame(101, $row->getValeurId(12));
+        $this->assertInstanceOf(TableauRowData::class, $row);
+        $this->assertSame('abc', $row->getCell(11));
+        $this->assertSame(99, $row->getCell(12));
+        $this->assertSame(100, $row->getValeurId(11));
+        $this->assertSame(101, $row->getValeurId(12));
     }
 
     public function testHydrateTableauVide(): void
@@ -143,7 +144,7 @@ class DescriptifFormHydratorTest extends TestCase
 
         $data = $this->hydrateTableauChamp($parentChamp, []);
 
-        self::assertCount(0, $data->getLignes());
+        $this->assertCount(0, $data->getLignes());
     }
 
     public function testHydrateRubriqueAvecDisplayFalse(): void
@@ -158,26 +159,27 @@ class DescriptifFormHydratorTest extends TestCase
             [
                 'rubrique' => $rubrique,
                 'display' => false,
+                'opened' => true,
                 'champs' => [
                     ['champ' => $champ, 'valeur' => $valeur],
                 ],
             ],
         ];
 
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $formData = $this->hydrator->hydrateFromDossier($dossier, $rubriques);
 
         $rubriqueData = $formData->getRubrique(5);
-        self::assertNotNull($rubriqueData);
-        self::assertFalse($rubriqueData->isDisplay());
+        $this->assertInstanceOf(RubriqueFormData::class, $rubriqueData);
+        $this->assertFalse($rubriqueData->isDisplay());
     }
 
     public function testHydrateRubriquesVides(): void
     {
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $formData = $this->hydrator->hydrateFromDossier($dossier, []);
 
-        self::assertEmpty($formData->getRubriques());
+        $this->assertEmpty($formData->getRubriques());
     }
 
     public function testHydrateDepuisEtablissement(): void
@@ -191,18 +193,19 @@ class DescriptifFormHydratorTest extends TestCase
             [
                 'rubrique' => $rubrique,
                 'display' => true,
+                'opened' => true,
                 'champs' => [['champ' => $champ, 'valeur' => $valeur]],
             ],
         ];
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
         $formData = $this->hydrator->hydrateFromEtablissement($etablissement, $rubriques);
 
         $rubriqueData = $formData->getRubrique(9);
-        self::assertNotNull($rubriqueData);
+        $this->assertInstanceOf(RubriqueFormData::class, $rubriqueData);
         $champData = $rubriqueData->getChamp(30);
-        self::assertNotNull($champData);
-        self::assertSame('ets value', $champData->getValue());
+        $this->assertInstanceOf(ChampValueData::class, $champData);
+        $this->assertSame('ets value', $champData->getValue());
     }
 
     // --- Helpers ---
@@ -214,19 +217,18 @@ class DescriptifFormHydratorTest extends TestCase
             [
                 'rubrique' => $rubrique,
                 'display' => true,
+                'opened' => true,
                 'champs' => [
                     ['champ' => $champ, 'valeur' => $valeur],
                 ],
             ],
         ];
-
-        $dossier = $this->createMock(Dossier::class);
-        $formData = $this->hydrator->hydrateFromDossier($dossier, $rubriques);
+        $formData = $this->hydrator->hydrateFromDossier($this->createStub(Dossier::class), $rubriques);
 
         $rubriqueData = $formData->getRubrique(1);
-        self::assertNotNull($rubriqueData);
+        $this->assertInstanceOf(RubriqueFormData::class, $rubriqueData);
         $champData = $rubriqueData->getChamp($champ->getId());
-        self::assertNotNull($champData);
+        $this->assertInstanceOf(ChampValueData::class, $champData);
 
         return $champData;
     }
@@ -241,29 +243,28 @@ class DescriptifFormHydratorTest extends TestCase
             [
                 'rubrique' => $rubrique,
                 'display' => true,
+                'opened' => true,
                 'champs' => [
                     ['champ' => $parentChamp, 'valeur' => null, 'lignes' => $lignes],
                 ],
             ],
         ];
-
-        $dossier = $this->createMock(Dossier::class);
-        $formData = $this->hydrator->hydrateFromDossier($dossier, $rubriques);
+        $formData = $this->hydrator->hydrateFromDossier($this->createStub(Dossier::class), $rubriques);
 
         $rubriqueData = $formData->getRubrique(1);
-        self::assertNotNull($rubriqueData);
+        $this->assertInstanceOf(RubriqueFormData::class, $rubriqueData);
         $champData = $rubriqueData->getChamp($parentChamp->getId());
-        self::assertNotNull($champData);
+        $this->assertInstanceOf(ChampValueData::class, $champData);
 
         return $champData;
     }
 
     private function makeChamp(int $id, int $typeId, bool $tableau = false): Champ
     {
-        $typeEntity = $this->createMock(TypeChampEntity::class);
+        $typeEntity = $this->createStub(TypeChampEntity::class);
         $typeEntity->method('getId')->willReturn($typeId);
 
-        $champ = $this->createMock(Champ::class);
+        $champ = $this->createStub(Champ::class);
         $champ->method('getId')->willReturn($id);
         $champ->method('getType')->willReturn($typeEntity);
         $champ->method('getTableau')->willReturn($tableau);
@@ -277,7 +278,6 @@ class DescriptifFormHydratorTest extends TestCase
         // Pas de setter pour l'ID en général dans Doctrine (clé auto), on utilise la réflexion
         $ref = new \ReflectionClass($valeur);
         $prop = $ref->getProperty('id');
-        $prop->setAccessible(true);
         $prop->setValue($valeur, $id);
 
         return $valeur;
@@ -285,7 +285,7 @@ class DescriptifFormHydratorTest extends TestCase
 
     private function makeRubrique(int $id): Rubrique
     {
-        $rubrique = $this->createMock(Rubrique::class);
+        $rubrique = $this->createStub(Rubrique::class);
         $rubrique->method('getId')->willReturn($id);
 
         return $rubrique;

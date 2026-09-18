@@ -8,14 +8,10 @@ use App\Entity\Dossier as DossierEntity;
 use App\Entity\ListeDocumentConsulte;
 use App\Repository\ListeDocumentConsulteRepository;
 
-final class DossierDocumentsConsultesService
+final readonly class DossierDocumentsConsultesService
 {
-    /** @var ListeDocumentConsulteRepository */
-    private $listeDocumentConsulteRepository;
-
-    public function __construct(ListeDocumentConsulteRepository $listeDocumentConsulteRepository)
+    public function __construct(private ListeDocumentConsulteRepository $listeDocumentConsulteRepository)
     {
-        $this->listeDocumentConsulteRepository = $listeDocumentConsulteRepository;
     }
 
     /**
@@ -30,7 +26,7 @@ final class DossierDocumentsConsultesService
             return [];
         }
 
-        $isVisite = in_array($type->getId(), DossierType::TYPES_VISITE);
+        $isVisite = in_array($type->getId(), DossierType::TYPES_VISITE, true);
         $isEtude = DossierType::ETUDE === $type->getId();
 
         if (!$isVisite && !$isEtude) {
@@ -38,11 +34,11 @@ final class DossierDocumentsConsultesService
         }
 
         if ($isVisite) {
-            if (in_array($nature->getId(), DossierNature::RECEPTIONS_TRAVAUX)) {
+            if (in_array($nature->getId(), DossierNature::RECEPTIONS_TRAVAUX, true)) {
                 return $this->listeDocumentConsulteRepository->getDocVisiteRT();
             }
 
-            if (in_array($nature->getId(), DossierNature::VISITE_AVANT_OUVERTURE)) {
+            if (in_array($nature->getId(), DossierNature::VISITE_AVANT_OUVERTURE, true)) {
                 return $this->listeDocumentConsulteRepository->getDocVisiteVAO();
             }
 
@@ -50,7 +46,7 @@ final class DossierDocumentsConsultesService
         }
 
         // Cas étude : certaines natures utilisent les docs de visite (levées)
-        if (in_array($nature->getId(), DossierNature::LEVEES)) {
+        if (in_array($nature->getId(), DossierNature::LEVEES, true)) {
             return $this->listeDocumentConsulteRepository->getDocVisite();
         }
 
@@ -61,6 +57,6 @@ final class DossierDocumentsConsultesService
     {
         $documentConsulte = $this->listeDocumentConsulteRepository->findOneBy(['id' => $idDocument]);
 
-        return $documentConsulte ? $documentConsulte->getLibelle() : null;
+        return $documentConsulte?->getLibelle();
     }
 }

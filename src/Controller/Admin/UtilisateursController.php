@@ -7,55 +7,32 @@ use App\Entity\UtilisateurPreferences;
 use App\Form\UtilisateurType;
 use App\Repository\GroupeRepository;
 use App\Repository\UtilisateurRepository;
-use App\Security\Md5SaltedEncoder;
 use App\Service\Avatar;
 use App\Service\Image;
+use App\Service\UtilisateurManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Route(requirements={"id"="\d+"})
- *
- * @IsGranted("admin")
- */
+#[Route(requirements: ['id' => '\d+'])]
+#[IsGranted('admin')]
 class UtilisateursController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
-
-    /** @var GroupeRepository */
-    private $groupeRepository;
-
-    /** @var Avatar */
-    private $avatar;
-
-    /** @var Image */
-    private $image;
-
-    /** @var Md5SaltedEncoder */
-    private $passwordEncoder;
-
-    public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image, Md5SaltedEncoder $passwordEncoder)
-    {
-        $this->entityManager = $entityManager;
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->groupeRepository = $groupeRepository;
-        $this->avatar = $avatar;
-        $this->image = $image;
-        $this->passwordEncoder = $passwordEncoder;
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UtilisateurRepository $utilisateurRepository,
+        private readonly GroupeRepository $groupeRepository,
+        private readonly Avatar $avatar,
+        private readonly Image $image,
+        private readonly UtilisateurManager $utilisateurManager,
+    ) {
     }
 
-    /**
-     * @Route("/admin/utilisateurs/", name="admin_utilisateurs_index")
-     */
+    #[Route(path: '/admin/utilisateurs/', name: 'admin_utilisateurs_index')]
     public function utilisateurs(): Response
     {
         return $this->render('utilisateurs/index.html.twig', [
@@ -66,9 +43,7 @@ class UtilisateursController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/utilisateurs/ajouter", name="admin_utilisateurs_add")
-     */
+    #[Route(path: '/admin/utilisateurs/ajouter', name: 'admin_utilisateurs_add')]
     public function ajouter(Request $request): Response
     {
         $utilisateur = new Utilisateur();
@@ -80,9 +55,8 @@ class UtilisateursController extends AbstractController
             $preferences = new UtilisateurPreferences();
             $preferences->setUtilisateur($utilisateur);
             $utilisateur->setPreferences($preferences);
-            // Encode en MD5 (format legacy) pour garantir la compatibilité du fallback Zend.
-            // À remplacer par UserPasswordEncoderInterface une fois le legacy retiré.
-            $utilisateur->setPassword($this->passwordEncoder->encodePassword((string) $utilisateur->getPlainPassword(), $utilisateur->getSalt()));
+            // Délégué à UtilisateurManager pour centraliser la logique.
+            $this->utilisateurManager->processPasswordBeforePersist($utilisateur);
 
             $dateDerniereVisite = new \DateTime();
             $utilisateur->setDerniereVisitePiecesDossier($dateDerniereVisite);
@@ -115,29 +89,20 @@ class UtilisateursController extends AbstractController
         }
 
         return $this->render('utilisateurs/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
         ]);
     }
 
-    /**
-     * @Route("/admin/utilisateurs/{id}/modifier", name="admin_utilisateurs_edit")
-     */
+    #[Route(path: '/admin/utilisateurs/{id}/modifier', name: 'admin_utilisateurs_edit')]
     public function modifier(Request $request, Utilisateur $utilisateur): Response
     {
         $form = $this->createForm(UtilisateurType::class, $utilisateur);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // On ne re-set pas le password s'il n'a pas été modifié
-            // Sinon, si l'utilisateur avait un mot de passe interne et qu'il passe maintenant par le SSO, on ne conserve pas l'ancienne valeur
-            if (null !== $utilisateur->getPlainPassword()) {
-                // Encode en MD5 (format legacy) pour garantir la compatibilité du fallback Zend.
-                // À remplacer par UserPasswordEncoderInterface une fois le legacy retiré.
-                $utilisateur->setPassword($this->passwordEncoder->encodePassword($utilisateur->getPlainPassword(), $utilisateur->getSalt()));
-            } elseif (null !== $utilisateur->getPassword() && $utilisateur->getSso()) {
-                $utilisateur->setPassword(null);
-            }
+            // Délégué à UtilisateurManager pour centraliser la logique du password.
+            $this->utilisateurManager->processPasswordBeforePersist($utilisateur);
 
             $this->entityManager->persist($utilisateur);
             $this->entityManager->flush();
@@ -161,11 +126,11 @@ class UtilisateursController extends AbstractController
 
             $this->addFlash('success', "L'utilisateur a bien été modifié.");
 
-            return $this->redirect('/legacy/admin/utilisateurs/sauvegarder?userId='.$userId);
+            return $this->redirectToRoute('admin_utilisateurs_index');
         }
 
         return $this->render('utilisateurs/modification.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
             'utilisateur' => $utilisateur,
             'can_unlock_ip' => $this->getParameter('app.enforce_security') && $utilisateur->getFailedLoginAttempts() >= 2,

@@ -8,12 +8,8 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TexteApplicable
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $entityManager;
     }
 
     public function save(TexteApplicableEntity $texteApplicable, bool $prescription): void
@@ -50,12 +46,12 @@ class TexteApplicable
             if ('' !== $lastType && $lastType === $texteApplicable->getType()) {
                 // @fixme: Créer un DTO pour corriger l'erreur PHPStan
                 /* @phpstan-ignore-next-line */
-                $textesApplicables[$texteApplicable->getType()->getId()]['textes'][] = $texteApplicable->getLibelle();
+                $textesApplicables[$texteApplicable->getType()->getIdOrFail()]['textes'][] = $texteApplicable->getLibelle();
 
                 continue;
             }
 
-            $textesApplicables[$texteApplicable->getType()->getId()] = [
+            $textesApplicables[$texteApplicable->getType()->getIdOrFail()] = [
                 'titre' => $texteApplicable->getType()->getLibelle(),
                 'textes' => [$texteApplicable->getLibelle()]
             ];

@@ -2,14 +2,10 @@
 
 namespace App\Service;
 
-final class VersionService
+final readonly class VersionService
 {
-    /** @var string */
-    private $srcDir;
-
-    public function __construct(string $srcDir)
+    public function __construct(private string $srcDir)
     {
-        $this->srcDir = $srcDir;
     }
 
     public function getCurrentVersion(): ?string
@@ -64,9 +60,7 @@ final class VersionService
 
             $minorVersion = $this->extractMinorVersion($version);
 
-            if (!isset($sections[$minorVersion])) {
-                $sections[$minorVersion] = [];
-            }
+            $sections[$minorVersion] ??= [];
 
             $sections[$minorVersion][] = [
                 'version' => $version,
@@ -75,9 +69,7 @@ final class VersionService
             ];
         }
 
-        uksort($sections, function (string $a, string $b): int {
-            return version_compare($b, $a);
-        });
+        uksort($sections, fn (string $a, string $b): int => version_compare($b, $a));
 
         return $sections;
     }

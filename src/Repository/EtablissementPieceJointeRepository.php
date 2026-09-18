@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Constant\PlacementEtablissementPj;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementPieceJointe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -67,8 +68,9 @@ class EtablissementPieceJointeRepository extends ServiceEntityRepository
         $queryBuilder
             ->leftJoin('etablissement_pj.pieceJointe', 'pj')
             ->where('pj.extension IN (:extensions)')
-            ->andWhere('etablissement_pj.placement = 2')
+            ->andWhere('etablissement_pj.placement = :placement')
             ->andWhere('etablissement_pj.etablissement = :etablissement')
+            ->setParameter('placement', PlacementEtablissementPj::PLANS)
             ->setParameter('etablissement', $etablissement->getId())
             ->setParameter('extensions', ['.jpg', '.JPG', '.png'])
         ;

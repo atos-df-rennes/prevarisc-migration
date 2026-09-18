@@ -104,7 +104,7 @@ class PeriodiciteRepository extends ServiceEntityRepository
     {
         $information = $etablissement->getLatestInformations();
 
-        if (!in_array($information->getGenre()->getId(), [GenreEtablissement::ERP, GenreEtablissement::IGH])) {
+        if (!in_array($information->getGenre()->getId(), [GenreEtablissement::ERP, GenreEtablissement::IGH], true)) {
             return null;
         }
 

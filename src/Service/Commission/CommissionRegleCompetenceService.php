@@ -68,19 +68,19 @@ class CommissionRegleCompetenceService
         }
 
         $localSommeilValues = array_map(
-            static function (CommissionRegleLocalSommeil $ls): bool { return (bool) $ls->getLocalSommeil(); },
+            static fn (CommissionRegleLocalSommeil $ls): bool => (bool) $ls->getLocalSommeil(),
             $regle->getLocalSommeil()->toArray()
         );
         if (!in_array($ets['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'], $localSommeilValues, true)) {
             return false;
         }
 
-        $typeIds = array_map(static function (EtablissementType $t): ?int { return $t->getId(); }, $regle->getTypes()->toArray());
+        $typeIds = array_map(static fn (EtablissementType $t): ?int => $t->getId(), $regle->getTypes()->toArray());
         if (!in_array((int) $ets['ID_TYPE'], $typeIds, true)) {
             return false;
         }
 
-        $categoryIds = array_map(static function (EtablissementCategorie $c): ?int { return $c->getId(); }, $regle->getCategories()->toArray());
+        $categoryIds = array_map(static fn (EtablissementCategorie $c): ?int => $c->getId(), $regle->getCategories()->toArray());
 
         return in_array((int) $ets['ID_CATEGORIE'], $categoryIds, true);
     }
@@ -97,7 +97,7 @@ class CommissionRegleCompetenceService
             return false;
         }
 
-        $classeIds = array_map(static function (IghClasse $cl): ?int { return $cl->getId(); }, $regle->getClasses()->toArray());
+        $classeIds = array_map(static fn (IghClasse $cl): ?int => $cl->getId(), $regle->getClasses()->toArray());
 
         return in_array((int) $ets['ID_CLASSE'], $classeIds, true);
     }

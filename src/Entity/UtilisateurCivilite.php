@@ -3,32 +3,20 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurCiviliteRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=UtilisateurCiviliteRepository::class)
- *
- * @ORM\Table(name="utilisateurcivilite")
- */
+#[ORM\Entity(repositoryClass: UtilisateurCiviliteRepository::class)]
+#[ORM\Table(name: 'utilisateurcivilite')]
 class UtilisateurCivilite
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_UTILISATEURCIVILITE", type="integer", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_UTILISATEURCIVILITE', type: Types::INTEGER, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_UTILISATEURCIVILITE", type="string", length=255, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_UTILISATEURCIVILITE', type: Types::STRING, length: 255, nullable: false)]
+    private ?string $libelle = null;
 
     public function getId(): ?int
     {

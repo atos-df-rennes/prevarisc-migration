@@ -2,6 +2,7 @@
 
 namespace App\Service\DataStore;
 
+use App\Constant\DataStoreObjectTypes;
 use App\Entity\PieceJointe;
 use App\Repository\EtablissementRepository;
 
@@ -11,48 +12,34 @@ use App\Repository\EtablissementRepository;
 class SimpleFileDataStore implements DataStore
 {
     // Format de formattage des noms de fichiers.
-    /** @var string */
-    protected $format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
+    protected string $format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
 
     // Mapping entre les types de pièces jointes et les répertoires dans lesquels ils sont stockés.
     /** @var array|string[] */
     protected $types = [];
 
-    /** @var EtablissementRepository */
-    protected $etablissementRepository;
-
-    /** @var string */
-    protected $dataPath;
-
-    /** @var string */
-    protected $realDataPath;
-
     /**
      * @param array<string>|null $options
      */
     public function __construct(
-        EtablissementRepository $etablissementRepository,
-        string $dataPath,
-        string $realDataPath,
+        protected EtablissementRepository $etablissementRepository,
+        protected string $dataPath,
+        protected string $realDataPath,
         ?array $options = null
     ) {
         $this->types = [
-            'etablissement' => 'pieces-jointes',
-            'etablissement_miniature' => 'etablissement_miniature',
-            'dossier' => 'pieces-jointes',
-            'dateCommission' => 'documents_commission',
-            'document' => 'documents',
-            'courrier' => 'courriers',
-            'avatar' => 'avatars',
+            DataStoreObjectTypes::ETABLISSEMENT => 'pieces-jointes',
+            DataStoreObjectTypes::ETABLISSEMENT_MINIATURE => 'etablissement_miniature',
+            DataStoreObjectTypes::DOSSIER => 'pieces-jointes',
+            DataStoreObjectTypes::DATE_COMMISSION => 'documents_commission',
+            DataStoreObjectTypes::DOCUMENT => 'documents',
+            DataStoreObjectTypes::COURRIER => 'courriers',
+            DataStoreObjectTypes::AVATAR => 'avatars',
         ];
 
         if (isset($options['fileFormat'])) {
             $this->format = $options['fileFormat'];
         }
-
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dataPath = $dataPath;
-        $this->realDataPath = $realDataPath;
     }
 
     public function getFilePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId, bool $createDirIfNotExists = false): string
@@ -100,18 +87,18 @@ class SimpleFileDataStore implements DataStore
         $etablissement = $this->etablissementRepository->find($linkedObjectId);
         // Logique pour déterminer le %NUMEROID_ETABLISSEMENT%
         switch ($linkedObjectType) {
-            case 'etablissement':
+            case DataStoreObjectTypes::ETABLISSEMENT:
                 // Logique pour récupérer le numéro d'établissement
                 $tokens[] = null !== $etablissement ? $etablissement->getId() : $linkedObjectId;
                 break;
-            case 'dossier':
+            case DataStoreObjectTypes::DOSSIER:
                 // Logique pour récupérer le numéro d'établissement à partir du dossier
                 $dossiers = null !== $etablissement ? $etablissement->getDossiers() : [];
                 $default_numeroid = [];
                 if ([] !== $dossiers) {
                     foreach ($dossiers as $dossier) {
                         $numero_id = $etablissement->getId() ?: $linkedObjectId;
-                        if (false !== stripos($piece_jointe->getDescription() ?? '', $numero_id)) {
+                        if (false !== stripos($piece_jointe->getDescription() ?? '', (string) $numero_id)) {
                             $tokens['%NUMEROID_ETABLISSEMENT%'] = $numero_id;
                             break;
                         }
@@ -119,9 +106,7 @@ class SimpleFileDataStore implements DataStore
                         $default_numeroid[] = $numero_id;
                     }
 
-                    if (null === $tokens['%NUMEROID_ETABLISSEMENT%']) {
-                        $tokens['%NUMEROID_ETABLISSEMENT%'] = implode('_', $default_numeroid);
-                    }
+                    $tokens['%NUMEROID_ETABLISSEMENT%'] ??= implode('_', $default_numeroid);
                 } else {
                     $tokens['%NUMEROID_ETABLISSEMENT%'] = $linkedObjectId;
                 }

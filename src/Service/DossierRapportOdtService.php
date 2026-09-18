@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Constant\DossierNature;
 use App\Constant\DossierType;
+use App\Constant\GenreEtablissement;
 use App\Constant\NomInterneCapsule;
 use App\Constant\StatutEtablissement;
 use App\Constant\TypeActivite;
@@ -18,11 +19,17 @@ use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
 use App\Repository\ListeDocumentConsulteRepository;
 use App\Service\DataStore\DataStore;
+use App\Service\Dossier\DossierVisiteConvocationService;
 use App\Service\Odt\OdtWriter;
 use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
+use App\Utils\PathNormalizer;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Odtphp\Exceptions\OdfException;
+use Odtphp\Odf;
+use Odtphp\Segment;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -34,73 +41,8 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class DossierRapportOdtService
 {
-    /** @var EntityManagerInterface */
-    private $em;
-
-    /** @var Connection */
-    private $conn;
-
-    /** @var DataStore */
-    private $dataStore;
-
-    /** @var DossierPrescriptionService */
-    private $prescriptionService;
-
-    /** @var DossierAffectationRepository */
-    private $dossierAffectationRepository;
-
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepository;
-
-    /** @var Descriptif */
-    private $descriptifService;
-
-    /** @var ListeDocumentConsulteRepository */
-    private $listeDocRepository;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var UrlGeneratorInterface */
-    private $urlGenerator;
-
-    /** @var string */
-    private $realDataPath;
-
-    /** @var LoggerInterface */
-    private $rapportLogger;
-
-    /** @var OdtWriter */
-    private $odtWriter;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        Connection $conn,
-        DataStore $dataStore,
-        DossierPrescriptionService $prescriptionService,
-        DossierAffectationRepository $dossierAffectationRepository,
-        DateCommissionRepository $dateCommissionRepository,
-        Descriptif $descriptifService,
-        ListeDocumentConsulteRepository $listeDocRepository,
-        DossierRepository $dossierRepository,
-        UrlGeneratorInterface $urlGenerator,
-        OdtWriter $odtWriter,
-        string $realDataPath,
-        LoggerInterface $rapportLogger
-    ) {
-        $this->em = $em;
-        $this->conn = $conn;
-        $this->dataStore = $dataStore;
-        $this->prescriptionService = $prescriptionService;
-        $this->dossierAffectationRepository = $dossierAffectationRepository;
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->descriptifService = $descriptifService;
-        $this->listeDocRepository = $listeDocRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->urlGenerator = $urlGenerator;
-        $this->odtWriter = $odtWriter;
-        $this->realDataPath = $realDataPath;
-        $this->rapportLogger = $rapportLogger;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger)
+    {
     }
 
     /**
@@ -212,13 +154,13 @@ class DossierRapportOdtService
 
         try {
             // --- Init Odf ---
-            $odf = new \Odf($fichierSelect);
+            $odf = new Odf($fichierSelect);
 
             // --- Champs scalaires du dossier (commission, objet, servInstructeur, avis…) ---
             $this->fillChampsDossier($odf, $rawDossier, $idDossier, $typeDossierLabel, $natureDossierLabel, $numInsee);
 
             // --- Champs dates du dossier ---
-            $this->fillChampsDatesDossier($odf, $rawDossier);
+            $this->fillChampsDatesDossier($odf, $rawDossier, $dossier);
 
             // =====================================================================
             // SEGMENT : preventionnistes
@@ -249,7 +191,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segPreventionnistes);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             try {
@@ -260,7 +202,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segPrevTel);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             $this->addChamp($odf, 'listeMailPreventioniste', implode(', ', $listeMails));
@@ -318,7 +260,7 @@ class DossierRapportOdtService
                     $this->addChamp($segListeDocs, 'exist', 'X');
                     $this->addChamp($segListeDocs, 'refdoc', $consulte['REF_CONSULTE'] ?? '');
                     $dateDc = '';
-                    if (!empty($consulte['DATE_CONSULTE']) && '0000-00-00' !== substr($consulte['DATE_CONSULTE'], 0, 10)) {
+                    if (!empty($consulte['DATE_CONSULTE']) && !str_starts_with($consulte['DATE_CONSULTE'], '0000-00-00')) {
                         $dtDc = \DateTime::createFromFormat('Y-m-d', substr($consulte['DATE_CONSULTE'], 0, 10));
                         if ($dtDc instanceof \DateTime) {
                             $dateDc = $dtDc->format('d/m/Y');
@@ -330,7 +272,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segListeDocs);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             // =====================================================================
@@ -360,7 +302,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segDocsAjout);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             // --- Segments prescriptions (standard + CC) ---
@@ -384,7 +326,7 @@ class DossierRapportOdtService
                 }
 
                 $odf->mergeSegment($segTexte);
-            } catch (\OdfException $odfException) {
+            } catch (OdfException) {
             }
 
             // --- Champs établissement (infos générales, adresse, effectifs, avis) ---
@@ -405,24 +347,15 @@ class DossierRapportOdtService
             // =====================================================================
             // GN (Groupement de Nuit)
             // =====================================================================
-            // GN dérivé de ID_GENRE (2 = établissement, 3 = cellule) — la colonne
-            // GN_ETABLISSEMENTINFORMATIONS du legacy n'existe pas dans la base migrée.
+            // GN dérivé de ID_GENRE (ERP = 2, CELLULE = 3)
             $gn = (int) ($rawEtabInfos['ID_GENRE'] ?? '0');
-            if (2 === $gn) {
+            if (GenreEtablissement::ERP === $gn) {
                 $this->addChamp($odf, 'gn2', '×');
                 $this->addChamp($odf, 'gn3', '');
-            } elseif (3 === $gn) {
+            } elseif (GenreEtablissement::CELLULE === $gn) {
                 $this->addChamp($odf, 'gn2', '');
                 $this->addChamp($odf, 'gn3', '×');
             }
-
-            // =====================================================================
-            // Effectifs/dégagements (non portés — pas d'équivalent migré)
-            // =====================================================================
-            $this->addChamp($odf, 'descriptionEffectifDossier', null);
-            $this->addChamp($odf, 'descriptionDegagementDossier', null);
-            $this->addChamp($odf, 'descriptionEffectifEtablissement', null);
-            $this->addChamp($odf, 'descriptionDegagementEtablissement', null);
 
             // =====================================================================
             // SEGMENTS : avisDerogations + avisDerogationsEtablissement
@@ -456,7 +389,7 @@ class DossierRapportOdtService
      * @param array<string, string|null> $rawDossier
      */
     private function fillChampsDossier(
-        \Odf $odf,
+        Odf $odf,
         array $rawDossier,
         int $idDossier,
         string $typeDossierLabel,
@@ -464,7 +397,7 @@ class DossierRapportOdtService
         ?string $numInsee
     ): void {
         // --- dateDuJour ---
-        $this->addChamp($odf, 'dateDuJour', (new \DateTime())->format('d/m/Y'));
+        $this->addChamp($odf, 'dateDuJour', new \DateTime()->format('d/m/Y'));
 
         // --- Type et nature dossier ---
         $this->addChamp($odf, 'typeDossier', $typeDossierLabel);
@@ -503,7 +436,7 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'objetDossier', $rawDossier['OBJET_DOSSIER'] ?? '');
 
         // --- analyseRisque ---
-        $this->addChamp($odf, 'analyseRisque', $rawDossier['ANALYSERISQUE_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'analyseRisque', $rawDossier['ANOMALIE_DOSSIER'] ?? '');
 
         // --- observationDossier ---
         $this->addChamp($odf, 'observationDossier', $rawDossier['OBSERVATION_DOSSIER'] ?? '');
@@ -512,7 +445,7 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'descriptifDossier', $rawDossier['DESCRIPTIF_DOSSIER'] ?? '');
 
         // --- criticite ---
-        $this->addChamp($odf, 'criticite', $rawDossier['CRITICITE_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'criticite', $rawDossier['FACTDANGE_DOSSIER'] ?? '');
 
         // --- horsDelai ---
         $horsDelai = ('1' === $rawDossier['HORSDELAI_DOSSIER']) ? 'Oui' : 'Non';
@@ -554,8 +487,8 @@ class DossierRapportOdtService
         $servInstructeurPrenomContact = '';
         $servInstructeurNomContact = '';
         $servInstructeurMail = '';
-        if (!empty($rawDossier['SERVINSTRUCTEUR_DOSSIER'])) {
-            $servInstructeur = $rawDossier['SERVINSTRUCTEUR_DOSSIER'];
+        if (!empty($rawDossier['SERVICEINSTRUC_DOSSIER'])) {
+            $servInstructeur = $rawDossier['SERVICEINSTRUC_DOSSIER'];
             /** @var array<string, string|null>|false $groupRowFetch */
             $groupRowFetch = $this->conn->fetchAssociative(
                 'SELECT g.LIBELLE_GROUPEMENT, ui.PRENOM_UTILISATEURINFORMATIONS, ui.NOM_UTILISATEURINFORMATIONS, ui.MAIL_UTILISATEURINFORMATIONS
@@ -563,7 +496,7 @@ class DossierRapportOdtService
                  INNER JOIN groupementtype gt ON g.ID_GROUPEMENTTYPE = gt.ID_GROUPEMENTTYPE
                  LEFT JOIN utilisateurinformations ui ON ui.ID_UTILISATEURINFORMATIONS = g.ID_UTILISATEURINFORMATIONS
                  WHERE g.LIBELLE_GROUPEMENT = :libelle LIMIT 1',
-                ['libelle' => $rawDossier['SERVINSTRUCTEUR_DOSSIER']]
+                ['libelle' => $rawDossier['SERVICEINSTRUC_DOSSIER']]
             );
             if (false !== $groupRowFetch) {
                 $servInstructeurPrenomContact = $groupRowFetch['PRENOM_UTILISATEURINFORMATIONS'] ?? '';
@@ -592,10 +525,10 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'servInstructeurMail', $servInstructeurMail);
 
         // --- Dérogations dossier ---
-        $this->addChamp($odf, 'reglesDerog', $rawDossier['REGLES_DOSSIER'] ?? '');
-        $this->addChamp($odf, 'justificationDerog', $rawDossier['JUSTIFICATION_DOSSIER'] ?? '');
-        $this->addChamp($odf, 'mesuresCompensatoiresDerog', $rawDossier['MESURESCOMPENSATOIRES_DOSSIER'] ?? '');
-        $this->addChamp($odf, 'mesuresComplementairesDerog', $rawDossier['MESURESCOMPLEMENTAIRES_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'reglesDerog', $rawDossier['REGLEDEROG_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'justificationDerog', $rawDossier['JUSTIFDEROG_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'mesuresCompensatoiresDerog', $rawDossier['MESURESCOMPENS_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'mesuresComplementairesDerog', $rawDossier['MESURESCOMPLE_DOSSIER'] ?? '');
     }
 
     /**
@@ -603,7 +536,7 @@ class DossierRapportOdtService
      *
      * @param array<string, string|null> $rawDossier
      */
-    private function fillChampsDatesDossier(\Odf $odf, array $rawDossier): void
+    private function fillChampsDatesDossier(Odf $odf, array $rawDossier, Dossier $dossier): void
     {
         // --- dateRvrat ---
         $dateRvrat = 'Indisponible';
@@ -618,8 +551,8 @@ class DossierRapportOdtService
 
         // --- dateDelaipresc ---
         $dateDelaipresc = 'Pas de date';
-        if (!empty($rawDossier['DATEDELAIPRESC_DOSSIER'])) {
-            $dtDelai = \DateTime::createFromFormat('Y-m-d', substr($rawDossier['DATEDELAIPRESC_DOSSIER'], 0, 10));
+        if (!empty($rawDossier['DELAIPRESC_DOSSIER'])) {
+            $dtDelai = \DateTime::createFromFormat('Y-m-d', substr($rawDossier['DELAIPRESC_DOSSIER'], 0, 10));
             if ($dtDelai instanceof \DateTime) {
                 $dateDelaipresc = DateFormatterFr::formatLong($dtDelai);
             }
@@ -628,22 +561,13 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'dateDelaipresc', $dateDelaipresc);
 
         // --- dateVisite / heureVisite ---
-        $dateVisite = '';
-        $heureVisite = '';
-        if (!empty($rawDossier['DATEVISITE_DOSSIER'])) {
-            $dtVisite = \DateTime::createFromFormat('Y-m-d H:i:s', $rawDossier['DATEVISITE_DOSSIER']);
-            if (!$dtVisite instanceof \DateTime) {
-                $dtVisite = \DateTime::createFromFormat('Y-m-d', substr($rawDossier['DATEVISITE_DOSSIER'], 0, 10));
-            }
+        // Port du legacy DossierController::creationdocAction() : la colonne DATEVISITE_DOSSIER
+        // ne stocke qu'une date (pas d'heure), l'heure réelle de convocation vient du groupe de
+        // dates de commission liées à l'affectation visite/groupe de visite du dossier.
+        $infosConvocation = $this->visiteConvocationService->getInfosConvocation($dossier);
 
-            if ($dtVisite instanceof \DateTime) {
-                $dateVisite = DateFormatterFr::formatLong($dtVisite);
-                $heureVisite = $dtVisite->format('H:i');
-            }
-        }
-
-        $this->addChamp($odf, 'dateVisite', $dateVisite);
-        $this->addChamp($odf, 'heureVisite', $heureVisite);
+        $this->addChamp($odf, 'dateVisite', $infosConvocation['dateVisite']);
+        $this->addChamp($odf, 'heureVisite', $infosConvocation['heureVisite']);
 
         // --- dateGeneration ---
         $this->addChamp($odf, 'dateGeneration', DateFormatterFr::formatLong(new \DateTime()));
@@ -673,7 +597,7 @@ class DossierRapportOdtService
      * @param array<string, string|null> $rawDossier
      */
     private function fillChampsEtablissement(
-        \Odf $odf,
+        Odf $odf,
         array $rawEtab,
         array $rawEtabInfos,
         array $adresseRow,
@@ -916,7 +840,7 @@ class DossierRapportOdtService
      *
      * @param array<string, string|null> $rawEtab
      */
-    private function fillChampsDescTech(\Odf $odf, array $rawEtab): void
+    private function fillChampsDescTech(Odf $odf, array $rawEtab): void
     {
         // =====================================================================
         // Champs DESCTECH — colonnes directes de la table etablissement
@@ -991,7 +915,7 @@ class DossierRapportOdtService
     /**
      * Remplit les champs relatifs au maire de la commune de l'établissement.
      */
-    private function fillChampsMaire(\Odf $odf, ?string $numInsee): void
+    private function fillChampsMaire(Odf $odf, ?string $numInsee): void
     {
         $nomMaire = '';
         $prenomMaire = '';
@@ -1041,7 +965,7 @@ class DossierRapportOdtService
     /**
      * Remplit les 11 champs contacts du dossier (DUS, Exploitant, RespSecu, etc.).
      */
-    private function fillChampsContacts(\Odf $odf, int $idDossier, int $idEtab): void
+    private function fillChampsContacts(Odf $odf, int $idDossier, int $idEtab): void
     {
         // =====================================================================
         // CONTACTS (11 contacts)
@@ -1083,7 +1007,7 @@ class DossierRapportOdtService
     /**
      * Remplit les champs de l'établissement père (groupement).
      */
-    private function fillChampsEtablissementPere(\Odf $odf, int $idEtab): void
+    private function fillChampsEtablissementPere(Odf $odf, int $idEtab): void
     {
         // =====================================================================
         // Établissement père
@@ -1137,7 +1061,7 @@ class DossierRapportOdtService
      * @param array<string, string|null> $rawDossier
      */
     private function fillSegmentsPrescriptions(
-        \Odf $odf,
+        Odf $odf,
         Dossier $dossier,
         int $dossierNature,
         bool $repriseCC,
@@ -1181,7 +1105,7 @@ class DossierRapportOdtService
                 try {
                     $segCellules = $odf->setSegment('cellulesPresc');
                     $odf->mergeSegment($segCellules);
-                } catch (\OdfException $odfException) {
+                } catch (OdfException) {
                 }
             }
         }
@@ -1197,7 +1121,7 @@ class DossierRapportOdtService
      * @return string lien HTML vers la pièce jointe
      */
     private function persistPieceJointe(
-        \Odf $odf,
+        Odf $odf,
         Dossier $dossier,
         string $fichierSelect,
         array $rawDossier,
@@ -1205,50 +1129,70 @@ class DossierRapportOdtService
         array $rawEtab,
         int $idDossier
     ): string {
-        // =====================================================================
-        // CRÉATION PIÈCE JOINTE + SAUVEGARDE ODT
-        // =====================================================================
-        $pj = new PieceJointe();
-        $pj->setNom(substr(basename($fichierSelect), 0, strlen(basename($fichierSelect)) - 4));
-        $pj->setExtension('.odt');
-        $pj->setDescription(sprintf(
-            "Rapport de l'établissement %s (%s) généré le %s à %s",
-            $rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '',
-            $rawEtab['NUMEROID_ETABLISSEMENT'] ?? '',
-            (new \DateTime())->format('d/m/Y'),
-            (new \DateTime())->format('H:i')
-        ));
-        $pj->setDate(new \DateTime());
+        try {
+            // =====================================================================
+            // CRÉATION PIÈCE JOINTE + SAUVEGARDE ODT
+            // =====================================================================
+            $pj = new PieceJointe();
+            $pj->setNom(substr(basename($fichierSelect), 0, strlen(basename($fichierSelect)) - 4));
+            $pj->setExtension('.odt');
+            $pj->setDescription(sprintf(
+                "Rapport de l'établissement %s (%s) généré le %s à %s",
+                $rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '',
+                $rawEtab['NUMEROID_ETABLISSEMENT'] ?? '',
+                new \DateTime()->format('d/m/Y'),
+                new \DateTime()->format('H:i')
+            ));
+            $pj->setDate(new \DateTime());
 
-        $this->em->persist($pj);
-        $this->em->flush();
+            $this->em->persist($pj);
+            $this->em->flush();
 
-        $dpj = new DossierPieceJointe();
-        $dpj->setPieceJointe($pj);
-        $dpj->setDossier($dossier);
-        $dpj->setPieceJointeCommission(false);
+            $dpj = new DossierPieceJointe();
+            $dpj->setPieceJointe($pj);
+            $dpj->setDossier($dossier);
+            $dpj->setPieceJointeCommission(false);
 
-        $this->em->persist($dpj);
-        $this->em->flush();
+            $this->em->persist($dpj);
+            $this->em->flush();
 
-        // Lien HTML construit AVANT la sauvegarde (comportement legacy)
-        $url = $this->urlGenerator->generate('dossier_pieces_jointes_get', [
-            'id' => $idDossier,
-            'idpj' => $pj->getId(),
-        ]);
-        $libelle = htmlspecialchars($rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '', ENT_QUOTES);
-        $lien = "<a href='".$url."'>Ouvrir le rapport de l'établissement : ".$libelle.'</a>';
+            // Lien HTML construit AVANT la sauvegarde (comportement legacy)
+            $url = $this->urlGenerator->generate('dossier_pieces_jointes_get', [
+                'id' => $idDossier,
+                'idpj' => $pj->getId(),
+            ]);
+            $libelle = htmlspecialchars($rawEtabInfos['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '', ENT_QUOTES);
+            $lien = "<a href='".$url."'>Ouvrir le rapport de l'établissement : ".$libelle.'</a>';
 
-        // Sauvegarde ODT
-        if (!empty($rawDossier['ID_PLATAU'])) {
-            $chemin = $this->realDataPath.'/uploads/pieces-jointes/'.$pj->getId().$pj->getExtension();
-        } else {
-            $chemin = $this->dataStore->getFilePath($pj, 'dossier', $idDossier, true);
+            // Sauvegarde ODT
+            if (!empty($rawDossier['ID_PLATAU'])) {
+                $chemin = PathNormalizer::join($this->realDataPath, 'uploads/pieces-jointes', $pj->getId().$pj->getExtension());
+            } else {
+                $chemin = $this->dataStore->getFilePath($pj, 'dossier', $idDossier, true);
+            }
+
+            $this->rapportLogger->debug('Sauvegarde du fichier ODT.', [
+                'dossier_id' => $idDossier,
+                'chemin' => $chemin,
+                'pj_id' => $pj->getId(),
+            ]);
+
+            $odf->saveToDisk($chemin);
+
+            $this->rapportLogger->info('Rapport ODT sauvegardé avec succès.', [
+                'dossier_id' => $idDossier,
+                'pj_id' => $pj->getId(),
+            ]);
+
+            return $lien;
+        } catch (\Exception $exception) {
+            $this->rapportLogger->error('Erreur lors de la persistence de la pièce jointe.', [
+                'dossier_id' => $idDossier,
+                'exception_message' => $exception->getMessage(),
+                'exception_code' => $exception->getCode(),
+            ]);
+            throw $exception;
         }
-
-        $odf->saveToDisk($chemin);
-
-        return $lien;
     }
 
     // =========================================================================
@@ -1256,7 +1200,7 @@ class DossierRapportOdtService
     // =========================================================================
 
     /**
-     * @param \Odf|\Segment $odf
+     * @param Odf|Segment $odf
      */
     private function addChamp($odf, string $nomOdf, ?string $variable): void
     {
@@ -1274,7 +1218,7 @@ class DossierRapportOdtService
      * @param int                                          $type        TypePrescription::*
      * @param string                                       $typeContenu 'all' | 'reprises' | 'actuelles'
      */
-    private function addPrescription(\Odf $odf, array $prescArray, int $type, string $typeContenu): void
+    private function addPrescription(Odf $odf, array $prescArray, int $type, string $typeContenu): void
     {
         $segName = PrescriptionArrayHelper::getPrescriptionSegmentName($type, $typeContenu);
         if ('' === $segName) {
@@ -1303,7 +1247,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($segment);
-        } catch (\OdfException $odfException) {
+        } catch (OdfException) {
         }
     }
 
@@ -1313,12 +1257,12 @@ class DossierRapportOdtService
      * Port direct legacy addPrescriptionCC() de creationdoc.phtml.
      * Une ligne ODT par prescription : {num}, {libelle}, {textearticle}
      *
-     * @param \Segment                                     $segCellule  Segment parent (cellulesPresc)
+     * @param Segment                                      $segCellule  Segment parent (cellulesPresc)
      * @param array<int, array<int, array<string, mixed>>> $prescArray  Tableau issu de buildPrescriptionNestedArray()
      * @param int                                          $type        TypePrescription::*
      * @param string                                       $typeContenu 'all' | 'reprises' | 'actuelles'
      */
-    private function addPrescriptionCC($segCellule, array $prescArray, int $type, string $typeContenu): void
+    private function addPrescriptionCC(Segment $segCellule, array $prescArray, int $type, string $typeContenu): void
     {
         $segNames = [
             TypePrescription::REGLEMENTAIRE => [
@@ -1379,7 +1323,7 @@ class DossierRapportOdtService
                     $segment->merge();
                 }
             }
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
     }
 
@@ -1456,7 +1400,7 @@ class DossierRapportOdtService
      * Port direct legacy : setSegment + mergeSegment TOUJOURS appelés pour vider le bloc
      * si aucune cellule trouvée (sinon les markers [!-- BEGIN/END --] restent verbatim).
      */
-    private function applyCelluleDossier(\Odf $odf, Dossier $dossier): void
+    private function applyCelluleDossier(Odf $odf, Dossier $dossier): void
     {
         try {
             $segCellules = $odf->setSegment('cellulesPresc');
@@ -1498,7 +1442,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($segCellules);
-        } catch (\OdfException $odfException) {
+        } catch (OdfException) {
         }
     }
 
@@ -1507,7 +1451,7 @@ class DossierRapportOdtService
      *
      * @param array<string, string|null> $rawDossier
      */
-    private function applyCelluleDossierLevee(\Odf $odf, int $idEtab, int $dossierNature, array $rawDossier): void
+    private function applyCelluleDossierLevee(Odf $odf, int $idEtab, int $dossierNature, array $rawDossier): void
     {
         /** @var array<int, array<string, string|null>> $enfants */
         $enfants = $this->conn->fetchAllAssociative(
@@ -1594,7 +1538,7 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($segCellules);
-        } catch (\OdfException $odfException) {
+        } catch (OdfException) {
         }
     }
 
@@ -1603,7 +1547,7 @@ class DossierRapportOdtService
      *
      * @param bool $isEtablissement Si true, récupère par établissement (DISPLAY_HISTORIQUE=1)
      */
-    private function applyAvisDerogations(\Odf $odf, int $idDossier, string $segmentName, bool $isEtablissement, int $idEtab): void
+    private function applyAvisDerogations(Odf $odf, int $idDossier, string $segmentName, bool $isEtablissement, int $idEtab): void
     {
         try {
             $seg = $odf->setSegment($segmentName);
@@ -1634,7 +1578,7 @@ class DossierRapportOdtService
                      WHERE ed.ID_ETABLISSEMENT IN (?)
                      AND ad.DISPLAY_HISTORIQUE = 1',
                     [$etabIds],
-                    [Connection::PARAM_INT_ARRAY]
+                    [ArrayParameterType::INTEGER]
                 );
             } else {
                 /** @var array<int, array<string, string|null>> $rows */
@@ -1666,11 +1610,11 @@ class DossierRapportOdtService
             }
 
             $odf->mergeSegment($seg);
-        } catch (\OdfException $odfException) {
+        } catch (OdfException) {
         }
     }
 
-    private function applyFormulaires(\Odf $odf, Dossier $dossier, Etablissement $etablissement): void
+    private function applyFormulaires(Odf $odf, Dossier $dossier, Etablissement $etablissement): void
     {
         $capsules = [
             NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES => $this->descriptifService->getForDossier($dossier, NomInterneCapsule::DESCRIPTIF_VERIFICATIONS_TECHNIQUES),

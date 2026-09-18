@@ -25,15 +25,10 @@ use Doctrine\ORM\EntityManagerInterface;
  * d'un établissement (préventionnistes, rubriques, plans, activités secondaires, adresses,
  * établissements liés et père).
  */
-final class EtablissementPersistenceService
+final readonly class EtablissementPersistenceService
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
+    public function __construct(private EtablissementRepository $etablissementRepository)
+    {
     }
 
     /**

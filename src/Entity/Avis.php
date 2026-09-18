@@ -3,32 +3,20 @@
 namespace App\Entity;
 
 use App\Repository\AvisRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=AvisRepository::class)
- *
- * @ORM\Table(name="avis")
- */
+#[ORM\Entity(repositoryClass: AvisRepository::class)]
+#[ORM\Table(name: 'avis')]
 class Avis
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_AVIS", type="integer", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_AVIS', type: Types::INTEGER, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_AVIS", type="string", length=75, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_AVIS', type: Types::STRING, length: 75, nullable: false)]
+    private ?string $libelle = null;
 
     public function getId(): ?int
     {

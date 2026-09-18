@@ -26,7 +26,7 @@
         <div class="col-md-3">
             <select id="choix_commune" class="form-control">
                 {% for commune in communes %}
-                    <option value="{{ commune.id }}">{{ commune.libelle }}</option>
+                    <option value="{{ commune.id }}"{% if commune.id == selectedId %} selected{% endif %}>{{ commune.libelle }}</option>
                 {% endfor %}
             </select>
         </div>

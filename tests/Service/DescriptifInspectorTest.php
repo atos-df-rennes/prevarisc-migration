@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Constant\TypeChamp as TypeChampConstant;
@@ -23,8 +25,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class DescriptifInspectorTest extends TestCase
 {
-    /** @var DescriptifInspector */
-    private $service;
+    private DescriptifInspector $service;
 
     protected function setUp(): void
     {
@@ -37,7 +38,7 @@ final class DescriptifInspectorTest extends TestCase
 
     public function testRubriquesVidesRetourneFalse(): void
     {
-        self::assertFalse($this->service->rubriquesHaveData([]));
+        $this->assertFalse($this->service->rubriquesHaveData([]));
     }
 
     public function testChampSimpleSansValeurRetourneFalse(): void
@@ -48,7 +49,7 @@ final class DescriptifInspectorTest extends TestCase
             ]),
         ];
 
-        self::assertFalse($this->service->rubriquesHaveData($rubriques));
+        $this->assertFalse($this->service->rubriquesHaveData($rubriques));
     }
 
     public function testCheckboxFalseRetourneFalse(): void
@@ -62,7 +63,7 @@ final class DescriptifInspectorTest extends TestCase
             ]),
         ];
 
-        self::assertFalse($this->service->rubriquesHaveData($rubriques));
+        $this->assertFalse($this->service->rubriquesHaveData($rubriques));
     }
 
     public function testCheckboxNullRetourneFalse(): void
@@ -73,7 +74,7 @@ final class DescriptifInspectorTest extends TestCase
             ]),
         ];
 
-        self::assertFalse($this->service->rubriquesHaveData($rubriques));
+        $this->assertFalse($this->service->rubriquesHaveData($rubriques));
     }
 
     public function testParentNonTableauSansSousChampValeurRetourneFalse(): void
@@ -84,7 +85,7 @@ final class DescriptifInspectorTest extends TestCase
             ['champ' => $sousChamp, 'valeur' => null],
         ]);
 
-        self::assertFalse($this->service->rubriquesHaveData([
+        $this->assertFalse($this->service->rubriquesHaveData([
             $this->buildRubriqueItem([$champData]),
         ]));
     }
@@ -100,7 +101,7 @@ final class DescriptifInspectorTest extends TestCase
             ['champ' => $sousChamp, 'valeur' => $valeur],
         ]);
 
-        self::assertFalse($this->service->rubriquesHaveData([
+        $this->assertFalse($this->service->rubriquesHaveData([
             $this->buildRubriqueItem([$champData]),
         ]));
     }
@@ -109,7 +110,7 @@ final class DescriptifInspectorTest extends TestCase
     {
         $champData = $this->buildParentTableauChampData([]);
 
-        self::assertFalse($this->service->rubriquesHaveData([
+        $this->assertFalse($this->service->rubriquesHaveData([
             $this->buildRubriqueItem([$champData]),
         ]));
     }
@@ -129,7 +130,7 @@ final class DescriptifInspectorTest extends TestCase
             ]),
         ];
 
-        self::assertTrue($this->service->rubriquesHaveData($rubriques));
+        $this->assertTrue($this->service->rubriquesHaveData($rubriques));
     }
 
     public function testCheckboxTrueRetourneTrue(): void
@@ -143,7 +144,7 @@ final class DescriptifInspectorTest extends TestCase
             ]),
         ];
 
-        self::assertTrue($this->service->rubriquesHaveData($rubriques));
+        $this->assertTrue($this->service->rubriquesHaveData($rubriques));
     }
 
     public function testParentNonTableauAvecSousChampRenseigneRetourneTrue(): void
@@ -157,7 +158,7 @@ final class DescriptifInspectorTest extends TestCase
             ['champ' => $sousChamp, 'valeur' => $valeur],
         ]);
 
-        self::assertTrue($this->service->rubriquesHaveData([
+        $this->assertTrue($this->service->rubriquesHaveData([
             $this->buildRubriqueItem([$champData]),
         ]));
     }
@@ -173,7 +174,7 @@ final class DescriptifInspectorTest extends TestCase
             ['champ' => $sousChamp, 'valeur' => $valeur],
         ]);
 
-        self::assertTrue($this->service->rubriquesHaveData([
+        $this->assertTrue($this->service->rubriquesHaveData([
             $this->buildRubriqueItem([$champData]),
         ]));
     }
@@ -185,7 +186,7 @@ final class DescriptifInspectorTest extends TestCase
 
         $champData = $this->buildParentTableauChampData([[1 => $valeur]]);
 
-        self::assertTrue($this->service->rubriquesHaveData([
+        $this->assertTrue($this->service->rubriquesHaveData([
             $this->buildRubriqueItem([$champData]),
         ]));
     }
@@ -206,7 +207,7 @@ final class DescriptifInspectorTest extends TestCase
             ]),
         ];
 
-        self::assertTrue($this->service->rubriquesHaveData($rubriques));
+        $this->assertTrue($this->service->rubriquesHaveData($rubriques));
     }
 
     public function testPremiereRubriqueVideSecondeRenseigneeRetourneTrue(): void
@@ -223,7 +224,7 @@ final class DescriptifInspectorTest extends TestCase
             ]),
         ];
 
-        self::assertTrue($this->service->rubriquesHaveData($rubriques));
+        $this->assertTrue($this->service->rubriquesHaveData($rubriques));
     }
 
     // -------------------------------------------------------------------------
@@ -237,14 +238,13 @@ final class DescriptifInspectorTest extends TestCase
      */
     private function buildRubriqueItem(array $champs): array
     {
-        return ['rubrique' => new Rubrique(), 'display' => true, 'champs' => $champs];
+        return ['rubrique' => new Rubrique(), 'display' => true, 'opened' => true, 'champs' => $champs];
     }
 
     private function buildChamp(int $typeId): Champ
     {
         $type = new TypeChamp();
         $ref = new \ReflectionProperty(TypeChamp::class, 'id');
-        $ref->setAccessible(true);
         $ref->setValue($type, $typeId);
 
         $champ = new Champ();

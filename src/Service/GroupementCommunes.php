@@ -5,15 +5,10 @@ namespace App\Service;
 use App\Entity\Groupement;
 use App\Repository\EtablissementInformationsRepository;
 
-final class GroupementCommunes
+final readonly class GroupementCommunes
 {
-    /** @var EtablissementInformationsRepository */
-    private $etablissementInformationsRepository;
-
-    public function __construct(
-        EtablissementInformationsRepository $etablissementInformationsRepository
-    ) {
-        $this->etablissementInformationsRepository = $etablissementInformationsRepository;
+    public function __construct(private EtablissementInformationsRepository $etablissementInformationsRepository)
+    {
     }
 
     /**

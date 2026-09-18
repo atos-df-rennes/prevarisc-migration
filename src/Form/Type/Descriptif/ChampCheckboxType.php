@@ -19,6 +19,7 @@ class ChampCheckboxType extends AbstractType
         ]);
     }
 
+    #[\Override]
     public function getParent(): string
     {
         return CheckboxType::class;

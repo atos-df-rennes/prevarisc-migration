@@ -93,8 +93,6 @@ class DossierPieceJointeRepository extends ServiceEntityRepository
             ->getResult()
         ;
 
-        return array_values(array_filter(array_map(function (DossierPieceJointe $dpj): ?PieceJointe {
-            return $dpj->getPieceJointe();
-        }, $dossierPiecesJointes)));
+        return array_values(array_filter(array_map(fn (DossierPieceJointe $dpj): ?PieceJointe => $dpj->getPieceJointe(), $dossierPiecesJointes)));
     }
 }

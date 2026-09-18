@@ -4,13 +4,13 @@ namespace App\Constant;
 
 final class TypeChangement
 {
-    public const STATUT = 1;
+    public const int STATUT = 1;
 
-    public const AVIS = 2;
+    public const int AVIS = 2;
 
-    public const CLASSEMENT = 3;
+    public const int CLASSEMENT = 3;
 
-    public const ALL = [
+    public const array ALL = [
         self::STATUT,
         self::AVIS,
         self::CLASSEMENT,

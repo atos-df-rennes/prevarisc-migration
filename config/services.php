@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Ldap\Ldap;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\expr;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->import(__DIR__.'/prevarisc.php');
@@ -30,7 +30,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
         ->bind('$courriersMembresRealDataPath', '%app.files_path%/uploads/courriers/')
         ->bind('$debugEnabled', '%app.debug%')
-        ->bind(FlashBagInterface::class, ref('session.flash_bag'))
+        ->bind('$sdis29CustomEnabled', '%app.sdis29_custom_enabled%')
+        ->bind('$geobretagneUrl', '%app.geobretagne_url%')
+        ->bind('$facteurCriticiteCustomEnabled', '%app.facteur_criticite_custom_enabled%')
+        ->bind(FlashBagInterface::class, service('session.flash_bag'))
+        ->bind('$searchCache', service('cache.search'))
     ;
 
     $services->load('App\\', __DIR__.'/../src/')
@@ -46,6 +50,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // Environment Variable Processor pour construire MAILER_DSN depuis PREVARISC_MAIL_*
     $services->set('App\DependencyInjection\PrevariscMailerDsnProcessor')
+        ->tag('container.env_var_processor');
+
+    // Environment Variable Processor pour détecter si Plugin_SDIS29 est actif (PREVARISC_THIRDPARTY_PLUGINS)
+    $services->set('App\DependencyInjection\ThirdpartyPluginEnvVarProcessor')
         ->tag('container.env_var_processor');
 
     $services->set('App\Controller\Etablissement\EtablissementController')
@@ -68,6 +76,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
         ->arg('$ldapEnabled', '%app.ldap_enabled%');
 
+    // @todo: à retirer une fois les mots de passe réhashés
     $services->set('App\Security\Md5SaltedEncoder')
         ->arg('$globalSalt', '%app.security_salt%');
 
@@ -93,9 +102,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$casNoSsl', '%app.cas_no_ssl%');
 
     $services->set('App\Security\FormLoginAuthenticator')
-        ->arg('$tokenStorage', ref('security.token_storage'))
-        ->arg('$csrfTokenManager', ref('security.csrf.token_manager'))
-        ->arg('$symfonyLoginEnabled', '%app.symfony_login%')
+        ->arg('$tokenStorage', service('security.token_storage'))
+        ->arg('$csrfTokenManager', service('security.csrf.token_manager'))
         ->arg('$casEnabled', '%app.cas_enabled%')
         ->arg('$casHost', '%app.cas_host%')
         ->arg('$casPort', '%app.cas_port%')
@@ -115,16 +123,28 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ldapFilter', '%app.ldap_filter%')
         ->arg('$ldapAccountForm', '%app.ldap_account_form%')
         ->arg('$enforceSecurity', '%app.enforce_security%')
-        ->arg('$ldap', ref('app.ldap'));
+        ->arg('$ldap', service('app.ldap'));
 
     $services->set('App\Service\DataStore\DataStoreFactory')
         ->arg('$adapter', '%app.datastore_adapter%');
 
     $services->set('App\Service\CouchesCarto')
-        ->arg('$cache', ref('cache.ign_capabilities'));
+        ->arg('$cache', service('cache.ign_capabilities'));
+
+    $services->set('App\Service\EtablissementSearchService');
+
+    $services->set('App\Service\DossierSearchService');
+
+    $services->set('App\Controller\TableauDesPeriodicitesController')
+        ->tag('controller.service_arguments');
+
+    $services->set('App\Controller\ElementsSupprimesController')
+        ->tag('controller.service_arguments');
+
+    $services->set('App\Service\Dossier\DossierSauvegardeService');
 
     $services->set('App\Service\EtablissementPieceJointeService')
-        ->arg('$datastoreLogger', ref('monolog.logger.datastore'));
+        ->arg('$datastoreLogger', service('monolog.logger.datastore'));
 
     $services->set('logger.null', NullLogger::class);
 

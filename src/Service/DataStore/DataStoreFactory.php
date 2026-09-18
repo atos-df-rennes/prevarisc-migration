@@ -8,28 +8,8 @@ use App\Repository\EtablissementRepository;
 
 class DataStoreFactory
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    /** @var string */
-    private $adapter;
-
-    /** @var string */
-    protected $dataPath;
-
-    /** @var string */
-    protected $realDataPath;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository,
-        string $adapter,
-        string $dataPath,
-        string $realDataPath
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->adapter = $adapter;
-        $this->dataPath = $dataPath;
-        $this->realDataPath = $realDataPath;
+    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly string $adapter, protected string $dataPath, protected string $realDataPath)
+    {
     }
 
     public function create(): DataStore
