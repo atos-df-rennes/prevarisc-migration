@@ -21,7 +21,7 @@ final class Version20260918131124 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
-        $this->skipIf($schema->getTable('piecejointe')->hasColumn('no_version'), "Colonne no_version déjà présente sur les pièces jointes.");
+        $this->skipIf($schema->getTable('piecejointe')->hasColumn('no_version'), 'Colonne no_version déjà présente sur les pièces jointes.');
 
         $this->addSql('ALTER TABLE piecejointe ADD no_version INT DEFAULT NULL');
         $this->addSql('CREATE INDEX IDX_E9A87772C7812B0F108FF17 ON piecejointe (ID_PLATAU, no_version)');
@@ -30,7 +30,7 @@ final class Version20260918131124 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
-        $this->skipIf(!$schema->getTable('piecejointe')->hasColumn('no_version'), "Colonne no_version déjà absente sur les pièces jointes.");
+        $this->skipIf(!$schema->getTable('piecejointe')->hasColumn('no_version'), 'Colonne no_version déjà absente sur les pièces jointes.');
 
         $this->addSql('DROP INDEX IDX_E9A87772C7812B0F108FF17 ON piecejointe');
         $this->addSql('ALTER TABLE piecejointe DROP no_version');
