@@ -1,0 +1,18 @@
+{# Rendu des commissions en cases à cocher groupées par type (group_by), le rendu par défaut de
+   Symfony (choice_widget_expanded) ignore les groupes pour les champs "expanded". #}
+{% block _document_commission_widget %}
+    <div id="{{ id }}">
+        {% for label_or_key, choice in choices %}
+            {% if choice is iterable %}
+                <fieldset class="commission-group">
+                    <legend class="commission-group__legend">{{ choice.label }}</legend>
+                    {% for key, sub_choice in choice %}
+                        {{ form_widget(form.children[key]) }}
+                    {% endfor %}
+                </fieldset>
+            {% else %}
+                {{ form_widget(form.children[label_or_key]) }}
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
