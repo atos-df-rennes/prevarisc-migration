@@ -123,6 +123,11 @@ class DossierController extends AbstractController implements DossierLateralNavi
             $informationsEtablissement = $etablissement->getLatestInformationsOrNull();
             if (null !== $informationsEtablissement) {
                 $dossier->setCommission($informationsEtablissement->getCommission());
+
+                // Affectation des préventionnistes de l'établissement au dossier (cf. legacy)
+                foreach ($informationsEtablissement->getPreventionnistes() as $preventionniste) {
+                    $dossier->addPreventionniste($preventionniste);
+                }
             }
         }
 
