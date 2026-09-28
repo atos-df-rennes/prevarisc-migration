@@ -400,11 +400,12 @@ class DossierType extends AbstractType
                 'required' => false,
             ])
             // Préventionnistes (multiselect avec AJAX)
-            // En création : tableau vide (aucune présélection, ajout uniquement via AJAX)
+            // En création : présélection des préventionnistes déjà affectés au dossier
+            // (ex : hérités de l'établissement lors de la création depuis une fiche établissement), ajout sinon via AJAX
             // En édition : présélection des préventionnistes déjà affectés (actifs et inactifs)
             // La validation en soumission est gérée par le listener PRE_SUBMIT ci-dessous
             ->add('preventionnistes', EntityType::class, $this->buildPreventionnistesOptions(
-                $options['is_edit'] && $options['data'] instanceof Dossier
+                $options['data'] instanceof Dossier
                     ? $options['data']->getPreventionnistes()->toArray()
                     : []
             ))
