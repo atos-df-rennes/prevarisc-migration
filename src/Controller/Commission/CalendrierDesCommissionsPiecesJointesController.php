@@ -4,6 +4,7 @@ namespace App\Controller\Commission;
 
 use App\Entity\DateCommission;
 use App\Entity\PieceJointe;
+use App\Form\PieceJointeType;
 use App\Repository\PieceJointeRepository;
 use App\Service\DataStore\DataStore;
 use Doctrine\ORM\EntityManagerInterface;
@@ -114,6 +115,56 @@ class CalendrierDesCommissionsPiecesJointesController extends AbstractController
         } catch (\Exception $exception) {
             return new JsonResponse(['success' => false, 'message' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Modification d'une pièce jointe d'une date de commission (nom et description).
+     *
+     * Chargée et soumise en AJAX depuis la modale de gestion des pièces jointes (elle-même une modale) :
+     * on ne peut pas empiler une deuxième modale Bootstrap "classique" par-dessus, donc tout se fait
+     * en JSON, y compris le réaffichage du formulaire en cas d'erreur de validation.
+     */
+    #[Route(path: '/commissions/calendrier/pieces-jointes/{id}/modifier/{idPj}', name: 'calendrier_des_commissions_pj_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+', 'idPj' => '\d+'], options: ['expose' => true])]
+    public function piecesJointesEdit(Request $request, DateCommission $dateCommission, int $idPj): Response
+    {
+        $pj = $this->pieceJointeRepository->find($idPj);
+        if (null === $pj || !$dateCommission->getPiecesJointes()->contains($pj)) {
+            throw $this->createNotFoundException("Cette pièce jointe n'appartient pas à cette date de commission.");
+        }
+
+        $form = $this->createForm(PieceJointeType::class, $pj, [
+            'action' => $this->generateUrl('calendrier_des_commissions_pj_edit', ['id' => $dateCommission->getId(), 'idPj' => $pj->getId()]),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                try {
+                    $this->entityManager->flush();
+
+                    $rowHtml = $this->renderView('calendrier_des_commissions/_piece_jointe_row.html.twig', [
+                        'pj' => $pj,
+                        'dateCommission' => $dateCommission,
+                    ]);
+
+                    return new JsonResponse(['success' => true, 'html' => $rowHtml]);
+                } catch (\Exception $exception) {
+                    return new JsonResponse(['success' => false, 'message' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }
+            }
+
+            $formHtml = $this->renderView('calendrier_des_commissions/_piece_jointe_edit_form.html.twig', [
+                'dateCommission' => $dateCommission,
+                'form' => $form,
+            ]);
+
+            return new JsonResponse(['success' => false, 'formHtml' => $formHtml], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return $this->render('calendrier_des_commissions/_piece_jointe_edit_form.html.twig', [
+            'dateCommission' => $dateCommission,
+            'form' => $form,
+        ]);
     }
 
     /**
