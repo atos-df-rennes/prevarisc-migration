@@ -12,11 +12,13 @@ use App\Constant\TypePrescription;
 use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
 use App\Entity\Etablissement;
+use App\Entity\EtablissementAdresse;
 use App\Entity\PieceJointe;
 use App\Entity\PrescriptionDossier;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
+use App\Repository\EtablissementAdresseRepository;
 use App\Repository\ListeDocumentConsulteRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Dossier\DossierVisiteConvocationService;
@@ -52,6 +54,9 @@ class DossierRapportOdtService
     /** @var DossierAffectationRepository */
     private $dossierAffectationRepository;
 
+    /** @var EtablissementAdresseRepository */
+    private $etablissementAdresseRepository;
+
     /** @var DateCommissionRepository */
     private $dateCommissionRepository;
 
@@ -85,6 +90,7 @@ class DossierRapportOdtService
         DataStore $dataStore,
         DossierPrescriptionService $prescriptionService,
         DossierAffectationRepository $dossierAffectationRepository,
+        EtablissementAdresseRepository $etablissementAdresseRepository,
         DateCommissionRepository $dateCommissionRepository,
         Descriptif $descriptifService,
         ListeDocumentConsulteRepository $listeDocRepository,
@@ -100,6 +106,7 @@ class DossierRapportOdtService
         $this->dataStore = $dataStore;
         $this->prescriptionService = $prescriptionService;
         $this->dossierAffectationRepository = $dossierAffectationRepository;
+        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
         $this->dateCommissionRepository = $dateCommissionRepository;
         $this->descriptifService = $descriptifService;
         $this->listeDocRepository = $listeDocRepository;
@@ -203,17 +210,28 @@ class DossierRapportOdtService
         }
 
         // --- Adresse établissement (numInsee partagé entre fillChampsDossier et fillChampsMaire) ---
-        /** @var array<string, string|null>|false $adresseRowFetch */
-        $adresseRowFetch = $this->conn->fetchAssociative(
-            'SELECT ea.NUMERO_ADRESSE, ar.LIBELLE_RUE, ac.LIBELLE_COMMUNE, ac.CODEPOSTAL_COMMUNE, ac.NUMINSEE_COMMUNE
-             FROM etablissementadresse ea
-             JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE
-             JOIN adressecommune ac ON ea.NUMINSEE_COMMUNE = ac.NUMINSEE_COMMUNE
-             WHERE ea.ID_ETABLISSEMENT = :id LIMIT 1',
-            ['id' => $idEtab]
-        );
+        // Résolution par genre d'établissement (site => enfant à l'effectif max, cellule => établissement
+        // parent direct, cf. EtablissementAdresseRepository::get()), comme pour les documents de commission.
+        /** @var array<int, EtablissementAdresse> $etablissementAdresses */
+        $etablissementAdresses = $this->etablissementAdresseRepository->get($idEtab);
+        $premiereAdresse = null;
+        foreach ($etablissementAdresses as $adresseCandidate) {
+            if (null !== $adresseCandidate->getRue()) {
+                $premiereAdresse = $adresseCandidate;
+                break;
+            }
+        }
+
+        $commune = null !== $premiereAdresse ? $premiereAdresse->getCommune() : null;
+        $rue = null !== $premiereAdresse ? $premiereAdresse->getRue() : null;
         /** @var array<string, string|null> $adresseRow */
-        $adresseRow = false !== $adresseRowFetch ? $adresseRowFetch : [];
+        $adresseRow = [
+            'NUMERO_ADRESSE' => null !== $premiereAdresse ? $premiereAdresse->getNumero() : null,
+            'LIBELLE_RUE' => null !== $rue ? $rue->getLibelle() : null,
+            'LIBELLE_COMMUNE' => null !== $commune ? $commune->getLibelle() : null,
+            'CODEPOSTAL_COMMUNE' => null !== $commune ? $commune->getCodePostal() : null,
+            'NUMINSEE_COMMUNE' => null !== $commune ? $commune->getId() : null,
+        ];
         $numInsee = $adresseRow['NUMINSEE_COMMUNE'] ?? null;
 
         $this->rapportLogger->debug('Début génération rapport ODT.', ['dossier_id' => $idDossier]);
