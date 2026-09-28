@@ -31,10 +31,6 @@
     gap: 1rem;
 }
 
-.form-horizontal .form-group .controls {
-    overflow-x: auto;
-}
-
 #show-toc {
     position: fixed;
     bottom: 20px;
