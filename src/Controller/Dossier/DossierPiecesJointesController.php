@@ -7,6 +7,7 @@ use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
+use App\Form\PieceJointeType;
 use App\Repository\DossierPieceJointeRepository;
 use App\Repository\PieceJointeStatutRepository;
 use App\Service\DataStore\DataStore;
@@ -251,6 +252,41 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         );
 
         return $response;
+    }
+
+    /**
+     * Modification d'une pièce jointe de dossier (nom et description).
+     */
+    #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/modifier', name: 'dossier_pieces_jointes_edit', methods: ['GET', 'POST'], requirements: ['idpj' => '\d+'])]
+    #[IsGranted('edit_doss', subject: 'dossier')]
+    public function edit(Dossier $dossier, #[MapEntity(id: 'idpj')] PieceJointe $pj, Request $request): Response
+    {
+        $dpj = $this->dossierPieceJointeRepository->findOneBy([
+            'pieceJointe' => $pj,
+            'dossier' => $dossier,
+        ]);
+        if (null === $dpj) {
+            throw $this->createNotFoundException('Pièce jointe non rattachée à ce dossier.');
+        }
+
+        $form = $this->createForm(PieceJointeType::class, $pj, [
+            'action' => $this->generateUrl('dossier_pieces_jointes_edit', ['id' => $dossier->getId(), 'idpj' => $pj->getId()]),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'La pièce jointe a bien été modifiée.');
+
+            return $this->redirectToRoute('dossier_pieces_jointes', ['id' => $dossier->getId()]);
+        }
+
+        return $this->render('dossier/pieces_jointes/edit.html.twig', [
+            'dossier' => $dossier,
+            'pj' => $pj,
+            'form' => $form,
+        ]);
     }
 
     /**

@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PieceJointeRepository::class)]
 #[ORM\Table(name: 'piecejointe')]
+#[ORM\Index(columns: ['ID_PLATAU', 'no_version'])]
 class PieceJointe
 {
     #[ORM\Id]
@@ -51,6 +52,9 @@ class PieceJointe
 
     #[ORM\Column(name: 'DATE_DEPOT', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateDepot = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $noVersion = null;
 
     public function getId(): ?int
     {
@@ -197,6 +201,18 @@ class PieceJointe
     public function setDateDepot(?\DateTimeInterface $dateDepot): self
     {
         $this->dateDepot = $dateDepot;
+
+        return $this;
+    }
+
+    public function getNoVersion(): ?int
+    {
+        return $this->noVersion;
+    }
+
+    public function setNoVersion(?int $noVersion): static
+    {
+        $this->noVersion = $noVersion;
 
         return $this;
     }

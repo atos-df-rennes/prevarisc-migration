@@ -15,6 +15,12 @@
     <td>{{ pj.date ? pj.date|date('d/m/Y') : '' }}</td>
     <td>
         <button type="button"
+                class="btn btn-default btn-xs btn-edit-pj"
+                data-pj-id="{{ pj.id }}"
+                data-url="{{ path('calendrier_des_commissions_pj_edit', {id: dateCommission.id, idPj: pj.id}) }}">
+            <span class="glyphicon glyphicon-pencil"></span>
+        </button>
+        <button type="button"
                 class="btn btn-default btn-xs btn-delete-pj"
                 data-pj-id="{{ pj.id }}"
                 data-url="{{ path('calendrier_des_commissions_pj_supprimer', {id: dateCommission.id, idPj: pj.id}) }}">

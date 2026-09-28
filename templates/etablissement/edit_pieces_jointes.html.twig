@@ -44,6 +44,7 @@
                             {% endif %}
                         </td>
                         <td>
+                            <a href="{{ path('etablissement_pieces_jointes_edit', {id: etablissement.id, idpj: pj.0.pieceJointe.id}) }}" class="btn btn-link btn-sm">Modifier la pièce jointe</a>
                             <form method="post" action="{{ path('etablissement_pieces_jointes_supprimer', {id: etablissement.id}) }}" style="display:inline">
                                 <input type="hidden" name="id_pj" value="{{ pj.0.pieceJointe.id }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_pj_' ~ pj.0.pieceJointe.id) }}">
@@ -70,6 +71,7 @@
                             {% endif %}
                         </td>
                         <td>
+                            <a href="{{ path('etablissement_pieces_jointes_edit', {id: etablissement.id, idpj: pj.0.pieceJointe.id}) }}" class="btn btn-link btn-sm">Modifier la pièce jointe</a>
                             <form method="post" action="{{ path('etablissement_pieces_jointes_supprimer', {id: etablissement.id}) }}" style="display:inline">
                                 <input type="hidden" name="id_pj" value="{{ pj.0.pieceJointe.id }}">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete_pj_' ~ pj.0.pieceJointe.id) }}">

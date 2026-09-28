@@ -79,6 +79,9 @@
             {% set can_delete = false %}
         {% endif %}
         {% if can_delete %}
+            <a class="btn btn-default btn-xs" href="{{ path('dossier_pieces_jointes_edit', {id: dossier.id, idpj: pj.id}) }}">
+                <span class="glyphicon glyphicon-pencil"></span>
+            </a>
             <button type="button" class="btn btn-default btn-xs btn-delete-pj"
                     data-pj-id="{{ pj.id }}"
                     data-url="{{ path('dossier_pieces_jointes_delete', {id: dossier.id, idpj: pj.id}) }}"

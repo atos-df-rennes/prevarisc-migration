@@ -21,6 +21,29 @@
     </div>
 </div>
 
+{# Modale de modification — également déplacée vers <body>, pour la même raison (pas de modales imbriquées) #}
+<div class="modal fade" id="modal-edit-pj" tabindex="-1" role="dialog" aria-labelledby="modal-edit-pj-label">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="btn-close-edit-pj" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="modal-edit-pj-label">Modifier la pièce jointe</h4>
+            </div>
+            <div class="modal-body" id="modal-edit-pj-body">
+                <div class="text-center"><span class="glyphicon glyphicon-refresh spinning"></span></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="btn-cancel-edit-pj">Annuler</button>
+                <button type="button" class="btn btn-primary" id="btn-submit-edit-pj">
+                    <span class="glyphicon glyphicon-ok"></span> Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <h3>
     Liste de pièces jointes
 
@@ -69,15 +92,18 @@
     var dropzoneUrl = {{ path('calendrier_des_commissions_pj_ajouter', {id: dateCommission.id})|json_encode|raw }};
     var csrfToken   = {{ csrf_token('calendrier_commissions_pj')|json_encode|raw }};
     var $addModal   = $('#modal-add-pj');
+    var $editModal  = $('#modal-edit-pj');
 
-    /* ── Déplacement de la modale enfant vers <body> ────────────────────────── */
+    /* ── Déplacement des modales enfants vers <body> ────────────────────────── */
     /* Bootstrap 3 ne supporte pas les modales imbriquées.                       */
-    /* Déplacer la modale hors du parent évite les conflits de backdrop/dismiss. */
+    /* Déplacer les modales hors du parent évite les conflits de backdrop/dismiss. */
     $addModal.appendTo('body');
+    $editModal.appendTo('body');
 
     /* Nettoyage quand la modale parente se ferme */
     $('#modal-pieces-jointes').on('hidden.bs.modal', function () {
         $addModal.modal('hide').remove();
+        $editModal.modal('hide').remove();
     });
 
     /* ── Bouton "Ajouter une pièce jointe" ──────────────────────────────────── */
@@ -93,6 +119,55 @@
     /* Namespace obligatoire : même raison que click.pj-delete (injection AJAX) */
     $(document).off('click.pj-modal').on('click.pj-modal', '#btn-cancel-add-pj, #btn-close-add-pj', function () {
         $addModal.modal('hide');
+    });
+
+    /* ── Bouton "Modifier" d'une ligne ───────────────────────────────────────── */
+    /* Namespace obligatoire : ce JS est injecté en AJAX à chaque ouverture de la modale parente */
+    $(document).off('click.pj-edit-open').on('click.pj-edit-open', '.btn-edit-pj', function () {
+        var editUrl = $(this).data('url');
+        $editModal.data('pj-id', $(this).data('pj-id'));
+        $('#modal-edit-pj-body').html('<div class="text-center"><span class="glyphicon glyphicon-refresh spinning"></span></div>');
+        $.get(editUrl, function (html) {
+            $('#modal-edit-pj-body').html(html);
+        });
+        $editModal.modal('show');
+    });
+
+    /* ── Fermeture de la modale de modification ─────────────────────────────── */
+    $(document).off('click.pj-edit-modal').on('click.pj-edit-modal', '#btn-cancel-edit-pj, #btn-close-edit-pj', function () {
+        $editModal.modal('hide');
+    });
+
+    /* ── Soumission du formulaire de modification via AJAX ──────────────────── */
+    $(document).off('click.pj-edit-submit').on('click.pj-edit-submit', '#btn-submit-edit-pj', function () {
+        var form = $('#formEditPj')[0];
+        if (!form) {
+            return;
+        }
+        var data = new FormData(form);
+        var editActionUrl = form.getAttribute('action');
+        $.ajax({
+            url: editActionUrl,
+            type: 'POST',
+            data: data,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                if (result.success) {
+                    $('#pj-row-' + $editModal.data('pj-id')).replaceWith(result.html);
+                    $editModal.modal('hide');
+                    $.toast.success('La pièce jointe a bien été modifiée.');
+                } else if (result.formHtml) {
+                    /* Erreurs de validation : on réaffiche le formulaire avec ses erreurs, la modale reste ouverte */
+                    $('#modal-edit-pj-body').html(result.formHtml);
+                } else {
+                    $.toast.error(result.message || 'Erreur lors de la modification.');
+                }
+            },
+            error: function () {
+                $.toast.error('Une erreur s\'est produite lors de l\'envoi.');
+            }
+        });
     });
 
     /* ── Soumission du formulaire via AJAX ──────────────────────────────────── */

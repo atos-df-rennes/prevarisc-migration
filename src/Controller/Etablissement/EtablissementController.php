@@ -10,8 +10,10 @@ use App\Dto\Descriptif\DescriptifFormData;
 use App\Entity\Commune;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
+use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
 use App\Form\DescriptifOriginalType;
+use App\Form\PieceJointeType;
 use App\Form\TextesApplicablesEtablissementType;
 use App\Repository\CoucheCartoRepository;
 use App\Repository\DossierRepository;
@@ -35,6 +37,7 @@ use App\Service\EtablissementPieceJointeService;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -355,6 +358,40 @@ class EtablissementController extends AbstractController implements Etablissemen
             'image_pjs' => $image_pjs,
             'doc_pjs' => $doc_pjs,
             'etablissement' => $etablissement,
+        ]);
+    }
+
+    /**
+     * Modification d'une pièce jointe d'établissement (nom et description).
+     */
+    #[Route(path: '/etablissement/{id}/pieces-jointes/{idpj}/modifier', name: 'etablissement_pieces_jointes_edit', methods: ['GET', 'POST'], requirements: ['idpj' => '\d+'])]
+    #[IsGranted('edit_ets', subject: 'etablissement')]
+    public function editPieceJointe(Etablissement $etablissement, #[MapEntity(id: 'idpj')] PieceJointe $pj, Request $request): Response
+    {
+        $etablissementPj = $this->etablissementPieceJointeRepository->findOneBy([
+            'etablissement' => $etablissement,
+            'pieceJointe' => $pj,
+        ]);
+        if (null === $etablissementPj) {
+            throw $this->createNotFoundException('Pièce jointe non rattachée à cet établissement.');
+        }
+
+        $form = $this->createForm(PieceJointeType::class, $pj, [
+            'action' => $this->generateUrl('etablissement_pieces_jointes_edit', ['id' => $etablissement->getId(), 'idpj' => $pj->getId()]),
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'La pièce jointe a bien été modifiée.');
+
+            return $this->redirectToRoute('etablissement_pieces_jointes_modifier', ['id' => $etablissement->getId()]);
+        }
+
+        return $this->render('etablissement/edit_piece_jointe.html.twig', [
+            'etablissement' => $etablissement,
+            'form' => $form,
         ]);
     }
 
