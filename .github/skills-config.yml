@@ -1,0 +1,27 @@
+# Skills configuration for the application repository
+default_run_context: main
+cli_first: true
+auto_invoke_agents: false
+
+skills:
+  analyse-legacy:
+    default_run_context: main
+    supports_worktree: false
+    notes: "Read-only comparison with atos-df-rennes/prevarisc; use the sibling checkout locally or the GitHub repository when available."
+  merge-branch:
+    default_run_context: main
+    supports_worktree: false
+    git_aware: true
+    notes: "Resolve cross-version branch merge conflicts in this application repository; do not switch branches without explicit user permission."
+  phpstan-fix:
+    default_run_context: main
+    supports_worktree: false
+    notes: "Correct PHPStan level 10 findings without changing business behavior."
+  validate-application:
+    default_run_context: main
+    supports_worktree: false
+    notes: "Document the Symfony checks run by the sibling infra repository's Castor tasks and the project-local equivalents."
+
+policy: |
+  Skills are documentation and orchestration only. Run agents only through explicit CLI prompts or assistant commands.
+  Keep repository changes and branch operations explicit; do not commit unless requested.
