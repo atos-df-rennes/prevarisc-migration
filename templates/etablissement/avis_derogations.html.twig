@@ -31,7 +31,7 @@
                         </td>
                         <td>
                             <a
-                                href="{{ path('dossier_avis_et_derogations_edit', {id: item.idDossier, avisDerogationId: item.id}) }}"
+                                href="{{ path(is_granted('ecriture_avis_derogations') ? 'dossier_avis_et_derogations_edit' : 'dossier_avis_et_derogations', is_granted('ecriture_avis_derogations') ? {id: item.idDossier, avisDerogationId: item.id} : {id: item.idDossier}) }}"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="Ouvrir {{ item.titre }} (nouvel onglet)"

@@ -590,7 +590,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Affiche l'onglet Vérifications techniques du dossier.
      */
     #[Route(path: '/dossier/{id}/verifications-techniques', name: 'dossier_verifications_techniques', methods: ['GET'])]
-    #[IsGranted('verifications_techniques')]
+    #[IsGranted('lecture_verifications_techniques')]
     #[IsGranted('view_doss', subject: 'dossier')]
     public function verificationsTechniques(Dossier $dossier): Response
     {
@@ -607,7 +607,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Affiche et traite le formulaire d'édition des vérifications techniques du dossier.
      */
     #[Route(path: '/dossier/{id}/verifications-techniques/modifier', name: 'dossier_verifications_techniques_edit', methods: ['GET', 'POST'])]
-    #[IsGranted('verifications_techniques')]
+    #[IsGranted('ecriture_verifications_techniques')]
     #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function editVerificationsTechniques(Dossier $dossier, Request $request): Response
     {
@@ -646,7 +646,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Affiche et gère les avis et dérogations d'un dossier.
      */
     #[Route(path: '/dossier/{id}/avis-et-derogations', name: 'dossier_avis_et_derogations', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    #[IsGranted('avis_derogations')]
     #[IsGranted('view_doss', subject: 'dossier')]
     public function avisEtDerogations(Request $request, Dossier $dossier): Response
     {
@@ -657,6 +656,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             : ['etudes' => [], 'visites' => [], 'autres' => []];
 
         if ($request->isMethod('POST')) {
+            $this->denyAccessUnlessGranted('ecriture_avis_derogations');
             $this->denyAccessUnlessGranted('edit_doss_ignore_verrou', $dossier);
 
             $data = $request->request->all();
@@ -720,6 +720,8 @@ class DossierController extends AbstractController implements DossierLateralNavi
             return $this->redirectToRoute('dossier_avis_et_derogations', ['id' => $dossier->getId()]);
         }
 
+        $this->denyAccessUnlessGranted('lecture_avis_derogations');
+
         return $this->render('dossier/avis_et_derogations/index.html.twig', [
             'dossier' => $dossier,
             'arrayAvisDerogations' => $this->avisDerogationsRepository->findByDossier($dossier),
@@ -732,7 +734,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Édite un avis ou une dérogation.
      */
     #[Route(path: '/dossier/{id}/avis-et-derogations/{avisDerogationId}/modifier', name: 'dossier_avis_et_derogations_edit', requirements: ['id' => '\d+', 'avisDerogationId' => '\d+'], methods: ['GET', 'POST'])]
-    #[IsGranted('avis_derogations')]
+    #[IsGranted('ecriture_avis_derogations')]
     #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function avisEtDerogationsEdit(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
@@ -818,7 +820,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
      * Supprime un avis ou une dérogation (appel AJAX POST).
      */
     #[Route(path: '/dossier/{id}/avis-et-derogations/{avisDerogationId}/supprimer', name: 'dossier_avis_et_derogations_delete', requirements: ['id' => '\d+', 'avisDerogationId' => '\d+'], methods: ['POST'])]
-    #[IsGranted('avis_derogations')]
+    #[IsGranted('ecriture_avis_derogations')]
     #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function avisEtDerogationsDelete(Request $request, Dossier $dossier, int $avisDerogationId): Response
     {
