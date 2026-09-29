@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\EtablissementInformations;
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -12,15 +15,11 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel : lors de la création d'un dossier depuis un établissement,
  * les préventionnistes affectés à l'établissement doivent être présélectionnés
  * sur le dossier (cf. legacy, bug de régression signalé par un client).
- *
- * @group functional
  */
-class DossierNewFromEtablissementPreventionnisteTest extends WebTestCase
+#[Group('functional')]
+final class DossierNewFromEtablissementPreventionnisteTest extends WebTestCase
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     protected function setUp(): void
     {

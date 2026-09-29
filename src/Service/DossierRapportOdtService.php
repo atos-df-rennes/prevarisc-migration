@@ -151,15 +151,15 @@ class DossierRapportOdtService
             }
         }
 
-        $commune = null !== $premiereAdresse ? $premiereAdresse->getCommune() : null;
-        $rue = null !== $premiereAdresse ? $premiereAdresse->getRue() : null;
+        $commune = $premiereAdresse?->getCommune();
+        $rue = $premiereAdresse?->getRue();
         /** @var array<string, string|null> $adresseRow */
         $adresseRow = [
-            'NUMERO_ADRESSE' => null !== $premiereAdresse ? $premiereAdresse->getNumero() : null,
-            'LIBELLE_RUE' => null !== $rue ? $rue->getLibelle() : null,
-            'LIBELLE_COMMUNE' => null !== $commune ? $commune->getLibelle() : null,
-            'CODEPOSTAL_COMMUNE' => null !== $commune ? $commune->getCodePostal() : null,
-            'NUMINSEE_COMMUNE' => null !== $commune ? $commune->getId() : null,
+            'NUMERO_ADRESSE' => $premiereAdresse?->getNumero(),
+            'LIBELLE_RUE' => $rue?->getLibelle(),
+            'LIBELLE_COMMUNE' => $commune?->getLibelle(),
+            'CODEPOSTAL_COMMUNE' => $commune?->getCodePostal(),
+            'NUMINSEE_COMMUNE' => $commune?->getId(),
         ];
         $numInsee = $adresseRow['NUMINSEE_COMMUNE'] ?? null;
 
