@@ -60,11 +60,11 @@
 
                         {% for champ_key, champ_form in rubrique_form %}
                             {% if champ_key starts with 'champ_' %}
-                                <div class="control-group">
+                                <div class="form-group">
                                     <label class="control-label">
                                         <strong>{{ champ_form.vars.label }}</strong>
                                     </label>
-                                    <div class="controls{% if champ_form.lignes is defined or champ_form.sousChamps is defined %} table-wrapper{% endif %}">
+                                    <div {% if champ_form.lignes is defined or champ_form.sousChamps is defined %}class="table-wrapper"{% endif %}>
                                         {% if champ_form.lignes is defined %}
                                             {# Champ PARENT+tableau : rendu avec prototype Symfony CollectionType #}
                                             {% set lignes_form = champ_form.lignes %}

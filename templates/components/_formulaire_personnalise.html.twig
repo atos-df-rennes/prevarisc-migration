@@ -62,11 +62,11 @@
 {% macro champRow(champ_data) %}
     {% import _self as forms %}
     {% set champ = champ_data.champ %}
-    <div class="control-group">
+    <div class="form-group">
         <label class="control-label">
             <strong>{{ champ.nom }}</strong>
         </label>
-        <div class="controls{% if champ_data.champ.type and champ_data.champ.type.id == constant('App\\Constant\\TypeChamp::PARENT') %} table-wrapper{% endif %}">
+        <div {% if champ_data.champ.type and champ_data.champ.type.id == constant('App\\Constant\\TypeChamp::PARENT') %}class="table-wrapper"{% endif %}>
             {{ forms.champValeur(champ_data) }}
         </div>
     </div>

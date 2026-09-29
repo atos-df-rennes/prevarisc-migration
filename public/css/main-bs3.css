@@ -1305,7 +1305,7 @@ form.checkbox--checked__label--bold div.checkbox label:has(input[checked='checke
   background-color: #fff;
 }
 
-.panel.panel-formulaire-perso .control-group {
+.panel.panel-formulaire-perso .form-group {
   margin-bottom: 0;
 }
 

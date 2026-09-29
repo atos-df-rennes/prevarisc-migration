@@ -12,11 +12,13 @@ use App\Constant\TypePrescription;
 use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
 use App\Entity\Etablissement;
+use App\Entity\EtablissementAdresse;
 use App\Entity\PieceJointe;
 use App\Entity\PrescriptionDossier;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
+use App\Repository\EtablissementAdresseRepository;
 use App\Repository\ListeDocumentConsulteRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Dossier\DossierVisiteConvocationService;
@@ -41,7 +43,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class DossierRapportOdtService
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger)
     {
     }
 
@@ -137,17 +139,28 @@ class DossierRapportOdtService
         }
 
         // --- Adresse établissement (numInsee partagé entre fillChampsDossier et fillChampsMaire) ---
-        /** @var array<string, string|null>|false $adresseRowFetch */
-        $adresseRowFetch = $this->conn->fetchAssociative(
-            'SELECT ea.NUMERO_ADRESSE, ar.LIBELLE_RUE, ac.LIBELLE_COMMUNE, ac.CODEPOSTAL_COMMUNE, ac.NUMINSEE_COMMUNE
-             FROM etablissementadresse ea
-             JOIN adresserue ar ON ea.ID_RUE = ar.ID_RUE
-             JOIN adressecommune ac ON ea.NUMINSEE_COMMUNE = ac.NUMINSEE_COMMUNE
-             WHERE ea.ID_ETABLISSEMENT = :id LIMIT 1',
-            ['id' => $idEtab]
-        );
+        // Résolution par genre d'établissement (site => enfant à l'effectif max, cellule => établissement
+        // parent direct, cf. EtablissementAdresseRepository::get()), comme pour les documents de commission.
+        /** @var array<int, EtablissementAdresse> $etablissementAdresses */
+        $etablissementAdresses = $this->etablissementAdresseRepository->get($idEtab);
+        $premiereAdresse = null;
+        foreach ($etablissementAdresses as $adresseCandidate) {
+            if (null !== $adresseCandidate->getRue()) {
+                $premiereAdresse = $adresseCandidate;
+                break;
+            }
+        }
+
+        $commune = $premiereAdresse?->getCommune();
+        $rue = $premiereAdresse?->getRue();
         /** @var array<string, string|null> $adresseRow */
-        $adresseRow = false !== $adresseRowFetch ? $adresseRowFetch : [];
+        $adresseRow = [
+            'NUMERO_ADRESSE' => $premiereAdresse?->getNumero(),
+            'LIBELLE_RUE' => $rue?->getLibelle(),
+            'LIBELLE_COMMUNE' => $commune?->getLibelle(),
+            'CODEPOSTAL_COMMUNE' => $commune?->getCodePostal(),
+            'NUMINSEE_COMMUNE' => $commune?->getId(),
+        ];
         $numInsee = $adresseRow['NUMINSEE_COMMUNE'] ?? null;
 
         $this->rapportLogger->debug('Début génération rapport ODT.', ['dossier_id' => $idDossier]);
