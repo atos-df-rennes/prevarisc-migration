@@ -5,20 +5,22 @@
 {% block body %}
     <h3>Avis et dérogations</h3>
 
-    <form class="form-horizontal col-md-8" method="post">
-        {{ include('dossier/avis_et_derogations/_form.html.twig', {
+    {% if is_granted('ecriture_avis_derogations') %}
+        <form class="form-horizontal col-md-8" method="post">
+            {{ include('dossier/avis_et_derogations/_form.html.twig', {
             dossier: dossier,
             listeAvis: listeAvis,
             dossiersGroupes: dossiersGroupes,
             avisDerogation: null,
             submitLabel: "Ajouter l'avis",
-        }) }}
-        <div class="form-group">
-            <div class="col-md-offset-3 col-md-9">
-                <button type="submit" class="btn btn-success js-submit-label">Ajouter l'avis</button>
+            }) }}
+            <div class="form-group">
+                <div class="col-md-offset-3 col-md-9">
+                    <button type="submit" class="btn btn-success js-submit-label">Ajouter l'avis</button>
+                </div>
             </div>
-        </div>
-    </form>
+        </form>
+    {% endif %}
 
     <div class="clearfix"></div>
 

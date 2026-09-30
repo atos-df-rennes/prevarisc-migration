@@ -316,7 +316,7 @@ class EtablissementController extends AbstractController implements Etablissemen
     }
 
     #[Route(path: '/etablissement/{id}/avis-derogations', name: 'etablissement_avis_derogations')]
-    #[IsGranted('avis_derogations')]
+    #[IsGranted('lecture_avis_derogations')]
     #[IsGranted('view_ets', subject: 'etablissement')]
     public function avisDerogations(Etablissement $etablissement): Response
     {
