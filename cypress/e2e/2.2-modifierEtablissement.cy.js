@@ -77,6 +77,32 @@ describe('Établissement — modification par genre', () => {
             .should('be.visible').click()
     }
 
+    it('masque la ligne préventionnistes lorsque les affectés sont les conseillés', () => {
+        naviguerVersEdition('ERP E2E')
+
+        cy.intercept('GET', '**/api/utilisateurs/search*').as('searchPrev')
+        tomSelectSearch('preventionniste_autocomplete', 'Sect')
+        cy.wait('@searchPrev')
+
+        cy.get('table#preventionnistes tbody tr.preventionniste input[name^="ID_UTILISATEUR"]').then($inputs => {
+            const ids = [...$inputs].map(input => input.value)
+            const suggestions = ids.map(uid => ({uid, nom: 'Conseillé', prenom: 'Test'}))
+
+            cy.intercept('POST', '**/defaults_values*', {
+                body: {preventionnistes: suggestions}
+            }).as('defaultsValuesMatchingPreventionnistes')
+
+            cy.window().then(win => {
+                win.$('form#etablissement').on('submit.preventTest', event => event.preventDefault())
+            })
+
+            cy.get("form#etablissement input[type='submit']").click()
+            cy.wait('@defaultsValuesMatchingPreventionnistes')
+            cy.get('#confirm-modal-preventionnistes').should('have.class', 'confirm-modal-hide')
+            cy.get('#confirm-modal').should('not.be.visible')
+        })
+    })
+
     // ——————————————————————————————————————————————————————————
     // Genre 2 : ERP
     // ——————————————————————————————————————————————————————————

@@ -229,6 +229,7 @@ Site
 **Comportement :**
 - La modification génère une **nouvelle fiche d'informations datée** du jour courant. Si une fiche existe déjà à la même date, elle est mise à jour (pas de doublon de fiche pour une même date).
 - Avant la sauvegarde, une **boîte de confirmation** compare les valeurs saisies (commission, périodicité, locaux à sommeil, préventionnistes) aux valeurs conseillées par le système.
+- Une ligne de la boîte de confirmation est masquée lorsque la valeur saisie est égale à la valeur conseillée. Pour les préventionnistes, l'égalité correspond au même ensemble d'utilisateurs, quel que soit l'ordre. La boîte n'apparaît pas si toutes ses lignes sont masquées. Accepter la suggestion de préventionnistes remplace les préventionnistes affectés.
 - Si l'envoi de courriels est activé, le système détecte les changements de **statut** ou de **classement** (catégorie, type, activités) et propose d'envoyer une alerte par courriel.
 - Après sauvegarde, l'utilisateur est redirigé et un message de succès est affiché.
 
@@ -435,7 +436,7 @@ L'accès est conditionné par une permission spécifique.
 | Commission (ERP) | Commission du père si l'établissement a un père ; sinon, commission compétente déterminée par la commune + catégorie + type + locaux à sommeil |
 | Commission (IGH) | Commission du père si disponible ; sinon, commission IGH par commune + classe |
 | Locaux à sommeil | Oui par défaut si le type principal est un type concerné (par défaut : types O et U, configurable par le SDIS) |
-| Préventionnistes | Préventionnistes affectés au site père ou aux groupements de communes ; pour une cellule, préventionnistes de l'établissement parent |
+| Préventionnistes | Site : préventionnistes de la commune ; cellule : préventionnistes du père ; autres genres : préventionnistes du père en priorité, sinon ceux de la commune. Pour le père, seuls les préventionnistes actifs de la dernière fiche sont proposés, sans doublon, triés par nom puis prénom. Pour la commune, les préventionnistes de tous les groupements couvrant la commune sont proposés, sans doublon, triés par type de groupement, libellé du groupement puis nom (sans filtre sur les comptes actifs). |
 
 ---
 

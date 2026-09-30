@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Constant\GenreEtablissement;
 use App\Repository\EtablissementRepository;
 use App\Repository\PeriodiciteRepository;
+use App\Repository\UtilisateurRepository;
 use App\Service\EtablissementSearchService;
 use App\Service\Search\EtablissementAutocompleteNormalizer;
 use App\Service\Search\SearchQueryHelper;
@@ -50,13 +51,17 @@ class EtablissementController extends AbstractController
     /** @var SearchQueryHelper */
     private $searchQueryHelper;
 
+    /** @var UtilisateurRepository */
+    private $utilisateurRepository;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         PeriodiciteRepository $periodiciteRepository,
         EntityManagerInterface $em,
         EtablissementSearchService $etablissementSearchService,
         EtablissementAutocompleteNormalizer $autocompleteNormalizer,
-        SearchQueryHelper $searchQueryHelper
+        SearchQueryHelper $searchQueryHelper,
+        UtilisateurRepository $utilisateurRepository
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->periodiciteRepository = $periodiciteRepository;
@@ -64,6 +69,7 @@ class EtablissementController extends AbstractController
         $this->etablissementSearchService = $etablissementSearchService;
         $this->autocompleteNormalizer = $autocompleteNormalizer;
         $this->searchQueryHelper = $searchQueryHelper;
+        $this->utilisateurRepository = $utilisateurRepository;
     }
 
     /**
@@ -390,57 +396,17 @@ class EtablissementController extends AbstractController
      */
     private function getPrev(?string $commune, ?int $idPere): ?array
     {
-        $conn = $this->em->getConnection();
-        $arrayResult = [];
-
         // Préventionnistes de l'établissement père (priorité sur la commune)
         if (null !== $idPere) {
-            /** @var array<int, array<string, mixed>> $rows */
-            $rows = $conn->executeQuery(
-                'SELECT u.ID_UTILISATEUR, ui.NOM_UTILISATEURINFORMATIONS, ui.PRENOM_UTILISATEURINFORMATIONS'
-                .' FROM utilisateur u'
-                .' JOIN etablissementinformationspreventionniste eip ON eip.ID_UTILISATEUR = u.ID_UTILISATEUR'
-                .' JOIN etablissementinformations ei ON ei.ID_ETABLISSEMENTINFORMATIONS = eip.ID_ETABLISSEMENTINFORMATIONS'
-                .' JOIN utilisateurinformations ui ON ui.ID_UTILISATEURINFORMATIONS = u.ID_UTILISATEURINFORMATIONS'
-                .' WHERE ei.ID_ETABLISSEMENT = ?',
-                [$idPere]
-            )->fetchAllAssociative();
-
-            if (count($rows) > 0) {
-                foreach ($rows as $row) {
-                    $arrayResult[] = [
-                        'uid' => $row['ID_UTILISATEUR'],
-                        'nom' => $row['NOM_UTILISATEURINFORMATIONS'],
-                        'prenom' => $row['PRENOM_UTILISATEURINFORMATIONS'],
-                    ];
-                }
-
-                return $arrayResult;
+            $preventionnistes = $this->utilisateurRepository->findPreventionnistesSuggeresPourEtablissement($idPere);
+            if ([] !== $preventionnistes) {
+                return $preventionnistes;
             }
         }
 
         // Préventionnistes des groupements couvrant la commune
         if (null !== $commune && '' !== $commune) {
-            /** @var array<int, array<string, mixed>> $rows */
-            $rows = $conn->executeQuery(
-                'SELECT DISTINCT u.ID_UTILISATEUR, ui.NOM_UTILISATEURINFORMATIONS, ui.PRENOM_UTILISATEURINFORMATIONS'
-                .' FROM utilisateur u'
-                .' JOIN groupementpreventionniste gp ON gp.ID_UTILISATEUR = u.ID_UTILISATEUR'
-                .' JOIN groupementcommune gc ON gc.ID_GROUPEMENT = gp.ID_GROUPEMENT'
-                .' JOIN utilisateurinformations ui ON ui.ID_UTILISATEURINFORMATIONS = u.ID_UTILISATEURINFORMATIONS'
-                .' WHERE gc.NUMINSEE_COMMUNE = ?',
-                [$commune]
-            )->fetchAllAssociative();
-
-            foreach ($rows as $row) {
-                $arrayResult[] = [
-                    'uid' => $row['ID_UTILISATEUR'],
-                    'nom' => $row['NOM_UTILISATEURINFORMATIONS'],
-                    'prenom' => $row['PRENOM_UTILISATEURINFORMATIONS'],
-                ];
-            }
-
-            return $arrayResult;
+            return $this->utilisateurRepository->findPreventionnistesSuggeresPourCommune($commune);
         }
 
         return null;

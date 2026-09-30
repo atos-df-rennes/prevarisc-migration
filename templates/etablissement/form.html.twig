@@ -92,7 +92,7 @@
                         localSommeil !== undefined ? (localSommeil == 1 ? 'Oui' : 'Non') : ''
                     );
                     $('table#preventionnistes tbody tr.preventionniste').each(function(index) {
-                        preventionnistes[index] = $(this).find('td').first().find('span').text();
+                        preventionnistes[index] = $(this).find('.prev_libelle').text().trim();
                     });
                     $('#confirm-modal-preventionnistes .confirm-modal-input').text(
                         preventionnistes.toString() === '' ? 'Aucuns' : preventionnistes.toString()
@@ -105,13 +105,14 @@
                     $('#confirm-modal-localsommeil .confirm-modal-advisable').text(
                         data.local_sommeil !== undefined ? (data.local_sommeil ? 'Oui' : 'Non') : ''
                     );
+                    $('#confirm-modal-preventionnistes .confirm-modal-advisable').removeAttr('ids').text('');
 
                     if (data.preventionnistes && data.preventionnistes.length > 0) {
                         var prevNoms = [];
                         var prevIds = [];
                         for (var x in data.preventionnistes) {
-                            prevNoms[x] = data.preventionnistes[x].nom + ' ' + data.preventionnistes[x].prenom;
-                            prevIds[x] = data.preventionnistes[x].uid;
+                            prevNoms[x] = (data.preventionnistes[x].nom + ' ' + data.preventionnistes[x].prenom).trim();
+                            prevIds[x] = String(data.preventionnistes[x].uid);
                         }
                         $('#confirm-modal-preventionnistes .confirm-modal-advisable')
                             .attr('ids', prevIds.toString())
@@ -122,7 +123,26 @@
                     $('#confirm-modal').find('li').each(function() {
                         var inputText = $(this).find('.confirm-modal-input').text().trim();
                         var advisableText = $(this).find('.confirm-modal-advisable').text().trim();
-                        if (inputText === advisableText || advisableText === '') {
+                        var suggestedIdsAttribute = $(this).find('.confirm-modal-advisable').attr('ids');
+                        if ($(this).attr('id') === 'confirm-modal-preventionnistes' && suggestedIdsAttribute !== undefined) {
+                            var affectedIds = [];
+                            $('table#preventionnistes tbody tr.preventionniste input[name^="ID_UTILISATEUR"]').each(function() {
+                                var id = String($(this).val());
+                                if (id !== '' && affectedIds.indexOf(id) === -1) {
+                                    affectedIds.push(id);
+                                }
+                            });
+
+                            var suggestedIds = suggestedIdsAttribute.split(',');
+                            affectedIds.sort();
+                            suggestedIds = suggestedIds.filter(function(id, index, ids) {
+                                return id !== '' && ids.indexOf(id) === index;
+                            }).sort();
+
+                            if (affectedIds.join(',') === suggestedIds.join(',')) {
+                                $(this).addClass('confirm-modal-hide');
+                            }
+                        } else if (inputText === advisableText || advisableText === '') {
                             $(this).addClass('confirm-modal-hide');
                         }
                     });
