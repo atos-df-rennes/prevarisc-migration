@@ -195,6 +195,8 @@ Le système de contrôle d'accès repose sur trois concepts :
 - Si un privilège est coché pour un groupe, tous les membres de ce groupe disposent de ce droit.
 - Si un privilège n'est pas coché, l'accès est refusé et l'utilisateur est redirigé vers une page d'erreur « Accès non autorisé ».
 
+**Principe de séparation des droits :** pour toute ressource permettant à la fois la consultation et la modification de données, les privilèges de lecture et de modification (écriture) sont distincts. L'attribution de l'un n'accorde pas automatiquement l'autre. Les privilèges correspondant à des actions spécifiques, comme la création, le verrouillage ou les alertes, restent définis selon le besoin fonctionnel.
+
 **Organisation de la matrice :**
 
 - La matrice est présentée sous forme d'accordéon : un panneau par groupe.
@@ -453,6 +455,7 @@ Un mécanisme de protection est disponible lorsque le mode de sécurité renforc
 | **RG-USR-022** | Les utilisateurs ayant le privilège d'alerte approprié et dont les domaines de compétences (commune ou groupements de communes) correspondent à l'adresse de l'établissement concerné reçoivent une notification en cas de changement de statut, d'avis ou de classement d'un établissement. |
 | **RG-USR-023** | L'accès à un établissement de type « site » nécessite que l'utilisateur ait les droits sur au moins un des établissements enfants du site, ou le droit de création d'établissement. |
 | **RG-USR-024** | Le filtrage de la liste des utilisateurs par groupe est possible via la barre latérale du panneau d'administration. |
+| **RG-USR-025** | Pour toute ressource permettant à la fois la consultation et la modification de données, les privilèges de lecture et de modification (écriture) sont distincts et s'attribuent indépendamment. |
 
 ---
 
