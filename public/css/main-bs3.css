@@ -1421,3 +1421,26 @@ form.checkbox--checked__label--bold div.checkbox label:has(input[checked='checke
     font-size: 18px;
     margin-bottom: 0;
 }
+
+.search-activity-group-toggle {
+    background: transparent;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.search-activity-group-toggle:hover {
+    color: #23527c;
+}
+
+.search-activity-group-toggle:focus-visible {
+    outline: 2px solid #337ab7;
+    outline-offset: 2px;
+}
+
+.search-activity-group-toggle .glyphicon {
+    margin-right: 4px;
+}
