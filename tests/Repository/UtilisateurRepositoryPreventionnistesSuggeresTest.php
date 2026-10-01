@@ -85,8 +85,8 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
 
         $this->commune = $commune;
 
-        $this->fonction = (new Fonction())->setLibelle('Test preventionniste '.$this->uniqueSuffix());
-        $this->groupe = (new Groupe())->setLibelle('Test groupe '.$this->uniqueSuffix());
+        $this->fonction = new Fonction()->setLibelle('Test preventionniste '.$this->uniqueSuffix());
+        $this->groupe = new Groupe()->setLibelle('Test groupe '.$this->uniqueSuffix());
         $this->entityManager->persist($this->fonction);
         $this->entityManager->persist($this->groupe);
         $this->entityManager->flush();
@@ -117,10 +117,7 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
 
         $results = $this->repository->findPreventionnistesSuggeresPourEtablissement($etablissement->getId());
 
-        self::assertSame(
-            [$latestOnly->getId(), $shared->getId()],
-            $this->resultIds($results)
-        );
+        $this->assertSame([$latestOnly->getId(), $shared->getId()], $this->resultIds($results));
     }
 
     public function testFindPreventionnistesSuggeresPourEtablissementExcludesInactiveUsers(): void
@@ -133,13 +130,13 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
 
         $results = $this->repository->findPreventionnistesSuggeresPourEtablissement($etablissement->getId());
 
-        self::assertSame([$actif->getId()], $this->resultIds($results));
+        $this->assertSame([$actif->getId()], $this->resultIds($results));
     }
 
     public function testFindPreventionnistesSuggeresPourCommuneDeduplicatesAndUsesLegacyOrder(): void
     {
-        $typePrioritaire = (new GroupementType())->setLibelle('Type A '.$this->uniqueSuffix());
-        $typeSecondaire = (new GroupementType())->setLibelle('Type B '.$this->uniqueSuffix());
+        $typePrioritaire = new GroupementType()->setLibelle('Type A '.$this->uniqueSuffix());
+        $typeSecondaire = new GroupementType()->setLibelle('Type B '.$this->uniqueSuffix());
         $this->entityManager->persist($typePrioritaire);
         $this->entityManager->persist($typeSecondaire);
         $this->entityManager->flush();
@@ -156,16 +153,13 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
 
         $results = $this->repository->findPreventionnistesSuggeresPourCommune($this->commune->getId());
 
-        self::assertSame(
-            [$premier->getId(), $shared->getId(), $dernier->getId(), $typeTwo->getId()],
-            $this->resultIds($results)
-        );
+        $this->assertSame([$premier->getId(), $shared->getId(), $dernier->getId(), $typeTwo->getId()], $this->resultIds($results));
     }
 
     public function testFindPreventionnistesSuggeresPourCommuneKeepsInactiveUsers(): void
     {
         $inactif = $this->createUser('Inactif commune', false);
-        $type = (new GroupementType())->setLibelle('Type commune '.$this->uniqueSuffix());
+        $type = new GroupementType()->setLibelle('Type commune '.$this->uniqueSuffix());
         $this->entityManager->persist($type);
         $this->entityManager->flush();
         $this->createGroupement('Groupe commune '.$this->uniqueSuffix(), $type, [$inactif]);
@@ -173,7 +167,7 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
 
         $results = $this->repository->findPreventionnistesSuggeresPourCommune($this->commune->getId());
 
-        self::assertSame([$inactif->getId()], $this->resultIds($results));
+        $this->assertSame([$inactif->getId()], $this->resultIds($results));
     }
 
     /**
@@ -181,7 +175,7 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
      */
     private function createInformations(Etablissement $etablissement, string $date, array $preventionnistes): EtablissementInformations
     {
-        $informations = (new EtablissementInformations())
+        $informations = new EtablissementInformations()
             ->setLibelle('Test établissement')
             ->setDate(new \DateTime($date))
             ->setEtablissement($etablissement)
@@ -207,11 +201,11 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
 
     private function createUser(string $nom, bool $actif): Utilisateur
     {
-        $informations = (new UtilisateurInformations())
+        $informations = new UtilisateurInformations()
             ->setNom($nom)
             ->setPrenom('Test')
             ->setFonction($this->fonction);
-        $utilisateur = (new Utilisateur())
+        $utilisateur = new Utilisateur()
             ->setUsername('suggestion-test-'.$this->userNumber++)
             ->setActif($actif)
             ->setGroupe($this->groupe)
@@ -227,7 +221,7 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
      */
     private function createGroupement(string $libelle, GroupementType $type, array $preventionnistes): void
     {
-        $groupement = (new Groupement())
+        $groupement = new Groupement()
             ->setLibelle($libelle)
             ->setType($type)
             ->addCommune($this->commune);
