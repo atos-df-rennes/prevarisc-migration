@@ -247,11 +247,11 @@
 
 ### MOD-22 — À propos et documentation
 
-**Description** : Pages statiques d'information sur l'application : présentation générale, conditions d'utilisation, page de support et documentation destinée aux développeurs.
+**Description** : Pages statiques d'information sur l'application (présentation, conditions d'utilisation, support et documentation de l'API), ainsi qu'un navigateur intégré des documentations fonctionnelle et technique du projet. La documentation fonctionnelle est accessible aux utilisateurs authentifiés ; la documentation technique est réservée aux administrateurs.
 
 **Priorité** : 🟢 Standard
 **Statut** : ✅ Migré
-**Spécification détaillée** : [MOD-22-ABOUT.md](MOD-22-ABOUT.md)
+**Spécification détaillée** : [MOD-22-A-PROPOS.md](MOD-22-A-PROPOS.md)
 
 ---
 

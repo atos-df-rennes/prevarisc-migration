@@ -1,7 +1,7 @@
 # MOD-22 — À propos et documentation
 
-> **Version :** 1.1  
-> **Date** : 2026-07-08 (mise à jour : gestion d'erreur écart #3)
+> **Version :** 1.2
+> **Date** : 2026-10-01 (ajout de la consultation intégrée des documentations)
 > **Statut :** Spécification initiale issue de l'analyse du legacy
 
 ---
@@ -14,6 +14,7 @@ Le module « À propos et documentation » regroupe l'ensemble des pages informa
 - Les conditions d'utilisation encadrant l'accès aux services.
 - Les canaux de support et la procédure de signalement de problèmes.
 - La documentation technique de l'interface de programmation (API REST) destinée aux développeurs et intégrateurs.
+- Les documentations fonctionnelle et technique du projet, publiées respectivement dans `docs/specs/` et `docs/tech/`.
 
 Ces pages sont accessibles depuis le **pied de page** (footer), présent sur toutes les pages de l'application.
 
@@ -25,6 +26,8 @@ Ces pages sont accessibles depuis le **pied de page** (footer), présent sur tou
 |--------|--------------------------|
 | Tout utilisateur authentifié | Consulte les pages « À propos », « Conditions d'utilisation » et « Aide » |
 | Développeur / Intégrateur | Consulte la documentation de l'API REST via la page « Développeurs » |
+| Tout utilisateur authentifié | Consulte la documentation fonctionnelle du projet |
+| Administrateur | Consulte la documentation technique du projet |
 | Administrateur fonctionnel | Peut être amené à mettre à jour le contenu rédactionnel des pages |
 
 > **Note :** Ces pages sont accessibles à **tout utilisateur authentifié**, sans restriction de rôle ou de profil. Elles ne sont pas accessibles avant authentification : le mécanisme ACL de l'application redirige systématiquement les visiteurs non authentifiés vers la page de connexion (seules les pages `login` et `error` sont publiques).
@@ -87,22 +90,36 @@ Documentation de l'API REST (version 1.0) organisée en cinq domaines fonctionne
 
 Chaque opération est documentée avec son chemin d'accès, ses paramètres (requis ou optionnels) et une description de la réponse attendue.
 
+### 3.5 Page « Documentation »
+
+**Accès :** Lien « Documentation » dans le pied de page standard et le pied de page SDIS29.
+
+La page présente une arborescence repliable des documentations fonctionnelle (`docs/specs/`) et technique (`docs/tech/`), y compris leurs sous-dossiers. Le document sélectionné est affiché dans la page, à côté de l'arborescence. Les fichiers Markdown sont convertis en HTML avec des liens internes et des ancres de titres utilisables. Les fichiers HTML sont affichés tels quels dans un contexte isolé du reste de l'application.
+
+La documentation fonctionnelle est consultable par tout utilisateur authentifié. La documentation technique et ses fichiers ne sont accessibles qu'aux utilisateurs disposant du droit `admin` ; cet accès est vérifié côté serveur, y compris lors d'un accès direct à une URL.
+
 ---
 
 ## 4. Règles de gestion
 
 | N° | Intitulé | Description |
 |----|----------|-------------|
-| **RG-APR-001** | Accès libre | Toutes les pages du module sont accessibles sans restriction de rôle ni de profil. Aucun contrôle d'habilitation n'est appliqué. |
+| **RG-APR-001** | Accès des pages informatives | Les pages « À propos », « Conditions d'utilisation », « Aide », « Développeurs » et la documentation fonctionnelle sont accessibles à tout utilisateur authentifié, sans restriction de rôle ni de profil. La documentation technique du projet est réservée aux utilisateurs disposant du droit `admin` (voir RG-APR-011). |
 | **RG-APR-002** | Lecture seule | Le contenu des pages est exclusivement en lecture. Aucune action de création, modification ou suppression n'est possible depuis l'interface utilisateur. |
 | **RG-APR-003** | Contenu externalisé | Le contenu rédactionnel de chaque page est stocké dans un fichier texte enrichi (Markdown) distinct, indépendant de l'interface. La modification du contenu passe par la mise à jour de ces fichiers sources. |
 | **RG-APR-004** | Conversion automatique | Le contenu Markdown est automatiquement converti en page lisible (HTML) au moment de l'affichage. Aucune mise en cache n'est appliquée. |
-| **RG-APR-005** | Vue unique partagée | Les quatre pages utilisent un même gabarit d'affichage. La présentation est homogène quel que soit le contenu affiché. |
-| **RG-APR-006** | Accès depuis le pied de page | Les liens vers les quatre pages sont présents dans le pied de page global de l'application, visible sur toutes les pages. |
+| **RG-APR-005** | Présentation des pages informatives | Les pages « À propos », « Conditions d'utilisation », « Aide » et « Développeurs » utilisent un gabarit partagé. La page de documentation du projet utilise une présentation dédiée avec une arborescence et un contenu principal. |
+| **RG-APR-006** | Accès depuis le pied de page | Les liens vers les pages informatives et vers la documentation sont présents dans le pied de page global de l'application, visible sur toutes les pages. Le pied de page SDIS29 contient également le lien vers la documentation. |
 | **RG-APR-007** | Affichage de la version | Le pied de page affiche le numéro de version de l'application ainsi qu'un lien vers le détail du code source correspondant. |
 | **RG-APR-008** | Copyright dynamique | L'année affichée dans la mention de copyright du pied de page est calculée automatiquement (année en cours). |
 | **RG-APR-009** | Liens institutionnels | Le pied de page contient des liens vers les sites du SDIS 62 (avec logo) et du Ministère de l'Intérieur, identifiant les organismes à l'origine du projet. |
 | **RG-APR-010** | Lien vers les notes de versions | Le pied de page contient un lien vers la page « Notes de versions » (changelog), distincte de ce module mais accessible depuis le même espace. |
+| **RG-APR-011** | Accès à la documentation technique | Chaque requête portant sur un document de `docs/tech/` requiert le droit `admin`. Le contrôle s'applique aussi à la consultation directe d'un fichier HTML et aux chemins de sous-dossiers. |
+| **RG-APR-012** | Navigation des documentations | La page Documentation présente séparément les espaces fonctionnel et technique et leurs sous-dossiers. Les documents Markdown sont accessibles depuis l'arborescence ; les sous-dossiers peuvent être repliés et le chemin du document affiché reste repérable. |
+| **RG-APR-013** | Conversion et liens Markdown | Un fichier `.md` autorisé est converti en HTML à l'affichage. Les liens vers un autre document de l'espace courant pointent vers sa page de consultation et les ancres de titres restent utilisables. Un lien vers une ressource hors des espaces de documentation n'est pas traité comme une page interne. |
+| **RG-APR-014** | Consultation de fichiers HTML | Un fichier `.html` présent dans l'espace courant est affiché sans conversion Markdown dans un contexte isolé du reste de l'application. Il reste soumis au contrôle d'accès de son espace. |
+| **RG-APR-015** | Restriction des chemins | Seuls les fichiers `.md` et `.html` appartenant aux espaces de documentation prévus peuvent être consultés. Un fichier absent, une extension non admise ou un chemin sortant de l'espace retourne une erreur 404. |
+| **RG-APR-016** | Lien depuis les deux pieds de page | Le lien « Documentation » est présent dans le pied de page standard et dans le pied de page personnalisé SDIS29. |
 
 ---
 
@@ -121,3 +138,5 @@ Chaque opération est documentée avec son chemin d'accès, ses paramètres (req
 6. **Adresse e-mail de contact** : `prevarisc.ext@atos.net` — présente sur les pages « À propos » et « Aide ».
 
 7. **Pied de page — périmètre élargi** : le pied de page contient des éléments (version, copyright, liens institutionnels) qui ne relèvent pas strictement du module « À propos » mais qui participent à l'espace informatif global. Ils sont documentés ici car étroitement liés.
+
+8. **Contexte isolé des fichiers HTML** : les documents HTML sont fournis comme contenu HTML brut, mais leur politique de sécurité empêche leur contenu de partager l'origine et les privilèges applicatifs de la page de consultation.

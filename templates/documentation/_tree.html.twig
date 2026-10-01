@@ -1,0 +1,27 @@
+<ul class="documentation-tree">
+    {% for entry in entries %}
+        {% if 'directory' == entry.type %}
+            <li class="documentation-tree__directory">
+                <details {% if activePath starts with entry.path ~ '/' %}open{% endif %}>
+                    <summary>
+                        <span class="glyphicon glyphicon-folder-close" aria-hidden="true"></span>
+                        {{ entry.label }}
+                    </summary>
+                    {{ include('documentation/_tree.html.twig', {
+                        entries: entry.children,
+                        activePath: activePath,
+                        space: space,
+                    }, false) }}
+                </details>
+            </li>
+        {% else %}
+            <li class="documentation-tree__file">
+                <a href="{{ path('documentation_document', {space: space, path: entry.path}) }}"
+                   {% if activePath == entry.path %}aria-current="page"{% endif %}>
+                    <span class="glyphicon {% if 'html' == entry.format %}glyphicon-globe{% else %}glyphicon-file{% endif %}" aria-hidden="true"></span>
+                    {{ entry.label }}
+                </a>
+            </li>
+        {% endif %}
+    {% endfor %}
+</ul>
