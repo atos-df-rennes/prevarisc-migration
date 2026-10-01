@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Enum;
 
-use App\Entity\PieceJointe;
-use App\Entity\PieceJointeStatut;
 use App\Enum\PieceJointeStatutEnum;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -31,23 +29,5 @@ final class PieceJointeStatutEnumTest extends TestCase
     public function testSuivisExportValues(): void
     {
         $this->assertSame(['to_be_exported', 'on_error', 'awaiting_status'], PieceJointeStatutEnum::suivisExportValues());
-    }
-
-    #[DataProvider('pieceJointeStatutProvider')]
-    public function testPieceJointeGetStatutEnum(?string $nomStatut, ?PieceJointeStatutEnum $attendu): void
-    {
-        $pieceJointe = new PieceJointe();
-        if (null !== $nomStatut) {
-            $pieceJointe->setStatut(new PieceJointeStatut()->setNomStatut($nomStatut));
-        }
-
-        $this->assertSame($attendu, $pieceJointe->getStatutEnum());
-    }
-
-    public static function pieceJointeStatutProvider(): \Generator
-    {
-        yield 'sans statut' => [null, null];
-        yield 'statut inconnu' => ['inconnu', null];
-        yield 'statut connu' => ['exported', PieceJointeStatutEnum::Envoye];
     }
 }

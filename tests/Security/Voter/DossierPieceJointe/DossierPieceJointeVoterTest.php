@@ -22,13 +22,13 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 final class DossierPieceJointeVoterTest extends TestCase
 {
     #[DataProvider('voteProvider')]
-    public function testVote(string $attribute, ?PieceJointeStatutEnum $statut, bool $editDossier, int $attendu): void
+    public function testVote(string $attribute, ?string $nomStatut, bool $editDossier, int $attendu): void
     {
         $accessDecisionManager = $this->createStub(AccessDecisionManagerInterface::class);
         $accessDecisionManager->method('decide')->willReturn($editDossier);
         $voter = new DossierPieceJointeVoter($accessDecisionManager);
 
-        $result = $voter->vote($this->createStub(TokenInterface::class), $this->createDossierPieceJointe($statut), [$attribute]);
+        $result = $voter->vote($this->createStub(TokenInterface::class), $this->createDossierPieceJointe($nomStatut), [$attribute]);
 
         $this->assertSame($attendu, $result);
     }
@@ -37,11 +37,12 @@ final class DossierPieceJointeVoterTest extends TestCase
     {
         foreach ([DossierPieceJointeVoter::MODIFICATION, DossierPieceJointeVoter::SUPPRESSION] as $attribute) {
             yield $attribute.' sans statut' => [$attribute, null, true, VoterInterface::ACCESS_GRANTED];
-            yield $attribute.' sans droit sur le dossier' => [$attribute, PieceJointeStatutEnum::NonEnvoye, false, VoterInterface::ACCESS_DENIED];
+            yield $attribute.' statut inconnu' => [$attribute, 'statut_inconnu', true, VoterInterface::ACCESS_GRANTED];
+            yield $attribute.' sans droit sur le dossier' => [$attribute, PieceJointeStatutEnum::NonEnvoye->value, false, VoterInterface::ACCESS_DENIED];
 
             foreach (PieceJointeStatutEnum::cases() as $statut) {
                 $attendu = $statut->bloqueModification() ? VoterInterface::ACCESS_DENIED : VoterInterface::ACCESS_GRANTED;
-                yield $attribute.' '.$statut->value => [$attribute, $statut, true, $attendu];
+                yield $attribute.' '.$statut->value => [$attribute, $statut->value, true, $attendu];
             }
         }
     }
@@ -71,11 +72,11 @@ final class DossierPieceJointeVoterTest extends TestCase
         }
     }
 
-    private function createDossierPieceJointe(?PieceJointeStatutEnum $statut, ?Dossier $dossier = null): DossierPieceJointe
+    private function createDossierPieceJointe(?string $nomStatut, ?Dossier $dossier = null): DossierPieceJointe
     {
         $pieceJointe = new PieceJointe();
-        if (null !== $statut) {
-            $pieceJointe->setStatut(new PieceJointeStatut()->setNomStatut($statut->value));
+        if (null !== $nomStatut) {
+            $pieceJointe->setStatut(new PieceJointeStatut()->setNomStatut($nomStatut));
         }
 
         return new DossierPieceJointe()
