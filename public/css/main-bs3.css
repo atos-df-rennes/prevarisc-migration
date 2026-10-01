@@ -1421,3 +1421,59 @@ form.checkbox--checked__label--bold div.checkbox label:has(input[checked='checke
     font-size: 18px;
     margin-bottom: 0;
 }
+
+.search-activity-group-toggle {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    font: inherit;
+    gap: 6px;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+}
+
+.search-activity-group-toggle:hover {
+    color: #23527c;
+}
+
+.search-activity-group-toggle:focus-visible {
+    outline: 2px solid #337ab7;
+    outline-offset: 2px;
+}
+
+.search-activity-group-checkbox {
+    align-items: center;
+    border: 1px solid #666;
+    border-radius: 2px;
+    box-sizing: border-box;
+    display: inline-flex;
+    height: 14px;
+    justify-content: center;
+    width: 14px;
+}
+
+.search-activity-group-toggle.is-selected .search-activity-group-checkbox,
+.search-activity-group-toggle.is-partial .search-activity-group-checkbox {
+    background: #337ab7;
+    border-color: #2e6da4;
+}
+
+.search-activity-group-toggle.is-selected .search-activity-group-checkbox::after {
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    content: "";
+    height: 7px;
+    transform: rotate(45deg) translate(-1px, -1px);
+    width: 4px;
+}
+
+.search-activity-group-toggle.is-partial .search-activity-group-checkbox::after {
+    background: #fff;
+    content: "";
+    height: 2px;
+    width: 8px;
+}

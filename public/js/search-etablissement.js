@@ -25,7 +25,101 @@ $(document).ready(function() {
     new TomSelect("select[name='categories[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les catégories' }));
     new TomSelect("select[name='classes[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les classes' }));
     new TomSelect("select[name='familles[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les familles' }));
-    new TomSelect("select[name='types_activites[]']", Object.assign({}, tsMultiConfig, { placeholder: "Tous les types d'activités" }));
+    let tsTypesActivites;
+    const activityGroupValues = function(groupValue) {
+        return Object.keys(tsTypesActivites.options).filter(function(value) {
+            return String(tsTypesActivites.options[value].optgroup) === String(groupValue);
+        });
+    };
+    const activityGroupState = function(groupValue) {
+        const values = activityGroupValues(groupValue);
+        const selected = new Set(tsTypesActivites.items);
+        const selectedCount = values.filter(function(value) {
+            return selected.has(value);
+        }).length;
+
+        return {
+            allSelected: values.length > 0 && selectedCount === values.length,
+            partiallySelected: selectedCount > 0 && selectedCount < values.length
+        };
+    };
+    const updateActivityGroupToggles = function() {
+        tsTypesActivites.dropdown_content.querySelectorAll('.search-activity-group-toggle').forEach(function(toggle) {
+            const state = activityGroupState(toggle.dataset.group);
+            const checked = state.allSelected ? 'true' : (state.partiallySelected ? 'mixed' : 'false');
+            const action = state.allSelected ? 'Désélectionner' : 'Sélectionner';
+
+            toggle.setAttribute('aria-checked', checked);
+            toggle.setAttribute('aria-label', action + ' toutes les activités du type ' + toggle.dataset.groupLabel);
+            toggle.classList.toggle('is-selected', state.allSelected);
+            toggle.classList.toggle('is-partial', state.partiallySelected);
+        });
+    };
+    tsTypesActivites = new TomSelect("select[name='types_activites[]']", Object.assign({}, tsMultiConfig, {
+        placeholder: "Toutes les activités",
+        render: {
+            optgroup_header: function(data, escape) {
+                const groupValue = String(data.value);
+                const label = String(data.label);
+                const state = tsTypesActivites
+                    ? activityGroupState(groupValue)
+                    : { allSelected: false, partiallySelected: false };
+                const checked = state.allSelected ? 'true' : (state.partiallySelected ? 'mixed' : 'false');
+                const action = state.allSelected ? 'Désélectionner' : 'Sélectionner';
+
+                return '<button type="button" class="search-activity-group-toggle' +
+                    (state.allSelected ? ' is-selected' : '') +
+                    (state.partiallySelected ? ' is-partial' : '') +
+                    '" data-cy="activity-group-toggle" data-group="' + escape(groupValue) +
+                    '" data-group-label="' + escape(label) + '" role="checkbox" aria-checked="' + checked +
+                    '" aria-label="' + action + ' toutes les activités du type ' + escape(label) +
+                    '"><span class="search-activity-group-checkbox" aria-hidden="true"></span>' +
+                    '<span class="search-activity-group-label">' + escape(label) + '</span></button>';
+            }
+        }
+    }));
+    tsTypesActivites.dropdown_content.addEventListener('mousedown', function(event) {
+        if (event.target instanceof Element && event.target.closest('.search-activity-group-toggle')) {
+            event.preventDefault();
+        }
+    });
+    const handleActivityFilterBlur = tsTypesActivites.onBlur.bind(tsTypesActivites);
+    tsTypesActivites.onBlur = function(event) {
+        if (event?.relatedTarget && tsTypesActivites.dropdown_content.contains(event.relatedTarget)) {
+            return;
+        }
+
+        handleActivityFilterBlur(event);
+    };
+    tsTypesActivites.dropdown_content.addEventListener('focusout', function(event) {
+        if (!tsTypesActivites.dropdown_content.contains(event.relatedTarget)) {
+            handleActivityFilterBlur(event);
+        }
+    });
+    tsTypesActivites.dropdown_content.addEventListener('click', function(event) {
+        if (!(event.target instanceof Element)) {
+            return;
+        }
+
+        const toggle = event.target.closest('.search-activity-group-toggle');
+        if (!toggle) {
+            return;
+        }
+
+        event.preventDefault();
+        const values = activityGroupValues(toggle.dataset.group);
+        const state = activityGroupState(toggle.dataset.group);
+        const groupValues = new Set(values);
+        const nextValues = state.allSelected
+            ? tsTypesActivites.items.filter(function(value) { return !groupValues.has(value); })
+            : Array.from(new Set(tsTypesActivites.items.concat(values)));
+
+        tsTypesActivites.setValue(nextValues);
+        updateActivityGroupToggles();
+    });
+    tsTypesActivites.on('change', updateActivityGroupToggles);
+    tsTypesActivites.on('dropdown_open', updateActivityGroupToggles);
+    updateActivityGroupToggles();
     new TomSelect("select[name='avis[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Tous les avis' }));
     new TomSelect("select[name='presences_local_sommeil[]']", Object.assign({}, tsMultiConfig, { placeholder: "Qu'importe la présence de local à sommeil" }));
     new TomSelect("select[name='commissions[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les commissions' }));

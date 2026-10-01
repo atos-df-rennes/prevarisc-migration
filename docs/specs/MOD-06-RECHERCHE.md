@@ -56,7 +56,7 @@ Tous les filtres suivants sont combinables entre eux (conditions cumulatives en 
 | 6 | **Catégorie** | Sélection multiple | Liste des catégories (1ʳᵉ à 5ᵉ) | Toutes les catégories |
 | 7 | **Classe** | Sélection multiple | Liste des classes (pour les ERT) | Toutes les classes |
 | 8 | **Famille** | Sélection multiple | Liste des familles (pour les habitations) | Toutes les familles |
-| 9 | **Type d'activité** | Sélection multiple | Liste des types d'activité, groupée par type (J, L, M, N, O…) | Tous les types |
+| 9 | **Type d'activité** | Sélection multiple, groupée par type | Liste des activités regroupées par type (J, L, M, N, O…). L'en-tête de chaque groupe permet de sélectionner ou désélectionner toutes les activités de ce type. | Toutes les activités |
 | 10 | **Groupement territorial** | Sélection multiple | Liste des groupements territoriaux | Présélectionné selon le groupement de rattachement de l'utilisateur connecté |
 | 11 | **Préventionniste** | Sélection simple | Liste des préventionnistes actifs (ayant au moins un dossier) | Aucun (pas de filtre) |
 | 12 | **Zone de recherche** | Modale hiérarchique | Commune → Voie → Numéro | Département entier |
@@ -383,6 +383,7 @@ Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté
 | **RG-RCH-020** | Dans l'export, la **date de prochaine visite périodique** est calculée en ajoutant la périodicité (en mois) à la date de dernière visite. Elle n'est renseignée que si la périodicité est définie et non nulle. |
 | **RG-RCH-021** | Dans l'export, la **date du premier avis défavorable consécutif** correspond à la date de visite du premier avis défavorable non suivi d'un avis favorable ultérieur. |
 | **RG-RCH-022** | Les établissements dont le statut est « fermé » ou « en projet » sont affichés en **semi-transparence** dans la liste de résultats. |
+| **RG-RCH-023** | Dans le filtre « Type d'activité », l'en-tête d'un type permet de sélectionner toutes les activités associées à ce type ou de les désélectionner si elles sont déjà toutes sélectionnées. L'état de l'en-tête indique une sélection complète, partielle ou nulle. Cette action porte sur toutes les activités du type, même si certaines sont masquées par le texte de filtrage de la liste. Le critère transmis à la recherche reste la liste des activités sélectionnées. |
 
 ### Règles spécifiques à la recherche de dossiers
 
