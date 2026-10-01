@@ -5,7 +5,7 @@ describe('Établissement — recherche', () => {
     })
 
     const activityGroupToggle = (label) => cy.get('#type_span [data-cy="activity-group-toggle"]')
-        .filter((_, button) => button.querySelector('.search-activity-group-label')?.textContent.trim() === label)
+        .filter((_, button) => button.textContent.trim() === label)
 
     const activityGroup = (label) => cy.get("select[name='types_activites[]']").then(($select) => {
         const group = Array.from($select[0].querySelectorAll('optgroup'))
@@ -50,8 +50,9 @@ describe('Établissement — recherche', () => {
         activityGroup('L').then(({ values }) => {
             expect(values.length).to.be.greaterThan(1)
 
+            activityGroupToggle('L').find('.glyphicon-list').should('have.attr', 'aria-hidden', 'true')
             activityGroupToggle('L').click()
-            activityGroupToggle('L').should('have.attr', 'aria-checked', 'true')
+            activityGroupToggle('L').find('.glyphicon-list').should('exist')
             cy.get("select[name='types_activites[]']").should(($select) => {
                 expect(Array.from($select[0].selectedOptions).map((option) => option.value)).to.have.members(values)
             })
@@ -63,20 +64,22 @@ describe('Établissement — recherche', () => {
 
             cy.get('#type_span .ts-control').click()
             activityGroupToggle('L').click()
-            activityGroupToggle('L').should('have.attr', 'aria-checked', 'false')
             cy.get("select[name='types_activites[]']").should(($select) => {
                 expect(Array.from($select[0].selectedOptions)).to.have.length(0)
             })
         })
     })
 
-    it('Sélectionner une activité → l’état du type devient indéterminé', () => {
+    it('Sélectionner une activité puis cliquer sur le type → complète la sélection du groupe', () => {
         openActivityFilter()
 
         activityGroup('L').then(({ values }) => {
             const firstValue = values[0]
             cy.get(`#type_span .ts-dropdown .option[data-value="${firstValue}"]`).click()
-            activityGroupToggle('L').should('have.attr', 'aria-checked', 'mixed')
+            activityGroupToggle('L').click()
+            cy.get("select[name='types_activites[]']").should(($select) => {
+                expect(Array.from($select[0].selectedOptions).map((option) => option.value)).to.have.members(values)
+            })
         })
     })
 
@@ -86,7 +89,6 @@ describe('Établissement — recherche', () => {
         activityGroup('L').then(({ values }) => {
             activityGroupToggle('L').focus().should('have.focus')
             cy.press(Cypress.Keyboard.Keys.SPACE)
-            activityGroupToggle('L').should('have.attr', 'aria-checked', 'true')
             cy.get("select[name='types_activites[]']").should(($select) => {
                 const selectedValues = Array.from($select[0].selectedOptions).map((option) => option.value)
                 expect(selectedValues).to.have.members(values)
@@ -105,7 +107,6 @@ describe('Établissement — recherche', () => {
             })
 
             activityGroupToggle('L').click()
-            activityGroupToggle('L').should('have.attr', 'aria-checked', 'true')
             cy.get("select[name='types_activites[]']").should(($select) => {
                 const selectedValues = Array.from($select[0].selectedOptions).map((option) => option.value)
                 expect(selectedValues).to.have.members(values)

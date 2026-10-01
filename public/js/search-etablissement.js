@@ -31,50 +31,17 @@ $(document).ready(function() {
             return String(tsTypesActivites.options[value].optgroup) === String(groupValue);
         });
     };
-    const activityGroupState = function(groupValue) {
-        const values = activityGroupValues(groupValue);
-        const selected = new Set(tsTypesActivites.items);
-        const selectedCount = values.filter(function(value) {
-            return selected.has(value);
-        }).length;
-
-        return {
-            allSelected: values.length > 0 && selectedCount === values.length,
-            partiallySelected: selectedCount > 0 && selectedCount < values.length
-        };
-    };
-    const updateActivityGroupToggles = function() {
-        tsTypesActivites.dropdown_content.querySelectorAll('.search-activity-group-toggle').forEach(function(toggle) {
-            const state = activityGroupState(toggle.dataset.group);
-            const checked = state.allSelected ? 'true' : (state.partiallySelected ? 'mixed' : 'false');
-            const action = state.allSelected ? 'Désélectionner' : 'Sélectionner';
-
-            toggle.setAttribute('aria-checked', checked);
-            toggle.setAttribute('aria-label', action + ' toutes les activités du type ' + toggle.dataset.groupLabel);
-            toggle.classList.toggle('is-selected', state.allSelected);
-            toggle.classList.toggle('is-partial', state.partiallySelected);
-        });
-    };
     tsTypesActivites = new TomSelect("select[name='types_activites[]']", Object.assign({}, tsMultiConfig, {
         placeholder: "Toutes les activités",
         render: {
             optgroup_header: function(data, escape) {
                 const groupValue = String(data.value);
                 const label = String(data.label);
-                const state = tsTypesActivites
-                    ? activityGroupState(groupValue)
-                    : { allSelected: false, partiallySelected: false };
-                const checked = state.allSelected ? 'true' : (state.partiallySelected ? 'mixed' : 'false');
-                const action = state.allSelected ? 'Désélectionner' : 'Sélectionner';
 
-                return '<button type="button" class="search-activity-group-toggle' +
-                    (state.allSelected ? ' is-selected' : '') +
-                    (state.partiallySelected ? ' is-partial' : '') +
-                    '" data-cy="activity-group-toggle" data-group="' + escape(groupValue) +
-                    '" data-group-label="' + escape(label) + '" role="checkbox" aria-checked="' + checked +
-                    '" aria-label="' + action + ' toutes les activités du type ' + escape(label) +
-                    '"><span class="search-activity-group-checkbox" aria-hidden="true"></span>' +
-                    '<span class="search-activity-group-label">' + escape(label) + '</span></button>';
+                return '<button type="button" class="search-activity-group-toggle" data-cy="activity-group-toggle"' +
+                    ' data-group="' + escape(groupValue) + '"' +
+                    ' aria-label="Sélectionner ou désélectionner les activités du type ' + escape(label) + '">' +
+                    '<span class="glyphicon glyphicon-list" aria-hidden="true"></span> ' + escape(label) + '</button>';
             }
         }
     }));
@@ -108,18 +75,16 @@ $(document).ready(function() {
 
         event.preventDefault();
         const values = activityGroupValues(toggle.dataset.group);
-        const state = activityGroupState(toggle.dataset.group);
         const groupValues = new Set(values);
-        const nextValues = state.allSelected
+        const allSelected = values.length > 0 && values.every(function(value) {
+            return tsTypesActivites.items.includes(value);
+        });
+        const nextValues = allSelected
             ? tsTypesActivites.items.filter(function(value) { return !groupValues.has(value); })
             : Array.from(new Set(tsTypesActivites.items.concat(values)));
 
         tsTypesActivites.setValue(nextValues);
-        updateActivityGroupToggles();
     });
-    tsTypesActivites.on('change', updateActivityGroupToggles);
-    tsTypesActivites.on('dropdown_open', updateActivityGroupToggles);
-    updateActivityGroupToggles();
     new TomSelect("select[name='avis[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Tous les avis' }));
     new TomSelect("select[name='presences_local_sommeil[]']", Object.assign({}, tsMultiConfig, { placeholder: "Qu'importe la présence de local à sommeil" }));
     new TomSelect("select[name='commissions[]']", Object.assign({}, tsMultiConfig, { placeholder: 'Toutes les commissions' }));
