@@ -50,8 +50,8 @@ final class RessourcesSpecialiseesGeneratorsTest extends TestCase
             $this->createStub(RessourcesSpecialiseesManifestationTemporaireTexter::class),
         );
 
-        self::assertSame('etablissement_erp_3-7_0_0_0_1', RessourcesSpecialiseesEtablissementNameGenerator::fromRequest($request));
-        self::assertSame('Établissement (types 3 et 7)', $textGenerator->fromRequest($request));
+        $this->assertSame('etablissement_erp_3-7_0_0_0_1', RessourcesSpecialiseesEtablissementNameGenerator::fromRequest($request));
+        $this->assertSame('Établissement (types 3 et 7)', $textGenerator->fromRequest($request));
     }
 
     public function testDossierLitLesCriteresDansLeFormulaireSoumis(): void
@@ -63,7 +63,7 @@ final class RessourcesSpecialiseesGeneratorsTest extends TestCase
         ]);
         $textGenerator = new RessourcesSpecialiseesDossierTextGenerator($this->createStub(DossierNatureListeRepository::class));
 
-        self::assertSame('dossier_0', RessourcesSpecialiseesDossierNameGenerator::fromRequest($request));
-        self::assertSame('Dossier (Toutes les natures)', $textGenerator->fromRequest($request));
+        $this->assertSame('dossier_0', RessourcesSpecialiseesDossierNameGenerator::fromRequest($request));
+        $this->assertSame('Dossier (Toutes les natures)', $textGenerator->fromRequest($request));
     }
 }
