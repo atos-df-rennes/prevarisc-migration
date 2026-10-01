@@ -74,9 +74,7 @@ final class DossierNewFromEtablissementPreventionnisteTest extends WebTestCase
         }
 
         // Simuler l'authentification Zend dans $_SESSION
-        if (!isset($_SESSION)) {
-            $_SESSION = [];
-        }
+        $_SESSION ??= [];
 
         $_SESSION['Zend_Auth'] = [
             'storage' => [
@@ -97,7 +95,7 @@ final class DossierNewFromEtablissementPreventionnisteTest extends WebTestCase
         foreach ($preventionnistesAttendus as $idPreventionniste) {
             $this->assertStringContainsString(
                 'value="'.$idPreventionniste.'" selected',
-                $content,
+                (string) $content,
                 sprintf(
                     "Le préventionniste #%d de l'établissement devrait être présélectionné sur le nouveau dossier",
                     $idPreventionniste
