@@ -9,9 +9,9 @@ use App\Entity\AvisDerogations;
 use App\Entity\Dossier;
 use App\Entity\Privileges;
 use App\Entity\Utilisateur;
-use Doctrine\DBAL\Connection;
 use App\Repository\DossierRepository;
 use App\Repository\PrivilegesRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -155,8 +155,7 @@ final class AvisDerogationsVerificationsTechniquesPrivilegesTest extends WebTest
         int $groupId,
         Privileges $privilege,
         bool $enabled
-    ): void
-    {
+    ): void {
         $connection->executeStatement(
             'DELETE FROM `groupe-privileges` WHERE ID_GROUPE = ? AND id_privilege = ?',
             [$groupId, $privilege->getId()],

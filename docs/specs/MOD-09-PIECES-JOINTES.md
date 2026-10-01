@@ -2,11 +2,12 @@
 
 ## 1. Objet et périmètre
 
-Ce module permet de déposer, consulter, télécharger et supprimer des fichiers associés aux principales entités de Prevarisc. Il gère également la transmission de pièces jointes vers la plateforme Plat'AU pour les dossiers issus de cette source.
+Ce module permet de déposer, consulter, télécharger, modifier et supprimer des fichiers associés aux principales entités de Prevarisc. Il gère également la transmission de pièces jointes vers la plateforme Plat'AU pour les dossiers issus de cette source.
 
 Le périmètre couvre :
 - Le dépôt de fichiers (formulaire ou glisser-déposer)
 - La consultation et le téléchargement unitaire ou groupé
+- La modification du nom et de la description d'une pièce jointe
 - La suppression de fichiers
 - La classification spécifique aux établissements (plans, diaporamas)
 - La sélection de pièce jointe pour passage en commission
@@ -18,7 +19,7 @@ Le périmètre couvre :
 
 | Acteur | Rôle dans le module |
 |--------|---------------------|
-| **Utilisateur métier** (instructeur, préventionniste) | Dépose, consulte, télécharge et supprime des pièces jointes. Sélectionne les pièces à envoyer vers Plat'AU. |
+| **Utilisateur métier** (instructeur, préventionniste) | Dépose, consulte, télécharge, modifie et supprime des pièces jointes. Sélectionne les pièces à envoyer vers Plat'AU. |
 | **Plat'AU** (système externe) | Reçoit les pièces jointes exportées. Transmet les pièces jointes entrantes rattachées aux dossiers de consultation. |
 
 ---
@@ -114,7 +115,7 @@ La liste affiche, pour chaque pièce jointe accessible :
 - **Description** ou, à défaut, les métadonnées Plat'AU (type, sous-type, date de dépôt, nature)
 - **Date d'ajout**
 - **Statut Plat'AU** (affiché uniquement pour les dossiers liés à Plat'AU)
-- **Action de suppression** (si autorisée)
+- **Actions de modification et de suppression** (si autorisées, voir RG-PJ-009, RG-PJ-010 et RG-PJ-023)
 
 Les pièces jointes sont triées de la plus récente à la plus ancienne.
 
@@ -132,7 +133,15 @@ Un clic sur le nom du fichier déclenche le téléchargement. Le fichier est ser
 
 Un bouton « Télécharger les pièces jointes » permet de télécharger l'ensemble des pièces jointes d'un dossier dans une archive ZIP.
 
-### 5.3 Supprimer une pièce jointe
+### 5.3 Modifier une pièce jointe
+
+L'utilisateur clique sur l'icône de modification. Un formulaire permet de modifier le **nom** (libellé) et la **description** de la pièce jointe. Le fichier et son extension ne sont pas modifiables.
+
+À la validation, les modifications sont enregistrées, l'utilisateur revient à la liste des pièces jointes et un message confirme la modification.
+
+Pour une pièce jointe de dossier, la modification est soumise aux mêmes restrictions que la suppression (RG-PJ-009, RG-PJ-010).
+
+### 5.4 Supprimer une pièce jointe
 
 L'utilisateur clique sur l'icône de suppression. Une confirmation est demandée : « Êtes-vous sûr de vouloir supprimer cette pièce jointe ? ».
 
@@ -143,7 +152,7 @@ Si confirmé :
 - La pièce jointe est supprimée du système.
 - La ligne disparaît de la liste sans rechargement de page.
 
-### 5.4 Classification des pièces jointes d'établissement (plans, diaporamas)
+### 5.5 Classification des pièces jointes d'établissement (plans, diaporamas)
 
 Lors du dépôt d'une image sur un établissement, l'utilisateur choisit un emplacement de mise en avant :
 
@@ -155,7 +164,7 @@ Lors du dépôt d'une image sur un établissement, l'utilisateur choisit un empl
 
 Seuls les formats image (JPG, JPEG, PNG, GIF) sont éligibles à la mise en avant. Pour tout autre format, l'option est ignorée.
 
-### 5.5 Sélection pour passage en commission (dossier uniquement)
+### 5.6 Sélection pour passage en commission (dossier uniquement)
 
 Depuis la liste des pièces jointes d'un dossier, chaque ligne comporte une case à cocher « Sélectionner pour la commission ». Lorsqu'une pièce jointe est cochée, toutes les autres cases sont désactivées : **une seule pièce jointe peut être sélectionnée à la fois** pour le passage en commission. Décocher la pièce jointe libère les autres cases.
 
@@ -205,8 +214,8 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-006** | La mise en avant dans le diaporama ou les plans ne s'applique qu'aux images (JPG, JPEG, PNG, GIF) déposées sur un établissement. |
 | **RG-PJ-007** | Lorsqu'une image est placée dans le diaporama ou dans les plans, une miniature de 450 px de large est générée automatiquement (proportions conservées). |
 | **RG-PJ-008** | La suppression d'une pièce jointe entraîne la suppression du fichier physique, de sa miniature éventuelle et de toutes ses liaisons. |
-| **RG-PJ-009** | La suppression est interdite lorsque le dossier est verrouillé. |
-| **RG-PJ-010** | La suppression est interdite pour les pièces jointes dont le statut Plat'AU est « En attente d'envoi », « Envoyé » ou « Vérification du statut ». |
+| **RG-PJ-009** | La modification et la suppression d'une pièce jointe de dossier sont interdites lorsque le dossier est verrouillé. |
+| **RG-PJ-010** | La modification et la suppression sont interdites pour les pièces jointes dont le statut Plat'AU est « En attente d'envoi », « Envoyé » ou « Vérification du statut ». |
 | **RG-PJ-011** | Seules les pièces jointes dont le fichier physique est accessible en lecture sont affichées dans la liste. Les fichiers manquants ou illisibles sont masqués. |
 | **RG-PJ-012** | Pour un dossier, une seule pièce jointe à la fois peut être sélectionnée pour le passage en commission. |
 | **RG-PJ-013** | Toute nouvelle pièce jointe d'un dossier Plat'AU reçoit par défaut le statut d'export « Non envoyé ». |
@@ -219,6 +228,7 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-020** | Si le fichier physique est introuvable au moment du téléchargement, le système renvoie une erreur « ressource introuvable ». |
 | **RG-PJ-021** | Les pièces jointes des dossiers Plat'AU sont stockées dans un espace de stockage distinct de celui des dossiers classiques. |
 | **RG-PJ-022** | Si la taille du fichier dépasse la limite autorisée par le serveur, le système affiche un message invitant l'utilisateur à contacter son service informatique. |
+| **RG-PJ-023** | Les restrictions RG-PJ-009 et RG-PJ-010 s'appliquent côté serveur : les actions de modification et de suppression ne sont pas proposées dans l'interface, et toute tentative d'accès direct (par exemple par URL) est refusée avec une erreur « accès refusé ». |
 
 ---
 
@@ -243,7 +253,7 @@ Lorsqu'une pièce jointe a une description textuelle, celle-ci est affichée en 
 
 ### 8.3 Dossier verrouillé
 
-Lorsque le dossier est verrouillé, le bouton de suppression n'apparaît pas. Le dépôt et la consultation restent possibles.
+Lorsque le dossier est verrouillé, les boutons d'ajout, de modification et de suppression n'apparaissent pas et ces actions sont refusées en cas d'accès direct. La consultation et le téléchargement restent possibles.
 
 ### 8.4 Fichier physique absent
 

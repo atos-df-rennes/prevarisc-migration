@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\PieceJointeStatutEnum;
 use App\Repository\PieceJointeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -119,6 +120,13 @@ class PieceJointe
         $this->statut = $statut;
 
         return $this;
+    }
+
+    public function getStatutEnum(): ?PieceJointeStatutEnum
+    {
+        $nomStatut = $this->statut?->getNomStatut();
+
+        return null === $nomStatut ? null : PieceJointeStatutEnum::tryFrom($nomStatut);
     }
 
     public function getIdentifiantPlatau(): ?string

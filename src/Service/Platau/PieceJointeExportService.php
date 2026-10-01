@@ -3,6 +3,7 @@
 namespace App\Service\Platau;
 
 use App\Entity\PieceJointe;
+use App\Enum\PieceJointeStatutEnum;
 use App\Repository\PieceJointeStatutRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -31,10 +32,10 @@ class PieceJointeExportService
         }
 
         // Récupère le statut "to_be_exported" (doit exister en base)
-        $statutExport = $this->statutRepository->findOneBy(['nomStatut' => 'to_be_exported']);
+        $statutExport = $this->statutRepository->findOneBy(['nomStatut' => PieceJointeStatutEnum::EnAttenteEnvoi->value]);
 
         if (!$statutExport) {
-            throw new \RuntimeException('Le statut Plat\'AU "to_be_exported" n\'existe pas en base de données. Vérifier la table piecejointestatut.');
+            throw new \RuntimeException(sprintf('Le statut Plat\'AU "%s" n\'existe pas en base de données. Vérifier la table piecejointestatut.', PieceJointeStatutEnum::EnAttenteEnvoi->value));
         }
 
         foreach ($piecesJointes as $pieceJointe) {

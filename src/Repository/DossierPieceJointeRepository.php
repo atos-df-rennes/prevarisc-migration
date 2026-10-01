@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\DossierPieceJointe;
 use App\Entity\PieceJointe;
+use App\Enum\PieceJointeStatutEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -74,12 +75,12 @@ class DossierPieceJointeRepository extends ServiceEntityRepository
      * bien qu'une pièce jointe ne puisse en réalité être que sur un seul dossier.
      * On ne peut donc pas faire la requête depuis le Repository PieceJointe.
      *
-     * @param int    $idDossier ID du dossier
-     * @param string $statut    Nom du statut (ex: 'not_exported')
+     * @param int                   $idDossier ID du dossier
+     * @param PieceJointeStatutEnum $statut    Statut recherché
      *
      * @return PieceJointe[]
      */
-    public function findPiecesJointesByStatut(int $idDossier, string $statut): array
+    public function findPiecesJointesByStatut(int $idDossier, PieceJointeStatutEnum $statut): array
     {
         $dossierPiecesJointes = $this->createQueryBuilder('dpj')
             ->addSelect('pj')
@@ -88,7 +89,7 @@ class DossierPieceJointeRepository extends ServiceEntityRepository
             ->where('dpj.dossier = :idDossier')
             ->andWhere('pjs.nomStatut = :statut')
             ->setParameter('idDossier', $idDossier)
-            ->setParameter('statut', $statut)
+            ->setParameter('statut', $statut->value)
             ->getQuery()
             ->getResult()
         ;
