@@ -45,16 +45,17 @@
     {% if isPlatau %}
         <td>
             {% if pj.statut %}
-                {% set statut_name = pj.statut.nomStatut %}
-                {% if statut_name == 'not_exported' %}
+                {% set statut_enum = pj.statutEnum %}
+                {% set statuts = enum('App\\Enum\\PieceJointeStatutEnum') %}
+                {% if statut_enum == statuts.NonEnvoye %}
                     <span class="label label-default">{{ pj.statut.nomLisible }}</span>
-                {% elseif statut_name == 'to_be_exported' %}
+                {% elseif statut_enum == statuts.EnAttenteEnvoi %}
                     <span class="label label-info">{{ pj.statut.nomLisible }}</span>
-                {% elseif statut_name == 'awaiting_status' %}
+                {% elseif statut_enum == statuts.VerificationStatut %}
                     <span class="label label-warning">{{ pj.statut.nomLisible }}</span>
-                {% elseif statut_name == 'exported' %}
+                {% elseif statut_enum == statuts.Envoye %}
                     <span class="label label-success">{{ pj.statut.nomLisible }}</span>
-                {% elseif statut_name == 'on_error' %}
+                {% elseif statut_enum == statuts.Erreur %}
                     <span class="label label-danger js-statut-platau" title="{{ pj.messageErreur }}">{{ pj.statut.nomLisible }}</span>
                     <span class="glyphicon glyphicon-info-sign" style="cursor:pointer" title="Erreur" data-toggle="popover" data-content="{{ pj.messageErreur }}" data-placement="left"></span>
                     {% if not verrou %}
@@ -74,14 +75,12 @@
     {% endif %}
 
     <td>
-        {% set can_delete = not verrou %}
-        {% if can_delete and pj.statut and pj.statut.nomStatut in ['to_be_exported', 'exported', 'awaiting_status'] %}
-            {% set can_delete = false %}
-        {% endif %}
-        {% if can_delete %}
+        {% if is_granted(constant('App\\Security\\Voter\\DossierPieceJointeVoter::MODIFICATION'), dpj) %}
             <a class="btn btn-default btn-xs" href="{{ path('dossier_pieces_jointes_edit', {id: dossier.id, idpj: pj.id}) }}">
                 <span class="glyphicon glyphicon-pencil"></span>
             </a>
+        {% endif %}
+        {% if is_granted(constant('App\\Security\\Voter\\DossierPieceJointeVoter::SUPPRESSION'), dpj) %}
             <button type="button" class="btn btn-default btn-xs btn-delete-pj"
                     data-pj-id="{{ pj.id }}"
                     data-url="{{ path('dossier_pieces_jointes_delete', {id: dossier.id, idpj: pj.id}) }}"

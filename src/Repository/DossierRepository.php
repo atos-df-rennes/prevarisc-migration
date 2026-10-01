@@ -11,8 +11,10 @@ use App\Entity\Dossier;
 use App\Entity\DossierAffectation;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
+use App\Enum\PieceJointeStatutEnum;
 use App\Interfaces\HasContacts;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
@@ -1213,11 +1215,13 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $sql .= ' AND d.ID_PLATAU IS NOT NULL';
         $sql .= ' AND d.ID_DOSSIER = e.ID_DOSSIER';
         $sql .= " AND platauconsultation.STATUT_AVIS = 'treated'";
-        $sql .= " AND piecejointestatut.NOM_STATUT IN ('to_be_exported', 'on_error', 'awaiting_status')";
+        $sql .= ' AND piecejointestatut.NOM_STATUT IN (:nomStatuts)';
         $sql .= ' GROUP BY d.ID_DOSSIER ORDER BY d.DATEINSERT_DOSSIER';
 
         /** @var array<int, array<string, mixed>> $rows */
-        $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
+        $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)
+            ->setParameter('nomStatuts', PieceJointeStatutEnum::suivisExportValues(), ArrayParameterType::STRING)
+            ->getResult();
 
         return array_map(DossierPlatauDto::fromArray(...), $rows);
     }
@@ -1295,7 +1299,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->andWhere('cp.statutAvis = :statutAvis')
             ->andWhere('pjs.nomStatut IN (:nomStatuts)')
             ->setParameter('statutAvis', 'treated')
-            ->setParameter('nomStatuts', ['to_be_exported', 'on_error', 'awaiting_status'])
+            ->setParameter('nomStatuts', PieceJointeStatutEnum::suivisExportValues())
             ->getQuery()
             ->getSingleScalarResult();
     }

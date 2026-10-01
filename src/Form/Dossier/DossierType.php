@@ -11,6 +11,7 @@ use App\Entity\DossierPieceJointe;
 use App\Entity\DossierType as DossierTypeEntity;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
+use App\Enum\PieceJointeStatutEnum;
 use App\Form\DataTransformer\DateCommissionTransformer;
 use App\Repository\DossierNatureListeRepository;
 use App\Repository\DossierPieceJointeRepository;
@@ -535,7 +536,7 @@ class DossierType extends AbstractType
         // Récupère les pièces jointes exportables (statut 'not_exported')
         return $repository->findPiecesJointesByStatut(
             $options['data']->getId(),
-            'not_exported'
+            PieceJointeStatutEnum::NonEnvoye
         );
     }
 

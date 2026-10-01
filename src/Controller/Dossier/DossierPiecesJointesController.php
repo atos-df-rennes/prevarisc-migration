@@ -7,9 +7,11 @@ use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
 use App\Entity\PieceJointe;
 use App\Entity\Utilisateur;
+use App\Enum\PieceJointeStatutEnum;
 use App\Form\PieceJointeType;
 use App\Repository\DossierPieceJointeRepository;
 use App\Repository\PieceJointeStatutRepository;
+use App\Security\Voter\DossierPieceJointeVoter;
 use App\Service\DataStore\DataStore;
 use App\Service\NotificationService;
 use App\Utils\File;
@@ -185,7 +187,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $pj->setDate(new \DateTime('today'));
 
         // Statut par défaut : 'not_exported' (parité avec le DEFAULT 1 en base de données)
-        $statutNotExported = $this->pieceJointeStatutRepository->findOneBy(['nomStatut' => 'not_exported']);
+        $statutNotExported = $this->pieceJointeStatutRepository->findOneBy(['nomStatut' => PieceJointeStatutEnum::NonEnvoye->value]);
         if (null !== $statutNotExported) {
             $pj->setStatut($statutNotExported);
         }
@@ -269,6 +271,8 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
             throw $this->createNotFoundException('Pièce jointe non rattachée à ce dossier.');
         }
 
+        $this->denyAccessUnlessGranted(DossierPieceJointeVoter::MODIFICATION, $dpj);
+
         $form = $this->createForm(PieceJointeType::class, $pj, [
             'action' => $this->generateUrl('dossier_pieces_jointes_edit', ['id' => $dossier->getId(), 'idpj' => $pj->getId()]),
         ]);
@@ -311,8 +315,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
             return $this->json(['error' => 'Pièce jointe non rattachée à ce dossier.'], 404);
         }
 
-        $statut = $pj->getStatut();
-        if (null !== $statut && in_array($statut->getNomStatut(), ['to_be_exported', 'exported', 'awaiting_status'], true)) {
+        if (!$this->isGranted(DossierPieceJointeVoter::SUPPRESSION, $dpj)) {
             return $this->json([
                 'error' => "Impossible de supprimer une pièce jointe en cours de traitement Plat'AU.",
             ], 403);
@@ -455,9 +458,9 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
             return $this->json(['error' => 'Pièce jointe non rattachée à ce dossier.'], 404);
         }
 
-        $statut = $this->pieceJointeStatutRepository->findOneBy(['nomStatut' => 'to_be_exported']);
+        $statut = $this->pieceJointeStatutRepository->findOneBy(['nomStatut' => PieceJointeStatutEnum::EnAttenteEnvoi->value]);
         if (null === $statut) {
-            return $this->json(['error' => "Statut 'to_be_exported' introuvable."], 500);
+            return $this->json(['error' => sprintf("Statut '%s' introuvable.", PieceJointeStatutEnum::EnAttenteEnvoi->value)], 500);
         }
 
         $pj->setStatut($statut);
