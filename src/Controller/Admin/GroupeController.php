@@ -169,6 +169,14 @@ class GroupeController extends AbstractController
     #[Route(path: '/admin/groupes/ressources-specialisees/dossier/ajouter', name: 'admin_groupe_ressources_specialisees_add_dossier', methods: ['POST'])]
     public function ajouterRessourceSpecialiseeDossier(Request $request): RedirectResponse
     {
+        $form = $this->createForm(RessourceSpecialiseeDossierType::class);
+        $form->handleRequest($request);
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('danger', "La ressource spécialisée n'a pas pu être ajoutée : formulaire invalide.");
+
+            return $this->redirectToRoute('admin_groupe_ressources_specialisees');
+        }
+
         $resource = new Resources();
 
         $name = RessourcesSpecialiseesDossierNameGenerator::fromRequest($request);
@@ -208,6 +216,14 @@ class GroupeController extends AbstractController
     #[Route(path: '/admin/groupes/ressources-specialisees/etablissement/ajouter', name: 'admin_groupe_ressources_specialisees_add_etablissement', methods: ['POST'])]
     public function ajouterRessourceSpecialiseeEtablissement(Request $request): RedirectResponse
     {
+        $form = $this->createForm(RessourceSpecialiseeEtablissementType::class);
+        $form->handleRequest($request);
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('danger', "La ressource spécialisée n'a pas pu être ajoutée : formulaire invalide.");
+
+            return $this->redirectToRoute('admin_groupe_ressources_specialisees');
+        }
+
         $resource = new Resources();
 
         $name = RessourcesSpecialiseesEtablissementNameGenerator::fromRequest($request);
