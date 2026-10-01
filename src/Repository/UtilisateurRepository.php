@@ -146,6 +146,76 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
     }
 
     /**
+     * Retourne les préventionnistes conseillés à partir de la dernière fiche du père.
+     *
+     * @return array<int, array{uid: mixed, nom: mixed, prenom: mixed}>
+     */
+    public function findPreventionnistesSuggeresPourEtablissement(int $idEtablissement): array
+    {
+        return $this->getEntityManager()->getConnection()->executeQuery(
+            'SELECT u.ID_UTILISATEUR AS uid,'
+            .' ui.NOM_UTILISATEURINFORMATIONS AS nom,'
+            .' ui.PRENOM_UTILISATEURINFORMATIONS AS prenom'
+            .' FROM etablissement e'
+            .' INNER JOIN etablissementinformations ei'
+            .' ON ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT'
+            .' AND ei.DATE_ETABLISSEMENTINFORMATIONS = ('
+            .' SELECT MAX(ei_max.DATE_ETABLISSEMENTINFORMATIONS)'
+            .' FROM etablissementinformations ei_max'
+            .' WHERE ei_max.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT'
+            .' )'
+            .' INNER JOIN etablissementinformationspreventionniste eip'
+            .' ON eip.ID_ETABLISSEMENTINFORMATIONS = ei.ID_ETABLISSEMENTINFORMATIONS'
+            .' INNER JOIN utilisateur u ON u.ID_UTILISATEUR = eip.ID_UTILISATEUR'
+            .' INNER JOIN utilisateurinformations ui ON ui.ID_UTILISATEURINFORMATIONS = u.ID_UTILISATEURINFORMATIONS'
+            .' INNER JOIN fonction f ON f.ID_FONCTION = ui.ID_FONCTION'
+            .' WHERE e.ID_ETABLISSEMENT = ?'
+            .' AND u.ACTIF_UTILISATEUR = 1'
+            .' GROUP BY u.ID_UTILISATEUR, ui.NOM_UTILISATEURINFORMATIONS, ui.PRENOM_UTILISATEURINFORMATIONS'
+            .' ORDER BY ui.NOM_UTILISATEURINFORMATIONS ASC, ui.PRENOM_UTILISATEURINFORMATIONS ASC',
+            [$idEtablissement]
+        )->fetchAllAssociative();
+    }
+
+    /**
+     * Retourne les préventionnistes des groupements couvrant une commune, sans doublon.
+     *
+     * @return array<int, array{uid: mixed, nom: mixed, prenom: mixed}>
+     */
+    public function findPreventionnistesSuggeresPourCommune(string $numinsee): array
+    {
+        $rows = $this->getEntityManager()->getConnection()->executeQuery(
+            'SELECT u.ID_UTILISATEUR AS uid,'
+            .' ui.NOM_UTILISATEURINFORMATIONS AS nom,'
+            .' ui.PRENOM_UTILISATEURINFORMATIONS AS prenom'
+            .' FROM utilisateur u'
+            .' INNER JOIN groupementpreventionniste gp ON gp.ID_UTILISATEUR = u.ID_UTILISATEUR'
+            .' INNER JOIN groupement g ON g.ID_GROUPEMENT = gp.ID_GROUPEMENT'
+            .' INNER JOIN groupementtype gt ON gt.ID_GROUPEMENTTYPE = g.ID_GROUPEMENTTYPE'
+            .' INNER JOIN groupementcommune gc ON gc.ID_GROUPEMENT = g.ID_GROUPEMENT'
+            .' INNER JOIN utilisateurinformations ui ON ui.ID_UTILISATEURINFORMATIONS = u.ID_UTILISATEURINFORMATIONS'
+            .' WHERE gc.NUMINSEE_COMMUNE = ?'
+            .' ORDER BY gt.ID_GROUPEMENTTYPE ASC, g.LIBELLE_GROUPEMENT ASC,'
+            .' ui.NOM_UTILISATEURINFORMATIONS ASC, ui.PRENOM_UTILISATEURINFORMATIONS ASC',
+            [$numinsee]
+        )->fetchAllAssociative();
+
+        $preventionnistes = [];
+        $utilisateursDejaAjoutes = [];
+        foreach ($rows as $row) {
+            $uid = (string) $row['uid'];
+            if (isset($utilisateursDejaAjoutes[$uid])) {
+                continue;
+            }
+
+            $utilisateursDejaAjoutes[$uid] = true;
+            $preventionnistes[] = $row;
+        }
+
+        return $preventionnistes;
+    }
+
+    /**
      * Trouve les préventionnistes valides pour la validation du formulaire dossier.
      *
      * Règle métier :
