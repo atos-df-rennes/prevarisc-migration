@@ -37,7 +37,7 @@ class RessourcesSpecialiseesEtablissementTextGenerator
     public function fromRequest(Request $request): string
     {
         /** @var FormData $formData */
-        $formData = $request->request->all();
+        $formData = $request->request->all('ressource_specialisee_etablissement');
         $formText = $formData['text'];
 
         if ('' !== $formText) {
