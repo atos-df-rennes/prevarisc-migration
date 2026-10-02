@@ -1,7 +1,7 @@
 # MOD-22 — À propos et documentation
 
-> **Version :** 1.2
-> **Date** : 2026-10-01 (ajout de la consultation intégrée des documentations)
+> **Version :** 1.3
+> **Date** : 2026-10-02 (adaptation de la documentation aux petits écrans)
 > **Statut :** Spécification initiale issue de l'analyse du legacy
 
 ---
@@ -98,6 +98,8 @@ La page présente une arborescence repliable des documentations fonctionnelle (`
 
 La documentation fonctionnelle est consultable par tout utilisateur authentifié. La documentation technique et ses fichiers ne sont accessibles qu'aux utilisateurs disposant du droit `admin` ; cet accès est vérifié côté serveur, y compris lors d'un accès direct à une URL.
 
+Sur petit écran, les textes de l'arborescence, du fil d'Ariane et du document restent dans leur conteneur grâce au retour à la ligne, sans troncature. Les tableaux et les blocs de texte préformaté s'adaptent également à la largeur disponible, y compris pour les longues suites de caractères sans espace ou avec des séparateurs Unicode.
+
 ---
 
 ## 4. Règles de gestion
@@ -120,6 +122,7 @@ La documentation fonctionnelle est consultable par tout utilisateur authentifié
 | **RG-APR-014** | Consultation de fichiers HTML | Un fichier `.html` présent dans l'espace courant est affiché sans conversion Markdown dans un contexte isolé du reste de l'application. Il reste soumis au contrôle d'accès de son espace. |
 | **RG-APR-015** | Restriction des chemins | Seuls les fichiers `.md` et `.html` appartenant aux espaces de documentation prévus peuvent être consultés. Un fichier absent, une extension non admise ou un chemin sortant de l'espace retourne une erreur 404. |
 | **RG-APR-016** | Lien depuis les deux pieds de page | Le lien « Documentation » est présent dans le pied de page standard et dans le pied de page personnalisé SDIS29. |
+| **RG-APR-017** | Lecture sur petit écran | La documentation Markdown intégrée reste lisible sans défilement horizontal provoqué par les textes, les tableaux ou les blocs préformatés. Les textes longs reviennent à la ligne dans le document, l'arborescence et le fil d'Ariane, sans masquer leur contenu. Cette règle ne concerne pas les fichiers HTML consultés dans leur contexte isolé. |
 
 ---
 

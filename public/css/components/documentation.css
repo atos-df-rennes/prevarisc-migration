@@ -4,6 +4,7 @@
 
 .documentation-sidebar {
     max-height: calc(100vh - 40px);
+    overflow-wrap: anywhere;
     overflow-y: auto;
     padding-bottom: 20px;
     position: sticky;
@@ -139,7 +140,10 @@
 }
 
 .documentation-content pre {
+    overflow-wrap: anywhere;
     overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: normal;
 }
 
 .documentation-content img {
@@ -148,6 +152,10 @@
 }
 
 @media (max-width: 991px) {
+    .documentation-content table {
+        table-layout: fixed;
+    }
+
     .documentation-sidebar {
         max-height: 40vh;
         margin-bottom: 20px;
