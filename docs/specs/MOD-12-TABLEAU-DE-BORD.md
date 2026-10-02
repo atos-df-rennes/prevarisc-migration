@@ -193,7 +193,7 @@ L'utilisateur consulte les messages en dépliant le bloc « Messages ». Les mes
 - le prénom et le nom de l'auteur
 - la date et l'heure de publication (heure seule si le message date d'aujourd'hui)
 - le type du message (« Message de service », « Informations », « Message personnel », « Autre »)
-- le texte du message, avec détection automatique des liens URL (http, https, ftp, www)
+- le texte du message, dans lequel les adresses de sites Internet deviennent cliquables
 
 Si aucun message n'est disponible pour le groupe de l'utilisateur, le texte « Aucun message disponible » est affiché.
 
@@ -230,16 +230,16 @@ Chaque message dispose d'un lien « Supprimer ». Un clic déclenche immédiatem
 ### 6.1 Déroulement
 
 1. Pendant la vérification, le message « Vérification de la connexion à Plat'AU » est affiché accompagné d'un indicateur de chargement.
-2. Le système tente d'obtenir un jeton d'authentification puis interroge le service de santé de Plat'AU.
+2. Prevarisc vérifie la disponibilité de Plat'AU.
 
 ### 6.2 Résultats possibles
 
 | Résultat | Message affiché | Niveau d'alerte |
 |----------|----------------|-----------------|
-| Connexion réussie | « La connexion à Plat'AU a fonctionné. » | Information (bleu) |
-| Échec côté Prevarisc (jeton invalide, configuration manquante) | « La connexion à Plat'AU depuis Prevarisc a échoué. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2. » | Erreur (rouge) |
-| Échec côté Plat'AU (état général ou base de données en erreur) | « Plat'AU est en erreur. Veuillez réessayer ultérieurement. » | Erreur (rouge) |
-| Erreur technique inattendue | « Une erreur s'est produite lors de la vérification de la connexion à Plat'AU. » | Erreur (rouge) |
+| Connexion réussie | Un message confirme que Plat'AU est disponible. | Information (bleu) |
+| Connexion à Plat'AU impossible | Un message signale que la connexion n'a pas pu être établie et invite à contacter l'administrateur. | Erreur (rouge) |
+| Plat'AU indisponible | Un message informe l'utilisateur qu'il peut réessayer ultérieurement. | Erreur (rouge) |
+| Erreur pendant la vérification | Un message indique que la disponibilité de Plat'AU n'a pas pu être vérifiée. | Erreur (rouge) |
 
 ### 6.3 Conditions de non-affichage
 
@@ -266,7 +266,7 @@ L'indicateur ne s'affiche pas si :
 | RG-TDB-011 | Les messages du fil sont filtrés par le groupe d'appartenance de l'utilisateur connecté. Un utilisateur ne voit que les messages destinés à son groupe. |
 | RG-TDB-012 | Lors de la publication d'un message, tous les groupes sont cochés par défaut. L'auteur peut restreindre la diffusion en décochant des groupes. |
 | RG-TDB-013 | Les 5 derniers messages sont affichés dans le bloc Messages. |
-| RG-TDB-014 | Les URL présentes dans le texte d'un message (http, https, ftp, www) sont automatiquement transformées en liens cliquables. |
+| RG-TDB-014 | Les adresses de sites Internet présentes dans un message sont automatiquement transformées en liens cliquables. |
 | RG-TDB-015 | La suppression d'un message est immédiate et sans confirmation. Seul l'auteur du message peut le supprimer. |
 | RG-TDB-016 | La vérification de connectivité Plat'AU est exécutée automatiquement au chargement du tableau de bord si Plat'AU est activé et la vérification n'est pas désactivée. |
 | RG-TDB-017 | L'origine de l'erreur de connectivité Plat'AU est distinguée entre Prevarisc (configuration locale) et Plat'AU (service distant). |

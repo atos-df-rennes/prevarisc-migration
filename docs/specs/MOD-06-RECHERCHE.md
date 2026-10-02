@@ -2,18 +2,9 @@
 
 ## 1. Objet et périmètre
 
-Le module Recherche permet aux utilisateurs de l'application Prevarisc de retrouver des **établissements** et des **dossiers** selon de nombreux critères combinables. Chaque recherche produit une liste paginée de résultats. L'utilisateur peut exporter ces résultats dans un fichier tableur (format ODS).
+Le module Recherche permet aux utilisateurs de l'application Prevarisc de retrouver des **établissements** et des **dossiers** selon de nombreux critères combinables. Chaque recherche produit une liste de résultats répartie sur plusieurs pages. L'utilisateur peut télécharger les résultats dans un fichier de tableur OpenDocument (ODS).
 
-Le module comporte quatre écrans de recherche :
-
-| Écran | Description | Statut |
-|-------|-------------|--------|
-| Recherche d'établissements | Écran principal, affiché par défaut | Actif |
-| Recherche de dossiers | Recherche multicritère sur les dossiers | Actif |
-| Recherche de courriers | Recherche textuelle sur les dossiers de type « courrier » | Présent mais probablement inutilisé |
-| Recherche d'utilisateurs | Recherche par nom et fonction | Présent mais probablement inutilisé |
-
-> Les deux derniers écrans (courriers et utilisateurs) sont présents dans le code mais signalés comme potentiellement non utilisés. Cette spécification les mentionne par souci d'exhaustivité.
+Le module propose une recherche d'établissements et une recherche de dossiers.
 
 ---
 
@@ -102,9 +93,9 @@ Chaque résultat affiché comporte :
 | Avis d'exploitation | Favorable / Défavorable / Avis différé / Avis d'exploitation indisponible, avec date de l'avis (date de visite ou date de passage en commission) |
 | Échéancier de travaux | Badge affiché si un échéancier de travaux est lié à l'établissement |
 
-#### 3.2.2 Navigation hiérarchique
+#### 3.2.2 Établissements liés
 
-Les établissements possédant des **sous-établissements** (enfants) sont identifiés visuellement. Un clic sur la ligne charge dynamiquement la liste des enfants, affichée sous forme indentée. Ce chargement est récursif.
+Les établissements qui comprennent des **sous-établissements** sont identifiés visuellement. Un clic sur leur ligne affiche les établissements rattachés, sous forme de liste indentée. L'opération peut être répétée pour parcourir les niveaux suivants.
 
 #### 3.2.3 Pagination
 
@@ -132,7 +123,7 @@ Les établissements marqués comme **supprimés** sont systématiquement exclus 
 
 - L'export reprend les **mêmes critères de filtrage** que la recherche en cours
 - Le bouton d'export est masqué dès que l'utilisateur modifie un critère, jusqu'à ce qu'une nouvelle recherche soit lancée
-- Le fichier est téléchargé immédiatement au format tableur (ODS)
+- Le fichier de tableur est téléchargé immédiatement
 - Le nom du fichier suit le format : `Export_Etablissements_AAAA-MM-JJ_HH-MM-SS.ods`
 
 #### 3.3.3 Colonnes du fichier d'export
@@ -253,9 +244,9 @@ Les résultats sont affichés sous forme de tableau à 5 colonnes :
 | Badge « Nouvelles pièces ! » | Si de nouvelles pièces jointes ont été ajoutées |
 | Icône cadenas | Si le dossier est verrouillé |
 
-#### 4.2.3 Navigation hiérarchique
+#### 4.2.3 Dossiers liés
 
-La navigation hiérarchique au clic (dépliage des dossiers liés) est définie dans la spec originale mais n'est pas implémentée : la ligne `slide` est mal positionnée dans le legacy, rendant le dépliage inopérant. Ce comportement n'est pas porté en Symfony.
+Les résultats de recherche de dossiers ne proposent pas de liste dépliable des dossiers liés.
 
 #### 4.2.4 Pagination
 
@@ -283,7 +274,7 @@ Les dossiers marqués comme **supprimés** sont systématiquement exclus des ré
 
 - Mêmes critères que la recherche en cours
 - Le bouton d'export est masqué dès modification d'un critère
-- Fichier téléchargé au format ODS
+- Fichier téléchargé pour être ouvert dans un tableur
 - Nom du fichier : `Export_Dossiers_AAAA-MM-JJ_HH-MM-SS.ods`
 
 #### 4.3.3 Colonnes du fichier d'export
@@ -345,9 +336,9 @@ Pour la recherche de dossiers, l'adressage fonctionne par **listes déroulantes 
 
 ### 5.3 Chargement hiérarchique des sous-éléments
 
-Lors de l'affichage des résultats, un chargement asynchrone permet d'afficher les **sous-établissements** d'un établissement (sites contenant des établissements, établissements contenant des cellules). Ce chargement se fait au clic sur un résultat comportant des enfants.
+Lors de l'affichage des résultats, un clic sur un établissement comportant des **sous-établissements** affiche les éléments rattachés (par exemple, les établissements d'un site ou les cellules d'un établissement).
 
-Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté (ni en legacy, ni en Symfony) : voir §4.2.3.
+Les établissements liés à un dossier sont affichés avec les informations les plus récentes de leur fiche.
 
 ---
 
@@ -360,7 +351,6 @@ Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté
 | **RG-RCH-001** | Les éléments supprimés (établissements ou dossiers) ne sont jamais inclus dans les résultats de recherche. |
 | **RG-RCH-002** | Les résultats de recherche sont paginés par blocs de **50 éléments** par page. |
 | **RG-RCH-003** | Le compteur total d'éléments est affiché au-dessus de la liste de résultats. |
-| **RG-RCH-004** | Les résultats de recherche sont **mis en cache**. Deux recherches identiques (mêmes critères, même page) retournent les résultats du cache sans relancer la requête. |
 | **RG-RCH-005** | Le nombre maximum de résultats par page est plafonné à **1 000 pour les établissements** et **100 pour les dossiers**. |
 | **RG-RCH-006** | L'export tableur est **limité à 10 000 résultats**. Au-delà de ce seuil, le bouton d'export est remplacé par un message d'avertissement. |
 | **RG-RCH-007** | Le droit d'accès à l'export tableur est contrôlé séparément pour les établissements et pour les dossiers, en fonction du groupe de l'utilisateur. |
@@ -378,7 +368,7 @@ Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté
 | **RG-RCH-015** | Le critère **classe** n'est affiché que lorsque le genre « ERT » est sélectionné. |
 | **RG-RCH-016** | La recherche géographique par commune, voie ou numéro s'applique à l'adresse de l'établissement lui-même, mais aussi à l'adresse de son **site parent** (si genre site) et de sa **cellule rattachée** (si genre cellule). |
 | **RG-RCH-017** | Les informations d'un établissement affichées (libellé, genre, type, etc.) correspondent à la **version la plus récente** de ses informations historisées. |
-| **RG-RCH-018** | Le tri alphabétique par libellé n'est appliqué que si au moins un critère de filtrage est actif (optimisation de performance). |
+| **RG-RCH-018** | Le tri alphabétique par libellé n'est appliqué que si au moins un critère de filtrage est actif. |
 | **RG-RCH-019** | L'avis d'exploitation affiché est celui du **dossier donnant avis** référencé sur l'établissement. |
 | **RG-RCH-020** | Dans l'export, la **date de prochaine visite périodique** est calculée en ajoutant la périodicité (en mois) à la date de dernière visite. Elle n'est renseignée que si la périodicité est définie et non nulle. |
 | **RG-RCH-021** | Dans l'export, la **date du premier avis défavorable consécutif** correspond à la date de visite du premier avis défavorable non suivi d'un avis favorable ultérieur. |
@@ -393,7 +383,7 @@ Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté
 | **RG-RCH-031** | La saisie de `#` suivi d'un texte dans le champ objet est interprétée comme une recherche sur le **numéro de document d'urbanisme**. |
 | **RG-RCH-032** | La saisie d'une chaîne au format `XXX-XXX-XXX` (3 groupes de 3 caractères alphanumériques) est interprétée comme une recherche par **identifiant de consultation Plat'AU**. |
 | **RG-RCH-033** | La saisie d'une chaîne composée uniquement de chiffres, lettres majuscules et points est interprétée comme une recherche sur le **numéro de document d'urbanisme**. |
-| **RG-RCH-034** | Les informations de l'établissement lié à un dossier sont celles **à la date la plus pertinente** parmi : date d'insertion du dossier, date de visite, date de commission. En cas d'absence, ce sont les informations les plus anciennes. ⚠️ *Écart documenté* : ni le legacy ni Symfony n'implémentent cette règle — les deux utilisent la fiche courante (`etablissementinformationsactuel`). Le legacy fait autorité. |
+| **RG-RCH-034** | Les informations d'un établissement affichées dans les résultats d'une recherche de dossiers correspondent à la version la plus récente de sa fiche, et non à son état à la date du dossier. |
 | **RG-RCH-035** | Le filtre **provenance Plat'AU** n'est disponible que si la fonctionnalité Plat'AU est activée dans la configuration de l'application. |
 | **RG-RCH-036** | Les plages de dates sont validées au format `JJ/MM/AAAA`. Une date invalide est ignorée. |
 | **RG-RCH-037** | Le tri par date de création décroissante n'est appliqué que si au moins un critère de filtrage personnalisé est actif. |
@@ -405,48 +395,30 @@ Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté
 
 ## 7. Cas particuliers et limites
 
-### 7.1 Performance
+### 7.1 Tri et export
 
-- Le tri des résultats est **désactivé** sur les requêtes sans critère de filtrage pour préserver les performances sur de gros volumes de données.
-- Les résultats sont mis en cache pour éviter des requêtes identiques répétées.
+- Les résultats ne sont pas triés lorsqu'aucun critère de recherche n'est renseigné.
 - L'export tableur ne comporte pas de limite de pagination : tous les résultats correspondant aux critères sont exportés (dans la limite de 10 000).
 
-### 7.2 Recherche de courriers (non actif)
-
-Un écran de recherche de courriers existe avec un champ de recherche unique portant sur l'objet du courrier et le nom de l'expéditeur. Les résultats sont limités aux dossiers de type « Courrier ». Cet écran ne dispose pas d'action de contrôleur identifiée et semble **non utilisé en production**.
-
-### 7.3 Recherche d'utilisateurs (non actif)
-
-Un écran de recherche d'utilisateurs existe avec :
-- Un champ texte de recherche par nom (recherche approchante sur nom ou prénom)
-- Un filtre par fonction (sélection multiple)
-- Seuls les utilisateurs **actifs** sont retournés
-
-Cet écran est signalé comme **non utilisé** et ne devrait pas être migré sans vérification préalable.
-
-### 7.4 Valeurs vides et nulles
+### 7.2 Valeurs vides et nulles
 
 - Si le libellé d'un établissement est vide, le texte « Libellé non renseigné » est affiché en italique.
 - Si aucune date n'est disponible pour un dossier, le texte « Pas de date » est affiché.
 - Les dates invalides (`0000-00-00`) sont affichées comme `00/00/0000`.
 
-### 7.5 Avis d'exploitation spécifiques
+### 7.3 Avis d'exploitation spécifiques
 
 - Pour les établissements de genre **cellule**, la mention « à l'exploitation » n'est pas ajoutée après l'avis.
 - Pour les établissements de genre **site**, aucun avis n'est affiché (les sites n'ont pas d'avis d'exploitation).
 
-### 7.6 Export — mode dégradé
+### 7.4 Présentation de l'export
 
-Le dimensionnement automatique des colonnes du fichier tableur est désactivé pour assurer la compatibilité avec certains environnements serveur. Les colonnes du fichier exporté ne sont pas auto-ajustées.
+Les colonnes du fichier exporté ne sont pas ajustées automatiquement à la largeur de leur contenu.
 
-### 7.7 Dates affichées dans les résultats de dossiers
+### 7.5 Dates affichées dans les résultats de dossiers
 
 La date affichée sous chaque dossier suit la priorité suivante :
 
 1. **Date de passage en commission** (si disponible)
 2. **Date de visite** (si la date de commission n'est pas disponible)
 3. **Date de création du dossier** (en dernier recours)
-
-### 7.8 Critères non exposés dans l'interface
-
-Les filtres par date de passage en commission et par date de visite n'ont jamais été exposés dans le formulaire de recherche des dossiers. Les valeurs ne sont pas transmises au contrôleur, le code de traitement est du code mort. Ces critères ont été supprimés du moteur de recherche Symfony (voir écart MOD-06-ECART-02).

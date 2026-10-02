@@ -75,7 +75,7 @@ Ces listes sont utilisées dans trois contextes :
 2. Lors de la création ou la modification d'un **rappel réglementaire** (association texte/article).
 3. Lors de la création ou la modification d'une **prescription de dossier** (association texte/article).
 
-> **Important** : Il existe un texte et un article « par défaut » (valeur technique de substitution) qui sont utilisés lorsque l'utilisateur ne sélectionne pas de texte ou d'article. Ces éléments par défaut sont masqués dans les interfaces de gestion des listes.
+> **Important** : Si l'utilisateur ne sélectionne pas de texte ou d'article, un texte et un article sont attribués automatiquement pour permettre l'enregistrement de la prescription. Ces choix automatiques ne sont pas proposés dans les listes.
 
 ---
 

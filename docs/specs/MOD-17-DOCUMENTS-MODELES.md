@@ -2,7 +2,7 @@
 
 ## 1. Objet et périmètre
 
-Le module **Documents modèles** permet de gérer une bibliothèque de gabarits ODT utilisés pour générer automatiquement des documents officiels dans Prevarisc : rapports de visite, lettres de suite, courriers d'avis, comptes-rendus, etc.
+Le module **Documents modèles** permet de gérer une bibliothèque de modèles de documents texte au format ODT, compatible avec les logiciels de traitement de texte. Ils servent à générer automatiquement des documents officiels dans Prevarisc : rapports de visite, lettres de suite, courriers d'avis, comptes-rendus, etc.
 
 Ces gabarits contiennent des champs de fusion (variables) qui sont automatiquement remplacés par les données réelles du dossier, de l'établissement ou de la commission au moment de la génération.
 
@@ -204,7 +204,7 @@ Pour les convocations et ordres du jour, la génération utilise les courriers t
 
 | Référence | Règle |
 |---|---|
-| **RG-DOC-001** | Seuls les fichiers au format ODT sont acceptés. Tout autre format est rejeté avec un message d'erreur explicite. |
+| **RG-DOC-001** | Seuls les documents au format ODT, compatible avec les logiciels de traitement de texte, sont acceptés. Tout autre format est refusé avec un message explicite. |
 | **RG-DOC-002** | Chaque commission dispose de son propre espace de stockage de modèles. Un espace est automatiquement créé lors de la création d'une nouvelle commission. |
 | **RG-DOC-003** | L'espace « Documents visibles après verrouillage » est transversal, non rattaché à une commission. Il est accessible depuis tous les dossiers. |
 | **RG-DOC-004** | Lorsqu'un dossier est verrouillé, seuls les modèles de l'espace transversal (après verrouillage) sont proposés à la génération. Les modèles spécifiques aux commissions ne sont plus accessibles. |
@@ -241,9 +241,9 @@ L'envoi d'un fichier dont le nom est identique à un fichier déjà présent dan
 
 Lors de la génération pour un établissement dont l'activité principale est « site », une option permet d'exclure les prescriptions issues des cellules rattachées. Par défaut, les prescriptions des cellules sont reprises.
 
-### 8.5 Répertoire de documents inexistant
+### 8.5 Documents indisponibles
 
-Si le répertoire de stockage d'une commission n'existe pas au moment de la consultation, l'application affiche une alerte non bloquante pour cette commission tout en continuant à afficher les éléments sans erreur. Cela permet à l'administrateur de visualiser les commissions fonctionnelles tout en étant averti des problèmes de répertoires manquants. La création du répertoire se fait automatiquement lors de la création de la commission, mais une intervention manuelle peut être nécessaire en cas de suppression accidentelle.
+Si les documents d'une commission ne sont pas disponibles, un avertissement est affiché pour cette commission. Les documents des autres commissions restent consultables.
 
 ### 8.6 Suppression d'une commission
 

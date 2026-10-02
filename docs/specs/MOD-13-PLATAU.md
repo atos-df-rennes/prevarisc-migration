@@ -11,7 +11,7 @@ Dans Prevarisc, le module Plat'AU assure l'échange bidirectionnel entre l'appli
 - **Envoi** des pièces jointes associées au dossier vers Plat'AU.
 - **Supervision** de la connexion à Plat'AU depuis le tableau de bord.
 
-Le module est activable ou désactivable au niveau de la configuration de l'environnement. Lorsqu'il est désactivé, les blocs du tableau de bord Plat'AU, la vérification de connexion et le filtre de recherche par provenance sont masqués. L'ouverture d'un dossier issu de Plat'AU alors que le module est désactivé provoque une erreur.
+L'utilisation de l'intégration avec Plat'AU dépend du paramétrage du service. Lorsqu'elle n'est pas activée, les informations Plat'AU du tableau de bord, la vérification de la disponibilité et le filtre de recherche par origine ne sont pas affichés. Les dossiers reçus de Plat'AU ne peuvent alors pas être ouverts.
 
 ---
 
@@ -21,7 +21,7 @@ Le module est activable ou désactivable au niveau de la configuration de l'envi
 |--------|------|
 | **Préventionniste** | Traite les dossiers Plat'AU : rattache l'établissement, renseigne la complétude, émet un avis, sélectionne les pièces jointes à transmettre. |
 | **Responsable de commission** | Supervise l'avancement des consultations Plat'AU via le tableau de bord. |
-| **Administrateur** | Active ou désactive le module Plat'AU, configure les identifiants de connexion PISTE. |
+| **Administrateur** | Active ou désactive l'intégration et configure l'accès à Plat'AU. |
 | **Plat'AU (système externe)** | Émet les consultations, reçoit les prises en charge, les avis et les pièces jointes. |
 
 ---
@@ -33,14 +33,14 @@ Le module est activable ou désactivable au niveau de la configuration de l'envi
 1. Plat'AU transmet à Prevarisc une **consultation** identifiée par un identifiant unique au format `XXX-XXX-XXX` (trois groupes de trois caractères alphanumériques séparés par des tirets).
 2. Un **dossier** est créé dans Prevarisc et associé à cet identifiant de consultation.
 3. Le dossier porte une **date de réponse attendue** fixée par le service instructeur.
-4. Les pièces jointes accompagnant la consultation sont stockées dans un répertoire dédié aux dossiers Plat'AU.
+4. Les pièces jointes reçues avec la consultation sont associées au dossier.
 5. Le dossier apparaît dans le bloc du tableau de bord **« Dossiers Plat'AU à traiter »** tant qu'il n'est pas rattaché à un établissement.
 
 ### 3.2 Transmission d'une prise en charge (PEC)
 
 1. Le préventionniste ouvre le dossier Plat'AU et renseigne son état de complétude (complet ou incomplet).
 2. Cette action déclenche la préparation d'une **prise en charge métier** (PEC) destinée à Plat'AU.
-3. La PEC est transmise de manière asynchrone. Son statut évolue au fil du traitement (voir §4.1).
+3. La demande de prise en charge est envoyée à Plat'AU. Son statut évolue au fil du traitement (voir §4.1).
 4. L'écran du dossier affiche le statut de la PEC et, le cas échéant, sa date de transmission.
 
 ### 3.3 Transmission d'un avis
@@ -48,7 +48,7 @@ Le module est activable ou désactivable au niveau de la configuration de l'envi
 1. Le préventionniste saisit l'**avis de la commission** sur le dossier (favorable, défavorable, etc.).
 2. L'avis est préparé pour envoi vers Plat'AU.
 3. Lors de la saisie d'un avis sur un dossier Plat'AU, le système propose au préventionniste de **sélectionner les pièces jointes** à envoyer conjointement (voir §3.4).
-4. L'avis est transmis de manière asynchrone. Son statut évolue au fil du traitement (voir §4.1).
+4. L'avis est envoyé à Plat'AU. Son statut évolue au fil du traitement (voir §4.1).
 5. L'écran du dossier affiche le statut de l'avis et, le cas échéant, sa date de transmission.
 
 ### 3.4 Transmission des pièces jointes
@@ -56,7 +56,7 @@ Le module est activable ou désactivable au niveau de la configuration de l'envi
 1. Lorsque le préventionniste modifie la complétude ou l'avis d'un dossier Plat'AU, le système affiche la liste des pièces jointes **non encore envoyées** vers Plat'AU.
 2. Le préventionniste **coche les pièces jointes** qu'il souhaite transmettre.
 3. Un bandeau d'avertissement rappelle de sélectionner les documents à envoyer vers Plat'AU.
-4. Lors de la sauvegarde du dossier, les pièces jointes cochées passent au statut **« En attente d'envoi »** et sont transmises de manière asynchrone.
+4. Lors de la sauvegarde du dossier, les pièces jointes cochées passent au statut **« En attente d'envoi »**, puis sont transmises à Plat'AU.
 5. L'écran des pièces jointes d'un dossier Plat'AU affiche une colonne supplémentaire indiquant le **statut d'envoi** de chaque pièce (voir §4.1).
 6. Les nouvelles pièces jointes reçues de Plat'AU sont signalées par un badge **« Nouveau ! »** dans la liste des pièces jointes du dossier.
 
@@ -112,60 +112,37 @@ En cas d'échec ou pour forcer un renvoi, l'utilisateur dispose de trois mécani
 
 ---
 
-## 5. Supervision de la connexion
+## 5. Disponibilité de Plat'AU
 
-### 5.1 Vérification automatique au chargement du tableau de bord
+### 5.1 Vérification à l'ouverture du tableau de bord
 
-À chaque affichage du tableau de bord, si le module Plat'AU est activé et si la vérification n'est pas explicitement désactivée, le système effectue un **contrôle de santé** de la connexion à Plat'AU.
+À l'ouverture du tableau de bord, Prevarisc vérifie la disponibilité de Plat'AU si l'intégration est activée et si cette vérification n'a pas été désactivée.
 
-### 5.2 Processus de vérification
+### 5.2 Informations affichées
 
-1. Le système s'authentifie auprès du service d'authentification **PISTE** (protocole OAuth2, mode « client credentials ») à l'aide des identifiants configurés par l'administrateur.
-2. Le jeton d'accès obtenu est réutilisé tant qu'il est valide (avec une marge de sécurité de 5 minutes avant expiration).
-3. Le système interroge le point de vérification de santé de Plat'AU avec ce jeton.
-4. La réponse est analysée : l'état général et l'état de la base de données de Plat'AU sont vérifiés.
-5. Les informations de version et de maintenance (si présentes) sont extraites de la réponse.
-
-### 5.3 Résultats affichés
-
-#### En cas de succès
+#### Lorsque Plat'AU est disponible
 
 | Élément | Affichage |
 |---------|-----------|
-| Message | « La connexion à Plat'AU a fonctionnée. » |
+| Message | Confirmation que Plat'AU est disponible |
 | Type | Information (bleu) |
-| Pièces supplémentaires | Version Plat'AU, version du modèle, version nomenclature (si disponibles) affichées en caractères réduits |
+| Informations supplémentaires | Version de Plat'AU et informations associées, lorsqu'elles sont disponibles |
 
-#### En cas de maintenance programmée (même en cas de succès)
+#### En cas de maintenance programmée
 
 | Élément | Affichage |
 |---------|-----------|
-| Message | Toast indépendant sans fermeture automatique avec les informations de maintenance en cours ou prévue |
+| Message | Avertissement présentant la maintenance en cours ou prévue |
 | Type | Avertissement (orange) |
 | Contenu | Type de maintenance, description, date et heure de la prochaine maintenance (le cas échéant) |
 
-#### En cas d'erreur
+#### Lorsque Plat'AU ou la connexion est indisponible
 
-| Condition | Message affiché | Type d'alerte |
-|-----------|----------------|---------------|
-| Prevarisc : configuration ou réseau | « La connexion à Plat'AU depuis Prevarisc a échouée. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2 » | Erreur (rouge) |
-| Plat'AU : état général dégradé | « Plat'AU est en erreur (état général dégradé). Veuillez réessayer ultérieurement. » | Erreur (rouge) |
-| Plat'AU : base de données dégradée | « Plat'AU est en erreur (base de données dégradée). Veuillez réessayer ultérieurement. » | Erreur (rouge) |
-| Plat'AU : code HTTP non-2xx | « Plat'AU est en erreur (HTTP XXX). Veuillez réessayer ultérieurement. » | Erreur (rouge) |
-| Erreur technique | « Une erreur s'est produite lors de la vérification de la connexion à Plat'AU. » | Erreur (rouge) |
+Un message d'erreur informe l'utilisateur que Plat'AU est indisponible ou que la connexion n'a pas pu être établie. Selon le problème signalé, il est invité à réessayer ultérieurement ou à contacter son administrateur.
 
-### 5.4 Classification des erreurs
+### 5.3 Réglage de la vérification
 
-Le système différencie deux origines d'erreur :
-
-- **Erreur Prevarisc** : Impossible de contacter Plat'AU (configuration absente, réseau indisponible, token PISTE inaccessible, réponse JSON malformée).
-- **Erreur Plat'AU** : Plat'AU a répondu mais signale un problème (code HTTP 5xx, état général dégradé, base de données dégradée).
-
-Cette distinction guide l'administrateur vers le responsable approprié (configuration locale vs. incident sur Plat'AU).
-
-### 5.5 Désactivation de la vérification
-
-La vérification peut être désactivée indépendamment du module Plat'AU via un paramètre de configuration dédié. Cela permet de conserver les fonctionnalités Plat'AU sans vérifier la connexion à chaque chargement du tableau de bord.
+Selon le paramétrage du service, la vérification de disponibilité peut être désactivée tout en conservant les autres fonctions Plat'AU. Dans ce cas, la disponibilité n'est plus vérifiée à chaque ouverture du tableau de bord.
 
 ---
 
@@ -175,7 +152,7 @@ La vérification peut être désactivée indépendamment du module Plat'AU via u
 
 | # | Règle |
 |---|-------|
-| **RG-PLT-001** | Le module Plat'AU peut être activé ou désactivé par configuration d'environnement. Lorsqu'il est désactivé, les blocs du tableau de bord, la vérification de connexion et le filtre de recherche par provenance sont masqués. |
+| **RG-PLT-001** | L'utilisation de l'intégration Plat'AU dépend du paramétrage du service. Lorsqu'elle n'est pas activée, les informations Plat'AU du tableau de bord, la vérification de disponibilité et le filtre de recherche par origine ne sont pas affichés. |
 | **RG-PLT-002** | Si un dossier est issu de Plat'AU (identifiant de consultation présent) et que le module est désactivé, l'ouverture de ce dossier est bloquée avec un message d'erreur. |
 
 ### Identification des dossiers
@@ -200,7 +177,7 @@ La vérification peut être désactivée indépendamment du module Plat'AU via u
 | **RG-PLT-008** | À la réception d'une consultation, le statut de la PEC est initialisé à « En attente ». |
 | **RG-PLT-009** | La PEC est transmise lorsque le préventionniste renseigne l'état de complétude du dossier (complet ou incomplet). |
 | **RG-PLT-010** | La relance manuelle de la PEC n'est possible que si la PEC est au statut « Transmise » **et** qu'aucun avis n'a encore été transmis (pas de date d'avis). |
-| **RG-PLT-011** | La relance remet la PEC au statut « En attente de renvoi ». La retransmission effective est assurée par le processus asynchrone. |
+| **RG-PLT-011** | La relance remet la PEC au statut « En attente de renvoi » ; Plat'AU reçoit la demande lors du traitement suivant. |
 
 ### Avis
 
@@ -209,7 +186,7 @@ La vérification peut être désactivée indépendamment du module Plat'AU via u
 | **RG-PLT-012** | À la réception d'une consultation, le statut de l'avis est initialisé à « En cours ». |
 | **RG-PLT-013** | L'avis est transmis lorsque le préventionniste saisit un avis de commission sur le dossier. |
 | **RG-PLT-014** | La relance manuelle de l'avis n'est possible que si l'avis est au statut « Traité ». |
-| **RG-PLT-015** | La relance remet l'avis au statut « En attente de renvoi ». La retransmission effective est assurée par le processus asynchrone. |
+| **RG-PLT-015** | La relance remet l'avis au statut « En attente de renvoi » ; Plat'AU reçoit la demande lors du traitement suivant. |
 
 ### Pièces jointes
 
@@ -239,14 +216,8 @@ La vérification peut être désactivée indépendamment du module Plat'AU via u
 | # | Règle |
 |---|-------|
 | **RG-PLT-029** | La vérification de connexion est exécutée automatiquement au chargement du tableau de bord si le module Plat'AU est activé et si la vérification n'est pas désactivée. |
-| **RG-PLT-030** | L'authentification PISTE utilise le protocole OAuth2 en mode « client credentials ». Les identifiants sont définis dans la configuration Plat'AU. |
-| **RG-PLT-031** | Le jeton d'authentification PISTE est mis en cache et réutilisé tant qu'il est valide, avec une marge de sécurité de 5 minutes avant son expiration. |
-| **RG-PLT-032** | La communication avec Plat'AU peut transiter par un serveur proxy si celui-ci est configuré dans l'environnement. |
-| **RG-PLT-033** | Le système détecte le code HTTP de la réponse Plat'AU et classe l'erreur comme « Prevarisc » (impossible de joindre) ou « Plat'AU » (réponse 5xx ou état dégradé). |
-| **RG-PLT-034** | En cas de succès, les informations de version Plat'AU (version, versionModel, versionNomenclature) sont extraites et affichées en caractères réduits dans le toast. |
+| **RG-PLT-034** | En cas de succès, les informations de version communiquées par Plat'AU sont affichées avec le message de confirmation. |
 | **RG-PLT-035** | Si des informations de maintenance sont présentes (active ou programmée), un toast indépendant sans fermeture automatique est affiché en parallèle du toast de succès/erreur. |
-| **RG-PLT-036** | Les messages d'erreur et de maintenance sont construits côté serveur, en français et échappés HTML pour prévenir les injections XSS. |
-| **RG-PLT-037** | En cas de maintenance programmée, la date et heure sont formatées côté serveur au format « JJ/MM/AAAA à HHhMM ». |
 
 ### Recherche
 
@@ -276,30 +247,22 @@ Lorsqu'une consultation est reçue sans information de statut pour la PEC ou l'a
 
 Si un dossier Plat'AU a une PEC « En attente » et que la complétude n'est pas renseignée dans Prevarisc, un message d'alerte invite le préventionniste à modifier le dossier pour renseigner l'information. Aucune transmission ne peut être déclenchée tant que la complétude n'est pas définie.
 
-### 7.3 Stockage spécifique des pièces jointes Plat'AU
+### 7.3 Intégration désactivée avec des dossiers Plat'AU existants
 
-Les pièces jointes associées à un dossier Plat'AU utilisent un chemin de stockage distinct de celui des pièces jointes classiques. Toutes les opérations de lecture, d'ajout et de suppression de fichiers tiennent compte de cette particularité. Ce fonctionnement s'applique de manière transparente à l'ensemble de la gestion des pièces jointes (consultation, ajout, suppression, vérification d'existence).
+Si l'intégration est désactivée, les dossiers qui lui sont liés ne sont plus accessibles. Un message d'erreur s'affiche lors de leur ouverture.
 
-### 7.4 Module désactivé avec dossiers Plat'AU existants
-
-Si le module est désactivé alors que des dossiers Plat'AU existent en base, ces dossiers ne sont plus accessibles. Toute tentative d'ouverture d'un dossier portant un identifiant de consultation Plat'AU provoque une erreur explicite.
-
-### 7.5 Relance PEC limitée avant avis
+### 7.4 Relance PEC limitée avant avis
 
 La relance de la prise en charge n'est plus proposée dès lors qu'un avis a été transmis. Ce comportement garantit la cohérence chronologique des échanges avec Plat'AU : une fois l'avis transmis, la PEC ne doit plus être modifiée.
 
-### 7.6 Sélection conditionnelle des pièces jointes à exporter
+### 7.5 Sélection conditionnelle des pièces jointes à transmettre
 
 La liste des pièces jointes à envoyer vers Plat'AU n'apparaît que dans deux contextes : la modification de la complétude et la saisie de l'avis. Si aucune pièce jointe non envoyée n'existe, aucune liste n'est affichée.
 
-### 7.7 Détection des nouvelles pièces jointes
+### 7.6 Détection des nouvelles pièces jointes
 
-La détection de nouvelles pièces jointes repose sur la date de dernière visite de l'utilisateur sur la page des pièces jointes du dossier. Cette date est propre à chaque session utilisateur. Deux utilisateurs différents verront donc des pièces « nouvelles » de manière indépendante.
+Chaque utilisateur voit comme nouvelles les pièces jointes ajoutées depuis sa dernière consultation de l'onglet du dossier.
 
-### 7.8 Proxy réseau
+### 7.7 Pièces jointes avec informations Plat'AU
 
-Les communications avec les services PISTE et Plat'AU peuvent transiter par un proxy HTTP configurable (protocole, hôte, port, authentification). En l'absence de configuration proxy, les appels sont directs.
-
-### 7.9 Pièces jointes avec métadonnées Plat'AU
-
-Les pièces jointes transmises par Plat'AU peuvent porter des métadonnées supplémentaires : type, sous-type, date de dépôt et nature. Ces informations sont affichées dans la colonne description de la liste des pièces jointes lorsque la description libre est absente.
+Les pièces jointes transmises par Plat'AU peuvent comporter un type, un sous-type, une date de dépôt et une nature. Ces informations sont affichées à la place de la description lorsqu'elle est absente.

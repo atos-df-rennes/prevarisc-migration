@@ -47,10 +47,10 @@ Le déclenchement est **manuel** : lorsqu'un changement d'avis, statut ou classe
 
 Les destinataires sont calculés automatiquement selon deux critères croisés :
 
-1. **Droit d'alerte** — L'utilisateur appartient à un groupe disposant du privilège correspondant au type d'alerte :
-   - Alerte de changement de statut → privilège « alerte statut »
-   - Alerte de changement d'avis → privilège « alerte avis »
-   - Alerte de changement de classement → privilège « alerte classement »
+1. **Droit d'alerte** — Le groupe de l'utilisateur autorise l'envoi du type d'alerte concerné :
+   - Alerte de changement de statut.
+   - Alerte de changement d'avis.
+   - Alerte de changement de classement.
 
 2. **Périmètre géographique** — L'utilisateur est rattaché à la même commune que l'établissement concerné. Ce rattachement est vérifié de deux façons (les résultats sont fusionnés) :
    - **Rattachement direct** : la commune d'affectation de l'utilisateur correspond à la commune de l'établissement.
@@ -64,7 +64,7 @@ Seuls les utilisateurs possédant une **adresse e-mail renseignée et non vide**
 
 ### 4.1 Balises dynamiques disponibles
 
-Les modèles de messages d'alerte acceptent des balises qui sont remplacées par les données réelles de l'établissement au moment de la préparation de l'e-mail.
+Les modèles de messages d'alerte peuvent contenir des codes entre accolades. Lors de la préparation du courriel, ces codes sont remplacés par les informations correspondantes de l'établissement.
 
 | Balise | Description |
 |---|---|
@@ -82,7 +82,7 @@ L'administrateur accède à l'écran de configuration via le menu **Administrati
 
 - Un **modèle de message** est défini pour chaque type d'alerte (statut, avis, classement).
 - L'éditeur de texte prend en charge le **format riche** (gras, italique, listes, liens, etc.).
-- L'administrateur peut consulter la **liste des balises disponibles** via un bouton dédié. Un tableau récapitulatif s'affiche dans une fenêtre modale.
+- L'administrateur peut consulter la **liste des informations pouvant être insérées dans le courriel**. Un tableau en présente les libellés.
 - La sauvegarde met à jour simultanément **tous les modèles** affichés à l'écran.
 - Un message de confirmation s'affiche en cas de succès ; un message d'erreur s'affiche en cas d'échec.
 
@@ -131,17 +131,16 @@ Le bouton « Envoyer » est alors remplacé par « Fermer ».
 |---|---|
 | **RG-ALT-001** | Trois types d'alertes existent : changement de statut, changement d'avis, changement de classement. |
 | **RG-ALT-002** | Le déclenchement d'une alerte est **manuel**. L'utilisateur initie l'envoi depuis la fiche de l'établissement ou du dossier. |
-| **RG-ALT-003** | Les destinataires sont déterminés automatiquement par le croisement du **privilège d'alerte** du groupe de l'utilisateur et du **périmètre géographique** (commune de l'établissement). |
+| **RG-ALT-003** | Les destinataires sont déterminés par les droits d'alerte de leur groupe et par le périmètre géographique (commune de l'établissement). |
 | **RG-ALT-004** | Le périmètre géographique est vérifié par **rattachement direct** à la commune ou par **appartenance à un groupement** contenant cette commune. Les deux ensembles sont fusionnés (union). |
 | **RG-ALT-005** | Seuls les utilisateurs disposant d'une **adresse e-mail renseignée et non vide** figurent parmi les destinataires. |
 | **RG-ALT-006** | L'objet de l'e-mail suit le format : `<libellé établissement> (<commune>) - <description du changement>`. Si l'établissement a un parent, le libellé du parent est préfixé au libellé de l'établissement. |
 | **RG-ALT-007** | Le corps du message est généré à partir du modèle configuré en administration. Toutes les **balises** sont remplacées par les données réelles de l'établissement. |
 | **RG-ALT-008** | L'utilisateur peut **retirer manuellement** un ou plusieurs destinataires avant l'envoi. |
 | **RG-ALT-009** | Si la liste des destinataires est **vide** (aucun éligible ou tous retirés), l'envoi est impossible et un message explicatif est affiché. |
-| **RG-ALT-010** | Les e-mails sont envoyés en **copie cachée** (BCC). Les destinataires ne voient pas les adresses des autres. |
-| **RG-ALT-011** | Le contenu de l'e-mail est envoyé au **format HTML**. |
+| **RG-ALT-010** | Les destinataires ne voient pas les adresses des autres personnes destinataires du courriel. |
 | **RG-ALT-012** | L'envoi d'e-mails est conditionné à l'**activation globale** du service de messagerie dans la configuration de l'application. Si le service est désactivé, aucun e-mail n'est envoyé. |
-| **RG-ALT-013** | La balise `{etablissementAvis}` est résolue selon la logique suivante, dans l'ordre de priorité : (a) Si un dossier avec avis différé existe → « Présence d'un dossier avec avis différé ». (b) Si un avis est disponible → utilise le libellé de l'avis tel que défini en base de données (ex. : « Favorable à l'exploitation », « Défavorable à l'exploitation », ou tout autre libellé configuré). Pour les cellules, la mention « à l'exploitation » est supprimée. (c) Si aucun avis n'est disponible → « Avis d'exploitation indisponible ». **Note** : Les libellés d'avis sont extensibles et gérés dynamiquement via la base de données (table `avis`). Tout nouvel avis ajouté en base sera automatiquement utilisé sans modification de code. |
+| **RG-ALT-013** | Le code `{etablissementAvis}` est remplacé par « Présence d'un dossier avec avis différé » si un tel dossier existe. Sinon, il reprend le libellé de l'avis disponible ; pour une cellule, la mention « à l'exploitation » est retirée. Si aucun avis n'est disponible, il est remplacé par « Avis d'exploitation indisponible ». |
 | **RG-ALT-014** | L'objet et le message sont **modifiables** par l'utilisateur avant envoi. Les valeurs pré-remplies servent de proposition par défaut. |
 | **RG-ALT-015** | La sauvegarde des modèles en administration met à jour **tous les modèles affichés** en une seule opération. |
 | **RG-ALT-016** | L'accès à la configuration des modèles d'alerte est réservé au **périmètre d'administration** de l'application. |
@@ -156,7 +155,7 @@ Le bouton « Envoyer » est alors remplacé par « Fermer ».
 | **Établissement avec parent** | Le libellé du parent est préfixé au libellé de l'établissement dans l'objet de l'e-mail (ex. : « Centre commercial X Boutique Y (Rennes) - … »). |
 | **Établissement de genre « cellule »** | La mention « à l'exploitation » est supprimée de l'avis. |
 | **Avis différé** | Si un dossier avec avis différé existe sur l'établissement, l'avis affiché est « Présence d'un dossier avec avis différé », indépendamment de l'avis courant. |
-| **Libellés d'avis extensibles** | Les libellés d'avis (Favorable, Défavorable, etc.) sont gérés dynamiquement via la base de données. Tout nouvel avis ajouté (ex. : « Pas d'avis - à motiver... ») sera automatiquement utilisé dans la balise `{etablissementAvis}` sans modification de code. |
+| **Libellés d'avis configurés** | Le code `{etablissementAvis}` reprend le libellé de l'avis défini dans l'application. |
 | **Aucun avis disponible** | La balise avis est résolue en « Avis d'exploitation indisponible ». |
 | **Service de messagerie désactivé** | Aucun e-mail n'est envoyé. L'utilisateur reçoit un message d'erreur explicite dans une notification toast : « L'envoi d'email est désactivé dans la configuration ». La modale reste ouverte pour permettre une éventuelle correction. |
 | **Erreur technique lors de l'envoi** | L'envoi retourne un résultat négatif. Un message d'erreur est affiché dans une notification toast. La modale reste ouverte pour permettre la réédition du message et une nouvelle tentative. |

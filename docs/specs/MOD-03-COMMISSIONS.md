@@ -1,9 +1,5 @@
 # MOD-03 — Commissions de sécurité
 
-> **Version :** 1.0
-> **Date :** Juillet 2025
-> **Statut :** Référence — Spécification de l'existant
-
 ---
 
 ## 1. Objet et périmètre
@@ -19,7 +15,7 @@ Le module couvre :
 - La **constitution de l'ordre du jour** d'une séance (affectation de dossiers, gestion horaire ou séquentielle).
 - La **génération des documents officiels** : convocations, ordres du jour, procès-verbaux, comptes-rendus.
 - L'**application automatique** des règles de compétence aux établissements.
-- L'**export du calendrier** au format iCalendar.
+- Le téléchargement du calendrier dans un format pouvant être importé dans un logiciel d'agenda.
 
 Le module ne couvre pas la gestion des dossiers eux-mêmes (études, visites, prescriptions), qui relèvent du module Dossiers.
 
@@ -52,7 +48,7 @@ Chaque commission est rattachée à un **type de commission**. Les types de comm
 
 Chaque type possède une **fréquence de périodicité** (utilisée pour la planification récurrente des séances).
 
-Le type « communal » (identifiant interne type 2) se distingue des autres par la façon dont les règles de compétence sont définies : par **commune** plutôt que par **groupement de communes**.
+Une commission de type « communal » définit sa compétence par **commune** plutôt que par **groupement de communes**.
 
 ### 3.2 Membres d'une commission
 
@@ -70,11 +66,11 @@ Chaque membre peut être **spécialisé** selon cinq axes de compétence :
 | **Types d'activité** | Le membre n'intervient que pour certains types d'activité (J, L, M, N, O, P, R, S, T, U, V, W, X, Y…). |
 | **Classes IGH** | Le membre n'intervient que pour certaines classes d'IGH (GHA, GHO, GHR, GHS, GHU, GHW, GHZ…). |
 | **Types de dossier** | Le membre n'intervient que pour certains types de dossier (étude, visite périodique, visite de réception…). |
-| **Natures de dossier** | Le membre n'intervient que pour certaines natures de dossier (permis de construire, autorisation de travaux, levée de prescriptions…). **Note : cet axe est stocké en base de données mais n'est pas utilisé pour filtrer les dossiers lors de la génération des documents.** |
+| **Natures de dossier** | Des natures peuvent être sélectionnées pour un membre. Cette sélection ne filtre actuellement pas les dossiers dans les documents générés. |
 
 Lorsqu'un axe est coché pour toutes les valeurs, le membre est compétent pour l'ensemble de cet axe (affichage simplifié « λ »).
 
-Les spécialisations des membres servent au **filtrage** lors de la génération des documents : chaque membre ne reçoit que les dossiers relevant de son périmètre. **Les natures de dossier sont enregistrées en base mais ne participent pas au filtrage lors de la génération.**
+Les spécialisations des membres servent au **filtrage** lors de la génération des documents : chaque membre ne reçoit que les dossiers relevant de son périmètre. La sélection des natures de dossier ne participe actuellement pas à ce filtrage.
 
 ### 3.3 Règles de compétence
 
@@ -93,7 +89,7 @@ Une règle est satisfaite lorsque **tous** les critères renseignés corresponde
 
 ### 3.4 Documents modèles associés
 
-Chaque commission peut disposer de **documents modèles** au format ODT (OpenDocument Text) :
+Chaque commission peut disposer de **modèles de documents texte** au format ODT, compatible avec les logiciels de traitement de texte :
 
 | Document modèle | Niveau | Description |
 |-----------------|--------|-------------|
@@ -103,7 +99,7 @@ Chaque commission peut disposer de **documents modèles** au format ODT (OpenDoc
 | **Procès-verbal** | Par membre (hors groupement) | Modèle de procès-verbal. |
 | **Compte-rendu** | Par commission | Modèle unique de compte-rendu pour la commission. |
 
-Les modèles sont au format ODT et contiennent des variables de fusion qui sont remplacées lors de la génération par les données réelles (nom de la commission, date, liste des dossiers, informations des établissements, prescriptions, etc.).
+Lors de la création des documents, les informations de la commission, de la séance, des dossiers et des établissements sont reprises automatiquement depuis les modèles.
 
 ---
 
@@ -120,7 +116,7 @@ L'administrateur dispose d'une interface listant les **types de commissions** so
 1. L'administrateur ouvre la boîte de dialogue de gestion des commissions.
 2. Il saisit le **libellé** de la commission et sélectionne un **type de commission**.
 3. Il peut ajouter plusieurs commissions en lot (ajout de lignes dynamiques).
-4. Il valide : les commissions sont créées et un répertoire de stockage des documents est initialisé pour chacune.
+4. Il valide : les commissions sont créées et les documents peuvent y être associés.
 
 **Modifier une commission :**
 
@@ -161,7 +157,6 @@ L'interface présente un tableau avec les colonnes :
 
 1. Le secrétariat clique sur « Appliquer les règles ».
 2. Le système parcourt **tous les établissements** du département (ERP et IGH) et affecte automatiquement la commission à ceux qui correspondent aux règles définies (cf. section 6).
-3. Le cache applicatif est purgé après l'opération.
 
 **Supprimer une règle :**
 
@@ -225,7 +220,7 @@ L'interface présente :
 5. **Mode récurrent :** en activant la récurrence, le secrétariat définit :
    - Une **périodicité** (1 à 4 semaines).
    - Une **date de fin** de récurrence.
-   - Le système génère automatiquement toutes les dates selon la périodicité, chacune liée à la date principale. **Note : dans l'implémentation actuelle (legacy et Symfony), les occurrences récurrentes ne sont pas liées à la date principale ; elles sont créées comme des dates indépendantes (bug connu).**
+   - Le système crée les dates selon la périodicité choisie. Les dates ainsi créées ne sont pas rattachées à une date principale.
 
 **Modifier une séance :**
 
@@ -301,7 +296,7 @@ Quatre types de documents peuvent être générés :
 
 #### 4.6.1 Convocations
 
-La génération produit un **document ODT par membre** de la commission.
+La génération produit un document par membre de la commission.
 
 Le document est construit à partir du modèle de courrier du membre (convocation en visite ou convocation en salle, selon le type de séance).
 
@@ -323,7 +318,7 @@ Le filtrage s'applique selon les spécialisations du membre (catégories, types 
 
 #### 4.6.2 Ordres du jour
 
-La génération produit un **document ODT par membre**, à partir du modèle d'ordre du jour du membre.
+La génération produit un document par membre, à partir de son modèle d'ordre du jour.
 
 Le contenu suit la même logique que les convocations (par commune ou par groupement), avec le même niveau de détail sur chaque dossier.
 
@@ -333,7 +328,7 @@ L'ordre des dossiers respecte l'ordre défini dans la gestion de l'ordre du jour
 
 #### 4.6.3 Procès-verbaux
 
-La génération produit un **document ODT par membre** (uniquement les membres non rattachés à un groupement).
+La génération produit un document par membre (uniquement les membres non rattachés à un groupement).
 
 En plus des informations des dossiers, le procès-verbal inclut pour chaque dossier :
 - L'**avis émis** : Favorable, Défavorable, ou Réservé.
@@ -345,7 +340,7 @@ En plus des informations des dossiers, le procès-verbal inclut pour chaque doss
 
 #### 4.6.4 Comptes-rendus
 
-La génération produit un **document ODT unique** pour la commission, à partir du modèle de compte-rendu de la commission.
+La génération produit un compte-rendu pour la commission, à partir de son modèle.
 
 Pour chaque dossier, le compte-rendu inclut :
 - L'identifiant de l'établissement.
@@ -358,11 +353,11 @@ Pour chaque dossier, le compte-rendu inclut :
 - Les observations.
 - L'avis (Favorable, Défavorable, Réservé).
 
-### 4.7 Exporter le calendrier (iCalendar)
+### 4.7 Télécharger le calendrier
 
 **Accès :** Panneau latéral du calendrier → « Synchroniser le calendrier » ou « Exporter pour Outlook ».
 
-Le système fournit une **URL de synchronisation** au protocole `webcal://` (ou `webcals://` en HTTPS) permettant de s'abonner au calendrier d'une commission depuis un client de calendrier externe (Outlook, Google Calendar, etc.).
+Un lien permet de s'abonner au calendrier d'une commission depuis un agenda externe, par exemple Outlook ou Google Agenda.
 
 L'URL est construite avec l'identifiant de l'utilisateur et une clé de sécurité applicative.
 
@@ -396,19 +391,18 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-015** — L'application des règles est une opération explicite, déclenchée manuellement par l'utilisateur. Elle met à jour la commission de rattachement de chaque établissement du département correspondant aux règles.
 
-**RG-COM-016** — L'application des règles purge le cache applicatif après exécution.
 
 ### Membres
 
 **RG-COM-020** — Un membre est toujours rattaché à une seule commission.
 
-**RG-COM-021** — Un membre peut être spécialisé sur zéro à plusieurs catégories, types d'activité, classes IGH, types de dossier et natures de dossier. **Les natures de dossier sont stockées en base de données mais ne sont pas utilisées pour filtrer les dossiers lors de la génération des documents.**
+**RG-COM-021** — Un membre peut être spécialisé sur zéro ou plusieurs catégories, types d'activité, classes IGH, types de dossier et natures de dossier. La sélection des natures de dossier ne filtre actuellement pas les dossiers retenus dans les documents générés.
 
 **RG-COM-022** — Un membre peut être rattaché à un groupement (pour les représentants de services extérieurs : gendarmerie, police, etc.). Dans ce cas, ses documents sont générés par groupement et non par commune.
 
 **RG-COM-023** — Le procès-verbal n'est généré que pour les membres **non rattachés** à un groupement.
 
-**RG-COM-024** — Lors de la suppression d'un membre, ses documents modèles (fichiers ODT) sont supprimés du système de fichiers.
+**RG-COM-024** — Lors de la suppression d'un membre, les modèles de documents qui lui sont associés sont également supprimés.
 
 **RG-COM-025** — L'indicateur de présence prend trois valeurs : **Membre Obligatoire**, **Membre Facultatif**, **Membre Pour information**. Ces valeurs sont purement informatives et ne conditionnent aucun traitement automatique.
 
@@ -426,7 +420,7 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-035** — Seules les dates liées peuvent être supprimées individuellement. La suppression de la date principale nécessite la suppression de la séance entière.
 
-**RG-COM-036** — En mode récurrent, le système génère des séances à intervalle régulier (1 à 4 semaines) entre la date de début et la date de fin de récurrence. Toutes les dates générées sont liées à la première (date principale). **Note : dans les implémentations legacy et Symfony, les dates récurrentes ne sont pas liées à la date principale (elles sont créées comme des dates indépendantes). Ce comportement est un bug connu à corriger ultérieurement.**
+**RG-COM-036** — En mode récurrent, le système crée des séances à intervalle régulier (1 à 4 semaines) entre la date de début et la date de fin. Ces dates ne sont pas rattachées à la première date comme le sont les dates ajoutées en mode multi-dates (voir RG-COM-032).
 
 **RG-COM-037** — Le déplacement d'une séance (par glisser-déposer) met à jour la date de commission et, le cas échéant, les horaires des dossiers affectés.
 
@@ -446,9 +440,9 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 ### Documents officiels
 
-**RG-COM-050** — Les documents modèles sont au format **ODT** (OpenDocument Text). Aucun autre format n'est accepté.
+**RG-COM-050** — Les documents modèles doivent être au format ODT, compatible avec les logiciels de traitement de texte.
 
-**RG-COM-051** — La génération de documents utilise un mécanisme de **fusion** : les variables du modèle ODT sont remplacées par les données réelles de la séance, des dossiers et des établissements.
+**RG-COM-051** — Les informations de la séance, des dossiers et des établissements sont reprises automatiquement dans les documents générés à partir des modèles.
 
 **RG-COM-052** — Les convocations et ordres du jour sont **filtrés par membre** : chaque membre ne reçoit que les dossiers correspondant à ses spécialisations (catégories, types d'activité, classes IGH, types de dossier, communes). **Cette règle ne s'applique pas aux membres rattachés à un groupement : pour ces membres, tous les dossiers de la séance sont inclus dans l'ordre du jour, sans filtrage par compétence.**
 

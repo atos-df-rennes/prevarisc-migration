@@ -105,8 +105,7 @@ La catégorie est fixée à une valeur neutre (zéro) et le critère locaux à s
 - Une demande de confirmation est affichée avant l'exécution (« Êtes-vous sûr de vouloir appliquer ces paramètres à l'ensemble des établissements ? »).
 - L'application met à jour la périodicité de chaque établissement en fonction de sa catégorie, son type d'activité et la présence de locaux à sommeil, en se basant sur sa **fiche d'informations la plus récente** (dernière date d'historique).
 - La correspondance s'effectue par jointure entre la matrice de référence et les caractéristiques courantes de chaque établissement.
-- L'opération est transactionnelle : en cas d'erreur, aucune modification n'est effectuée.
-- Le cache de recherche est vidé intégralement après l'application.
+- En cas d'erreur, aucune modification n'est effectuée.
 - Un message de succès ou d'erreur est affiché après l'opération.
 
 ---
@@ -187,14 +186,13 @@ Le système identifie les ERP ouverts dont la prochaine visite périodique est *
 | **RG-PER-008** | La périodicité d'une **cellule** est héritée de son établissement parent. |
 | **RG-PER-009** | L'utilisateur peut **modifier manuellement** la périodicité d'un établissement individuel. Si cette valeur diffère de la matrice de référence, un indicateur visuel le signale. |
 | **RG-PER-010** | L'action « Appliquer sur TOUS les établissements » met à jour la périodicité de chaque établissement en se basant sur sa **fiche d'informations la plus récente**. |
-| **RG-PER-011** | L'application en masse est **transactionnelle** : en cas d'erreur, aucune donnée n'est modifiée. |
+| **RG-PER-011** | En cas d'erreur pendant l'application en masse, aucune donnée n'est modifiée. |
 | **RG-PER-012** | La date de **prochaine visite périodique** est calculée en ajoutant la périodicité (en mois) à la date de la dernière visite périodique ayant donné lieu à un avis de commission. |
 | **RG-PER-013** | Si la périodicité d'un établissement est à **zéro** ou non renseignée, aucune date de prochaine visite n'est calculée. |
 | **RG-PER-014** | Seuls les genres **Établissement** (ERP) et **IGH** portent une périodicité propre. Les sites et cellules utilisent des règles de dérivation (cf. RG-PER-007 et RG-PER-008). |
 | **RG-PER-015** | L'affichage de la périodicité peut être configuré en **années et mois** au lieu de mois uniquement. La conversion s'applique à partir de 12 mois. |
 | **RG-PER-016** | La date de référence pour le calcul de la relance peut être configurée pour utiliser la **plus récente** entre la date de visite et la date de commission du dernier dossier périodique. |
 | **RG-PER-017** | Un ERP ouvert est considéré en **retard de visite périodique** lorsque la date de prochaine visite (dernière visite + périodicité) est antérieure au mois en cours. |
-| **RG-PER-018** | L'application en masse vide le **cache de recherche** après exécution réussie. |
 | **RG-PER-019** | Si un type d'activité obligatoirement avec locaux à sommeil est sélectionné lors de la création d'un ERP, la valeur « locaux à sommeil » est automatiquement positionnée à **oui**. |
 | **RG-PER-020** | Lors de la sauvegarde d'un établissement, un **écran de confirmation** affiche la périodicité saisie et la périodicité conseillée (issue de la matrice). L'utilisateur peut corriger sa saisie en cliquant sur la valeur conseillée. |
 

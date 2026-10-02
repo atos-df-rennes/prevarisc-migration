@@ -231,7 +231,7 @@ Certaines pièces jointes peuvent être marquées comme « pièces jointes de co
 
 Un compteur de nouvelles pièces jointes est affiché sur l'onglet correspondant.
 
-L'ensemble des pièces jointes d'un dossier peut être téléchargé sous forme d'archive compressée (ZIP).
+L'ensemble des pièces jointes d'un dossier peut être téléchargé en une seule fois dans un fichier regroupant les documents.
 
 ### 3.8 Contacts du dossier
 
@@ -345,7 +345,7 @@ L'utilisateur peut générer un document officiel (rapport, compte-rendu de visi
 2. Il sélectionne un modèle de document parmi ceux disponibles pour la commission du dossier (ou les modèles communs à toutes les commissions).
 3. Il sélectionne le ou les établissements pour lesquels générer le document.
 4. Le système injecte dans le modèle l'ensemble des données du dossier et de l'établissement : informations générales, adresse, catégorie, types et activités, contacts, prescriptions (actuelles et antérieures, hors levées), documents consultés, textes applicables, avis, dates, vérifications techniques, effectifs et dégagements.
-5. Le document généré est automatiquement sauvegardé comme pièce jointe du dossier au format ODT.
+5. Le document généré est automatiquement ajouté aux pièces jointes du dossier sous forme de document texte (ODT).
 6. Un lien de téléchargement est affiché.
 
 **Cas particulier des centres commerciaux :**
@@ -378,7 +378,7 @@ La suppression de la commission associée au dossier entraîne la suppression de
 - Le système rend le dossier modifiable à nouveau.
 - L'identité de l'utilisateur ayant verrouillé est effacée.
 
-Le droit de verrouiller/déverrouiller est contrôlé par le système de permissions. Des droits spécialisés peuvent être définis par nature de dossier (ex. : seuls certains profils peuvent verrouiller les visites périodiques). Si aucun droit spécialisé n'est configuré, le droit est accordé par défaut.
+Le droit de verrouiller ou déverrouiller un dossier dépend des règles d'accès définies pour sa nature. Si aucune règle ne limite cette action, elle est autorisée par défaut.
 
 ### 4.7 Lier des dossiers entre eux
 
@@ -406,7 +406,6 @@ La suppression d'un dossier est une **suppression logique** (le dossier est marq
 1. L'utilisateur clique sur « Supprimer » et confirme via une boîte de dialogue modale.
 2. Le système effectue la suppression logique.
 3. Si le dossier donnait avis à un ou plusieurs établissements, le système recalcule le dernier dossier donnant avis pour chacun.
-4. Le cache de recherche est invalidé.
 5. L'utilisateur est redirigé vers la page de recherche des dossiers.
 
 Un dossier supprimé peut être **rétabli** par un utilisateur ayant les droits suffisants. Le rétablissement annule la date de suppression.
@@ -461,29 +460,29 @@ Un dossier supprimé peut être **rétabli** par un utilisateur ayant les droits
 
 **RG-DOS-019** — Lorsqu'un dossier passe d'une nature donnant avis à une nature non donnant avis (en édition), le système recalcule le dernier dossier donnant avis pour chaque établissement concerné.
 
-**RG-DOS-020** — La modification de l'avis de la commission est soumise à un droit d'accès spécifique. Seuls les utilisateurs ayant le privilège correspondant peuvent modifier l'avis de commission.
+**RG-DOS-020** — La modification de l'avis de la commission est réservée aux utilisateurs auxquels ce droit a été accordé.
 
 ### Verrouillage
 
 **RG-DOS-021** — Lorsqu'un dossier est verrouillé, les modifications suivantes sont interdites : formulaire principal (informations générales), descriptif, prescriptions (ajout, modification, suppression, réordonnancement), liaisons (ajout, suppression), documents consultés (ajout, modification, suppression), pièces jointes, contacts.
 
-**RG-DOS-021bis** — Les actions suivantes restent autorisées sur un dossier verrouillé (comportement iso-legacy) : textes applicables, vérifications techniques, effectifs et dégagements, avis et dérogations (ajout, modification, suppression), génération de rapports.
+**RG-DOS-021bis** — Même verrouillé, un dossier peut encore être complété avec ses textes applicables, ses vérifications techniques, ses effectifs et dégagements, ses avis et dérogations. Un rapport peut également être généré.
 
-**RG-DOS-021ter** — Côté interface, les boutons d'action des fonctionnalités interdites (RG-DOS-021) sont masqués lorsque le dossier est verrouillé. Côté serveur, le `DossierVoter` refuse l'attribut `edit_doss` pour tout dossier verrouillé. Les actions autorisées malgré le verrou (RG-DOS-021bis) utilisent l'attribut `edit_doss_ignore_verrou` qui vérifie le privilège sans condition de verrouillage.
+**RG-DOS-021ter** — Lorsque le dossier est verrouillé, les actions qui ne sont plus autorisées ne sont pas proposées et ne peuvent pas être réalisées.
 
 **RG-DOS-022** — Le verrouillage enregistre l'identité de l'utilisateur ayant verrouillé. Le déverrouillage efface cette information.
 
-**RG-DOS-023** — Le droit de verrouillage est contrôlé par nature de dossier. Si aucune ressource spécialisée n'est configurée dans les permissions, le droit est accordé par défaut. Si une ressource spécialisée existe (pour toutes natures ou pour une nature spécifique), le droit n'est accordé que si l'une d'elles l'autorise.
+**RG-DOS-023** — Le droit de verrouillage dépend de la nature du dossier. Si aucune règle d'accès n'est définie, le droit est accordé par défaut. Si une règle existe, le verrouillage n'est autorisé que si elle l'accorde.
 
 ### Suppression et rétablissement
 
-**RG-DOS-024** — La suppression d'un dossier est logique : une date de suppression est positionnée. Le dossier n'est pas effacé de la base de données.
+**RG-DOS-024** — La suppression d'un dossier le retire des listes courantes sans supprimer immédiatement les informations qui lui sont associées. Un administrateur peut le rétablir (voir RG-DOS-028).
 
 **RG-DOS-025** — Un dossier supprimé est exclu des listes de recherche et des dossiers liés aux établissements.
 
 **RG-DOS-026** — Lors de la suppression d'un dossier, si celui-ci donnait avis à un ou plusieurs établissements, le système recalcule le dernier dossier donnant avis pour chacun d'eux.
 
-**RG-DOS-027** — La suppression d'un dossier nécessite un droit d'accès spécifique (privilège de suppression).
+**RG-DOS-027** — La suppression d'un dossier est réservée aux utilisateurs auxquels ce droit a été accordé.
 
 **RG-DOS-028** — Un dossier supprimé peut être rétabli. Le rétablissement annule la date de suppression et réintègre le dossier dans les résultats de recherche.
 
@@ -533,10 +532,6 @@ Un dossier supprimé peut être **rétabli** par un utilisateur ayant les droits
 **RG-DOS-044** — Si l'intégration Plat'AU est désactivée dans la configuration de l'application, l'accès à un dossier lié à Plat'AU génère une erreur.
 
 **RG-DOS-045** — Lors de la sauvegarde, les pièces jointes sélectionnées pour export vers Plat'AU sont transmises à la plateforme.
-
-### Cache et performances
-
-**RG-DOS-046** — Après chaque sauvegarde ou suppression de dossier, le cache de recherche global est invalidé pour garantir la cohérence des résultats.
 
 ### Notifications
 

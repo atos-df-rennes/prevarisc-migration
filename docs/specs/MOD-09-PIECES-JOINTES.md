@@ -127,7 +127,7 @@ Pour les dossiers Plat'AU, les pièces jointes arrivées depuis la dernière vis
 
 #### 5.2.3 Téléchargement unitaire
 
-Un clic sur le nom du fichier déclenche le téléchargement. Le fichier est servi en téléchargement forcé (pièce jointe HTTP).
+Un clic sur le nom du fichier permet de le télécharger.
 
 #### 5.2.4 Téléchargement groupé (dossier uniquement)
 
@@ -146,7 +146,7 @@ Pour une pièce jointe de dossier, la modification est soumise aux mêmes restri
 L'utilisateur clique sur l'icône de suppression. Une confirmation est demandée : « Êtes-vous sûr de vouloir supprimer cette pièce jointe ? ».
 
 Si confirmé :
-- Le fichier physique est supprimé du serveur.
+- Le fichier associé est supprimé.
 - La miniature associée est supprimée le cas échéant.
 - La liaison avec l'entité parente est supprimée.
 - La pièce jointe est supprimée du système.
@@ -207,16 +207,16 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | Règle | Énoncé |
 |-------|--------|
 | **RG-PJ-001** | Une pièce jointe est rattachée à exactement une entité parente : dossier, établissement ou date de commission. |
-| **RG-PJ-002** | Les fichiers exécutables ou scripts (.php, .php4, .php5, .sh, .ksh, .csh) sont interdits au dépôt. Le système rejette le fichier avec un message d'erreur. |
+| **RG-PJ-002** | Les fichiers pouvant exécuter un programme ne peuvent pas être déposés. Un message indique à l'utilisateur que le dépôt est refusé. |
 | **RG-PJ-003** | Si aucun libellé n'est saisi par l'utilisateur, le nom d'origine du fichier (sans extension) est utilisé comme nom de la pièce jointe. |
 | **RG-PJ-004** | La date d'ajout est enregistrée automatiquement au moment du dépôt (date et heure courantes). |
 | **RG-PJ-005** | Lors du dépôt sur un dossier, l'utilisateur peut optionnellement lier la pièce jointe à un ou plusieurs établissements associés à ce dossier. |
 | **RG-PJ-006** | La mise en avant dans le diaporama ou les plans ne s'applique qu'aux images (JPG, JPEG, PNG, GIF) déposées sur un établissement. |
-| **RG-PJ-007** | Lorsqu'une image est placée dans le diaporama ou dans les plans, une miniature de 450 px de large est générée automatiquement (proportions conservées). |
-| **RG-PJ-008** | La suppression d'une pièce jointe entraîne la suppression du fichier physique, de sa miniature éventuelle et de toutes ses liaisons. |
+| **RG-PJ-007** | Une miniature est créée automatiquement pour les images placées dans le diaporama ou dans les plans. |
+| **RG-PJ-008** | La suppression d'une pièce jointe retire également le fichier associé et les éventuelles miniatures. |
 | **RG-PJ-009** | La modification et la suppression d'une pièce jointe de dossier sont interdites lorsque le dossier est verrouillé. |
 | **RG-PJ-010** | La modification et la suppression sont interdites pour les pièces jointes dont le statut Plat'AU est « En attente d'envoi », « Envoyé » ou « Vérification du statut ». |
-| **RG-PJ-011** | Seules les pièces jointes dont le fichier physique est accessible en lecture sont affichées dans la liste. Les fichiers manquants ou illisibles sont masqués. |
+| **RG-PJ-011** | Seules les pièces jointes disponibles peuvent être ouvertes et téléchargées. |
 | **RG-PJ-012** | Pour un dossier, une seule pièce jointe à la fois peut être sélectionnée pour le passage en commission. |
 | **RG-PJ-013** | Toute nouvelle pièce jointe d'un dossier Plat'AU reçoit par défaut le statut d'export « Non envoyé ». |
 | **RG-PJ-014** | La sélection d'une pièce jointe pour export vers Plat'AU passe son statut de « Non envoyé » à « En attente d'envoi ». |
@@ -225,10 +225,10 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-017** | L'identifiant Plat'AU de la pièce jointe est affiché sous le nom du fichier lorsqu'il est renseigné (dossiers Plat'AU uniquement). |
 | **RG-PJ-018** | Les pièces jointes entrantes Plat'AU sont marquées « Nouveau » si leur date de notification est postérieure à la dernière visite de l'utilisateur sur l'onglet pièces jointes. La date de dernière visite est mise à jour à chaque consultation de l'onglet. |
 | **RG-PJ-019** | Le téléchargement groupé en archive ZIP n'est disponible que pour les dossiers et uniquement lorsqu'au moins une pièce jointe existe. |
-| **RG-PJ-020** | Si le fichier physique est introuvable au moment du téléchargement, le système renvoie une erreur « ressource introuvable ». |
-| **RG-PJ-021** | Les pièces jointes des dossiers Plat'AU sont stockées dans un espace de stockage distinct de celui des dossiers classiques. |
-| **RG-PJ-022** | Si la taille du fichier dépasse la limite autorisée par le serveur, le système affiche un message invitant l'utilisateur à contacter son service informatique. |
-| **RG-PJ-023** | Les restrictions RG-PJ-009 et RG-PJ-010 s'appliquent côté serveur : les actions de modification et de suppression ne sont pas proposées dans l'interface, et toute tentative d'accès direct (par exemple par URL) est refusée avec une erreur « accès refusé ». |
+| **RG-PJ-020** | Si le fichier n'est plus disponible au moment du téléchargement, un message d'erreur est affiché. |
+| **RG-PJ-021** | Les pièces jointes reçues par Plat'AU sont rattachées au dossier correspondant et visibles dans sa liste de pièces jointes. |
+| **RG-PJ-022** | Si un fichier dépasse la taille maximale autorisée, un message invite l'utilisateur à contacter son service informatique. |
+| **RG-PJ-023** | Lorsque la modification ou la suppression est interdite, ces actions ne sont pas proposées. Une tentative de les réaliser malgré tout est refusée. |
 
 ---
 
@@ -240,7 +240,6 @@ Le comportement diffère selon que le dossier est lié à Plat'AU ou non :
 
 | Aspect | Dossier classique | Dossier Plat'AU |
 |--------|-------------------|-----------------|
-| Stockage des fichiers | Espace standard organisé par entité | Espace dédié Plat'AU, fichier nommé par identifiant interne |
 | Colonne « Statut Plat'AU » | Non affichée | Affichée |
 | Badge « Nouveau ! » | Non affiché | Affiché pour les pièces récentes |
 | Identifiant Plat'AU | Non affiché | Affiché sous le nom du fichier |
@@ -255,12 +254,12 @@ Lorsqu'une pièce jointe a une description textuelle, celle-ci est affichée en 
 
 Lorsque le dossier est verrouillé, les boutons d'ajout, de modification et de suppression n'apparaissent pas et ces actions sont refusées en cas d'accès direct. La consultation et le téléchargement restent possibles.
 
-### 8.4 Fichier physique absent
+### 8.4 Pièce jointe indisponible
 
-Si un fichier est référencé en base mais absent ou illisible sur le serveur, la pièce jointe est exclue de la liste affichée. En cas de tentative de téléchargement direct (par URL), le système renvoie une erreur « ressource introuvable ».
+Une pièce jointe dont le fichier est indisponible ou illisible n'apparaît pas dans la liste et ne peut pas être téléchargée.
 
 ### 8.5 Dépassement de la taille limite
 
-Si la taille du fichier dépasse la limite configurée sur le serveur, le système :
+Si la taille du fichier dépasse la limite autorisée, le système :
 - Annule la création de la pièce jointe en base.
 - Affiche un message : « Impossible de charger la pièce jointe. Veuillez contacter votre service informatique. »
