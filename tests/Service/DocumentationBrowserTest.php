@@ -8,6 +8,7 @@ use App\Service\DocumentationBrowser;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 final class DocumentationBrowserTest extends TestCase
 {
@@ -56,7 +57,7 @@ MD);
         );
 
         foreach ($iterator as $file) {
-            $file->isDir() ? rmdir($file->getPathname()) : unlink($file->getPathname());
+            $file->isDir() && !$file->isLink() ? rmdir($file->getPathname()) : unlink($file->getPathname());
         }
 
         rmdir($this->projectDir);
@@ -103,9 +104,103 @@ MD);
         $this->assertSame('<!doctype html><p>Démo HTML</p>', $document['content']);
     }
 
+    public function testNavigationExcludesHiddenUnsupportedAndLinkedEntries(): void
+    {
+        $this->writeDocument('docs/specs/.hidden.md', '# Hidden');
+        $this->writeDocument('docs/specs/.hidden/README.md', '# Hidden directory');
+        $this->writeDocument('docs/specs/ignored.txt', '# Ignored');
+        $this->writeDocument('docs/specs/uppercase.MD', '# Uppercase');
+        $this->writeDocument('docs/specs/empty/ignored.txt', '# Ignored');
+        symlink($this->projectDir.'/docs/specs/INDEX.md', $this->projectDir.'/docs/specs/linked.md');
+        symlink($this->projectDir.'/docs/specs/nested', $this->projectDir.'/docs/specs/linked-directory');
+
+        $entries = $this->browser()->getNavigation(false)[0]['children'];
+        $this->assertSame(['INDEX.md', 'empty', 'nested', 'demo.html', 'uppercase.MD'], array_column($entries, 'path'));
+        $this->assertSame([], $entries[1]['children']);
+        $this->assertSame('md', $entries[4]['format']);
+        $this->assertSame('md', $this->browser()->getDocument('specs', 'uppercase.MD')['format']);
+    }
+
+    #[DataProvider('provideLinkedPaths')]
+    public function testRejectsSymlinksEvenWhenTheirTargetsAreInsideTheDocumentation(string $path, string $target): void
+    {
+        symlink($this->projectDir.'/'.$target, $this->projectDir.'/docs/specs/'.explode('/', $path)[0]);
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->browser()->getDocument('specs', $path);
+    }
+
+    public static function provideLinkedPaths(): iterable
+    {
+        yield 'file inside root' => ['linked.md', 'docs/specs/INDEX.md'];
+        yield 'directory inside root' => ['linked/README.md', 'docs/specs/nested'];
+        yield 'file outside root' => ['linked.md', 'docs/tech/README.md'];
+        yield 'directory outside root' => ['linked/README.md', 'docs/tech'];
+    }
+
+    #[DataProvider('provideDocumentTitles')]
+    public function testExtractsMarkdownTitlesOrBuildsUnicodeFilenameTitles(string $filename, string $contents, string $expected): void
+    {
+        $this->writeDocument('docs/specs/'.$filename, $contents);
+
+        $this->assertSame($expected, $this->browser()->getDocument('specs', $filename)['title']);
+    }
+
+    public static function provideDocumentTitles(): iterable
+    {
+        yield 'markdown heading' => ['example.md', "Introduction\n\n  ## Un titre ###\n", 'Un titre'];
+        yield 'filename separators' => ['guide_de-lecture.md', 'Sans titre', 'Guide de lecture'];
+        yield 'accented filename' => ['établissements.md', 'Sans titre', 'Établissements'];
+    }
+
+    public function testGeneratedAnchorsHandleCollisionsAndPreserveExplicitIdsAndLinks(): void
+    {
+        $this->writeDocument('docs/specs/anchors.md', <<<'MD'
+# Établissements
+## Etablissements
+## Ancre conservée {#custom}
+## !!!
+## ???
+
+[Première section](#etablissements)
+[Seconde section](#etablissements-1)
+[Ancre explicite](#custom)
+[Autre document](nested/README.md#section)
+MD);
+        $content = $this->browser()->getDocument('specs', 'anchors.md')['content'];
+
+        foreach (['etablissements', 'etablissements-1', 'custom', 'section', 'section-1'] as $id) {
+            $this->assertStringContainsString('id="'.$id.'"', $content);
+        }
+
+        $this->assertStringContainsString('href="#etablissements"', $content);
+        $this->assertStringContainsString('href="#etablissements-1"', $content);
+        $this->assertStringContainsString('href="#custom"', $content);
+        $this->assertStringContainsString('href="/documentation/specs/nested/README.md#section"', $content);
+    }
+
+    public function testProjectIndexLinksMatchGeneratedHeadingIds(): void
+    {
+        $content = $this->browser(dirname(__DIR__, 2))->getDocument('specs', 'INDEX.md')['content'];
+        $document = new \DOMDocument();
+        $document->loadHTML('<meta charset="UTF-8">'.$content, LIBXML_NOERROR | LIBXML_NOWARNING);
+
+        $xpath = new \DOMXPath($document);
+        $links = $xpath->query('//a[starts-with(@href, "#")]');
+        $this->assertInstanceOf(\DOMNodeList::class, $links);
+        $this->assertGreaterThanOrEqual(24, $links->length);
+
+        foreach ($links as $link) {
+            $this->assertInstanceOf(\DOMElement::class, $link);
+            $id = substr($link->getAttribute('href'), 1);
+            $this->assertInstanceOf(\DOMElement::class, $document->getElementById($id), 'Missing heading for #'.$id);
+        }
+    }
+
     #[DataProvider('provideInvalidPaths')]
     public function testRejectsInvalidOrUnavailableDocumentPaths(string $path): void
     {
+        mkdir($this->projectDir.'/docs/specs/folder.md');
         $this->expectException(\InvalidArgumentException::class);
 
         $this->browser()->getDocument('specs', $path);
@@ -118,22 +213,33 @@ MD);
         yield 'absolute path' => ['/etc/passwd.md'];
         yield 'unsupported extension' => ['INDEX.txt'];
         yield 'missing file' => ['missing.md'];
+        yield 'empty path' => [''];
+        yield 'empty segment' => ['nested//README.md'];
+        yield 'current directory' => ['./INDEX.md'];
+        yield 'nested current directory' => ['nested/./README.md'];
+        yield 'hidden file' => ['.hidden.md'];
+        yield 'hidden directory' => ['.hidden/README.md'];
+        yield 'backslash' => ['nested\\README.md'];
+        yield 'null byte' => ["INDEX.md\0"];
+        yield 'directory with document extension' => ['folder.md'];
     }
 
     #[DataProvider('provideHeadingSlugs')]
     public function testSlugifiesHeadingsForInternalAnchors(string $heading, string $expected): void
     {
-        $this->assertSame($expected, DocumentationBrowser::slugifyHeading($heading));
+        $this->assertSame($expected, $this->browser()->slugifyHeading($heading));
     }
 
     public static function provideHeadingSlugs(): iterable
     {
-        yield 'accented title with punctuation' => ['MOD-01 — Établissements', 'mod-01--établissements'];
-        yield 'apostrophe' => ["À propos d'un dossier", 'à-propos-dun-dossier'];
+        yield 'accented title with punctuation' => ['MOD-01 — Établissements', 'mod-01-etablissements'];
+        yield 'apostrophe' => ["À propos d'un dossier", 'a-propos-d-un-dossier'];
         yield 'repeated spaces' => ['Titre   avec espaces', 'titre-avec-espaces'];
+        yield 'underscores and repeated hyphens' => ['Titre__avec---séparateurs', 'titre-avec-separateurs'];
+        yield 'only punctuation' => ['!!!', ''];
     }
 
-    private function browser(): DocumentationBrowser
+    private function browser(?string $projectDir = null): DocumentationBrowser
     {
         $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
         $urlGenerator->method('generate')->willReturnCallback(
@@ -144,7 +250,7 @@ MD);
             ),
         );
 
-        return new DocumentationBrowser($this->projectDir, $urlGenerator);
+        return new DocumentationBrowser($projectDir ?? $this->projectDir, $urlGenerator, new AsciiSlugger('fr'));
     }
 
     private function writeDocument(string $path, string $content): void

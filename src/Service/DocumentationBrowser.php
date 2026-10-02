@@ -6,13 +6,20 @@ namespace App\Service;
 
 use App\Enum\DocumentationSpace;
 use Michelf\MarkdownExtra;
+use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
+
+use function Symfony\Component\String\u;
 
 final readonly class DocumentationBrowser
 {
     public function __construct(
         private string $srcDir,
         private UrlGeneratorInterface $urlGenerator,
+        private SluggerInterface $slugger,
     ) {
     }
 
@@ -80,13 +87,9 @@ final readonly class DocumentationBrowser
         ];
     }
 
-    public static function slugifyHeading(string $heading): string
+    public function slugifyHeading(string $heading): string
     {
-        $slug = mb_strtolower(trim($heading), 'UTF-8');
-        $slug = preg_replace('/\s+/u', '-', $slug) ?? '';
-        $slug = preg_replace('/[^\p{L}\p{N}_-]/u', '', $slug) ?? '';
-
-        return trim($slug, '-');
+        return $this->slugger->slug($heading, '-', 'fr')->lower()->toString();
     }
 
     private function getRootPath(DocumentationSpace $space): string
@@ -99,45 +102,34 @@ final readonly class DocumentationBrowser
      */
     private function getDirectoryEntries(string $directory, string $relativeDirectory): array
     {
-        $names = scandir($directory);
-        if (false === $names) {
-            throw new \RuntimeException(sprintf('Le répertoire de documentation "%s" n’a pas pu être lu.', $directory));
-        }
+        $files = Finder::create()
+            ->in($directory)
+            ->depth('== 0')
+            ->ignoreDotFiles(true)
+            ->ignoreVCS(false)
+            ->filter(static fn (SplFileInfo $file): bool => !$file->isLink()
+                && ($file->isDir() || ($file->isFile() && in_array(strtolower($file->getExtension()), ['md', 'html'], true))));
 
         $entries = [];
-        foreach ($names as $name) {
-            if ('.' === $name || '..' === $name || str_starts_with($name, '.') || is_link($directory.'/'.$name)) {
-                continue;
-            }
-
+        foreach ($files as $file) {
+            $name = $file->getFilename();
             $relativePath = '' === $relativeDirectory ? $name : $relativeDirectory.'/'.$name;
-            $absolutePath = $directory.'/'.$name;
-            if (is_dir($absolutePath)) {
+            if ($file->isDir()) {
                 $entries[] = [
                     'type' => 'directory',
                     'label' => str_replace(['-', '_'], ' ', $name),
                     'path' => $relativePath,
-                    'children' => $this->getDirectoryEntries($absolutePath, $relativePath),
+                    'children' => $this->getDirectoryEntries($file->getPathname(), $relativePath),
                 ];
 
                 continue;
             }
 
-            $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-            if (!in_array($extension, ['md', 'html'], true)) {
-                continue;
-            }
-
-            $contents = file_get_contents($absolutePath);
-            if (false === $contents) {
-                throw new \RuntimeException(sprintf('Le fichier de documentation "%s" n’a pas pu être lu.', $relativePath));
-            }
-
             $entries[] = [
                 'type' => 'file',
-                'label' => $this->getTitle($contents, $name),
+                'label' => $this->getTitle($file->getContents(), $name),
                 'path' => $relativePath,
-                'format' => $extension,
+                'format' => strtolower($file->getExtension()),
             ];
         }
 
@@ -173,10 +165,30 @@ final readonly class DocumentationBrowser
             return trim($matches[1]);
         }
 
-        return ucfirst(str_replace(['-', '_'], ' ', pathinfo($filename, PATHINFO_FILENAME)));
+        return u(pathinfo($filename, PATHINFO_FILENAME))->replaceMatches('/[-_]/', ' ')->title()->toString();
     }
 
     private function resolveFilePath(DocumentationSpace $space, string $relativePath): string
+    {
+        $segments = $this->validateRelativePath($relativePath);
+        $root = realpath($this->getRootPath($space));
+        if (false === $root) {
+            throw new \RuntimeException(sprintf('Le répertoire de documentation "%s" est introuvable.', $space->value));
+        }
+
+        $candidate = $this->resolvePathWithoutSymlinks($root, $segments);
+        $resolvedPath = realpath($candidate);
+        if (false === $resolvedPath || !is_file($resolvedPath) || !Path::isBasePath($root, $resolvedPath)) {
+            throw new \InvalidArgumentException('Document de documentation introuvable.');
+        }
+
+        return $resolvedPath;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function validateRelativePath(string $relativePath): array
     {
         if (
             '' === $relativePath
@@ -189,7 +201,7 @@ final readonly class DocumentationBrowser
 
         $segments = explode('/', $relativePath);
         foreach ($segments as $segment) {
-            if ('' === $segment || '.' === $segment || '..' === $segment || str_starts_with($segment, '.')) {
+            if ('' === $segment || str_starts_with($segment, '.')) {
                 throw new \InvalidArgumentException('Chemin de documentation invalide.');
             }
         }
@@ -199,11 +211,14 @@ final readonly class DocumentationBrowser
             throw new \InvalidArgumentException('Type de document non autorisé.');
         }
 
-        $root = realpath($this->getRootPath($space));
-        if (false === $root) {
-            throw new \RuntimeException(sprintf('Le répertoire de documentation "%s" est introuvable.', $space->value));
-        }
+        return $segments;
+    }
 
+    /**
+     * @param list<string> $segments
+     */
+    private function resolvePathWithoutSymlinks(string $root, array $segments): string
+    {
         $candidate = $root;
         foreach ($segments as $segment) {
             $candidate .= DIRECTORY_SEPARATOR.$segment;
@@ -212,16 +227,7 @@ final readonly class DocumentationBrowser
             }
         }
 
-        $resolvedPath = realpath($candidate);
-        if (
-            false === $resolvedPath
-            || !is_file($resolvedPath)
-            || !str_starts_with($resolvedPath, $root.DIRECTORY_SEPARATOR)
-        ) {
-            throw new \InvalidArgumentException('Document de documentation introuvable.');
-        }
-
-        return $resolvedPath;
+        return $candidate;
     }
 
     private function renderMarkdown(string $markdown, DocumentationSpace $space, string $currentPath): string
@@ -281,7 +287,7 @@ final readonly class DocumentationBrowser
                 continue;
             }
 
-            $baseId = self::slugifyHeading($heading->textContent) ?: 'section';
+            $baseId = $this->slugifyHeading($heading->textContent) ?: 'section';
             $id = $baseId;
             $suffix = 1;
             while (isset($usedHeadingIds[$id])) {

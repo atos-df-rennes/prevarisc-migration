@@ -1,7 +1,7 @@
 # MOD-22 — À propos et documentation
 
-> **Version :** 1.3
-> **Date** : 2026-10-02 (adaptation de la documentation aux petits écrans)
+> **Version :** 1.4
+> **Date** : 2026-10-02 (adaptation aux petits écrans et normalisation des ancres)
 > **Statut :** Spécification initiale issue de l'analyse du legacy
 
 ---
@@ -118,7 +118,7 @@ Sur petit écran, les textes de l'arborescence, du fil d'Ariane et du document r
 | **RG-APR-010** | Lien vers les notes de versions | Le pied de page contient un lien vers la page « Notes de versions » (changelog), distincte de ce module mais accessible depuis le même espace. |
 | **RG-APR-011** | Accès à la documentation technique | Chaque requête portant sur un document de `docs/tech/` requiert le droit `admin`. Le contrôle s'applique aussi à la consultation directe d'un fichier HTML et aux chemins de sous-dossiers. |
 | **RG-APR-012** | Navigation des documentations | La page Documentation présente séparément les espaces fonctionnel et technique et leurs sous-dossiers. Les documents Markdown sont accessibles depuis l'arborescence ; les sous-dossiers peuvent être repliés et le chemin du document affiché reste repérable. |
-| **RG-APR-013** | Conversion et liens Markdown | Un fichier `.md` autorisé est converti en HTML à l'affichage. Les liens vers un autre document de l'espace courant pointent vers sa page de consultation et les ancres de titres restent utilisables. Un lien vers une ressource hors des espaces de documentation n'est pas traité comme une page interne. |
+| **RG-APR-013** | Conversion et liens Markdown | Un fichier `.md` autorisé est converti en HTML à l'affichage. Les liens vers un autre document de l'espace courant pointent vers sa page de consultation et les ancres de titres restent utilisables. Les ancres générées utilisent des caractères ASCII minuscules et des tirets simples (par exemple `mod-01-etablissements`), avec un suffixe numérique en cas de doublon ; une ancre définie explicitement dans le Markdown est conservée. Un lien vers une ressource hors des espaces de documentation n'est pas traité comme une page interne. |
 | **RG-APR-014** | Consultation de fichiers HTML | Un fichier `.html` présent dans l'espace courant est affiché sans conversion Markdown dans un contexte isolé du reste de l'application. Il reste soumis au contrôle d'accès de son espace. |
 | **RG-APR-015** | Restriction des chemins | Seuls les fichiers `.md` et `.html` appartenant aux espaces de documentation prévus peuvent être consultés. Un fichier absent, une extension non admise ou un chemin sortant de l'espace retourne une erreur 404. |
 | **RG-APR-016** | Lien depuis les deux pieds de page | Le lien « Documentation » est présent dans le pied de page standard et dans le pied de page personnalisé SDIS29. |
