@@ -1,4 +1,5 @@
 <!-- Classement de l'établissement -->
+{% set categorie_effective = etablissement.categorieEffective %}
 <h4 class="h4_subtitle">Classement</h4>
 <dl class="dl-horizontal">
     <dt>Genre</dt>
@@ -13,11 +14,11 @@
 
     {% if
         infos.genre.id in [constant('App\\Constant\\GenreEtablissement::ERP'), constant('App\\Constant\\GenreEtablissement::CELLULE')]
-        and infos.categorie is not null
+        and categorie_effective is not null
     %}
         <dt>Catégorie</dt>
         <dd>
-            <p>{{ infos.categorie.libelle }}</p>
+            <p>{{ categorie_effective.libelle }}</p>
         </dd>
     {% endif %}
 
@@ -235,8 +236,8 @@
 
         <!-- Effectif justifant le classement (que pour les 5ème catégorie) -->
         {% if
-            infos.categorie is not null
-            and infos.categorie.id == constant('App\\Constant\\CategorieEtablissement::CINQUIEME')
+            categorie_effective is not null
+            and categorie_effective.id == constant('App\\Constant\\CategorieEtablissement::CINQUIEME')
         %}
             <dt>Justifiant le classement</dt>
             <dd>

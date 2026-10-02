@@ -321,6 +321,8 @@ Pour chaque dossier inclus, le document contient :
 
 Le filtrage s'applique selon les spécialisations du membre (catégories, types d'activité, classes, types de dossier). **Les natures de dossier sont stockées en base mais ne participent pas au filtrage lors de la génération des documents.**
 
+Pour une cellule, le critère de catégorie utilise la catégorie effective du parent direct non supprimé (RG-ETB-062), y compris si elle est vide. Les champs de catégorie des convocations, ordres du jour, procès-verbaux et comptes-rendus utilisent la même valeur (RG-DOC-017).
+
 #### 4.6.2 Ordres du jour
 
 La génération produit un **document ODT par membre**, à partir du modèle d'ordre du jour du membre.

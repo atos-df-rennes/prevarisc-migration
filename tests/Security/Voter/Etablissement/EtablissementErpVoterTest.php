@@ -59,6 +59,7 @@ final class EtablissementErpVoterTest extends TestCase
 
         return $this->createConfiguredStub(Etablissement::class, [
             'getLatestInformations' => $latestInformations,
+            'getCategorieEffective' => $categorie,
             'getAdresses' => new ArrayCollection($adresses),
         ]);
     }

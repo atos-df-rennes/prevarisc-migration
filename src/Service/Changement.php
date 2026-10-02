@@ -29,7 +29,7 @@ final class Changement
         ],
         '{categorieEtablissement}' => [
             'description' => "La catégorie de l'établissement",
-            'method' => 'getCategorie', // Sur EtablissementInformations
+            'method' => 'getCategorie', // Catégorie effective via MessageService
         ],
         '{etablissementAvis}' => [
             'description' => "L'avis de l'établissement",
