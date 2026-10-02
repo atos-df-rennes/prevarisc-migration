@@ -179,22 +179,33 @@ MD);
         $this->assertStringContainsString('href="/documentation/specs/nested/README.md#section"', $content);
     }
 
-    public function testProjectIndexLinksMatchGeneratedHeadingIds(): void
+    public function testProjectIndexLinksToAllFunctionalModules(): void
     {
-        $content = $this->browser(dirname(__DIR__, 2))->getDocument('specs', 'INDEX.md')['content'];
+        $browser = $this->browser(dirname(__DIR__, 2));
+        $expectedLinks = [];
+        foreach ($browser->getNavigation(false)[0]['children'] as $entry) {
+            if ('file' === $entry['type'] && str_starts_with($entry['path'], 'MOD-')) {
+                $expectedLinks[] = '/documentation/specs/'.$entry['path'];
+            }
+        }
+
+        $this->assertNotEmpty($expectedLinks);
+
+        $content = $browser->getDocument('specs', 'INDEX.md')['content'];
         $document = new \DOMDocument();
-        $document->loadHTML('<meta charset="UTF-8">'.$content, LIBXML_NOERROR | LIBXML_NOWARNING);
+        $this->assertTrue($document->loadHTML('<meta charset="UTF-8">'.$content, LIBXML_NOERROR | LIBXML_NOWARNING));
 
         $xpath = new \DOMXPath($document);
-        $links = $xpath->query('//a[starts-with(@href, "#")]');
+        $links = $xpath->query('//li/a');
         $this->assertInstanceOf(\DOMNodeList::class, $links);
-        $this->assertGreaterThanOrEqual(24, $links->length);
 
+        $actualLinks = [];
         foreach ($links as $link) {
             $this->assertInstanceOf(\DOMElement::class, $link);
-            $id = substr($link->getAttribute('href'), 1);
-            $this->assertInstanceOf(\DOMElement::class, $document->getElementById($id), 'Missing heading for #'.$id);
+            $actualLinks[] = $link->getAttribute('href');
         }
+
+        $this->assertEqualsCanonicalizing($expectedLinks, $actualLinks);
     }
 
     #[DataProvider('provideInvalidPaths')]
