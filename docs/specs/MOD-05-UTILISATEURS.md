@@ -218,6 +218,8 @@ L'administrateur peut définir des règles d'accès selon le genre de l'établis
 | Zone | Classement |
 | BUP, camping, manifestation temporaire et IOP | Aucun critère de classement supplémentaire |
 
+Le formulaire cellule reste inchangé et ne propose pas de critère de catégorie. Si une règle d'accès existante contient néanmoins une liste de catégories, l'accès exige une correspondance avec la **catégorie effective** de la cellule (RG-ETB-062), en plus du type d'activité. Les identifiants sont comparés exactement ; la valeur `0` autorise toutes les valeurs, y compris une catégorie absente. Les règles standard dont la catégorie est `0` conservent leurs droits.
+
 Les règles peuvent aussi tenir compte des commissions, groupements ou communes auxquels l'utilisateur est rattaché. Deux utilisateurs d'un même groupe peuvent ainsi avoir accès à des établissements différents selon leur périmètre.
 
 Chaque règle distingue les droits de consultation et de modification.

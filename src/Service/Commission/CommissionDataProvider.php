@@ -4,6 +4,7 @@ namespace App\Service\Commission;
 
 use App\Entity\EtablissementAdresse;
 use App\Repository\EtablissementAdresseRepository;
+use App\Service\Etablissement\CelluleCategorieResolver;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -242,6 +243,29 @@ class CommissionDataProvider
             $parentsMap[(int) $pFilsId][] = $p;
         }
 
+        // Catégorie effective : parent direct non supprimé, dernière fiche seulement.
+        $parentInformationsRows = $this->conn->fetchAllAssociative(
+            'SELECT el.ID_FILS_ETABLISSEMENT, ei.ID_CATEGORIE, cat.LIBELLE_CATEGORIE
+             FROM etablissementlie el
+             JOIN etablissement e ON e.ID_ETABLISSEMENT = el.ID_ETABLISSEMENT
+                 AND e.DATESUPPRESSION_ETABLISSEMENT IS NULL
+             LEFT JOIN etablissementinformations ei ON ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                 AND ei.ID_ETABLISSEMENTINFORMATIONS = (
+                     SELECT MAX(ei2.ID_ETABLISSEMENTINFORMATIONS)
+                     FROM etablissementinformations ei2
+                     WHERE ei2.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
+                 )
+             LEFT JOIN categorie cat ON cat.ID_CATEGORIE = ei.ID_CATEGORIE
+             WHERE el.ID_FILS_ETABLISSEMENT IN ('.$placeholders.')',
+            $uniqueIds
+        );
+        $parentInformationsMap = [];
+        foreach ($parentInformationsRows as $parentInformations) {
+            /** @var int|string $filsId */
+            $filsId = $parentInformations['ID_FILS_ETABLISSEMENT'];
+            $parentInformationsMap[(int) $filsId] ??= $parentInformations;
+        }
+
         // Établissements liés (enfants)
         $liesRows = $this->conn->fetchAllAssociative(
             'SELECT el.ID_ETABLISSEMENT, el.ID_FILS_ETABLISSEMENT as ID_ETABLISSEMENT_FILS
@@ -283,7 +307,7 @@ class CommissionDataProvider
 
             $result[$etabId] = [
                 'general' => $generalsMap[$etabId],
-                'informations' => $informationsMap[$etabId] ?? [],
+                'informations' => CelluleCategorieResolver::resolve($informationsMap[$etabId] ?? [], $parentInformationsMap[$etabId] ?? null),
                 'adresses' => $adressesMap[$etabId] ?? [],
                 'parents' => $parentsMap[$etabId] ?? [],
                 'etablissement_lies' => $liesMap[$etabId] ?? [],

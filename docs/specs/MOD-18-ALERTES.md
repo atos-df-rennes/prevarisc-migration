@@ -69,7 +69,7 @@ Les modèles de messages d'alerte peuvent contenir des codes entre accolades. Lo
 | Balise | Description |
 |---|---|
 | `{activitePrincipaleEtablissement}` | L'activité principale de l'établissement |
-| `{categorieEtablissement}` | La catégorie de l'établissement |
+| `{categorieEtablissement}` | Le libellé complet de la catégorie effective (RG-ETB-062) : pour une cellule, celle du parent direct non supprimé ; valeur vide si ce parent n'a pas de catégorie |
 | `{etablissementAvis}` | L'avis de l'établissement (voir règles de gestion) |
 | `{etablissementLibelle}` | Le libellé de l'établissement |
 | `{etablissementNumeroId}` | Le numéro d'identification de l'établissement |

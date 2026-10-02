@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Constant\DossierNature;
+use App\Constant\GenreEtablissement;
 use App\Doctrine\ContactCriteria;
 use App\Repository\EtablissementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -413,6 +414,24 @@ class Etablissement
         $latest = $result->first();
 
         return $latest;
+    }
+
+    public function getCategorieEffective(): ?EtablissementCategorie
+    {
+        $informations = $this->getLatestInformations();
+        $genre = $informations->getGenre();
+
+        if (null !== $genre && GenreEtablissement::CELLULE === $genre->getId()) {
+            foreach ($this->getParents() as $parent) {
+                if (null === $parent->getDateSuppression()) {
+                    $parentInformations = $parent->getLatestInformationsOrNull();
+
+                    return null !== $parentInformations ? $parentInformations->getCategorie() : null;
+                }
+            }
+        }
+
+        return $informations->getCategorie();
     }
 
     /**

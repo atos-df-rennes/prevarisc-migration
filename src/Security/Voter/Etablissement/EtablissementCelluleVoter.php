@@ -6,13 +6,17 @@ use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
+use App\Service\Voter\VoterUtils;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EtablissementCelluleVoter extends EtablissementVoter
 {
-    public function __construct(private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository)
-    {
+    public function __construct(
+        private readonly ResourcesRepository $resourcesRepository,
+        private readonly PrivilegesRepository $privilegesRepository,
+        private readonly VoterUtils $voterUtils,
+    ) {
     }
 
     #[\Override]
@@ -30,7 +34,10 @@ class EtablissementCelluleVoter extends EtablissementVoter
         }
 
         /** @var Etablissement $subject */
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementCellule($subject->getLatestInformations()->getTypeActivite());
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementCellule(
+            $subject->getLatestInformations()->getTypeActivite(),
+            $subject->getCategorieEffective()
+        );
         if ([] === $resources) {
             return false;
         }
@@ -41,8 +48,17 @@ class EtablissementCelluleVoter extends EtablissementVoter
 
         foreach ($resources as $resource) {
             $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
+            $parts = explode('_', $resource->getName() ?? '');
+            if (4 !== count($parts)) {
+                continue;
+            }
 
-            if ($privilege && $userPrivileges->contains($privilege)) {
+            $typesActivites = array_map(intval(...), explode('-', $parts[2]));
+            $categories = array_map(intval(...), explode('-', $parts[3]));
+
+            if ($privilege && $userPrivileges->contains($privilege)
+                && $this->voterUtils->isTypeActiviteAndCategorieAllowed($subject, $typesActivites, $categories)
+            ) {
                 return true;
             }
         }

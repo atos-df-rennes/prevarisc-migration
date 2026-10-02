@@ -371,9 +371,9 @@ L'accès dépend des droits de l'utilisateur.
 
 **RG-ETB-027** — Un ERP, une habitation, un IGH, un BUP, un camping, une manifestation ou un IOP a pour père un site.
 
-**RG-ETB-028** — La modification de la catégorie d'un ERP ne met pas automatiquement à jour la catégorie des cellules déjà rattachées. À la création ou au rattachement d'une cellule, celle-ci reprend la catégorie de son ERP parent (voir RG-ETB-029).
+**RG-ETB-028** — La modification de la catégorie d'un ERP ne met pas automatiquement à jour la catégorie stockée des cellules déjà rattachées. Leur catégorie effective utilise toutefois la dernière catégorie du parent à la lecture (voir RG-ETB-062).
 
-**RG-ETB-029** — Lorsqu'une cellule est créée ou rattachée à un ERP, elle hérite automatiquement de la **catégorie** de son parent.
+**RG-ETB-029** — Lorsqu'une cellule est créée ou rattachée à un ERP, sa catégorie stockée n'est pas systématiquement renseignée avec celle du parent. L'héritage de la catégorie est une résolution à la lecture, définie par RG-ETB-062, sans modification des données stockées.
 
 ### Adresse
 
@@ -475,6 +475,8 @@ L'accès dépend des droits de l'utilisateur.
 
 **RG-ETB-060** — Un **recalcul global des périodicités** peut être appliqué en masse sur tous les établissements, en mettant à jour la périodicité de la dernière fiche d'informations de chaque établissement à partir du référentiel GN4.
 
+**RG-ETB-062** — **Catégorie effective d'une cellule (parité legacy confirmée pour ce correctif)** : une cellule ayant un parent direct non supprimé utilise la catégorie de la dernière fiche de ce parent. Si le parent n'a pas de catégorie ou de fiche, le résultat est vide, même si la cellule possède une catégorie stockée. Sans parent non supprimé, la catégorie propre est conservée. Les autres genres conservent leur catégorie propre. Cette résolution s'applique à la catégorie affichée sur la fiche et au bloc « Justifiant le classement » (affiché si la catégorie effective est la 5e), aux rapports et documents de commission, au filtrage des membres lors de leur génération, aux ressources spécialisées cellule et à la balise d'alerte `{categorieEtablissement}`. Elle ne modifie pas les données stockées, la recherche ni les exports.
+
 ---
 
 ## 8. Cas particuliers et limites
@@ -490,7 +492,7 @@ Les IGH partagent certaines caractéristiques avec les ERP (périodicité, commi
 ### Cellules
 
 Les cellules sont rattachées à un ERP ou à un IGH. Elles :
-- Héritent de la **catégorie** de leur parent ERP (affectation automatique).
+- Utilisent à la lecture la **catégorie effective** du parent direct non supprimé, sans affectation automatique en base (RG-ETB-062).
 - Héritent de la **périodicité** de leur parent via la hiérarchie.
 - N'ont **pas d'adresse propre** (adresse remontée depuis le site racine).
 - N'ont **pas de commission** propre.

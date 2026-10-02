@@ -52,7 +52,7 @@ Exemples de champs de fusion disponibles :
 | Descriptif | Descriptif technique du dossier |
 | Criticité | Facteur de dangerosité |
 | Adresse de l'établissement | Adresse complète (numéro, rue, code postal, commune) |
-| Catégorie | Catégorie de l'ERP (1re à 5e) |
+| Catégorie | Catégorie effective de l'établissement (1re à 5e) ; pour une cellule, celle du parent direct non supprimé (RG-ETB-062) |
 | Type et activité principale | Lettre de type et libellé d'activité |
 | Types et activités secondaires | Lettres de types et libellés secondaires |
 | Genre | Établissement, cellule, site, etc. |
@@ -221,6 +221,7 @@ Pour les convocations et ordres du jour, la génération utilise les courriers t
 | **RG-DOC-015** | Les courriers types des membres de commission (convocation salle, convocation visite, ordre du jour) sont distincts des modèles de rapports. Ils sont gérés depuis la fiche de la commission et non depuis l'écran d'administration des documents. |
 | **RG-DOC-016** | Les champs de fusion présents dans un modèle qui ne correspondent à aucune donnée disponible sont remplacés par une valeur vide (chaîne vide). Aucune erreur n'est levée. |
 | **RG-DOC-017** | Lors de l'ajout d'un modèle, l'utilisateur peut sélectionner plusieurs commissions et/ou l'espace transversal. Le même fichier est copié dans chaque espace sélectionné ; s'il y porte le nom d'un fichier existant, celui-ci est remplacé selon RG-DOC-006. |
+| **RG-DOC-018** | Le champ `categorieEtab` utilise la catégorie effective définie par RG-ETB-062, pour les rapports de dossier et les documents de commission. Pour une cellule, la catégorie du parent direct non supprimé remplace la catégorie propre, y compris lorsqu'elle est vide. Le rapport conserve le premier mot du libellé (ex. `5ème`), les documents de commission conservent le libellé complet. |
 
 ---
 

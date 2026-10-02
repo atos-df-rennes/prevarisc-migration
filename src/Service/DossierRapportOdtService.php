@@ -343,7 +343,8 @@ class DossierRapportOdtService
             }
 
             // --- Champs établissement (infos générales, adresse, effectifs, avis) ---
-            $this->fillChampsEtablissement($odf, $rawEtab, $rawEtabInfos, $adresseRow, $rawDossier, $idDossier, $idEtab);
+            $categorieEffective = $etablissement->getCategorieEffective();
+            $this->fillChampsEtablissement($odf, $rawEtab, $rawEtabInfos, $adresseRow, $rawDossier, $idDossier, $idEtab, null !== $categorieEffective ? ($categorieEffective->getLibelle() ?? '') : '');
 
             // --- Champs DESCTECH ---
             $this->fillChampsDescTech($odf, $rawEtab);
@@ -616,7 +617,8 @@ class DossierRapportOdtService
         array $adresseRow,
         array $rawDossier,
         int $idDossier,
-        int $idEtab
+        int $idEtab,
+        string $libelleCategorie
     ): void {
         // =====================================================================
         // ÉTABLISSEMENT — informations générales
@@ -688,7 +690,7 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'numDocUrba', false !== $numDocUrbaRowFetch ? ($numDocUrbaRowFetch['NUM_DOCURBA'] ?? '') : '');
 
         // Catégorie / Famille — port direct legacy : seul le premier mot de LIBELLE_CATEGORIE est utilisé
-        $libelleCat = $rawEtabInfos['LIBELLE_CATEGORIE'] ?? '';
+        $libelleCat = $libelleCategorie;
         $categorieParts = '' !== $libelleCat ? explode(' ', $libelleCat) : [];
         $this->addChamp($odf, 'categorieEtab', !empty($categorieParts) ? $categorieParts[0] : '');
         $this->addChamp($odf, 'familleEtab', $rawEtabInfos['LIBELLE_FAMILLE'] ?? '');
