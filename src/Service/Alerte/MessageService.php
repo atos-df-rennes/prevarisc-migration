@@ -71,6 +71,12 @@ class MessageService
             return $etablissement->getNumero() ?? '';
         }
 
+        if ('getCategorie' === $method) {
+            $categorie = $etablissement->getCategorieEffective();
+
+            return null !== $categorie ? ($categorie->getLibelle() ?? '') : '';
+        }
+
         // Autres cas : méthode sur LatestInformations
         $latestInfos = $etablissement->getLatestInformations();
 

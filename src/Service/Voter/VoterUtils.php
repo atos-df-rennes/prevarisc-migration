@@ -78,7 +78,7 @@ class VoterUtils
             $erpTypeActiviteId = $erpTypeActivite->getId();
         }
 
-        $erpCategorie = $subject->getLatestInformations()->getCategorie();
+        $erpCategorie = $subject->getCategorieEffective();
 
         $erpCategorieId = null;
         if (null !== $erpCategorie) {

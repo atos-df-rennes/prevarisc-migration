@@ -65,6 +65,7 @@ class EtablissementErpVoterTest extends TestCase
 
         $etablissement = $this->createMock(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($latestInformations);
+        $etablissement->method('getCategorieEffective')->willReturn($categorie);
         $etablissement->method('getAdresses')->willReturn(new ArrayCollection($adresses));
 
         return $etablissement;
