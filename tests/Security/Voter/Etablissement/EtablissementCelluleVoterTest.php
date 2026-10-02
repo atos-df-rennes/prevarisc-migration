@@ -5,6 +5,7 @@ namespace App\Tests\Security\Voter\Etablissement;
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementActivite;
+use App\Entity\EtablissementCategorie;
 use App\Entity\EtablissementInformations;
 use App\Entity\Genre;
 use App\Entity\Groupe;
@@ -15,6 +16,7 @@ use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Security\Voter\Etablissement\EtablissementCelluleVoter;
 use App\Security\Voter\Etablissement\EtablissementVoter;
+use App\Service\Voter\VoterUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -32,7 +34,7 @@ class EtablissementCelluleVoterTest extends TestCase
     {
         $this->resourcesRepository = $this->createMock(ResourcesRepository::class);
         $this->privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $this->voter = new EtablissementCelluleVoter($this->resourcesRepository, $this->privilegesRepository);
+        $this->voter = new EtablissementCelluleVoter($this->resourcesRepository, $this->privilegesRepository, new VoterUtils());
     }
 
     private function createEtablissementMock(?EtablissementActivite $typeActivite = null): Etablissement
@@ -176,5 +178,54 @@ class EtablissementCelluleVoterTest extends TestCase
             VoterInterface::ACCESS_GRANTED,
             $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE])
         );
+    }
+
+    /**
+     * @dataProvider categorieEffectiveProvider
+     */
+    public function testDroitsSelonCategorieDuParent(string $resourceName, ?int $categorieParentId, int $expectedVote): void
+    {
+        $categorieParent = null !== $categorieParentId ? $this->createConfiguredMock(EtablissementCategorie::class, ['getId' => $categorieParentId]) : null;
+        $parent = new Etablissement();
+        $parentInformations = new EtablissementInformations();
+        $parentInformations->setCategorie($categorieParent);
+        $parent->addInformations($parentInformations);
+
+        $etablissement = new Etablissement();
+        $informations = new EtablissementInformations();
+        $informations->setGenre($this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::CELLULE]));
+        $informations->setTypeActivite($this->createConfiguredMock(EtablissementActivite::class, ['getId' => 1]));
+        $informations->setCategorie($this->createConfiguredMock(EtablissementCategorie::class, ['getId' => 2]));
+        $etablissement->addInformations($informations);
+        $etablissement->addParent($parent);
+
+        $resource = (new Resources())->setName($resourceName);
+        $this->resourcesRepository->expects(self::once())
+            ->method('findRessourcesSpecialiseesEtablissementCellule')
+            ->with($informations->getTypeActivite(), $categorieParent)
+            ->willReturn([$resource]);
+        $privilege = new Privileges();
+        $this->privilegesRepository->method('findOneBy')->willReturn($privilege);
+        $groupe = $this->createConfiguredMock(Groupe::class, ['getPrivileges' => new ArrayCollection([$privilege])]);
+        $user = $this->createConfiguredMock(Utilisateur::class, ['getGroupe' => $groupe]);
+        $token = $this->createConfiguredMock(TokenInterface::class, ['getUser' => $user]);
+
+        self::assertSame($expectedVote, $this->voter->vote($token, $etablissement, [EtablissementVoter::LECTURE]));
+    }
+
+    public function categorieEffectiveProvider(): array
+    {
+        return [
+            'categorie du parent' => ['etablissement_cell_1_5', 5, VoterInterface::ACCESS_GRANTED],
+            'categorie propre ignoree' => ['etablissement_cell_1_2', 5, VoterInterface::ACCESS_DENIED],
+            'liste de categories' => ['etablissement_cell_1-3_2-5', 5, VoterInterface::ACCESS_GRANTED],
+            'toutes categories' => ['etablissement_cell_1_0', 5, VoterInterface::ACCESS_GRANTED],
+            'toutes activites' => ['etablissement_cell_0_5', 5, VoterInterface::ACCESS_GRANTED],
+            'sans categorie et droits globaux' => ['etablissement_cell_0_0', null, VoterInterface::ACCESS_GRANTED],
+            'zero dans les listes sans categorie' => ['etablissement_cell_0-3_0-5', null, VoterInterface::ACCESS_GRANTED],
+            'sans categorie et droits specialises' => ['etablissement_cell_1_2', null, VoterInterface::ACCESS_DENIED],
+            'identifiant exact de categorie' => ['etablissement_cell_1_15', 5, VoterInterface::ACCESS_DENIED],
+            'identifiant exact de type' => ['etablissement_cell_11_5', 5, VoterInterface::ACCESS_DENIED],
+        ];
     }
 }

@@ -6,6 +6,7 @@ use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
+use App\Service\Voter\VoterUtils;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EtablissementCelluleVoter extends EtablissementVoter
@@ -20,10 +21,14 @@ class EtablissementCelluleVoter extends EtablissementVoter
      */
     private $privilegesRepository;
 
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository)
+    /** @var VoterUtils */
+    private $voterUtils;
+
+    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, VoterUtils $voterUtils)
     {
         $this->resourcesRepository = $resourcesRepository;
         $this->privilegesRepository = $privilegesRepository;
+        $this->voterUtils = $voterUtils;
     }
 
     protected function supports($attribute, $subject): bool
@@ -39,7 +44,10 @@ class EtablissementCelluleVoter extends EtablissementVoter
         }
 
         /** @var Etablissement $subject */
-        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementCellule($subject->getLatestInformations()->getTypeActivite());
+        $resources = $this->resourcesRepository->findRessourcesSpecialiseesEtablissementCellule(
+            $subject->getLatestInformations()->getTypeActivite(),
+            $subject->getCategorieEffective()
+        );
         if ([] === $resources) {
             return false;
         }
@@ -50,8 +58,17 @@ class EtablissementCelluleVoter extends EtablissementVoter
 
         foreach ($resources as $resource) {
             $privilege = $this->privilegesRepository->findOneBy(['name' => $attribute, 'resource' => $resource]);
+            $parts = explode('_', $resource->getName() ?? '');
+            if (4 !== count($parts)) {
+                continue;
+            }
 
-            if ($privilege && $userPrivileges->contains($privilege)) {
+            $typesActivites = array_map('intval', explode('-', $parts[2]));
+            $categories = array_map('intval', explode('-', $parts[3]));
+
+            if ($privilege && $userPrivileges->contains($privilege)
+                && $this->voterUtils->isTypeActiviteAndCategorieAllowed($subject, $typesActivites, $categories)
+            ) {
                 return true;
             }
         }

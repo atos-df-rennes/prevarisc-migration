@@ -375,7 +375,7 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-028** — ~~Lorsqu'un ERP parent est modifié, la **catégorie** de ses cellules enfants est automatiquement mise à jour pour correspondre à celle du parent.~~ **Non implémenté** : la fonction `recalcEnfants()` prévue à cet effet existe dans le code legacy (`Model_DbTable_Etablissement`) mais n'est jamais appelée. La catégorie des cellules n'est donc pas recalculée automatiquement lors de la modification d'un ERP parent, ni dans le legacy ni dans la migration Symfony.
 
-**RG-ETB-029** — Lorsqu'une cellule est créée ou rattachée à un ERP, elle hérite automatiquement de la **catégorie** de son parent.
+**RG-ETB-029** — ~~Lorsqu'une cellule est créée ou rattachée à un ERP, elle hérite automatiquement de la **catégorie** de son parent.~~ **Héritage stocké non effectif** : ni le legacy ni la migration ne renseignent systématiquement la catégorie stockée à la création ou au rattachement. L'héritage attendu est une résolution à la lecture, définie par RG-ETB-062, et ne nécessite pas de propagation en base (voir aussi RG-ETB-028).
 
 ### Adresse
 
@@ -479,6 +479,8 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-061** — ~~Lors de la modification d'un ERP parent, la **périodicité** de ses cellules enfants est mise à jour pour correspondre à celle du parent.~~ **Non implémenté** : identique à RG-ETB-028, la fonction `recalcEnfants()` du legacy prévoyait cette propagation mais n'est jamais appelée. La périodicité des cellules n'est donc pas recalculée automatiquement lors de la modification d'un ERP parent.
 
+**RG-ETB-062** — **Catégorie effective d'une cellule (parité legacy confirmée pour ce correctif)** : une cellule ayant un parent direct non supprimé utilise la catégorie de la dernière fiche de ce parent. Si le parent n'a pas de catégorie ou de fiche, le résultat est vide, même si la cellule possède une catégorie stockée. Sans parent non supprimé, la catégorie propre est conservée. Les autres genres conservent leur catégorie propre. Cette résolution s'applique à la catégorie affichée sur la fiche et au bloc « Justifiant le classement » (affiché si la catégorie effective est la 5e), aux rapports et documents de commission, au filtrage des membres lors de leur génération, aux ressources spécialisées cellule et à la balise d'alerte `{categorieEtablissement}`. Elle ne modifie pas les données stockées, la recherche ni les exports.
+
 ---
 
 ## 8. Cas particuliers et limites
@@ -494,7 +496,7 @@ Les IGH partagent certaines caractéristiques avec les ERP (périodicité, commi
 ### Cellules
 
 Les cellules sont des sous-entités d'un ERP ou d'un IGH. Elles :
-- Héritent de la **catégorie** de leur parent ERP (affectation automatique).
+- Utilisent à la lecture la **catégorie effective** du parent direct non supprimé, sans affectation automatique en base (RG-ETB-062).
 - Héritent de la **périodicité** de leur parent via la hiérarchie.
 - N'ont **pas d'adresse propre** (adresse remontée depuis le site racine).
 - N'ont **pas de commission** propre.

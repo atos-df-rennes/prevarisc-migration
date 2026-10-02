@@ -226,17 +226,24 @@ class ResourcesRepository extends ServiceEntityRepository
     /**
      * @return Resources[]
      */
-    public function findRessourcesSpecialiseesEtablissementCellule(?EtablissementActivite $typeActivite): array
+    public function findRessourcesSpecialiseesEtablissementCellule(?EtablissementActivite $typeActivite, ?EtablissementCategorie $categorie): array
     {
         $queryBuilder = $this->createQueryBuilder('r')
-            ->where('r.name = :toutesClasses')
-            ->setParameter('toutesClasses', 'etablissement_cell_0_0')
+            ->where('r.name LIKE :toutesClasses')
+            ->setParameter('toutesClasses', 'etablissement\_cell\_%0%\_%0%')
         ;
 
         if (null !== $typeActivite) {
             $queryBuilder
                 ->orWhere('r.name LIKE :classe')
-                ->setParameter('classe', 'etablissement\_cell\_%'.$typeActivite->getId().'%\_0')
+                ->setParameter('classe', 'etablissement\_cell\_%'.$typeActivite->getId().'%\_%')
+            ;
+        }
+
+        if (null !== $categorie) {
+            $queryBuilder
+                ->orWhere('r.name LIKE :categorie')
+                ->setParameter('categorie', 'etablissement\_cell\_%\_%'.$categorie->getId().'%')
             ;
         }
 

@@ -243,6 +243,8 @@ Par exemple :
 | Types d'activité | ✅ Sérialisé | Sélection multiple au front (ex: `cell_2-5_0`) |
 | Catégories | `0` | Paramètre **invisible** au front → toujours `0` (ignorer) |
 
+Le formulaire cellule reste inchangé. Si une ressource existante contient néanmoins une liste de catégories non nulle, l'accès exige une correspondance avec la **catégorie effective** de la cellule (RG-ETB-062), en plus du type d'activité. Les listes sont évaluées par identifiant exact ; `0` autorise toutes les valeurs, y compris une catégorie absente. Les ressources standard dont la catégorie est `0` conservent leurs droits.
+
 **Habitation — Formulaire front affiche :** Familles UNIQUEMENT
 
 | Critère | Valeur en ressource | Notes |
