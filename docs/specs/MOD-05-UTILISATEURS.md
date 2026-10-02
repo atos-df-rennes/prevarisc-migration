@@ -350,7 +350,7 @@ Une mesure de protection est disponible lorsque le mode de sécurité renforcée
 | **RG-USR-016** | Une règle d'accès aux dossiers distingue les droits de consultation, de modification et de verrouillage. |
 | **RG-USR-017** | La suppression d'une règle d'accès supprime également les droits qui lui sont associés. |
 | **RG-USR-019** | Les préférences utilisateur (configuration du tableau de bord) sont initialisées automatiquement à la création du compte. |
-| **RG-USR-020** | Le grade n'est visible et modifiable dans le formulaire que lorsque la fonction sélectionnée le requiert (par exemple : sapeur-pompier). |
+| **RG-USR-020** | Dans le formulaire utilisateur, le champ grade est affiché uniquement lorsque la fonction sélectionnée est « Préventionniste » ; pour toute autre fonction, il est masqué et sa valeur est vidée. |
 | **RG-USR-021** | Après une connexion réussie, l'utilisateur est redirigé vers l'URL qu'il avait initialement demandée, ou vers la page d'accueil par défaut. |
 | **RG-USR-022** | Les utilisateurs dont le groupe les autorise à recevoir une alerte et dont le périmètre (commune ou groupement) correspond à l'établissement reçoivent une notification en cas de changement de statut, d'avis ou de classement. |
 | **RG-USR-023** | L'accès à un établissement de type « site » nécessite que l'utilisateur ait les droits sur au moins un des établissements enfants du site, ou le droit de création d'établissement. |

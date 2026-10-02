@@ -193,10 +193,11 @@ Selon la nature du dossier, différents champs d'instruction sont disponibles :
 - Ne peut se prononcer (NPSP)
 - Avis différé
 - Charge de sécurité (pour salons type T)
-- CNE (commission nationale d'examen)
 
 **Documents manquants :**
 Lorsqu'un dossier est marqué incomplet, une liste de documents manquants peut être renseignée. Chaque document manquant comporte un libellé, une date d'envoi de la demande et une date de réception.
+
+Le champ booléen historique `CNE_DOSSIER` reste mappé dans l'entité sous le nom `celluleNonExploitee`, mais aucun champ correspondant n'est proposé dans le formulaire actuel ni utilisé par les fonctions applicatives. Sa signification métier n'est pas établie par le code actuel.
 
 **Documents consultés :**
 La liste des documents consultés varie selon le type et la nature du dossier (documents d'étude ou documents de visite). Chaque document consultable possède un libellé, une référence et une date. L'utilisateur peut également ajouter des documents supplémentaires non prévus dans la liste standard.
@@ -227,7 +228,7 @@ L'avis de la commission peut être masqué dans certaines situations (voir RG-DO
 
 Des pièces jointes peuvent être associées au dossier (documents numérisés, rapports générés, photos, etc.). Chaque pièce jointe comporte un nom, une extension, une description et une date.
 
-Certaines pièces jointes peuvent être marquées comme « pièces jointes de commission » (pour être intégrées aux documents de la commission).
+Le modèle conserve un indicateur `PJ_COMMISSION`, mais l'interface actuelle ne permet pas de sélectionner une pièce jointe pour la commission et les fonctions applicatives ne consomment pas cet indicateur (voir MOD-09).
 
 Un compteur de nouvelles pièces jointes est affiché sur l'onglet correspondant.
 
@@ -335,13 +336,13 @@ Les prescriptions de rappel réglementaire sont numérotées séparément. Les p
 
 Chaque prescription peut porter une **date de levée** et un **justificatif de levée**. Les prescriptions levées sont exclues de la génération de documents.
 
-### 4.4 Générer des documents (rapport, compte-rendu)
+### 4.4 Générer des documents via l'onglet Rapport
 
 L'utilisateur peut générer un document officiel (rapport, compte-rendu de visite, PV) à partir d'un modèle (template).
 
 **Déroulement :**
 
-1. L'utilisateur accède à l'onglet « Génération de documents ».
+1. L'utilisateur accède à l'onglet « Rapport ».
 2. Il sélectionne un modèle de document parmi ceux disponibles pour la commission du dossier (ou les modèles communs à toutes les commissions).
 3. Il sélectionne le ou les établissements pour lesquels générer le document.
 4. Le système injecte dans le modèle l'ensemble des données du dossier et de l'établissement : informations générales, adresse, catégorie, types et activités, contacts, prescriptions (actuelles et antérieures, hors levées), documents consultés, textes applicables, avis, dates, vérifications techniques, effectifs et dégagements.
@@ -420,7 +421,7 @@ Un dossier supprimé peut être **rétabli** par un utilisateur ayant les droits
 
 **RG-DOS-002** — Chaque type de dossier possède une liste de natures ordonnées. Seules les natures ayant un ordre défini sont présentées à l'utilisateur.
 
-**RG-DOS-003** — Les champs affichés dans le formulaire d'instruction sont déterminés par la nature du dossier. Chaque nature possède une liste de champs spécifique. Lorsqu'un dossier porte plusieurs natures, les champs affichés sont l'union des champs de chaque nature.
+**RG-DOS-003** — Le dossier a une seule nature, sélectionnée dans un champ de sélection simple. Les champs affichés dans le formulaire d'instruction sont déterminés par cette nature ; chaque nature possède une liste de champs spécifique.
 
 **RG-DOS-004** — À la création, l'identité du créateur est enregistrée dans le dossier. Elle est affichée en consultation.
 

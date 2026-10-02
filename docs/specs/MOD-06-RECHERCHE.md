@@ -44,8 +44,8 @@ Tous les filtres suivants sont combinables entre eux (conditions cumulatives en 
 | 3 | **Avis d'exploitation** | Sélection multiple | « Favorable » / « Défavorable » | Tous les avis |
 | 4 | **Commission compétente** | Sélection multiple | Liste des commissions de sécurité du référentiel | Toutes les commissions |
 | 5 | **Genre** | Sélection multiple | Liste des genres du référentiel (site, établissement, cellule, IGH, habitation…) | Tous les genres |
-| 6 | **Catégorie** | Sélection multiple | Liste des catégories (1ʳᵉ à 5ᵉ) | Toutes les catégories |
-| 7 | **Classe** | Sélection multiple | Liste des classes (pour les ERT) | Toutes les classes |
+| 6 | **Catégorie** | Sélection multiple | Liste des catégories (1ʳᵉ à 5ᵉ), affichée pour les genres Établissement et Cellule | Toutes les catégories |
+| 7 | **Classe** | Sélection multiple | Liste des classes IGH (GHA, GHO, GHR, GHS, GHTC, GHU, GHW1, GHW2, GHZ, ITGH) | Toutes les classes |
 | 8 | **Famille** | Sélection multiple | Liste des familles (pour les habitations) | Toutes les familles |
 | 9 | **Type d'activité** | Sélection multiple, groupée par type | Liste des activités regroupées par type (J, L, M, N, O…). Un pictogramme signale que l'en-tête du groupe est cliquable pour sélectionner ou désélectionner les activités. | Toutes les activités |
 | 10 | **Groupement territorial** | Sélection multiple | Liste des groupements territoriaux | Présélectionné selon le groupement de rattachement de l'utilisateur connecté |
@@ -58,12 +58,13 @@ Certains critères ne sont pertinents que pour certains genres d'établissement.
 
 | Genre sélectionné | Critères supplémentaires affichés |
 |-------------------|----------------------------------|
-| Établissement (ERP) | Type d'activité, Catégorie |
-| IGH | Type d'activité, Catégorie |
+| Établissement (ERP), Cellule | Type d'activité, Catégorie |
+| IGH | Classe |
 | Habitation | Famille |
-| ERT | Classe |
 | Site | Aucun critère supplémentaire |
 | Aucun genre sélectionné | Tous les critères masqués par défaut |
+
+Le masquage d'un critère ne réinitialise pas ses valeurs sélectionnées. Si le genre change après la sélection d'une catégorie, d'une classe ou d'une activité, la valeur peut rester transmise à la recherche. Le serveur combine alors le critère transmis avec celui du genre, sans vérifier que le critère correspond à ce genre.
 
 #### 3.1.4 Zone de recherche géographique
 

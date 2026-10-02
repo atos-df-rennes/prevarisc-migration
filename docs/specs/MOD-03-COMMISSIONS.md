@@ -28,7 +28,7 @@ Le module ne couvre pas la gestion des dossiers eux-mêmes (études, visites, pr
 | **Administrateur** | Crée et configure les types de commissions, les commissions elles-mêmes, et les règles de compétence. Accède à la gestion des commissions via le menu d'administration. |
 | **Secrétariat de commission** | Planifie les séances, constitue l'ordre du jour, génère les convocations, ordres du jour, procès-verbaux et comptes-rendus. Gère les pièces jointes. |
 | **Président de commission** | Consulte le calendrier des séances et l'ordre du jour. Reçoit les documents générés. |
-| **Membre de commission** | Reçoit les convocations et ordres du jour filtrés selon son périmètre de compétence (catégories d'ERP, types d'activité, classes IGH, types et natures de dossier). |
+| **Membre de commission** | Reçoit les convocations et ordres du jour selon son périmètre de compétence (catégories d'ERP, activités, classes IGH, manifestations temporaires et types de dossier), avec les particularités des membres rattachés à un groupement décrites au §4.6. |
 | **Préventionniste** | Apparaît sur les documents générés en tant que rapporteur du dossier. |
 | **Maire / Autorité de police** | Destinataire de convocations spécifiques, identifié par commune. |
 
@@ -57,20 +57,22 @@ Chaque commission possède une liste de **membres**. Un membre est caractérisé
 - Un **libellé** (nom ou fonction du membre).
 - Un indicateur de **présence** : **Membre Obligatoire**, **Membre Facultatif** ou **Membre Pour information**. Cet indicateur est purement informatif et n'est pas utilisé à des fins de filtrage ou de traitement automatique.
 - Un éventuel rattachement à un **groupement** (gendarmerie, police, etc.).
+- Un **type de membre** : « Groupement de commune », « Contact de la commission » ou « Commune ». Le premier permet de sélectionner un groupement ; le deuxième un contact déjà associé à la commission ; le troisième ne présente pas de sélecteur de contact ou de commune dans ce formulaire.
 
-Chaque membre peut être **spécialisé** selon cinq axes de compétence :
+Chaque membre peut être **spécialisé** selon les critères suivants :
 
 | Axe de compétence | Description |
 |-------------------|-------------|
 | **Catégories d'ERP** | Le membre n'intervient que pour les ERP d'une ou plusieurs catégories données (1re à 5e). |
-| **Types d'activité** | Le membre n'intervient que pour certains types d'activité (J, L, M, N, O, P, R, S, T, U, V, W, X, Y…). |
+| **Activités ERP** | Sélection des activités détaillées, regroupées sous leur type ERP (J, L, M, N, O, P, R, S, T, U, V, W, X, Y…). |
 | **Classes IGH** | Le membre n'intervient que pour certaines classes d'IGH (GHA, GHO, GHR, GHS, GHU, GHW, GHZ…). |
 | **Types de dossier** | Le membre n'intervient que pour certains types de dossier (étude, visite périodique, visite de réception…). |
 | **Natures de dossier** | Des natures peuvent être sélectionnées pour un membre. Cette sélection ne filtre actuellement pas les dossiers dans les documents générés. |
+| **Manifestations temporaires** | L'option « Inclure les manifestations temporaires » permet de retenir les dossiers des établissements de ce genre, sous réserve que leur type de dossier soit sélectionné. |
 
-Lorsqu'un axe est coché pour toutes les valeurs, le membre est compétent pour l'ensemble de cet axe (affichage simplifié « λ »).
+Les catégories et classes sont proposées par cases à cocher. Les activités sont regroupées par type ERP et les natures sous leur type de dossier. Des commandes « Tout » et des cases de groupe permettent de sélectionner ou désélectionner plusieurs valeurs. Une sélection partielle des natures est signalée par un état intermédiaire de la case du type de dossier.
 
-Les spécialisations des membres servent au **filtrage** lors de la génération des documents : chaque membre ne reçoit que les dossiers relevant de son périmètre. La sélection des natures de dossier ne participe actuellement pas à ce filtrage.
+Pour les documents soumis au **filtrage par membre**, le type de dossier doit être sélectionné et au moins une des conditions suivantes doit être satisfaite : manifestation temporaire avec l'option activée, catégorie **et** activité ERP sélectionnées, ou classe IGH sélectionnée. La sélection des natures de dossier ne participe actuellement pas à ce filtrage ; les particularités des membres rattachés à un groupement sont décrites au §4.6.
 
 ### 3.3 Règles de compétence
 
@@ -85,7 +87,7 @@ Les règles de compétence définissent **pour quels établissements** une commi
 | **Présence de locaux à sommeil** | Oui / Non. |
 | **Étude ou visite** | Précise si la règle concerne les études, les visites ou les deux. |
 
-Une règle est satisfaite lorsque **tous** les critères renseignés correspondent aux caractéristiques de l'établissement.
+Les critères peuvent être laissés vides dans le formulaire, mais une liste vide ne signifie pas « toutes les valeurs ». Pour l'application en lot, un ERP doit correspondre à la zone, à une catégorie, à un type ERP et à une valeur de locaux à sommeil sélectionnés ; un IGH doit correspondre à la zone et à une classe sélectionnée. Le critère étude/visite est enregistré mais n'est pas pris en compte dans les traitements décrits au §6.
 
 ### 3.4 Documents modèles associés
 
@@ -101,6 +103,8 @@ Chaque commission peut disposer de **modèles de documents texte** au format ODT
 
 Lors de la création des documents, les informations de la commission, de la séance, des dossiers et des établissements sont reprises automatiquement depuis les modèles.
 
+Les modèles des membres sont gérés dans l'onglet **« Courriers »** ; le compte-rendu de la commission dans **« Document type »**. Le choix d'un fichier déclenche son dépôt. Un modèle existant peut être téléchargé, remplacé ou supprimé avec confirmation. Ces modèles sont distincts des modèles de rapports gérés dans l'écran centralisé décrit dans MOD-17.
+
 ---
 
 ## 4. Fonctionnalités
@@ -109,84 +113,94 @@ Lors de la création des documents, les informations de la commission, de la sé
 
 **Accès :** Menu d'administration → Gestion des commissions.
 
-L'administrateur dispose d'une interface listant les **types de commissions** sous forme de menu horizontal. En sélectionnant un type, la liste des commissions associées s'affiche sous forme d'**accordéon**, chaque commission étant dépliable pour accéder à ses onglets de configuration.
+L'écran présente un **panneau par type de commission**, contenant un tableau des commissions et leur nombre de règles. Le bouton **« Modifier les informations »** ouvre une page dédiée à la commission, avec les onglets **« Compétences »**, **« Membres »**, **« Contacts »**, **« Courriers »** et **« Document type »**. L'onglet « Compétences » est le point d'entrée par défaut.
+
+Le bouton **« Gérer les commissions »** ouvre un écran distinct d'édition en masse des libellés et des types.
 
 **Créer une commission :**
 
-1. L'administrateur ouvre la boîte de dialogue de gestion des commissions.
+1. L'administrateur ouvre l'écran « Gérer les commissions ».
 2. Il saisit le **libellé** de la commission et sélectionne un **type de commission**.
 3. Il peut ajouter plusieurs commissions en lot (ajout de lignes dynamiques).
-4. Il valide : les commissions sont créées et les documents peuvent y être associés.
+4. Il clique sur « Sauvegarder » : les commissions sont créées et il revient à la liste.
 
 **Modifier une commission :**
 
 1. L'administrateur peut modifier le libellé et le type d'une commission existante.
-2. La modification se fait en ligne, via le formulaire de gestion en lot.
+2. Il enregistre les modifications via « Sauvegarder » dans l'écran de gestion en lot.
 
 **Supprimer une commission :**
 
-1. La suppression d'une commission entraîne la suppression en cascade de :
-   - Tous les **contacts** associés.
-   - Tous les **membres** et leurs documents modèles.
-   - Toutes les **règles de compétence**.
-2. La commission est définitivement retirée du système.
+1. L'administrateur retire la commission de la liste d'édition en masse, puis sauvegarde.
+2. La suppression d'une commission entraîne :
+   - La dissociation des **contacts** associés ; une fiche contact n'est supprimée que si elle n'est plus utilisée ailleurs.
+   - La suppression de tous les **membres** et de leurs documents modèles.
+   - La suppression de toutes les **règles de compétence**.
+3. La commission est définitivement retirée du système.
 
 ### 4.2 Configurer les règles de compétence
 
-**Accès :** Accordéon de la commission → Onglet « Champ de compétence de la commission ».
+**Accès :** « Modifier les informations » de la commission → Onglet « Compétences ».
 
-L'interface présente un tableau avec les colonnes :
+L'interface présente un **accordéon de règles**. Chaque panneau contient :
 
 - Zone géographique (commune ou groupement)
-- ERP : Catégorie, Type
-- IGH : Classe
-- Local à sommeil
-- Étude / visite
+- Catégories ERP : cases à cocher
+- Types ERP et classes IGH : listes à sélection multiple avec recherche
+- Local à sommeil : cases Oui / Non
+- Type de dossier : cases Étude / Visite
+
+Des boutons « Tout sélectionner » / « Tout désélectionner » sont disponibles pour les catégories, types et classes.
 
 **Ajouter une règle :**
 
 1. Le secrétariat clique sur « Ajouter une règle ».
-2. Une ligne vierge est ajoutée au tableau.
+2. Un nouveau panneau de règle est ajouté au formulaire.
 3. Il sélectionne une zone géographique :
-   - Pour une commission communale : saisie avec autocomplétion de la commune (minimum 3 caractères).
-   - Pour une commission non communale : sélection d'un groupement de communes.
-4. Il coche les catégories, types d'activité, classes IGH, locaux à sommeil et types (étude/visite) applicables.
-5. Il enregistre les règles.
+   - Pour une commission communale : sélection d'une commune dans une liste avec recherche.
+   - Pour une commission non communale : sélection d'un groupement, les choix étant regroupés par type de groupement.
+4. Il sélectionne les catégories, types ERP, classes IGH, locaux à sommeil et types de dossier applicables.
+5. Il clique sur « Sauvegarder les règles ». Les ajouts, modifications et retraits ne sont persistés qu'à cette sauvegarde.
 
 **Appliquer les règles :**
 
-1. Le secrétariat clique sur « Appliquer les règles ».
+1. Après avoir sauvegardé les règles, le secrétariat clique sur « Appliquer les règles à tous les établissements ». Cette action utilise les règles déjà enregistrées, pas les modifications encore présentes dans le formulaire.
 2. Le système parcourt **tous les établissements** du département (ERP et IGH) et affecte automatiquement la commission à ceux qui correspondent aux règles définies (cf. section 6).
+3. Un message indique le nombre d'établissements mis à jour, l'absence de correspondance ou le fait que les établissements concernés sont déjà rattachés à cette commission.
 
 **Supprimer une règle :**
 
-1. La suppression d'une règle entraîne la suppression de tous ses critères associés (types, catégories, classes, locaux à sommeil, étude/visite).
+1. Le bouton « Supprimer » avec une icône de corbeille retire le panneau de règle du formulaire.
+2. « Sauvegarder les règles » confirme la suppression de la règle et de ses critères associés.
 
 ### 4.3 Gérer les membres
 
-**Accès :** Accordéon de la commission → Onglet « Membres de la commission ».
+**Accès :** « Modifier les informations » de la commission → Onglet « Membres ».
+
+Les membres sont présentés sous forme de panneaux dépliables ; le premier est ouvert au chargement. Les changements sont enregistrés ensemble par **« Sauvegarder les membres »**.
 
 **Ajouter un membre :**
 
 1. Le secrétariat clique sur « Ajouter un membre ».
-2. Un membre vierge est créé avec un libellé vide et un indicateur de présence « Membre Facultatif » par défaut.
+2. Un panneau « Nouveau membre » est ajouté au formulaire. Le membre n'est créé qu'à la sauvegarde ; son libellé et sa présence sont renseignés dans le panneau.
 
 **Configurer un membre :**
 
 1. Saisie du **libellé** (nom, fonction).
 2. Indication de la **présence** : **Membre Obligatoire**, **Membre Facultatif** ou **Membre Pour information** (informatif uniquement).
-3. Éventuel rattachement à un **groupement** (pour les membres représentant une entité intercommunale : gendarmerie, police…).
+3. Choix du **type de membre**, puis du groupement ou du contact de la commission lorsque le type choisi le permet.
 4. Sélection des **périmètres de compétence** :
    - Catégories d'ERP (cases à cocher).
-   - Types d'activité ERP (cases à cocher, affichés par libellé de type).
+   - Activités ERP (cases à cocher regroupées par type ERP, avec sélection globale ou par groupe).
    - Classes IGH (cases à cocher).
-   - Types de dossier (cases à cocher).
-   - Natures de dossier (cases à cocher).
-5. Enregistrement.
+   - Types et natures de dossier (cases à cocher regroupées ; cocher un type sélectionne ses natures).
+   - Option « Inclure les manifestations temporaires ».
+5. Enregistrement via « Sauvegarder les membres ».
 
 **Supprimer un membre :**
 
-1. La suppression entraîne :
+1. Le bouton « Supprimer » avec une icône de corbeille retire le panneau du formulaire.
+2. La sauvegarde confirme la suppression et entraîne :
    - La suppression de tous les **documents modèles** (courriers) associés au membre.
    - La suppression de toutes les **spécialisations** (catégories, types, classes, types de dossier, natures de dossier).
 
@@ -216,7 +230,7 @@ L'interface présente :
    - Le **libellé** de la séance (optionnel).
    - Le **type d'événement** : en salle, visite de sécurité, ou groupe de visite.
    - Une ou plusieurs **dates** avec heures de début et de fin.
-4. **Mode multi-dates :** le secrétariat peut ajouter plusieurs dates pour une même séance (par exemple, une séance en salle le lundi suivie d'une visite le mardi). La première date devient la date « principale » et les suivantes sont des **dates liées**.
+4. **Mode multi-dates :** le secrétariat peut ajouter plusieurs dates pour une même séance (par exemple, deux journées de visite successives). Les dates partagent le même type d'événement. La première date devient la date « principale » et les suivantes sont des **dates liées**.
 5. **Mode récurrent :** en activant la récurrence, le secrétariat définit :
    - Une **périodicité** (1 à 4 semaines).
    - Une **date de fin** de récurrence.
@@ -245,8 +259,8 @@ L'interface présente :
 L'écran se compose de :
 
 - Un **en-tête** affichant le type, le nom de la commission, la date en français et les dates liées.
-- Un **panneau latéral gauche** listant les dossiers affectés à cette date mais non encore planifiés à un créneau horaire précis.
-- Un **calendrier horaire** (vue journée) affichant les dossiers déjà planifiés dans leurs créneaux.
+- En mode horaire, un **calendrier horaire à gauche** (vue journée) affichant les dossiers déjà planifiés dans leurs créneaux et un **panneau à droite** listant les dossiers prévus à cette date mais sans créneau.
+- En mode séquentiel, une **liste de dossiers réordonnable**, sans calendrier horaire.
 
 **Deux modes de gestion :**
 
@@ -262,7 +276,7 @@ L'écran se compose de :
 
 **Affecter un dossier à un créneau :**
 
-1. Le secrétariat glisse un dossier du panneau gauche vers le calendrier horaire.
+1. Le secrétariat glisse un dossier du panneau de droite vers le calendrier horaire.
 2. Le dossier reçoit automatiquement une durée par défaut de **5 minutes**.
 3. Le secrétariat peut ajuster la durée par redimensionnement et l'heure par glisser-déposer.
 
@@ -294,6 +308,8 @@ Chaque dossier dans le calendrier affiche :
 
 Quatre types de documents peuvent être générés :
 
+En mode horaire, la génération est bloquée si des dossiers prévus n'ont pas encore été placés dans le calendrier ; un toast avertit l'utilisateur. Le lancement d'une génération affiche une notification temporaire de traitement, puis des **toasts de résultat** avec les succès, erreurs ou avertissements par membre. Les documents produits sont enregistrés parmi les pièces jointes de la séance. Un modèle absent n'empêche pas de traiter les autres membres.
+
 #### 4.6.1 Convocations
 
 La génération produit un document par membre de la commission.
@@ -303,7 +319,7 @@ Le document est construit à partir du modèle de courrier du membre (convocatio
 Le contenu est organisé :
 
 - **Par commune** pour les membres non rattachés à un groupement : le document inclut les informations du maire (adresse de la mairie) et les dossiers situés dans la commune.
-- **Par groupement** pour les membres rattachés à un groupement : le document inclut les informations du groupement et tous les dossiers.
+- **Par groupement** pour les membres rattachés à un groupement : le document inclut les informations du groupement et les dossiers correspondant à son territoire et aux compétences du membre.
 
 Pour chaque dossier inclus, le document contient :
 - Le nom de l'établissement et de son parent éventuel.
@@ -314,13 +330,13 @@ Pour chaque dossier inclus, le document contient :
 - Les avis de dérogation (du dossier, de l'établissement et des établissements enfants).
 - Les données des formulaires personnalisés (vérifications techniques, descriptif de l'établissement, effectifs et dégagements).
 
-Le filtrage s'applique selon les spécialisations du membre (catégories, types d'activité, classes, types de dossier). **Les natures de dossier sont stockées en base mais ne participent pas au filtrage lors de la génération des documents.**
+Le filtrage s'applique selon les spécialisations du membre (catégories et activités ERP, classes IGH, manifestations temporaires, types de dossier), ainsi que la commune ou le territoire du groupement. **Les natures de dossier sont stockées en base mais ne participent pas au filtrage lors de la génération des documents.**
 
 #### 4.6.2 Ordres du jour
 
 La génération produit un document par membre, à partir de son modèle d'ordre du jour.
 
-Le contenu suit la même logique que les convocations (par commune ou par groupement), avec le même niveau de détail sur chaque dossier.
+Le contenu suit la même organisation que les convocations (par commune ou par groupement), avec le même niveau de détail sur chaque dossier. Pour un membre rattaché à un groupement, l'ordre du jour inclut toutefois tous les dossiers de la séance, sans filtrage par compétence ni territoire du groupement.
 
 Le document inclut en outre la liste de tous les membres de la commission.
 
@@ -353,15 +369,15 @@ Pour chaque dossier, le compte-rendu inclut :
 - Les observations.
 - L'avis (Favorable, Défavorable, Réservé).
 
-### 4.7 Télécharger le calendrier
+### 4.7 Télécharger ou synchroniser le calendrier
 
 **Accès :** Panneau latéral du calendrier → « Synchroniser le calendrier » ou « Exporter pour Outlook ».
 
-Un lien permet de s'abonner au calendrier d'une commission depuis un agenda externe, par exemple Outlook ou Google Agenda.
+L'export pour Outlook télécharge un fichier **ICS**, pour le mois affiché de la commission sélectionnée ou pour une séance depuis son ordre du jour.
 
-L'URL est construite avec l'identifiant de l'utilisateur et une clé de sécurité applicative.
+Les liens de synchronisation permettent de s'abonner au calendrier d'une commission ou de toutes les commissions depuis un agenda externe, par exemple Outlook ou Google Agenda. Leur URL est construite avec l'identifiant de l'utilisateur et une clé de sécurité applicative.
 
-Cette fonctionnalité n'est disponible que si une clé de sécurité est configurée dans l'application.
+Seuls les liens de synchronisation nécessitent qu'une clé de sécurité soit configurée dans l'application ; cette condition ne s'applique pas au téléchargement ICS.
 
 ---
 
@@ -373,7 +389,7 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-002** — Le libellé d'une commission est obligatoire et sert d'identifiant fonctionnel.
 
-**RG-COM-003** — La suppression d'une commission entraîne la suppression en cascade de ses contacts, de ses membres (et de leurs documents modèles), et de ses règles de compétence.
+**RG-COM-003** — La suppression d'une commission dissocie ses contacts et supprime uniquement les fiches qui ne sont plus utilisées ailleurs. Elle supprime ses membres, leurs documents modèles et ses règles de compétence.
 
 **RG-COM-004** — L'administrateur peut créer plusieurs commissions en lot lors d'une même opération.
 
@@ -383,11 +399,11 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-011** — Pour une commission de type communal, la zone géographique d'une règle est une **commune** identifiée par son code INSEE. Pour tout autre type, la zone est un **groupement de communes**.
 
-**RG-COM-012** — Une règle combine les critères suivants, tous obligatoires : zone géographique, catégories d'ERP, types d'activité, classes IGH, présence de locaux à sommeil, étude/visite.
+**RG-COM-012** — Une règle propose une zone géographique, des catégories et types ERP, des classes IGH, les locaux à sommeil et étude/visite. Le formulaire n'impose pas de remplir tous les critères. Pour qu'une règle corresponde à un ERP dans l'application en lot, sa zone et ses sélections catégorie, type et locaux à sommeil doivent correspondre ; pour un IGH, sa zone et une classe doivent correspondre. Une sélection vide n'est pas un critère universel.
 
 **RG-COM-013** — Une commission peut posséder plusieurs règles de compétence. Un établissement est couvert par la commission s'il satisfait au moins une de ses règles.
 
-**RG-COM-014** — Lors de la sauvegarde d'une règle, les critères existants sont intégralement remplacés par les nouveaux critères saisis (logique de remplacement complet).
+**RG-COM-014** — La sauvegarde des règles synchronise les critères avec les sélections soumises et persiste les ajouts et suppressions de règles. Retirer un panneau du formulaire sans sauvegarder ne supprime pas la règle enregistrée.
 
 **RG-COM-015** — L'application des règles est une opération explicite, déclenchée manuellement par l'utilisateur. Elle met à jour la commission de rattachement de chaque établissement du département correspondant aux règles.
 
@@ -396,7 +412,7 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-020** — Un membre est toujours rattaché à une seule commission.
 
-**RG-COM-021** — Un membre peut être spécialisé sur zéro ou plusieurs catégories, types d'activité, classes IGH, types de dossier et natures de dossier. La sélection des natures de dossier ne filtre actuellement pas les dossiers retenus dans les documents générés.
+**RG-COM-021** — Un membre peut sélectionner des catégories, activités ERP, classes IGH, types et natures de dossier et l'inclusion des manifestations temporaires. Pour les documents filtrés par compétence, le type de dossier doit être sélectionné et l'établissement doit satisfaire une condition du §3.2. La sélection des natures de dossier ne filtre actuellement pas les dossiers retenus.
 
 **RG-COM-022** — Un membre peut être rattaché à un groupement (pour les représentants de services extérieurs : gendarmerie, police, etc.). Dans ce cas, ses documents sont générés par groupement et non par commune.
 
@@ -444,7 +460,7 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-051** — Les informations de la séance, des dossiers et des établissements sont reprises automatiquement dans les documents générés à partir des modèles.
 
-**RG-COM-052** — Les convocations et ordres du jour sont **filtrés par membre** : chaque membre ne reçoit que les dossiers correspondant à ses spécialisations (catégories, types d'activité, classes IGH, types de dossier, communes). **Cette règle ne s'applique pas aux membres rattachés à un groupement : pour ces membres, tous les dossiers de la séance sont inclus dans l'ordre du jour, sans filtrage par compétence.**
+**RG-COM-052** — Les convocations et ordres du jour sont **filtrés par membre** : chaque membre ne reçoit que les dossiers correspondant à ses spécialisations (catégories et activités ERP, classes IGH, manifestations temporaires, types de dossier) et au territoire considéré. **Pour les membres rattachés à un groupement, les convocations restent filtrées, mais tous les dossiers de la séance sont inclus dans l'ordre du jour, sans filtrage par compétence ni par territoire du groupement.**
 
 **RG-COM-053** — Pour les membres rattachés à un groupement, les documents sont organisés **par groupement** (adresse du groupement). Pour les autres membres, ils sont organisés **par commune** (adresse de la mairie, informations du maire).
 
@@ -499,7 +515,7 @@ Pour un **IGH**, les données d'entrée sont :
 
 ### 6.3 Algorithme pour un IGH
 
-1. Récupérer la liste de tous les **types de commissions** (en excluant le type CCDSA, identifiant 5, qui n'est pas compétent pour les IGH au niveau du module).
+1. Récupérer la liste des **types de commissions**, par identifiant croissant, en excluant le type CCDSA (identifiant 5 dans le référentiel actuel).
 
 2. Pour chaque type de commission :
    a. Rechercher toutes les **règles de compétence** qui correspondent simultanément à :
@@ -514,7 +530,7 @@ Pour un **IGH**, les données d'entrée sont :
 
 ### 6.4 Principe de priorité
 
-L'algorithme parcourt les types de commissions du **plus spécifique au plus général** (tri décroissant des identifiants de type). Cela signifie qu'une sous-commission communale sera trouvée avant une commission départementale si les deux sont compétentes.
+La recherche pour un ERP parcourt les types de commissions par **identifiant décroissant** ; celle pour un IGH les parcourt par **identifiant croissant**, hors type 5. Il ne faut donc pas déduire une priorité hiérarchique unique commune aux deux genres.
 
 **Dès qu'une commission est trouvée, l'algorithme s'arrête.** Un établissement ne peut être rattaché qu'à une seule commission par cet algorithme.
 
@@ -527,6 +543,8 @@ L'opération « Appliquer les règles » utilise une variante de cet algorithme 
    - **ERP** : vérifier la correspondance sur commune + locaux à sommeil + type d'activité + catégorie.
    - **IGH** : vérifier la correspondance sur commune + classe IGH.
 3. Tous les établissements correspondants sont rattachés à la commission en une seule opération.
+
+Dans ce traitement en lot, les critères **étude/visite** ne sont pas pris en compte ; pour les **IGH**, les locaux à sommeil ne le sont pas non plus, contrairement à la recherche automatique du §6.3.
 
 ---
 
@@ -544,7 +562,7 @@ Si aucune règle de compétence ne correspond à un établissement, celui-ci res
 
 ### 7.3 Séances multi-dates (visites groupées)
 
-Une séance peut combiner plusieurs dates (par exemple : une journée de visite le mardi et une séance en salle le jeudi). Toutes les dates partagent le même libellé et le même type d'événement. L'ordre du jour et les documents sont générés sur la base de la date principale, mais incluent les informations de toutes les dates liées.
+Une séance peut combiner plusieurs dates (par exemple : deux journées de visite). Toutes les dates partagent le même libellé et le même type d'événement. L'ordre du jour et les documents sont générés sur la base de la date principale, mais incluent les informations de toutes les dates liées.
 
 ### 7.4 Membres rattachés à un groupement
 
@@ -567,9 +585,14 @@ Les avis de dérogation sont collectés à trois niveaux pour chaque dossier :
 
 ### 7.8 Droits d'accès
 
-L'accès au calendrier des commissions est contrôlé par deux permissions :
-- **Administration** : accès à la gestion et à la configuration des commissions.
-- **Voir tous les événements** : possibilité d'afficher les événements de toutes les commissions simultanément, quel que soit le filtre de commission actif.
+Les droits distinguent :
+- **Lecture des commissions** : accès au calendrier.
+- **Création des commissions** : création des séances.
+- **Écriture des commissions** : modification des séances.
+- **Modification de l'ordre du jour** : planification des dossiers, réordonnancement et gestion des pièces jointes de la séance.
+- **Gestion des commissions** : administration des commissions et de leur configuration ; la liste du calendrier présente alors toutes les commissions, sinon seulement celles associées à l'utilisateur.
+- **Voir tous les événements** : affichage simultané des événements de toutes les commissions.
+- **Génération des documents de commission** : lancement des convocations, ordres du jour, procès-verbaux et comptes-rendus.
 
 ### 7.9 Données de fusion des formulaires personnalisés
 

@@ -220,7 +220,7 @@ Site
 - Le formulaire propose des **valeurs conseillées** (commission, périodicité, locaux à sommeil, préventionnistes) calculées dynamiquement en fonction du genre, de la commune, du type, de la catégorie et de l'établissement père.
 - Les champs affichés varient dynamiquement selon le genre sélectionné.
 - À la validation, le système enregistre l'établissement et sa fiche d'informations initiale datée du jour.
-- Si l'établissement créé est un site avec un seul enfant, un avertissement invite l'utilisateur à ajouter des établissements enfants pour garantir les droits d'accès.
+- Si l'établissement créé est un site sans aucun enfant, un avertissement invite l'utilisateur à ajouter des établissements enfants pour garantir les droits d'accès. Un site créé avec au moins un enfant ne déclenche pas cet avertissement.
 
 ### 4.3 Modifier un établissement
 
@@ -327,7 +327,7 @@ L'accès dépend des droits de l'utilisateur.
 
 **RG-ETB-008** — Seules les zones disposent d'un classement spécifique.
 
-**RG-ETB-009** — L'indicateur ICPE n'est disponible que pour les ERP et les BUP. Lorsqu'il est activé pour un BUP, les rubriques ICPE (substance, activité, IED, produits dangereux) deviennent disponibles.
+**RG-ETB-009** — Dans le formulaire d'édition, l'indicateur ICPE est proposé pour les BUP, mais pas pour les ERP. Lorsqu'il est activé pour un BUP, les rubriques ICPE (substance, activité, IED, produits dangereux) deviennent disponibles. En consultation, le badge ICPE est affiché si cette valeur est enregistrée, quel que soit le genre de l'établissement.
 
 **RG-ETB-010** — Les activités secondaires (types et activités) ne sont disponibles que pour les ERP et les cellules.
 
@@ -514,7 +514,7 @@ Si un dossier avec avis différé est postérieur au dernier dossier donnant avi
 
 ### Établissements liés et droits d'accès
 
-Les droits d'accès à un **site** sont déterminés par les droits d'accès aux établissements enfants qui le composent. Un site sans enfant n'est potentiellement accessible à personne : un message d'avertissement est affiché lors de la création d'un site avec un seul enfant.
+Les droits d'accès à un **site** sont déterminés par les droits d'accès aux établissements enfants qui le composent. Un site sans enfant n'est potentiellement accessible à personne : un message d'avertissement est affiché lors de sa création sans enfant. La présence d'au moins un enfant évite cet avertissement.
 
 ### Date de PC initial
 

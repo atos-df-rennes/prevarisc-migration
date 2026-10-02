@@ -158,7 +158,7 @@ Deux modes d'ajout sont proposés (boutons visibles uniquement si l'entité n'es
 
 ### 5.4 Supprimer un contact
 
-1. L'utilisateur clique sur le bouton de suppression (×) présent sur la fiche du contact.
+1. L'utilisateur clique sur le bouton de suppression portant une icône de corbeille, présent sur la fiche du contact.
 2. Une fenêtre de confirmation s'affiche : « Voulez-vous vraiment supprimer ce contact ? »
 3. L'utilisateur confirme ou annule.
 4. Le comportement dépend de l'état du contact (voir RG-CTT-006 et RG-CTT-007).

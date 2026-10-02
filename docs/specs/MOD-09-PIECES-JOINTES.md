@@ -10,7 +10,6 @@ Le périmètre couvre :
 - La modification du nom et de la description d'une pièce jointe
 - La suppression de fichiers
 - La classification spécifique aux établissements (plans, diaporamas)
-- La sélection de pièce jointe pour passage en commission
 - L'export et le suivi de statut vers Plat'AU
 
 ---
@@ -34,7 +33,7 @@ Le périmètre couvre :
 
 Une pièce jointe est toujours rattachée à **une seule** entité parente.
 
-Lors du dépôt sur un dossier, l'utilisateur peut en outre **lier la pièce jointe à un ou plusieurs établissements** associés à ce dossier.
+Lorsqu'un dossier est lié à plusieurs établissements, ses pièces jointes restent rattachées au dossier. L'interface actuelle ne permet pas de lier individuellement une pièce jointe aux établissements associés.
 
 ---
 
@@ -67,7 +66,7 @@ Ces informations sont renseignées automatiquement par le système lorsque la pi
 
 | Contexte | Données complémentaires |
 |----------|------------------------|
-| Dossier | Indicateur de sélection pour passage en commission. |
+| Dossier | Pas de rattachement individuel aux établissements du dossier. Un indicateur persistant `PJ_COMMISSION` existe dans le modèle mais n'est pas éditable ni utilisé par les fonctions actuelles. |
 | Établissement | Placement de l'image : liste principale, diaporama ou plans. |
 | Date de commission | Aucune donnée complémentaire. |
 
@@ -94,8 +93,7 @@ L'utilisateur clique sur « Ajouter une pièce jointe ». Une fenêtre de dialog
 1. **Sélection du fichier** à envoyer (obligatoire).
 2. **Libellé** (facultatif) : si laissé vide, le nom d'origine du fichier est conservé.
 3. **Description** (facultatif) : zone de texte libre.
-4. **Établissements liés** (dossier uniquement) : liste de cases à cocher permettant de lier la pièce jointe à un ou plusieurs établissements rattachés au dossier.
-5. **Placement de l'image** (établissement uniquement, si le fichier est une image) :
+4. **Placement de l'image** (établissement uniquement, si le fichier est une image) :
    - « Seulement dans la liste principale » (par défaut)
    - « Afficher l'image dans le diaporama »
    - « Afficher l'image dans les plans »
@@ -164,9 +162,9 @@ Lors du dépôt d'une image sur un établissement, l'utilisateur choisit un empl
 
 Seuls les formats image (JPG, JPEG, PNG, GIF) sont éligibles à la mise en avant. Pour tout autre format, l'option est ignorée.
 
-### 5.6 Sélection pour passage en commission (dossier uniquement)
+### 5.6 Indicateur persistant de pièce jointe de commission
 
-Depuis la liste des pièces jointes d'un dossier, chaque ligne comporte une case à cocher « Sélectionner pour la commission ». Lorsqu'une pièce jointe est cochée, toutes les autres cases sont désactivées : **une seule pièce jointe peut être sélectionnée à la fois** pour le passage en commission. Décocher la pièce jointe libère les autres cases.
+Le modèle conserve le booléen `PJ_COMMISSION` sur la liaison entre une pièce jointe et un dossier, et les nouveaux dépôts sont initialisés à `false`. La liste des pièces jointes n'expose aucune case ni action pour modifier cet indicateur, et les fonctions applicatives actuelles ne le consomment pas. Il ne s'agit donc pas d'une fonction accessible à l'utilisateur.
 
 ---
 
@@ -210,14 +208,14 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-002** | Les fichiers pouvant exécuter un programme ne peuvent pas être déposés. Un message indique à l'utilisateur que le dépôt est refusé. |
 | **RG-PJ-003** | Si aucun libellé n'est saisi par l'utilisateur, le nom d'origine du fichier (sans extension) est utilisé comme nom de la pièce jointe. |
 | **RG-PJ-004** | La date d'ajout est enregistrée automatiquement au moment du dépôt (date et heure courantes). |
-| **RG-PJ-005** | Lors du dépôt sur un dossier, l'utilisateur peut optionnellement lier la pièce jointe à un ou plusieurs établissements associés à ce dossier. |
+| **RG-PJ-005** | Une pièce jointe déposée sur un dossier est rattachée au dossier parent. L'interface actuelle ne propose pas de rattachement individuel aux établissements associés à ce dossier. |
 | **RG-PJ-006** | La mise en avant dans le diaporama ou les plans ne s'applique qu'aux images (JPG, JPEG, PNG, GIF) déposées sur un établissement. |
 | **RG-PJ-007** | Une miniature est créée automatiquement pour les images placées dans le diaporama ou dans les plans. |
 | **RG-PJ-008** | La suppression d'une pièce jointe retire également le fichier associé et les éventuelles miniatures. |
 | **RG-PJ-009** | La modification et la suppression d'une pièce jointe de dossier sont interdites lorsque le dossier est verrouillé. |
 | **RG-PJ-010** | La modification et la suppression sont interdites pour les pièces jointes dont le statut Plat'AU est « En attente d'envoi », « Envoyé » ou « Vérification du statut ». |
 | **RG-PJ-011** | Seules les pièces jointes disponibles peuvent être ouvertes et téléchargées. |
-| **RG-PJ-012** | Pour un dossier, une seule pièce jointe à la fois peut être sélectionnée pour le passage en commission. |
+| **RG-PJ-012** | Le modèle conserve le booléen `PJ_COMMISSION`, initialisé à `false` lors d'un nouveau dépôt, mais l'utilisateur ne peut pas le modifier dans l'interface actuelle et les fonctions applicatives ne le consomment pas. |
 | **RG-PJ-013** | Toute nouvelle pièce jointe d'un dossier Plat'AU reçoit par défaut le statut d'export « Non envoyé ». |
 | **RG-PJ-014** | La sélection d'une pièce jointe pour export vers Plat'AU passe son statut de « Non envoyé » à « En attente d'envoi ». |
 | **RG-PJ-015** | La relance manuelle d'une pièce jointe en erreur repasse son statut à « En attente d'envoi ». |
