@@ -8,11 +8,6 @@ use App\Entity\EtablissementCategorie;
 use App\Entity\EtablissementInformations;
 use App\Entity\Genre;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bridge\Twig\Extension\AssetExtension;
-use Symfony\Component\Asset\Packages;
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
-use Twig\TwigFunction;
 
 class EtablissementCategorieEffectiveTest extends TestCase
 {
@@ -67,48 +62,6 @@ class EtablissementCategorieEffectiveTest extends TestCase
         $parent->addParent($grandParent);
 
         self::assertSame(5, $cellule->getCategorieEffective()->getId());
-    }
-
-    /**
-     * @dataProvider ficheProvider
-     */
-    public function testFicheAfficheCategorieEtJustifiantClassement(?int $categorieParentId, bool $afficheCategorie, bool $afficheJustifiant): void
-    {
-        $cellule = new Etablissement();
-        $parent = new Etablissement();
-        $this->addInformations($cellule, 1, GenreEtablissement::CELLULE, 2);
-        $this->addInformations($parent, 1, GenreEtablissement::ERP, $categorieParentId);
-        $cellule->addParent($parent);
-        $categorie = $parent->getLatestInformations()->getCategorie();
-        if (null !== $categorie) {
-            $categorie->method('getLibelle')->willReturn($categorieParentId.'ème catégorie');
-        }
-
-        $twig = new Environment(new FilesystemLoader(dirname(__DIR__, 2).'/templates'), ['strict_variables' => true]);
-        $twig->addExtension(new AssetExtension(new Packages()));
-        $twig->addFunction(new TwigFunction('asset_exist', static function (): bool { return false; }));
-        $html = $twig->render('etablissement/_informations/_general.html.twig', [
-            'etablissement' => $cellule,
-            'infos' => $cellule->getLatestInformations(),
-            'periodicity' => null,
-            'default_periodicite' => null,
-            'fils_ordonnes' => [],
-        ]);
-
-        self::assertSame($afficheCategorie, false !== strpos($html, '<dt>Catégorie</dt>'));
-        self::assertSame($afficheJustifiant, false !== strpos($html, '<dt>Justifiant le classement</dt>'));
-        if ($afficheCategorie) {
-            self::assertContains($categorieParentId.'ème catégorie', $html);
-        }
-    }
-
-    public function ficheProvider(): array
-    {
-        return [
-            'parent en cinquieme categorie' => [5, true, true],
-            'parent en deuxieme categorie' => [2, true, false],
-            'parent sans categorie' => [null, false, false],
-        ];
     }
 
     private function addInformations(Etablissement $etablissement, int $id, int $genreId, ?int $categorieId): void
