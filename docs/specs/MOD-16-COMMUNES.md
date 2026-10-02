@@ -8,7 +8,7 @@ Ce module couvre l'administration du référentiel des communes utilisé dans l'
 - Visualiser et mettre à jour les coordonnées de la mairie associée à chaque commune.
 - Fusionner des communes dans le cadre de réformes territoriales (création de communes nouvelles).
 
-Le référentiel des communes constitue une donnée de référence transversale : il est exploité par les modules Établissements (adresse), Groupements (périmètre géographique), Commissions de sécurité (règles de compétence) et Voirie (rattachement des rues).
+La liste des communes est utilisée pour renseigner les adresses, les groupements, les compétences des commissions de sécurité et les rues.
 
 ---
 
@@ -66,7 +66,7 @@ Chaque commune peut être associée à une fiche de coordonnées représentant s
 **Comportement :**
 
 1. Le système affiche une liste déroulante contenant toutes les communes, triées par ordre alphabétique de libellé.
-2. Si aucune commune n'existe, un message explicite indique « Il n'y a pas de communes dans la base de données ».
+2. Si aucune commune n'existe, un message indique « Il n'y a pas de communes dans le référentiel ».
 3. La sélection d'une commune dans la liste charge automatiquement sa fiche détaillée dans la zone d'affichage (sans rechargement complet de la page).
 4. La première commune de la liste est sélectionnée et affichée par défaut à l'ouverture de l'écran.
 
@@ -83,11 +83,9 @@ Chaque commune peut être associée à une fiche de coordonnées représentant s
 
 1. L'administrateur modifie les champs souhaités dans le formulaire de coordonnées.
 2. Il clique sur « Sauvegarder ».
-3. Le formulaire est soumis en POST. Le système enregistre les données en base.
-4. La page est rechargée avec un retour à la liste des communes (sélecteur déroulant) en ayant préalablement sélectionné la commune qui vient d'être modifiée.
-5. Cette sélection automatique du select déclenche le chargement AJAX de la fiche (comportement standard du chargement de commune).
-6. Un message de confirmation « Sauvegarde réussie ! La commune [libellé] a été enregistrée » s'affiche via un flash message au-dessus de la liste.
-7. Un message d'erreur s'affiche en cas d'échec, indiquant la cause.
+3. L'administrateur clique sur « Sauvegarder ».
+4. Un message confirme l'enregistrement ou indique l'échec.
+5. La fiche de la commune modifiée est de nouveau affichée.
 
 **Création automatique de la fiche mairie :**
 
@@ -104,14 +102,14 @@ La fusion de communes répond aux besoins des réformes territoriales (loi NOTRe
 
 **Accès :** Menu « Administration » > « Fusion des communes ».
 
-**Déclenchement :** L'administrateur importe un fichier au format JSON décrivant les opérations de fusion à réaliser.
+**Déclenchement :** L'administrateur importe un fichier décrivant les opérations de fusion à réaliser.
 
 ### 5.2 Processus de fusion
 
 #### 5.2.1 Import du fichier de fusion
 
 1. L'administrateur sélectionne un fichier de fusion via un formulaire de téléversement.
-2. Le fichier doit être au format JSON. Un seul fichier est accepté par opération.
+2. Un seul fichier de fusion peut être traité à la fois.
 3. L'administrateur clique sur « Fusionner les communes ».
 4. Le système valide le fichier puis exécute les opérations de fusion.
 
@@ -129,18 +127,18 @@ Le fichier décrit un ensemble d'opérations de fusion. Chaque opération contie
 
 Avant d'exécuter chaque fusion, le système vérifie :
 
-1. **Existence de la commune cible** — Le code INSEE cible doit correspondre à exactement une commune existante dans le référentiel. Si le code est absent, la fusion est rejetée et une erreur est journalisée.
-2. **Unicité du code INSEE cible** — Si plusieurs communes partagent le même code INSEE, la fusion est rejetée et une erreur est journalisée.
-3. **Cohérence du libellé** — Le libellé de la commune cible en base doit correspondre exactement au nom fourni dans le fichier. En cas de divergence, la fusion est rejetée et une erreur est journalisée.
+1. **Existence de la commune cible** — Le code INSEE cible doit correspondre à une commune existante. Si ce n'est pas le cas, la fusion est refusée et un message le signale.
+2. **Unicité du code INSEE cible** — Si plusieurs communes partagent le même code INSEE, la fusion est refusée et un message le signale.
+3. **Cohérence du nom** — Le nom de la commune cible doit correspondre à celui indiqué. En cas de différence, la fusion est refusée et un message le signale.
 
-Si un contrôle échoue pour une opération, l'ensemble du traitement s'arrête et les erreurs sont signalées.
+Si un contrôle échoue pour une opération, cette fusion est refusée et signalée. Les opérations suivantes du même fichier sont ensuite examinées.
 
 #### 5.2.4 Exécution de la fusion
 
 Pour chaque commune absorbée, le système exécute les étapes suivantes dans l'ordre :
 
-1. **Transfert des adresses d'établissements** — Toutes les adresses d'établissements rattachées à la commune absorbée sont transférées vers la commune cible (mise à jour du code INSEE).
-2. **Transfert des voies** — Toutes les rues rattachées à la commune absorbée sont transférées vers la commune cible (mise à jour du code INSEE).
+1. **Transfert des adresses d'établissements** — Toutes les adresses d'établissements de la commune absorbée sont rattachées à la commune cible.
+2. **Transfert des voies** — Toutes les rues de la commune absorbée sont rattachées à la commune cible.
 3. **Suppression des liaisons groupement–commune** — Les associations entre la commune absorbée et ses groupements intercommunaux sont supprimées.
 4. **Suppression des règles de commission** — Les règles de compétence de commission de sécurité portant sur la commune absorbée sont supprimées.
 5. **Suppression de la commune absorbée** — La commune absorbée est retirée du référentiel.
@@ -148,8 +146,7 @@ Pour chaque commune absorbée, le système exécute les étapes suivantes dans l
 #### 5.2.5 Résultat
 
 - En cas de succès, un message « Les communes ont été fusionnées » s'affiche.
-- En cas d'erreur pendant le traitement, un message « La commande a retourné des erreurs, veuillez vérifier les logs d'erreur » s'affiche. Le détail des erreurs est disponible dans les journaux de l'application.
-- Les deux messages (succès et erreur) peuvent s'afficher simultanément si certaines opérations ont réussi et d'autres ont échoué.
+- Si certaines fusions échouent, un avertissement précise les communes concernées. Les fusions réussies sont également signalées.
 
 ### 5.3 Impact sur les données existantes
 
@@ -175,8 +172,8 @@ Pour chaque commune absorbée, le système exécute les étapes suivantes dans l
 | **RG-CMN-005** | Si la fiche de coordonnées référencée est introuvable (données incohérentes), le système en recrée une nouvelle et met à jour la référence. |
 | **RG-CMN-006** | La fonction du contact mairie est fixée automatiquement à la valeur « Mairie » et n'est pas modifiable par l'utilisateur. |
 | **RG-CMN-007** | Le champ « Société » n'est pas proposé sur la fiche d'une commune. |
-| **RG-CMN-008** | La sauvegarde des coordonnées de mairie s'effectue via POST classique. Après enregistrement en base, le système redirige vers la liste des communes en sélectionnant automatiquement la commune modifiée (via un paramètre d'URL). Cette sélection déclenche le chargement AJAX de la fiche. L'utilisateur voit le message Flash de succès/erreur, puis la fiche mise à jour (ou inchangée en cas d'erreur). Pas de rechargement complet de page. |
-| **RG-CMN-009** | Le fichier de fusion doit être au format JSON. Un seul fichier est accepté par opération d'import. |
+| **RG-CMN-008** | Après la sauvegarde des coordonnées, la fiche de la commune modifiée est affichée avec un message de confirmation ou d'erreur. |
+| **RG-CMN-009** | Un seul fichier de fusion peut être traité à la fois. Il décrit la commune cible et les communes à réunir. |
 | **RG-CMN-010** | Avant toute fusion, le code INSEE cible doit exister dans le référentiel et correspondre à une commune unique. |
 | **RG-CMN-011** | Le libellé de la commune cible dans le fichier de fusion doit correspondre exactement au libellé en base. Toute divergence bloque l'opération. |
 | **RG-CMN-012** | Lors d'une fusion, les adresses d'établissements des communes absorbées sont réaffectées à la commune cible. |
@@ -184,9 +181,8 @@ Pour chaque commune absorbée, le système exécute les étapes suivantes dans l
 | **RG-CMN-014** | Lors d'une fusion, les liaisons groupement–commune des communes absorbées sont supprimées sans report sur la commune cible. |
 | **RG-CMN-015** | Lors d'une fusion, les règles de commission portant sur les communes absorbées sont supprimées sans report sur la commune cible. |
 | **RG-CMN-016** | Lors d'une fusion, la commune absorbée est définitivement supprimée du référentiel après le transfert de ses données. |
-| **RG-CMN-017** | En cas d'échec d'un contrôle de cohérence sur une opération de fusion d'une commune donnée, l'opération est ignorée et le traitement continue avec la fusion suivante (s'il y en a). Les erreurs sont journalisées pour analyse. Cela permet le traitement partiel d'un lot : si fusion #1 échoue, les fusions #2 et #3 peuvent réussir si elles sont valides. |
+| **RG-CMN-017** | Si une opération de fusion échoue à un contrôle de cohérence, elle est refusée et signalée. Les opérations suivantes du même fichier sont examinées. Certaines communes peuvent donc être fusionnées même si d'autres ne le sont pas. |
 | **RG-CMN-018** | La commune est une donnée de référence transversale. Sa suppression ou modification impacte les modules Établissements, Groupements, Commissions et Voirie. |
-| **RG-CMN-019** | Le fichier de fusion est supprimé du serveur après traitement, qu'il ait réussi ou échoué. |
 
 ---
 

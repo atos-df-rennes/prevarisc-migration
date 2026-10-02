@@ -2,7 +2,7 @@
 
 ## 1. Objet et périmètre
 
-Le module **Formulaires personnalisés** permet à un SDIS de définir librement la structure des informations descriptives associées aux établissements et aux dossiers. Plutôt que d'imposer un jeu figé de champs, le système offre une interface d'administration dans laquelle on crée des **capsules**, des **rubriques** et des **champs** dont le type, le nom et l'ordre sont entièrement configurables.
+Le module **Formulaires personnalisés** permet à un SDIS de définir les informations descriptives associées aux établissements et aux dossiers. L'administrateur organise les champs par **onglets** (appelés « capsules » dans l'application) et par **rubriques**.
 
 Les données saisies dans ces formulaires apparaissent dans deux contextes de consultation et d'édition :
 
@@ -13,7 +13,7 @@ Le module couvre donc deux axes :
 
 | Axe | Description |
 |-----|-------------|
-| **Administration** | Concevoir la structure des formulaires (capsules, rubriques, champs, valeurs de liste, ordonnancement). Accessible depuis le back-office d'administration. |
+| **Administration** | Concevoir la structure des formulaires (onglets, rubriques, champs et choix proposés). Accessible depuis le panneau d'administration. |
 | **Utilisation** | Consulter et remplir les champs définis par l'administration, dans les fiches établissement et dossier. |
 
 ---
@@ -22,7 +22,7 @@ Le module couvre donc deux axes :
 
 | Acteur | Rôle vis-à-vis du module |
 |--------|--------------------------|
-| **Administrateur Prevarisc** | Crée, modifie, supprime et ordonne les capsules, rubriques et champs. Importe et exporte des configurations. |
+| **Administrateur Prevarisc** | Modifie les onglets, rubriques et champs. Importe et exporte la configuration des formulaires. |
 | **Agent instructeur / Préventionniste** | Consulte et saisit les valeurs des champs personnalisés dans les descriptifs d'établissements et de dossiers. |
 | **Lecteur** | Consulte les valeurs sans pouvoir les modifier. Les cases à cocher et les champs de type « Parent » restent visibles en lecture seule. |
 
@@ -41,10 +41,9 @@ Capsule (onglet)
 
 ### 3.1 Capsules
 
-Une **capsule** représente un onglet thématique dans l'interface. Elle porte :
+Un **onglet de formulaire** regroupe des rubriques autour d'un même sujet. Dans l'application, un onglet est également appelé « capsule ». Il possède :
 
 - Un **nom affiché** (modifiable par l'administrateur).
-- Un **nom interne** (identifiant technique non visible de l'utilisateur, invariant).
 
 Les capsules sont réparties en deux familles :
 
@@ -61,7 +60,7 @@ Une **rubrique** est une section au sein d'une capsule. Elle porte :
 
 - Un **nom** (texte libre, obligatoire).
 - Un indicateur **« Afficher par défaut »** : détermine si la rubrique est visible dès l'ouverture du descriptif ou masquée.
-- Un **rang d'affichage** (position ordinale au sein de la capsule).
+- Un **rang d'affichage** qui détermine sa position dans l'onglet.
 - Un état **ouverte / repliée par défaut** : détermine si le panneau pliable de la rubrique est déplié ou replié dès l'ouverture du descriptif, tant qu'aucune préférence utilisateur n'a été enregistrée.
 
 L'administrateur peut :
@@ -75,10 +74,6 @@ L'utilisateur final peut, lors de la consultation d'un descriptif :
 
 - Plier ou déplier chaque rubrique. Cet état est mémorisé lors de l'enregistrement du formulaire (cf. §5.1) et prévaut ensuite sur la valeur par défaut définie en administration.
 - Masquer ou afficher les rubriques à l'aide d'une table des matières (modale en édition, liste d'ancres en lecture).
-
-**Note (2026-07-03)** : Une specification antérieure décrivait une table des matières latérale riche avec recherche et case « Tous ». Validation du legacy a révélé que cette interface n'a jamais existé en production (masquée par CSS). Cette version simplifiée (modale/ancres) représente le comportement réel du système.
-
-**Note (2026-09-15)** : L'état d'ouverture/repliement d'une rubrique, jusqu'ici uniquement piloté par la valeur par défaut administrable, est désormais mémorisé par entité (établissement ou dossier) lors de l'enregistrement du descriptif, selon le même principe que la mémorisation de l'affichage (cf. RG-FOR-019 et RG-FOR-028).
 
 ### 3.3 Champs
 
@@ -236,7 +231,7 @@ Un bouton « Exporter la configuration » génère un fichier téléchargeable c
 
 Un bouton « Importer une configuration » ouvre une fenêtre modale proposant :
 
-- Un champ de téléversement pour le **fichier de configuration**.
+- Un champ permettant de choisir le fichier exporté contenant les formulaires à importer.
 - Une case à cocher **« Supprimer la configuration existante »**.
 
 Si cette case est cochée, la configuration en place est intégralement supprimée **ainsi que toutes les données saisies associées**, avant d'appliquer la nouvelle. Un message d'aide avertit de cette conséquence.
@@ -261,27 +256,17 @@ Chaque onglet propose :
 - Un mode **consultation** : les valeurs sont affichées en lecture seule. Si un champ n'a aucune donnée, la mention *« Aucune donnée »* est affichée. Si aucun champ n'est défini dans une rubrique, un message invite à contacter un administrateur.
 - Un mode **édition** : les champs sont éditables selon leur type.
 
-Une **table des matières** latérale liste les rubriques, avec :
+En mode édition, une fenêtre « Rubriques à afficher » permet de choisir les rubriques visibles. En mode consultation, des liens permettent d'accéder directement à chaque rubrique affichée.
 
-- Une **barre de recherche** pour filtrer les rubriques par nom.
-- Une case **« Tous »** pour afficher ou masquer l'ensemble des rubriques d'un coup.
-- Une case par rubrique pour l'afficher ou la masquer individuellement.
-- Un lien cliquable vers l'ancre de chaque rubrique visible.
-- Un bouton de repli pour réduire la table des matières.
+Le choix des rubriques visibles est mémorisé pour chaque établissement ou dossier et prévaut sur le réglage par défaut défini en administration.
 
-L'état d'affichage (visible/masqué) de chaque rubrique est **mémorisé par établissement** : chaque utilisateur (ou établissement) peut avoir un paramétrage d'affichage différent du réglage par défaut.
-
-L'état d'ouverture (dépliée/repliée) de chaque rubrique est également **mémorisé par établissement**, selon le même principe : il est enregistré à chaque sauvegarde du descriptif et prévaut alors sur la valeur par défaut définie en administration (cf. RG-FOR-028). Ce comportement s'applique aussi bien en mode consultation qu'en mode édition.
-
-**Note (2026-07-03)** : Validation du legacy Zend a révélé que cette table des matières latérale n'était jamais affichée en production. Bien que le template soit présent dans le DOM, il est masqué par CSS (`.hidden-tablet { display: none; }`). L'interface réelle en édition utilise une modale minimaliste. Cette spécification décrit un comportement aspirationnel plutôt que celui réellement implémenté dans le legacy.
+L'état ouvert ou replié de chaque rubrique est enregistré lors de la sauvegarde et prévaut ensuite sur le réglage par défaut. Ce choix est propre à chaque établissement ou dossier.
 
 ### 5.2 Descriptif de dossier
 
-La fiche d'un dossier comporte des onglets personnalisables similaires, alimentés par les capsules de la famille « Dossier ». Le fonctionnement est identique à celui du descriptif d'établissement, avec les mêmes modes consultation / édition et la même table des matières (modale en édition, liste d'ancres en lecture).
+La fiche d'un dossier comporte des rubriques personnalisables selon les mêmes principes que le descriptif d'établissement.
 
 Les capsules « dossier » incluent notamment les onglets de vérifications techniques et d'effectifs & dégagements du dossier.
-
-**Note (2026-07-03)** : Comme pour le descriptif d'établissement, la table des matières riche décrite en §5.1 n'était pas affichée en production dans le legacy.
 
 Le descriptif de dossier peut également être inclus dans la **génération de documents** (publipostage), où chaque champ est identifié par son **nom de fusion**.
 
@@ -307,8 +292,8 @@ Le descriptif de dossier peut également être inclus dans la **génération de 
 | **RG-FOR-014** | En mode « tableau », l'utilisateur peut ajouter, supprimer et réordonner des lignes de données. |
 | **RG-FOR-015** | En mode consultation, lorsqu'un champ simple (Texte, Texte long, Liste, Nombre, Date) n'a aucune valeur, le système affiche *« Aucune donnée »*. |
 | **RG-FOR-016** | En mode consultation, si une rubrique ne contient aucun champ défini, le message *« Aucun champ renseigné. Contactez un administrateur Prevarisc. »* est affiché. |
-| **RG-FOR-017** | Chaque champ possède un **nom de fusion** calculé automatiquement à partir du nom interne de la capsule, du nom de la rubrique et du nom du champ. Ce nom est utilisé pour le publipostage. |
-| **RG-FOR-018** | Pour un champ de type « Parent » en mode tableau, le nom de fusion prend la forme d'une boucle avec un nom de boucle et un nom de colonne par champ enfant. |
+| **RG-FOR-017** | Chaque champ peut être inséré dans un document généré à partir des informations saisies dans les formulaires. |
+| **RG-FOR-018** | Dans un tableau inséré dans un document, chaque champ enfant correspond à une colonne et les lignes du tableau reprennent les valeurs saisies. |
 | **RG-FOR-019** | L'affichage ou le masquage d'une rubrique dans un descriptif est mémorisé par entité (établissement ou dossier). La valeur par défaut est celle définie en administration (« Afficher par défaut »). |
 | **RG-FOR-020** | L'import d'une configuration avec l'option « Supprimer la configuration existante » entraîne la suppression de toutes les données saisies associées aux formulaires existants. |
 | **RG-FOR-021** | Les rubriques, les champs et les valeurs de liste sont triés par leur rang d'affichage (croissant), puis par leur nom en cas de rang indéfini. |
@@ -316,8 +301,6 @@ Le descriptif de dossier peut également être inclus dans la **génération de 
 | **RG-FOR-023** | Un champ de type « Date » dispose d'un raccourci « Aujourd'hui » qui pré-remplit la date du jour. |
 | **RG-FOR-024** | Un champ de type « Liste » propose systématiquement une option vide par défaut (« Sélectionnez un élément »). |
 | **RG-FOR-025** | Un champ de type « Case à cocher » est toujours visible, y compris en mode lecture ; il est alors désactivé pour empêcher toute modification. |
-| **RG-FOR-026** | Le nom de fusion d'un champ enfant dans un parent non-tableau est composé du nom interne de la capsule, du nom de la rubrique, du nom du parent et du nom de l'enfant. |
-| **RG-FOR-027** | Les capsules de la famille « Établissement » sont identifiées par les noms internes « descriptifEtablissement » et « effectifsDegagementsEtablissement ». Toutes les autres capsules appartiennent à la famille « Dossier ». |
 | **RG-FOR-028** | L'état d'ouverture (dépliée / repliée) d'une rubrique dans un descriptif est mémorisé par entité (établissement ou dossier) lors de l'enregistrement du formulaire. Tant qu'aucun enregistrement n'a eu lieu, la valeur par défaut définie en administration (« Ouverte par défaut ») s'applique. |
 
 ---
@@ -342,13 +325,13 @@ Un champ de type « Parent » sans champ enfant est affiché avec un avertisseme
 - Supprimer un **champ parent** entraîne la suppression de tous ses champs enfants.
 - Supprimer une **valeur de liste** : la suppression intervient lors de la sauvegarde du champ (soumission du formulaire). Cela permet à l'utilisateur de revenir en arrière en cas d'erreur et constitue une protection contre d'éventuelles suppressions involontaires.
 
-### 7.5 Import destructif
+### 7.5 Remplacement de la configuration lors d'un import
 
-L'option « Supprimer la configuration existante » lors de l'import est une opération irréversible. Le message d'aide précise explicitement : *« La suppression de la configuration existante entraînera également la suppression de toutes les données associées »*.
+L'option « Supprimer la configuration existante » lors de l'import remplace la configuration en place et supprime également les données qui lui sont associées. Cette opération est irréversible ; un avertissement est affiché avant l'import.
 
-### 7.6 Nom de fusion pour le publipostage
+### 7.6 Champs dans les documents générés
 
-Le nom de fusion suit la convention : `{capsule-rubrique-champ}`. Les espaces et apostrophes dans les noms sont remplacés par des tirets bas, et le tout est mis en minuscules. Pour les tableaux, une syntaxe de boucle est utilisée avec des marqueurs `BEGIN` / `END`.
+Les champs des formulaires peuvent être repris dans les documents générés. Pour un tableau, le document peut présenter une ligne par valeur saisie.
 
 ### 7.7 Affichage personnalisé par entité
 
@@ -356,4 +339,4 @@ Lorsqu'un utilisateur masque ou affiche une rubrique dans le descriptif d'un ét
 
 ### 7.8 Données de tableau
 
-En mode tableau (champ parent), chaque ligne contient une valeur par colonne (champ enfant). Lors de la sauvegarde, le système compare l'état initial et l'état final des lignes pour déterminer les insertions, mises à jour et suppressions à effectuer. Les lignes sont ré-indexées après chaque réordonnancement.
+En mode tableau, chaque ligne présente les valeurs des différents champs associés. L'utilisateur peut ajouter, supprimer et réordonner ces lignes.

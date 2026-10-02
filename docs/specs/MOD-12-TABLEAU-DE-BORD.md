@@ -15,7 +15,7 @@ Chaque utilisateur voit uniquement les blocs d'information auxquels son profil l
 | Préventionniste | Utilisateur principal. Consulte les indicateurs relatifs à ses établissements suivis, dossiers et commissions. |
 | Responsable de groupement | Dispose d'une vision élargie sur les établissements sans préventionniste et sous avis défavorable. |
 | Agent communal | Voit les établissements de sa commune sous avis défavorable. |
-| Administrateur | Accès complet à l'ensemble des blocs. Peut publier et supprimer des messages. |
+| Administrateur | Accès complet à l'ensemble des blocs. Peut publier des messages et supprimer ceux dont il est l'auteur. |
 | Tout utilisateur authentifié | Accède au fil de messages et peut personnaliser l'ordre des blocs. |
 
 ---
@@ -193,7 +193,7 @@ L'utilisateur consulte les messages en dépliant le bloc « Messages ». Les mes
 - le prénom et le nom de l'auteur
 - la date et l'heure de publication (heure seule si le message date d'aujourd'hui)
 - le type du message (« Message de service », « Informations », « Message personnel », « Autre »)
-- le texte du message, avec détection automatique des liens URL (http, https, ftp, www)
+- le texte du message, dans lequel les adresses de sites Internet deviennent cliquables
 
 Si aucun message n'est disponible pour le groupe de l'utilisateur, le texte « Aucun message disponible » est affiché.
 
@@ -217,9 +217,11 @@ L'utilisateur clique sur « Ajouter un message » dans le bloc Messages. Une fen
 
 ### 5.3 Supprimer un message
 
-Chaque message dispose d'un lien « Supprimer ». Un clic déclenche immédiatement la suppression du message (sans demande de confirmation). L'utilisateur est ensuite redirigé vers le tableau de bord avec un message de confirmation « Message supprimé ! ». En cas d'erreur, un message d'alerte est affiché.
+Chaque message visible comporte un lien « Supprimer », quel que soit son auteur. La présence de ce lien ne signifie pas que tout utilisateur peut supprimer le message : lors de la demande, le serveur vérifie l'auteur associé au message. Si celui-ci est différent de l'utilisateur connecté, la suppression est refusée. L'auteur peut supprimer son message sans confirmation ; il est ensuite redirigé vers le tableau de bord avec un message de confirmation.
 
-> **Remarque** : La suppression est accessible à tout utilisateur qui voit le message. Il n'y a pas de restriction au seul auteur du message.
+**Limite technique constatée :** si un message n'a pas d'utilisateur auteur associé, le contrôle de propriété est ignoré et la suppression n'est pas restreinte à un auteur. Ce cas concerne les données sans auteur associé ; il ne constitue pas une règle d'accès souhaitée.
+
+En cas d'erreur technique interceptée pendant la suppression, l'utilisateur est redirigé vers le tableau de bord avec un message d'erreur. Une demande refusée parce que l'utilisateur n'est pas l'auteur retourne une erreur d'accès et ne suit pas ce parcours de confirmation.
 
 ---
 
@@ -230,16 +232,20 @@ Chaque message dispose d'un lien « Supprimer ». Un clic déclenche immédiatem
 ### 6.1 Déroulement
 
 1. Pendant la vérification, le message « Vérification de la connexion à Plat'AU » est affiché accompagné d'un indicateur de chargement.
-2. Le système tente d'obtenir un jeton d'authentification puis interroge le service de santé de Plat'AU.
+2. Prevarisc vérifie la disponibilité de Plat'AU.
 
 ### 6.2 Résultats possibles
 
-| Résultat | Message affiché | Niveau d'alerte |
-|----------|----------------|-----------------|
-| Connexion réussie | « La connexion à Plat'AU a fonctionné. » | Information (bleu) |
-| Échec côté Prevarisc (jeton invalide, configuration manquante) | « La connexion à Plat'AU depuis Prevarisc a échoué. Veuillez suivre les instructions du Manuel Utilisateur §6.17.2. » | Erreur (rouge) |
-| Échec côté Plat'AU (état général ou base de données en erreur) | « Plat'AU est en erreur. Veuillez réessayer ultérieurement. » | Erreur (rouge) |
-| Erreur technique inattendue | « Une erreur s'est produite lors de la vérification de la connexion à Plat'AU. » | Erreur (rouge) |
+Le résultat est affiché sous forme de notification toast, et non d'un bandeau d'alerte :
+
+| Résultat | Notification visible |
+|----------|----------------------|
+| Connexion réussie | Toast de succès confirmant la connexion ; la version, le modèle et la nomenclature de Plat'AU sont ajoutés lorsqu'ils sont disponibles. |
+| Erreur côté Prevarisc | Toast d'erreur expliquant la cause connue, par exemple un problème de configuration ou de jeton PISTE, ou une réponse Plat'AU impossible à récupérer ou à lire. Le message peut renvoyer à la consultation des journaux de l'application. |
+| Plat'AU répond avec une erreur ou un état dégradé | Toast d'erreur précisant, selon le cas, le code HTTP ou l'état dégradé, et invitant à réessayer ultérieurement. |
+| Délai d'attente de la requête dépassé | Toast d'erreur indiquant que le service est indisponible ou lent. Une autre erreur de requête affiche un message générique d'échec de vérification. |
+
+Si la réponse contient des informations de maintenance, un toast d'avertissement distinct est également affiché. La réponse technique distingue une erreur côté Prevarisc d'une erreur côté Plat'AU ; l'utilisateur voit le message contextualisé, tandis que les détails techniques sont consignés dans les journaux de l'application.
 
 ### 6.3 Conditions de non-affichage
 
@@ -266,8 +272,8 @@ L'indicateur ne s'affiche pas si :
 | RG-TDB-011 | Les messages du fil sont filtrés par le groupe d'appartenance de l'utilisateur connecté. Un utilisateur ne voit que les messages destinés à son groupe. |
 | RG-TDB-012 | Lors de la publication d'un message, tous les groupes sont cochés par défaut. L'auteur peut restreindre la diffusion en décochant des groupes. |
 | RG-TDB-013 | Les 5 derniers messages sont affichés dans le bloc Messages. |
-| RG-TDB-014 | Les URL présentes dans le texte d'un message (http, https, ftp, www) sont automatiquement transformées en liens cliquables. |
-| RG-TDB-015 | La suppression d'un message est immédiate et sans confirmation. Seul l'auteur du message peut le supprimer. |
+| RG-TDB-014 | Les adresses de sites Internet présentes dans un message sont automatiquement transformées en liens cliquables. |
+| RG-TDB-015 | La suppression d'un message associé à un auteur est immédiate et sans confirmation, et seul cet auteur est autorisé à la réaliser. Le lien de suppression reste visible pour les autres utilisateurs qui voient le message, mais leur demande est refusée. Limite technique : si aucun auteur n'est associé au message, le contrôle de propriété est ignoré. |
 | RG-TDB-016 | La vérification de connectivité Plat'AU est exécutée automatiquement au chargement du tableau de bord si Plat'AU est activé et la vérification n'est pas désactivée. |
 | RG-TDB-017 | L'origine de l'erreur de connectivité Plat'AU est distinguée entre Prevarisc (configuration locale) et Plat'AU (service distant). |
 | RG-TDB-018 | Les trois blocs Plat'AU (dossiers à traiter, pièces jointes en erreur, nouvelles pièces jointes) ne sont disponibles que si Plat'AU est activé dans la configuration de l'instance. |
@@ -295,4 +301,4 @@ L'indicateur ne s'affiche pas si :
 | Nouveau bloc ajouté après personnalisation | Le bloc apparaît en fin de liste sans altérer l'ordre existant (cf. RG-TDB-005). |
 | Message avec URL dans le texte | Les URL sont rendues cliquables automatiquement (cf. RG-TDB-014). |
 | Erreur lors de l'ajout d'un message | Un bandeau d'alerte rouge apparaît avec le message d'erreur. L'utilisateur est redirigé vers le tableau de bord. |
-| Erreur lors de la suppression d'un message | Un bandeau d'alerte rouge apparaît avec le message d'erreur. L'utilisateur est redirigé vers le tableau de bord. |
+| Erreur technique interceptée lors de la suppression d'un message | Un bandeau d'alerte rouge apparaît avec le message d'erreur et l'utilisateur est redirigé vers le tableau de bord. Une tentative par un utilisateur autre que l'auteur associé est refusée par une erreur d'accès, sans suppression. |

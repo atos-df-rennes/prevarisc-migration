@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ document.title }} — Documentation{% endblock %}
+
+{% block body %}
+    <div class="container-fluid documentation-page">
+        <div class="row">
+            <aside class="col-md-3 documentation-sidebar">
+                <nav aria-label="Navigation dans la documentation">
+                    <h2 class="documentation-sidebar__title">Documentation</h2>
+                    {% for space in navigation %}
+                        <details class="documentation-space" {% if space.space == document.space %}open{% endif %}>
+                            <summary>
+                                <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+                                {{ space.label }}
+                            </summary>
+                            {{ include('documentation/_tree.html.twig', {
+                                entries: space.children,
+                                activePath: document.path,
+                                space: space.space,
+                            }, false) }}
+                        </details>
+                    {% endfor %}
+                </nav>
+            </aside>
+
+            <main class="col-md-9 documentation-main">
+                <h1 class="sr-only">{{ document.title }}</h1>
+                <ol class="breadcrumb documentation-breadcrumb" aria-label="Fil d'Ariane">
+                    <li><a href="{{ path('documentation_index') }}">Documentation</a></li>
+                    <li>{{ document.spaceLabel }}</li>
+                    {% for segment in document.path|split('/') %}
+                        {% if loop.last %}
+                            <li class="active" aria-current="page">{{ document.title }}</li>
+                        {% else %}
+                            <li>{{ segment|replace({'-': ' ', _: ' '}) }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ol>
+
+                <article class="documentation-content">
+                    {{ document.content|raw }}
+                </article>
+            </main>
+        </div>
+    </div>
+{% endblock %}

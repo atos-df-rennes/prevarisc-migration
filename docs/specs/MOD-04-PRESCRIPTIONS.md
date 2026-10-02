@@ -18,7 +18,7 @@ Le module s'inscrit dans le processus métier suivant : lors d'une étude de dos
 | Acteur | Rôle dans le module |
 |--------|-------------------|
 | **Préventionniste** | Consulte, ajoute, modifie, réordonne et reprend des prescriptions dans les dossiers. Recherche des prescriptions types par navigation ou par mots-clés. |
-| **Administrateur du référentiel** | Crée et modifie les catégories, textes réglementaires, articles du référentiel hiérarchique. Gère les prescriptions types et les rappels réglementaires. Gère les listes de textes et d'articles utilisables dans les prescriptions. Réordonne les éléments du référentiel. |
+| **Administrateur du référentiel** | Crée les catégories et les réordonne ; crée et modifie les textes et articles du référentiel hiérarchique. Gère les prescriptions types et les rappels réglementaires. Gère les listes de textes et d'articles utilisables dans les prescriptions. Réordonne les éléments du référentiel. |
 
 ---
 
@@ -38,14 +38,14 @@ Catégorie (ex. : "Sécurité incendie")
 - **Texte réglementaire** : rattaché à une catégorie. Représente un texte de loi, un arrêté, un décret ou tout autre référentiel normatif. Possède un libellé et un numéro d'ordre au sein de sa catégorie.
 - **Article** : rattaché à un texte réglementaire. Représente un article précis au sein d'un texte. Possède un libellé et un numéro d'ordre au sein de son texte.
 
-Cette hiérarchie sert de **classement pour les prescriptions types** (cf. §3.2). Une prescription type peut être positionnée à n'importe quel niveau : directement dans une catégorie, dans un texte, dans un article, voire sans aucun rattachement.
+Cette hiérarchie sert de **classement pour les prescriptions types** (cf. §3.2). L'écran actuel permet d'ajouter une prescription type dans une catégorie, un texte ou un article. Il prévoit aussi des sections pour les prescriptions déjà enregistrées sans catégorie, sans texte ou sans article ; il ne propose pas de bouton de création sans catégorie.
 
 ### 3.2 Types de prescriptions
 
 Un **type de prescription** (ou « prescription type ») est un modèle de prescription réutilisable. Il est composé de :
 
 - **Un libellé** : le texte descriptif de la prescription (contenu métier).
-- **Un emplacement** dans la hiérarchie du référentiel : catégorie, texte et/ou article auxquels la prescription se rapporte. Cet emplacement est facultatif à chaque niveau (une prescription peut exister sans être rattachée à la hiérarchie).
+- **Un emplacement** dans la hiérarchie du référentiel : catégorie, texte et/ou article auxquels la prescription se rapporte. Le point depuis lequel l'ajout est lancé fixe cet emplacement ; le formulaire actuel ne permet pas de le déplacer. Des prescriptions sans rattachement peuvent exister dans les données.
 - **Une ou plusieurs associations texte/article** : chaque prescription type est liée à au moins une paire (texte de la liste, article de la liste). Ces associations indiquent les fondements réglementaires précis de la prescription. Une même prescription type peut citer plusieurs articles de plusieurs textes.
 
 Le préventionniste peut parcourir les prescriptions types par la hiérarchie (catégorie → texte → article) ou les rechercher par mots-clés, puis les ajouter directement à un dossier.
@@ -75,26 +75,27 @@ Ces listes sont utilisées dans trois contextes :
 2. Lors de la création ou la modification d'un **rappel réglementaire** (association texte/article).
 3. Lors de la création ou la modification d'une **prescription de dossier** (association texte/article).
 
-> **Important** : Il existe un texte et un article « par défaut » (valeur technique de substitution) qui sont utilisés lorsque l'utilisateur ne sélectionne pas de texte ou d'article. Ces éléments par défaut sont masqués dans les interfaces de gestion des listes.
+> **Important** : Si l'utilisateur ne sélectionne pas de texte ou d'article, un texte et un article sont attribués automatiquement pour permettre l'enregistrement de la prescription. Ces choix automatiques ne sont pas proposés dans les listes.
 
 ---
 
 ## 4. Fonctionnalités — Administration du référentiel
 
+**Accès :** Administration → Gestion des prescriptions, sous réserve du droit de gestion des prescriptions.
+
+L'écran **« Gestion des prescriptions types »** présente les catégories dans une **barre d'onglets horizontale défilante**. Dans l'onglet sélectionné, les textes, puis leurs articles, sont présentés dans des panneaux dépliables. Leur contenu est chargé à l'ouverture. Les prescriptions de l'emplacement sont affichées dans un tableau **Texte / Article / Contenu / Édition**, avec une ligne par association réglementaire.
+
+Des boutons à icône permettent d'ajouter une prescription type (drapeau), un texte ou un article (plus), de modifier un élément (crayon), ou de supprimer une prescription type (corbeille). Les sections **« Sans catégories »**, **« Sans Textes »** et **« Sans Articles »** sont prévues pour les éléments sans rattachement au niveau concerné. La barre supérieure donne accès à **« Gestion des rappels réglementaires »**, **« Gestion des textes »** et **« Gestion des articles »**.
+
 ### 4.1 Gérer les catégories
 
-**Description** : L'administrateur du référentiel peut créer et modifier des catégories de prescriptions.
+**Description** : L'administrateur du référentiel peut créer et réordonner des catégories de prescriptions. L'écran et les routes actuels ne proposent pas de modification ni de suppression d'une catégorie.
 
 **Créer une catégorie** :
-1. L'administrateur clique sur « Ajouter » depuis l'écran principal de gestion des prescriptions types.
+1. L'administrateur clique sur « Ajouter une catégorie » depuis l'écran principal de gestion des prescriptions types.
 2. Une boîte de dialogue s'ouvre avec un champ « Libellé ».
-3. L'administrateur saisit le libellé et valide.
+3. L'administrateur saisit le libellé et clique sur « Sauvegarder ».
 4. La catégorie est créée avec un numéro d'ordre égal au maximum existant + 1 (ajout en fin de liste).
-
-**Modifier une catégorie** :
-1. L'administrateur clique sur « Modifier » en regard de la catégorie.
-2. La boîte de dialogue s'ouvre pré-remplie avec le libellé actuel.
-3. L'administrateur modifie le libellé et valide.
 
 ### 4.2 Gérer les textes réglementaires
 
@@ -103,14 +104,14 @@ Le module distingue deux types de gestion des textes :
 #### 4.2.1 Textes dans la hiérarchie (au sein d'une catégorie)
 
 **Créer un texte dans une catégorie** :
-1. L'administrateur déplie une catégorie pour afficher ses textes.
-2. Il clique sur « Ajouter un type de disposition ».
+1. L'administrateur sélectionne l'onglet d'une catégorie.
+2. Il clique sur le bouton plus « Ajouter un texte » dans cet onglet.
 3. Une boîte de dialogue s'ouvre avec un champ « Libellé ».
 4. Le texte est créé rattaché à la catégorie, avec un numéro d'ordre en fin de liste.
 
 **Modifier un texte de la hiérarchie** :
-1. L'administrateur clique sur « Modifier » en regard du texte.
-2. Il modifie le libellé et valide.
+1. L'administrateur clique sur le bouton crayon « Modifier le texte » dans l'en-tête du panneau.
+2. Il modifie le libellé dans la fenêtre modale et sauvegarde.
 
 #### 4.2.2 Textes dans la liste plate (listes prédéfinies)
 
@@ -143,13 +144,13 @@ La gestion des articles suit le même principe à deux niveaux que les textes.
 
 **Créer un article dans un texte** :
 1. L'administrateur déplie un texte pour afficher ses articles.
-2. Il clique sur « Ajouter un article ».
-3. Il saisit le libellé et valide.
+2. Il clique sur le bouton plus « Ajouter un article » dans l'en-tête du texte.
+3. Il saisit le libellé dans une fenêtre modale et sauvegarde.
 4. L'article est créé avec un numéro d'ordre en fin de liste.
 
 **Modifier un article de la hiérarchie** :
-1. L'administrateur clique sur « Modifier » en regard de l'article.
-2. Il modifie le libellé et valide.
+1. L'administrateur clique sur le bouton crayon dans l'en-tête de l'article.
+2. Il modifie le libellé dans une fenêtre modale et sauvegarde.
 
 #### 4.3.2 Articles dans la liste plate
 
@@ -158,37 +159,41 @@ Le fonctionnement est identique à celui des textes de la liste plate (ajout, mo
 ### 4.4 Gérer les types de prescriptions
 
 **Créer une prescription type** :
-1. L'administrateur choisit un point d'insertion dans la hiérarchie (bouton « Ajouter une prescription » au niveau catégorie, texte ou article) ou sans rattachement.
+1. L'administrateur choisit un point d'insertion dans la hiérarchie via le bouton drapeau « Ajouter une prescription type » au niveau catégorie, texte ou article.
 2. Une fenêtre modale s'ouvre avec :
-   - L'emplacement dans la hiérarchie (modifiable par navigation catégorie → texte → article, avec possibilité de revenir en arrière à chaque niveau).
-   - Un sélecteur de texte et un sélecteur d'article (issus des listes prédéfinies visibles).
-   - Un bouton « Ajouter l'association » pour créer une paire texte/article.
-   - Un tableau listant les associations déjà ajoutées, avec la possibilité de les retirer.
-   - Un champ « Contenu » (zone de texte libre).
+   - Un titre indiquant la catégorie, le texte ou l'article de destination ; l'emplacement n'est pas modifiable dans ce formulaire.
+   - Un champ de contenu.
+   - Une liste de lignes d'association comportant chacune un sélecteur de texte et un sélecteur d'article (issus des listes prédéfinies visibles).
+   - Un bouton « Ajouter une association » pour ajouter une ligne et un bouton de retrait pour chaque ligne.
 3. L'administrateur doit ajouter au moins une association texte/article et saisir un contenu.
-4. Il valide pour sauvegarder.
+4. Il clique sur « Sauvegarder » ; après enregistrement, il revient à l'écran de gestion des prescriptions types. Les erreurs de validation sont affichées après retour à cet écran.
 
 **Modifier une prescription type** :
-1. L'administrateur clique sur « Éditer » en regard de la prescription type.
-2. La fenêtre modale s'ouvre pré-remplie avec l'emplacement, les associations et le contenu.
-3. L'administrateur peut modifier l'emplacement, ajouter/retirer des associations et modifier le contenu.
-4. Lors de la sauvegarde, les anciennes associations sont supprimées et remplacées par les nouvelles.
+1. L'administrateur clique sur le bouton crayon « Modifier la prescription » dans le tableau.
+2. La fenêtre modale s'ouvre pré-remplie avec les associations et le contenu.
+3. L'administrateur peut ajouter, retirer ou modifier des associations et modifier le contenu, mais pas déplacer la prescription dans le classement.
+4. La sauvegarde synchronise les associations avec les lignes du formulaire.
+
+**Supprimer une prescription type** :
+1. L'administrateur clique sur le bouton corbeille « Supprimer la prescription ».
+2. Une fenêtre modale demande de confirmer la suppression.
+3. Il clique sur « Supprimer » pour confirmer, ou sur « Annuler » pour conserver la prescription.
 
 **Gestion des rappels réglementaires** :
 
 Voir §3.3 pour la description. L'écran dédié permet :
 1. De consulter la liste des rappels, séparés en deux sections : « Pour les études » et « Pour les visites ».
-2. D'ajouter un nouveau rappel en précisant le type (étude/visite), la visibilité par défaut, les associations texte/article et le contenu.
-3. De modifier un rappel existant.
+2. D'ouvrir une page d'ajout via « Ajouter une prescription », puis de préciser le type (étude/visite), l'ajout par défaut à la création d'un dossier, le contenu et les lignes d'association texte/article.
+3. D'ouvrir une page de modification via « Modifier », puis de sauvegarder ou d'annuler. Les associations sont gérées par ajout et retrait de lignes, comme pour une prescription type.
 
 ### 4.5 Réordonner les éléments du référentiel
 
 L'administrateur peut modifier l'ordre d'affichage des éléments par **glisser-déposer** :
 
-- **Catégories** : réorganisables entre elles.
-- **Textes** : réorganisables au sein de leur catégorie.
-- **Articles** : réorganisables au sein de leur texte.
-- **Prescriptions types** : réorganisables au sein de leur emplacement.
+- **Catégories** : déplacement horizontal des onglets.
+- **Textes** : déplacement vertical à l'aide de la poignée de l'en-tête, au sein de leur catégorie.
+- **Articles** : déplacement vertical à l'aide de la poignée de l'en-tête, au sein de leur texte.
+- **Prescriptions types** : déplacement vertical à l'aide de la poignée du tableau, au sein de leur emplacement.
 
 Le nouvel ordre est sauvegardé automatiquement après chaque glisser-déposer.
 
@@ -318,7 +323,7 @@ Le réordonnancement met à jour les numéros d'ordre :
 |-------------|-------|
 | **RG-PRE-001** | Le référentiel est structuré en trois niveaux : catégorie → texte réglementaire → article. Chaque élément enfant est rattaché à exactement un élément parent. |
 | **RG-PRE-002** | Une prescription type doit être associée à au moins une paire (texte, article) et posséder un contenu non vide pour être enregistrée. |
-| **RG-PRE-003** | Une prescription type peut être positionnée à n'importe quel niveau de la hiérarchie (catégorie seule, catégorie + texte, catégorie + texte + article) ou sans aucun rattachement hiérarchique. |
+| **RG-PRE-003** | L'ajout d'une prescription type est accessible au niveau catégorie, texte ou article. Ce point d'insertion fixe le classement, non modifiable dans le formulaire actuel. Des prescriptions sans rattachement peuvent exister dans les données, sans bouton de création sans catégorie dans l'écran actuel. |
 | **RG-PRE-004** | L'ordre d'affichage des catégories, textes, articles et prescriptions types est personnalisable par glisser-déposer. Le numéro d'ordre est recalculé après chaque réorganisation. |
 | **RG-PRE-005** | Chaque nouvelle catégorie est ajoutée en dernière position (numéro d'ordre = maximum existant + 1). |
 | **RG-PRE-006** | Chaque nouveau texte dans la hiérarchie est ajouté en dernière position au sein de sa catégorie. |

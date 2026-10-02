@@ -2,7 +2,7 @@
 
 ## 1. Objet et périmètre
 
-Un **établissement** est l'entité centrale de Prevarisc. Il représente tout lieu soumis à la réglementation en matière de prévention incendie et suivi par un SDIS : un ERP, un IGH, une habitation, un bâtiment à usage professionnel (BUP), un camping, une manifestation temporaire, un immeuble ouvert au public (IOP) ou une zone.
+Un **établissement** est une fiche centrale de Prevarisc. Elle représente tout lieu soumis à la réglementation en matière de prévention incendie et suivi par un SDIS : un ERP, un IGH, une habitation, un bâtiment à usage professionnel (BUP), un camping, une manifestation temporaire, un immeuble ouvert au public (IOP) ou une zone.
 
 Le module Établissements permet de créer, consulter, modifier et supprimer la fiche d'un établissement. Il constitue le point d'entrée vers les dossiers (études, visites), les contacts, les pièces jointes, les textes réglementaires applicables, les avis et dérogations, et la planification des visites périodiques.
 
@@ -44,9 +44,9 @@ Chaque établissement possède les données d'identification suivantes :
 
 - **Libellé** : nom courant de l'établissement (ex. : « Centre commercial Les Halles »).
 - **Identifiant numérique** : numéro attribué automatiquement à la création, modifiable manuellement.
-- **Identifiant Winprev** : code correspondant au format `[genre][code commune][rang]-[rang cellule]-[commission]`. Exemple : `E350238000042-000-5`. Ce code est saisi manuellement ou hérité d'un import historique ; il n'est **pas généré automatiquement** par l'application.
+- **Identifiant complémentaire** : code conservé avec l'établissement. Il n'est pas généré automatiquement par Prevarisc.
 - **Genre** : classification principale (site, ERP, cellule, habitation, IGH, BUP, camping, manifestation temporaire, IOP, zone).
-- **Statut** : état courant de l'établissement (ex. : ouvert, fermé, projet). Le changement de statut est soumis à une permission spécifique.
+- **Statut** : état courant de l'établissement (ex. : ouvert, fermé, projet). Seuls les utilisateurs autorisés peuvent le modifier.
 
 Selon le genre, les données de classement supplémentaires sont :
 
@@ -99,7 +99,7 @@ L'effectif total est calculé automatiquement : public + personnel (ou somme des
 
 #### Effectifs et dégagements (module personnalisé)
 
-Un onglet dédié « Effectifs et dégagements » permet de saisir des données structurées en rubriques personnalisables, selon le même mécanisme que le descriptif personnalisé. L'accès à cet onglet est soumis à une permission spécifique.
+Un onglet dédié « Effectifs et dégagements » permet de saisir des données structurées en rubriques personnalisables, selon le même principe que le descriptif personnalisé. Son accès dépend des droits de l'utilisateur.
 
 #### Plans d'intervention
 
@@ -116,7 +116,7 @@ Pour les ERP, cellules, IGH et BUP, des plans d'intervention peuvent être enreg
 - **Historique des avis et dérogations** : liste chronologique de tous les avis et dérogations issus des dossiers liés à l'établissement, avec indication de leur levée éventuelle.
 - **Dérogations originales** : texte libre issu du descriptif (zone « dérogations accordées »), affiché séparément dans l'onglet avis et dérogations.
 
-L'accès à l'onglet avis et dérogations est soumis à une permission spécifique.
+L'accès à l'onglet avis et dérogations dépend des droits de l'utilisateur.
 
 ### 3.5 Textes réglementaires applicables
 
@@ -220,7 +220,7 @@ Site
 - Le formulaire propose des **valeurs conseillées** (commission, périodicité, locaux à sommeil, préventionnistes) calculées dynamiquement en fonction du genre, de la commune, du type, de la catégorie et de l'établissement père.
 - Les champs affichés varient dynamiquement selon le genre sélectionné.
 - À la validation, le système enregistre l'établissement et sa fiche d'informations initiale datée du jour.
-- Si l'établissement créé est un site avec un seul enfant, un avertissement invite l'utilisateur à ajouter des établissements enfants pour garantir les droits d'accès.
+- Si l'établissement créé est un site sans aucun enfant, un avertissement invite l'utilisateur à ajouter des établissements enfants pour garantir les droits d'accès. Un site créé avec au moins un enfant ne déclenche pas cet avertissement.
 
 ### 4.3 Modifier un établissement
 
@@ -241,7 +241,7 @@ Site
 - La suppression est **logique** (pas de suppression physique) : une date de suppression et l'identifiant de l'utilisateur ayant supprimé sont enregistrés.
 - Tous les **dossiers liés** à l'établissement sont également supprimés (logiquement).
 - Une boîte de confirmation demande la validation avant exécution.
-- Après suppression, le cache de recherche est purgé et l'utilisateur est redirigé vers la liste de recherche.
+- Après suppression, l'utilisateur est redirigé vers la liste de recherche.
 
 **Rétablissement :** Un administrateur peut rétablir un établissement supprimé, ce qui efface la date de suppression et l'auteur de la suppression.
 
@@ -276,7 +276,7 @@ Site
 - **Études** (études de dossier).
 - **Autres**.
 
-Les dossiers sont affichés par lot avec un bouton « Voir plus » pour charger les dossiers suivants de manière asynchrone. Chaque dossier est cliquable pour afficher ses détails ou ses dossiers enfants.
+Les dossiers sont affichés par lot avec un bouton « Voir plus » pour afficher les dossiers suivants. Chaque dossier permet d'accéder à sa fiche.
 
 Un bouton permet de créer un nouveau dossier directement lié à l'établissement.
 
@@ -286,7 +286,7 @@ Un bouton permet de créer un nouveau dossier directement lié à l'établisseme
 
 **Modification :** L'utilisateur peut modifier les valeurs des rubriques, réordonner les éléments et gérer les tableaux de données.
 
-L'accès est conditionné par une permission spécifique.
+L'accès dépend des droits de l'utilisateur.
 
 ### 4.10 Gérer les avis et dérogations
 
@@ -294,7 +294,7 @@ L'accès est conditionné par une permission spécifique.
 - L'historique chronologique des avis et dérogations en vigueur, avec indication de leur levée éventuelle. Chaque entrée renvoie vers le dossier source.
 - Les dérogations originales (texte libre issu du descriptif).
 
-L'accès est conditionné par une permission spécifique.
+L'accès dépend des droits de l'utilisateur.
 
 ### 4.11 Gérer la hiérarchie parent/enfant
 
@@ -311,11 +311,9 @@ L'accès est conditionné par une permission spécifique.
 
 ### Identification
 
-**RG-ETB-001** — Chaque établissement possède un identifiant unique attribué automatiquement à la création. L'utilisateur peut le remplacer par un identifiant personnalisé. Si aucun identifiant n'est saisi, l'identifiant technique interne est utilisé.
+**RG-ETB-001** — Chaque établissement possède un identifiant unique attribué automatiquement à la création. L'utilisateur peut le remplacer par un identifiant personnalisé.
 
-**RG-ETB-002** — L'identifiant Winprev suit le format : `[lettre du genre][code INSEE commune sur 6 chiffres][rang sur la commune sur 5 chiffres]-[rang cellule sur 3 chiffres]-[identifiant commission]`. Exemple pour un ERP : `E350238000042-000-5`. Cet identifiant n'est **pas calculé automatiquement** : il est saisi manuellement ou hérité d'un import historique.
-
-**RG-ETB-003** — La lettre du genre dans l'identifiant Winprev suit la correspondance : Site=S, ERP=E, Cellule=B, Habitation=H, IGH=G, BUP=I. Cette correspondance est documentée à titre informatif ; l'application ne génère pas automatiquement cet identifiant.
+**RG-ETB-002** — L'identifiant complémentaire n'est pas calculé automatiquement par Prevarisc.
 
 ### Classement et genre
 
@@ -329,7 +327,7 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-008** — Seules les zones disposent d'un classement spécifique.
 
-**RG-ETB-009** — L'indicateur ICPE n'est disponible que pour les ERP et les BUP. Lorsqu'il est activé pour un BUP, les rubriques ICPE (substance, activité, IED, produits dangereux) deviennent disponibles.
+**RG-ETB-009** — Dans le formulaire d'édition, l'indicateur ICPE est proposé pour les BUP, mais pas pour les ERP. Lorsqu'il est activé pour un BUP, les rubriques ICPE (substance, activité, IED, produits dangereux) deviennent disponibles. En consultation, le badge ICPE est affiché si cette valeur est enregistrée, quel que soit le genre de l'établissement.
 
 **RG-ETB-010** — Les activités secondaires (types et activités) ne sont disponibles que pour les ERP et les cellules.
 
@@ -345,7 +343,7 @@ L'accès est conditionné par une permission spécifique.
 
 ### Statut
 
-**RG-ETB-016** — Le changement de statut d'un établissement est restreint aux utilisateurs ayant la permission « modification du statut ». Les autres utilisateurs voient le champ en lecture seule.
+**RG-ETB-016** — Seuls les utilisateurs autorisés peuvent modifier le statut d'un établissement. Les autres utilisateurs voient le champ en lecture seule.
 
 **RG-ETB-017** — Le statut par défaut à la création est le premier statut du référentiel (généralement « Projet »).
 
@@ -357,7 +355,7 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-020** — Un établissement supprimé peut être rétabli par un administrateur. Le rétablissement efface la date de suppression et l'auteur.
 
-**RG-ETB-021** — La suppression nécessite la permission « suppression d'établissement ».
+**RG-ETB-021** — La suppression est réservée aux utilisateurs autorisés.
 
 ### Hiérarchie parent / enfant
 
@@ -373,7 +371,7 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-027** — Un ERP, une habitation, un IGH, un BUP, un camping, une manifestation ou un IOP a pour père un site.
 
-**RG-ETB-028** — ~~Lorsqu'un ERP parent est modifié, la **catégorie** de ses cellules enfants est automatiquement mise à jour pour correspondre à celle du parent.~~ **Non implémenté** : la fonction `recalcEnfants()` prévue à cet effet existe dans le code legacy (`Model_DbTable_Etablissement`) mais n'est jamais appelée. La catégorie des cellules n'est donc pas recalculée automatiquement lors de la modification d'un ERP parent, ni dans le legacy ni dans la migration Symfony.
+**RG-ETB-028** — La modification de la catégorie d'un ERP ne met pas automatiquement à jour la catégorie des cellules déjà rattachées. À la création ou au rattachement d'une cellule, celle-ci reprend la catégorie de son ERP parent (voir RG-ETB-029).
 
 **RG-ETB-029** — Lorsqu'une cellule est créée ou rattachée à un ERP, elle hérite automatiquement de la **catégorie** de son parent.
 
@@ -399,7 +397,7 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-037** — Les pièces jointes sont classées en trois placements : liste principale (valeur 0), diaporama (valeur 1), plans (valeur 2). Seules les images (JPG, JPEG, PNG) sont acceptées pour le diaporama et les plans.
 
-**RG-ETB-038** — Les pièces jointes dont le fichier physique est absent ou illisible sur le serveur sont automatiquement filtrées et n'apparaissent pas à l'affichage.
+**RG-ETB-038** — Les pièces jointes qui ne sont pas disponibles n'apparaissent pas dans la fiche.
 
 ### Historisation
 
@@ -477,8 +475,6 @@ L'accès est conditionné par une permission spécifique.
 
 **RG-ETB-060** — Un **recalcul global des périodicités** peut être appliqué en masse sur tous les établissements, en mettant à jour la périodicité de la dernière fiche d'informations de chaque établissement à partir du référentiel GN4.
 
-**RG-ETB-061** — ~~Lors de la modification d'un ERP parent, la **périodicité** de ses cellules enfants est mise à jour pour correspondre à celle du parent.~~ **Non implémenté** : identique à RG-ETB-028, la fonction `recalcEnfants()` du legacy prévoyait cette propagation mais n'est jamais appelée. La périodicité des cellules n'est donc pas recalculée automatiquement lors de la modification d'un ERP parent.
-
 ---
 
 ## 8. Cas particuliers et limites
@@ -493,7 +489,7 @@ Les IGH partagent certaines caractéristiques avec les ERP (périodicité, commi
 
 ### Cellules
 
-Les cellules sont des sous-entités d'un ERP ou d'un IGH. Elles :
+Les cellules sont rattachées à un ERP ou à un IGH. Elles :
 - Héritent de la **catégorie** de leur parent ERP (affectation automatique).
 - Héritent de la **périodicité** de leur parent via la hiérarchie.
 - N'ont **pas d'adresse propre** (adresse remontée depuis le site racine).
@@ -518,7 +514,7 @@ Si un dossier avec avis différé est postérieur au dernier dossier donnant avi
 
 ### Établissements liés et droits d'accès
 
-Les droits d'accès à un **site** sont déterminés par les droits d'accès aux établissements enfants qui le composent. Un site sans enfant n'est potentiellement accessible à personne : un message d'avertissement est affiché lors de la création d'un site avec un seul enfant.
+Les droits d'accès à un **site** sont déterminés par les droits d'accès aux établissements enfants qui le composent. Un site sans enfant n'est potentiellement accessible à personne : un message d'avertissement est affiché lors de sa création sans enfant. La présence d'au moins un enfant évite cet avertissement.
 
 ### Date de PC initial
 
@@ -531,10 +527,6 @@ Un facteur de dangerosité peut être associé à l'établissement via le dossie
 ### Présence d'un échéancier
 
 Le système détecte automatiquement si un dossier de nature « échéancier » est lié à l'établissement. Cette information est disponible sur la fiche.
-
-### Mise en cache
-
-Les données d'un établissement sont mises en cache après le premier chargement. Le cache est invalidé à chaque modification de l'établissement, de ses enfants ou de son père.
 
 ### Liste des ERP ouverts sous avis défavorable
 

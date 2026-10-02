@@ -149,7 +149,6 @@ Le déclenchement de cette action effectue les opérations suivantes :
    - Pour les **établissements** : on considère l'adresse directe de l'établissement.
    - Pour les **cellules** : on considère l'adresse de l'établissement parent (la cellule hérite du périmètre géographique de son établissement père).
    - Pour les **sites** : on considère l'adresse de l'établissement fils lié au site.
-3. **Invalidation du cache de recherche** : le cache global de recherche est vidé pour tenir compte des nouvelles affectations.
 
 **Pré-condition :** Le groupement doit avoir au moins un préventionniste affecté. Le bouton n'apparaît pas sinon.
 
@@ -189,7 +188,6 @@ Les groupements de communes jouent un rôle central dans la définition du péri
 | **RG-GRP-012** | La réaffectation supprime d'abord toutes les affectations préventionniste-établissement existantes dans le périmètre du groupement, puis les recrée à partir de la liste actuelle des préventionnistes du groupement. |
 | **RG-GRP-013** | La réaffectation traite trois catégories d'entités : les établissements (adresse directe), les cellules (adresse héritée de l'établissement parent) et les sites (adresse de l'établissement fils lié). |
 | **RG-GRP-014** | Seule la dernière version des informations d'un établissement est prise en compte lors de la réaffectation des préventionnistes. |
-| **RG-GRP-015** | Après une réaffectation, le cache de recherche global de l'application est invalidé. |
 | **RG-GRP-016** | La liste des groupements est affichée regroupée par type, puis triée alphabétiquement par libellé au sein de chaque type. |
 | **RG-GRP-017** | Si aucune commune n'existe dans le référentiel, l'interface de gestion des groupements est remplacée par un message d'information. |
 | **RG-GRP-018** | Les coordonnées d'un groupement (nom du responsable, téléphones, courriel, adresse) sont optionnelles. Si aucune coordonnée n'existe lors de la première sauvegarde, une fiche vide est créée automatiquement. |
@@ -221,14 +219,6 @@ Si un groupement n'a jamais eu de coordonnées renseignées et qu'on le modifie 
 
 Ce cas est fonctionnellement normal. Une commune peut être membre de plusieurs groupements simultanément (par exemple, une communauté de communes et un syndicat de traitement des eaux). Les préventionnistes de chaque groupement seront tous affectés aux établissements de cette commune lors de la réaffectation.
 
-### 7.5 Ajout d'un type de groupement
+### 7.5 Mise à jour des affectations
 
-L'interface offre la possibilité d'ajouter un nouveau type de groupement au référentiel (ex. : « Pôle métropolitain »). Cette fonctionnalité est indépendante de la gestion d'un groupement en particulier. **Note : cette fonctionnalité est signalée comme potentiellement inutilisée et pourrait ne pas être migrée.**
-
-### 7.6 Suppression d'un type de groupement
-
-La suppression d'un type de groupement est prévue dans l'interface mais **n'effectue aucune action**. Il s'agit d'une fonctionnalité morte. **Elle ne doit pas être migrée.**
-
-### 7.7 Réaffectation basée sur le libellé
-
-La réaffectation des préventionnistes aux établissements s'appuie sur le **libellé** du groupement (et non sur son identifiant interne). Cela signifie que si le libellé d'un groupement est modifié après une première réaffectation, une nouvelle réaffectation devra être lancée avec le nouveau libellé. Ce comportement est un héritage du legacy à évaluer lors de la migration.
+La réaffectation des préventionnistes utilise le libellé du groupement. Si ce libellé est modifié, il faut relancer l'affectation pour que les changements soient répercutés aux établissements.

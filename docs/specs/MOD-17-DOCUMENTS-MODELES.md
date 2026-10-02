@@ -2,7 +2,7 @@
 
 ## 1. Objet et périmètre
 
-Le module **Documents modèles** permet de gérer une bibliothèque de gabarits ODT utilisés pour générer automatiquement des documents officiels dans Prevarisc : rapports de visite, lettres de suite, courriers d'avis, comptes-rendus, etc.
+Le module **Documents modèles** permet de gérer une bibliothèque de modèles de documents texte au format ODT, compatible avec les logiciels de traitement de texte. Ils servent à générer automatiquement des documents officiels dans Prevarisc : rapports de visite, lettres de suite, courriers d'avis, comptes-rendus, etc.
 
 Ces gabarits contiennent des champs de fusion (variables) qui sont automatiquement remplacés par les données réelles du dossier, de l'établissement ou de la commission au moment de la génération.
 
@@ -138,16 +138,16 @@ Documents modèles
 
 1. L'utilisateur clique sur le bouton « Ajouter un document ».
 2. Une fenêtre modale s'ouvre avec le titre « Ajouter un document type ».
-3. L'utilisateur sélectionne la commission de destination dans une liste déroulante. La première option est « Documents visibles après verrouillage ». Les commissions sont regroupées par type de commission.
+3. L'utilisateur choisit une ou plusieurs destinations dans des cases à cocher, regroupées par type de commission. La destination transversale « Disponibles après verrouillage » est également proposée. Il s'agit d'une sélection multiple par cases à cocher, et non d'une liste déroulante multiple.
 4. L'utilisateur sélectionne un fichier ODT depuis son poste.
 5. L'utilisateur clique sur « Envoyer ».
 6. Le bouton « Envoyer » est désactivé et remplacé par une icône de rechargement animée avec le texte « Envoi en cours... ».
-7. En cas de succès, la page se recharge et le nouveau modèle apparaît dans la liste de la commission sélectionnée.
-8. En cas d'erreur, un message explicite est affiché.
+7. Un seul fichier est envoyé ; en cas de succès, il est copié dans l'espace de chacune des destinations sélectionnées. La page se recharge et le modèle apparaît dans les espaces concernés.
+8. En cas d'erreur de validation ou de copie, un message d'erreur est affiché. **Limite technique constatée :** les copies sont réalisées successivement sans annulation des copies déjà effectuées ; une erreur en cours de traitement peut donc laisser certaines destinations mises à jour et d'autres non. Ce comportement technique n'établit pas une règle métier d'envoi partiel.
 
 ### 5.3 Remplacer un modèle
 
-Il n'existe pas de fonction « remplacer » explicite. Le remplacement s'effectue en envoyant un fichier portant le **même nom** que le fichier existant. Le nouveau fichier écrase l'ancien sans avertissement.
+Il n'existe pas de fonction « remplacer » explicite. Le remplacement s'effectue en envoyant un fichier portant le **même nom** qu'un fichier déjà présent dans un espace sélectionné. Le nouveau fichier écrase l'ancien sans avertissement.
 
 ### 5.4 Supprimer un modèle
 
@@ -204,14 +204,14 @@ Pour les convocations et ordres du jour, la génération utilise les courriers t
 
 | Référence | Règle |
 |---|---|
-| **RG-DOC-001** | Seuls les fichiers au format ODT sont acceptés. Tout autre format est rejeté avec un message d'erreur explicite. |
+| **RG-DOC-001** | Seuls les documents au format ODT, compatible avec les logiciels de traitement de texte, sont acceptés. Tout autre format est refusé avec un message explicite. |
 | **RG-DOC-002** | Chaque commission dispose de son propre espace de stockage de modèles. Un espace est automatiquement créé lors de la création d'une nouvelle commission. |
 | **RG-DOC-003** | L'espace « Documents visibles après verrouillage » est transversal, non rattaché à une commission. Il est accessible depuis tous les dossiers. |
 | **RG-DOC-004** | Lorsqu'un dossier est verrouillé, seuls les modèles de l'espace transversal (après verrouillage) sont proposés à la génération. Les modèles spécifiques aux commissions ne sont plus accessibles. |
 | **RG-DOC-005** | Lorsqu'un dossier n'est pas verrouillé, la commission du dossier est présélectionnée par défaut. L'utilisateur peut choisir les modèles d'une autre commission. |
-| **RG-DOC-006** | L'envoi d'un fichier portant le même nom qu'un fichier existant écrase silencieusement l'ancien fichier, sans avertissement ni confirmation. |
+| **RG-DOC-006** | L'envoi d'un fichier portant le même nom qu'un fichier existant dans un espace de destination sélectionné écrase silencieusement l'ancien fichier de cet espace, sans avertissement ni confirmation. |
 | **RG-DOC-007** | La suppression d'un modèle est irréversible. Un message de confirmation est obligatoire avant suppression. Le message avertit que le fichier ne pourra plus être utilisé pour la génération. |
-| **RG-DOC-008** | Le nom du fichier est conservé tel quel (nom original du fichier envoyé par l'utilisateur). Il sert d'identifiant unique au sein d'une commission. |
+| **RG-DOC-008** | Le nom du fichier est conservé tel quel (nom original du fichier envoyé par l'utilisateur). Il sert d'identifiant unique au sein de chaque espace de stockage, commission ou transversal. |
 | **RG-DOC-009** | Les modèles sont triés par ordre alphabétique du nom de fichier dans chaque commission. |
 | **RG-DOC-010** | L'écran de gestion des documents modèles est accessible depuis le menu Administration uniquement. |
 | **RG-DOC-011** | Lors de la génération d'un rapport depuis un dossier, l'utilisateur doit sélectionner au moins un modèle et au moins un établissement. Si l'un des deux manque, un message d'avertissement s'affiche et la génération est bloquée. |
@@ -220,6 +220,7 @@ Pour les convocations et ordres du jour, la génération utilise les courriers t
 | **RG-DOC-014** | Le modèle de compte-rendu d'une commission est unique : l'envoi d'un nouveau modèle supprime automatiquement le précédent. |
 | **RG-DOC-015** | Les courriers types des membres de commission (convocation salle, convocation visite, ordre du jour) sont distincts des modèles de rapports. Ils sont gérés depuis la fiche de la commission et non depuis l'écran d'administration des documents. |
 | **RG-DOC-016** | Les champs de fusion présents dans un modèle qui ne correspondent à aucune donnée disponible sont remplacés par une valeur vide (chaîne vide). Aucune erreur n'est levée. |
+| **RG-DOC-017** | Lors de l'ajout d'un modèle, l'utilisateur peut sélectionner plusieurs commissions et/ou l'espace transversal. Le même fichier est copié dans chaque espace sélectionné ; s'il y porte le nom d'un fichier existant, celui-ci est remplacé selon RG-DOC-006. |
 
 ---
 
@@ -235,15 +236,15 @@ Si la commission du dossier n'est pas renseignée, un message d'avertissement es
 
 ### 8.3 Écrasement silencieux
 
-L'envoi d'un fichier dont le nom est identique à un fichier déjà présent dans la même commission entraîne son remplacement sans confirmation. C'est le seul moyen de « mettre à jour » un modèle.
+L'envoi d'un fichier dont le nom est identique à un fichier déjà présent dans un espace ciblé entraîne son remplacement sans confirmation. Si plusieurs destinations sont sélectionnées, ce remplacement s'applique indépendamment dans chacune d'elles. C'est le seul moyen de « mettre à jour » un modèle.
 
 ### 8.4 Établissement de type site (cellules rattachées)
 
 Lors de la génération pour un établissement dont l'activité principale est « site », une option permet d'exclure les prescriptions issues des cellules rattachées. Par défaut, les prescriptions des cellules sont reprises.
 
-### 8.5 Répertoire de documents inexistant
+### 8.5 Documents indisponibles
 
-Si le répertoire de stockage d'une commission n'existe pas au moment de la consultation, l'application affiche une alerte non bloquante pour cette commission tout en continuant à afficher les éléments sans erreur. Cela permet à l'administrateur de visualiser les commissions fonctionnelles tout en étant averti des problèmes de répertoires manquants. La création du répertoire se fait automatiquement lors de la création de la commission, mais une intervention manuelle peut être nécessaire en cas de suppression accidentelle.
+Si les documents d'une commission ne sont pas disponibles, un avertissement est affiché pour cette commission. Les documents des autres commissions restent consultables.
 
 ### 8.6 Suppression d'une commission
 
@@ -256,3 +257,7 @@ Les convocations ne sont générées que pour les membres dont les compétences 
 ### 8.8 Contact de commune non renseigné
 
 Lors de la génération de l'ordre du jour, si le contact de la mairie d'une commune concernée n'est pas renseigné, un avertissement est affiché. Les champs d'adresse de la mairie sont laissés vides dans le document généré.
+
+### 8.9 Erreur lors d'un ajout vers plusieurs destinations
+
+Le traitement technique actuel copie le fichier successivement dans les espaces sélectionnés. Si une copie échoue après une ou plusieurs copies réussies, celles déjà réalisées ne sont pas annulées. L'état peut donc être partiel ; ce cas est à distinguer d'un résultat garanti tout-ou-rien, qui n'est pas implémenté.

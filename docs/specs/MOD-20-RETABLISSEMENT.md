@@ -23,7 +23,7 @@ Le module ne gère pas la suppression elle-même. Il intervient uniquement en av
 | **Administrateur habilité « suppression d'établissements »** | Peut consulter et rétablir les établissements supprimés. |
 | **Utilisateur sans habilitation** | Ne peut pas accéder au module. Un message d'interdiction lui est affiché. |
 
-L'accès au module est contrôlé par deux privilèges distincts et indépendants :
+L'accès au module est contrôlé par deux droits distincts :
 
 - Le droit de supprimer (et donc rétablir) des **dossiers**.
 - Le droit de supprimer (et donc rétablir) des **établissements**.
@@ -32,15 +32,15 @@ Un utilisateur peut disposer de l'un, de l'autre, ou des deux droits.
 
 ---
 
-## 3. Principe de suppression logique
+## 3. Principe de suppression réversible
 
-L'application Prevarisc ne supprime jamais physiquement un dossier ou un établissement. Elle applique une **suppression logique** :
+La suppression retire un dossier ou un établissement des listes et des consultations habituelles, tout en permettant à un administrateur de le rétablir :
 
-- Lors de la suppression, une **date de suppression** est enregistrée sur l'élément, ainsi que l'**identité de l'utilisateur** ayant effectué la suppression.
+- La date de suppression et l'identité de la personne ayant effectué l'action sont conservées.
 - Tout élément portant une date de suppression est **exclu des résultats** de recherche, des listes et de la consultation courante. Il est considéré comme « supprimé » du point de vue métier.
-- Le rétablissement consiste à **effacer la date de suppression** et l'identité du supprimeur, ce qui rend l'élément à nouveau visible et exploitable.
+- Le rétablissement rend l'élément à nouveau visible et utilisable.
 
-**Suppression en cascade :** lorsqu'un établissement est supprimé, tous ses dossiers associés sont également marqués comme supprimés. En revanche, le rétablissement ne déclenche aucune cascade (voir section « Cas particuliers »).
+Lorsqu'un établissement est supprimé, ses dossiers associés sont également marqués comme supprimés. Le rétablissement de l'établissement ne rétablit pas automatiquement ces dossiers (voir « Cas particuliers »).
 
 ---
 
@@ -92,7 +92,6 @@ La liste est triée par **date de suppression décroissante**.
 1. La date de suppression de l'établissement est effacée.
 2. L'identité du supprimeur est effacée.
 3. L'établissement redevient visible dans les recherches et les listes.
-4. Le cache de recherche est entièrement vidé pour refléter le changement.
 5. Un message de succès est affiché : « L'établissement a bien été rétabli ».
 6. L'utilisateur est redirigé vers l'écran de gestion des éléments supprimés (point de départ unique du rétablissement).
 
@@ -107,7 +106,6 @@ La liste est triée par **date de suppression décroissante**.
 1. La date de suppression du dossier est effacée.
 2. L'identité du supprimeur est effacée.
 3. Le dossier redevient visible dans les recherches et les listes.
-4. Le cache de recherche est entièrement vidé pour refléter le changement.
 5. Un message de succès est affiché : « Le dossier a bien été rétabli ».
 6. L'utilisateur est redirigé vers la page d'où l'action a été déclenchée (écran de gestion ou fiche du dossier).
 
@@ -126,7 +124,6 @@ La liste est triée par **date de suppression décroissante**.
 | **RG-RET-007** | L'objet d'un dossier supprimé est tronqué à 70 caractères dans la liste. Le texte complet est accessible au survol de la souris (info-bulle). |
 | **RG-RET-008** | Le rétablissement d'un dossier efface sa date de suppression et l'identité du supprimeur. Le dossier redevient actif immédiatement. |
 | **RG-RET-009** | Le rétablissement d'un établissement efface sa date de suppression et l'identité du supprimeur. L'établissement redevient actif immédiatement. |
-| **RG-RET-010** | Le rétablissement d'un élément provoque l'invalidation complète du cache de recherche. |
 | **RG-RET-011** | Un message de succès est affiché après chaque rétablissement réussi. |
 | **RG-RET-012** | Après le rétablissement d'un **dossier**, l'utilisateur est automatiquement redirigé vers la page d'où il a déclenché l'action (écran de gestion ou fiche du dossier). Le rétablissement d'un **établissement** se fait uniquement depuis l'écran de gestion et redirige vers celui-ci. |
 | **RG-RET-013** | Lorsqu'un dossier est associé à un établissement unique, la suppression du dossier entraîne son marquage. Lorsque le dossier est partagé entre plusieurs établissements, il n'est supprimé logiquement que si la demande provient d'un contexte mono-établissement. |

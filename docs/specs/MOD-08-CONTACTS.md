@@ -158,7 +158,7 @@ Deux modes d'ajout sont proposés (boutons visibles uniquement si l'entité n'es
 
 ### 5.4 Supprimer un contact
 
-1. L'utilisateur clique sur le bouton de suppression (×) présent sur la fiche du contact.
+1. L'utilisateur clique sur le bouton de suppression portant une icône de corbeille, présent sur la fiche du contact.
 2. Une fenêtre de confirmation s'affiche : « Voulez-vous vraiment supprimer ce contact ? »
 3. L'utilisateur confirme ou annule.
 4. Le comportement dépend de l'état du contact (voir RG-CTT-006 et RG-CTT-007).
@@ -173,7 +173,6 @@ La recherche permet de retrouver un contact déjà enregistré dans le système 
 - La recherche porte sur le **nom**, le **prénom** et le **nom de société** (recherche partielle, insensible à la position dans le texte).
 - Seuls les contacts qui **ne sont pas des utilisateurs de l'application** apparaissent dans les résultats.
 - La liste propose jusqu'à **100 résultats**, affichés sous la forme « Nom Prénom ».
-- Le cache de résultats est désactivé : chaque frappe au clavier déclenche une nouvelle recherche.
 
 ---
 
@@ -208,7 +207,6 @@ Ce mécanisme permet notamment de visualiser le **Directeur unique de sécurité
 | **RG-CTT-011** | Tri alphabétique | Les contacts d'une entité sont systématiquement triés par nom de famille, par ordre alphabétique croissant. |
 | **RG-CTT-012** | Recherche minimum 3 caractères | L'autocomplétion de recherche de contact existant ne se déclenche qu'à partir de 3 caractères saisis. |
 | **RG-CTT-013** | Exclusion des utilisateurs | La recherche de contacts existants exclut les personnes disposant d'un compte utilisateur dans l'application. Seuls les contacts « purs » (sans compte) sont proposés. |
-| **RG-CTT-014** | Invalidation du cache | Toute opération d'ajout, de modification ou de suppression d'un contact entraîne l'invalidation du cache de l'entité concernée. |
 | **RG-CTT-015** | Fonction DUS et héritage | Le Directeur unique de sécurité (DUS) déclaré au niveau d'un établissement parent est automatiquement visible sur les cellules enfants via le mécanisme d'héritage, sans duplication de la fiche. |
 | **RG-CTT-016** | Recherche contact pour un dossier | Un dossier peut récupérer les contacts de son établissement de rattachement, filtrés par fonction. Ce mécanisme est utilisé notamment pour pré-remplir le DUS lors de la création d'un dossier. |
 
