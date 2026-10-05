@@ -145,10 +145,9 @@ PREVARISC_DOSSIERS_MAX_A_AFFICHER | [FACULTATIF] Permet de configurer le nombre 
 
 `PREVARISC_IGN_AUTOCONF` peut être définie dans le VirtualHost Apache, par exemple
 `SetEnv PREVARISC_IGN_AUTOCONF "/ign/prevarisc/customConfig.json"`.
-Le fichier doit se trouver sous le `DocumentRoot` effectivement servi, et non
-nécessairement sous le dossier public de l'application legacy. Hors requête HTTP,
-la racine utilisée est le dossier `public/` de l'application Symfony.
-Le navigateur reçoit le chemin web du fichier, jamais son chemin physique.
+Le fichier doit se trouver sous le dossier `public/` de l'application Symfony
+(`DocumentRoot`). Le navigateur reçoit le chemin web du fichier, jamais son
+chemin physique.
 Si la variable est absente ou vide, aucune autoconfiguration locale n'est utilisée.
 Si le fichier configuré est introuvable, un avertissement est journalisé et la
 carte utilise le service IGN en ligne.

@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
+use App\Utils\PathNormalizer;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 final class IgnAutoconfiguration
 {
@@ -13,17 +13,13 @@ final class IgnAutoconfiguration
     /** @var string */
     private $srcDir;
 
-    /** @var RequestStack */
-    private $requestStack;
-
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(string $autoconfPath, string $srcDir, RequestStack $requestStack, LoggerInterface $logger)
+    public function __construct(string $autoconfPath, string $srcDir, LoggerInterface $logger)
     {
         $this->autoconfPath = $autoconfPath;
         $this->srcDir = $srcDir;
-        $this->requestStack = $requestStack;
         $this->logger = $logger;
     }
 
@@ -33,11 +29,7 @@ final class IgnAutoconfiguration
             return '';
         }
 
-        $request = $this->requestStack->getMasterRequest();
-        $documentRoot = $request ? $request->server->get('DOCUMENT_ROOT') : null;
-        $publicDir = is_string($documentRoot) && '' !== $documentRoot ? $documentRoot : $this->srcDir.'/public';
-        $webPath = '/'.ltrim(str_replace('\\', '/', $this->autoconfPath), '/');
-        $filePath = rtrim($publicDir, '/\\').$webPath;
+        $filePath = PathNormalizer::join($this->srcDir, 'public', $this->autoconfPath);
 
         if (!is_file($filePath)) {
             $this->logger->warning('Fichier d\'autoconfiguration IGN introuvable.', [
@@ -47,6 +39,6 @@ final class IgnAutoconfiguration
             return '';
         }
 
-        return $webPath;
+        return $this->autoconfPath;
     }
 }
