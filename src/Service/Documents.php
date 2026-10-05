@@ -48,4 +48,61 @@ final class Documents
 
         return $documents;
     }
+
+    /**
+     * @return string[]
+     */
+    public function listReportTemplates(int $idCommission): array
+    {
+        $templates = [];
+        foreach ($this->reportTemplates((string) $idCommission) as $file) {
+            $templates[] = $file->getFilename();
+        }
+
+        return $templates;
+    }
+
+    public function resolveReportTemplate(string $relativeFile): ?string
+    {
+        $parts = explode('/', $relativeFile);
+        if (2 !== count($parts) || !ctype_digit($parts[0]) || '' === $parts[1] || false !== strpos($parts[1], '\\')) {
+            return null;
+        }
+
+        foreach ($this->reportTemplates($parts[0]) as $file) {
+            if ($file->getFilename() !== $parts[1]) {
+                continue;
+            }
+
+            $resolvedPath = $file->getRealPath();
+            $resolvedBase = realpath($this->realDataPath);
+            if (false === $resolvedPath || false === $resolvedBase) {
+                return null;
+            }
+
+            // Finder can return symbolic links: their target must remain inside the library.
+            $path = PathNormalizer::normalize($resolvedPath);
+            $base = PathNormalizer::normalize($resolvedBase);
+            $isWithin = '\\' === DIRECTORY_SEPARATOR
+                ? 0 === strncasecmp($path, $base, strlen($base))
+                : 0 === strpos($path, $base);
+
+            return $isWithin ? $resolvedPath : null;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return iterable<\Symfony\Component\Finder\SplFileInfo>
+     */
+    private function reportTemplates(string $idCommission): iterable
+    {
+        $path = PathNormalizer::join($this->realDataPath, $idCommission);
+        if (!is_dir($path)) {
+            return [];
+        }
+
+        return (new Finder())->files()->in($path)->depth('== 0')->name('*.odt')->sortByName();
+    }
 }

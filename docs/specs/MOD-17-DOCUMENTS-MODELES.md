@@ -178,6 +178,8 @@ Depuis l'onglet « Rapport » d'un dossier :
 5. Un document ODT est généré pour chaque établissement coché, en fusionnant les données réelles dans le modèle choisi.
 6. Le document généré est enregistré en pièce jointe du dossier.
 
+Le modèle sélectionné doit toujours être présent dans la bibliothèque de la commission choisie (ou dans l'espace transversal). Un fichier absent, un autre format ou un chemin sortant de cette bibliothèque est refusé. Un modèle stocké sur un partage réseau Windows (chemin UNC) doit pouvoir être utilisé comme un modèle stocké localement.
+
 **Comportement lié au verrouillage :**
 
 - Si le dossier est **verrouillé**, seuls les « documents visibles après verrouillage » sont proposés. La liste des commissions n'est pas affichée.
