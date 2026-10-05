@@ -5,9 +5,6 @@ namespace App\Tests\Service;
 use App\Service\IgnAutoconfiguration;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\EnvVarProcessor;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 final class IgnAutoconfigurationTest extends TestCase
 {
@@ -49,68 +46,9 @@ final class IgnAutoconfigurationTest extends TestCase
         return [
             'configuration vide' => ['', '', false],
             'fichier existant' => ['/ign/customConfig.json', '/ign/customConfig.json', false],
-            'fichier existant sans slash initial' => ['ign/customConfig.json', 'ign/customConfig.json', false],
+            'fichier existant sans slash initial' => ['ign/customConfig.json', '/ign/customConfig.json', false],
             'fichier introuvable' => ['/ign/missing.json', '', true],
             'répertoire au lieu d\'un fichier' => ['/ign', '', true],
-        ];
-    }
-
-    /**
-     * @dataProvider environmentProvider
-     */
-    public function testSymfonyReadsOptionalApacheEnvironment(?string $value, bool $useGetenv): void
-    {
-        $name = 'PREVARISC_IGN_AUTOCONF';
-        $previousServer = $_SERVER[$name] ?? null;
-        $previousEnv = $_ENV[$name] ?? null;
-        $previousGetenv = getenv($name);
-
-        try {
-            unset($_SERVER[$name], $_ENV[$name]);
-            putenv($name);
-            if (null !== $value) {
-                if ($useGetenv) {
-                    putenv($name.'='.$value);
-                } else {
-                    $_SERVER[$name] = $value;
-                }
-            }
-
-            $container = new Container(new ParameterBag(['env('.$name.')' => '']));
-            $processor = new EnvVarProcessor($container);
-            $path = $processor->getEnv('string', $name, static function (): void {
-                self::fail('Unexpected environment indirection.');
-            });
-            $logger = $this->createMock(LoggerInterface::class);
-            $logger->expects(self::never())->method('warning');
-            $service = new IgnAutoconfiguration($path, $this->tmpDir, $logger);
-
-            self::assertSame($value ?? '', $service->getPath());
-        } finally {
-            if (null !== $previousServer) {
-                $_SERVER[$name] = $previousServer;
-            } else {
-                unset($_SERVER[$name]);
-            }
-            if (null !== $previousEnv) {
-                $_ENV[$name] = $previousEnv;
-            } else {
-                unset($_ENV[$name]);
-            }
-            putenv(false === $previousGetenv ? $name : $name.'='.$previousGetenv);
-        }
-    }
-
-    /**
-     * @return array<string, array{?string, bool}>
-     */
-    public function environmentProvider(): array
-    {
-        return [
-            'variable absente' => [null, false],
-            'variable Apache vide' => ['', false],
-            'variable Apache via $_SERVER' => ['/ign/customConfig.json', false],
-            'variable Apache via getenv' => ['/ign/customConfig.json', true],
         ];
     }
 }

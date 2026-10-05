@@ -39,6 +39,7 @@ final class IgnAutoconfiguration
             return '';
         }
 
-        return $this->autoconfPath;
+        // Chemin relatif à la racine du site, même sans slash initial
+        return '/'.ltrim($this->autoconfPath, '/');
     }
 }
