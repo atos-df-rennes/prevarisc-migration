@@ -33,6 +33,7 @@ class CouchesCartographiquesController extends AbstractController
 
     /** @var CoucheCartoRepository */
     private $coucheCartoRepository;
+
     /**
      * @var IgnAutoconfiguration
      */

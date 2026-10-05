@@ -145,6 +145,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /** @var TagAwareCacheInterface */
     private $searchCache;
+
     /**
      * @var IgnAutoconfiguration
      */
