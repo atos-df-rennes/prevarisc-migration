@@ -26,6 +26,7 @@ class EtablissementCategorieEffectiveTest extends TestCase
                 $this->addInformations($parent, 1, GenreEtablissement::ERP, 1);
                 $this->addInformations($parent, 2, GenreEtablissement::ERP, $categorieParent);
             }
+
             if ('supprime' === $parentEtat) {
                 $parent->setDateSuppression(new \DateTime('2026-01-01'));
             }
@@ -71,9 +72,11 @@ class EtablissementCategorieEffectiveTest extends TestCase
         $informations = new EtablissementInformations();
         $informations->setGenre($genre);
         $informations->setCategorie($categorie);
+
         $idProperty = new \ReflectionProperty(EtablissementInformations::class, 'id');
         $idProperty->setAccessible(true);
         $idProperty->setValue($informations, $id);
+
         $etablissement->addInformations($informations);
     }
 }

@@ -32,7 +32,7 @@ final class IgnAutoconfiguration
         $filePath = PathNormalizer::join($this->srcDir, 'public', $this->autoconfPath);
 
         if (!is_file($filePath)) {
-            $this->logger->warning('Fichier d\'autoconfiguration IGN introuvable.', [
+            $this->logger->warning("Fichier d'autoconfiguration IGN introuvable.", [
                 'path' => $filePath,
             ]);
 

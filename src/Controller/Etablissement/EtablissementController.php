@@ -145,6 +145,10 @@ class EtablissementController extends AbstractController implements Etablissemen
 
     /** @var TagAwareCacheInterface */
     private $searchCache;
+    /**
+     * @var IgnAutoconfiguration
+     */
+    private $ignAutoconfiguration;
 
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
@@ -173,7 +177,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         EtablissementHistoriqueService $etablissementHistoriqueService,
         EtablissementPieceJointeService $etablissementPieceJointeService,
         EtablissementFormDataLoader $formDataLoader,
-        TagAwareCacheInterface $searchCache
+        TagAwareCacheInterface $searchCache,
+        IgnAutoconfiguration $ignAutoconfiguration
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -202,6 +207,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->etablissementPieceJointeService = $etablissementPieceJointeService;
         $this->formDataLoader = $formDataLoader;
         $this->searchCache = $searchCache;
+        $this->ignAutoconfiguration = $ignAutoconfiguration;
     }
 
     /**
@@ -336,8 +342,7 @@ class EtablissementController extends AbstractController implements Etablissemen
      * @IsGranted("view_ets", subject="etablissement")
      */
     public function informations(
-        Etablissement $etablissement,
-        IgnAutoconfiguration $ignAutoconfiguration
+        Etablissement $etablissement
     ): Response {
         // Récupération des couches cartographiques
         $couchesCartographiques = $this->coucheCartoRepository->findAll();
@@ -375,7 +380,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
-            'autoconf_path' => $ignAutoconfiguration->getPath(),
+            'autoconf_path' => $this->ignAutoconfiguration->getPath(),
             'couches_cartographiques' => $couchesCartographiquesJson,
             'adresses' => $adresses,
             'default_periodicite' => $defaultPeriodicite,

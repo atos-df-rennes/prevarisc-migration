@@ -189,6 +189,7 @@ class EtablissementCelluleVoterTest extends TestCase
         $parent = new Etablissement();
         $parentInformations = new EtablissementInformations();
         $parentInformations->setCategorie($categorieParent);
+
         $parent->addInformations($parentInformations);
 
         $etablissement = new Etablissement();
@@ -196,6 +197,7 @@ class EtablissementCelluleVoterTest extends TestCase
         $informations->setGenre($this->createConfiguredMock(Genre::class, ['getId' => GenreEtablissement::CELLULE]));
         $informations->setTypeActivite($this->createConfiguredMock(EtablissementActivite::class, ['getId' => 1]));
         $informations->setCategorie($this->createConfiguredMock(EtablissementCategorie::class, ['getId' => 2]));
+
         $etablissement->addInformations($informations);
         $etablissement->addParent($parent);
 

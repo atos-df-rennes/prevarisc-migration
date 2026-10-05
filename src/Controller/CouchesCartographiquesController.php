@@ -33,19 +33,24 @@ class CouchesCartographiquesController extends AbstractController
 
     /** @var CoucheCartoRepository */
     private $coucheCartoRepository;
+    /**
+     * @var IgnAutoconfiguration
+     */
+    private $ignAutoconfiguration;
 
-    public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger, CoucheCartoRepository $coucheCartoRepository)
+    public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger, CoucheCartoRepository $coucheCartoRepository, IgnAutoconfiguration $ignAutoconfiguration)
     {
         $this->couchesCarto = $couchesCarto;
         $this->serializer = $serializer;
         $this->logger = $logger;
         $this->coucheCartoRepository = $coucheCartoRepository;
+        $this->ignAutoconfiguration = $ignAutoconfiguration;
     }
 
     /**
      * @Route("/admin/couches-cartographiques", name="couches_cartographiques")
      */
-    public function index(IgnAutoconfiguration $ignAutoconfiguration): Response
+    public function index(): Response
     {
         return $this->render('couches_cartographiques/index.html.twig', [
             'key_ign' => $this->getParameter('app.ign_key'),
@@ -53,7 +58,7 @@ class CouchesCartographiquesController extends AbstractController
             'key_googlemap' => $this->getParameter('app.google_map_key'),
             'default_lon' => $this->getParameter('app.carto_default_lon'),
             'default_lat' => $this->getParameter('app.carto_default_lat'),
-            'autoconf_path' => $ignAutoconfiguration->getPath(),
+            'autoconf_path' => $this->ignAutoconfiguration->getPath(),
             'projection' => $this->getParameter('app.geoconcept_projection'),
             'token' => $this->getParameter('app.geoconcept_token'),
             'app_id' => $this->getParameter('app.geoconcept_app_id'),

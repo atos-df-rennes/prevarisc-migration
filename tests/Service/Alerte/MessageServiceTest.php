@@ -24,6 +24,7 @@ class MessageServiceTest extends TestCase
         $informations->setGenre($genre);
         $informations->setLibelle('Cellule Type M');
         $informations->setCategorie((new EtablissementCategorie())->setLibelle('2ème catégorie'));
+
         $etablissement->addInformations($informations);
 
         if ($avecParent) {
