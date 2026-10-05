@@ -65,12 +65,17 @@ final class Documents
     public function resolveReportTemplate(string $relativeFile): ?string
     {
         $parts = explode('/', $relativeFile);
-        if (2 !== count($parts) || !ctype_digit($parts[0]) || '' === $parts[1] || false !== strpos($parts[1], '\\')) {
+        if (2 !== count($parts)) {
             return null;
         }
 
-        foreach ($this->reportTemplates($parts[0]) as $file) {
-            if ($file->getFilename() !== $parts[1]) {
+        [$idCommission, $filename] = $parts;
+        if (!ctype_digit($idCommission) || '' === $filename || false !== strpos($filename, '\\')) {
+            return null;
+        }
+
+        foreach ($this->reportTemplates($idCommission) as $file) {
+            if ($file->getFilename() !== $filename) {
                 continue;
             }
 
