@@ -24,7 +24,7 @@
                 '{{ key_ign }}',
                 [{{ default_lon }},{{ default_lat }}],
                 "<b>Centre par défaut</b>",
-                '{{ autoconf_path }}'
+                {{ autoconf_path|json_encode(15)|raw }}
             )
 
             viewer.listen('mapLoaded', afterInitMap);

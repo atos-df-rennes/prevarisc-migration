@@ -32,6 +32,7 @@ use App\Service\Etablissement as EtablissementService;
 use App\Service\EtablissementFormDataLoader;
 use App\Service\EtablissementHistoriqueService;
 use App\Service\EtablissementPieceJointeService;
+use App\Service\IgnAutoconfiguration;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -335,7 +336,8 @@ class EtablissementController extends AbstractController implements Etablissemen
      * @IsGranted("view_ets", subject="etablissement")
      */
     public function informations(
-        Etablissement $etablissement
+        Etablissement $etablissement,
+        IgnAutoconfiguration $ignAutoconfiguration
     ): Response {
         // Récupération des couches cartographiques
         $couchesCartographiques = $this->coucheCartoRepository->findAll();
@@ -373,6 +375,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
+            'autoconf_path' => $ignAutoconfiguration->getPath(),
             'couches_cartographiques' => $couchesCartographiquesJson,
             'adresses' => $adresses,
             'default_periodicite' => $defaultPeriodicite,

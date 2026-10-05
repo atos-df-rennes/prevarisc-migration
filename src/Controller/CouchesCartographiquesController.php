@@ -7,6 +7,7 @@ use App\Form\CoucheCartoType;
 use App\Form\ReOrderCoucheCartoType;
 use App\Repository\CoucheCartoRepository;
 use App\Service\CouchesCarto;
+use App\Service\IgnAutoconfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -44,18 +45,15 @@ class CouchesCartographiquesController extends AbstractController
     /**
      * @Route("/admin/couches-cartographiques", name="couches_cartographiques")
      */
-    public function index(): Response
+    public function index(IgnAutoconfiguration $ignAutoconfiguration): Response
     {
-        /** @var string $autoconfPath */
-        $autoconfPath = $this->getParameter('app.carto_autoconf_path');
-
         return $this->render('couches_cartographiques/index.html.twig', [
             'key_ign' => $this->getParameter('app.ign_key'),
             'geoconcept_url' => $this->getParameter('app.geoconcept_url'),
             'key_googlemap' => $this->getParameter('app.google_map_key'),
             'default_lon' => $this->getParameter('app.carto_default_lon'),
             'default_lat' => $this->getParameter('app.carto_default_lat'),
-            'autoconf_path' => file_exists($autoconfPath) ? $autoconfPath : '',
+            'autoconf_path' => $ignAutoconfiguration->getPath(),
             'projection' => $this->getParameter('app.geoconcept_projection'),
             'token' => $this->getParameter('app.geoconcept_token'),
             'app_id' => $this->getParameter('app.geoconcept_app_id'),

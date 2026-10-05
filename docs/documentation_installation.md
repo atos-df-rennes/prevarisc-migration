@@ -143,6 +143,16 @@ PREVARISC_COMMAND_PATH | [FACULTATIF] Chemin vers le dossier destiné à stocker
 PREVARISC_DEACTIVATE_PLATAU | [FACULTATIF] Permet de désactiver tous les affichages liés à Plat'AU | 0 ou 1 pour désactiver (affichages activés par défaut)
 PREVARISC_DOSSIERS_MAX_A_AFFICHER | [FACULTATIF] Permet de configurer le nombre de dossiers du même type à afficher dans la liste des dossiers, par défaut 5 | Entier
 
+`PREVARISC_IGN_AUTOCONF` peut être définie dans le VirtualHost Apache, par exemple
+`SetEnv PREVARISC_IGN_AUTOCONF "/ign/prevarisc/customConfig.json"`.
+Le fichier doit se trouver sous le `DocumentRoot` effectivement servi, et non
+nécessairement sous le dossier public de l'application legacy. Hors requête HTTP,
+la racine utilisée est le dossier `public/` de l'application Symfony.
+Le navigateur reçoit le chemin web du fichier, jamais son chemin physique.
+Si la variable est absente ou vide, aucune autoconfiguration locale n'est utilisée.
+Si le fichier configuré est introuvable, un avertissement est journalisé et la
+carte utilise le service IGN en ligne.
+
 * Redémarrer Apache : `systemctl restart apache2`
 
 ## Installation de Prevarisc
