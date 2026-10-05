@@ -129,7 +129,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ldap', ref('app.ldap'));
 
     $services->set('App\Service\DataStore\DataStoreFactory')
-        ->arg('$adapter', '%app.datastore_adapter%');
+        ->arg('$adapter', '%app.datastore_adapter%')
+        ->arg('$fileFormat', '%app.datastore_file_format%');
 
     $services->set('App\Service\CouchesCarto')
         ->arg('$cache', ref('cache.ign_capabilities'));

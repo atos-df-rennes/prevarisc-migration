@@ -36,6 +36,33 @@ docker compose -f compose.dev.yaml restart app
 
 ## Implémentation technique
 
+### Personnaliser les noms de téléchargement
+
+La variable facultative `PREVARISC_DATASTORE_FILE_FORMAT` permet de personnaliser le nom des pièces jointes au téléchargement, sans modifier le source. Elle est prise en compte par les deux adaptateurs. Si elle est absente ou vide, le format reste `%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%`.
+
+Exemple de configuration Apache reprenant un format personnalisé :
+
+```apache
+SetEnv PREVARISC_DATASTORE_FILE_FORMAT "%NUMEROID_ETABLISSEMENT%_%DATE_PIECEJOINTE%_%NOM_PIECEJOINTE%_%ID_PIECEJOINTE%%EXTENSION_PIECEJOINTE%"
+```
+
+Pour une séance `42`, un ODJ `123` généré le 5 octobre 2026 sera téléchargé sous `42_2026-10-05_Ordre du jour_123.odt`. Le même format s'applique aux autres pièces jointes de séance, notamment convocations, PV et comptes-rendus.
+
+| Jeton | Valeur |
+|---|---|
+| `%NOM_PIECEJOINTE%` | Libellé enregistré, sans extension |
+| `%EXTENSION_PIECEJOINTE%` | Extension, point compris |
+| `%ID_PIECEJOINTE%` | Identifiant de la pièce jointe |
+| `%DATE_PIECEJOINTE%` | Date d'ajout/génération au format `Y-m-d`, vide si absente ; ce n'est pas la date de la séance |
+| `%DESCRIPTION_PIECEJOINTE%` | Description |
+| `%ID_OBJECT%` | Identifiant de l'objet auquel la pièce jointe est rattachée |
+| `%NUMEROID_ETABLISSEMENT%` | Pour les commissions : identifiant de la date de commission (séance), pas de la commission |
+| `%TYPE_OBJET%` | Type de rattachement, par exemple `dateCommission` |
+| `%CODE_TYPE_OBJET%` | Trois premières lettres du type, en majuscules |
+| `%SHORT_CODE_TYPE_OBJET%` | Première lettre du type, en majuscule |
+
+Le libellé affiché et les chemins physiques ne changent pas. Le format concerne les téléchargements unitaires utilisant le DataStore ; les noms des entrées des ZIP de dossiers ne sont pas modifiés. Les noms de téléchargement restent assainis par le contrôleur HTTP. Redémarrer Apache après modification de sa configuration, comme pour le choix de l'adaptateur.
+
 Le système utilise un **pattern Factory avec Proxy runtime** pour résoudre le DataStore à l'exécution, permettant ainsi un changement dynamique sans recompilation du conteneur.
 
 ### Architecture

@@ -89,7 +89,7 @@ class SimpleFileDataStore implements DataStore
             '%NOM_PIECEJOINTE%' => $piece_jointe->getNom(),
             '%EXTENSION_PIECEJOINTE%' => $piece_jointe->getExtension(),
             '%DESCRIPTION_PIECEJOINTE%' => $piece_jointe->getDescription(),
-            '%DATE_PIECEJOINTE%' => $piece_jointe->getDate(),
+            '%DATE_PIECEJOINTE%' => null !== $piece_jointe->getDate() ? $piece_jointe->getDate()->format('Y-m-d') : '',
             '%ID_OBJECT%' => $linkedObjectId,
             '%TYPE_OBJET%' => $linkedObjectType,
             '%CODE_TYPE_OBJET%' => strtoupper(substr($linkedObjectType, 0, 3)),

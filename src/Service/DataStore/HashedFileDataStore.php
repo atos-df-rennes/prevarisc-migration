@@ -25,8 +25,6 @@ class HashedFileDataStore extends SimpleFileDataStore
         parent::__construct($etablissementRepository, $dataPath, $realDataPath, $options);
 
         $this->types = ['dateCommission' => 'commission'];
-
-        $this->format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
     }
 
     public function getBasePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId): string
