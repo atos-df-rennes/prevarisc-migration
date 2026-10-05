@@ -38,7 +38,9 @@ docker compose -f compose.dev.yaml restart app
 
 ### Personnaliser les noms de téléchargement
 
-La variable facultative `PREVARISC_DATASTORE_FILE_FORMAT` permet de personnaliser le nom des pièces jointes au téléchargement, sans modifier le source. Elle est prise en compte par les deux adaptateurs. Si elle est absente ou vide, le format reste `%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%`.
+La variable facultative `PREVARISC_DATASTORE_FILE_FORMAT` permet de personnaliser le nom des pièces jointes au téléchargement, sans modifier le source. Elle est prise en compte par les deux adaptateurs. Si elle est absente, la configuration Symfony fournit le format par défaut `%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%`, injecté dans les adaptateurs.
+
+Une variable explicitement vide (ou contenant uniquement des espaces) ne déclenche pas le défaut Symfony : elle est rejetée avec une erreur de configuration. Pour retrouver le format standard, supprimer la directive `SetEnv PREVARISC_DATASTORE_FILE_FORMAT` ou la définition de cette variable dans l'environnement ; ne pas la remplacer par une chaîne vide.
 
 Exemple de configuration Apache reprenant un format personnalisé :
 

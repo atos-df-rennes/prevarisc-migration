@@ -12,7 +12,7 @@ class SimpleFileDataStore implements DataStore
 {
     // Format de formattage des noms de fichiers.
     /** @var string */
-    protected $format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
+    protected $format;
 
     // Mapping entre les types de pièces jointes et les répertoires dans lesquels ils sont stockés.
     /** @var array|string[] */
@@ -27,15 +27,16 @@ class SimpleFileDataStore implements DataStore
     /** @var string */
     protected $realDataPath;
 
-    /**
-     * @param array<string>|null $options
-     */
     public function __construct(
         EtablissementRepository $etablissementRepository,
         string $dataPath,
         string $realDataPath,
-        ?array $options = null
+        string $fileFormat
     ) {
+        if ('' === trim($fileFormat)) {
+            throw new \InvalidArgumentException('PREVARISC_DATASTORE_FILE_FORMAT must not be empty. Unset it to use the default filename format.');
+        }
+
         $this->types = [
             'etablissement' => 'pieces-jointes',
             'etablissement_miniature' => 'etablissement_miniature',
@@ -46,9 +47,7 @@ class SimpleFileDataStore implements DataStore
             'avatar' => 'avatars',
         ];
 
-        if (isset($options['fileFormat'])) {
-            $this->format = $options['fileFormat'];
-        }
+        $this->format = $fileFormat;
 
         $this->etablissementRepository = $etablissementRepository;
         $this->dataPath = $dataPath;

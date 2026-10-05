@@ -28,7 +28,7 @@ class DataStoreFactory
         string $adapter,
         string $dataPath,
         string $realDataPath,
-        string $fileFormat = ''
+        string $fileFormat
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->adapter = $adapter;
@@ -39,12 +39,10 @@ class DataStoreFactory
 
     public function create(): DataStore
     {
-        $options = '' !== $this->fileFormat ? ['fileFormat' => $this->fileFormat] : null;
-
         if ('Plugin_HashedFileDataStore' === $this->adapter) {
-            return new HashedFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath, $options);
+            return new HashedFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath, $this->fileFormat);
         }
 
-        return new SimpleFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath, $options);
+        return new SimpleFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath, $this->fileFormat);
     }
 }

@@ -128,7 +128,7 @@ Pour les dossiers Plat'AU, les pièces jointes arrivées depuis la dernière vis
 
 Un clic sur le nom du fichier déclenche le téléchargement. Le fichier est servi en téléchargement forcé (pièce jointe HTTP).
 
-L'installation peut personnaliser le nom de téléchargement via `PREVARISC_DATASTORE_FILE_FORMAT`, pour les stockages simple et hashé. Sans configuration, ou avec une valeur vide, le nom reste le libellé de la pièce jointe suivi de son extension. Cette personnalisation ne modifie ni le libellé affiché, ni le fichier physique.
+L'installation peut personnaliser le nom de téléchargement via `PREVARISC_DATASTORE_FILE_FORMAT`, pour les stockages simple et hashé. Si la variable est absente, la configuration Symfony fournit le format par défaut : le libellé de la pièce jointe suivi de son extension. Une variable explicitement vide est une configuration invalide et provoque une erreur ; pour retrouver le format standard, il faut supprimer la variable, pas la vider. Cette personnalisation ne modifie ni le libellé affiché, ni le fichier physique.
 
 Le jeton `%DATE_PIECEJOINTE%` représente la date d'ajout ou de génération du document, au format `Y-m-d`, et non la date de la séance. Si cette date n'est pas renseignée, le jeton est vide. Pour une pièce jointe de commission, `%NUMEROID_ETABLISSEMENT%` et `%ID_OBJECT%` représentent l'identifiant de la date de commission (séance), pas celui de la commission.
 
@@ -225,7 +225,7 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-020** | Si le fichier physique est introuvable au moment du téléchargement, le système renvoie une erreur « ressource introuvable ». |
 | **RG-PJ-021** | Les pièces jointes des dossiers Plat'AU sont stockées dans un espace de stockage distinct de celui des dossiers classiques. |
 | **RG-PJ-022** | Si la taille du fichier dépasse la limite autorisée par le serveur, le système affiche un message invitant l'utilisateur à contacter son service informatique. |
-| **RG-PJ-023** | Le nom de téléchargement unitaire peut être personnalisé à l'échelle de l'installation, indépendamment du libellé affiché et du chemin de stockage, pour les adaptateurs simple et hashé. Par défaut, le libellé suivi de l'extension est conservé. La date utilisée dans le nom est celle d'ajout ou de génération de la pièce jointe, au format `Y-m-d`. |
+| **RG-PJ-023** | Le nom de téléchargement unitaire peut être personnalisé à l'échelle de l'installation, indépendamment du libellé affiché et du chemin de stockage, pour les adaptateurs simple et hashé. En l'absence de variable de configuration, le libellé suivi de l'extension est conservé. Une variable explicitement vide est rejetée avec une erreur de configuration. La date utilisée dans le nom est celle d'ajout ou de génération de la pièce jointe, au format `Y-m-d`. |
 
 ---
 

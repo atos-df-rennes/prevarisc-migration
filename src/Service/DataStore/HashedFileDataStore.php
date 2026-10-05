@@ -13,16 +13,13 @@ class HashedFileDataStore extends SimpleFileDataStore
     /** @var string[] */
     protected $nonHashedTypes = ['document', 'courrier', 'avatar'];
 
-    /**
-     * @param array<string>|null $options
-     */
     public function __construct(
         EtablissementRepository $etablissementRepository,
         string $dataPath,
         string $realDataPath,
-        ?array $options = null
+        string $fileFormat
     ) {
-        parent::__construct($etablissementRepository, $dataPath, $realDataPath, $options);
+        parent::__construct($etablissementRepository, $dataPath, $realDataPath, $fileFormat);
 
         $this->types = ['dateCommission' => 'commission'];
     }

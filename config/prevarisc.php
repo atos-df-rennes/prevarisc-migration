@@ -166,7 +166,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.datastore_adapter', '%env(string:PREVARISC_DATASTORE_ADAPTER)%');
 
-    $parameters->set('env(PREVARISC_DATASTORE_FILE_FORMAT)', '');
+    $parameters->set('env(PREVARISC_DATASTORE_FILE_FORMAT)', '%%NOM_PIECEJOINTE%%%%EXTENSION_PIECEJOINTE%%');
 
     $parameters->set('app.datastore_file_format', '%env(string:PREVARISC_DATASTORE_FILE_FORMAT)%');
 

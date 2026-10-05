@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 final class DataStoreFilenameTest extends TestCase
 {
     private const CLIENT_FORMAT = '%NUMEROID_ETABLISSEMENT%_%DATE_PIECEJOINTE%_%NOM_PIECEJOINTE%_%ID_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
+    private const DEFAULT_FORMAT = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
 
     /**
      * @dataProvider provideCommissionDocuments
@@ -29,7 +30,7 @@ final class DataStoreFilenameTest extends TestCase
             $store->getFormattedFilename($pieceJointe, 'dateCommission', 42)
         );
 
-        $defaultStore = (new DataStoreFactory($repository, $adapter, '/data', '/files'))->create();
+        $defaultStore = (new DataStoreFactory($repository, $adapter, '/data', '/files', self::DEFAULT_FORMAT))->create();
         self::assertSame(
             $defaultStore->getFilePath($pieceJointe, 'dateCommission', 42),
             $store->getFilePath($pieceJointe, 'dateCommission', 42)
@@ -44,21 +45,46 @@ final class DataStoreFilenameTest extends TestCase
     /**
      * @dataProvider provideCommissionDocuments
      */
-    public function testDefaultAndEmptyFormatPreserveFilename(string $adapter, string $name): void
+    public function testInjectedDefaultFormatPreservesFilename(string $adapter, string $name): void
     {
         /** @var EtablissementRepository&\PHPUnit\Framework\MockObject\MockObject $repository */
         $repository = $this->createMock(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         $pieceJointe = $this->createPieceJointe($name, new \DateTime('2026-10-05 15:42:00'));
-        $defaultFactory = new DataStoreFactory($repository, $adapter, '/data', '/files');
-        $emptyFactory = new DataStoreFactory($repository, $adapter, '/data', '/files', '');
+        $factory = new DataStoreFactory($repository, $adapter, '/data', '/files', self::DEFAULT_FORMAT);
 
-        foreach ([$defaultFactory, $emptyFactory] as $factory) {
-            self::assertSame(
-                $name.'.odt',
-                $factory->create()->getFormattedFilename($pieceJointe, 'dateCommission', 42)
-            );
-        }
+        self::assertSame(
+            $name.'.odt',
+            $factory->create()->getFormattedFilename($pieceJointe, 'dateCommission', 42)
+        );
+    }
+
+    /**
+     * @dataProvider provideEmptyFormats
+     */
+    public function testEmptyFormatIsRejected(string $adapter, string $format): void
+    {
+        /** @var EtablissementRepository&\PHPUnit\Framework\MockObject\MockObject $repository */
+        $repository = $this->createMock(EtablissementRepository::class);
+        $factory = new DataStoreFactory($repository, $adapter, '/data', '/files', $format);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('PREVARISC_DATASTORE_FILE_FORMAT must not be empty.');
+
+        $factory->create();
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     */
+    public static function provideEmptyFormats(): array
+    {
+        return [
+            'simple empty' => ['Plugin_SimpleFileDataStore', ''],
+            'hashed empty' => ['Plugin_HashedFileDataStore', ''],
+            'simple whitespace' => ['Plugin_SimpleFileDataStore', '   '],
+            'hashed whitespace' => ['Plugin_HashedFileDataStore', '   '],
+        ];
     }
 
     /**

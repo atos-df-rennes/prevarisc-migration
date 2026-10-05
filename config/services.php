@@ -22,6 +22,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$srcDir', '%kernel.project_dir%')
         ->bind('$dataPath', '%app.data_path%')
         ->bind('$realDataPath', '%app.files_path%')
+        ->bind('$fileFormat', '%app.datastore_file_format%')
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
         ->bind('$mailEnabled', '%app.mail_enabled%')
@@ -129,8 +130,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ldap', ref('app.ldap'));
 
     $services->set('App\Service\DataStore\DataStoreFactory')
-        ->arg('$adapter', '%app.datastore_adapter%')
-        ->arg('$fileFormat', '%app.datastore_file_format%');
+        ->arg('$adapter', '%app.datastore_adapter%');
 
     $services->set('App\Service\CouchesCarto')
         ->arg('$cache', ref('cache.ign_capabilities'));
