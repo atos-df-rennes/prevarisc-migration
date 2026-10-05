@@ -4,6 +4,37 @@
 
 <!--- END HEADER -->
 
+## [2.10.7](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.6...v2.10.7) (05-10-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Mauvais affichage de la catégorie sur les cellules (#437) ([455a33](https://github.com/atos-df-rennes/prevarisc-migration/commit/455a33937cfe6e34b277894ede7dbc64380bf418))
+
+##### Cartographie
+
+* Mauvaise interprétation de l'autoconfiguration locale (#438) ([796244](https://github.com/atos-df-rennes/prevarisc-migration/commit/796244a93fd914ace40081299e8e5131b88c2c62))
+
+##### Commissions
+
+* Formatage du nom de téléchargement des fichiers (#440) ([a0954a](https://github.com/atos-df-rennes/prevarisc-migration/commit/a0954aad4fa505794adbbd034eef7949b4ceeca9))
+
+##### Dossier
+
+* Présélection des préventionnistes de l'établissement (#426) ([03a3b2](https://github.com/atos-df-rennes/prevarisc-migration/commit/03a3b221bf9379977a4ddef685d608db82e653b0))
+* Nettoie les informations de commission invalides et rend la relation plus stricte (#420) ([40c55a](https://github.com/atos-df-rennes/prevarisc-migration/commit/40c55a16c725848153fc74766c1be920fda98f66))
+
+##### Etablissement
+
+* Mauvais préventionnistes suggérés (#430) ([531f6d](https://github.com/atos-df-rennes/prevarisc-migration/commit/531f6dad2964eb2d7b6c3cab175a6d3f66d27633))
+
+##### Rapport
+
+* Chemins d'accès aux modèles indiqués invalides avec un partage Windows (#439) ([8553a5](https://github.com/atos-df-rennes/prevarisc-migration/commit/8553a5826162e0e3ccb08d97d4c9b3608faee137))
+* Récupère l'adresse de l'établissement en fonction de son genre (#427) ([9a2933](https://github.com/atos-df-rennes/prevarisc-migration/commit/9a29337b78c7b3723bbebbbef049d9de1a15d18c))
+
+
+---
+
 ## [2.10.6](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.5...v2.10.6) (14-09-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
