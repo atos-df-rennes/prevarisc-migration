@@ -60,6 +60,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%')
         ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%');
 
+    $services->set('App\Service\IgnAutoconfiguration')
+        ->arg('$autoconfPath', '%app.ign_autoconf_path%');
+
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');
     $services->set('App\Form\CommissionRegleType')

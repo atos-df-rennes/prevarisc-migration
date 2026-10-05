@@ -64,6 +64,9 @@ final class EtablissementFormDataLoader
     /** @var AuthorizationCheckerInterface */
     private $authorizationChecker;
 
+    /** @var IgnAutoconfiguration */
+    private $ignAutoconfiguration;
+
     public function __construct(
         GenreRepository $genreRepository,
         EtablissementStatutRepository $statutRepository,
@@ -77,7 +80,8 @@ final class EtablissementFormDataLoader
         ClassementRepository $classementRepository,
         CoucheCartoRepository $coucheCartoRepository,
         ParameterBagInterface $parameterBag,
-        AuthorizationCheckerInterface $authorizationChecker
+        AuthorizationCheckerInterface $authorizationChecker,
+        IgnAutoconfiguration $ignAutoconfiguration
     ) {
         $this->genreRepository = $genreRepository;
         $this->statutRepository = $statutRepository;
@@ -92,6 +96,7 @@ final class EtablissementFormDataLoader
         $this->coucheCartoRepository = $coucheCartoRepository;
         $this->parameterBag = $parameterBag;
         $this->authorizationChecker = $authorizationChecker;
+        $this->ignAutoconfiguration = $ignAutoconfiguration;
     }
 
     /**
@@ -144,6 +149,7 @@ final class EtablissementFormDataLoader
             'couches_cartographiques' => $this->coucheCartoRepository->findAllOrdered(),
             'can_edit_statut' => $this->authorizationChecker->isGranted('edit_statut'),
             'key_ign' => $this->parameterBag->get('app.ign_key'),
+            'autoconf_path' => $this->ignAutoconfiguration->getPath(),
             'geoconcept_url' => $this->parameterBag->get('app.geoconcept_url'),
             'default_lon' => $this->parameterBag->get('app.carto_default_lon'),
             'default_lat' => $this->parameterBag->get('app.carto_default_lat'),

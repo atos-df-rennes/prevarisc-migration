@@ -32,6 +32,7 @@ use App\Service\Etablissement as EtablissementService;
 use App\Service\EtablissementFormDataLoader;
 use App\Service\EtablissementHistoriqueService;
 use App\Service\EtablissementPieceJointeService;
+use App\Service\IgnAutoconfiguration;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -145,6 +146,11 @@ class EtablissementController extends AbstractController implements Etablissemen
     /** @var TagAwareCacheInterface */
     private $searchCache;
 
+    /**
+     * @var IgnAutoconfiguration
+     */
+    private $ignAutoconfiguration;
+
     public function __construct(
         EtablissementPieceJointeRepository $etablissementPieceJointeRepository,
         EtablissementAdresseRepository $etablissementAdresseRepository,
@@ -172,7 +178,8 @@ class EtablissementController extends AbstractController implements Etablissemen
         EtablissementHistoriqueService $etablissementHistoriqueService,
         EtablissementPieceJointeService $etablissementPieceJointeService,
         EtablissementFormDataLoader $formDataLoader,
-        TagAwareCacheInterface $searchCache
+        TagAwareCacheInterface $searchCache,
+        IgnAutoconfiguration $ignAutoconfiguration
     ) {
         $this->etablissementPieceJointeRepository = $etablissementPieceJointeRepository;
         $this->etablissementAdresseRepository = $etablissementAdresseRepository;
@@ -201,6 +208,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         $this->etablissementPieceJointeService = $etablissementPieceJointeService;
         $this->formDataLoader = $formDataLoader;
         $this->searchCache = $searchCache;
+        $this->ignAutoconfiguration = $ignAutoconfiguration;
     }
 
     /**
@@ -373,6 +381,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
+            'autoconf_path' => $this->ignAutoconfiguration->getPath(),
             'couches_cartographiques' => $couchesCartographiquesJson,
             'adresses' => $adresses,
             'default_periodicite' => $defaultPeriodicite,
