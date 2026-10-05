@@ -22,6 +22,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$srcDir', '%kernel.project_dir%')
         ->bind('$dataPath', '%app.data_path%')
         ->bind('$realDataPath', '%app.files_path%')
+        ->bind('$fileFormat', '%app.datastore_file_format%')
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
         ->bind('$mailEnabled', '%app.mail_enabled%')

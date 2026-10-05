@@ -33,6 +33,7 @@ final class DocumentsTest extends TestCase
         ] as $file) {
             $filesystem->touch($this->tmpDir.'/'.$file);
         }
+
         $this->documents = new Documents('/data/uploads/documents/', $this->tmpDir.'/documents/');
     }
 

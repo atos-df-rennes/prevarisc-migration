@@ -20,24 +20,29 @@ class DataStoreFactory
     /** @var string */
     protected $realDataPath;
 
+    /** @var string */
+    private $fileFormat;
+
     public function __construct(
         EtablissementRepository $etablissementRepository,
         string $adapter,
         string $dataPath,
-        string $realDataPath
+        string $realDataPath,
+        string $fileFormat
     ) {
         $this->etablissementRepository = $etablissementRepository;
         $this->adapter = $adapter;
         $this->dataPath = $dataPath;
         $this->realDataPath = $realDataPath;
+        $this->fileFormat = $fileFormat;
     }
 
     public function create(): DataStore
     {
         if ('Plugin_HashedFileDataStore' === $this->adapter) {
-            return new HashedFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath);
+            return new HashedFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath, $this->fileFormat);
         }
 
-        return new SimpleFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath);
+        return new SimpleFileDataStore($this->etablissementRepository, $this->dataPath, $this->realDataPath, $this->fileFormat);
     }
 }
