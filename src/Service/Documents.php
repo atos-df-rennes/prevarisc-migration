@@ -75,7 +75,7 @@ final class Documents
             }
 
             $resolvedPath = $file->getRealPath();
-            $resolvedBase = realpath($this->realDataPath);
+            $resolvedBase = realpath(PathNormalizer::normalize($this->realDataPath));
             if (false === $resolvedPath || false === $resolvedBase) {
                 return null;
             }
