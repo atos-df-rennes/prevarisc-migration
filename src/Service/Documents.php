@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Dto\Document;
 use App\Utils\PathNormalizer;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 final class Documents
 {
@@ -99,7 +100,7 @@ final class Documents
     }
 
     /**
-     * @return iterable<\Symfony\Component\Finder\SplFileInfo>
+     * @return iterable<SplFileInfo>
      */
     private function reportTemplates(string $idCommission): iterable
     {

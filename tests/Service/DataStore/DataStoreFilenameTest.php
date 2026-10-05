@@ -6,11 +6,13 @@ use App\Entity\PieceJointe;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStoreFactory;
 use App\Service\DataStore\RuntimeDataStore;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 final class DataStoreFilenameTest extends TestCase
 {
     private const CLIENT_FORMAT = '%NUMEROID_ETABLISSEMENT%_%DATE_PIECEJOINTE%_%NOM_PIECEJOINTE%_%ID_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
+
     private const DEFAULT_FORMAT = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
 
     /**
@@ -18,7 +20,7 @@ final class DataStoreFilenameTest extends TestCase
      */
     public function testConfiguredFilename(string $adapter, string $name): void
     {
-        /** @var EtablissementRepository&\PHPUnit\Framework\MockObject\MockObject $repository */
+        /** @var EtablissementRepository&MockObject $repository */
         $repository = $this->createMock(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         $factory = new DataStoreFactory($repository, $adapter, '/data', '/files', self::CLIENT_FORMAT);
@@ -47,7 +49,7 @@ final class DataStoreFilenameTest extends TestCase
      */
     public function testInjectedDefaultFormatPreservesFilename(string $adapter, string $name): void
     {
-        /** @var EtablissementRepository&\PHPUnit\Framework\MockObject\MockObject $repository */
+        /** @var EtablissementRepository&MockObject $repository */
         $repository = $this->createMock(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         $pieceJointe = $this->createPieceJointe($name, new \DateTime('2026-10-05 15:42:00'));
@@ -64,7 +66,7 @@ final class DataStoreFilenameTest extends TestCase
      */
     public function testEmptyFormatIsRejected(string $adapter, string $format): void
     {
-        /** @var EtablissementRepository&\PHPUnit\Framework\MockObject\MockObject $repository */
+        /** @var EtablissementRepository&MockObject $repository */
         $repository = $this->createMock(EtablissementRepository::class);
         $factory = new DataStoreFactory($repository, $adapter, '/data', '/files', $format);
 
@@ -92,7 +94,7 @@ final class DataStoreFilenameTest extends TestCase
      */
     public function testMissingDateProducesEmptyDateToken(string $adapter, string $name): void
     {
-        /** @var EtablissementRepository&\PHPUnit\Framework\MockObject\MockObject $repository */
+        /** @var EtablissementRepository&MockObject $repository */
         $repository = $this->createMock(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         $store = (new DataStoreFactory($repository, $adapter, '/data', '/files', self::CLIENT_FORMAT))->create();
@@ -124,6 +126,7 @@ final class DataStoreFilenameTest extends TestCase
         $id = new \ReflectionProperty(PieceJointe::class, 'id');
         $id->setAccessible(true);
         $id->setValue($pieceJointe, 123);
+
         $pieceJointe->setNom($name);
         $pieceJointe->setExtension('.odt');
         $pieceJointe->setDate($date);
