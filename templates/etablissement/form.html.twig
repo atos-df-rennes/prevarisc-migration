@@ -549,7 +549,7 @@
             key_ign: {{ key_ign|json_encode|raw }},
             default_lat: {{ default_lat|default(0) }},
             default_lon: {{ default_lon|default(0) }},
-            autoconf_path: '',
+            autoconf_path: {{ autoconf_path|json_encode(15)|raw }},
             couches_cartographiques: [
                 {% for c in couches_cartographiques %}
                 {type: {{ c.type|json_encode|raw }}, url: {{ c.url|json_encode|raw }}, layer: {{ c.layer|json_encode|raw }}, nom: {{ c.nom|json_encode|raw }}, format: {{ c.format|json_encode|raw }}, transparent: {{ c.transparent ? 1 : 0 }}, ordre: {{ c.ordre|default('null') }}}{{ not loop.last ? ',' : '' }}

@@ -12,21 +12,22 @@ use App\Repository\EtablissementRepository;
 class SimpleFileDataStore implements DataStore
 {
     // Format de formattage des noms de fichiers.
-    protected string $format = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
+    protected string $format;
 
     // Mapping entre les types de pièces jointes et les répertoires dans lesquels ils sont stockés.
     /** @var array|string[] */
     protected $types = [];
 
-    /**
-     * @param array<string>|null $options
-     */
     public function __construct(
         protected EtablissementRepository $etablissementRepository,
         protected string $dataPath,
         protected string $realDataPath,
-        ?array $options = null
+        string $fileFormat
     ) {
+        if ('' === trim($fileFormat)) {
+            throw new \InvalidArgumentException('PREVARISC_DATASTORE_FILE_FORMAT must not be empty. Unset it to use the default filename format.');
+        }
+
         $this->types = [
             DataStoreObjectTypes::ETABLISSEMENT => 'pieces-jointes',
             DataStoreObjectTypes::ETABLISSEMENT_MINIATURE => 'etablissement_miniature',
@@ -37,9 +38,7 @@ class SimpleFileDataStore implements DataStore
             DataStoreObjectTypes::AVATAR => 'avatars',
         ];
 
-        if (isset($options['fileFormat'])) {
-            $this->format = $options['fileFormat'];
-        }
+        $this->format = $fileFormat;
     }
 
     public function getFilePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId, bool $createDirIfNotExists = false): string
@@ -76,7 +75,7 @@ class SimpleFileDataStore implements DataStore
             '%NOM_PIECEJOINTE%' => $piece_jointe->getNom(),
             '%EXTENSION_PIECEJOINTE%' => $piece_jointe->getExtension(),
             '%DESCRIPTION_PIECEJOINTE%' => $piece_jointe->getDescription(),
-            '%DATE_PIECEJOINTE%' => $piece_jointe->getDate(),
+            '%DATE_PIECEJOINTE%' => $piece_jointe->getDate()?->format('Y-m-d') ?? '',
             '%ID_OBJECT%' => $linkedObjectId,
             '%TYPE_OBJET%' => $linkedObjectType,
             '%CODE_TYPE_OBJET%' => strtoupper(substr($linkedObjectType, 0, 3)),

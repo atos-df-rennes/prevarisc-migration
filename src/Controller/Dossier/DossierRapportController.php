@@ -7,11 +7,10 @@ use App\Dto\Commission\CommissionOdtDto;
 use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Repository\CommissionRepository;
+use App\Service\Documents;
 use App\Service\DossierRapportOdtService;
-use App\Utils\PathNormalizer;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,7 +26,8 @@ class DossierRapportController extends AbstractController implements DossierLate
         private readonly DossierRapportOdtService $odtService,
         private readonly string $documentsDataPath,
         private readonly string $documentsRealDataPath,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly Documents $documents
     ) {
     }
 
@@ -41,14 +41,14 @@ class DossierRapportController extends AbstractController implements DossierLate
         $idDossier = (int) $dossier->getId();
 
         // Fichiers disponibles après verrouillage (commission 0)
-        $fichierVer = $this->listFiles(PathNormalizer::join($this->documentsRealDataPath, '0'));
+        $fichierVer = $this->documents->listReportTemplates(0);
 
         // Liste des commissions avec leur type et leurs fichiers ODT
         /** @var CommissionOdtDto[] $listeCommissions */
         $listeCommissions = [];
         foreach ($this->commissionRepository->findAllWithType() as $commission) {
             $idCommission = (int) $commission->getId();
-            $fichiers = $this->listFiles(PathNormalizer::join($this->documentsRealDataPath, (string) $idCommission));
+            $fichiers = $this->documents->listReportTemplates($idCommission);
             $listeCommissions[] = new CommissionOdtDto(
                 $idCommission,
                 $commission->getLibelle(),
@@ -110,14 +110,11 @@ class DossierRapportController extends AbstractController implements DossierLate
             return new Response('', Response::HTTP_FORBIDDEN);
         }
 
-        // B1 : reconstruire le chemin depuis l'identifiant relatif et valider qu'il reste sous documentsRealDataPath
-        $relativeFile = (string) $request->request->get('file', '');
-        $resolvedPath = realpath(PathNormalizer::join($this->documentsRealDataPath, $relativeFile));
-        if (
-            false === $resolvedPath
-            || !str_starts_with($resolvedPath, PathNormalizer::normalize($this->documentsRealDataPath))
-            || 'odt' !== strtolower(pathinfo($resolvedPath, PATHINFO_EXTENSION))
-        ) {
+        // B1 : retrouver le modèle dans la bibliothèque proposée par Finder.
+        $rawFichier = $request->request->get('file', '');
+        $relativeFile = is_scalar($rawFichier) ? (string) $rawFichier : '';
+        $resolvedPath = $this->documents->resolveReportTemplate($relativeFile);
+        if (null === $resolvedPath) {
             $this->logger->error('Invalid file path for rapport generation.', [
                 'dossier_id' => $idDossier,
                 'requested_file' => $relativeFile,
@@ -161,28 +158,5 @@ class DossierRapportController extends AbstractController implements DossierLate
         }
 
         return new Response($html);
-    }
-
-    /**
-     * Liste les fichiers ODT d'un répertoire (sans dossiers ni fichiers non-.odt).
-     * Port direct de l'opendir/readdir legacy, remplacé par Symfony Finder (REF-R-05).
-     *
-     * @return string[]
-     */
-    private function listFiles(string $path): array
-    {
-        if (!is_dir($path)) {
-            return [];
-        }
-
-        $finder = new Finder();
-        $finder->files()->in($path)->depth('== 0')->name('*.odt')->sortByName();
-
-        $fichiers = [];
-        foreach ($finder as $file) {
-            $fichiers[] = $file->getFilename();
-        }
-
-        return $fichiers;
     }
 }

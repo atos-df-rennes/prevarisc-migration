@@ -25,7 +25,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  */
 final readonly class EtablissementFormDataLoader
 {
-    public function __construct(private GenreRepository $genreRepository, private EtablissementStatutRepository $statutRepository, private EtablissementCategorieRepository $categorieRepository, private EtablissementTypeRepository $typeRepository, private EtablissementActiviteRepository $activiteRepository, private CommissionRepository $commissionRepository, private TypePlanRepository $typePlanRepository, private FamilleRepository $familleRepository, private IghClasseRepository $ighClasseRepository, private ClassementRepository $classementRepository, private CoucheCartoRepository $coucheCartoRepository, private ParameterBagInterface $parameterBag, private AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private GenreRepository $genreRepository, private EtablissementStatutRepository $statutRepository, private EtablissementCategorieRepository $categorieRepository, private EtablissementTypeRepository $typeRepository, private EtablissementActiviteRepository $activiteRepository, private CommissionRepository $commissionRepository, private TypePlanRepository $typePlanRepository, private FamilleRepository $familleRepository, private IghClasseRepository $ighClasseRepository, private ClassementRepository $classementRepository, private CoucheCartoRepository $coucheCartoRepository, private ParameterBagInterface $parameterBag, private AuthorizationCheckerInterface $authorizationChecker, private IgnAutoconfiguration $ignAutoconfiguration)
     {
     }
 
@@ -77,6 +77,7 @@ final readonly class EtablissementFormDataLoader
             'couches_cartographiques' => $this->coucheCartoRepository->findAllOrdered(),
             'can_edit_statut' => $this->authorizationChecker->isGranted('edit_statut'),
             'key_ign' => $this->parameterBag->get('app.ign_key'),
+            'autoconf_path' => $this->ignAutoconfiguration->getPath(),
             'geoconcept_url' => $this->parameterBag->get('app.geoconcept_url'),
             'default_lon' => $this->parameterBag->get('app.carto_default_lon'),
             'default_lat' => $this->parameterBag->get('app.carto_default_lat'),

@@ -123,6 +123,7 @@ PREVARISC_PROXY_REQUEST_FULLURI | [FACULTATIF] Effectuer les requêtes aux proxy
 PREVARISC_COMMISSION_COMMUNALE_TYPE | [FACULTATIF] Identifiant de l'id du type de commission communale, par défaut "2" | Entier 
 PREVARISC_LOCAL_SOMMEIL_TYPES | [FACULTATIF] Identifiant des types d'activité obligatoirement en local à sommeil séparaés par un ";", par défaut "7;11" | Liste d'entiers séparés par ";"
 PREVARISC_DATASTORE_ADAPTER | [FACULTATIF] Permet de charger un plugin changeant le mode de stockage des pièces jointes établissement, dossier, et commissions | Classe PHP implémentant Plugin_Interface_DataStore
+PREVARISC_DATASTORE_FILE_FORMAT | [FACULTATIF] Format du nom de téléchargement des pièces jointes, pour les adaptateurs simple et hashé. Absente : nom suivi de l'extension. Explicitement vide : erreur de configuration ; supprimer la variable pour revenir au défaut. La date d'ajout est au format `Y-m-d`. | Défaut : `%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%`. Exemple : `%NUMEROID_ETABLISSEMENT%_%DATE_PIECEJOINTE%_%NOM_PIECEJOINTE%_%ID_PIECEJOINTE%%EXTENSION_PIECEJOINTE%`. Voir [Configuration du DataStore](tech/datastore_configuration.md).
 PREVARISC_REAL_DATA_PATH | [FACULTATIF] Répertoire de stockage des fichiers de prévarisc | Chaine de caractères
 PREVARISC_DATA_PATH | [FACULTATIF] Préfixe des URL d'accès aux médias et pièces jointes | Chaine de caractères
 PREVARISC_APPLICATION_PATH | [FACULTATIF] Répertoire racine de l'application Prévarisc | Chaine de caractères
@@ -147,6 +148,15 @@ PREVARISC_PLATAU_PATH | [FACULTATIF] Chemin vers l'installation de la passerelle
 PREVARISC_COMMAND_PATH | [FACULTATIF] Chemin vers le dossier destiné à stocker le(s) fichier(s) d'entrée à fournir aux commandes (e.g. La fusion des communes) | Chaine de caractères
 PREVARISC_DEACTIVATE_PLATAU | [FACULTATIF] Permet de désactiver tous les affichages liés à Plat'AU | 0 ou 1 pour désactiver (affichages activés par défaut)
 PREVARISC_DOSSIERS_MAX_A_AFFICHER | [FACULTATIF] Permet de configurer le nombre de dossiers du même type à afficher dans la liste des dossiers, par défaut 5 | Entier
+
+`PREVARISC_IGN_AUTOCONF` peut être définie dans le VirtualHost Apache, par exemple
+`SetEnv PREVARISC_IGN_AUTOCONF "/ign/prevarisc/customConfig.json"`.
+Le fichier doit se trouver sous le dossier `public/` de l'application Symfony
+(`DocumentRoot`). Le navigateur reçoit le chemin web du fichier, jamais son
+chemin physique.
+Si la variable est absente ou vide, aucune autoconfiguration locale n'est utilisée.
+Si le fichier configuré est introuvable, un avertissement est journalisé et la
+carte utilise le service IGN en ligne.
 
 * Redémarrer Apache : `systemctl restart apache2`
 
