@@ -4,6 +4,7 @@ namespace App\Service\DataStore;
 
 use App\Constant\DataStoreObjectTypes;
 use App\Entity\PieceJointe;
+use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 
 /**
@@ -20,6 +21,7 @@ class SimpleFileDataStore implements DataStore
 
     public function __construct(
         protected EtablissementRepository $etablissementRepository,
+        protected DossierRepository $dossierRepository,
         protected string $dataPath,
         protected string $realDataPath,
         string $fileFormat
@@ -83,31 +85,30 @@ class SimpleFileDataStore implements DataStore
             '%NUMEROID_ETABLISSEMENT%' => null,
         ];
 
-        $etablissement = $this->etablissementRepository->find($linkedObjectId);
-        // Logique pour déterminer le %NUMEROID_ETABLISSEMENT%
         switch ($linkedObjectType) {
             case DataStoreObjectTypes::ETABLISSEMENT:
-                // Logique pour récupérer le numéro d'établissement
-                $tokens[] = null !== $etablissement ? $etablissement->getId() : $linkedObjectId;
+                $etablissement = $this->etablissementRepository->find($linkedObjectId);
+                $tokens['%NUMEROID_ETABLISSEMENT%'] = null !== $etablissement
+                    ? ($etablissement->getNumero() ?: $etablissement->getId() ?: $linkedObjectId)
+                    : $linkedObjectId;
                 break;
             case DataStoreObjectTypes::DOSSIER:
-                // Logique pour récupérer le numéro d'établissement à partir du dossier
-                $dossiers = null !== $etablissement ? $etablissement->getDossiers() : [];
-                $default_numeroid = [];
-                if ([] !== $dossiers) {
-                    foreach ($dossiers as $dossier) {
-                        $numero_id = $etablissement->getId() ?: $linkedObjectId;
-                        if (false !== stripos($piece_jointe->getDescription() ?? '', (string) $numero_id)) {
-                            $tokens['%NUMEROID_ETABLISSEMENT%'] = $numero_id;
-                            break;
-                        }
-
-                        $default_numeroid[] = $numero_id;
+                $dossier = $this->dossierRepository->find($linkedObjectId);
+                $etablissements = null !== $dossier ? $dossier->getEtablissements() : [];
+                $numerosEtablissement = [];
+                foreach ($etablissements as $etablissement) {
+                    $numeroId = $etablissement->getNumero() ?: $linkedObjectId;
+                    $numerosEtablissement[] = (string) $numeroId;
+                    if (false !== stripos($piece_jointe->getDescription() ?? '', (string) $numeroId)) {
+                        $tokens['%NUMEROID_ETABLISSEMENT%'] = $numeroId;
+                        break;
                     }
+                }
 
-                    $tokens['%NUMEROID_ETABLISSEMENT%'] ??= implode('_', $default_numeroid);
-                } else {
-                    $tokens['%NUMEROID_ETABLISSEMENT%'] = $linkedObjectId;
+                if (null === $tokens['%NUMEROID_ETABLISSEMENT%']) {
+                    $tokens['%NUMEROID_ETABLISSEMENT%'] = [] !== $numerosEtablissement
+                        ? implode('_', $numerosEtablissement)
+                        : $linkedObjectId;
                 }
 
                 break;
