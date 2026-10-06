@@ -128,15 +128,18 @@ Pour les dossiers Plat'AU, les pièces jointes arrivées depuis la dernière vis
 
 Un clic sur le nom du fichier déclenche le téléchargement. Le fichier est servi en téléchargement forcé (pièce jointe HTTP).
 
-L'installation peut personnaliser le nom de téléchargement via `PREVARISC_DATASTORE_FILE_FORMAT`, pour les stockages simple et hashé. Si la variable est absente, la configuration Symfony fournit le format par défaut : le libellé de la pièce jointe suivi de son extension. Une variable explicitement vide est une configuration invalide et provoque une erreur ; pour retrouver le format standard, il faut supprimer la variable, pas la vider. Cette personnalisation ne modifie ni le libellé affiché, ni le fichier physique.
+L'installation peut personnaliser le nom de téléchargement via `PREVARISC_DATASTORE_FILE_FORMAT`, pour les stockages simple et hashé. Le format s'applique aux téléchargements unitaires des pièces jointes de dossier (y compris les dossiers Plat'AU), d'établissement et de date de commission, ainsi qu'aux noms des entrées ZIP des dossiers. Si la variable est absente, la configuration Symfony fournit le format par défaut : le libellé de la pièce jointe suivi de son extension. Une variable explicitement vide est une configuration invalide et provoque une erreur ; pour retrouver le format standard, il faut supprimer la variable, pas la vider. Cette personnalisation ne modifie ni le libellé affiché, ni le fichier physique.
 
-Le jeton `%DATE_PIECEJOINTE%` représente la date d'ajout ou de génération du document, au format `Y-m-d`, et non la date de la séance. Si cette date n'est pas renseignée, le jeton est vide. Pour une pièce jointe de commission, `%NUMEROID_ETABLISSEMENT%` et `%ID_OBJECT%` représentent l'identifiant de la date de commission (séance), pas celui de la commission.
+Le jeton `%DATE_PIECEJOINTE%` représente la date d'ajout ou de génération du document, au format `Y-m-d`, et non la date de la séance. Si cette date n'est pas renseignée, le jeton est vide. La valeur de `%NUMEROID_ETABLISSEMENT%` dépend de l'entité parente :
+- Pour une pièce jointe d'établissement, le numéro de l'établissement est utilisé ; s'il n'est pas renseigné, son identifiant est utilisé.
+- Pour une pièce jointe de dossier, les numéros des établissements liés au dossier sont utilisés. Si la description de la pièce contient le numéro d'un établissement lié, ce numéro est retenu ; sinon, les numéros disponibles sont assemblés avec `_`. Un établissement sans numéro est représenté par l'identifiant du dossier. Si aucun établissement n'est lié, l'identifiant du dossier est utilisé.
+- Pour une pièce jointe de commission, `%NUMEROID_ETABLISSEMENT%` et `%ID_OBJECT%` représentent l'identifiant de la date de commission (séance), pas celui de la commission.
 
 Cette configuration s'applique également aux convocations, ordres du jour, procès-verbaux et comptes-rendus générés. Par exemple, pour une séance d'identifiant `42`, une pièce jointe d'identifiant `123` générée le 5 octobre 2026, le format `%NUMEROID_ETABLISSEMENT%_%DATE_PIECEJOINTE%_%NOM_PIECEJOINTE%_%ID_PIECEJOINTE%%EXTENSION_PIECEJOINTE%` produit `42_2026-10-05_Ordre du jour_123.odt`.
 
 #### 5.2.4 Téléchargement groupé (dossier uniquement)
 
-Un bouton « Télécharger les pièces jointes » permet de télécharger l'ensemble des pièces jointes d'un dossier dans une archive ZIP.
+Un bouton « Télécharger les pièces jointes » permet de télécharger l'ensemble des pièces jointes d'un dossier dans une archive ZIP. Le nom de chaque entrée de l'archive suit le même format configuré que le téléchargement unitaire.
 
 ### 5.3 Supprimer une pièce jointe
 
@@ -225,7 +228,7 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-020** | Si le fichier physique est introuvable au moment du téléchargement, le système renvoie une erreur « ressource introuvable ». |
 | **RG-PJ-021** | Les pièces jointes des dossiers Plat'AU sont stockées dans un espace de stockage distinct de celui des dossiers classiques. |
 | **RG-PJ-022** | Si la taille du fichier dépasse la limite autorisée par le serveur, le système affiche un message invitant l'utilisateur à contacter son service informatique. |
-| **RG-PJ-023** | Le nom de téléchargement unitaire peut être personnalisé à l'échelle de l'installation, indépendamment du libellé affiché et du chemin de stockage, pour les adaptateurs simple et hashé. En l'absence de variable de configuration, le libellé suivi de l'extension est conservé. Une variable explicitement vide est rejetée avec une erreur de configuration. La date utilisée dans le nom est celle d'ajout ou de génération de la pièce jointe, au format `Y-m-d`. |
+| **RG-PJ-023** | Le nom de téléchargement unitaire et les noms des entrées ZIP d'un dossier peuvent être personnalisés à l'échelle de l'installation, indépendamment du libellé affiché et du chemin de stockage, pour les adaptateurs simple et hashé. En l'absence de variable de configuration, le libellé suivi de l'extension est conservé. Une variable explicitement vide est rejetée avec une erreur de configuration. La date utilisée dans le nom est celle d'ajout ou de génération de la pièce jointe, au format `Y-m-d`. Le jeton `%NUMEROID_ETABLISSEMENT%` désigne le numéro de l'établissement parent (ou son identifiant à défaut), les numéros des établissements liés au dossier selon la règle décrite en §5.2.3, ou l'identifiant de la séance pour une pièce jointe de commission. |
 
 ---
 
@@ -261,3 +264,7 @@ Si un fichier est référencé en base mais absent ou illisible sur le serveur, 
 Si la taille du fichier dépasse la limite configurée sur le serveur, le système :
 - Annule la création de la pièce jointe en base.
 - Affiche un message : « Impossible de charger la pièce jointe. Veuillez contacter votre service informatique. »
+
+### 8.6 Nommage configurable des téléchargements
+
+Le format est appliqué aux pièces de dossier et aux entrées de leurs archives ZIP, y compris lorsque le dossier est lié à Plat'AU. Deux différences sont volontaires par rapport au comportement historique : le format est appliqué aux entrées ZIP, et le jeton `%NUMEROID_ETABLISSEMENT%` d'une pièce jointe d'établissement utilise le numéro métier de l'établissement plutôt que de rester vide lorsque ce numéro existe.

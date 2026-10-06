@@ -3,6 +3,7 @@
 namespace App\Service\DataStore;
 
 use App\Entity\PieceJointe;
+use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 
 /**
@@ -15,11 +16,12 @@ class HashedFileDataStore extends SimpleFileDataStore
 
     public function __construct(
         EtablissementRepository $etablissementRepository,
+        DossierRepository $dossierRepository,
         string $dataPath,
         string $realDataPath,
         string $fileFormat
     ) {
-        parent::__construct($etablissementRepository, $dataPath, $realDataPath, $fileFormat);
+        parent::__construct($etablissementRepository, $dossierRepository, $dataPath, $realDataPath, $fileFormat);
 
         $this->types = ['dateCommission' => 'commission'];
     }

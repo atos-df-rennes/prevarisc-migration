@@ -2,10 +2,14 @@
 
 namespace App\Tests\Service\DataStore;
 
+use App\Entity\Dossier;
+use App\Entity\Etablissement;
 use App\Entity\PieceJointe;
+use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStoreFactory;
 use App\Service\DataStore\RuntimeDataStore;
+use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -23,7 +27,9 @@ final class DataStoreFilenameTest extends TestCase
         /** @var EtablissementRepository&MockObject $repository */
         $repository = $this->createMock(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
-        $factory = new DataStoreFactory($repository, $adapter, '/data', '/files', self::CLIENT_FORMAT);
+        /** @var DossierRepository&MockObject $dossierRepository */
+        $dossierRepository = $this->createMock(DossierRepository::class);
+        $factory = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::CLIENT_FORMAT);
         $store = new RuntimeDataStore($factory);
         $pieceJointe = $this->createPieceJointe($name, new \DateTimeImmutable('2026-10-05 15:42:00'));
 
@@ -32,7 +38,7 @@ final class DataStoreFilenameTest extends TestCase
             $store->getFormattedFilename($pieceJointe, 'dateCommission', 42)
         );
 
-        $defaultStore = (new DataStoreFactory($repository, $adapter, '/data', '/files', self::DEFAULT_FORMAT))->create();
+        $defaultStore = (new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::DEFAULT_FORMAT))->create();
         self::assertSame(
             $defaultStore->getFilePath($pieceJointe, 'dateCommission', 42),
             $store->getFilePath($pieceJointe, 'dateCommission', 42)
@@ -52,8 +58,10 @@ final class DataStoreFilenameTest extends TestCase
         /** @var EtablissementRepository&MockObject $repository */
         $repository = $this->createMock(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
+        /** @var DossierRepository&MockObject $dossierRepository */
+        $dossierRepository = $this->createMock(DossierRepository::class);
         $pieceJointe = $this->createPieceJointe($name, new \DateTime('2026-10-05 15:42:00'));
-        $factory = new DataStoreFactory($repository, $adapter, '/data', '/files', self::DEFAULT_FORMAT);
+        $factory = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::DEFAULT_FORMAT);
 
         self::assertSame(
             $name.'.odt',
@@ -68,7 +76,9 @@ final class DataStoreFilenameTest extends TestCase
     {
         /** @var EtablissementRepository&MockObject $repository */
         $repository = $this->createMock(EtablissementRepository::class);
-        $factory = new DataStoreFactory($repository, $adapter, '/data', '/files', $format);
+        /** @var DossierRepository&MockObject $dossierRepository */
+        $dossierRepository = $this->createMock(DossierRepository::class);
+        $factory = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', $format);
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('PREVARISC_DATASTORE_FILE_FORMAT must not be empty.');
@@ -97,7 +107,9 @@ final class DataStoreFilenameTest extends TestCase
         /** @var EtablissementRepository&MockObject $repository */
         $repository = $this->createMock(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
-        $store = (new DataStoreFactory($repository, $adapter, '/data', '/files', self::CLIENT_FORMAT))->create();
+        /** @var DossierRepository&MockObject $dossierRepository */
+        $dossierRepository = $this->createMock(DossierRepository::class);
+        $store = (new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::CLIENT_FORMAT))->create();
 
         self::assertSame(
             '42__'.$name.'_123.odt',
@@ -120,7 +132,88 @@ final class DataStoreFilenameTest extends TestCase
         return $cases;
     }
 
-    private function createPieceJointe(string $name, ?\DateTimeInterface $date): PieceJointe
+    /**
+     * @dataProvider provideLinkedObjectFilenameCases
+     *
+     * @param array<array{id: int, numero: ?string}> $etablissementData
+     */
+    public function testLinkedObjectNumberToken(
+        string $adapter,
+        string $linkedObjectType,
+        int $linkedObjectId,
+        array $etablissementData,
+        string $description,
+        string $expected
+    ): void {
+        /** @var EtablissementRepository&MockObject $etablissementRepository */
+        $etablissementRepository = $this->createMock(EtablissementRepository::class);
+        /** @var DossierRepository&MockObject $dossierRepository */
+        $dossierRepository = $this->createMock(DossierRepository::class);
+
+        $etablissements = [];
+        foreach ($etablissementData as $data) {
+            /** @var Etablissement&MockObject $etablissement */
+            $etablissement = $this->createMock(Etablissement::class);
+            $etablissement->method('getId')->willReturn($data['id']);
+            $etablissement->method('getNumero')->willReturn($data['numero']);
+            $etablissements[] = $etablissement;
+        }
+
+        if ('dossier' === $linkedObjectType) {
+            /** @var Dossier&MockObject $dossier */
+            $dossier = $this->createMock(Dossier::class);
+            $dossier->method('getEtablissements')->willReturn(new ArrayCollection($etablissements));
+            $dossierRepository->method('find')->willReturn($dossier);
+        } else {
+            $etablissementRepository->method('find')->willReturn($etablissements[0] ?? null);
+        }
+
+        $store = (new DataStoreFactory(
+            $etablissementRepository,
+            $dossierRepository,
+            $adapter,
+            '/data',
+            '/files',
+            '%NUMEROID_ETABLISSEMENT%'
+        ))->create();
+
+        self::assertSame(
+            $expected,
+            $store->getFormattedFilename($this->createPieceJointe('Document', null, $description), $linkedObjectType, $linkedObjectId)
+        );
+    }
+
+    /**
+     * @return array<string, array{string, string, int, array<array{id: int, numero: ?string}>, string, string}>
+     */
+    public static function provideLinkedObjectFilenameCases(): array
+    {
+        $cases = [];
+        foreach (['Plugin_SimpleFileDataStore', 'Plugin_HashedFileDataStore'] as $adapter) {
+            $cases[$adapter.' dossier description match'] = [
+                $adapter, 'dossier', 42, [['id' => 11, 'numero' => 'ERP-11']], 'Rapport ERP-11', 'ERP-11',
+            ];
+            $cases[$adapter.' dossier joins establishment numbers'] = [
+                $adapter, 'dossier', 42, [['id' => 11, 'numero' => 'NUM-11'], ['id' => 12, 'numero' => 'NUM-12']], 'Rapport', 'NUM-11_NUM-12',
+            ];
+            $cases[$adapter.' dossier without establishments'] = [
+                $adapter, 'dossier', 42, [], 'Rapport', '42',
+            ];
+            $cases[$adapter.' dossier establishment without number'] = [
+                $adapter, 'dossier', 42, [['id' => 11, 'numero' => null]], 'Rapport', '42',
+            ];
+            $cases[$adapter.' establishment with number'] = [
+                $adapter, 'etablissement', 11, [['id' => 11, 'numero' => 'ERP-11']], '', 'ERP-11',
+            ];
+            $cases[$adapter.' establishment without number'] = [
+                $adapter, 'etablissement', 11, [['id' => 11, 'numero' => null]], '', '11',
+            ];
+        }
+
+        return $cases;
+    }
+
+    private function createPieceJointe(string $name, ?\DateTimeInterface $date, ?string $description = null): PieceJointe
     {
         $pieceJointe = new PieceJointe();
         $id = new \ReflectionProperty(PieceJointe::class, 'id');
@@ -130,6 +223,7 @@ final class DataStoreFilenameTest extends TestCase
         $pieceJointe->setNom($name);
         $pieceJointe->setExtension('.odt');
         $pieceJointe->setDate($date);
+        $pieceJointe->setDescription($description);
 
         return $pieceJointe;
     }
