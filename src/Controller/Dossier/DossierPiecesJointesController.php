@@ -297,7 +297,10 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $response = new BinaryFileResponse($filePath);
         $response->setContentDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-            File::sanitizeForContentDisposition($pj->getNom().$pj->getExtension())
+            File::sanitizeForContentDisposition(
+                $this->dataStore->getFormattedFilename($pj, 'dossier', (int) $dossier->getId())
+                ?? $pj->getNom().$pj->getExtension()
+            )
         );
 
         return $response;
@@ -415,7 +418,10 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 
             $fichiers[] = [
                 'path' => $pjPath,
-                'name' => File::sanitizeForContentDisposition($pj->getNom().$pj->getExtension()),
+                'name' => File::sanitizeForContentDisposition(
+                    $this->dataStore->getFormattedFilename($pj, 'dossier', (int) $dossier->getId())
+                    ?? $pj->getNom().$pj->getExtension()
+                ),
             ];
         }
 
