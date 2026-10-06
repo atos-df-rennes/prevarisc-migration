@@ -30,23 +30,17 @@ final class DataStoreFilenameTest extends TestCase
         $repository = $this->createStub(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         /** @var DossierRepository&MockObject $dossierRepository */
-        $dossierRepository = $this->createMock(DossierRepository::class);
+        $dossierRepository = $this->createStub(DossierRepository::class);
         $factory = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::CLIENT_FORMAT);
         $store = new RuntimeDataStore($factory);
         $pieceJointe = $this->createPieceJointe($name, new \DateTimeImmutable('2026-10-05 15:42:00'));
 
         $this->assertSame('42_2026-10-05_'.$name.'_123.odt', $store->getFormattedFilename($pieceJointe, 'dateCommission', 42));
 
-        $defaultStore = (new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::DEFAULT_FORMAT))->create();
-        self::assertSame(
-            $defaultStore->getFilePath($pieceJointe, 'dateCommission', 42),
-            $store->getFilePath($pieceJointe, 'dateCommission', 42)
-        );
-        self::assertSame(
-            $defaultStore->getURLPath($pieceJointe, 'dateCommission', 42),
-            $store->getURLPath($pieceJointe, 'dateCommission', 42)
-        );
-        self::assertSame($name, $pieceJointe->getNom());
+        $defaultStore = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::DEFAULT_FORMAT)->create();
+        $this->assertSame($defaultStore->getFilePath($pieceJointe, 'dateCommission', 42), $store->getFilePath($pieceJointe, 'dateCommission', 42));
+        $this->assertSame($defaultStore->getURLPath($pieceJointe, 'dateCommission', 42), $store->getURLPath($pieceJointe, 'dateCommission', 42));
+        $this->assertSame($name, $pieceJointe->getNom());
     }
 
     #[DataProvider('provideCommissionDocuments')]
@@ -55,7 +49,7 @@ final class DataStoreFilenameTest extends TestCase
         $repository = $this->createStub(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         /** @var DossierRepository&MockObject $dossierRepository */
-        $dossierRepository = $this->createMock(DossierRepository::class);
+        $dossierRepository = $this->createStub(DossierRepository::class);
         $pieceJointe = $this->createPieceJointe($name, new \DateTime('2026-10-05 15:42:00'));
         $factory = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::DEFAULT_FORMAT);
 
@@ -67,7 +61,7 @@ final class DataStoreFilenameTest extends TestCase
     {
         $repository = $this->createStub(EtablissementRepository::class);
         /** @var DossierRepository&MockObject $dossierRepository */
-        $dossierRepository = $this->createMock(DossierRepository::class);
+        $dossierRepository = $this->createStub(DossierRepository::class);
         $factory = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', $format);
 
         $this->expectException(\InvalidArgumentException::class);
@@ -93,8 +87,8 @@ final class DataStoreFilenameTest extends TestCase
         $repository = $this->createStub(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         /** @var DossierRepository&MockObject $dossierRepository */
-        $dossierRepository = $this->createMock(DossierRepository::class);
-        $store = (new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::CLIENT_FORMAT))->create();
+        $dossierRepository = $this->createStub(DossierRepository::class);
+        $store = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::CLIENT_FORMAT)->create();
 
         $this->assertSame('42__'.$name.'_123.odt', $store->getFormattedFilename($this->createPieceJointe($name, null), 'dateCommission', 42));
     }
@@ -149,19 +143,16 @@ final class DataStoreFilenameTest extends TestCase
             $etablissementRepository->method('find')->willReturn($etablissements[0] ?? null);
         }
 
-        $store = (new DataStoreFactory(
+        $store = new DataStoreFactory(
             $etablissementRepository,
             $dossierRepository,
             $adapter,
             '/data',
             '/files',
             '%NUMEROID_ETABLISSEMENT%'
-        ))->create();
+        )->create();
 
-        self::assertSame(
-            $expected,
-            $store->getFormattedFilename($this->createPieceJointe('Document', null, $description), $linkedObjectType, $linkedObjectId)
-        );
+        $this->assertSame($expected, $store->getFormattedFilename($this->createPieceJointe('Document', null, $description), $linkedObjectType, $linkedObjectId));
     }
 
     /**
