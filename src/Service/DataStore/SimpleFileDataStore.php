@@ -105,11 +105,9 @@ class SimpleFileDataStore implements DataStore
                     }
                 }
 
-                if (null === $tokens['%NUMEROID_ETABLISSEMENT%']) {
-                    $tokens['%NUMEROID_ETABLISSEMENT%'] = [] !== $numerosEtablissement
-                        ? implode('_', $numerosEtablissement)
-                        : $linkedObjectId;
-                }
+                $tokens['%NUMEROID_ETABLISSEMENT%'] ??= [] !== $numerosEtablissement
+                    ? implode('_', $numerosEtablissement)
+                    : $linkedObjectId;
 
                 break;
             default:
