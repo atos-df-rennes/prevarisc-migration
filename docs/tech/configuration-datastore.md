@@ -22,3 +22,32 @@ La variable doit être fournie à l'environnement PHP de l'application par le m�
 - `PREVARISC_DATA_PATH` et `PREVARISC_REAL_DATA_PATH` configurent respectivement le chemin d'URL et le chemin physique via `config/prevarisc.php`.
 
 Voir `src/Service/DataStore/` et `src/Constant/DataStoreObjectTypes.php` pour les détails et les chemins exacts.
+
+## Personnaliser les noms de téléchargement
+
+La variable facultative `PREVARISC_DATASTORE_FILE_FORMAT` permet de personnaliser le nom des pièces jointes au téléchargement. Elle est prise en compte par les deux adaptateurs. Si elle est absente, la configuration Symfony fournit le format par défaut `%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%`, injecté dans les adaptateurs.
+
+Une variable explicitement vide (ou contenant uniquement des espaces) est rejetée avec une erreur de configuration. Pour retrouver le format standard, supprimer la définition de cette variable dans l'environnement ; ne pas la remplacer par une chaîne vide.
+
+Exemple de configuration Apache :
+
+```apache
+SetEnv PREVARISC_DATASTORE_FILE_FORMAT "%NUMEROID_ETABLISSEMENT%_%DATE_PIECEJOINTE%_%NOM_PIECEJOINTE%_%ID_PIECEJOINTE%%EXTENSION_PIECEJOINTE%"
+```
+
+Pour une séance `42`, un ODJ `123` généré le 5 octobre 2026 sera téléchargé sous `42_2026-10-05_Ordre du jour_123.odt`. Le même format s'applique aux autres pièces jointes de séance, notamment convocations, PV et comptes-rendus.
+
+| Jeton | Valeur |
+|---|---|
+| `%NOM_PIECEJOINTE%` | Libellé enregistré, sans extension |
+| `%EXTENSION_PIECEJOINTE%` | Extension, point compris |
+| `%ID_PIECEJOINTE%` | Identifiant de la pièce jointe |
+| `%DATE_PIECEJOINTE%` | Date d'ajout/génération au format `Y-m-d`, vide si absente ; ce n'est pas la date de la séance |
+| `%DESCRIPTION_PIECEJOINTE%` | Description |
+| `%ID_OBJECT%` | Identifiant de l'objet auquel la pièce jointe est rattachée |
+| `%NUMEROID_ETABLISSEMENT%` | Pour les commissions : identifiant de la date de commission (séance), pas de la commission |
+| `%TYPE_OBJET%` | Type de rattachement, par exemple `dateCommission` |
+| `%CODE_TYPE_OBJET%` | Trois premières lettres du type, en majuscules |
+| `%SHORT_CODE_TYPE_OBJET%` | Première lettre du type, en majuscule |
+
+Le libellé affiché et les chemins physiques ne changent pas. Le format concerne les téléchargements unitaires utilisant le DataStore ; les noms des entrées des ZIP de dossiers ne sont pas modifiés. Les noms de téléchargement restent assainis par le contrôleur HTTP. Après modification, redémarrer le processus applicatif concerné pour qu'il recharge son environnement, comme pour le choix de l'adaptateur.

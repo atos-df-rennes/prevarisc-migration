@@ -22,6 +22,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$srcDir', '%kernel.project_dir%')
         ->bind('$dataPath', '%app.data_path%')
         ->bind('$realDataPath', '%app.files_path%')
+        ->bind('$fileFormat', '%app.datastore_file_format%')
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
         ->bind('$mailEnabled', '%app.mail_enabled%')
@@ -59,6 +60,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('App\Controller\Etablissement\EtablissementController')
         ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%')
         ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%');
+
+    $services->set('App\Service\IgnAutoconfiguration')
+        ->arg('$autoconfPath', '%app.ign_autoconf_path%');
 
     $services->set('App\Form\UtilisateurType')
         ->arg('$enforceSecurity', '%app.enforce_security%');

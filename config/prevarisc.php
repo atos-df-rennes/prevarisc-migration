@@ -162,6 +162,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.datastore_adapter', '%env(string:PREVARISC_DATASTORE_ADAPTER)%');
 
+    $parameters->set('env(PREVARISC_DATASTORE_FILE_FORMAT)', '%%NOM_PIECEJOINTE%%%%EXTENSION_PIECEJOINTE%%');
+
+    $parameters->set('app.datastore_file_format', '%env(string:PREVARISC_DATASTORE_FILE_FORMAT)%');
+
     $parameters->set('env(PREVARISC_DATA_PATH)', '/data');
 
     $parameters->set('app.data_path', '%env(string:PREVARISC_DATA_PATH)%');
@@ -184,7 +188,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('env(PREVARISC_IGN_AUTOCONF)', '');
 
-    $parameters->set('app.carto_autoconf_path', '%kernel.project_dir%/public%env(string:PREVARISC_IGN_AUTOCONF)%');
+    $parameters->set('app.ign_autoconf_path', '%env(string:PREVARISC_IGN_AUTOCONF)%');
 
     $parameters->set('env(PREVARISC_PLUGIN_GOOGLEMAPKEY)', '');
 

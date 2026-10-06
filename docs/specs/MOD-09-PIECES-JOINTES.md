@@ -127,6 +127,12 @@ Pour les dossiers Plat'AU, les pièces jointes arrivées depuis la dernière vis
 
 Un clic sur le nom du fichier permet de le télécharger.
 
+L'installation peut personnaliser le nom de téléchargement. Par défaut, il reprend le libellé de la pièce jointe suivi de son extension. Cette personnalisation ne modifie ni le libellé affiché, ni le fichier associé.
+
+La date utilisée dans le nom est celle d'ajout ou de génération du document, et non la date de la séance. Si elle n'est pas renseignée, cette partie du nom est vide. Pour une pièce jointe de commission, l'identifiant de rattachement est celui de la séance, pas celui de la commission.
+
+Cette personnalisation s'applique également aux convocations, ordres du jour, procès-verbaux et comptes-rendus générés. Elle ne modifie pas les noms des fichiers contenus dans les archives ZIP de dossiers. Les paramètres et formats disponibles sont décrits dans la [configuration du stockage des fichiers](../tech/configuration-datastore.md).
+
 #### 5.2.4 Téléchargement groupé (dossier uniquement)
 
 Un bouton « Télécharger les pièces jointes » permet de télécharger l'ensemble des pièces jointes d'un dossier dans une archive ZIP.
@@ -227,6 +233,7 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-021** | Les pièces jointes reçues par Plat'AU sont rattachées au dossier correspondant et visibles dans sa liste de pièces jointes. |
 | **RG-PJ-022** | Si un fichier dépasse la taille maximale autorisée, un message invite l'utilisateur à contacter son service informatique. |
 | **RG-PJ-023** | Lorsque la modification ou la suppression est interdite, ces actions ne sont pas proposées. Une tentative de les réaliser malgré tout est refusée. |
+| **RG-PJ-024** | Le nom de téléchargement unitaire peut être personnalisé à l'échelle de l'installation, indépendamment du libellé affiché et du fichier associé. Sans personnalisation, le libellé suivi de l'extension est conservé. La date utilisée dans le nom est celle d'ajout ou de génération de la pièce jointe, et non la date de la séance. |
 
 ---
 

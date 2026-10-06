@@ -7,6 +7,7 @@ use App\Form\CoucheCartoType;
 use App\Form\ReOrderCoucheCartoType;
 use App\Repository\CoucheCartoRepository;
 use App\Service\CouchesCarto;
+use App\Service\IgnAutoconfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,23 +20,20 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[IsGranted('admin')]
 class CouchesCartographiquesController extends AbstractController
 {
-    public function __construct(private readonly CouchesCarto $couchesCarto, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly EntityManagerInterface $entityManager)
+    public function __construct(private readonly CouchesCarto $couchesCarto, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly EntityManagerInterface $entityManager, private readonly IgnAutoconfiguration $ignAutoconfiguration)
     {
     }
 
     #[Route(path: '/admin/couches-cartographiques', name: 'couches_cartographiques')]
     public function index(): Response
     {
-        /** @var string $autoconfPath */
-        $autoconfPath = $this->getParameter('app.carto_autoconf_path');
-
         return $this->render('couches_cartographiques/index.html.twig', [
             'key_ign' => $this->getParameter('app.ign_key'),
             'geoconcept_url' => $this->getParameter('app.geoconcept_url'),
             'key_googlemap' => $this->getParameter('app.google_map_key'),
             'default_lon' => $this->getParameter('app.carto_default_lon'),
             'default_lat' => $this->getParameter('app.carto_default_lat'),
-            'autoconf_path' => file_exists($autoconfPath) ? $autoconfPath : '',
+            'autoconf_path' => $this->ignAutoconfiguration->getPath(),
             'projection' => $this->getParameter('app.geoconcept_projection'),
             'token' => $this->getParameter('app.geoconcept_token'),
             'app_id' => $this->getParameter('app.geoconcept_app_id'),

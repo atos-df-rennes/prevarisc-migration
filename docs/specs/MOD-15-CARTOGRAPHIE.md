@@ -212,6 +212,7 @@ Les couches cartographiques configurées dans le module d'administration sont ut
 | **RG-CAR-016** | Sur la fiche de consultation d'un établissement, plusieurs fournisseurs peuvent coexister sous forme d'onglets distincts (contrairement à l'écran d'administration qui n'affiche qu'un seul fournisseur par priorité). |
 | **RG-CAR-017** | L'accès à l'écran d'administration des couches cartographiques est restreint au profil administrateur. |
 | **RG-CAR-018** | Lorsqu'une couche IGN est ajoutée, le format d'image est choisi automatiquement à partir des informations fournies par IGN. |
+| **RG-CAR-019** | Une configuration IGN locale peut être utilisée pour initialiser les cartes. Si elle n'est pas définie ou si son fichier est introuvable, les pages restent accessibles et les cartes utilisent le service IGN en ligne. Cette règle s'applique à la consultation, à l'ajout/édition et aux fenêtres de modification d'adresse des établissements, ainsi qu'à l'aperçu d'administration des couches. |
 
 ---
 
@@ -223,6 +224,7 @@ Les couches cartographiques configurées dans le module d'administration sont ut
 | **Aucun fournisseur configuré** | Sur l'écran d'administration, un message explicite invite à configurer un fournisseur (IGN, Google Maps ou GeoConcept). Aucune carte n'est rendue. |
 | **Ordre d'affichage non renseigné** | La mention « Ordre non renseigné » est affichée dans la liste. La couche reste visible sur la carte, mais son emplacement par rapport aux autres couches n'est pas défini. |
 | **Chargement du catalogue IGN lent** | Un avertissement est affiché sur la page de liste et sur la page d'ajout IGN, prévenant que le chargement peut prendre du temps lorsque plusieurs clés sont configurées. |
+| **Configuration IGN locale indisponible** | L'absence de configuration locale ou un fichier introuvable ne doivent pas empêcher l'affichage de la page. La carte utilise le service IGN en ligne (RG-CAR-019). |
 | **Établissement sans adresse géolocalisée** | Les onglets cartographiques (IGN, GeoConcept, Google Maps) ne sont pas affichés sur la fiche de consultation de l'établissement. |
 | **Erreur à l'enregistrement** | Un message d'erreur est affiché avec le détail du problème. L'utilisateur reste sur le formulaire et peut corriger puis réessayer. |
 | **Suppression échouée** | Un message d'erreur est affiché. L'utilisateur est redirigé vers la liste. |

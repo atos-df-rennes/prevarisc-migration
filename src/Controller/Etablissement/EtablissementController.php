@@ -34,6 +34,7 @@ use App\Service\Etablissement as EtablissementService;
 use App\Service\EtablissementFormDataLoader;
 use App\Service\EtablissementHistoriqueService;
 use App\Service\EtablissementPieceJointeService;
+use App\Service\IgnAutoconfiguration;
 use App\Service\Mail\MailerConfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -50,7 +51,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class EtablissementController extends AbstractController implements EtablissementLateralNavigationInterface
 {
-    public function __construct(private readonly EtablissementPieceJointeRepository $etablissementPieceJointeRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DossierRepository $dossierRepository, private readonly EtablissementService $etablissementService, private readonly EtablissementRepository $etablissementRepository, private readonly EntityManagerInterface $entityManager, private readonly Dossier $dossierService, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly PeriodiciteRepository $periodiciteRepository, private readonly GroupementRepository $groupementRepository, private readonly DataStore $dataStore, private readonly SerializerInterface $serializer, private readonly MailerConfiguration $mailerConfig, private readonly AlerteService $alerteService, private readonly int $nbDossiersAAfficher, private readonly DescriptifService $descriptifService, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly bool $descriptifPersonnalise, private readonly LoggerInterface $logger, private readonly FormFactoryInterface $formFactory, private readonly LoggerInterface $pieceJointeLogger, private readonly EtablissementHistoriqueService $etablissementHistoriqueService, private readonly EtablissementPieceJointeService $etablissementPieceJointeService, private readonly EtablissementFormDataLoader $formDataLoader, private readonly TagAwareCacheInterface $searchCache)
+    public function __construct(private readonly EtablissementPieceJointeRepository $etablissementPieceJointeRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DossierRepository $dossierRepository, private readonly EtablissementService $etablissementService, private readonly EtablissementRepository $etablissementRepository, private readonly EntityManagerInterface $entityManager, private readonly Dossier $dossierService, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly PeriodiciteRepository $periodiciteRepository, private readonly GroupementRepository $groupementRepository, private readonly DataStore $dataStore, private readonly SerializerInterface $serializer, private readonly MailerConfiguration $mailerConfig, private readonly AlerteService $alerteService, private readonly int $nbDossiersAAfficher, private readonly DescriptifService $descriptifService, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly bool $descriptifPersonnalise, private readonly LoggerInterface $logger, private readonly FormFactoryInterface $formFactory, private readonly LoggerInterface $pieceJointeLogger, private readonly EtablissementHistoriqueService $etablissementHistoriqueService, private readonly EtablissementPieceJointeService $etablissementPieceJointeService, private readonly EtablissementFormDataLoader $formDataLoader, private readonly TagAwareCacheInterface $searchCache, private readonly IgnAutoconfiguration $ignAutoconfiguration)
     {
     }
 
@@ -216,6 +217,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
         return $this->render('etablissement/informations.html.twig', [
             'etablissement' => $etablissement,
+            'autoconf_path' => $this->ignAutoconfiguration->getPath(),
             'couches_cartographiques' => $couchesCartographiquesJson,
             'adresses' => $adresses,
             'default_periodicite' => $defaultPeriodicite,
