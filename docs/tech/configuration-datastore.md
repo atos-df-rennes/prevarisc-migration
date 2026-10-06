@@ -35,7 +35,9 @@ Exemple de configuration Apache :
 SetEnv PREVARISC_DATASTORE_FILE_FORMAT "%NUMEROID_ETABLISSEMENT%_%DATE_PIECEJOINTE%_%NOM_PIECEJOINTE%_%ID_PIECEJOINTE%%EXTENSION_PIECEJOINTE%"
 ```
 
-Pour une séance `42`, un ODJ `123` généré le 5 octobre 2026 sera téléchargé sous `42_2026-10-05_Ordre du jour_123.odt`. Le même format s'applique aux autres pièces jointes de séance, notamment convocations, PV et comptes-rendus.
+Pour une séance `42`, un ODJ `123` généré le 5 octobre 2026 sera téléchargé sous `42_2026-10-05_Ordre du jour_123.odt`. Le même format s'applique aux autres pièces jointes de séance, notamment convocations, PV et comptes-rendus, ainsi qu'aux pièces de dossier (y compris Plat'AU) et aux entrées de leurs archives ZIP.
+
+Pour une pièce jointe de dossier, `%NUMEROID_ETABLISSEMENT%` utilise les numéros des établissements liés au dossier. Si la description de la pièce contient le numéro d'un établissement lié, ce numéro est retenu ; sinon, les numéros disponibles sont assemblés avec `_`. Un établissement sans numéro est représenté par l'identifiant du dossier. Si le dossier n'a aucun établissement lié, son identifiant est utilisé.
 
 | Jeton | Valeur |
 |---|---|
@@ -45,9 +47,9 @@ Pour une séance `42`, un ODJ `123` généré le 5 octobre 2026 sera télécharg
 | `%DATE_PIECEJOINTE%` | Date d'ajout/génération au format `Y-m-d`, vide si absente ; ce n'est pas la date de la séance |
 | `%DESCRIPTION_PIECEJOINTE%` | Description |
 | `%ID_OBJECT%` | Identifiant de l'objet auquel la pièce jointe est rattachée |
-| `%NUMEROID_ETABLISSEMENT%` | Pour les commissions : identifiant de la date de commission (séance), pas de la commission |
+| `%NUMEROID_ETABLISSEMENT%` | Pour un établissement : son numéro, ou son identifiant si le numéro est absent. Pour un dossier : numéro(s) des établissements liés selon la règle ci-dessus, ou identifiant du dossier s'il n'y en a aucun. Pour une commission : identifiant de la date de commission (séance), pas de la commission |
 | `%TYPE_OBJET%` | Type de rattachement, par exemple `dateCommission` |
 | `%CODE_TYPE_OBJET%` | Trois premières lettres du type, en majuscules |
 | `%SHORT_CODE_TYPE_OBJET%` | Première lettre du type, en majuscule |
 
-Le libellé affiché et les chemins physiques ne changent pas. Le format concerne les téléchargements unitaires utilisant le DataStore ; les noms des entrées des ZIP de dossiers ne sont pas modifiés. Les noms de téléchargement restent assainis par le contrôleur HTTP. Après modification, redémarrer le processus applicatif concerné pour qu'il recharge son environnement, comme pour le choix de l'adaptateur.
+Le libellé affiché et les chemins physiques ne changent pas. Les pièces Plat'AU conservent leur chemin physique dédié, mais utilisent également le format configuré pour leur nom de téléchargement. Les téléchargements unitaires et les entrées ZIP de dossiers sont assainis par le contrôleur HTTP. Si plusieurs pièces d'un dossier produisent le même nom configuré, une entrée ZIP peut en remplacer une autre ; inclure `%ID_PIECEJOINTE%` dans le format permet de les distinguer. Après modification, redémarrer le processus applicatif concerné pour qu'il recharge son environnement, comme pour le choix de l'adaptateur.

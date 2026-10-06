@@ -125,17 +125,20 @@ Pour les dossiers Plat'AU, les pièces jointes arrivées depuis la dernière vis
 
 #### 5.2.3 Téléchargement unitaire
 
-Un clic sur le nom du fichier permet de le télécharger.
+Un clic sur le nom du fichier déclenche un téléchargement forcé (pièce jointe HTTP).
 
-L'installation peut personnaliser le nom de téléchargement. Par défaut, il reprend le libellé de la pièce jointe suivi de son extension. Cette personnalisation ne modifie ni le libellé affiché, ni le fichier associé.
+L'installation peut personnaliser le nom de téléchargement via `PREVARISC_DATASTORE_FILE_FORMAT`, pour les stockages simple et hashé. Le format s'applique aux téléchargements unitaires des pièces jointes de dossier (y compris les dossiers Plat'AU), d'établissement et de date de commission, ainsi qu'aux noms des entrées ZIP des dossiers. Si la variable est absente, la configuration Symfony fournit le format par défaut : le libellé de la pièce jointe suivi de son extension. Une variable explicitement vide est une configuration invalide et provoque une erreur ; pour retrouver le format standard, il faut supprimer la variable, pas la vider. Cette personnalisation ne modifie ni le libellé affiché, ni le fichier physique.
 
-La date utilisée dans le nom est celle d'ajout ou de génération du document, et non la date de la séance. Si elle n'est pas renseignée, cette partie du nom est vide. Pour une pièce jointe de commission, l'identifiant de rattachement est celui de la séance, pas celui de la commission.
+Le jeton `%DATE_PIECEJOINTE%` représente la date d'ajout ou de génération du document, au format `Y-m-d`, et non la date de la séance. Si cette date n'est pas renseignée, le jeton est vide. La valeur de `%NUMEROID_ETABLISSEMENT%` dépend de l'entité parente :
+- Pour une pièce jointe d'établissement, le numéro de l'établissement est utilisé ; s'il n'est pas renseigné, son identifiant est utilisé.
+- Pour une pièce jointe de dossier, les numéros des établissements liés au dossier sont utilisés. Si la description de la pièce contient le numéro d'un établissement lié, ce numéro est retenu ; sinon, les numéros disponibles sont assemblés avec `_`. Un établissement sans numéro est représenté par l'identifiant du dossier. Si aucun établissement n'est lié, l'identifiant du dossier est utilisé.
+- Pour une pièce jointe de commission, `%NUMEROID_ETABLISSEMENT%` et `%ID_OBJECT%` représentent l'identifiant de la date de commission (séance), pas celui de la commission.
 
-Cette personnalisation s'applique également aux convocations, ordres du jour, procès-verbaux et comptes-rendus générés. Elle ne modifie pas les noms des fichiers contenus dans les archives ZIP de dossiers. Les paramètres et formats disponibles sont décrits dans la [configuration du stockage des fichiers](../tech/configuration-datastore.md).
+Cette personnalisation s'applique également aux convocations, ordres du jour, procès-verbaux et comptes-rendus générés. Les entrées des archives ZIP de dossiers suivent également le format configuré. Les paramètres et formats disponibles sont décrits dans la [configuration du stockage des fichiers](../tech/configuration-datastore.md).
 
 #### 5.2.4 Téléchargement groupé (dossier uniquement)
 
-Un bouton « Télécharger les pièces jointes » permet de télécharger l'ensemble des pièces jointes d'un dossier dans une archive ZIP.
+Un bouton « Télécharger les pièces jointes » permet de télécharger l'ensemble des pièces jointes d'un dossier dans une archive ZIP. Le nom de chaque entrée de l'archive suit le même format configuré que le téléchargement unitaire.
 
 ### 5.3 Modifier une pièce jointe
 
@@ -229,11 +232,12 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-017** | L'identifiant Plat'AU de la pièce jointe est affiché sous le nom du fichier lorsqu'il est renseigné (dossiers Plat'AU uniquement). |
 | **RG-PJ-018** | Les pièces jointes entrantes Plat'AU sont marquées « Nouveau » si leur date de notification est postérieure à la dernière visite de l'utilisateur sur l'onglet pièces jointes. La date de dernière visite est mise à jour à chaque consultation de l'onglet. |
 | **RG-PJ-019** | Le téléchargement groupé en archive ZIP n'est disponible que pour les dossiers et uniquement lorsqu'au moins une pièce jointe existe. |
-| **RG-PJ-020** | Si le fichier n'est plus disponible au moment du téléchargement, un message d'erreur est affiché. |
+| **RG-PJ-020** | Si le fichier physique est introuvable au moment du téléchargement, le système renvoie une erreur « ressource introuvable ». |
 | **RG-PJ-021** | Les pièces jointes reçues par Plat'AU sont rattachées au dossier correspondant et visibles dans sa liste de pièces jointes. |
 | **RG-PJ-022** | Si un fichier dépasse la taille maximale autorisée, un message invite l'utilisateur à contacter son service informatique. |
 | **RG-PJ-023** | Lorsque la modification ou la suppression est interdite, ces actions ne sont pas proposées. Une tentative de les réaliser malgré tout est refusée. |
-| **RG-PJ-024** | Le nom de téléchargement unitaire peut être personnalisé à l'échelle de l'installation, indépendamment du libellé affiché et du fichier associé. Sans personnalisation, le libellé suivi de l'extension est conservé. La date utilisée dans le nom est celle d'ajout ou de génération de la pièce jointe, et non la date de la séance. |
+| **RG-PJ-024** | Le nom de téléchargement unitaire et les noms des entrées ZIP d'un dossier peuvent être personnalisés à l'échelle de l'installation, indépendamment du libellé affiché et du chemin de stockage, pour les adaptateurs simple et hashé. En l'absence de variable de configuration, le libellé suivi de l'extension est conservé. Une variable explicitement vide est rejetée avec une erreur de configuration. La date utilisée dans le nom est celle d'ajout ou de génération de la pièce jointe, au format `Y-m-d`. Le jeton `%NUMEROID_ETABLISSEMENT%` désigne le numéro de l'établissement parent (ou son identifiant à défaut), les numéros des établissements liés au dossier selon la règle décrite en §5.2.3, ou l'identifiant de la séance pour une pièce jointe de commission. |
+| **RG-PJ-025** | Les pièces jointes des dossiers Plat'AU sont stockées dans un espace de stockage distinct de celui des dossiers classiques. |
 
 ---
 
@@ -245,6 +249,7 @@ Le comportement diffère selon que le dossier est lié à Plat'AU ou non :
 
 | Aspect | Dossier classique | Dossier Plat'AU |
 |--------|-------------------|-----------------|
+| Stockage des fichiers | Espace standard organisé par entité | Espace dédié Plat'AU, fichier nommé par identifiant interne |
 | Colonne « Statut Plat'AU » | Non affichée | Affichée |
 | Badge « Nouveau ! » | Non affiché | Affiché pour les pièces récentes |
 | Identifiant Plat'AU | Non affiché | Affiché sous le nom du fichier |
@@ -268,3 +273,7 @@ Une pièce jointe dont le fichier est indisponible ou illisible n'apparaît pas 
 Si la taille du fichier dépasse la limite autorisée, le système :
 - Annule la création de la pièce jointe en base.
 - Affiche un message : « Impossible de charger la pièce jointe. Veuillez contacter votre service informatique. »
+
+### 8.6 Nommage configurable des téléchargements
+
+Le format est appliqué aux pièces de dossier et aux entrées de leurs archives ZIP, y compris lorsque le dossier est lié à Plat'AU. Deux différences sont volontaires par rapport au comportement historique : le format est appliqué aux entrées ZIP, et le jeton `%NUMEROID_ETABLISSEMENT%` d'une pièce jointe d'établissement utilise le numéro métier de l'établissement plutôt que de rester vide lorsque ce numéro existe.
