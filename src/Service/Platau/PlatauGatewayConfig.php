@@ -66,13 +66,16 @@ class PlatauGatewayConfig
     }
 
     /**
-     * @return array{timeout: int, max_duration: int, proxy?: string}
+     * Pas de redirection suivie, comme l'ancien appel cURL.
+     *
+     * @return array{timeout: int, max_duration: int, max_redirects: int, proxy?: string}
      */
     public function getHttpClientOptions(): array
     {
         return [
             'timeout' => self::HTTP_TIMEOUT_SECONDS,
-            'max_duration' => self::HTTP_TIMEOUT_SECONDS * 2,
+            'max_duration' => self::HTTP_TIMEOUT_SECONDS,
+            'max_redirects' => 0,
         ] + $this->proxyConfiguration->getHttpClientOptions();
     }
 

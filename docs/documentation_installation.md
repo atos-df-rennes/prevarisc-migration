@@ -162,6 +162,14 @@ Les services concernés sont regroupés dans `src/Service/Platau/` :
 `PlatauGatewayConfig` lit à la demande la configuration et les adresses par
 défaut de la passerelle ; `PisteTokenProvider` gère le jeton ; les services
 de healthcheck et de statut conservent les règles d'affichage existantes.
+Les appels sortants n'utilisent pas le proxy applicatif lorsque
+`PREVARISC_PROXY_ENABLED` vaut 0 ; dans ce cas le client HTTP Symfony applique
+les variables d'environnement `HTTP_PROXY`, `HTTPS_PROXY` et `NO_PROXY`
+si elles sont définies (l'ancien client cURL ne les utilisait pas
+explicitement). Les redirections ne sont pas suivies, la durée totale de
+chaque appel est limitée à 5 secondes, et un jeton refusé par Plat'AU (401)
+est renouvelé une fois avant de renvoyer l'erreur.
+
 L'ancien fichier `var/piste-<env>.json` n'est plus lu ni écrit ; un fichier
 restant peut être supprimé manuellement, sans migration de son contenu.
 

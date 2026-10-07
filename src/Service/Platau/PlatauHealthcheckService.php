@@ -29,29 +29,41 @@ class PlatauHealthcheckService
     public function executeHealthcheck(): HealthcheckResult
     {
         try {
-            $pisteToken = $this->tokenProvider->getToken();
-        } catch (PisteTokenException $pisteTokenException) {
-            return HealthcheckResult::prevariscError($pisteTokenException->getMessage());
-        }
+            $response = $this->requestHealthcheck();
 
-        $url = $this->config->getPlatauUrl();
-
-        if (null === $url) {
-            return HealthcheckResult::prevariscError(self::UNAVAILABLE_RESPONSE_MESSAGE);
-        }
-
-        try {
-            $response = $this->httpClient->request('GET', $url.self::HEALTHCHECK_ENDPOINT, $this->config->getHttpClientOptions() + [
-                'headers' => ['Content-Type' => 'application/json'],
-                'auth_bearer' => $pisteToken,
-            ]);
+            // Token refusé (révoqué avant son expiration) : on le renouvelle une seule fois
+            if (401 === $response->getStatusCode()) {
+                $this->tokenProvider->invalidate();
+                $response = $this->requestHealthcheck();
+            }
 
             return $this->interpretResponse($response);
+        } catch (PisteTokenException $pisteTokenException) {
+            return HealthcheckResult::prevariscError($pisteTokenException->getMessage());
         } catch (TransportExceptionInterface $transportException) {
             $this->logger->error("La récupération du healthcheck Plat'AU a échoué.", ['exception' => $transportException]);
 
             return HealthcheckResult::prevariscError(self::UNAVAILABLE_RESPONSE_MESSAGE);
         }
+    }
+
+    /**
+     * @throws PisteTokenException
+     * @throws TransportExceptionInterface
+     */
+    private function requestHealthcheck(): ResponseInterface
+    {
+        $pisteToken = $this->tokenProvider->getToken();
+        $url = $this->config->getPlatauUrl();
+
+        if (null === $url) {
+            throw new PisteTokenException(self::UNAVAILABLE_RESPONSE_MESSAGE);
+        }
+
+        return $this->httpClient->request('GET', $url.self::HEALTHCHECK_ENDPOINT, $this->config->getHttpClientOptions() + [
+            'headers' => ['Content-Type' => 'application/json'],
+            'auth_bearer' => $pisteToken,
+        ]);
     }
 
     private function interpretResponse(ResponseInterface $response): HealthcheckResult

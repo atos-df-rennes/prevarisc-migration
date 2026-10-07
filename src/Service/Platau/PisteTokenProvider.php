@@ -27,6 +27,14 @@ class PisteTokenProvider
     }
 
     /**
+     * Oublie le token en cache (par exemple après un refus d'authentification de Plat'AU).
+     */
+    public function invalidate(): void
+    {
+        $this->cache->delete(self::CACHE_KEY);
+    }
+
+    /**
      * @throws PisteTokenException
      */
     public function getToken(): string
@@ -50,6 +58,7 @@ class PisteTokenProvider
                         'client_secret' => $clientSecret,
                     ],
                 ]);
+                $statusCode = $response->getStatusCode();
                 $data = $response->toArray(false);
             } catch (TransportExceptionInterface|DecodingExceptionInterface $exception) {
                 $this->logger->error('La récupération du token PISTE a échoué.', ['exception' => $exception]);
@@ -58,7 +67,7 @@ class PisteTokenProvider
             }
 
             if (array_key_exists('error', $data)) {
-                $this->logger->error('Erreur lors de la récupération du token PISTE.', ['error' => $data['error']]);
+                $this->logger->error('Erreur lors de la récupération du token PISTE.', ['error' => $data['error'], 'httpCode' => $statusCode]);
 
                 throw new PisteTokenException(self::UNAVAILABLE_MESSAGE);
             }
@@ -66,7 +75,7 @@ class PisteTokenProvider
             $token = $data['access_token'] ?? null;
 
             if (!is_string($token)) {
-                $this->logger->error("Le token PISTE n'est pas disponible.");
+                $this->logger->error("Le token PISTE n'est pas disponible.", ['httpCode' => $statusCode]);
 
                 throw new PisteTokenException("La connexion à Plat'AU depuis Prevarisc a échouée. L'identifiant de connexion à PISTE n'est pas lisible. Veuillez consulter les logs de l'application.");
             }

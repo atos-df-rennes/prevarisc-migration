@@ -126,6 +126,19 @@ final class PisteTokenProviderTest extends TestCase
         $this->assertSame(1, $client->getRequestsCount());
     }
 
+    public function testInvalidateRenewsToken(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse('{"access_token":"old","expires_in":3600}'),
+            new MockResponse('{"access_token":"new","expires_in":3600}'),
+        ]);
+        $provider = $this->buildProvider($client);
+
+        $this->assertSame('old', $provider->getToken());
+        $provider->invalidate();
+        $this->assertSame('new', $provider->getToken());
+    }
+
     public function testClearingCacheRenewsToken(): void
     {
         $cache = new ArrayAdapter();

@@ -182,8 +182,51 @@ final class PlatauHealthcheckHttpTest extends TestCase
         foreach ($requests as $options) {
             $this->assertSame('http://proxy.test:8080', $options['proxy']);
             $this->assertEqualsWithDelta(5.0, $options['timeout'], PHP_FLOAT_EPSILON);
-            $this->assertEqualsWithDelta(10.0, $options['max_duration'], PHP_FLOAT_EPSILON);
+            $this->assertEqualsWithDelta(5.0, $options['max_duration'], PHP_FLOAT_EPSILON);
+            $this->assertSame(0, $options['max_redirects']);
         }
+    }
+
+    public function testRejectedTokenIsRenewedAndHealthcheckRetriedOnce(): void
+    {
+        $cache = new ArrayAdapter();
+        $tokens = ['old', 'new'];
+        $authorizations = [];
+        $client = new MockHttpClient(function (string $method, string $url, array $options) use (&$tokens, &$authorizations): MockResponse {
+            if ('POST' === $method) {
+                return new MockResponse((string) json_encode(['access_token' => array_shift($tokens), 'expires_in' => 3600]));
+            }
+
+            $authorizations[] = $options['normalized_headers']['authorization'][0];
+
+            return 1 === count($authorizations)
+                ? new MockResponse('{"message":"expired"}', ['http_code' => 401])
+                : new MockResponse('{"etatGeneral":true,"etatBdd":true}');
+        });
+
+        $result = $this->buildService($client, ['PLATAU_URL' => 'https://platau.test/', 'PISTE_ACCESS_TOKEN_URL' => 'https://piste.test/token'], tokenCache: $cache)->executeHealthcheck();
+
+        $this->assertTrue($result->isSuccess());
+        $this->assertSame(['Authorization: Bearer old', 'Authorization: Bearer new'], $authorizations);
+    }
+
+    public function testRejectedTokenIsRetriedOnlyOnce(): void
+    {
+        $healthchecks = 0;
+        $client = new MockHttpClient(function (string $method) use (&$healthchecks): MockResponse {
+            if ('POST' === $method) {
+                return self::tokenResponse();
+            }
+
+            ++$healthchecks;
+
+            return new MockResponse('{}', ['http_code' => 401]);
+        });
+
+        $result = $this->buildService($client, ['PLATAU_URL' => 'https://platau.test/', 'PISTE_ACCESS_TOKEN_URL' => 'https://piste.test/token'])->executeHealthcheck();
+
+        $this->assertSame(HealthcheckErrorSource::PLATAU, $result->getErrorSource());
+        $this->assertSame(2, $healthchecks);
     }
 
     /**
