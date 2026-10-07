@@ -36,20 +36,8 @@
             </ul>
             <ul class='nav navbar-nav navbar-right'>
                 {% if platau_healthcheck_enabled() %}
-                    <li class="dropdown" id="platau-status" data-url="{{ path('accueil_platau_healthcheck') }}">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <span class="platau-status-dot platau-status-pending" id="platau-status-dot" aria-hidden="true"></span>
-                            Plat'AU
-                            <span class="sr-only" id="platau-status-sr" aria-live="polite">Vérification de l'état de Plat'AU en cours</span>
-                            <span class="caret"></span>
-                        </a>
-                        <div class="dropdown-menu platau-status-panel">
-                            <p id="platau-status-message" class="platau-status-message">Vérification en cours…</p>
-                            <p id="platau-status-version" class="small text-muted" hidden></p>
-                            <div id="platau-status-maintenance" class="alert alert-warning small" hidden></div>
-                            <p id="platau-status-times" class="small text-muted" hidden></p>
-                        </div>
-                    </li>
+                    {% set platau_status = platau_healthcheck_cached_status() %}
+                    {{ include('index/_platau_status.html.twig', {status: platau_status}) }}
                 {% endif %}
                 <li class="li-searched">
                     <form class="navbar-search navbar-form" action="{{ path('search_etablissement') }}" method="get" id="nav-main-search-form">
@@ -74,7 +62,7 @@
 
 <script type="module">
     import { initTomSelectEtablissement } from '{{ asset('js/modules/tom-select-etablissement.js') }}';
-{% if platau_healthcheck_enabled() %}
+{% if platau_healthcheck_enabled() and platau_status is null %}
     import { initPlatauStatus } from '{{ asset('js/modules/platau-status.js') }}';
 
     initPlatauStatus(document.getElementById('platau-status'));

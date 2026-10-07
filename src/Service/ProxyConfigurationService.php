@@ -51,30 +51,6 @@ class ProxyConfigurationService
     }
 
     /**
-     * Retourne les options cURL proxy sous forme de tableau (pour curl_setopt_array).
-     *
-     * @return array<int, mixed>
-     */
-    public function getCurlOptions(): array
-    {
-        if (!$this->proxyEnabled) {
-            return [];
-        }
-
-        $options = [
-            CURLOPT_PROXYTYPE => $this->proxyProtocol,
-            CURLOPT_PROXYPORT => $this->proxyPort,
-            CURLOPT_PROXY => $this->proxyHost,
-        ];
-
-        if ('' !== $this->proxyUsername && '0' !== $this->proxyUsername) {
-            $options[CURLOPT_PROXYUSERPWD] = $this->proxyUsername.':'.$this->proxyPassword;
-        }
-
-        return $options;
-    }
-
-    /**
      * Retourne les options du client HTTP Symfony pour le proxy sortant.
      * Sans proxy activé, aucune option n'est retournée (HTTP(S)_PROXY / NO_PROXY restent pris en compte par le client).
      *

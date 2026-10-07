@@ -2,12 +2,17 @@
 
 namespace App\Twig;
 
+use App\Dto\Platau\HealthcheckStatus;
+use App\Service\PlatauHealthcheckStatusProvider;
 use Twig\Attribute\AsTwigFunction;
 
 class PlatauHealthcheckExtension
 {
-    public function __construct(private readonly bool $deactivatePlatau, private readonly bool $platauNoHealthcheck)
-    {
+    public function __construct(
+        private readonly bool $deactivatePlatau,
+        private readonly bool $platauNoHealthcheck,
+        private readonly PlatauHealthcheckStatusProvider $statusProvider
+    ) {
     }
 
     /**
@@ -17,5 +22,14 @@ class PlatauHealthcheckExtension
     public function isEnabled(): bool
     {
         return !$this->deactivatePlatau && !$this->platauNoHealthcheck;
+    }
+
+    /**
+     * État de Plat'AU déjà en cache, sans déclencher de vérification (null si le cache a expiré).
+     */
+    #[AsTwigFunction(name: 'platau_healthcheck_cached_status')]
+    public function getCachedStatus(): ?HealthcheckStatus
+    {
+        return $this->isEnabled() ? $this->statusProvider->getCachedStatus() : null;
     }
 }

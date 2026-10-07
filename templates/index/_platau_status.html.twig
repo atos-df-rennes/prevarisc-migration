@@ -1,0 +1,34 @@
+{# Indicateur d'état Plat'AU de l'en-tête. Sans état en cache (status null), il est chargé en arrière-plan via data-url. #}
+<li class="dropdown" id="platau-status"{% if status is null %} data-url="{{ path('accueil_platau_healthcheck') }}"{% endif %}>
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+        <span class="platau-status-dot platau-status-{{ status ? status.status : 'pending' }}" id="platau-status-dot" aria-hidden="true"></span>
+        Plat'AU
+        <span class="sr-only" id="platau-status-sr" aria-live="polite">{{ status ? status.label : "Vérification de l'état de Plat'AU en cours" }}</span>
+        <span class="caret"></span>
+    </a>
+    <div class="dropdown-menu platau-status-panel">
+        {% if status is null %}
+            <p id="platau-status-message" class="platau-status-message">Vérification en cours…</p>
+        {% else %}
+            {% set result = status.result %}
+            {% set version = result.versionInfo %}
+            {# Les messages sont échappés à leur construction (HealthcheckResult, MaintenanceInfo). #}
+            <p id="platau-status-message" class="platau-status-message">{{ result.message|raw }}</p>
+            {# En succès, la version est déjà incluse dans le message #}
+            {% if not result.isSuccess() and version is not null %}
+                {% set version_parts = [
+                    version.version,
+                    version.versionModel ? 'Modèle : ' ~ version.versionModel : null,
+                    version.versionNomenclature ? 'Nomenclature : ' ~ version.versionNomenclature : null,
+                ]|filter(part => part) %}
+                {% if version_parts is not empty %}
+                    <p id="platau-status-version" class="small text-muted">{{ version_parts|join(' / ') }}</p>
+                {% endif %}
+            {% endif %}
+            {% if result.maintenanceInfo is not null %}
+                <div id="platau-status-maintenance" class="alert alert-warning small">{{ result.maintenanceInfo.toDisplayMessage()|raw }}</div>
+            {% endif %}
+            <p id="platau-status-checked-at" class="small text-muted">Dernière vérification : {{ status.checkedAt|date('H\\hi') }}</p>
+        {% endif %}
+    </div>
+</li>

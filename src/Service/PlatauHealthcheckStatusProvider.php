@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Dto\Platau\HealthcheckStatus;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -16,11 +17,14 @@ class PlatauHealthcheckStatusProvider
 
     public function __construct(
         private readonly PlatauHealthcheckService $healthcheckService,
-        private readonly CacheInterface $cache,
+        private readonly CacheInterface&CacheItemPoolInterface $cache,
         private readonly int $cacheTtl
     ) {
     }
 
+    /**
+     * Retourne l'état en cache, en exécutant la vérification si le cache a expiré.
+     */
     public function getStatus(): HealthcheckStatus
     {
         $ttl = max(1, $this->cacheTtl);
@@ -39,5 +43,15 @@ class PlatauHealthcheckStatusProvider
         });
 
         return $status;
+    }
+
+    /**
+     * Retourne l'état en cache sans jamais déclencher de vérification, ou null si le cache a expiré.
+     */
+    public function getCachedStatus(): ?HealthcheckStatus
+    {
+        $status = $this->cache->getItem(self::CACHE_KEY)->get();
+
+        return $status instanceof HealthcheckStatus ? $status : null;
     }
 }

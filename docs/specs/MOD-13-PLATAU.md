@@ -116,13 +116,16 @@ En cas d'échec ou pour forcer un renvoi, l'utilisateur dispose de trois mécani
 
 ### 5.1 Indicateur dans l'en-tête
 
-Si l'intégration est activée et si la vérification n'a pas été désactivée, un indicateur « Plat'AU » est affiché dans l'en-tête de toutes les pages, pour tous les utilisateurs connectés. L'indicateur est chargé en arrière-plan : il reste gris (« vérification en cours ») tant que le résultat n'est pas connu et ne ralentit jamais l'affichage de la page.
+Si l'intégration est activée et si la vérification n'a pas été désactivée, un indicateur « Plat'AU » est affiché dans l'en-tête de toutes les pages, pour tous les utilisateurs connectés.
 
-La disponibilité n'est pas vérifiée à chaque page : le dernier résultat est conservé pendant une durée configurable (5 minutes par défaut) et partagé entre tous les utilisateurs. Les résultats en erreur sont conservés pendant la même durée.
+La disponibilité n'est pas vérifiée à chaque page : le dernier résultat est conservé pendant une durée configurable (5 minutes par défaut) et partagé entre tous les utilisateurs. Les résultats en erreur sont conservés pendant la même durée. Aucune vérification n'est planifiée : une nouvelle vérification n'a lieu qu'au premier affichage d'une page après expiration du dernier résultat.
+
+- Si un résultat conservé est disponible, l'indicateur est affiché directement avec son état, sans requête supplémentaire.
+- Sinon, l'indicateur est d'abord affiché en gris (« vérification en cours »), puis mis à jour en arrière-plan une fois la vérification terminée ; l'affichage de la page n'est jamais ralenti par la vérification.
 
 ### 5.2 Informations affichées
 
-Un clic sur l'indicateur ouvre un panneau de détails (accessible au clavier) contenant l'état, le message, la version de Plat'AU lorsqu'elle est disponible, les informations de maintenance éventuelles, ainsi que l'heure de la dernière vérification et celle de la prochaine (par exemple 15h52 → 15h57).
+Un clic sur l'indicateur ouvre un panneau de détails (accessible au clavier) contenant l'état, le message, la version de Plat'AU lorsqu'elle est disponible, les informations de maintenance éventuelles, ainsi que l'heure de la dernière vérification (par exemple « Dernière vérification : 15h52 »). L'heure de la prochaine vérification n'est pas affichée, celle-ci dépendant du prochain affichage de page après expiration du résultat.
 
 | Situation | Couleur de l'indicateur | Contenu |
 |-----------|-------------------------|---------|
@@ -215,9 +218,9 @@ La durée de conservation du résultat est paramétrable (`PREVARISC_PLATAU_HEAL
 
 | # | Règle |
 |---|-------|
-| **RG-PLT-029** | La vérification de connexion est exécutée automatiquement au chargement du tableau de bord si le module Plat'AU est activé et si la vérification n'est pas désactivée. |
-| **RG-PLT-034** | En cas de succès, les informations de version communiquées par Plat'AU sont affichées avec le message de confirmation. |
-| **RG-PLT-035** | Si des informations de maintenance sont présentes (active ou programmée), un toast indépendant sans fermeture automatique est affiché en parallèle du toast de succès/erreur. |
+| **RG-PLT-029** | Si le module Plat'AU est activé et si la vérification n'est pas désactivée, l'état de la connexion est affiché dans l'en-tête de toutes les pages. Le dernier résultat est conservé et partagé pendant la durée configurée ; s'il est disponible, il est affiché immédiatement, sinon la vérification est exécutée en arrière-plan lors de l'affichage de la page (voir §5.1). |
+| **RG-PLT-034** | En cas de succès, les informations de version communiquées par Plat'AU sont affichées avec le message de confirmation dans le panneau de détails de l'indicateur. |
+| **RG-PLT-035** | Si des informations de maintenance sont présentes (active ou programmée), l'indicateur est orange (en cas de succès) et un avertissement présentant la maintenance est affiché dans le panneau de détails, en plus du message de succès ou d'erreur. |
 
 ### Recherche
 

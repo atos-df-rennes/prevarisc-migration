@@ -1,41 +1,28 @@
 describe("Indicateur d'état Plat'AU dans l'en-tête", () => {
-    const stub = (status, extra = {}) => {
-        cy.intercept('GET', '**/accueil/platau-healthcheck', {
-            success: status !== 'error',
-            status,
-            message: status === 'error' ? "Plat'AU est en erreur" : "La connexion à Plat'AU a fonctionnée.",
-            version: null,
-            maintenance: null,
-            checkedAt: '2026-01-01T15:52:00+01:00',
-            nextCheckAt: '2026-01-01T15:57:00+01:00',
-            ...extra,
-        }).as('platauStatus')
-    }
-
     beforeEach(() => {
         cy.login()
     })
 
-    it('Affiche une pastille verte et les horaires de vérification', () => {
-        stub('ok')
+    it('Le fragment AJAX contient l\'état et l\'heure de dernière vérification uniquement', () => {
+        cy.request('/accueil/platau-healthcheck').then((response) => {
+            expect(response.headers['content-type']).to.contain('text/html')
+            expect(response.headers['cache-control']).to.contain('private')
+            expect(response.body).to.match(/platau-status-(ok|warning|error)/)
+            expect(response.body).to.contain('Dernière vérification')
+            expect(response.body).not.to.contain('Prochaine vérification')
+        })
+    })
+
+    it('Affiche l\'état en cache directement, sans appel AJAX', () => {
+        // Remplit le cache serveur
+        cy.request('/accueil/platau-healthcheck')
+
+        cy.intercept('GET', '**/accueil/platau-healthcheck').as('platauStatus')
         cy.visit('/accueil')
-        cy.wait('@platauStatus')
-        cy.get('#platau-status-dot').should('have.class', 'platau-status-ok')
+        cy.get('#platau-status').should('not.have.attr', 'data-url')
+        cy.get('#platau-status-dot').invoke('attr', 'class').should('match', /platau-status-(ok|warning|error)/)
         cy.get('#platau-status > a').click()
-        cy.get('#platau-status-times').should('be.visible').and('contain', 'Prochaine vérification')
-    })
-
-    it('Affiche une pastille orange en cas de maintenance', () => {
-        stub('warning', { maintenance: { message: '<strong>Maintenance en cours</strong>' } })
-        cy.visit('/accueil')
-        cy.wait('@platauStatus')
-        cy.get('#platau-status-dot').should('have.class', 'platau-status-warning')
-    })
-
-    it('Affiche une pastille rouge en cas d\'erreur', () => {
-        stub('error')
-        cy.visit('/accueil')
-        cy.wait('@platauStatus')
-        cy.get('#platau-status-dot').should('have.class', 'platau-status-error')
+        cy.get('#platau-status-checked-at').should('be.visible').and('contain', 'Dernière vérification')
+        cy.get('@platauStatus.all').should('have.length', 0)
     })
 })

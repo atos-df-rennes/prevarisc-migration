@@ -12,7 +12,6 @@ use App\Service\NotificationService;
 use App\Service\PlatauHealthcheckStatusProvider;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -202,10 +201,11 @@ class IndexController extends AbstractController
     }
 
     /**
-     * État de Plat'AU pour l'en-tête (AJAX). Le résultat est mis en cache côté serveur et côté navigateur.
+     * Fragment HTML de l'indicateur Plat'AU de l'en-tête (AJAX), appelé lorsque l'état n'est pas en cache.
+     * Le résultat est mis en cache côté serveur et côté navigateur jusqu'à son expiration.
      */
     #[Route(path: '/accueil/platau-healthcheck', name: 'accueil_platau_healthcheck', methods: ['GET'], options: ['expose' => true])]
-    public function platauHealthcheck(): JsonResponse
+    public function platauHealthcheck(): Response
     {
         if ($this->deactivatePlatau || $this->platauNoHealthcheck) {
             throw $this->createNotFoundException();
@@ -213,9 +213,9 @@ class IndexController extends AbstractController
 
         $status = $this->platauHealthcheckStatusProvider->getStatus();
 
-        $response = new JsonResponse($status);
+        $response = $this->render('index/_platau_status.html.twig', ['status' => $status]);
         $response->setPrivate();
-        $response->setMaxAge(max(0, $status->getNextCheckAt()->getTimestamp() - time()));
+        $response->setMaxAge(max(0, $status->getExpiresAt()->getTimestamp() - time()));
 
         return $response;
     }

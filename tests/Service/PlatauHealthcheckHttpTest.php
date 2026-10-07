@@ -148,13 +148,19 @@ final class PlatauHealthcheckHttpTest extends TestCase
         $service = $this->buildService($client, ['PLATAU_URL' => 'https://platau.test/', 'PISTE_ACCESS_TOKEN_URL' => 'https://piste.test/token']);
         $provider = new PlatauHealthcheckStatusProvider($service, new ArrayAdapter(), 300);
 
+        $this->assertNull($provider->getCachedStatus());
+        $this->assertSame(0, $count);
+
         $first = $provider->getStatus();
         $second = $provider->getStatus();
 
         $this->assertSame(2, $count);
         $this->assertEquals($first, $second);
+        $this->assertEquals($first, $provider->getCachedStatus());
+        $this->assertSame(2, $count);
         $this->assertSame(HealthcheckStatus::STATUS_OK, $first->getStatus());
-        $this->assertSame(300, $first->getNextCheckAt()->getTimestamp() - $first->getCheckedAt()->getTimestamp());
+        $this->assertSame("Plat'AU est disponible", $first->getLabel());
+        $this->assertSame(300, $first->getExpiresAt()->getTimestamp() - $first->getCheckedAt()->getTimestamp());
     }
 
     /**
