@@ -186,6 +186,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$projectDir', '%kernel.project_dir%')
         ->arg('$appEnv', '%kernel.environment%');
 
+    $services->set('App\Twig\PlatauHealthcheckExtension')
+        ->arg('$deactivatePlatau', '%app.deactivate_platau%')
+        ->arg('$platauNoHealthcheck', '%app.platau_no_healthcheck%');
+
+    $services->set('App\Service\PlatauHealthcheckStatusProvider')
+        ->arg('$cache', service('cache.platau_healthcheck'))
+        ->arg('$cacheTtl', '%app.platau_healthcheck_cache_ttl%');
+
     $services->set('App\Service\Mail\MailerConfiguration')
         ->arg('$transport', '%app.mail_transport%')
         ->arg('$host', '%app.mail_host%')

@@ -9,15 +9,16 @@ use App\Service\PlatauHealthcheckService;
 use App\Service\ProxyConfigurationService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Symfony\Component\HttpClient\MockHttpClient;
 
 /**
  * Tests unitaires pour PlatauHealthcheckService.
  *
- * La méthode executeHealthcheck() repose sur cURL et le système de fichiers.
- * Les scénarios testés ici couvrent les chemins qui n'ont pas besoin de cURL :
+ * La méthode executeHealthcheck() repose sur le client HTTP et le système de fichiers.
+ * Les scénarios testés ici couvrent les chemins qui n'ont pas besoin d'appel réseau :
  * configuration absente (fichiers inexistants) → prevariscError.
  *
- * Les scénarios dépendant de cURL (appels réseau réels) sont couverts en intégration.
+ * Les scénarios HTTP sont couverts dans PlatauHealthcheckHttpTest.
  */
 final class PlatauHealthcheckServiceTest extends TestCase
 {
@@ -28,14 +29,14 @@ final class PlatauHealthcheckServiceTest extends TestCase
     private function buildService(): PlatauHealthcheckService
     {
         $proxy = $this->createStub(ProxyConfigurationService::class);
-        $proxy->method('getCurlOptions')->willReturn([]);
 
         return new PlatauHealthcheckService(
             'platau.config.json',
             sys_get_temp_dir().DIRECTORY_SEPARATOR.'prevarisc-test-inexistant',
             'test',
             new NullLogger(),
-            $proxy
+            $proxy,
+            new MockHttpClient()
         );
     }
 

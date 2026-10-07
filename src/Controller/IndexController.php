@@ -9,7 +9,7 @@ use App\Service\Dashboard\DashboardBlocConfig;
 use App\Service\Dashboard\DashboardService;
 use App\Service\FeedService;
 use App\Service\NotificationService;
-use App\Service\PlatauHealthcheckService;
+use App\Service\PlatauHealthcheckStatusProvider;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class IndexController extends AbstractController
 {
-    public function __construct(private readonly VersionBuilder $versionBuilder, private readonly DashboardBlocConfig $dashboardBlocConfig, private readonly DashboardService $dashboardService, private readonly FeedService $feedService, private readonly GroupeRepository $groupeRepository, private readonly NotificationService $notificationService, private readonly PlatauHealthcheckService $platauHealthcheckService, private readonly bool $deactivatePlatau, private readonly bool $platauNoHealthcheck, private readonly LoggerInterface $logger, private readonly bool $sdis29CustomEnabled)
+    public function __construct(private readonly VersionBuilder $versionBuilder, private readonly DashboardBlocConfig $dashboardBlocConfig, private readonly DashboardService $dashboardService, private readonly FeedService $feedService, private readonly GroupeRepository $groupeRepository, private readonly NotificationService $notificationService, private readonly PlatauHealthcheckStatusProvider $platauHealthcheckStatusProvider, private readonly bool $deactivatePlatau, private readonly bool $platauNoHealthcheck, private readonly LoggerInterface $logger, private readonly bool $sdis29CustomEnabled)
     {
     }
 
@@ -81,8 +81,6 @@ class IndexController extends AbstractController
             'user' => $user,
             'blocs' => $blocs,
             'blocsOrder' => $blocsOrder,
-            'deactivatePlatau' => $this->deactivatePlatau,
-            'platauNoHealthcheck' => $this->platauNoHealthcheck,
         ]);
     }
 
@@ -204,12 +202,22 @@ class IndexController extends AbstractController
     }
 
     /**
-     * Vérification de la santé de Plat'AU (AJAX).
+     * État de Plat'AU pour l'en-tête (AJAX). Le résultat est mis en cache côté serveur et côté navigateur.
      */
     #[Route(path: '/accueil/platau-healthcheck', name: 'accueil_platau_healthcheck', methods: ['GET'], options: ['expose' => true])]
     public function platauHealthcheck(): JsonResponse
     {
-        return new JsonResponse($this->platauHealthcheckService->executeHealthcheck());
+        if ($this->deactivatePlatau || $this->platauNoHealthcheck) {
+            throw $this->createNotFoundException();
+        }
+
+        $status = $this->platauHealthcheckStatusProvider->getStatus();
+
+        $response = new JsonResponse($status);
+        $response->setPrivate();
+        $response->setMaxAge(max(0, $status->getNextCheckAt()->getTimestamp() - time()));
+
+        return $response;
     }
 
     /**

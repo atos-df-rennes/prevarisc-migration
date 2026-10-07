@@ -73,4 +73,33 @@ class ProxyConfigurationService
 
         return $options;
     }
+
+    /**
+     * Retourne les options du client HTTP Symfony pour le proxy sortant.
+     * Sans proxy activé, aucune option n'est retournée (HTTP(S)_PROXY / NO_PROXY restent pris en compte par le client).
+     *
+     * @return array{proxy?: string}
+     */
+    public function getHttpClientOptions(): array
+    {
+        if (!$this->proxyEnabled) {
+            return [];
+        }
+
+        $scheme = match ($this->proxyProtocol) {
+            2 => 'https',
+            4 => 'socks4',
+            5 => 'socks5',
+            6 => 'socks4a',
+            7 => 'socks5h',
+            default => 'http',
+        };
+
+        $credentials = '';
+        if ('' !== $this->proxyUsername && '0' !== $this->proxyUsername) {
+            $credentials = rawurlencode($this->proxyUsername).':'.rawurlencode($this->proxyPassword).'@';
+        }
+
+        return ['proxy' => sprintf('%s://%s%s:%d', $scheme, $credentials, $this->proxyHost, $this->proxyPort)];
+    }
 }

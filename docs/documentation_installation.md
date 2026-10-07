@@ -113,7 +113,7 @@ PREVARISC_PLUGIN_IGNKEY | [FACULTATIF] Clés IGN pour afficher la carte séparé
 PREVARISC_IGN_AUTOCONF | [FACULTATIF] Fichier d'autoconfiguration pour obtenir les métadonnées de la carte | Chemin relatif au dossier public/ vers le fichier (exemple : /ign/prevarisc/customConfig.json)
 PREVARISC_PLUGIN_GOOGLEMAPKEY | [FACULTATIF] Clé Google Map pour afficher la carte (non recommandé) | Valeur alphanumérique
 PREVARISC_THIRDPARTY_PLUGINS | [FACULTATIF] Liste des classes de Plugins tiers séparée par un ";" à charger au démarrage | Chaine de caractères (exemple : Plugin_MyPlugin;Plugin_YourPluginInc)
-PREVARISC_PROXY_ENABLED | [FACULTATIF] Active le passage par un proxy lors de l'appel aux URL /proxy | 0 ou 1 pour l'activer
+PREVARISC_PROXY_ENABLED | [FACULTATIF] Active le passage par un proxy lors de l'appel aux URL /proxy et des appels sortants vers PISTE/Plat'AU (healthcheck) | 0 ou 1 pour l'activer
 PREVARISC_PROXY_PROTOCOL | [FACULTATIF] Le protocol du proxy | Chaine de caractères (exemple : HTTP ou HTTPS)
 PREVARISC_PROXY_HOST | [FACULTATIF] Le nom de domaine ou IP du proxy | Chaine de caractères (exemple : 192.168.12.3)
 PREVARISC_PROXY_PORT | [FACULTATIF] Le port du proxy | Nombres (exemple : 8080)
@@ -147,6 +147,7 @@ PREVARISC_DATE_COMMISSION_RELANCE_PERIODICITE | [FACULTATIF] Permet d'utiliser l
 PREVARISC_PLATAU_PATH | [FACULTATIF] Chemin vers l'installation de la passerelle Plat'AU | Chaine de caractères
 PREVARISC_COMMAND_PATH | [FACULTATIF] Chemin vers le dossier destiné à stocker le(s) fichier(s) d'entrée à fournir aux commandes (e.g. La fusion des communes) | Chaine de caractères
 PREVARISC_DEACTIVATE_PLATAU | [FACULTATIF] Permet de désactiver tous les affichages liés à Plat'AU | 0 ou 1 pour désactiver (affichages activés par défaut)
+PREVARISC_PLATAU_HEALTHCHECK_CACHE_TTL | [FACULTATIF] Durée en secondes de conservation du résultat de la vérification de disponibilité de Plat'AU affichée dans l'en-tête, par défaut 300 | Entier
 PREVARISC_DOSSIERS_MAX_A_AFFICHER | [FACULTATIF] Permet de configurer le nombre de dossiers du même type à afficher dans la liste des dossiers, par défaut 5 | Entier
 
 `PREVARISC_IGN_AUTOCONF` peut être définie dans le VirtualHost Apache, par exemple

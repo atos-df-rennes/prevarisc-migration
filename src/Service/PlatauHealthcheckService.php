@@ -6,21 +6,23 @@ use App\Dto\Platau\HealthcheckResult;
 use App\Dto\Platau\MaintenanceInfo;
 use App\Dto\Platau\VersionInfo;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Vérification de la santé de Plat'AU via cURL.
- * Port direct de Service_Platau::executeHealthcheck() et Service_PlatauClient (legacy).
+ * Vérification de la santé de Plat'AU via le client HTTP Symfony.
+ * Adaptation de Service_Platau::executeHealthcheck() (legacy).
  *
- * Note : ne peut pas utiliser le service PlatauHealthcheck de la passerelle car
- * celui-ci requiert PHP 8.1 (propriétés typées) alors que l'applicatif utilise PHP 7.1.
- *
- * Les URLs PISTE et Plat'AU sont lues depuis PlatauAbstract.php de la passerelle
- * (même mécanisme que le legacy via getConstInFile), afin que les SDIS en prod
- * n'aient pas à modifier l'applicatif quand la passerelle change d'environnement.
+ * Les identifiants PISTE sont lus dans la configuration de la passerelle. Les URLs PISTE et Plat'AU
+ * sont celles de cette configuration (`platau.options.PLATAU_URL` / `PISTE_ACCESS_TOKEN_URL`) si elles
+ * y sont renseignées, sinon celles de PlatauAbstract.php de la passerelle (même résolution que la passerelle),
+ * afin que les SDIS en prod n'aient pas à modifier l'applicatif quand la passerelle change d'environnement.
  */
 class PlatauHealthcheckService
 {
     private const string HEALTHCHECK_ENDPOINT = 'healthcheck';
+
+    private const int HTTP_TIMEOUT_SECONDS = 5;
 
     private readonly string $platauConfigFilePath;
 
@@ -34,12 +36,17 @@ class PlatauHealthcheckService
     /** @var string|null */
     private $pisteClientSecret;
 
+    private ?string $platauUrlOverride = null;
+
+    private ?string $pisteTokenUrlOverride = null;
+
     public function __construct(
         string $platauConfigFile,
         string $projectDir,
         private readonly string $appEnv,
         private readonly LoggerInterface $logger,
-        private readonly ProxyConfigurationService $proxyConfiguration
+        private readonly ProxyConfigurationService $proxyConfiguration,
+        private readonly HttpClientInterface $httpClient
     ) {
         $platauPath = (string) (getenv('PREVARISC_PLATAU_PATH') ?: dirname($projectDir).DIRECTORY_SEPARATOR.'prevarisc-passerelle-platau');
         $this->platauConfigFilePath = $platauPath.DIRECTORY_SEPARATOR.$platauConfigFile;
@@ -48,7 +55,7 @@ class PlatauHealthcheckService
 
         $pisteCredentials = $this->getPisteCredentials();
         if (is_array($pisteCredentials)) {
-            [$this->pisteClientId, $this->pisteClientSecret] = $pisteCredentials;
+            [$this->pisteClientId, $this->pisteClientSecret, $this->platauUrlOverride, $this->pisteTokenUrlOverride] = $pisteCredentials;
         } else {
             $this->pisteClientId = null;
             $this->pisteClientSecret = null;
@@ -93,7 +100,7 @@ class PlatauHealthcheckService
         $platauResponse = $this->requestPlatauHealthcheck($pisteToken);
 
         if (null === $platauResponse['body']) {
-            // Erreur cURL (transport) : on ne peut pas atteindre Plat'AU
+            // Erreur de transport : on ne peut pas atteindre Plat'AU
             return HealthcheckResult::prevariscError(
                 "La connexion à Plat'AU depuis Prevarisc a échouée. La réponse Plat'AU n'a pas pu être récupérée. Veuillez consulter les logs de l'application."
             );
@@ -163,9 +170,9 @@ class PlatauHealthcheckService
     }
 
     /**
-     * Récupère les identifiants PISTE depuis le fichier de configuration Plat'AU.
+     * Récupère les identifiants PISTE et les éventuelles surcharges d'URL depuis le fichier de configuration Plat'AU.
      *
-     * @return array<int, string>|null
+     * @return array{0: string, 1: string, 2: string|null, 3: string|null}|null
      */
     private function getPisteCredentials(): ?array
     {
@@ -208,7 +215,22 @@ class PlatauHealthcheckService
             return null;
         }
 
-        return [$clientId, $clientSecret];
+        return [
+            $clientId,
+            $clientSecret,
+            $this->getOptionalUrl($platauOptions, 'PLATAU_URL'),
+            $this->getOptionalUrl($platauOptions, 'PISTE_ACCESS_TOKEN_URL'),
+        ];
+    }
+
+    /**
+     * @param array<mixed> $options
+     */
+    private function getOptionalUrl(array $options, string $key): ?string
+    {
+        $value = $options[$key] ?? null;
+
+        return is_string($value) && '' !== $value ? $value : null;
     }
 
     /**
@@ -218,7 +240,7 @@ class PlatauHealthcheckService
      */
     private function requestPisteToken(): ?array
     {
-        $url = $this->getConstInFile($this->platauServiceFilePath, 'PISTE_ACCESS_TOKEN_URL');
+        $url = $this->pisteTokenUrlOverride ?? $this->getConstInFile($this->platauServiceFilePath, 'PISTE_ACCESS_TOKEN_URL');
 
         if (null === $url) {
             $this->logger->error("L'URL de PISTE n'a pas pu être récupérée correctement.");
@@ -226,25 +248,23 @@ class PlatauHealthcheckService
             return null;
         }
 
-        $curlOptions = $this->buildBaseCurlOptions();
-        $curlOptions[CURLOPT_URL] = $url;
-        $curlOptions[CURLOPT_POSTFIELDS] = sprintf(
-            'scope=openid&grant_type=client_credentials&client_id=%s&client_secret=%s',
-            $this->pisteClientId,
-            $this->pisteClientSecret
-        );
-
-        $curlHandle = curl_init();
-        curl_setopt_array($curlHandle, $curlOptions);
-        $data = curl_exec($curlHandle);
-
-        if ('' !== ($error = curl_error($curlHandle))) {
-            $this->logger->error($error);
-
+        if (null === $this->pisteClientId || null === $this->pisteClientSecret) {
             return null;
         }
 
-        if (!is_string($data)) {
+        try {
+            $response = $this->httpClient->request('POST', $url, $this->buildBaseRequestOptions() + [
+                'body' => [
+                    'scope' => 'openid',
+                    'grant_type' => 'client_credentials',
+                    'client_id' => $this->pisteClientId,
+                    'client_secret' => $this->pisteClientSecret,
+                ],
+            ]);
+            $data = $response->getContent(false);
+        } catch (ExceptionInterface $exception) {
+            $this->logger->error($exception->getMessage());
+
             return null;
         }
 
@@ -280,7 +300,7 @@ class PlatauHealthcheckService
      */
     private function requestPlatauHealthcheck(string $pisteToken): array
     {
-        $url = $this->getConstInFile($this->platauServiceFilePath, 'PLATAU_URL');
+        $url = $this->platauUrlOverride ?? $this->getConstInFile($this->platauServiceFilePath, 'PLATAU_URL');
 
         if (null === $url) {
             $this->logger->error("L'URL de Plat'AU n'a pas pu être récupérée correctement.");
@@ -288,26 +308,20 @@ class PlatauHealthcheckService
             return ['body' => null, 'httpCode' => 0];
         }
 
-        $curlOptions = $this->buildBaseCurlOptions();
-        $curlOptions[CURLOPT_URL] = $url.self::HEALTHCHECK_ENDPOINT;
-        $curlOptions[CURLOPT_HTTPHEADER] = [
-            'Content-Type: application/json',
-            sprintf('Authorization: Bearer %s', $pisteToken),
-        ];
-
-        $curlHandle = curl_init();
-        curl_setopt_array($curlHandle, $curlOptions);
-        $data = curl_exec($curlHandle);
-
-        if ('' !== ($error = curl_error($curlHandle))) {
-            $this->logger->error($error);
+        try {
+            $response = $this->httpClient->request('GET', $url.self::HEALTHCHECK_ENDPOINT, $this->buildBaseRequestOptions() + [
+                'headers' => ['Content-Type' => 'application/json'],
+                'auth_bearer' => $pisteToken,
+            ]);
+            $httpCode = $response->getStatusCode();
+            $data = $response->getContent(false);
+        } catch (ExceptionInterface $exception) {
+            $this->logger->error($exception->getMessage());
 
             return ['body' => null, 'httpCode' => 0];
         }
 
-        $httpCode = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
-
-        if (!is_string($data) || '' === $data) {
+        if ('' === $data) {
             $this->logger->error("Le healthcheck n'a rien renvoyé. Vérifiez que l'URL de Plat'AU est correctement renseignée.");
 
             return ['body' => null, 'httpCode' => $httpCode];
@@ -317,20 +331,16 @@ class PlatauHealthcheckService
     }
 
     /**
-     * Construit les options cURL de base avec support du proxy.
-     * Port direct de Service_PlatauClient (legacy).
+     * Construit les options de requête de base avec support du proxy.
      *
-     * @return array<int, mixed>
+     * @return array<string, mixed>
      */
-    private function buildBaseCurlOptions(): array
+    private function buildBaseRequestOptions(): array
     {
-        $options = [
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_TIMEOUT => 5,
-            CURLOPT_CONNECTTIMEOUT => 5,
-        ];
-
-        return array_replace($options, $this->proxyConfiguration->getCurlOptions());
+        return [
+            'timeout' => self::HTTP_TIMEOUT_SECONDS,
+            'max_duration' => self::HTTP_TIMEOUT_SECONDS * 2,
+        ] + $this->proxyConfiguration->getHttpClientOptions();
     }
 
     /**
