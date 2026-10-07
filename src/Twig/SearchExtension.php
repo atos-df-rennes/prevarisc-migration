@@ -3,7 +3,7 @@
 namespace App\Twig;
 
 use App\Service\DateDiffFormatterService;
-use App\Service\PlatauTempsRestant;
+use App\Service\Platau\PlatauTempsRestant;
 use Twig\Attribute\AsTwigFilter;
 use Twig\Attribute\AsTwigFunction;
 

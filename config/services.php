@@ -181,16 +181,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$dossiersSansAvisDays', '%app.dashboard.dossiers_sans_avis_days%')
         ->arg('$courrierSansReponseDays', '%app.dashboard.courrier_sans_reponse_days%');
 
-    $services->set('App\Service\PlatauHealthcheckService')
+    $services->set('App\Service\Platau\PlatauGatewayConfig')
         ->arg('$platauConfigFile', '%app.platau_config_file%')
-        ->arg('$projectDir', '%kernel.project_dir%')
-        ->arg('$appEnv', '%kernel.environment%');
+        ->arg('$projectDir', '%kernel.project_dir%');
+
+    $services->set('App\Service\Platau\PisteTokenProvider')
+        ->arg('$cache', service('cache.platau_piste'));
 
     $services->set('App\Twig\PlatauHealthcheckExtension')
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->arg('$platauNoHealthcheck', '%app.platau_no_healthcheck%');
 
-    $services->set('App\Service\PlatauHealthcheckStatusProvider')
+    $services->set('App\Service\Platau\PlatauHealthcheckStatusProvider')
         ->arg('$cache', service('cache.platau_healthcheck'))
         ->arg('$cacheTtl', '%app.platau_healthcheck_cache_ttl%');
 

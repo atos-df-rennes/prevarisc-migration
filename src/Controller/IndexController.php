@@ -9,7 +9,7 @@ use App\Service\Dashboard\DashboardBlocConfig;
 use App\Service\Dashboard\DashboardService;
 use App\Service\FeedService;
 use App\Service\NotificationService;
-use App\Service\PlatauHealthcheckStatusProvider;
+use App\Service\Platau\PlatauHealthcheckStatusProvider;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

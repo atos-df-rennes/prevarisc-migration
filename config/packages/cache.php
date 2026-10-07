@@ -14,6 +14,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'cache.platau_healthcheck' => [
                     'adapter' => 'cache.adapter.filesystem',
                 ],
+                'cache.platau_piste' => [
+                    'adapter' => 'cache.adapter.filesystem',
+                ],
                 'cache.search' => [
                     'adapter' => 'cache.adapter.filesystem',
                     'tags' => true,

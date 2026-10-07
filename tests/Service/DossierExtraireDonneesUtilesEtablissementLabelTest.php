@@ -11,7 +11,7 @@ use App\Entity\Etablissement;
 use App\Entity\EtablissementInformations;
 use App\Repository\DossierRepository;
 use App\Service\Dossier;
-use App\Service\PlatauTempsRestant;
+use App\Service\Platau\PlatauTempsRestant;
 use App\Service\TexteApplicable;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Service;
+namespace App\Tests\Service\Platau;
 
-use App\Service\PlatauTempsRestant;
+use App\Service\Platau\PlatauTempsRestant;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

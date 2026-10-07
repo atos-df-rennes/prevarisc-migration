@@ -2,13 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Service;
+namespace App\Tests\Service\Platau;
 
 use App\Constant\Platau\HealthcheckErrorSource;
-use App\Service\PlatauHealthcheckService;
+use App\Service\Platau\PisteTokenProvider;
+use App\Service\Platau\PlatauGatewayConfig;
+use App\Service\Platau\PlatauHealthcheckService;
 use App\Service\ProxyConfigurationService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpClient\MockHttpClient;
 
 /**
@@ -29,14 +32,20 @@ final class PlatauHealthcheckServiceTest extends TestCase
     private function buildService(): PlatauHealthcheckService
     {
         $proxy = $this->createStub(ProxyConfigurationService::class);
-
-        return new PlatauHealthcheckService(
+        $logger = new NullLogger();
+        $client = new MockHttpClient();
+        $config = new PlatauGatewayConfig(
             'platau.config.json',
             sys_get_temp_dir().DIRECTORY_SEPARATOR.'prevarisc-test-inexistant',
-            'test',
-            new NullLogger(),
-            $proxy,
-            new MockHttpClient()
+            $logger,
+            $proxy
+        );
+
+        return new PlatauHealthcheckService(
+            $config,
+            new PisteTokenProvider($config, $client, new ArrayAdapter(), $logger),
+            $client,
+            $logger
         );
     }
 

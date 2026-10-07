@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Service;
+namespace App\Tests\Service\Platau;
 
 use App\Constant\Platau\HealthcheckErrorSource;
 use App\Dto\Platau\HealthcheckStatus;
-use App\Service\PlatauHealthcheckService;
-use App\Service\PlatauHealthcheckStatusProvider;
+use App\Service\Platau\PisteTokenProvider;
+use App\Service\Platau\PlatauGatewayConfig;
+use App\Service\Platau\PlatauHealthcheckService;
+use App\Service\Platau\PlatauHealthcheckStatusProvider;
 use App\Service\ProxyConfigurationService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -21,8 +23,11 @@ final class PlatauHealthcheckHttpTest extends TestCase
 {
     private string $projectDir;
 
+    private string|false $previousPlatauPath;
+
     protected function setUp(): void
     {
+        $this->previousPlatauPath = getenv('PREVARISC_PLATAU_PATH');
         $this->projectDir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'prevarisc-platau-'.uniqid('', true);
         mkdir($this->projectDir.DIRECTORY_SEPARATOR.'var', 0777, true);
         mkdir($this->projectDir.DIRECTORY_SEPARATOR.'platau', 0777, true);
@@ -30,6 +35,7 @@ final class PlatauHealthcheckHttpTest extends TestCase
 
     protected function tearDown(): void
     {
+        putenv(false === $this->previousPlatauPath ? 'PREVARISC_PLATAU_PATH' : 'PREVARISC_PLATAU_PATH='.$this->previousPlatauPath);
         foreach (glob($this->projectDir.'/var/*') ?: [] as $file) {
             unlink($file);
         }
@@ -46,7 +52,7 @@ final class PlatauHealthcheckHttpTest extends TestCase
     /**
      * @param array<string, string> $options
      */
-    private function buildService(MockHttpClient $client, array $options = [], ?ProxyConfigurationService $proxy = null): PlatauHealthcheckService
+    private function buildService(MockHttpClient $client, array $options = [], ?ProxyConfigurationService $proxy = null, ?ArrayAdapter $tokenCache = null): PlatauHealthcheckService
     {
         $platauDir = $this->projectDir.DIRECTORY_SEPARATOR.'platau';
         $config = ['platau.options' => ['PISTE_CLIENT_ID' => 'id', 'PISTE_CLIENT_SECRET' => 'secret'] + $options];
@@ -54,13 +60,19 @@ final class PlatauHealthcheckHttpTest extends TestCase
 
         putenv('PREVARISC_PLATAU_PATH='.$platauDir);
 
-        return new PlatauHealthcheckService(
+        $logger = new NullLogger();
+        $config = new PlatauGatewayConfig(
             'config.json',
             $this->projectDir,
-            'test',
-            new NullLogger(),
-            $proxy ?? new ProxyConfigurationService(false, '0', 0, '', '', ''),
-            $client
+            $logger,
+            $proxy ?? new ProxyConfigurationService(false, '0', 0, '', '', '')
+        );
+
+        return new PlatauHealthcheckService(
+            $config,
+            new PisteTokenProvider($config, $client, $tokenCache ?? new ArrayAdapter(), $logger),
+            $client,
+            $logger
         );
     }
 
@@ -79,6 +91,17 @@ final class PlatauHealthcheckHttpTest extends TestCase
         yield 'état général dégradé' => [200, '{"etatGeneral":false,"etatBdd":true}', false, HealthcheckErrorSource::PLATAU, false];
         yield 'bdd dégradée' => [200, '{"etatGeneral":true,"etatBdd":false}', false, HealthcheckErrorSource::PLATAU, false];
         yield 'HTTP 503' => [503, '{"etatGeneral":false}', false, HealthcheckErrorSource::PLATAU, false];
+        yield 'HTTP 503 avec maintenance' => [503, '{"maintenance":true,"version":"1.0"}', false, HealthcheckErrorSource::PLATAU, true];
+        yield 'HTTP 503 non JSON' => [503, '<html>Indisponible</html>', false, HealthcheckErrorSource::PLATAU, false];
+        yield 'HTTP 503 scalaire JSON' => [503, 'null', false, HealthcheckErrorSource::PLATAU, false];
+        yield 'HTTP 503 vide' => [503, '', false, HealthcheckErrorSource::PREVARISC, false];
+        yield 'HTTP 302 non JSON' => [302, 'redirect', false, HealthcheckErrorSource::PLATAU, false];
+        yield 'HTTP 201' => [201, '{"etatGeneral":true,"etatBdd":true}', true, null, false];
+        yield 'objet vide' => [200, '{}', false, HealthcheckErrorSource::PLATAU, false];
+        yield 'liste JSON' => [200, '[{"etatGeneral":true,"etatBdd":true}]', false, HealthcheckErrorSource::PLATAU, false];
+        yield 'liste vide' => [200, '[]', false, HealthcheckErrorSource::PLATAU, false];
+        yield 'scalaire JSON' => [200, 'true', false, HealthcheckErrorSource::PREVARISC, false];
+        yield 'états non booléens' => [200, '{"etatGeneral":1,"etatBdd":true}', false, HealthcheckErrorSource::PLATAU, false];
         yield 'JSON invalide' => [200, 'pas du json', false, HealthcheckErrorSource::PREVARISC, false];
         yield 'corps vide' => [200, '', false, HealthcheckErrorSource::PREVARISC, false];
     }
@@ -93,6 +116,9 @@ final class PlatauHealthcheckHttpTest extends TestCase
         $this->assertSame($success, $result->isSuccess());
         $this->assertSame($errorSource, $result->getErrorSource());
         $this->assertSame($hasMaintenance, null !== $result->getMaintenanceInfo());
+        if ($hasMaintenance) {
+            $this->assertSame(200 === $httpCode ? null : '1.0', $result->getVersionInfo()?->getVersion());
+        }
     }
 
     public function testUrlOverridesAndBearerAreUsed(): void
@@ -121,9 +147,12 @@ final class PlatauHealthcheckHttpTest extends TestCase
         $this->assertSame(HealthcheckErrorSource::PREVARISC, $result->getErrorSource());
     }
 
-    public function testValidStoredTokenIsReused(): void
+    public function testValidCachedTokenIsReused(): void
     {
-        file_put_contents($this->projectDir.'/var/piste-test.json', json_encode(['access_token' => 'old', 'expires_in' => 3600, 'request_time' => time()]));
+        $cache = new ArrayAdapter();
+        $item = $cache->getItem('platau_piste_token');
+        $item->set('old')->expiresAfter(3300);
+        $cache->save($item);
         $count = 0;
         $client = new MockHttpClient(function () use (&$count): MockResponse {
             ++$count;
@@ -131,10 +160,73 @@ final class PlatauHealthcheckHttpTest extends TestCase
             return new MockResponse('{"etatGeneral":true,"etatBdd":true}');
         });
 
-        $result = $this->buildService($client, ['PLATAU_URL' => 'https://platau.test/'])->executeHealthcheck();
+        $result = $this->buildService($client, ['PLATAU_URL' => 'https://platau.test/'], tokenCache: $cache)->executeHealthcheck();
 
         $this->assertTrue($result->isSuccess());
         $this->assertSame(1, $count);
+    }
+
+    public function testProxyAndTimeoutsAreUsedForBothRequests(): void
+    {
+        $requests = [];
+        $client = new MockHttpClient(function (string $method, string $url, array $options) use (&$requests): MockResponse {
+            $requests[] = $options;
+
+            return 1 === count($requests) ? self::tokenResponse() : new MockResponse('{"etatGeneral":true,"etatBdd":true}');
+        });
+        $proxy = new ProxyConfigurationService(true, 'HTTP', 8080, 'proxy.test', '', '');
+
+        $this->buildService($client, ['PLATAU_URL' => 'https://platau.test/', 'PISTE_ACCESS_TOKEN_URL' => 'https://piste.test/token'], $proxy)->executeHealthcheck();
+
+        $this->assertCount(2, $requests);
+        foreach ($requests as $options) {
+            $this->assertSame('http://proxy.test:8080', $options['proxy']);
+            $this->assertEqualsWithDelta(5.0, $options['timeout'], PHP_FLOAT_EPSILON);
+            $this->assertEqualsWithDelta(10.0, $options['max_duration'], PHP_FLOAT_EPSILON);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{0: MockResponse}>
+     */
+    public static function transportErrors(): iterable
+    {
+        yield 'avant les headers' => [new MockResponse('', ['error' => 'boom'])];
+        yield 'pendant le corps' => [new MockResponse([new TransportException('boom')])];
+    }
+
+    #[DataProvider('transportErrors')]
+    public function testLazyTransportErrorOnHealthcheckIsPrevariscError(MockResponse $response): void
+    {
+        $client = new MockHttpClient([self::tokenResponse(), $response]);
+
+        $result = $this->buildService($client, ['PLATAU_URL' => 'https://platau.test/', 'PISTE_ACCESS_TOKEN_URL' => 'https://piste.test/token'])->executeHealthcheck();
+
+        $this->assertSame(HealthcheckErrorSource::PREVARISC, $result->getErrorSource());
+        $this->assertStringContainsString('La réponse Plat&#039;AU n&#039;a pas pu être récupérée.', (string) $result->getMessage());
+    }
+
+    public function testTokenFailureIsNotCached(): void
+    {
+        $client = new MockHttpClient([
+            new MockResponse('{"error":"invalid_client"}', ['http_code' => 401]),
+            self::tokenResponse(),
+            new MockResponse('{"etatGeneral":true,"etatBdd":true}'),
+        ]);
+        $service = $this->buildService($client, ['PLATAU_URL' => 'https://platau.test/', 'PISTE_ACCESS_TOKEN_URL' => 'https://piste.test/token']);
+
+        $this->assertSame(HealthcheckErrorSource::PREVARISC, $service->executeHealthcheck()->getErrorSource());
+        $this->assertTrue($service->executeHealthcheck()->isSuccess());
+        $this->assertSame(3, $client->getRequestsCount());
+    }
+
+    public function testUnreadableTokenKeepsItsErrorMessage(): void
+    {
+        $client = new MockHttpClient([new MockResponse('{"access_token":42,"expires_in":3600}')]);
+        $result = $this->buildService($client, ['PISTE_ACCESS_TOKEN_URL' => 'https://piste.test/token'])->executeHealthcheck();
+
+        $this->assertSame(HealthcheckErrorSource::PREVARISC, $result->getErrorSource());
+        $this->assertStringContainsString('L&#039;identifiant de connexion à PISTE n&#039;est pas lisible.', (string) $result->getMessage());
     }
 
     public function testCachedStatusNeverTriggersHealthcheck(): void

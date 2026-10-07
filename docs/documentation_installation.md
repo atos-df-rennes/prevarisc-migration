@@ -150,6 +150,21 @@ PREVARISC_DEACTIVATE_PLATAU | [FACULTATIF] Permet de désactiver tous les affich
 PREVARISC_PLATAU_HEALTHCHECK_CACHE_TTL | [FACULTATIF] Durée en secondes de conservation du résultat de la vérification de disponibilité de Plat'AU affichée dans l'en-tête, par défaut 300 | Entier
 PREVARISC_DOSSIERS_MAX_A_AFFICHER | [FACULTATIF] Permet de configurer le nombre de dossiers du même type à afficher dans la liste des dossiers, par défaut 5 | Entier
 
+Le healthcheck utilise deux pools de cache Symfony sur le système de fichiers,
+séparés par environnement : `cache.platau_healthcheck` pour le statut affiché
+et `cache.platau_piste` pour le jeton de connexion PISTE. Le jeton est conservé
+jusqu'à cinq minutes avant son expiration, indépendamment de la durée du cache
+de statut. Un échec d'obtention du jeton n'est pas mis en cache.
+Après expiration ou vidage du pool PISTE, le prochain healthcheck demande un
+nouveau jeton. Aucun processus supplémentaire n'est nécessaire.
+
+Les services concernés sont regroupés dans `src/Service/Platau/` :
+`PlatauGatewayConfig` lit à la demande la configuration et les adresses par
+défaut de la passerelle ; `PisteTokenProvider` gère le jeton ; les services
+de healthcheck et de statut conservent les règles d'affichage existantes.
+L'ancien fichier `var/piste-<env>.json` n'est plus lu ni écrit ; un fichier
+restant peut être supprimé manuellement, sans migration de son contenu.
+
 `PREVARISC_IGN_AUTOCONF` peut être définie dans le VirtualHost Apache, par exemple
 `SetEnv PREVARISC_IGN_AUTOCONF "/ign/prevarisc/customConfig.json"`.
 Le fichier doit se trouver sous le dossier `public/` de l'application Symfony

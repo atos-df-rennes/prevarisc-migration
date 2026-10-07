@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Platau;
 
 use App\Dto\Platau\HealthcheckStatus;
 use Psr\Cache\CacheItemPoolInterface;

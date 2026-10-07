@@ -7,7 +7,7 @@ namespace App\Tests\Twig;
 use App\Dto\Platau\HealthcheckResult;
 use App\Dto\Platau\HealthcheckStatus;
 use App\Dto\Platau\VersionInfo;
-use App\Service\PlatauHealthcheckStatusProvider;
+use App\Service\Platau\PlatauHealthcheckStatusProvider;
 use App\Twig\PlatauHealthcheckExtension;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

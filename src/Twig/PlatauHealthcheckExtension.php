@@ -3,7 +3,7 @@
 namespace App\Twig;
 
 use App\Dto\Platau\HealthcheckStatus;
-use App\Service\PlatauHealthcheckStatusProvider;
+use App\Service\Platau\PlatauHealthcheckStatusProvider;
 use Twig\Attribute\AsTwigFunction;
 
 class PlatauHealthcheckExtension

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Service;
+namespace App\Tests\Service\Platau;
 
 use App\Entity\PlatauConsultation as PlatauConsultationEntity;
 use App\Enum\PlatauStatutAvisEnum;
 use App\Enum\PlatauStatutPecEnum;
-use App\Service\PlatauConsultation;
+use App\Service\Platau\PlatauConsultation;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class PlatauConsultationTest extends KernelTestCase
