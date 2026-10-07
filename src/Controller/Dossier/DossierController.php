@@ -42,7 +42,7 @@ use App\Service\DossierDocumentManquantService;
 use App\Service\DossierFields;
 use App\Service\EtablissementHistoriqueService;
 use App\Service\Platau\PieceJointeExportService;
-use App\Service\PlatauConsultation;
+use App\Service\Platau\PlatauConsultation;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;

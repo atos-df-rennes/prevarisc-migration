@@ -2,22 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Service;
+namespace App\Tests\Service\Platau;
 
 use App\Constant\Platau\HealthcheckErrorSource;
-use App\Service\PlatauHealthcheckService;
+use App\Service\Platau\PisteTokenProvider;
+use App\Service\Platau\PlatauGatewayConfig;
+use App\Service\Platau\PlatauHealthcheckService;
 use App\Service\ProxyConfigurationService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\HttpClient\MockHttpClient;
 
 /**
  * Tests unitaires pour PlatauHealthcheckService.
  *
- * La méthode executeHealthcheck() repose sur cURL et le système de fichiers.
- * Les scénarios testés ici couvrent les chemins qui n'ont pas besoin de cURL :
+ * La méthode executeHealthcheck() repose sur le client HTTP et le système de fichiers.
+ * Les scénarios testés ici couvrent les chemins qui n'ont pas besoin d'appel réseau :
  * configuration absente (fichiers inexistants) → prevariscError.
  *
- * Les scénarios dépendant de cURL (appels réseau réels) sont couverts en intégration.
+ * Les scénarios HTTP sont couverts dans PlatauHealthcheckHttpTest.
  */
 final class PlatauHealthcheckServiceTest extends TestCase
 {
@@ -28,14 +32,20 @@ final class PlatauHealthcheckServiceTest extends TestCase
     private function buildService(): PlatauHealthcheckService
     {
         $proxy = $this->createStub(ProxyConfigurationService::class);
-        $proxy->method('getCurlOptions')->willReturn([]);
-
-        return new PlatauHealthcheckService(
+        $logger = new NullLogger();
+        $client = new MockHttpClient();
+        $config = new PlatauGatewayConfig(
             'platau.config.json',
             sys_get_temp_dir().DIRECTORY_SEPARATOR.'prevarisc-test-inexistant',
-            'test',
-            new NullLogger(),
+            $logger,
             $proxy
+        );
+
+        return new PlatauHealthcheckService(
+            $config,
+            new PisteTokenProvider($config, $client, new ArrayAdapter(), $logger),
+            $client,
+            $logger
         );
     }
 

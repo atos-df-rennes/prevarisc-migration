@@ -51,26 +51,31 @@ class ProxyConfigurationService
     }
 
     /**
-     * Retourne les options cURL proxy sous forme de tableau (pour curl_setopt_array).
+     * Retourne les options du client HTTP Symfony pour le proxy sortant.
+     * Sans proxy activé, aucune option n'est retournée (HTTP(S)_PROXY / NO_PROXY restent pris en compte par le client).
      *
-     * @return array<int, mixed>
+     * @return array{proxy?: string}
      */
-    public function getCurlOptions(): array
+    public function getHttpClientOptions(): array
     {
         if (!$this->proxyEnabled) {
             return [];
         }
 
-        $options = [
-            CURLOPT_PROXYTYPE => $this->proxyProtocol,
-            CURLOPT_PROXYPORT => $this->proxyPort,
-            CURLOPT_PROXY => $this->proxyHost,
-        ];
+        $scheme = match ($this->proxyProtocol) {
+            2 => 'https',
+            4 => 'socks4',
+            5 => 'socks5',
+            6 => 'socks4a',
+            7 => 'socks5h',
+            default => 'http',
+        };
 
+        $credentials = '';
         if ('' !== $this->proxyUsername && '0' !== $this->proxyUsername) {
-            $options[CURLOPT_PROXYUSERPWD] = $this->proxyUsername.':'.$this->proxyPassword;
+            $credentials = rawurlencode($this->proxyUsername).':'.rawurlencode($this->proxyPassword).'@';
         }
 
-        return $options;
+        return ['proxy' => sprintf('%s://%s%s:%d', $scheme, $credentials, $this->proxyHost, $this->proxyPort)];
     }
 }

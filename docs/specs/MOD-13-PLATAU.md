@@ -9,9 +9,9 @@ Dans Prevarisc, le module Plat'AU assure l'échange bidirectionnel entre l'appli
 - **Réception** de consultations émises par les services instructeurs via Plat'AU.
 - **Transmission** de la prise en charge métier (PEC) et de l'avis rendu par la commission de sécurité.
 - **Envoi** des pièces jointes associées au dossier vers Plat'AU.
-- **Supervision** de la connexion à Plat'AU depuis le tableau de bord.
+- **Supervision** de la connexion à Plat'AU depuis l'en-tête de l'application.
 
-L'utilisation de l'intégration avec Plat'AU dépend du paramétrage du service. Lorsqu'elle n'est pas activée, les informations Plat'AU du tableau de bord, la vérification de la disponibilité et le filtre de recherche par origine ne sont pas affichés. Les dossiers reçus de Plat'AU ne peuvent alors pas être ouverts.
+L'utilisation de l'intégration avec Plat'AU dépend du paramétrage du service. Lorsqu'elle n'est pas activée, les informations Plat'AU du tableau de bord, l'indicateur de disponibilité et le filtre de recherche par origine ne sont pas affichés. Les dossiers reçus de Plat'AU ne peuvent alors pas être ouverts.
 
 ---
 
@@ -114,35 +114,38 @@ En cas d'échec ou pour forcer un renvoi, l'utilisateur dispose de trois mécani
 
 ## 5. Disponibilité de Plat'AU
 
-### 5.1 Vérification à l'ouverture du tableau de bord
+### 5.1 Indicateur dans l'en-tête
 
-À l'ouverture du tableau de bord, Prevarisc vérifie la disponibilité de Plat'AU si l'intégration est activée et si cette vérification n'a pas été désactivée.
+Si l'intégration est activée et si la vérification n'a pas été désactivée, un indicateur « Plat'AU » est affiché dans l'en-tête de toutes les pages, pour tous les utilisateurs connectés.
+
+La disponibilité n'est pas vérifiée à chaque page : le dernier résultat est conservé pendant une durée configurable (5 minutes par défaut) et partagé entre tous les utilisateurs. Les résultats en erreur sont conservés pendant la même durée. Aucune vérification n'est planifiée : une nouvelle vérification n'a lieu qu'au premier affichage d'une page après expiration du dernier résultat.
+
+- Si un résultat conservé est disponible, l'indicateur est affiché directement avec son état, sans requête supplémentaire.
+- Sinon, l'indicateur est d'abord affiché en gris (« vérification en cours »), puis mis à jour en arrière-plan une fois la vérification terminée ; l'affichage de la page n'est jamais ralenti par la vérification.
 
 ### 5.2 Informations affichées
 
-#### Lorsque Plat'AU est disponible
+Un clic sur l'indicateur ouvre un panneau de détails (accessible au clavier) contenant l'état, le message, la version de Plat'AU lorsqu'elle est disponible, les informations de maintenance éventuelles, ainsi que l'heure de la dernière vérification (par exemple « Dernière vérification : 15h52 »). L'heure de la prochaine vérification n'est pas affichée, celle-ci dépendant du prochain affichage de page après expiration du résultat.
 
-| Élément | Affichage |
-|---------|-----------|
-| Message | Confirmation que Plat'AU est disponible |
-| Type | Information (bleu) |
-| Informations supplémentaires | Version de Plat'AU et informations associées, lorsqu'elles sont disponibles |
-
-#### En cas de maintenance programmée
-
-| Élément | Affichage |
-|---------|-----------|
-| Message | Avertissement présentant la maintenance en cours ou prévue |
-| Type | Avertissement (orange) |
-| Contenu | Type de maintenance, description, date et heure de la prochaine maintenance (le cas échéant) |
-
-#### Lorsque Plat'AU ou la connexion est indisponible
-
-Un message d'erreur informe l'utilisateur que Plat'AU est indisponible ou que la connexion n'a pas pu être établie. Selon le problème signalé, il est invité à réessayer ultérieurement ou à contacter son administrateur.
+| Situation | Couleur de l'indicateur | Contenu |
+|-----------|-------------------------|---------|
+| Plat'AU est disponible | Vert | Confirmation de disponibilité, version, modèle et nomenclature lorsqu'ils sont disponibles |
+| Plat'AU est disponible avec une maintenance programmée | Orange | Confirmation de disponibilité et avertissement présentant la maintenance (type, description, date et heure de la prochaine maintenance le cas échéant) |
+| Plat'AU est indisponible ou la connexion n'a pas pu être établie | Rouge | Message d'erreur indiquant que Plat'AU est indisponible ou que la connexion depuis Prevarisc a échoué ; l'utilisateur est invité à réessayer ultérieurement ou à contacter son administrateur |
+| Vérification en cours ou impossible à récupérer | Gris / Rouge | « Vérification en cours » ; en cas d'échec de la requête interne, indication que l'état est inconnu |
 
 ### 5.3 Réglage de la vérification
 
-Selon le paramétrage du service, la vérification de disponibilité peut être désactivée tout en conservant les autres fonctions Plat'AU. Dans ce cas, la disponibilité n'est plus vérifiée à chaque ouverture du tableau de bord.
+Selon le paramétrage du service, la vérification de disponibilité peut être désactivée tout en conservant les autres fonctions Plat'AU. Dans ce cas, l'indicateur n'est pas affiché.
+
+La durée de conservation du résultat est paramétrable (`PREVARISC_PLATAU_HEALTHCHECK_CACHE_TTL`, en secondes, 300 par défaut).
+
+### 5.4 Configuration de la vérification
+
+- Les identifiants PISTE sont lus dans la configuration de la passerelle Plat'AU.
+- Les adresses de PISTE et de Plat'AU sont celles de la configuration de la passerelle (`PLATAU_URL`, `PISTE_ACCESS_TOKEN_URL`) si elles y sont renseignées, sinon les adresses par défaut de la passerelle.
+- Si le proxy sortant de Prevarisc est activé, il est utilisé pour contacter PISTE et Plat'AU.
+- Le jeton PISTE est conservé séparément jusqu'à proche expiration, afin de ne pas le renouveler à chaque vérification.
 
 ---
 
@@ -152,7 +155,7 @@ Selon le paramétrage du service, la vérification de disponibilité peut être 
 
 | # | Règle |
 |---|-------|
-| **RG-PLT-001** | L'utilisation de l'intégration Plat'AU dépend du paramétrage du service. Lorsqu'elle n'est pas activée, les informations Plat'AU du tableau de bord, la vérification de disponibilité et le filtre de recherche par origine ne sont pas affichés. |
+| **RG-PLT-001** | L'utilisation de l'intégration Plat'AU dépend du paramétrage du service. Lorsqu'elle n'est pas activée, les informations Plat'AU du tableau de bord, l'indicateur de disponibilité et le filtre de recherche par origine ne sont pas affichés. |
 | **RG-PLT-002** | Si un dossier est issu de Plat'AU (identifiant de consultation présent) et que le module est désactivé, l'ouverture de ce dossier est bloquée avec un message d'erreur. |
 
 ### Identification des dossiers
@@ -215,9 +218,9 @@ Selon le paramétrage du service, la vérification de disponibilité peut être 
 
 | # | Règle |
 |---|-------|
-| **RG-PLT-029** | La vérification de connexion est exécutée automatiquement au chargement du tableau de bord si le module Plat'AU est activé et si la vérification n'est pas désactivée. |
-| **RG-PLT-034** | En cas de succès, les informations de version communiquées par Plat'AU sont affichées avec le message de confirmation. |
-| **RG-PLT-035** | Si des informations de maintenance sont présentes (active ou programmée), un toast indépendant sans fermeture automatique est affiché en parallèle du toast de succès/erreur. |
+| **RG-PLT-029** | Si le module Plat'AU est activé et si la vérification n'est pas désactivée, l'état de la connexion est affiché dans l'en-tête de toutes les pages. Le dernier résultat est conservé et partagé pendant la durée configurée ; s'il est disponible, il est affiché immédiatement, sinon la vérification est exécutée en arrière-plan lors de l'affichage de la page (voir §5.1). |
+| **RG-PLT-034** | En cas de succès, les informations de version communiquées par Plat'AU sont affichées avec le message de confirmation dans le panneau de détails de l'indicateur. |
+| **RG-PLT-035** | Si des informations de maintenance sont présentes (active ou programmée), l'indicateur est orange (en cas de succès) et un avertissement présentant la maintenance est affiché dans le panneau de détails, en plus du message de succès ou d'erreur. |
 
 ### Recherche
 

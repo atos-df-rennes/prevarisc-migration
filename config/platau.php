@@ -18,4 +18,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_PLATAU_NO_HEALTHCHECK)', 0);
 
     $parameters->set('app.platau_no_healthcheck', '%env(bool:PREVARISC_PLATAU_NO_HEALTHCHECK)%');
+
+    $parameters->set('env(PREVARISC_PLATAU_HEALTHCHECK_CACHE_TTL)', 300);
+
+    $parameters->set('app.platau_healthcheck_cache_ttl', '%env(int:PREVARISC_PLATAU_HEALTHCHECK_CACHE_TTL)%');
 };

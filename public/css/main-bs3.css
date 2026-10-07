@@ -1444,3 +1444,22 @@ form.checkbox--checked__label--bold div.checkbox label:has(input[checked='checke
 .search-activity-group-toggle .glyphicon {
     margin-right: 4px;
 }
+
+/* Indicateur d'état Plat'AU dans l'en-tête */
+.platau-status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 4px;
+    border-radius: 50%;
+    background-color: #999;
+}
+.platau-status-dot.platau-status-ok { background-color: #5cb85c; }
+.platau-status-dot.platau-status-warning { background-color: #f0ad4e; }
+.platau-status-dot.platau-status-error { background-color: #d9534f; }
+.platau-status-panel {
+    min-width: 300px;
+    padding: 10px 15px;
+    white-space: normal;
+}
+.platau-status-panel .alert { margin-bottom: 5px; }

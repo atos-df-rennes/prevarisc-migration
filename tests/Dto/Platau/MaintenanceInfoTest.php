@@ -11,12 +11,13 @@ final class MaintenanceInfoTest extends TestCase
 {
     public function testFromApiResponseActiveMaintenance(): void
     {
-        $response = new \stdClass();
-        $response->maintenance = true;
-        $response->typeMaintenance = 'CURATIVE';
-        $response->descMaintenance = 'Maintenance urgente';
-        $response->prochaineMaintenance = null;
-        $response->descProchaineMaintenance = null;
+        $response = [
+            'maintenance' => true,
+            'typeMaintenance' => 'CURATIVE',
+            'descMaintenance' => 'Maintenance urgente',
+            'prochaineMaintenance' => null,
+            'descProchaineMaintenance' => null,
+        ];
 
         $info = MaintenanceInfo::fromApiResponse($response);
 
@@ -29,9 +30,7 @@ final class MaintenanceInfoTest extends TestCase
 
     public function testFromApiResponseNullMaintenanceFieldTreatedAsFalse(): void
     {
-        $response = new \stdClass();
-        $response->maintenance = null;
-        $response->prochaineMaintenance = null;
+        $response = ['maintenance' => null, 'prochaineMaintenance' => null];
 
         $info = MaintenanceInfo::fromApiResponse($response);
 
@@ -40,7 +39,7 @@ final class MaintenanceInfoTest extends TestCase
 
     public function testFromApiResponseMissingMaintenanceFieldTreatedAsFalse(): void
     {
-        $response = new \stdClass();
+        $response = [];
 
         $info = MaintenanceInfo::fromApiResponse($response);
 
@@ -49,10 +48,11 @@ final class MaintenanceInfoTest extends TestCase
 
     public function testFromApiResponseUpcomingMaintenance(): void
     {
-        $response = new \stdClass();
-        $response->maintenance = false;
-        $response->prochaineMaintenance = '2026-07-01T22:00:00Z';
-        $response->descProchaineMaintenance = 'Mise à jour planifiée';
+        $response = [
+            'maintenance' => false,
+            'prochaineMaintenance' => '2026-07-01T22:00:00Z',
+            'descProchaineMaintenance' => 'Mise à jour planifiée',
+        ];
 
         $info = MaintenanceInfo::fromApiResponse($response);
 
@@ -65,12 +65,13 @@ final class MaintenanceInfoTest extends TestCase
 
     public function testFromApiResponseNormalizesEmptyStringsToNull(): void
     {
-        $response = new \stdClass();
-        $response->maintenance = false;
-        $response->typeMaintenance = '';
-        $response->descMaintenance = '   ';
-        $response->prochaineMaintenance = null;
-        $response->descProchaineMaintenance = '';
+        $response = [
+            'maintenance' => false,
+            'typeMaintenance' => '',
+            'descMaintenance' => '   ',
+            'prochaineMaintenance' => null,
+            'descProchaineMaintenance' => '',
+        ];
 
         $info = MaintenanceInfo::fromApiResponse($response);
 

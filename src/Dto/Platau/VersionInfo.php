@@ -14,13 +14,15 @@ final readonly class VersionInfo implements \JsonSerializable
     /**
      * Construit un VersionInfo depuis la réponse brute de l'API Plat'AU.
      * Normalise les chaînes vides en null.
+     *
+     * @param array<array-key, mixed> $response
      */
-    public static function fromApiResponse(\stdClass $response): self
+    public static function fromApiResponse(array $response): self
     {
         return new self(
-            PlatauDtoHelper::normalizeString($response->version ?? null),
-            PlatauDtoHelper::normalizeString($response->versionModel ?? null),
-            PlatauDtoHelper::normalizeString($response->versionNomenclature ?? null)
+            PlatauDtoHelper::normalizeString($response['version'] ?? null),
+            PlatauDtoHelper::normalizeString($response['versionModel'] ?? null),
+            PlatauDtoHelper::normalizeString($response['versionNomenclature'] ?? null)
         );
     }
 

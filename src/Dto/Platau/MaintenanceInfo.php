@@ -17,13 +17,15 @@ final readonly class MaintenanceInfo implements \JsonSerializable
      * Le champ `maintenance` est nullable dans l'API : null est traité comme false.
      * Les chaînes vides sont normalisées en null.
      * La date `prochaineMaintenance` est formatée côté serveur.
+     *
+     * @param array<array-key, mixed> $response
      */
-    public static function fromApiResponse(\stdClass $response): self
+    public static function fromApiResponse(array $response): self
     {
-        $active = true === ($response->maintenance ?? null);
+        $active = true === ($response['maintenance'] ?? null);
 
         $prochaineMaintenance = null;
-        $rawDate = $response->prochaineMaintenance ?? null;
+        $rawDate = $response['prochaineMaintenance'] ?? null;
         if (is_string($rawDate) && '' !== trim($rawDate)) {
             try {
                 $date = new \DateTime($rawDate);
@@ -35,10 +37,10 @@ final readonly class MaintenanceInfo implements \JsonSerializable
 
         return new self(
             $active,
-            PlatauDtoHelper::normalizeString($response->typeMaintenance ?? null),
-            PlatauDtoHelper::normalizeString($response->descMaintenance ?? null),
+            PlatauDtoHelper::normalizeString($response['typeMaintenance'] ?? null),
+            PlatauDtoHelper::normalizeString($response['descMaintenance'] ?? null),
             $prochaineMaintenance,
-            PlatauDtoHelper::normalizeString($response->descProchaineMaintenance ?? null)
+            PlatauDtoHelper::normalizeString($response['descProchaineMaintenance'] ?? null)
         );
     }
 

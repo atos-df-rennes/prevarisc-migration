@@ -6,6 +6,7 @@ use App\Entity\Dossier as DossierEntity;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Entity\Utilisateur;
 use App\Repository\DossierRepository;
+use App\Service\Platau\PlatauTempsRestant;
 use App\Utils\StringHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;

@@ -11,10 +11,7 @@ final class VersionInfoTest extends TestCase
 {
     public function testFromApiResponseExtractsFields(): void
     {
-        $response = new \stdClass();
-        $response->version = '1.2.3';
-        $response->versionModel = 'M-5';
-        $response->versionNomenclature = 'N-8';
+        $response = ['version' => '1.2.3', 'versionModel' => 'M-5', 'versionNomenclature' => 'N-8'];
 
         $info = VersionInfo::fromApiResponse($response);
 
@@ -25,10 +22,7 @@ final class VersionInfoTest extends TestCase
 
     public function testFromApiResponseNormalizesEmptyStringsToNull(): void
     {
-        $response = new \stdClass();
-        $response->version = '';
-        $response->versionModel = '   ';
-        $response->versionNomenclature = null;
+        $response = ['version' => '', 'versionModel' => '   ', 'versionNomenclature' => null];
 
         $info = VersionInfo::fromApiResponse($response);
 
@@ -39,7 +33,7 @@ final class VersionInfoTest extends TestCase
 
     public function testFromApiResponseHandlesMissingFields(): void
     {
-        $info = VersionInfo::fromApiResponse(new \stdClass());
+        $info = VersionInfo::fromApiResponse([]);
 
         $this->assertNull($info->getVersion());
         $this->assertNull($info->getVersionModel());
