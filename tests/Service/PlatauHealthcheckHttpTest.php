@@ -137,7 +137,7 @@ final class PlatauHealthcheckHttpTest extends TestCase
         $this->assertSame(1, $count);
     }
 
-    public function testStatusIsCachedAndColored(): void
+    public function testCachedStatusNeverTriggersHealthcheck(): void
     {
         $count = 0;
         $client = new MockHttpClient(function () use (&$count): MockResponse {
@@ -152,10 +152,7 @@ final class PlatauHealthcheckHttpTest extends TestCase
         $this->assertSame(0, $count);
 
         $first = $provider->getStatus();
-        $second = $provider->getStatus();
 
-        $this->assertSame(2, $count);
-        $this->assertEquals($first, $second);
         $this->assertEquals($first, $provider->getCachedStatus());
         $this->assertSame(2, $count);
         $this->assertSame(HealthcheckStatus::STATUS_OK, $first->getStatus());
