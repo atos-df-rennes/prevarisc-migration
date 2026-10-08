@@ -78,7 +78,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             throw new \Exception("Plat'AU est désactivé, vous ne pouvez pas voir ce dossier");
         }
 
-        $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
+        $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau(), $dossier);
 
         $datesCommissionLiees = $this->dateCommissionService->getDatesLiees($dossier);
 
@@ -259,6 +259,9 @@ class DossierController extends AbstractController implements DossierLateralNavi
             throw new \Exception("Plat'AU est désactivé, vous ne pouvez pas voir ce dossier");
         }
 
+        // Conserver l'etat sauvegarde, meme si le formulaire invalide modifie l'entite.
+        $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau(), $dossier);
+
         // Organiser les documents manquants pour l'affichage (actifs/historiques, tri décroissant)
         $this->documentManquantService->organizeDocumentsManquants($dossier);
 
@@ -437,9 +440,6 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
         // Configuration des champs pour JavaScript
         $fieldsConfig = $this->dossierFieldsService->getAllFieldsByNature();
-
-        // Informations Plat'AU
-        $platauData = $this->platauConsultationService->getPlatauDataForView($dossier->getConsultationPlatau());
 
         // Dates de commission liées
         $datesCommissionLiees = $this->dateCommissionService->getDatesLiees($dossier);

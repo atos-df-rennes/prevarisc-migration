@@ -6,7 +6,8 @@ class PlatauStatutAvisEnum
 {
     public const LABELS = [
         self::INCONNU => 'Statut inconnu',
-        self::EN_COURS => 'En attente de complétude sur Prevarisc',
+        self::EN_COURS => "En attente d'avis sur Prevarisc",
+        self::SAISI_A_TRANSMETTRE => "Avis renseigné sur Prevarisc (en attente de transmission à Plat'AU)",
         self::TRAITE => "Traité sur Plat'AU",
         self::A_RENVOYER => "Traité sur Plat'AU (en attente de renvoi)",
         self::EN_ERREUR => "En erreur sur Plat'AU",
@@ -15,6 +16,9 @@ class PlatauStatutAvisEnum
     public const INCONNU = 'unknown';
 
     public const EN_COURS = 'in_progress';
+
+    // Statut d'affichage uniquement, jamais persiste.
+    public const SAISI_A_TRANSMETTRE = 'filled_awaiting_export';
 
     public const TRAITE = 'treated';
 
