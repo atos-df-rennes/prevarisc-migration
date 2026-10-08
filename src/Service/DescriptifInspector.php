@@ -44,7 +44,7 @@ class DescriptifInspector
     private function champHasData(Champ $champ, ?Valeur $valeur, array $champData): bool
     {
         $type = $champ->getType();
-        $typeId = null !== $type ? $type->getId() : null;
+        $typeId = $type?->getId();
 
         if (TypeChamp::PARENT === $typeId) {
             if (array_key_exists('lignes', $champData) && [] !== $champData['lignes']) {

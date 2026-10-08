@@ -251,7 +251,7 @@ final readonly class EtablissementPersistenceService
                 }
 
                 $filsGenre = $fils->getLatestInformations()->getGenre();
-                $filsGenreId = null !== $filsGenre ? $filsGenre->getId() : null;
+                $filsGenreId = $filsGenre?->getId();
 
                 // Validations de compatibilité genre
                 if (GenreEtablissement::SITE === $idGenre
@@ -289,7 +289,7 @@ final readonly class EtablissementPersistenceService
             $pere = $this->etablissementRepository->find($idPere);
             if (null !== $pere) {
                 $pereGenre = $pere->getLatestInformations()->getGenre();
-                $pereGenreId = null !== $pereGenre ? $pereGenre->getId() : null;
+                $pereGenreId = $pereGenre?->getId();
 
                 if (in_array($idGenre, [GenreEtablissement::ERP, GenreEtablissement::HABITATION, GenreEtablissement::IGH, GenreEtablissement::BUP, GenreEtablissement::CAMPING, GenreEtablissement::MANIFESTATION_TEMPORAIRE, GenreEtablissement::IOP], true)
                     && GenreEtablissement::SITE !== $pereGenreId

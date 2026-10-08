@@ -63,7 +63,7 @@ class CalendrierDesCommissionsOdjController extends AbstractController
         }
 
         $commission = $dateCommission->getCommission();
-        $commissionType = null !== $commission ? $commission->getType() : null;
+        $commissionType = $commission?->getType();
 
         // Dossiers affectés (avec horaire) et non affectés (sans horaire)
         $listeDossiersNonAffect = $this->dateCommissionRepository->findDossierNonAffectForCommission($dateCommId);

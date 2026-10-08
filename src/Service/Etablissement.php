@@ -971,7 +971,7 @@ final readonly class Etablissement
         $informations = $etablissement->getLatestInformations();
 
         $currentStatut = $informations->getStatut();
-        $currentStatutId = null !== $currentStatut ? $currentStatut->getId() : null;
+        $currentStatutId = $currentStatut?->getId();
         $postStatutId = isset($postData['ID_STATUT']) ? self::toInt($postData['ID_STATUT']) : null;
 
         // Utiliser une comparaison non-stricte (==) comme le legacy pour couvrir le cas
@@ -981,15 +981,15 @@ final readonly class Etablissement
         }
 
         $currentCategorie = $informations->getCategorie();
-        $currentCategorieId = null !== $currentCategorie ? $currentCategorie->getId() : null;
+        $currentCategorieId = $currentCategorie?->getId();
         $postCategorieId = isset($postData['ID_CATEGORIE']) ? self::toInt($postData['ID_CATEGORIE']) : null;
 
         $currentType = $informations->getType();
-        $currentTypeId = null !== $currentType ? $currentType->getId() : null;
+        $currentTypeId = $currentType?->getId();
         $postTypeId = isset($postData['ID_TYPE']) ? self::toInt($postData['ID_TYPE']) : null;
 
         $currentActivite = $informations->getTypeActivite();
-        $currentActiviteId = null !== $currentActivite ? $currentActivite->getId() : null;
+        $currentActiviteId = $currentActivite?->getId();
         $postActiviteId = isset($postData['ID_TYPEACTIVITE']) ? self::toInt($postData['ID_TYPEACTIVITE']) : null;
 
         if ($currentCategorieId !== $postCategorieId

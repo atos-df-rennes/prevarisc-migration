@@ -94,7 +94,7 @@ class SimpleFileDataStore implements DataStore
                 break;
             case DataStoreObjectTypes::DOSSIER:
                 $dossier = $this->dossierRepository->find($linkedObjectId);
-                $etablissements = null !== $dossier ? $dossier->getEtablissements() : [];
+                $etablissements = $dossier?->getEtablissements() ?? [];
                 $numerosEtablissement = [];
                 foreach ($etablissements as $etablissement) {
                     $numeroId = $etablissement->getNumero() ?: $linkedObjectId;

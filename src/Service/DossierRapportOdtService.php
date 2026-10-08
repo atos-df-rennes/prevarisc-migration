@@ -1566,9 +1566,6 @@ class DossierRapportOdtService
     {
         try {
             $seg = $odf->setSegment($segmentName);
-
-            /** @var array<int, array<string, string|null>> $rows */
-            $rows = [];
             if ($isEtablissement) {
                 // Batch : parent + enfants en une seule requête (évite le N+1, port du fix legacy 986f23f).
                 $etabIds = [$idEtab];

@@ -836,7 +836,7 @@ class CommissionDocumentGenerationService
             $this->addChamp($villeODF, 'date', $dateDuJour->format('d/m/Y'));
 
             $dateCommObj = $this->parseDateSql($dateComm);
-            $this->addChamp($villeODF, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
+            $this->addChamp($villeODF, 'dateCommission', $dateCommObj?->format('d/m/Y') ?? '');
 
             $this->addChamp($villeODF, 'heureDebutComm', $this->formatHeure($heureDeb));
 
@@ -1141,7 +1141,7 @@ class CommissionDocumentGenerationService
         $this->addChamp($odf, 'cpGrp', $infosGroupement['CPADRESSE_UTILISATEURINFORMATIONS'] ?? '');
 
         $dateCommObj = $this->parseDateSql($dateComm);
-        $this->addChamp($odf, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
+        $this->addChamp($odf, 'dateCommission', $dateCommObj?->format('d/m/Y') ?? '');
         $this->addChamp($odf, 'heureDebutComm', $heureDeb);
 
         $maires = [];
@@ -1219,7 +1219,7 @@ class CommissionDocumentGenerationService
             $this->addChamp($membreLoop, 'date', $dateDuJour->format('d/m/Y'));
 
             $dateCommObj = $this->parseDateSql($dateComm);
-            $this->addChamp($membreLoop, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
+            $this->addChamp($membreLoop, 'dateCommission', $dateCommObj?->format('d/m/Y') ?? '');
 
             $this->addChamp($membreLoop, 'heureDebutComm', $this->formatHeure($heureDeb));
 
@@ -1314,7 +1314,7 @@ class CommissionDocumentGenerationService
         $this->addChamp($grpLoop, 'cpGrp', $infosGroupement['CPADRESSE_UTILISATEURINFORMATIONS'] ?? '');
 
         $dateCommObj = $this->parseDateSql($dateComm);
-        $this->addChamp($grpLoop, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
+        $this->addChamp($grpLoop, 'dateCommission', $dateCommObj?->format('d/m/Y') ?? '');
         $this->addChamp($grpLoop, 'heureDebutComm', $heureDeb);
 
         // Tous les dossiers (pas de filtrage par groupement dans le legacy ODJ groupement)

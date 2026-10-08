@@ -48,7 +48,7 @@ class RessourceSpecialiseeEtablissementType extends AbstractType
                 'group_by' => function (EtablissementActivite $etablissementActivite): ?string {
                     $etablissementActiviteType = $etablissementActivite->getType();
 
-                    return null !== $etablissementActiviteType ? $etablissementActiviteType->getLibelle() : null;
+                    return $etablissementActiviteType?->getLibelle();
                 },
                 'choice_label' => 'libelle',
                 'multiple' => true,

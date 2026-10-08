@@ -207,7 +207,7 @@ final readonly class Dossier
             $etablissement = $dossierEntity->getEtablissements()->first();
             if (false !== $etablissement) {
                 $informationsAtDate = $etablissement->getInformationsAtDate($this->getDateReferenceLibelleEtablissement($dossierEntity));
-                $donneeUtile['etablissement'] = null !== $informationsAtDate ? $informationsAtDate->getLibelle() : null;
+                $donneeUtile['etablissement'] = $informationsAtDate?->getLibelle();
             } else {
                 $donneeUtile['etablissement'] = null;
             }

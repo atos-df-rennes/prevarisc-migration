@@ -214,7 +214,7 @@ class Descriptif
         $prefs = [];
         foreach ($displayRubriques as $displayRubrique) {
             $rubrique = $displayRubrique->getRubrique();
-            $rubriqueId = null !== $rubrique ? $rubrique->getId() : null;
+            $rubriqueId = $rubrique?->getId();
             if (null !== $rubriqueId) {
                 $prefs[$rubriqueId] = (bool) $displayRubrique->getUserDisplay();
             }
