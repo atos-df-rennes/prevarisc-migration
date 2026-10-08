@@ -170,7 +170,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         $result = $queryBuilder->getQuery()->getOneOrNullResult();
 
-        return null === $result ? null : $result->getDateInsert();
+        return $result?->getDateInsert();
     }
 
     /**

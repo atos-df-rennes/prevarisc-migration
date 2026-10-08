@@ -15,9 +15,9 @@
         <small style="display: inline-block; width: 65px">
             <strong>
             {% if derniere_information and derniere_information.type %}
-                {% set etablissement_type_asset_path = asset('images/types/b/icone-type-' ~ derniere_information.type.libelle ~ '.png') %}
+                {% set etablissement_type_asset_path = 'images/types/b/icone-type-' ~ derniere_information.type.libelle ~ '.png' %}
                 {% if asset_exist(etablissement_type_asset_path) %}
-                    <img src="{{ etablissement_type_asset_path }}" title="{{ derniere_information.type.libelle }}" alt="Type {{ derniere_information.type.libelle }}" />&nbsp;-&nbsp;
+                    <img src="{{ asset(etablissement_type_asset_path) }}" title="{{ derniere_information.type.libelle }}" alt="Type {{ derniere_information.type.libelle }}" />&nbsp;-&nbsp;
                 {% else %}
                     {{ derniere_information.type.libelle }}&nbsp;-&nbsp;
                 {% endif %}

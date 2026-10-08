@@ -27,7 +27,7 @@ final class ValeurResolver
      */
     public static function resolve(?TypeChampEntity $typeChamp, ?Valeur $valeur): string
     {
-        $typeId = null !== $typeChamp ? $typeChamp->getId() : null;
+        $typeId = $typeChamp?->getId();
 
         if (TypeChamp::CHECKBOX === $typeId) {
             if (null === $valeur) {

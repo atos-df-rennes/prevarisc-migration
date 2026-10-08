@@ -208,6 +208,8 @@ Site
 - Données prévention : commission compétente, préventionnistes affectés, dates de dernière et prochaine visite périodique, date du PC initial, présence d'un DUS, données pratiques (nombre de préventionnistes par visite, durée de visite).
 - Avis d'exploitation courant (favorable / défavorable / avis différé).
 
+**Pictogrammes des types d'activité :** Pour les ERP et les cellules, la rubrique « Types & activités » affiche le pictogramme du type principal et de chaque type secondaire lorsqu'il est disponible, sinon le libellé du type. Le même repli s'applique aux types affichés dans la liste des établissements liés. L'en-tête affiche le pictogramme du type principal uniquement lorsqu'il est disponible. Ce comportement reprend l'affichage historique ; la version des ressources publiques ne doit pas affecter la détection des pictogrammes.
+
 **Accès :** Un bouton « Modifier la fiche » permet de basculer en mode édition. Un bouton de suppression est affiché si l'utilisateur dispose du droit de suppression.
 
 ### 4.2 Créer un établissement

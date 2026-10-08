@@ -39,7 +39,7 @@ class FormulairesController extends AbstractController
     {
         $formulaires = $this->capsuleRubriqueRepository->findAllInformations();
 
-        /** @var array<string, FormInterface<Rubrique>> $forms */
+        /** @var array<string, FormInterface> $forms */
         $forms = [];
         foreach ($formulaires as $formulaire) {
             $nomInterne = $formulaire->getNomInterne();
@@ -70,6 +70,10 @@ class FormulairesController extends AbstractController
 
             if ($form->isSubmitted() && $form->isValid()) {
                 $submittedRubrique = $form->getData();
+
+                if (!$submittedRubrique instanceof Rubrique) {
+                    throw new \LogicException(sprintf('Le formulaire de rubrique doit retourner une Rubrique, %s reçu.', get_debug_type($submittedRubrique)));
+                }
 
                 $this->entityManager->persist($submittedRubrique);
                 $this->entityManager->flush();

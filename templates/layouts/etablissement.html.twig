@@ -125,9 +125,10 @@
                 {% endif %}
 
                 {% if etablissement.informations|last.type is not null %}
-                    {% if icone_type_etablissement_exists(etablissement.informations|last.type.libelle) %}
+                    {% set etablissement_type_asset_path = 'images/types/b/icone-type-' ~ etablissement.informations|last.type.libelle ~ '.png' %}
+                    {% if asset_exist(etablissement_type_asset_path) %}
                         <img
-                            src="{{ asset('images/types/b/icone-type-' ~ etablissement.informations|last.type.libelle ~ '.png') }}"
+                            src="{{ asset(etablissement_type_asset_path) }}"
                             title="{{ etablissement.informations|last.type.libelle }}"
                             alt="{{ 'Type ' ~ etablissement.informations|last.type.libelle }}"
                         />

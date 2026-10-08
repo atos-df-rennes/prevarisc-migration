@@ -27,7 +27,7 @@ final readonly class CommissionDocumentBuilder
             $commissionId = $commission->getId();
             $commissionLibelle = $commission->getLibelle();
             $commissionType = $commission->getType();
-            $commissionTypeLibelle = null !== $commissionType ? $commissionType->getLibelle() : null;
+            $commissionTypeLibelle = $commissionType?->getLibelle();
 
             if (in_array(null, [$commissionId, $commissionLibelle, $commissionType, $commissionTypeLibelle], true)) {
                 $this->logger->error("La commission n'a pas été trouvée.", [

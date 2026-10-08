@@ -34,7 +34,7 @@ final class EtablissementCategorieEffectiveTest extends TestCase
         }
 
         $categorie = $etablissement->getCategorieEffective();
-        $this->assertSame($attendue, null !== $categorie ? $categorie->getId() : null);
+        $this->assertSame($attendue, $categorie?->getId());
         $this->assertSame($categoriePropre, null !== $etablissement->getLatestInformations()->getCategorie() ? $etablissement->getLatestInformations()->getCategorie()->getId() : null);
     }
 

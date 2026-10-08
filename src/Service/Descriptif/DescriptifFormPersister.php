@@ -127,7 +127,7 @@ class DescriptifFormPersister
         }
 
         $type = $champ->getType();
-        $typeId = null !== $type ? $type->getId() : null;
+        $typeId = $type?->getId();
 
         if (TypeChamp::PARENT === $typeId) {
             if ($champ->getTableau()) {
@@ -292,7 +292,7 @@ class DescriptifFormPersister
     private function applyValueToValeur(Valeur $valeur, Champ $champ, $value): void
     {
         $type = $champ->getType();
-        $typeId = null !== $type ? $type->getId() : null;
+        $typeId = $type?->getId();
 
         switch ($typeId) {
             case TypeChamp::TEXT:
