@@ -5,9 +5,9 @@ description: Run and understand the PHPStan, code-style, and PHPUnit checks used
 
 # Validate the application
 
-## Preferred host workflow: Castor
+## Required local CLI workflow: Castor
 
-When the sibling `prevarisc-infra` checkout and its Docker environment are available, run this from the infrastructure repository root:
+Local CLI sessions have the `prevarisc-infra` checkout available. Always use its Castor tasks for validation, including from local subagents. Run full validation from the infrastructure repository root:
 
 ```bash
 castor symfony:validate
@@ -33,9 +33,11 @@ castor symfony:cs
 
 `castor symfony:cs` applies PHP-CS-Fixer and Twig-CS-Fixer changes; it is not a check-only command. Use `castor symfony:validate` for the non-mutating style checks.
 
-## Project-local workflow
+Do not invoke the underlying validation tools directly in local sessions. If access permissions, Docker, or another environment issue prevents Castor validation, report the blocker rather than switching to direct commands. A local fallback requires explicit user authorization.
 
-If working in a context without the sibling infra checkout or Docker, run the relevant installed tools from this repository root:
+## Remote/cloud delegated fallback
+
+In remote/cloud delegated sessions, use Castor when the infrastructure checkout and Docker environment are available. Only when that environment is unavailable, run the relevant installed tools from this repository root:
 
 ```bash
 tools/vendor/bin/phpstan --memory-limit=-1

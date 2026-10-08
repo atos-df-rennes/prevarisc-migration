@@ -19,8 +19,9 @@ This is the independent Git repository for the current production application. B
 
 ## Validation
 
-- Prefer `castor symfony:validate` from the sibling `prevarisc-infra` repository when it and its Docker environment are available.
-- The `validate-application` skill documents the exact checks Castor runs and how to execute the underlying tools from this repository.
+- In local CLI sessions, the `prevarisc-infra` checkout is available: always run validation through its Castor tasks from the infrastructure repository root. Use `castor symfony:validate` for full validation or the appropriate targeted Castor task. Do not invoke the underlying validation tools directly.
+- If local Castor validation is blocked by access permissions, Docker, or another environment issue, report the blocker; do not substitute direct tool commands unless the user explicitly authorizes it.
+- Direct validation commands are a fallback only for remote/cloud delegated sessions without the infrastructure checkout or Docker environment. The `validate-application` skill documents this fallback and the checks Castor runs. Local subagents follow the same Castor requirement as the main local session.
 - In a local CLI session started here, `/add-dir /path/to/prevarisc-infra` loads the sibling repository's skills and agents, including `run-linters`. This local configuration does not make those files available to a remote delegated task.
 - See the `testing.instructions.md` path-specific instruction for test conventions.
 

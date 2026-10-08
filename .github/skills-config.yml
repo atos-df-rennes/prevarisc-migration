@@ -20,7 +20,7 @@ skills:
   validate-application:
     default_run_context: main
     supports_worktree: false
-    notes: "Document the Symfony checks run by the sibling infra repository's Castor tasks and the project-local equivalents."
+    notes: "Require infrastructure Castor tasks for local sessions and local subagents; document direct checks only as a remote/cloud fallback."
 
 policy: |
   Skills are documentation and orchestration only. Run agents only through explicit CLI prompts or assistant commands.

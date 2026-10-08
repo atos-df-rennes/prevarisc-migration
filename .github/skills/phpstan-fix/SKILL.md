@@ -7,7 +7,7 @@ description: Correct PHPStan level 10 findings in the Prevarisc application with
 
 ## Run the analysis
 
-When the sibling infrastructure repository and Docker environment are available, run `castor symfony:analyse` from the root of `prevarisc-infra`. For project-local command details, see `validate-application`.
+In local CLI sessions and local subagents, run `castor symfony:analyse` from the root of `prevarisc-infra`. Do not substitute direct PHPStan commands if Castor is blocked; report the blocker. For the remote/cloud delegated fallback, see `validate-application`.
 
 ## PHP 8.5 conventions
 

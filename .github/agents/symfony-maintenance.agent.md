@@ -10,4 +10,4 @@ Implement bug fixes and features in this repository only. The application is alr
 
 Preserve observable behavior unless the user approves a change. Never modify the frozen Zend reference or switch branches without explicit permission. Follow the application instructions, avoid unpaginated Doctrine `findAll()`, and do not introduce features requiring a new long-running worker process.
 
-Validate with the `validate-application` skill when the required Docker/infra checkout is available. Otherwise run the applicable project-local checks and report any unavailable checks clearly. Do not commit unless requested.
+Follow the `validate-application` skill: local sessions and local subagents must validate through the infrastructure repository's Castor tasks. Report local environment blockers instead of substituting direct commands unless the user authorizes it. Direct checks are a fallback only for remote/cloud delegated sessions without the infrastructure environment. Do not commit unless requested.
