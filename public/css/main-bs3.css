@@ -106,8 +106,10 @@ body > .navbar {
 
 /* TomSelect remplace le <select> original par un wrapper (.ts-wrapper) qui reçoit
    la classe .focus au focus : le sélecteur ci-dessus ne matche donc plus. */
-#nav-main-search-form .ts-wrapper.focus {
-  width: 300px;
+@media (min-width: 768px) {
+  #nav-main-search-form .ts-wrapper.focus {
+    width: 300px;
+  }
 }
 
 /* Le wrapper TomSelect impose une min-height de 36px et hérite de la taille
