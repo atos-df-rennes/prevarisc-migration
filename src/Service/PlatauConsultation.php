@@ -3,8 +3,10 @@
 namespace App\Service;
 
 use App\Dto\PlatauTempsRestantInfo;
+use App\Entity\Dossier;
 use App\Entity\PlatauConsultation as PlatauConsultationEntity;
 use App\Enum\PlatauStatutAvisEnum;
+use App\Enum\PlatauStatutPecEnum;
 
 /**
  * Service métier pour la gestion des consultations Plat'AU.
@@ -51,7 +53,7 @@ final readonly class PlatauConsultation
      *
      * @return array<string, mixed>|null
      */
-    public function getPlatauDataForView(?PlatauConsultationEntity $consultation): ?array
+    public function getPlatauDataForView(?PlatauConsultationEntity $consultation, Dossier $dossier): ?array
     {
         if (null === $consultation) {
             return null;
@@ -63,11 +65,30 @@ final readonly class PlatauConsultation
             'identifiant' => $consultation->getIdentifiant(),
             'temps_restant' => $tempsRestantInfo->getTempsRestant(),
             'couleur_temps_restant' => $tempsRestantInfo->getCouleur(),
-            'statut_pec' => $consultation->getStatutPriseEnCompte(),
+            'statut_pec' => $this->resolveStatutPecAffiche($consultation->getStatutPriseEnCompte(), $dossier->isIncomplet()),
+            'dossier_incomplet' => $dossier->isIncomplet(),
             'date_pec' => $consultation->getDatePriseEnCompte(),
-            'statut_avis' => $consultation->getStatutAvis(),
+            'statut_avis' => $this->resolveStatutAvisAffiche($consultation->getStatutAvis(), null !== $dossier->getAvisCommission()),
             'date_avis' => $consultation->getDateAvis(),
         ];
+    }
+
+    private function resolveStatutPecAffiche(?string $statut, ?bool $incomplet): ?string
+    {
+        if (PlatauStatutPecEnum::EN_ATTENTE === $statut && null !== $incomplet) {
+            return PlatauStatutPecEnum::SAISIE_A_TRANSMETTRE;
+        }
+
+        return $statut;
+    }
+
+    private function resolveStatutAvisAffiche(?string $statut, bool $avisRenseigne): ?string
+    {
+        if ($avisRenseigne && \in_array($statut, [null, PlatauStatutAvisEnum::INCONNU, PlatauStatutAvisEnum::EN_COURS], true)) {
+            return PlatauStatutAvisEnum::SAISI_A_TRANSMETTRE;
+        }
+
+        return $statut;
     }
 
     /**

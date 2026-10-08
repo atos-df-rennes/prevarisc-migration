@@ -19,6 +19,7 @@ class PlatauExtension
     {
         return match ($statut) {
             PlatauStatutPecEnum::EN_ATTENTE => 'text-info',
+            PlatauStatutPecEnum::SAISIE_A_TRANSMETTRE => 'text-primary',
             PlatauStatutPecEnum::PRISE_EN_COMPTE => 'text-success',
             PlatauStatutPecEnum::A_RENVOYER => 'text-warning',
             PlatauStatutPecEnum::EN_ERREUR => 'text-danger',
@@ -37,6 +38,7 @@ class PlatauExtension
     {
         return match ($statut) {
             PlatauStatutAvisEnum::EN_COURS => 'text-info',
+            PlatauStatutAvisEnum::SAISI_A_TRANSMETTRE => 'text-primary',
             PlatauStatutAvisEnum::TRAITE => 'text-success',
             PlatauStatutAvisEnum::A_RENVOYER => 'text-warning',
             PlatauStatutAvisEnum::EN_ERREUR => 'text-danger',
