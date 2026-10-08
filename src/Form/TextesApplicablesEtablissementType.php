@@ -26,7 +26,7 @@ class TextesApplicablesEtablissementType extends AbstractType
                 'choice_attr' => function (TexteApplicable $texteApplicable): array {
                     $type = $texteApplicable->getType();
 
-                    return ['data-type' => ($type?->getLibelle())];
+                    return ['data-type' => $type?->getLibelle()];
                 },
                 'multiple' => true,
                 'expanded' => true,

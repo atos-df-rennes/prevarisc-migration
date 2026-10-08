@@ -72,10 +72,7 @@ class FormulairesController extends AbstractController
                 $submittedRubrique = $form->getData();
 
                 if (!$submittedRubrique instanceof Rubrique) {
-                    throw new \LogicException(sprintf(
-                        'Le formulaire de rubrique doit retourner une Rubrique, %s reçu.',
-                        get_debug_type($submittedRubrique),
-                    ));
+                    throw new \LogicException(sprintf('Le formulaire de rubrique doit retourner une Rubrique, %s reçu.', get_debug_type($submittedRubrique)));
                 }
 
                 $this->entityManager->persist($submittedRubrique);
