@@ -76,7 +76,7 @@ Le module est activable ou désactivable au niveau de la configuration de l'envi
 | En attente de renvoi | Prise en compte sur Plat'AU (en attente de renvoi) | Orange | Une relance manuelle a été demandée, la PEC sera retransmise. |
 | En erreur | En erreur sur Plat'AU | Rouge | La transmission de la PEC a échoué sur Plat'AU. |
 
-Lorsque le statut est « En attente » et que l'état de complétude du dossier n'est pas renseigné dans Prevarisc, un message d'information invite le préventionniste à modifier le dossier pour le compléter.
+Lorsque le statut est « En attente » et que l'état de complétude du dossier n'est pas renseigné dans Prevarisc (valeur `null`), un message d'information invite le préventionniste à modifier le dossier pour le compléter. Ce message n'apparaît pas lorsque le dossier est renseigné comme « Complet » (`false`) ou « Incomplet » (`true`), même si le statut de la PEC est encore « En attente ». Cette règle s'applique en consultation comme en modification du dossier.
 
 #### Statuts de l'avis
 
