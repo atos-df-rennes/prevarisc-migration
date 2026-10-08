@@ -26,14 +26,14 @@ class DossierTextesApplicablesType extends AbstractType
                 'choice_attr' => function (TexteApplicable $texteApplicable): array {
                     $type = $texteApplicable->getType();
 
-                    return ['data-type' => (null !== $type ? $type->getLibelle() : null)];
+                    return ['data-type' => ($type?->getLibelle())];
                 },
                 'multiple' => true,
                 'expanded' => true,
                 'group_by' => function (TexteApplicable $texteApplicable): ?int {
                     $type = $texteApplicable->getType();
 
-                    return null !== $type ? $type->getId() : null;
+                    return $type?->getId();
                 }
             ])
         ;

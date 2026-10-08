@@ -20,7 +20,7 @@ class DocumentType extends AbstractType
             ->add('commission', ChoiceType::class, [
                 'choices' => $builder->getData(),
                 'choice_label' => fn (FormDocument $commission): string => $commission->nom(),
-                'choice_value' => fn (?FormDocument $commission): int|string => null !== $commission ? $commission->id() : '',
+                'choice_value' => fn (?FormDocument $commission): int|string => $commission?->id() ?? '',
                 'group_by' => fn (FormDocument $commission): ?string => $commission->type()
             ])
             ->add('file', FileType::class, [

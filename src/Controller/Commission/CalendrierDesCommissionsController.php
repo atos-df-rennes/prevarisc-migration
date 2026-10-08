@@ -210,7 +210,7 @@ class CalendrierDesCommissionsController extends AbstractController
 
             return $this->render('calendrier_des_commissions/dialog/_type_edit.html.twig', [
                 'listeCommType' => $listeCommType,
-                'typeComSelect' => null !== $typeEvenement ? $typeEvenement->getId() : null,
+                'typeComSelect' => $typeEvenement?->getId(),
             ]);
         }
 

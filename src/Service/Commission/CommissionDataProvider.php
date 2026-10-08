@@ -220,9 +220,9 @@ class CommissionDataProvider
                     'ID_ETABLISSEMENT' => $etabId,
                     'NUMERO_ADRESSE' => $adresse->getNumero(),
                     'LIBELLE_RUE' => $rue->getLibelle(),
-                    'LIBELLE_COMMUNE' => null !== $commune ? $commune->getLibelle() : null,
-                    'CODEPOSTAL_COMMUNE' => null !== $commune ? $commune->getCodePostal() : null,
-                    'NUMINSEE_COMMUNE' => null !== $commune ? $commune->getId() : null,
+                    'LIBELLE_COMMUNE' => $commune?->getLibelle(),
+                    'CODEPOSTAL_COMMUNE' => $commune?->getCodePostal(),
+                    'NUMINSEE_COMMUNE' => $commune?->getId(),
                 ];
             }
         }

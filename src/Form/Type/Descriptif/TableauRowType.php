@@ -26,7 +26,7 @@ class TableauRowType extends AbstractType
         foreach ($childChamps as $childChamp) {
             $champId = $childChamp->getId();
             $type = $childChamp->getType();
-            $typeId = null !== $type ? $type->getId() : null;
+            $typeId = $type?->getId();
 
             $formType = $this->resolveLeafType($typeId);
             $formOptions = [

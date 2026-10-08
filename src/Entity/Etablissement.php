@@ -426,7 +426,7 @@ class Etablissement
                 if (null === $parent->getDateSuppression()) {
                     $parentInformations = $parent->getLatestInformationsOrNull();
 
-                    return null !== $parentInformations ? $parentInformations->getCategorie() : null;
+                    return $parentInformations?->getCategorie();
                 }
             }
         }

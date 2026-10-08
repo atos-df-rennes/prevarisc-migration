@@ -93,7 +93,7 @@ class DescriptifFormHydrator
         $valeur = $champData['valeur'] ?? null;
 
         $type = $champ->getType();
-        $typeId = null !== $type ? $type->getId() : null;
+        $typeId = $type?->getId();
 
         if (TypeChamp::PARENT === $typeId) {
             if ($champ->getTableau()) {
@@ -110,7 +110,7 @@ class DescriptifFormHydrator
         }
 
         $value = $this->extractValue($valeur, $typeId);
-        $valeurId = null !== $valeur ? $valeur->getId() : null;
+        $valeurId = $valeur?->getId();
 
         return new ChampValueData((int) $champ->getId(), $value, [], [], $valeurId);
     }
@@ -151,7 +151,7 @@ class DescriptifFormHydrator
                 $enfantTypeId = null;
                 if (null !== $enfantChamp) {
                     $enfantType = $enfantChamp->getType();
-                    $enfantTypeId = null !== $enfantType ? $enfantType->getId() : null;
+                    $enfantTypeId = $enfantType?->getId();
                 }
 
                 $cells[$champId] = $this->extractValue($valeur, $enfantTypeId);

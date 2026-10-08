@@ -57,7 +57,7 @@ class ChangelogController extends AbstractController
 
         try {
             $prefs = $this->prefsRepository->findOneBy(['utilisateur' => $user]);
-            $derniereVersionVue = null !== $prefs ? $prefs->getDerniereVersionVue() : null;
+            $derniereVersionVue = $prefs?->getDerniereVersionVue();
         } catch (\Exception) {
             // La migration ajoutant DERNIERE_VERSION_VUE n'a pas encore été jouée.
             return new Response('');

@@ -46,7 +46,7 @@ class ChampValueType extends AbstractType
                 }
 
                 $type = $champ->getType();
-                $typeId = null !== $type ? $type->getId() : null;
+                $typeId = $type?->getId();
 
                 switch ($typeId) {
                     case TypeChamp::TEXT:

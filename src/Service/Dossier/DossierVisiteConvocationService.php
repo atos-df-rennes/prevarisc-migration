@@ -38,7 +38,7 @@ class DossierVisiteConvocationService
             [TypeEvenement::TYPE_VISITE, TypeEvenement::TYPE_GROUPE_VISITE]
         );
 
-        $dateCommission = null !== $affectation ? $affectation->getDateCommission() : null;
+        $dateCommission = $affectation?->getDateCommission();
 
         if (null === $dateCommission) {
             return ['dateVisite' => '', 'heureVisite' => ''];
