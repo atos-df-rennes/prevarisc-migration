@@ -77,7 +77,7 @@ Le module est activable ou désactivable au niveau de la configuration de l'envi
 | En attente de renvoi | Prise en compte sur Plat'AU (en attente de renvoi) | Orange | Une relance manuelle a été demandée, la PEC sera retransmise. |
 | En erreur | En erreur sur Plat'AU | Rouge | La transmission de la PEC a échoué sur Plat'AU. |
 
-Lorsque le statut est « En attente » et que l'état de complétude du dossier n'est pas renseigné dans Prevarisc (valeur `null`), un message d'information invite le préventionniste à modifier le dossier pour le compléter. Ce message n'apparaît pas lorsque le dossier est renseigné comme « Complet » (`false`) ou « Incomplet » (`true`), même si le statut de la PEC est encore « En attente ». Cette règle s'applique en consultation comme en modification du dossier.
+Lorsque la complétude n'est pas renseignée dans Prevarisc (valeur `null`), le libellé « En attente de complétude sur Prevarisc » suffit à indiquer l'information manquante : aucun message informatif supplémentaire n'est affiché. Cette règle s'applique en consultation comme en modification du dossier.
 
 #### Statuts de l'avis
 
@@ -282,7 +282,7 @@ Lorsqu'une consultation est reçue sans information de statut pour la PEC ou l'a
 
 ### 7.2 Dossier Plat'AU sans état de complétude
 
-Si un dossier Plat'AU a une PEC « En attente » et que la complétude n'est pas renseignée dans Prevarisc, un message d'alerte invite le préventionniste à modifier le dossier pour renseigner l'information. Aucune transmission ne peut être déclenchée tant que la complétude n'est pas définie.
+Si un dossier Plat'AU a une PEC « En attente » et que la complétude n'est pas renseignée dans Prevarisc, seul le libellé « En attente de complétude sur Prevarisc » est affiché, sans message d'alerte supplémentaire. Aucune transmission ne peut être déclenchée tant que la complétude n'est pas définie.
 
 ### 7.3 Stockage spécifique des pièces jointes Plat'AU
 

@@ -66,7 +66,6 @@ final readonly class PlatauConsultation
             'temps_restant' => $tempsRestantInfo->getTempsRestant(),
             'couleur_temps_restant' => $tempsRestantInfo->getCouleur(),
             'statut_pec' => $this->resolveStatutPecAffiche($consultation->getStatutPriseEnCompte(), $dossier->isIncomplet()),
-            'dossier_incomplet' => $dossier->isIncomplet(),
             'date_pec' => $consultation->getDatePriseEnCompte(),
             'statut_avis' => $this->resolveStatutAvisAffiche($consultation->getStatutAvis(), null !== $dossier->getAvisCommission()),
             'date_avis' => $consultation->getDateAvis(),

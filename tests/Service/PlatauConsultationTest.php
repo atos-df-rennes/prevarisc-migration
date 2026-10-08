@@ -138,7 +138,6 @@ final class PlatauConsultationTest extends KernelTestCase
 
         $this->assertIsArray($data);
         $this->assertSame($expected, $data['statut_pec']);
-        $this->assertSame($incomplet, $data['dossier_incomplet']);
         $this->assertSame($statut, $consultation->getStatutPriseEnCompte());
     }
 
