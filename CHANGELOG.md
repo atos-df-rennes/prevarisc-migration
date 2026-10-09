@@ -4,6 +4,18 @@
 
 <!--- END HEADER -->
 
+## [2.10.8](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.7...v2.10.8) (09-10-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+
+##### Rapports
+
+* Formatage du nom de téléchargement des fichiers (#441) ([c74fd2](https://github.com/atos-df-rennes/prevarisc-migration/commit/c74fd207d68e24ef4c93bd19eba70769f2837650))
+
+
+---
+
 ## [2.10.7](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.6...v2.10.7) (05-10-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
