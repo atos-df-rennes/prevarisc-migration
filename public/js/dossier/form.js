@@ -69,16 +69,27 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
 
         tomSelectFields.forEach(field => {
             // Vérifier le type de champ
-            const isServiceInstructeur = field.id === 'dossier_serviceInstructeur';
+            const isServiceInstructeur = field.id === 'dossier_serviceInstructeurSelection';
             const isPreventionnistes = field.id === 'dossier_preventionnistes';
             
             if (isServiceInstructeur) {
+                const libelleField = document.querySelector('#dossier_serviceInstructeur');
+                const typeField = document.querySelector('#dossier_typeServiceInstructeur');
+                const initialOption = {
+                    value: (typeField.value || 'libre') + ':' + libelleField.value,
+                    libelle: libelleField.value,
+                    typeServiceInstructeur: typeField.value || null,
+                    type: typeField.value === 'servInstCommune' ? 'Commune' : '',
+                };
+
                 // Configuration spécifique pour service instructeur avec autocomplete
                 new TomSelect(field, {
                     maxItems: 1,
-                    valueField: 'libelle',
+                    valueField: 'value',
                     labelField: 'libelle',
                     searchField: 'libelle',
+                    options: libelleField.value ? [initialOption] : [],
+                    items: libelleField.value ? [initialOption.value] : [],
                     placeholder: 'Sélectionnez ou saisissez un service instructeur',
                     preload: true,
                     shouldLoad: function(query) {
@@ -91,16 +102,20 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                         const groupementsPromise = fetch(Routing.generate('api_groupements_search', {q: query, limit: 50}))
                             .then(response => response.json())
                             .then(json => json.map(item => ({
+                                value: 'servInstGrp:' + item.libelle,
                                 libelle: item.libelle,
                                 type: item.type.libelle || '',
+                                typeServiceInstructeur: 'servInstGrp',
                             })))
                             .catch(() => []);
 
                         const communesPromise = fetch(Routing.generate('api_adresse_get_communes', {q: query, limit: 50}))
                             .then(response => response.json())
                             .then(json => (json.response || []).map(row => ({
+                                value: 'servInstCommune:' + row.LIBELLE_COMMUNE,
                                 libelle: row.LIBELLE_COMMUNE,
                                 type: 'Commune',
+                                typeServiceInstructeur: 'servInstCommune',
                             })))
                             .catch(() => []);
 
@@ -137,9 +152,17 @@ import { initTodayButtonsModule } from './modules/today-buttons.js';
                     
                     create: function(input) {
                         return {
+                            value: 'libre:' + input,
                             libelle: input,
                             type: null,
+                            typeServiceInstructeur: null,
                         };
+                    },
+
+                    onChange: function(value) {
+                        const option = this.options[value];
+                        libelleField.value = option ? option.libelle : '';
+                        typeField.value = option ? option.typeServiceInstructeur || '' : '';
                     }
                 });
             } else if (isPreventionnistes) {
