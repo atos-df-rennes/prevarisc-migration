@@ -110,18 +110,7 @@ class DossierRapportOdtService
         $rawEtabInfos = false !== $rawEtabInfosFetch ? $rawEtabInfosFetch : [];
 
         // --- Type dossier et nature (partagés entre fillSegmentsPrescriptions et listeDocs) ---
-        /** @var array<string, string|null>|false $typeDossierRow */
-        $typeDossierRow = $this->dossierRepository->getTypeDossier($idDossier);
-        $typeDossierId = false !== $typeDossierRow ? ($typeDossierRow['TYPE_DOSSIER'] ?? null) : null;
-        $typeDossierLabel = '';
-        if (null !== $typeDossierId) {
-            /** @var array<string, string|null>|false $typeDossierLabelFetch */
-            $typeDossierLabelFetch = $this->conn->fetchAssociative(
-                'SELECT LIBELLE_DOSSIERTYPE FROM dossiertype WHERE ID_DOSSIERTYPE = :id',
-                ['id' => $typeDossierId]
-            );
-            $typeDossierLabel = false !== $typeDossierLabelFetch ? ($typeDossierLabelFetch['LIBELLE_DOSSIERTYPE'] ?? '') : '';
-        }
+        $typeDossierId = $dossier->getType()?->getId();
 
         $dossierNature = $this->dossierRepository->getDossierNatureId($idDossier);
         $natureDossierLabel = '';
@@ -170,7 +159,7 @@ class DossierRapportOdtService
             $odf = new Odf($fichierSelect);
 
             // --- Champs scalaires du dossier (commission, objet, servInstructeur, avis…) ---
-            $this->fillChampsDossier($odf, $rawDossier, $idDossier, $typeDossierLabel, $natureDossierLabel, $numInsee);
+            $this->fillChampsDossier($odf, $dossier, $rawDossier, $idDossier, $natureDossierLabel, $numInsee);
 
             // --- Champs dates du dossier ---
             $this->fillChampsDatesDossier($odf, $rawDossier, $dossier);
@@ -344,7 +333,7 @@ class DossierRapportOdtService
 
             // --- Champs établissement (infos générales, adresse, effectifs, avis) ---
             $categorieEffective = $etablissement->getCategorieEffective();
-            $this->fillChampsEtablissement($odf, $rawEtab, $rawEtabInfos, $adresseRow, $rawDossier, $idDossier, $idEtab, null !== $categorieEffective ? ($categorieEffective->getLibelle() ?? '') : '');
+            $this->fillChampsEtablissement($odf, $dossier, $rawEtab, $rawEtabInfos, $adresseRow, $rawDossier, $idDossier, $idEtab, null !== $categorieEffective ? ($categorieEffective->getLibelle() ?? '') : '');
 
             // --- Champs DESCTECH ---
             $this->fillChampsDescTech($odf, $rawEtab);
@@ -404,9 +393,9 @@ class DossierRapportOdtService
      */
     private function fillChampsDossier(
         Odf $odf,
+        Dossier $dossier,
         array $rawDossier,
         int $idDossier,
-        string $typeDossierLabel,
         string $natureDossierLabel,
         ?string $numInsee
     ): void {
@@ -414,19 +403,16 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'dateDuJour', new \DateTime()->format('d/m/Y'));
 
         // --- Type et nature dossier ---
-        $this->addChamp($odf, 'typeDossier', $typeDossierLabel);
+        $this->addChamp($odf, 'typeDossier', $dossier->getType()?->getLibelle() ?? '');
         $this->addChamp($odf, 'natureDossier', $natureDossierLabel);
 
         // --- Commission ---
         $commissionInfos = 'Aucune commission';
-        if (!empty($rawDossier['COMMISSION_DOSSIER'])) {
-            /** @var array<string, string|null>|false $commRowFetch */
-            $commRowFetch = $this->conn->fetchAssociative(
-                'SELECT LIBELLE_COMMISSION FROM commission WHERE ID_COMMISSION = :id',
-                ['id' => $rawDossier['COMMISSION_DOSSIER']]
-            );
-            if (false !== $commRowFetch && !empty($commRowFetch['LIBELLE_COMMISSION'])) {
-                $commissionInfos = $commRowFetch['LIBELLE_COMMISSION'];
+        $commission = $dossier->getCommission();
+        if (!empty($commission?->getId())) {
+            $libelleCommission = $commission->getLibelle();
+            if (!empty($libelleCommission)) {
+                $commissionInfos = $libelleCommission;
             }
         }
 
@@ -447,19 +433,20 @@ class DossierRapportOdtService
         // Retiré de fillChampsDossier car nécessite $rawEtab, pas $rawDossier
 
         // --- objetDossier ---
-        $this->addChamp($odf, 'objetDossier', $rawDossier['OBJET_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'objetDossier', $dossier->getObjet() ?? '');
 
         // --- analyseRisque ---
-        $this->addChamp($odf, 'analyseRisque', $rawDossier['ANOMALIE_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'analyseRisque', $dossier->getAnalyseDeRisque() ?? '');
 
         // --- observationDossier ---
-        $this->addChamp($odf, 'observationDossier', $rawDossier['OBSERVATION_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'observationDossier', $dossier->getObservations() ?? '');
 
         // --- descriptifDossier ---
-        $this->addChamp($odf, 'descriptifDossier', $rawDossier['DESCRIPTIF_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'descriptifDossier', $dossier->getDescriptif() ?? '');
 
         // --- criticite ---
-        $this->addChamp($odf, 'criticite', $rawDossier['FACTDANGE_DOSSIER'] ?? '');
+        $facteurDangerosite = $dossier->getFacteurDangerosite();
+        $this->addChamp($odf, 'criticite', null !== $facteurDangerosite ? (string) $facteurDangerosite : '');
 
         // --- horsDelai ---
         $horsDelai = ('1' === $rawDossier['HORSDELAI_DOSSIER']) ? 'Oui' : 'Non';
@@ -494,15 +481,16 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'dateReceptionDocManquant', $dateReceptionDocManquant);
 
         // --- demandeurDossier ---
-        $this->addChamp($odf, 'demandeurDossier', $rawDossier['DEMANDEUR_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'demandeurDossier', $dossier->getDemandeur() ?? '');
 
         // --- servInstructeur ---
         $servInstructeur = '';
         $servInstructeurPrenomContact = '';
         $servInstructeurNomContact = '';
         $servInstructeurMail = '';
-        if (!empty($rawDossier['SERVICEINSTRUC_DOSSIER'])) {
-            $servInstructeur = $rawDossier['SERVICEINSTRUC_DOSSIER'];
+        $serviceInstructeur = $dossier->getServiceInstructeur();
+        if (!empty($serviceInstructeur)) {
+            $servInstructeur = $serviceInstructeur;
             /** @var array<string, string|null>|false $groupRowFetch */
             $groupRowFetch = $this->conn->fetchAssociative(
                 'SELECT g.LIBELLE_GROUPEMENT, ui.PRENOM_UTILISATEURINFORMATIONS, ui.NOM_UTILISATEURINFORMATIONS, ui.MAIL_UTILISATEURINFORMATIONS
@@ -510,7 +498,7 @@ class DossierRapportOdtService
                  INNER JOIN groupementtype gt ON g.ID_GROUPEMENTTYPE = gt.ID_GROUPEMENTTYPE
                  LEFT JOIN utilisateurinformations ui ON ui.ID_UTILISATEURINFORMATIONS = g.ID_UTILISATEURINFORMATIONS
                  WHERE g.LIBELLE_GROUPEMENT = :libelle LIMIT 1',
-                ['libelle' => $rawDossier['SERVICEINSTRUC_DOSSIER']]
+                ['libelle' => $serviceInstructeur]
             );
             if (false !== $groupRowFetch) {
                 $servInstructeurPrenomContact = $groupRowFetch['PRENOM_UTILISATEURINFORMATIONS'] ?? '';
@@ -539,10 +527,10 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'servInstructeurMail', $servInstructeurMail);
 
         // --- Dérogations dossier ---
-        $this->addChamp($odf, 'reglesDerog', $rawDossier['REGLEDEROG_DOSSIER'] ?? '');
-        $this->addChamp($odf, 'justificationDerog', $rawDossier['JUSTIFDEROG_DOSSIER'] ?? '');
-        $this->addChamp($odf, 'mesuresCompensatoiresDerog', $rawDossier['MESURESCOMPENS_DOSSIER'] ?? '');
-        $this->addChamp($odf, 'mesuresComplementairesDerog', $rawDossier['MESURESCOMPLE_DOSSIER'] ?? '');
+        $this->addChamp($odf, 'reglesDerog', $dossier->getReglesDerogation() ?? '');
+        $this->addChamp($odf, 'justificationDerog', $dossier->getJustificationDerogation() ?? '');
+        $this->addChamp($odf, 'mesuresCompensatoiresDerog', $dossier->getMesuresCompensatoires() ?? '');
+        $this->addChamp($odf, 'mesuresComplementairesDerog', $dossier->getMesuresComplementaires() ?? '');
     }
 
     /**
@@ -612,6 +600,7 @@ class DossierRapportOdtService
      */
     private function fillChampsEtablissement(
         Odf $odf,
+        Dossier $dossier,
         array $rawEtab,
         array $rawEtabInfos,
         array $adresseRow,
@@ -705,17 +694,8 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'numHeberge', (string) $numHeberge);
 
         // Avis dossier
-        $avisDossierRow = null;
-        if (!empty($rawDossier['AVIS_DOSSIER'])) {
-            /** @var array<string, string|null>|false $avisDossierRowFetch */
-            $avisDossierRowFetch = $this->conn->fetchAssociative(
-                'SELECT LIBELLE_AVIS FROM avis WHERE ID_AVIS = :id',
-                ['id' => $rawDossier['AVIS_DOSSIER']]
-            );
-            $avisDossierRow = false !== $avisDossierRowFetch ? $avisDossierRowFetch : null;
-        }
-
-        $this->addChamp($odf, 'avisDossier', null !== $avisDossierRow ? ($avisDossierRow['LIBELLE_AVIS'] ?? '') : '');
+        $avisDossier = $dossier->getAvis();
+        $this->addChamp($odf, 'avisDossier', !empty($avisDossier?->getId()) ? ($avisDossier->getLibelle() ?? '') : '');
 
         $avisDossierCommRow = null;
         if (!empty($rawDossier['AVIS_DOSSIER_COMMISSION'])) {
