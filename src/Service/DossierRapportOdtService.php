@@ -15,10 +15,13 @@ use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
 use App\Entity\PieceJointe;
 use App\Entity\PrescriptionDossier;
+use App\Entity\UtilisateurInformations;
+use App\Repository\CommuneRepository;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementAdresseRepository;
+use App\Repository\GroupementRepository;
 use App\Repository\ListeDocumentConsulteRepository;
 use App\Service\DataStore\DataStore;
 use App\Service\Dossier\DossierVisiteConvocationService;
@@ -43,7 +46,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class DossierRapportOdtService
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger, private readonly CommuneRepository $communeRepository, private readonly GroupementRepository $groupementRepository)
     {
     }
 
@@ -127,7 +130,7 @@ class DossierRapportOdtService
             }
         }
 
-        // --- Adresse établissement (numInsee partagé entre fillChampsDossier et fillChampsMaire) ---
+        // --- Adresse établissement (numInsee utilisé par fillChampsMaire) ---
         // Résolution par genre d'établissement (site => enfant à l'effectif max, cellule => établissement
         // parent direct, cf. EtablissementAdresseRepository::get()), comme pour les documents de commission.
         /** @var array<int, EtablissementAdresse> $etablissementAdresses */
@@ -159,7 +162,7 @@ class DossierRapportOdtService
             $odf = new Odf($fichierSelect);
 
             // --- Champs scalaires du dossier (commission, objet, servInstructeur, avis…) ---
-            $this->fillChampsDossier($odf, $dossier, $rawDossier, $idDossier, $natureDossierLabel, $numInsee);
+            $this->fillChampsDossier($odf, $dossier, $rawDossier, $idDossier, $natureDossierLabel);
 
             // --- Champs dates du dossier ---
             $this->fillChampsDatesDossier($odf, $rawDossier, $dossier);
@@ -396,8 +399,7 @@ class DossierRapportOdtService
         Dossier $dossier,
         array $rawDossier,
         int $idDossier,
-        string $natureDossierLabel,
-        ?string $numInsee
+        string $natureDossierLabel
     ): void {
         // --- dateDuJour ---
         $this->addChamp($odf, 'dateDuJour', new \DateTime()->format('d/m/Y'));
@@ -475,51 +477,31 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'demandeurDossier', $dossier->getDemandeur() ?? '');
 
         // --- servInstructeur ---
-        $servInstructeurPrenomContact = '';
-        $servInstructeurNomContact = '';
-        $servInstructeurMail = '';
-        $serviceInstructeur = $dossier->getServiceInstructeur();
-        if (null !== $serviceInstructeur) {
-            /** @var array<string, string|null>|false $groupRowFetch */
-            $groupRowFetch = $this->conn->fetchAssociative(
-                'SELECT g.LIBELLE_GROUPEMENT, ui.PRENOM_UTILISATEURINFORMATIONS, ui.NOM_UTILISATEURINFORMATIONS, ui.MAIL_UTILISATEURINFORMATIONS
-                 FROM groupement g
-                 INNER JOIN groupementtype gt ON g.ID_GROUPEMENTTYPE = gt.ID_GROUPEMENTTYPE
-                 LEFT JOIN utilisateurinformations ui ON ui.ID_UTILISATEURINFORMATIONS = g.ID_UTILISATEURINFORMATIONS
-                 WHERE g.LIBELLE_GROUPEMENT = :libelle LIMIT 1',
-                ['libelle' => $serviceInstructeur]
-            );
-            if (false !== $groupRowFetch) {
-                $servInstructeurPrenomContact = $groupRowFetch['PRENOM_UTILISATEURINFORMATIONS'] ?? '';
-                $servInstructeurNomContact = $groupRowFetch['NOM_UTILISATEURINFORMATIONS'] ?? '';
-                $servInstructeurMail = $groupRowFetch['MAIL_UTILISATEURINFORMATIONS'] ?? '';
-            } elseif (null !== $numInsee) {
-                /** @var array<string, string|null>|false $communeRowFetch */
-                $communeRowFetch = $this->conn->fetchAssociative(
-                    'SELECT ui.PRENOM_UTILISATEURINFORMATIONS, ui.NOM_UTILISATEURINFORMATIONS, ui.MAIL_UTILISATEURINFORMATIONS
-                     FROM adressecommune ac
-                     JOIN utilisateurinformations ui ON ui.ID_UTILISATEURINFORMATIONS = ac.ID_UTILISATEURINFORMATIONS
-                     WHERE ac.NUMINSEE_COMMUNE = :numInsee LIMIT 1',
-                    ['numInsee' => $numInsee]
-                );
-                if (false !== $communeRowFetch) {
-                    $servInstructeurPrenomContact = $communeRowFetch['PRENOM_UTILISATEURINFORMATIONS'] ?? '';
-                    $servInstructeurNomContact = $communeRowFetch['NOM_UTILISATEURINFORMATIONS'] ?? '';
-                    $servInstructeurMail = $communeRowFetch['MAIL_UTILISATEURINFORMATIONS'] ?? '';
-                }
-            }
-        }
-
-        $this->addChamp($odf, 'servInstructeur', $serviceInstructeur ?? '');
-        $this->addChamp($odf, 'servInstructeurPrenomContact', $servInstructeurPrenomContact);
-        $this->addChamp($odf, 'servInstructeurNomContact', $servInstructeurNomContact);
-        $this->addChamp($odf, 'servInstructeurMail', $servInstructeurMail);
+        $contact = $this->getContactServiceInstructeur($dossier);
+        $this->addChamp($odf, 'servInstructeur', $dossier->getServiceInstructeur() ?? '');
+        $this->addChamp($odf, 'servInstructeurPrenomContact', $contact?->getPrenom() ?? '');
+        $this->addChamp($odf, 'servInstructeurNomContact', $contact?->getNom() ?? '');
+        $this->addChamp($odf, 'servInstructeurMail', $contact?->getMail() ?? '');
 
         // --- Dérogations dossier ---
         $this->addChamp($odf, 'reglesDerog', $dossier->getReglesDerogation() ?? '');
         $this->addChamp($odf, 'justificationDerog', $dossier->getJustificationDerogation() ?? '');
         $this->addChamp($odf, 'mesuresCompensatoiresDerog', $dossier->getMesuresCompensatoires() ?? '');
         $this->addChamp($odf, 'mesuresComplementairesDerog', $dossier->getMesuresComplementaires() ?? '');
+    }
+
+    private function getContactServiceInstructeur(Dossier $dossier): ?UtilisateurInformations
+    {
+        $serviceInstructeur = $dossier->getServiceInstructeur();
+        if (null === $serviceInstructeur) {
+            return null;
+        }
+
+        return match ($dossier->getTypeServiceInstructeur()) {
+            'servInstCommune' => $this->communeRepository->findFirstByLibelle($serviceInstructeur)?->getUtilisateurInformations(),
+            'servInstGrp' => $this->groupementRepository->findOneBy(['libelle' => $serviceInstructeur])?->getInformations(),
+            default => null,
+        };
     }
 
     /**

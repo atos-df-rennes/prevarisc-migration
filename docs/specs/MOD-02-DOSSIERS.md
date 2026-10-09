@@ -161,6 +161,10 @@ Selon la nature du dossier, différents champs d'instruction sont disponibles :
 - Numéro(s) de document d'urbanisme (un dossier peut avoir plusieurs numéros)
 - Commission compétente
 - Service instructeur (groupement de communes ou commune)
+
+Le service instructeur est renseigné dans un sélecteur unique proposant des groupements et des communes par autocomplétion, ainsi que la saisie libre. La sélection d'une suggestion enregistre son libellé et son type (commune ou groupement), sans champ de type visible supplémentaire. Deux suggestions homonymes de types différents restent distinctes. Une saisie libre enregistre seulement le libellé ; son type reste vide. L'effacement du service efface aussi son type.
+
+En modification, le libellé et le type existants sont conservés tant que la sélection n'est pas modifiée. Aucun type manquant n'est déduit automatiquement du libellé : pour le compléter, l'utilisateur doit resélectionner une suggestion puis sauvegarder le dossier.
 - Descriptif général
 - Descriptif libre (champ de texte riche)
 - Observations

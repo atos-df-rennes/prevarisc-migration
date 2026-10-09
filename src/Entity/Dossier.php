@@ -225,6 +225,9 @@ class Dossier
     #[ORM\Column(name: 'SERVICEINSTRUC_DOSSIER', type: Types::STRING, length: 255, nullable: true)]
     private ?string $serviceInstructeur = null;
 
+    #[ORM\Column(name: 'TYPESERVINSTRUC_DOSSIER', type: Types::STRING, length: 15, nullable: true)]
+    private ?string $typeServiceInstructeur = null;
+
     #[ORM\ManyToOne(targetEntity: Avis::class)]
     #[ORM\JoinColumn(name: 'AVIS_DOSSIER', referencedColumnName: 'ID_AVIS', nullable: true, options: ['unsigned' => true])]
     private ?Avis $avis = null;
@@ -1057,6 +1060,18 @@ class Dossier
         // Normaliser les valeurs "0" et vides en null
         // Évite de persister des données legacy depuis le code Symfony
         $this->serviceInstructeur = in_array($serviceInstructeur, ['0', ''], true) ? null : $serviceInstructeur;
+
+        return $this;
+    }
+
+    public function getTypeServiceInstructeur(): ?string
+    {
+        return $this->typeServiceInstructeur;
+    }
+
+    public function setTypeServiceInstructeur(?string $typeServiceInstructeur): self
+    {
+        $this->typeServiceInstructeur = '' === $typeServiceInstructeur ? null : $typeServiceInstructeur;
 
         return $this;
     }
