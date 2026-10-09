@@ -407,16 +407,7 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'natureDossier', $natureDossierLabel);
 
         // --- Commission ---
-        $commissionInfos = 'Aucune commission';
-        $commission = $dossier->getCommission();
-        if (!empty($commission?->getId())) {
-            $libelleCommission = $commission->getLibelle();
-            if (!empty($libelleCommission)) {
-                $commissionInfos = $libelleCommission;
-            }
-        }
-
-        $this->addChamp($odf, 'libelle_commission', $commissionInfos);
+        $this->addChamp($odf, 'libelle_commission', $dossier->getCommission()?->getLibelle() ?: 'Aucune commission');
 
         // --- dateCommEntete ---
         $dateCommEntete = 'Indisponible';
@@ -484,13 +475,11 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'demandeurDossier', $dossier->getDemandeur() ?? '');
 
         // --- servInstructeur ---
-        $servInstructeur = '';
         $servInstructeurPrenomContact = '';
         $servInstructeurNomContact = '';
         $servInstructeurMail = '';
         $serviceInstructeur = $dossier->getServiceInstructeur();
-        if (!empty($serviceInstructeur)) {
-            $servInstructeur = $serviceInstructeur;
+        if (null !== $serviceInstructeur) {
             /** @var array<string, string|null>|false $groupRowFetch */
             $groupRowFetch = $this->conn->fetchAssociative(
                 'SELECT g.LIBELLE_GROUPEMENT, ui.PRENOM_UTILISATEURINFORMATIONS, ui.NOM_UTILISATEURINFORMATIONS, ui.MAIL_UTILISATEURINFORMATIONS
@@ -521,7 +510,7 @@ class DossierRapportOdtService
             }
         }
 
-        $this->addChamp($odf, 'servInstructeur', $servInstructeur);
+        $this->addChamp($odf, 'servInstructeur', $serviceInstructeur ?? '');
         $this->addChamp($odf, 'servInstructeurPrenomContact', $servInstructeurPrenomContact);
         $this->addChamp($odf, 'servInstructeurNomContact', $servInstructeurNomContact);
         $this->addChamp($odf, 'servInstructeurMail', $servInstructeurMail);
@@ -694,8 +683,7 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'numHeberge', (string) $numHeberge);
 
         // Avis dossier
-        $avisDossier = $dossier->getAvis();
-        $this->addChamp($odf, 'avisDossier', !empty($avisDossier?->getId()) ? ($avisDossier->getLibelle() ?? '') : '');
+        $this->addChamp($odf, 'avisDossier', $dossier->getAvis()?->getLibelle() ?? '');
 
         $avisDossierCommRow = null;
         if (!empty($rawDossier['AVIS_DOSSIER_COMMISSION'])) {
