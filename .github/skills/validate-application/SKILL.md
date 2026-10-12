@@ -15,11 +15,12 @@ castor symfony:validate
 
 The task executes these checks sequentially and stops at the first failure:
 
-1. PHPStan: `tools/vendor/bin/phpstan --memory-limit=-1`
-2. Rector check: `tools/vendor/bin/rector --dry-run`
-3. PHP-CS-Fixer check: `tools/vendor/bin/php-cs-fixer fix --dry-run`
-4. Twig-CS-Fixer check: `tools/vendor/bin/twig-cs-fixer check`
-5. PHPUnit: `php vendor/bin/phpunit --testdox --exclude-group functional`
+1. Git conflict markers: `symfony:conflicts` (Swiss Knife, excluding dependencies and generated files)
+2. PHPStan: `tools/vendor/bin/phpstan --memory-limit=-1`
+3. Rector check: `tools/vendor/bin/rector --dry-run`
+4. PHP-CS-Fixer check: `tools/vendor/bin/php-cs-fixer fix --dry-run`
+5. Twig-CS-Fixer check: `tools/vendor/bin/twig-cs-fixer check`
+6. PHPUnit: `php vendor/bin/phpunit --testdox --exclude-group functional`
 
 Castor runs them inside the `app` container with `/var/www/html/prevarisc-migration` as the working directory. The relevant task definitions are in `prevarisc-infra/.castor/symfony.php`.
 
@@ -29,9 +30,12 @@ For individual checks, Castor also provides:
 castor symfony:analyse
 castor symfony:test
 castor symfony:cs
+castor symfony:conflicts
 ```
 
 `castor symfony:cs` applies PHP-CS-Fixer and Twig-CS-Fixer changes; it is not a check-only command. Use `castor symfony:validate` for the non-mutating style checks.
+
+`castor symfony:dependencies` checks both Composer projects using Swiss Knife installed in `tools/`; `--target=app` or `--target=tools` restricts the scope. It remains outside validation because it depends on network/cache state. `castor symfony:duplicates` diagnoses PHP clones in `src/` with a default threshold of 150 tokens; it also remains outside validation and returns a nonzero exit code for detected clones or execution errors.
 
 Do not invoke the underlying validation tools directly in local sessions. If access permissions, Docker, or another environment issue prevents Castor validation, report the blocker rather than switching to direct commands. A local fallback requires explicit user authorization.
 
