@@ -6,7 +6,7 @@ annule l'execution precedente ; les executions sur push ne sont pas annulees.
 
 ## Controles
 
-Les sept jobs sont independants et s'executent en parallele sur `ubuntu-latest`
+Les huit jobs sont independants et s'executent en parallele sur `ubuntu-latest`
 avec PHP 8.5, sans Castor ni service de base de donnees :
 
 | Job | Commande |
@@ -18,11 +18,20 @@ avec PHP 8.5, sans Castor ni service de base de donnees :
 | PHPUnit | `php vendor/bin/phpunit --testdox --exclude-group functional` |
 | Git conflict markers | `tools/vendor/bin/swiss-knife check-conflicts .` avec exclusions des dependances et fichiers generes |
 | Composer audit | `composer audit --locked` a la racine et dans `tools/` |
+| Outdated dependencies (informational) | `tools/vendor/bin/swiss-knife breakpoint --limit 5` a la racine, puis `vendor/bin/swiss-knife breakpoint --limit 5` dans `tools/` |
 
-Les outils de style et Rector ne modifient pas le code. Chaque controle est
-bloquant. L'audit ignore les paquets abandonnes, comme la CI historique, mais
+Les outils de style et Rector ne modifient pas le code. Les sept controles
+initiaux sont bloquants. L'audit ignore les paquets abandonnes, comme la CI historique, mais
 echoue en cas de vulnerabilite connue. Les deux projets Composer sont audites,
 meme si le premier audit echoue.
+
+Le job `dependencies` est uniquement informatif (`continue-on-error: true`).
+Il signale les dependances directes en retard de mise a jour pour les deux
+projets Composer, avec le seuil de cinq paquets utilise par la tache Castor
+`symfony:dependencies`. Le second controle s'execute meme si le premier depasse
+le seuil, a condition que l'installation ait reussi. Les echecs restent visibles
+dans les logs du job, mais ne font pas echouer le workflow. Ce controle ne
+remplace pas l'audit de securite.
 
 Les tests qui dependent d'une base de donnees ou de donnees de reference portent
 le groupe PHPUnit `functional`, y compris ceux dans `tests/Repository/`.
