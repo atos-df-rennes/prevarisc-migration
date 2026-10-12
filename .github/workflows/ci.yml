@@ -1,0 +1,166 @@
+name: Prevarisc CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  APP_ENV: dev
+  APP_DEBUG: '1'
+  APP_SECRET: ci-only-not-a-production-secret
+  APP_RUNTIME_OPTIONS: '{"disable_dotenv":true}'
+  DATABASE_URL: 'mysql://ci:ci@127.0.0.1:3306/prevarisc_ci?serverVersion=11.8.8-MariaDB&charset=utf8mb4'
+
+jobs:
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          app: 'true'
+          tools: 'true'
+      - name: Restore PHPStan cache
+        uses: actions/cache@v6
+        with:
+          path: var/cache/phpstan
+          key: ${{ runner.os }}-php85-phpstan-${{ hashFiles('composer.lock', 'tools/composer.lock', 'phpstan*.neon*', 'config/**') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-php85-phpstan-${{ hashFiles('composer.lock', 'tools/composer.lock', 'phpstan*.neon*', 'config/**') }}-
+      - name: Analyse PHP
+        run: tools/vendor/bin/phpstan --memory-limit=-1 --no-progress
+
+  rector:
+    name: Rector
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          app: 'true'
+          tools: 'true'
+      - name: Restore Rector cache
+        uses: actions/cache@v6
+        with:
+          path: var/cache/rector
+          key: ${{ runner.os }}-php85-rector-${{ hashFiles('composer.lock', 'tools/composer.lock', 'rector.php') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-php85-rector-${{ hashFiles('composer.lock', 'tools/composer.lock', 'rector.php') }}-
+      - name: Check refactoring
+        run: tools/vendor/bin/rector --dry-run --no-progress-bar
+
+  php-cs-fixer:
+    name: PHP-CS-Fixer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          tools: 'true'
+      - name: Restore PHP-CS-Fixer cache
+        uses: actions/cache@v6
+        with:
+          path: .php-cs-fixer.cache
+          key: ${{ runner.os }}-php85-php-cs-fixer-${{ hashFiles('tools/composer.lock', '.php-cs-fixer.dist.php') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-php85-php-cs-fixer-${{ hashFiles('tools/composer.lock', '.php-cs-fixer.dist.php') }}-
+      - name: Check PHP style
+        run: tools/vendor/bin/php-cs-fixer fix --dry-run --diff
+
+  twig-cs-fixer:
+    name: Twig-CS-Fixer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          tools: 'true'
+      - name: Restore Twig-CS-Fixer cache
+        uses: actions/cache@v6
+        with:
+          path: .twig-cs-fixer.cache
+          key: ${{ runner.os }}-php85-twig-cs-fixer-${{ hashFiles('tools/composer.lock', '.twig-cs-fixer.dist.php', 'linter/**') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-php85-twig-cs-fixer-${{ hashFiles('tools/composer.lock', '.twig-cs-fixer.dist.php', 'linter/**') }}-
+      - name: Check Twig style
+        run: tools/vendor/bin/twig-cs-fixer check
+
+  phpunit:
+    name: PHPUnit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_ENV: test
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          app: 'true'
+      - name: Run tests without database-dependent scenarios
+        run: php vendor/bin/phpunit --testdox --exclude-group functional
+
+  conflicts:
+    name: Git conflict markers
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          tools: 'true'
+      - name: Check conflict markers
+        run: >-
+          tools/vendor/bin/swiss-knife check-conflicts .
+          --exclude /.git/
+          --exclude /var/
+          --exclude /public/bundles/
+          --exclude /cypress/screenshots/
+          --exclude /cypress/videos/
+          --exclude /bin/.phpunit/
+          --exclude /vendor/
+          --exclude /node_modules/
+
+  audit:
+    name: Composer audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      COMPOSER_AUDIT_ABANDONED: ignore
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Audit application dependencies
+        run: composer audit --locked
+      - name: Audit tooling dependencies
+        if: ${{ !cancelled() }}
+        working-directory: tools
+        run: composer audit --locked
