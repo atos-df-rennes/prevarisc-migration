@@ -130,9 +130,10 @@ L'administrateur dispose d'une interface listant les **types de commissions** so
 **Supprimer une commission :**
 
 1. La suppression d'une commission entraîne la suppression en cascade de :
-   - Tous les **contacts** associés.
-   - Tous les **membres** et leurs documents modèles.
+   - Les liens vers les **contacts** associés ; un contact partagé avec d'autres éléments est conservé.
+   - Tous les **membres** et leurs courriers types.
    - Toutes les **règles de compétence**.
+   - Une tentative de suppression du **répertoire des modèles de rapports** associé à la commission.
 2. La commission est définitivement retirée du système.
 
 ### 4.2 Configurer les règles de compétence
@@ -380,7 +381,7 @@ Cette fonctionnalité n'est disponible que si une clé de sécurité est configu
 
 **RG-COM-002** — Le libellé d'une commission est obligatoire et sert d'identifiant fonctionnel.
 
-**RG-COM-003** — La suppression d'une commission entraîne la suppression en cascade de ses contacts, de ses membres (et de leurs documents modèles), et de ses règles de compétence.
+**RG-COM-003** — La suppression d'une commission supprime ses liens avec les contacts associés ; un contact encore utilisé ailleurs est conservé. Elle entraîne également la suppression de ses membres et de leurs courriers types, ainsi que de ses règles de compétence. L'application tente de supprimer le répertoire de modèles de rapports de la commission ; si cette suppression échoue, la commission reste supprimée et le répertoire peut subsister. Le modèle de compte-rendu propre à la commission, stocké séparément, n'est pas supprimé.
 
 **RG-COM-004** — L'administrateur peut créer plusieurs commissions en lot lors d'une même opération.
 
