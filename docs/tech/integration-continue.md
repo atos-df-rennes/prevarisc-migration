@@ -6,7 +6,7 @@ annule l'execution precedente ; les executions sur push ne sont pas annulees.
 
 ## Controles
 
-Les huit jobs sont independants et s'executent en parallele sur `ubuntu-latest`
+Les sept jobs sont independants et s'executent en parallele sur `ubuntu-latest`
 avec PHP 8.5, sans Castor ni service de base de donnees :
 
 | Job | Commande |
@@ -18,25 +18,36 @@ avec PHP 8.5, sans Castor ni service de base de donnees :
 | PHPUnit | `php vendor/bin/phpunit --testdox --exclude-group functional` |
 | Git conflict markers | `tools/vendor/bin/swiss-knife check-conflicts .` avec exclusions des dependances et fichiers generes |
 | Composer audit | `composer audit --locked` a la racine et dans `tools/` |
-| Outdated dependencies (informational) | `tools/vendor/bin/swiss-knife breakpoint --limit 5` a la racine, puis `vendor/bin/swiss-knife breakpoint --limit 5` dans `tools/` |
 
 Les outils de style et Rector ne modifient pas le code. Les sept controles
-initiaux sont bloquants. L'audit ignore les paquets abandonnes, comme la CI historique, mais
+sont bloquants. L'audit ignore les paquets abandonnes, comme la CI historique, mais
 echoue en cas de vulnerabilite connue. Les deux projets Composer sont audites,
 meme si le premier audit echoue.
 
+Les tests qui dependent d'une base de donnees ou de donnees de reference portent
+le groupe PHPUnit `functional`, y compris ceux dans `tests/Repository/`.
+Cypress, les controles du titre et des labels de PR, ainsi que le deploiement
+ne font pas partie de ce workflow.
+
+## Surveillance hebdomadaire des dependances
+
+Le workflow `.github/workflows/dependencies.yml` s'execute chaque lundi a
+06:17 UTC (`17 6 * * 1`) sur la branche par defaut du depot, sans declenchement
+sur PR ou push. GitHub peut retarder une execution planifiee.
+Il peut aussi etre lance manuellement depuis GitHub Actions
+(`workflow_dispatch`), notamment pour verifier une mise a jour sans attendre
+le prochain lundi. Le workflow doit etre present sur la branche par defaut
+pour que ces declencheurs soient disponibles.
+
 Le job `dependencies` est uniquement informatif (`continue-on-error: true`).
+Il execute `tools/vendor/bin/swiss-knife breakpoint --limit 5` a la racine,
+puis `vendor/bin/swiss-knife breakpoint --limit 5` dans `tools/`.
 Il signale les dependances directes en retard de mise a jour pour les deux
 projets Composer, avec le seuil de cinq paquets utilise par la tache Castor
 `symfony:dependencies`. Le second controle s'execute meme si le premier depasse
 le seuil, a condition que l'installation ait reussi. Les echecs restent visibles
 dans les logs du job, mais ne font pas echouer le workflow. Ce controle ne
 remplace pas l'audit de securite.
-
-Les tests qui dependent d'une base de donnees ou de donnees de reference portent
-le groupe PHPUnit `functional`, y compris ceux dans `tests/Repository/`.
-Cypress, les controles du titre et des labels de PR, ainsi que le deploiement
-ne font pas partie de ce workflow.
 
 ## Environnement
 

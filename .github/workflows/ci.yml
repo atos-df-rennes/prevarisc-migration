@@ -164,24 +164,3 @@ jobs:
         if: ${{ !cancelled() }}
         working-directory: tools
         run: composer audit --locked
-
-  dependencies:
-    name: Outdated dependencies (informational)
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: ./.github/actions/setup
-        id: setup
-        with:
-          app: 'true'
-          tools: 'true'
-      - name: Check application dependency updates
-        run: tools/vendor/bin/swiss-knife breakpoint --limit 5
-      - name: Check tooling dependency updates
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        working-directory: tools
-        run: vendor/bin/swiss-knife breakpoint --limit 5
