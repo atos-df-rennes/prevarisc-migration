@@ -9,6 +9,8 @@ This is the independent Git repository for the current production application. B
 - Do not use Doctrine `findAll()` without pagination.
 - Do not add Symfony Messenger, a scheduler, or another feature requiring a long-running worker process; client infrastructure changes are too costly to roll out.
 - Preserve existing behavior unless the user approves a behavior change.
+- For bug fixes, keep the implementation limited to the identified root cause and agreed scope. Present optional validation, UX, persistence, or business-rule changes separately and do not include them without approval.
+- Prefer existing Symfony, PHP, and browser capabilities over custom helpers or substantial JavaScript/CSS. Avoid mixing custom behavior with a library's behavior unless the requirement calls for it; choose the simplest solution that meets the request.
 - Never modify the frozen Zend reference. For historical comparisons, use the `analyse-legacy` skill when the sibling checkout or GitHub repository is accessible.
 
 ## Git and delivery
@@ -19,9 +21,11 @@ This is the independent Git repository for the current production application. B
 
 ## Validation
 
-- Prefer `castor symfony:validate` from the sibling `prevarisc-infra` repository when it and its Docker environment are available.
-- The `validate-application` skill documents the exact checks Castor runs and how to execute the underlying tools from this repository.
+- In local CLI sessions, the `prevarisc-infra` checkout is available: always run validation through its Castor tasks from the infrastructure repository root. Use `castor symfony:validate` for full validation or the appropriate targeted Castor task. Do not invoke the underlying validation tools directly.
+- If local Castor validation is blocked by access permissions, Docker, or another environment issue, report the blocker; do not substitute direct tool commands unless the user explicitly authorizes it.
+- Direct validation commands are a fallback only for remote/cloud delegated sessions without the infrastructure checkout or Docker environment. The `validate-application` skill documents this fallback and the checks Castor runs. Local subagents follow the same Castor requirement as the main local session.
 - In a local CLI session started here, `/add-dir /path/to/prevarisc-infra` loads the sibling repository's skills and agents, including `run-linters`. This local configuration does not make those files available to a remote delegated task.
+- Test application-owned behavior at the lowest appropriate layer. Avoid heavyweight test-only database/query instrumentation or tests of dependency-owned document rendering unless the application behavior specifically requires them; use Cypress for browser UI behavior.
 - See the `testing.instructions.md` path-specific instruction for test conventions.
 
 ## Functional specifications

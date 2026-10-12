@@ -133,9 +133,10 @@ Le bouton **« Gérer les commissions »** ouvre un écran distinct d'édition e
 
 1. L'administrateur retire la commission de la liste d'édition en masse, puis sauvegarde.
 2. La suppression d'une commission entraîne :
-   - La dissociation des **contacts** associés ; une fiche contact n'est supprimée que si elle n'est plus utilisée ailleurs.
-   - La suppression de tous les **membres** et de leurs documents modèles.
+   - La dissociation des **contacts** associés ; un contact partagé avec d'autres éléments est conservé.
+   - La suppression de tous les **membres** et de leurs courriers types.
    - La suppression de toutes les **règles de compétence**.
+   - Une tentative de suppression du **répertoire des modèles de rapports** associé à la commission.
 3. La commission est définitivement retirée du système.
 
 ### 4.2 Configurer les règles de compétence
@@ -391,7 +392,7 @@ Seuls les liens de synchronisation nécessitent qu'une clé de sécurité soit c
 
 **RG-COM-002** — Le libellé d'une commission est obligatoire et sert d'identifiant fonctionnel.
 
-**RG-COM-003** — La suppression d'une commission dissocie ses contacts et supprime uniquement les fiches qui ne sont plus utilisées ailleurs. Elle supprime ses membres, leurs documents modèles et ses règles de compétence.
+**RG-COM-003** — La suppression d'une commission supprime ses liens avec les contacts associés ; un contact encore utilisé ailleurs est conservé. Elle entraîne également la suppression de ses membres et de leurs courriers types, ainsi que de ses règles de compétence. L'application tente de supprimer le répertoire de modèles de rapports de la commission ; si cette suppression échoue, la commission reste supprimée et le répertoire peut subsister. Le modèle de compte-rendu propre à la commission, stocké séparément, n'est pas supprimé.
 
 **RG-COM-004** — L'administrateur peut créer plusieurs commissions en lot lors d'une même opération.
 

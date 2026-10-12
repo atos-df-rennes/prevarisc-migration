@@ -40,6 +40,6 @@ git diff --name-only --diff-filter=U
 grep -rl "^<<<<<<<\|^=======\|^>>>>>>>" --include="*.php" --include="*.twig" --include="*.json" . | grep -v vendor
 ```
 
-Run `castor symfony:validate` from the sibling infra repository when available, or follow `validate-application` for project-local checks. Distinguish failures introduced by the merge from known baseline failures and report any validation that could not be run.
+In local CLI sessions and local subagents, run `castor symfony:validate` from the infrastructure repository root. Report local environment blockers instead of substituting direct commands. Follow `validate-application` for the remote/cloud delegated fallback. Distinguish failures introduced by the merge from known baseline failures and report any validation that could not be run.
 
 If the user requests a commit, follow the repository's Conventional Commit format and include its required Copilot co-author trailer.

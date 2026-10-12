@@ -868,29 +868,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     }
 
     /**
-     * Retourne le type d'un dossier (Etude=1 / Visite=2,3 / Courrier=5 etc.).
-     * Port direct de Model_DbTable_Dossier::getTypeDossier().
-     *
-     * @return array<string, mixed>|false
-     */
-    public function getTypeDossier(int $idDossier)
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('IDENTITY(d.type) as TYPE_DOSSIER')
-            ->where('d.id = :id')
-            ->setParameter('id', $idDossier)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        if (null === $result) {
-            return false;
-        }
-
-        /* @var array<string, mixed> $result */
-        return $result;
-    }
-
-    /**
      * Retourne les dossiers avec délai de prescription à lever.
      * Port direct de Service_Dashboard::getLeveePresc().
      * Les dossiers ayant un dossier lié de nature 7 (levée prescriptions), 19 (levée avis déf.) ou 46 (échéancier travaux) sont exclus.
@@ -1379,21 +1356,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         return is_numeric($result['id']) ? (int) $result['id'] : null;
-    }
-
-    /**
-     * Retourne le type d'un dossier (Etude=1/Visite=2,3/Courrier=5…).
-     * Port direct de Model_DbTable_Dossier::getTypeDossier() — retourne int ou null.
-     */
-    public function getDossierType(int $idDossier): ?int
-    {
-        $row = $this->getTypeDossier($idDossier);
-
-        if (!is_array($row) || !isset($row['TYPE_DOSSIER'])) {
-            return null;
-        }
-
-        return is_numeric($row['TYPE_DOSSIER']) ? (int) $row['TYPE_DOSSIER'] : null;
     }
 
     /**

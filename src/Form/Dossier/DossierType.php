@@ -127,9 +127,22 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
             ])
-            ->add('serviceInstructeur', TextType::class, [
+            ->add('serviceInstructeur', HiddenType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(max: 255),
+                ],
+            ])
+            ->add('typeServiceInstructeur', HiddenType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Choice(choices: ['servInstCommune', 'servInstGrp']),
+                ],
+            ])
+            ->add('serviceInstructeurSelection', TextType::class, [
                 'label' => 'Service instructeur',
                 'required' => false,
+                'mapped' => false,
                 'attr' => [
                     'class' => 'tomselect-ajax',
                     'placeholder' => 'Sélectionnez ou saisissez un service instructeur',
@@ -138,9 +151,6 @@ class DossierType extends AbstractType
                         'maxItems' => 1,
                         'plugins' => [],
                     ]),
-                ],
-                'constraints' => [
-                    new Assert\Length(max: 255),
                 ],
             ])
             ->add('incomplet', ChoiceType::class, [

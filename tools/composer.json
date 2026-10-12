@@ -9,7 +9,7 @@
         "phpmetrics/phpmetrics": "^2.10",
         "tombenevides/dump-linter": "^1.0",
         "vincentlanglet/twig-cs-fixer": "^3.14",
-        "rector/jack": "^1.1"
+        "rector/swiss-knife": "^2.7"
     },
     "autoload": {
       "psr-4": {

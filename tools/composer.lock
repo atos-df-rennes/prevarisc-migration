@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed9e96ac621563d966bc275aaa9e1c3b",
+    "content-hash": "1edc697020f7caedaf0f113df301688b",
     "packages": [
         {
             "name": "clue/ndjson-react",
@@ -291,16 +291,16 @@
         },
         {
             "name": "entropy/entropy",
-            "version": "0.4.29",
+            "version": "0.4.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/TomasVotruba/entropy.git",
-                "reference": "e2dfbd791ab7acea5aed40deefa00b12ad902ca2"
+                "reference": "733042a17988ba7c2c58f5245e9257cb687b7904"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/TomasVotruba/entropy/zipball/e2dfbd791ab7acea5aed40deefa00b12ad902ca2",
-                "reference": "e2dfbd791ab7acea5aed40deefa00b12ad902ca2",
+                "url": "https://api.github.com/repos/TomasVotruba/entropy/zipball/733042a17988ba7c2c58f5245e9257cb687b7904",
+                "reference": "733042a17988ba7c2c58f5245e9257cb687b7904",
                 "shasum": ""
             },
             "require": {
@@ -336,9 +336,9 @@
             "description": "Entropy framework",
             "support": {
                 "issues": "https://github.com/TomasVotruba/entropy/issues",
-                "source": "https://github.com/TomasVotruba/entropy/tree/0.4.29"
+                "source": "https://github.com/TomasVotruba/entropy/tree/0.4.30"
             },
-            "time": "2026-10-08T07:55:55+00:00"
+            "time": "2026-10-10T07:02:38+00:00"
         },
         {
             "name": "ergebnis/agent-detector",
@@ -1693,71 +1693,6 @@
             "time": "2024-06-11T12:45:25+00:00"
         },
         {
-            "name": "rector/jack",
-            "version": "1.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rectorphp/jack.git",
-                "reference": "c47b0ab4fdaa950197ba681ecca4caa593e5b835"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/jack/zipball/c47b0ab4fdaa950197ba681ecca4caa593e5b835",
-                "reference": "c47b0ab4fdaa950197ba681ecca4caa593e5b835",
-                "shasum": ""
-            },
-            "require": {
-                "composer/semver": "^3.5",
-                "entropy/entropy": "^0.4.17",
-                "php": ">=7.4",
-                "symfony/polyfill-php80": "^1.31",
-                "symfony/process": "^5.4 || ^6.4 || ^7.0 || ^8.1"
-            },
-            "require-dev": {
-                "php-parallel-lint/php-parallel-lint": "^1.4",
-                "phpstan/extension-installer": "^1.4",
-                "phpstan/phpstan": "^2.2",
-                "phpunit/phpunit": "^9.6",
-                "rector/rector": "^2.6",
-                "rector/swiss-knife": "^2.6",
-                "shipmonk/composer-dependency-analyser": "^1.8",
-                "symplify/easy-coding-standard": "^13.3",
-                "symplify/phpstan-rules": "^14.17",
-                "tomasvotruba/class-leak": "^2.3",
-                "tracy/tracy": "^2.12"
-            },
-            "bin": [
-                "bin/jack"
-            ],
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Rector\\Jack\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Jack helps you incrementally update your `composer.json` dependencies, ensuring your project stays current without the chaos of outdated packages",
-            "support": {
-                "issues": "https://github.com/rectorphp/jack/issues",
-                "source": "https://github.com/rectorphp/jack/tree/1.2.1"
-            },
-            "funding": [
-                {
-                    "url": "https://www.paypal.me/rectorphp",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/tomasvotruba",
-                    "type": "github"
-                }
-            ],
-            "abandoned": "rector/swiss-knife",
-            "time": "2026-09-30T13:15:24+00:00"
-        },
-        {
             "name": "rector/rector",
             "version": "2.7.0",
             "source": {
@@ -1813,6 +1748,72 @@
                 }
             ],
             "time": "2026-10-06T08:46:45+00:00"
+        },
+        {
+            "name": "rector/swiss-knife",
+            "version": "2.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rectorphp/swiss-knife.git",
+                "reference": "f902fdefd3c1fe56885d2d164a33704e3d86634e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rectorphp/swiss-knife/zipball/f902fdefd3c1fe56885d2d164a33704e3d86634e",
+                "reference": "f902fdefd3c1fe56885d2d164a33704e3d86634e",
+                "shasum": ""
+            },
+            "require": {
+                "composer/semver": "^3.5",
+                "entropy/entropy": "^0.4.23",
+                "ext-tokenizer": "*",
+                "nikic/php-parser": "^5.9",
+                "php": ">=7.4",
+                "symfony/process": "^5.4 || ^6.4 || ^7.0 || ^8.1"
+            },
+            "require-dev": {
+                "phpstan/extension-installer": "^1.4",
+                "phpstan/phpstan": "^2.2",
+                "phpunit/phpunit": "^9.6",
+                "rector/rector": "^2.4",
+                "shipmonk/composer-dependency-analyser": "^1.8",
+                "symfony/config": "^6.4",
+                "symfony/dependency-injection": "^6.4",
+                "symplify/easy-coding-standard": "^13.2",
+                "symplify/phpstan-rules": "^14.12",
+                "tomasvotruba/class-leak": "^2.1",
+                "tomasvotruba/unused-public": "^2.2",
+                "tracy/tracy": "^2.12"
+            },
+            "bin": [
+                "bin/swiss-knife"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Rector\\SwissKnife\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Swiss knife in pocket of every upgrade architect",
+            "support": {
+                "issues": "https://github.com/rectorphp/swiss-knife/issues",
+                "source": "https://github.com/rectorphp/swiss-knife/tree/2.7.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.paypal.me/rectorphp",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/tomasvotruba",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-10-02T09:27:57+00:00"
         },
         {
             "name": "sebastian/diff",
