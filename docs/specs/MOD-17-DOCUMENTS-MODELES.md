@@ -108,7 +108,7 @@ Documents modèles
 
 **Niveau 2 — Type de commission :** regroupement visuel des commissions par type (sous-commission départementale, commission communale, groupe de visite, etc.).
 
-**Niveau 3 — Commission :** chaque commission dispose de son propre répertoire de modèles. Un répertoire est automatiquement créé lors de la création d'une commission.
+**Niveau 3 — Commission :** chaque commission dispose de son propre répertoire de modèles. Un répertoire est automatiquement créé lors de la création d'une commission. La suppression de la commission entraîne une tentative de suppression de ce répertoire (RG-DOC-019).
 
 ---
 
@@ -195,7 +195,7 @@ Depuis une séance de commission, quatre types de documents peuvent être géné
 |---|---|---|
 | **Convocation** | Courrier de convocation rattaché à chaque membre | Membres de la commission concernés par les dossiers |
 | **Ordre du jour** | Courrier ODJ rattaché à chaque membre | Membres de la commission |
-| **Procès-verbal** | Modèles de rapports de la commission (même bibliothèque que le module) | Document officiel de la séance |
+| **Procès-verbal** | Courrier de procès-verbal rattaché à un membre de la commission | Document officiel de la séance |
 | **Compte-rendu** | Modèle de compte-rendu rattaché à la commission | Document officiel de la séance |
 
 Pour les convocations et ordres du jour, la génération utilise les courriers types rattachés individuellement à chaque membre de commission. Chaque membre ne reçoit que les informations des dossiers correspondant à ses compétences (catégories, types d'activité, classes, types de dossier).
@@ -207,7 +207,7 @@ Pour les convocations et ordres du jour, la génération utilise les courriers t
 | Référence | Règle |
 |---|---|
 | **RG-DOC-001** | Seuls les fichiers au format ODT sont acceptés. Tout autre format est rejeté avec un message d'erreur explicite. |
-| **RG-DOC-002** | Chaque commission dispose de son propre espace de stockage de modèles. Un espace est automatiquement créé lors de la création d'une nouvelle commission. |
+| **RG-DOC-002** | Chaque commission dispose de son propre espace de stockage de modèles. Un espace est automatiquement créé lors de la création d'une nouvelle commission. Sa suppression est tentée lorsque la commission est supprimée (RG-DOC-019). |
 | **RG-DOC-003** | L'espace « Documents visibles après verrouillage » est transversal, non rattaché à une commission. Il est accessible depuis tous les dossiers. |
 | **RG-DOC-004** | Lorsqu'un dossier est verrouillé, seuls les modèles de l'espace transversal (après verrouillage) sont proposés à la génération. Les modèles spécifiques aux commissions ne sont plus accessibles. |
 | **RG-DOC-005** | Lorsqu'un dossier n'est pas verrouillé, la commission du dossier est présélectionnée par défaut. L'utilisateur peut choisir les modèles d'une autre commission. |
@@ -220,10 +220,11 @@ Pour les convocations et ordres du jour, la génération utilise les courriers t
 | **RG-DOC-012** | Un document est généré par établissement sélectionné. Si trois établissements sont cochés, trois documents sont produits à partir du même modèle. |
 | **RG-DOC-013** | Les commissions sont regroupées visuellement par type de commission, aussi bien dans l'écran d'administration que dans les listes déroulantes de sélection. |
 | **RG-DOC-014** | Le modèle de compte-rendu d'une commission est unique : l'envoi d'un nouveau modèle supprime automatiquement le précédent. |
-| **RG-DOC-015** | Les courriers types des membres de commission (convocation salle, convocation visite, ordre du jour) sont distincts des modèles de rapports. Ils sont gérés depuis la fiche de la commission et non depuis l'écran d'administration des documents. |
+| **RG-DOC-015** | Les courriers types des membres de commission (convocation salle, convocation visite, ordre du jour et, le cas échéant, procès-verbal) sont distincts des modèles de rapports. Ils sont gérés depuis la fiche de la commission et non depuis l'écran d'administration des documents. |
 | **RG-DOC-016** | Les champs de fusion présents dans un modèle qui ne correspondent à aucune donnée disponible sont remplacés par une valeur vide (chaîne vide). Aucune erreur n'est levée. |
 | **RG-DOC-017** | Le champ `categorieEtab` utilise la catégorie effective définie par RG-ETB-062, pour les rapports de dossier et les documents de commission. Pour une cellule, la catégorie du parent direct non supprimé remplace la catégorie propre, y compris lorsqu'elle est vide. Le rapport conserve le premier mot du libellé (ex. `5ème`), les documents de commission conservent le libellé complet. |
 | **RG-DOC-018** | Dans un rapport de dossier, les coordonnées du service instructeur sont celles du service désigné par le libellé et le type enregistrés sur le dossier. Pour une commune, la recherche historique porte sur les communes dont le libellé contient le libellé renseigné, en retenant le libellé le plus court, puis sur sa fiche mairie. Pour un groupement, la recherche porte sur le libellé exact, puis sur sa fiche de coordonnées propre (pas ses contacts liés). Sans type, sans service correspondant ou sans fiche de coordonnées, prénom, nom et courriel restent vides. Aucun repli sur la commune de l'établissement n'est effectué. Le libellé renseigné reste affiché, y compris en saisie libre. |
+| **RG-DOC-019** | Lorsqu'une commission est supprimée, l'application tente de supprimer son répertoire de modèles de rapports et son contenu. Si cette suppression échoue, la commission reste supprimée et le répertoire peut subsister. Cette suppression ne concerne pas le modèle de compte-rendu propre à la commission, qui est stocké séparément. |
 
 La règle RG-DOC-018 reprend la résolution historique des coordonnées, confirmée pour ce correctif ; le maintien du libellé affiché et l'absence de type pour une saisie libre sont les comportements convenus. Un dossier sans type doit être corrigé par resélection du service et sauvegarde (MOD-02), puis son rapport régénéré. Les rapports déjà produits ne sont pas modifiés.
 
@@ -251,9 +252,13 @@ Lors de la génération pour un établissement dont l'activité principale est �
 
 Si le répertoire de stockage d'une commission n'existe pas au moment de la consultation, l'application affiche une alerte non bloquante pour cette commission tout en continuant à afficher les éléments sans erreur. Cela permet à l'administrateur de visualiser les commissions fonctionnelles tout en étant averti des problèmes de répertoires manquants. La création du répertoire se fait automatiquement lors de la création de la commission, mais une intervention manuelle peut être nécessaire en cas de suppression accidentelle.
 
-### 8.6 Suppression d'une commission
+### 8.6 Suppression d'un membre ou d'une commission
 
-Lors de la suppression d'un membre de commission, ses courriers types (convocation salle, convocation visite, ordre du jour) sont automatiquement supprimés. En revanche, la suppression d'une commission ne supprime pas automatiquement les modèles de rapports associés.
+**Suppression d'un membre :** ses courriers types (convocation salle, convocation visite, ordre du jour et, le cas échéant, procès-verbal) sont supprimés. Lorsqu'un membre est supprimé avec sa commission, ses courriers types le sont également. Le modèle de procès-verbal est un courrier du membre, distinct des modèles de rapports de la commission.
+
+**Suppression d'une commission :** l'application tente de supprimer ses modèles de rapports avec le répertoire propre à la commission. Si cette suppression échoue, la commission reste supprimée et le répertoire peut subsister. Le modèle de compte-rendu propre à la commission est stocké séparément et n'est pas supprimé avec ce répertoire.
+
+Le legacy conservait le répertoire des modèles de rapports lors de la suppression d'une commission ; la tentative de suppression actuelle est un changement par rapport à ce comportement historique. Pour la suppression d'un membre, le legacy tentait de supprimer les fichiers ODJ et convocations, mais ne les supprimait pas effectivement en raison du chemin utilisé. Il ne traitait pas le courrier de procès-verbal du membre. L'application actuelle supprime les courriers types définis pour le membre, y compris son procès-verbal le cas échéant.
 
 ### 8.7 Génération de convocations filtrée par compétences
 
