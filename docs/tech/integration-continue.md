@@ -52,7 +52,8 @@ remplace pas l'audit de securite.
 ## Environnement
 
 L'action composite `.github/actions/setup/action.yml` configure PHP et ses
-extensions puis installe uniquement les dependances necessaires a chaque job
+extensions avec `date.timezone=Europe/Paris`, comme le conteneur local,
+puis installe uniquement les dependances necessaires a chaque job
 depuis les fichiers `composer.lock` (application et/ou `tools/`).
 Les scripts Composer sont conserves : ils construisent notamment le conteneur
 Symfony dev utilise par PHPStan et generent les routes JavaScript.

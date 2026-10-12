@@ -16,6 +16,7 @@ runs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.5'
+        ini-values: date.timezone=Europe/Paris
         extensions: ctype, dom, exif, fileinfo, gd, iconv, intl, ldap, mbstring, mysqli, pdo_mysql, SimpleXML, xml, xmlreader, xmlwriter, zip
         coverage: none
         tools: composer:v2
