@@ -18,6 +18,7 @@ Cette documentation reflète l'**état actuel** du code migré vers Symfony 4.4.
 
 ### 🧪 Tests
 
+- **[integration-continue.md](integration-continue.md)** - CI GitHub Actions : contrôles, environnement et caches
 - **[SYSTEME_TESTS_COMPARAISON.md](tests/SYSTEME_TESTS_COMPARAISON.md)** - Système de tests comparatifs Legacy vs Symfony
 - **[TESTS_FONCTIONNELS_AFFICHAGE.md](tests/TESTS_FONCTIONNELS_AFFICHAGE.md)** - Tests fonctionnels pour l'affichage
 

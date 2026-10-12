@@ -7,6 +7,7 @@ use Rector\Symfony\Set\SymfonySetList;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
+    ->withCache(cacheDirectory: __DIR__.'/var/cache/rector')
     ->withPaths([
         __DIR__.'/src',
         __DIR__.'/tests',

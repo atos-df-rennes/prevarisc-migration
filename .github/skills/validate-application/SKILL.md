@@ -56,3 +56,16 @@ Run only checks whose dependencies are installed and report clearly when a check
 ## Tests
 
 The default PHPUnit command excludes the `functional` group. Browser-driven end-to-end tests live under `cypress/`; `tests/Functional/` contains PHPUnit HTTP-level functional tests.
+
+## GitHub Actions
+
+`.github/workflows/ci.yml` runs the tools directly (no Castor on the runner)
+on pull requests and pushes to `develop` and `main`. It also audits both
+Composer lock files. PHP and Composer installation is shared through
+`.github/actions/setup/action.yml`; configuration is supplied through workflow
+environment variables, without generating `.env`.
+
+The PHPUnit job excludes `functional` and requires no database. When `.env`
+is absent, `tests/bootstrap.php` loads `.env.test` only. See
+`docs/tech/integration-continue.md` for the commands, caches and scope.
+This CI configuration does not change the required local Castor workflow.

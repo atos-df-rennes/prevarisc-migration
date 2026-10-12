@@ -1,0 +1,39 @@
+name: Set up PHP and Composer
+description: Prepare PHP 8.5 and optionally install the application and tooling dependencies.
+
+inputs:
+  app:
+    description: Install application dependencies.
+    default: 'false'
+  tools:
+    description: Install tooling dependencies.
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.5'
+        ini-values: date.timezone=Europe/Paris
+        extensions: ctype, dom, exif, fileinfo, gd, iconv, intl, ldap, mbstring, mysqli, pdo_mysql, SimpleXML, xml, xmlreader, xmlwriter, zip
+        coverage: none
+        tools: composer:v2
+
+    - name: Install application dependencies
+      if: inputs.app == 'true'
+      uses: ramsey/composer-install@v4
+      with:
+        composer-options: --prefer-dist
+        require-lock-file: 'true'
+        custom-cache-suffix: app
+
+    - name: Install tooling dependencies
+      if: inputs.tools == 'true'
+      uses: ramsey/composer-install@v4
+      with:
+        working-directory: tools
+        composer-options: --prefer-dist
+        require-lock-file: 'true'
+        custom-cache-suffix: tools

@@ -8,8 +8,10 @@ use App\Entity\DossierNatureListe;
 use App\Entity\DossierType;
 use App\Repository\DossierNatureListeRepository;
 use App\Repository\DossierTypeRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+#[Group('functional')]
 final class DossierNatureListeRepositoryTest extends KernelTestCase
 {
     private DossierNatureListeRepository $repository;
