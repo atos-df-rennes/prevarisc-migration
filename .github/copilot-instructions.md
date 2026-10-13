@@ -13,6 +13,12 @@ This is the independent Git repository for the current production application. B
 - Prefer existing Symfony, PHP, and browser capabilities over custom helpers or substantial JavaScript/CSS. Avoid mixing custom behavior with a library's behavior unless the requirement calls for it; choose the simplest solution that meets the request.
 - Never modify the frozen Zend reference. For historical comparisons, use the `analyse-legacy` skill when the sibling checkout or GitHub repository is accessible.
 
+## Scope and refactoring
+
+- Critically assess the scope of any request before implementation, especially for refactorings or wide-reaching tasks.
+- If a requested change or refactoring touches too many files, responsibilities, or behaviors at once, warn the user upfront that the scope is overly broad and that review, testing, and validation will be difficult to conduct.
+- Proactively propose a reduced, incremental scope focused on a single cohesive part (e.g., an isolated class, method, or single responsibility) before executing, rather than attempting a large-scale change in a single session.
+
 ## Git and delivery
 
 - Never switch or check out another branch without explicit user permission.
