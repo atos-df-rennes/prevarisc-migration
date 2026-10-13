@@ -8,6 +8,7 @@ use Rector\Symfony\Set\SymfonySetList;
 return RectorConfig::configure()
     ->withCache(cacheDirectory: __DIR__.'/var/cache/rector')
     ->withPaths([
+        __DIR__.'/config',
         __DIR__.'/src',
         __DIR__.'/tests',
     ])
@@ -16,7 +17,7 @@ return RectorConfig::configure()
     ->withTypeCoverageLevel(50)
     ->withDeadCodeLevel(50)
     ->withCodeQualityLevel(50)
-    ->withAttributesSets(symfony: true, doctrine: true, phpunit: true)
+    ->withAttributesSets(all: true)
     ->withImportNames(importShortClasses: false, removeUnusedImports: true)
     ->withSets([
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
