@@ -2,24 +2,27 @@
 
 declare(strict_types=1);
 
+use App\Entity\Utilisateur;
+use App\Security\Md5SaltedEncoder;
+use App\Security\FormLoginAuthenticator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->extension('security', [
         'password_hashers' => [
-            'App\Entity\Utilisateur' => [
+            Utilisateur::class => [
                 'algorithm'    => 'auto',
                 'migrate_from' => ['legacy_md5_prevarisc'],
             ],
             // @todo: à retirer (ainsi que le migrate_from) une fois les mots de passe réhashés
             'legacy_md5_prevarisc' => [
-                'id' => 'App\Security\Md5SaltedEncoder',
+                'id' => Md5SaltedEncoder::class,
             ],
         ],
         'providers' => [
             'app_user_provider' => [
                 'entity' => [
-                    'class'    => 'App\Entity\Utilisateur',
+                    'class'    => Utilisateur::class,
                     'property' => 'username',
                 ],
             ],
@@ -40,9 +43,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'lazy' => true,
                 'provider'  => 'app_user_provider',
                 'custom_authenticators' => [
-                    'App\Security\FormLoginAuthenticator',
+                    FormLoginAuthenticator::class,
                 ],
-                'entry_point' => 'App\Security\FormLoginAuthenticator',
+                'entry_point' => FormLoginAuthenticator::class,
                 'logout' => [
                     'path' => 'session_logout',
                 ],
