@@ -36,16 +36,16 @@ This is the independent Git repository for the current production application. B
 
 ## Functional specifications
 
-Pour toute évolution qui modifie ou ajoute un comportement fonctionnel — fonctionnalité, correction de bug ou changement de règle — les spécifications de `docs/specs/` doivent guider l'implémentation et rester cohérentes avec elle.
+For any change that modifies or introduces functional behavior — feature, bug fix, or business rule update — the specifications in `docs/specs/` must guide the implementation and remain consistent with it.
 
-Avant de modifier le code :
+Before modifying code:
 
-1. Lire `docs/specs/INDEX.md`, puis les sections pertinentes des modules concernés et, si nécessaire, des modules liés.
-2. Pour un bug, comparer le comportement signalé avec la règle documentée et établir si le code s'écarte d'une règle validée, si la spécification est erronée, ou si le comportement attendu reste ambigu.
-3. Mettre à jour ou rédiger les spécifications concernées avant le code et les tests. Ne pas présenter une règle incertaine ou issue de rétro-documentation comme validée par le métier.
-4. Si le besoin métier ne peut pas être déduit sans risque, demander une clarification avant de choisir ou modifier le comportement attendu. Enregistrer explicitement les hypothèses à confirmer plutôt que de les transformer en règles certaines.
-5. Implémenter ensuite le changement et adapter les tests pour vérifier les scénarios et règles décrits.
+1. Read `docs/specs/INDEX.md`, then the relevant sections of the affected modules and, if necessary, related modules.
+2. For a bug, compare the reported behavior with the documented rule and determine whether the code deviates from an approved rule, the specification is incorrect, or the expected behavior remains ambiguous.
+3. Update or draft the affected specifications before writing code and tests. Do not present an uncertain rule or one inferred from reverse-engineering as validated by business domain experts.
+4. If business requirements cannot be determined safely, request clarification before choosing or altering the expected behavior. Explicitly record assumptions to confirm rather than treating them as established rules.
+5. Then implement the change and update tests to verify the described scenarios and rules.
 
-Pour appliquer la démarche détaillée, lire le skill `.agents/skills/specifications-fonctionnelles/SKILL.md`. Pour répondre aux questions métier ou analyser les impacts fonctionnels, utiliser l'agent `functional-specialist` défini dans `.github/agents/functional-specialist.agent.md`.
+To follow the detailed workflow, refer to the skill `.agents/skills/specifications-fonctionnelles/SKILL.md`. To answer domain questions or assess functional impact, use the `functional-specialist` agent defined in `.github/agents/functional-specialist.agent.md`.
 
-Les changements purement techniques, sans effet fonctionnel observable, n'imposent pas de modifier les spécifications.
+Purely technical changes with no observable functional effect do not require updating the specifications.
