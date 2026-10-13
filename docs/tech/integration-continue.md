@@ -5,17 +5,20 @@ sur les push vers `develop`, `main` et `release/**`. Une nouvelle execution
 sur la meme PR annule l'execution precedente ; les executions sur push ne sont
 pas annulees. Sur les push, tous les controles sont executes.
 
-Sur une pull request, un job leger detecte les fichiers modifies et execute
-PHPStan, Rector, PHP-CS-Fixer et PHPUnit uniquement si des fichiers PHP, la
-configuration ou les dependances PHP sont concernes. Twig-CS-Fixer ne s'execute
-que si des fichiers Twig, sa configuration ou ses dependances sont concernes.
-Le filtre PHP couvre `**/*.php`, `composer.json`/`composer.lock`,
-`tools/composer.json`/`tools/composer.lock`, `config/**`, `phpstan*.neon*`,
-`phpunit.xml.dist`, `.env` et `.env.test`. Le filtre Twig couvre `**/*.twig`,
-`.twig-cs-fixer.dist.php`, `linter/**` et les fichiers Composer de `tools/`.
-Les workflows et actions composites partages (`.github/workflows/ci.yml` et
-`.github/actions/**`) declenchent les deux groupes. Les jobs de conflits et
-d'audit restent toujours actifs, quelle que soit la liste de fichiers modifies.
+Sur une pull request, un job leger detecte les fichiers modifies avec des
+filtres propres a chaque controle. PHPStan analyse toujours l'ensemble de
+`src/`, mais ne se lance que si `src/**/*.php`, sa configuration ou ses
+dependances ont change. Rector garde son analyse complete de `src/` et `tests/`
+et se lance pour les changements PHP, de configuration ou de dependances.
+PHPUnit se lance pour les changements dans `src/`, `tests/` ou sa configuration.
+
+PHP-CS-Fixer et Twig-CS-Fixer recoivent uniquement les fichiers PHP/Twig
+modifies. Ils analysent tout leur perimetre configure lorsque leur configuration,
+leurs dependances, le workflow CI ou l'action composite partagee changent. Les
+fichiers supprimes sont ignores. Sur les push vers les branches suivies, tous
+les controles s'executent et les deux formateurs analysent leur perimetre
+complet. Les jobs de conflits et d'audit restent toujours actifs, quelle que
+soit la liste de fichiers modifies.
 
 ## Controles
 
@@ -26,8 +29,8 @@ avec PHP 8.5, sans Castor ni service de base de donnees :
 | --- | --- |
 | PHPStan | `tools/vendor/bin/phpstan --memory-limit=-1 --no-progress` |
 | Rector | `tools/vendor/bin/rector --dry-run --no-progress-bar` |
-| PHP-CS-Fixer | `tools/vendor/bin/php-cs-fixer fix --dry-run --diff` |
-| Twig-CS-Fixer | `tools/vendor/bin/twig-cs-fixer check` |
+| PHP-CS-Fixer | `tools/vendor/bin/php-cs-fixer fix --dry-run --diff [fichiers modifies]` sur PR, tout le perimetre configure sinon |
+| Twig-CS-Fixer | `tools/vendor/bin/twig-cs-fixer check [fichiers modifies]` sur PR, tout le perimetre configure sinon |
 | PHPUnit | `php vendor/bin/phpunit --testdox --exclude-group functional` |
 | Git conflict markers | `tools/vendor/bin/swiss-knife check-conflicts .` avec exclusions des dependances et fichiers generes |
 | Composer audit | `composer audit --locked` a la racine et dans `tools/` |
