@@ -64,11 +64,18 @@ on all pull requests and pushes to `develop`, `main`, and `release/**`. Pull
 requests use `dorny/paths-filter` to skip PHP checks when PHP/configuration/
 dependency files are unchanged and Twig-CS-Fixer when Twig/configuration/
 dependency files are unchanged. Changes to `.github/workflows/ci.yml` or
-`.github/actions/**` trigger both groups. Pushes run every check; conflict
-marker and Composer audit jobs always run. The `CI` job aggregates results,
-failing on failed or cancelled jobs while accepting skipped checks. The
-workflow has `contents: read`; the change-detection job additionally has
-`pull-requests: read` to inspect PR files. It also audits both Composer lock files.
+`.github/actions/**` trigger the relevant full checks. PHPStan still analyses
+all of `src/`, Rector still analyses its complete configured scope, and PHPUnit
+runs for changes in application/test code, app configuration or dependencies.
+On pull requests, PHP-CS-Fixer and Twig-CS-Fixer receive only changed files,
+except when their configuration, dependencies, or shared workflow/action
+changes, which trigger a full check.
+Deleted files are excluded from formatter arguments. Pushes run every check
+with both formatters using their full configured scopes; conflict-marker and
+Composer audit jobs always run. The `CI` job aggregates results, failing on
+failed or cancelled jobs while accepting skipped checks. The workflow has
+`contents: read`; the change-detection job additionally has `pull-requests: read`
+to inspect PR files. It also audits both Composer lock files.
 PHP and Composer installation is shared through
 `.github/actions/setup/action.yml`; configuration is supplied through workflow
 environment variables, without generating `.env`.
