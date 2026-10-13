@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 use Rector\Symfony\Set\SymfonySetList;
-use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
     ->withCache(cacheDirectory: __DIR__.'/var/cache/rector')
@@ -13,8 +12,7 @@ return RectorConfig::configure()
         __DIR__.'/tests',
     ])
     ->withRootFiles()
-    ->withPhpVersion(PhpVersion::PHP_85)
-    ->withPhpSets(php85: true)
+    ->withPhpSets()
     ->withTypeCoverageLevel(50)
     ->withDeadCodeLevel(50)
     ->withCodeQualityLevel(50)
