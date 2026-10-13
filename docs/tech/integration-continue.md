@@ -1,12 +1,25 @@
 # Integration continue
 
 Le workflow `.github/workflows/ci.yml` s'execute sur toutes les pull requests et
-sur les push vers `develop` et `main`. Une nouvelle execution sur la meme PR
-annule l'execution precedente ; les executions sur push ne sont pas annulees.
+sur les push vers `develop`, `main` et `release/**`. Une nouvelle execution
+sur la meme PR annule l'execution precedente ; les executions sur push ne sont
+pas annulees. Sur les push, tous les controles sont executes.
+
+Sur une pull request, un job leger detecte les fichiers modifies et execute
+PHPStan, Rector, PHP-CS-Fixer et PHPUnit uniquement si des fichiers PHP, la
+configuration ou les dependances PHP sont concernes. Twig-CS-Fixer ne s'execute
+que si des fichiers Twig, sa configuration ou ses dependances sont concernes.
+Le filtre PHP couvre `**/*.php`, `composer.json`/`composer.lock`,
+`tools/composer.json`/`tools/composer.lock`, `config/**`, `phpstan*.neon*`,
+`phpunit.xml.dist`, `.env` et `.env.test`. Le filtre Twig couvre `**/*.twig`,
+`.twig-cs-fixer.dist.php`, `linter/**` et les fichiers Composer de `tools/`.
+Les workflows et actions composites partages (`.github/workflows/ci.yml` et
+`.github/actions/**`) declenchent les deux groupes. Les jobs de conflits et
+d'audit restent toujours actifs, quelle que soit la liste de fichiers modifies.
 
 ## Controles
 
-Les sept jobs sont independants et s'executent en parallele sur `ubuntu-latest`
+Les jobs de controle s'executent en parallele sur `ubuntu-latest`
 avec PHP 8.5, sans Castor ni service de base de donnees :
 
 | Job | Commande |
@@ -19,10 +32,11 @@ avec PHP 8.5, sans Castor ni service de base de donnees :
 | Git conflict markers | `tools/vendor/bin/swiss-knife check-conflicts .` avec exclusions des dependances et fichiers generes |
 | Composer audit | `composer audit --locked` a la racine et dans `tools/` |
 
-Les outils de style et Rector ne modifient pas le code. Les sept controles
-sont bloquants. L'audit ignore les paquets abandonnes, comme la CI historique, mais
-echoue en cas de vulnerabilite connue. Les deux projets Composer sont audites,
-meme si le premier audit echoue.
+Les outils de style et Rector ne modifient pas le code. Les controles executes
+sont bloquants. Le job `CI` agrege tous les jobs : il echoue si l'un d'eux echoue
+ou est annule, et accepte les jobs ignores par les filtres. L'audit ignore les
+paquets abandonnes, comme la CI historique, mais echoue en cas de vulnerabilite
+connue. Les deux projets Composer sont audites, meme si le premier audit echoue.
 
 Les tests qui dependent d'une base de donnees ou de donnees de reference portent
 le groupe PHPUnit `functional`, y compris ceux dans `tests/Repository/`.
@@ -88,9 +102,11 @@ SHA du commit. Un prefixe permet de reutiliser les resultats d'un commit
 precedent ; les outils reanalysent les fichiers modifies. Le conteneur Symfony
 et les caches PHPUnit ne sont pas partages entre executions.
 
-Le workflow dispose uniquement de `contents: read`. Le checkout ne conserve
-pas les identifiants Git. Il n'utilise pas `pull_request_target` ni de secret
-pour executer le code des PR.
+Le workflow dispose uniquement de `contents: read` ; le job de detection
+dispose en plus de `pull-requests: read` pour lire la liste des fichiers de la
+PR via l'API GitHub. Le checkout ne conserve pas les identifiants Git. Le
+workflow n'utilise pas `pull_request_target` ni de secret pour executer le code
+des PR.
 
 ## Validation locale
 

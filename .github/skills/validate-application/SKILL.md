@@ -60,8 +60,16 @@ The default PHPUnit command excludes the `functional` group. Browser-driven end-
 ## GitHub Actions
 
 `.github/workflows/ci.yml` runs the tools directly (no Castor on the runner)
-on pull requests and pushes to `develop` and `main`. It also audits both
-Composer lock files. PHP and Composer installation is shared through
+on all pull requests and pushes to `develop`, `main`, and `release/**`. Pull
+requests use `dorny/paths-filter` to skip PHP checks when PHP/configuration/
+dependency files are unchanged and Twig-CS-Fixer when Twig/configuration/
+dependency files are unchanged. Changes to `.github/workflows/ci.yml` or
+`.github/actions/**` trigger both groups. Pushes run every check; conflict
+marker and Composer audit jobs always run. The `CI` job aggregates results,
+failing on failed or cancelled jobs while accepting skipped checks. The
+workflow has `contents: read`; the change-detection job additionally has
+`pull-requests: read` to inspect PR files. It also audits both Composer lock files.
+PHP and Composer installation is shared through
 `.github/actions/setup/action.yml`; configuration is supplied through workflow
 environment variables, without generating `.env`.
 

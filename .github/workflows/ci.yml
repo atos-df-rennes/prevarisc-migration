@@ -6,6 +6,7 @@ on:
     branches:
       - develop
       - main
+      - 'release/**'
 
 permissions:
   contents: read
@@ -22,8 +23,53 @@ env:
   DATABASE_URL: 'mysql://ci:ci@127.0.0.1:3306/prevarisc_ci?serverVersion=11.8.8-MariaDB&charset=utf8mb4'
 
 jobs:
+  changes:
+    name: Detect changed files
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      php: ${{ steps.changes.outputs.php || steps.push.outputs.php }}
+      twig: ${{ steps.changes.outputs.twig || steps.push.outputs.twig }}
+    steps:
+      - name: Filter changed files
+        id: changes
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          filters: |
+            php:
+              - '**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - 'config/**'
+              - 'phpstan*.neon*'
+              - 'phpunit.xml.dist'
+              - '.env'
+              - '.env.test'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            twig:
+              - '**/*.twig'
+              - '.twig-cs-fixer.dist.php'
+              - 'linter/**'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+      - name: Run all checks for pushes
+        id: push
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          echo "php=true" >> "$GITHUB_OUTPUT"
+          echo "twig=true" >> "$GITHUB_OUTPUT"
+
   phpstan:
     name: PHPStan
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.php == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -46,6 +92,8 @@ jobs:
 
   rector:
     name: Rector
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.php == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -68,6 +116,8 @@ jobs:
 
   php-cs-fixer:
     name: PHP-CS-Fixer
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.php == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -89,6 +139,8 @@ jobs:
 
   twig-cs-fixer:
     name: Twig-CS-Fixer
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.twig == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -110,6 +162,8 @@ jobs:
 
   phpunit:
     name: PHPUnit
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.php == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -164,3 +218,21 @@ jobs:
         if: ${{ !cancelled() }}
         working-directory: tools
         run: composer audit --locked
+
+  ci:
+    name: CI
+    if: always()
+    needs:
+      - changes
+      - phpstan
+      - rector
+      - php-cs-fixer
+      - twig-cs-fixer
+      - phpunit
+      - conflicts
+      - audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail when a check failed or was cancelled
+        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+        run: exit 1
