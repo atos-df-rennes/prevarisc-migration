@@ -3,22 +3,27 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Symfony\Configs\Rector\Closure\ServiceArgsToServiceNamedArgRector;
+use Rector\Symfony\Configs\Rector\Closure\ServiceSettersToSettersAutodiscoveryRector;
 use Rector\Symfony\Set\SymfonySetList;
-use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
     ->withCache(cacheDirectory: __DIR__.'/var/cache/rector')
     ->withPaths([
+        __DIR__.'/config',
         __DIR__.'/src',
         __DIR__.'/tests',
     ])
+    ->withSkip([
+        ServiceArgsToServiceNamedArgRector::class,
+        ServiceSettersToSettersAutodiscoveryRector::class,
+    ])
     ->withRootFiles()
-    ->withPhpVersion(PhpVersion::PHP_85)
-    ->withPhpSets(php85: true)
+    ->withPhpSets()
     ->withTypeCoverageLevel(50)
     ->withDeadCodeLevel(50)
     ->withCodeQualityLevel(50)
-    ->withAttributesSets(symfony: true, doctrine: true, phpunit: true)
+    ->withAttributesSets(all: true)
     ->withImportNames(importShortClasses: false, removeUnusedImports: true)
     ->withSets([
         SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
