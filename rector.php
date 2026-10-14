@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\Symfony\Configs\Rector\Closure\ServiceArgsToServiceNamedArgRector;
 use Rector\Symfony\Set\SymfonySetList;
 
 return RectorConfig::configure()
@@ -11,6 +12,9 @@ return RectorConfig::configure()
         __DIR__.'/config',
         __DIR__.'/src',
         __DIR__.'/tests',
+    ])
+    ->withSkip([
+        ServiceArgsToServiceNamedArgRector::class,
     ])
     ->withRootFiles()
     ->withPhpSets()
