@@ -161,12 +161,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CouchesCarto::class)
         ->arg('$cache', service('cache.ign_capabilities'));
 
-    $services->set(TableauDesPeriodicitesController::class)
-        ->tag('controller.service_arguments');
-
-    $services->set(ElementsSupprimesController::class)
-        ->tag('controller.service_arguments');
-
     $services->set(EtablissementPieceJointeService::class)
         ->arg('$datastoreLogger', service('monolog.logger.datastore'));
 
@@ -183,17 +177,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$proxyPassword', '%app.proxy_password%');
 
     $services->set(SearchController::class)
-        ->arg('$deactivatePlatau', '%app.deactivate_platau%')
-        ->tag('controller.service_arguments');
+        ->arg('$deactivatePlatau', '%app.deactivate_platau%');
 
     $services->set(IndexController::class)
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
-        ->arg('$platauNoHealthcheck', '%app.platau_no_healthcheck%')
-        ->tag('controller.service_arguments');
+        ->arg('$platauNoHealthcheck', '%app.platau_no_healthcheck%');
 
     $services->set(DossierController::class)
-        ->arg('$deactivatePlatau', '%app.deactivate_platau%')
-        ->tag('controller.service_arguments');
+        ->arg('$deactivatePlatau', '%app.deactivate_platau%');
 
     $services->set(DashboardBlocConfig::class)
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
