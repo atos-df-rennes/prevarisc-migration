@@ -2,6 +2,32 @@
 
 declare(strict_types=1);
 
+use App\DependencyInjection\PrevariscMailerDsnProcessor;
+use App\DependencyInjection\ThirdpartyPluginEnvVarProcessor;
+use App\Controller\Etablissement\EtablissementController;
+use App\Service\IgnAutoconfiguration;
+use App\Form\UtilisateurType;
+use App\Form\CommissionRegleType;
+use App\Form\DescriptifOriginalType;
+use App\Validator\PasswordValidator;
+use App\Service\Authentification;
+use App\Security\Md5SaltedEncoder;
+use App\Security\LogoutHandler;
+use App\Security\CasLogoutSuccessHandler;
+use App\Security\FormLoginAuthenticator;
+use App\Service\DataStore\DataStoreFactory;
+use App\Service\CouchesCarto;
+use App\Controller\TableauDesPeriodicitesController;
+use App\Controller\ElementsSupprimesController;
+use App\Service\EtablissementPieceJointeService;
+use App\Service\DossierRapportOdtService;
+use App\Service\ProxyConfigurationService;
+use App\Controller\SearchController;
+use App\Controller\IndexController;
+use App\Controller\Dossier\DossierController;
+use App\Service\Dashboard\DashboardBlocConfig;
+use App\Service\PlatauHealthcheckService;
+use App\Service\Mail\MailerConfiguration;
 use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
@@ -50,38 +76,38 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('controller.service_arguments');
 
     // Environment Variable Processor pour construire MAILER_DSN depuis PREVARISC_MAIL_*
-    $services->set('App\DependencyInjection\PrevariscMailerDsnProcessor')
+    $services->set(PrevariscMailerDsnProcessor::class)
         ->tag('container.env_var_processor');
 
     // Environment Variable Processor pour détecter si Plugin_SDIS29 est actif (PREVARISC_THIRDPARTY_PLUGINS)
-    $services->set('App\DependencyInjection\ThirdpartyPluginEnvVarProcessor')
+    $services->set(ThirdpartyPluginEnvVarProcessor::class)
         ->tag('container.env_var_processor');
 
-    $services->set('App\Controller\Etablissement\EtablissementController')
+    $services->set(EtablissementController::class)
         ->arg('$nbDossiersAAfficher', '%app.nb_dossiers_a_afficher%')
         ->arg('$descriptifPersonnalise', '%app.descriptif_personnalise%');
 
-    $services->set('App\Service\IgnAutoconfiguration')
+    $services->set(IgnAutoconfiguration::class)
         ->arg('$autoconfPath', '%app.ign_autoconf_path%');
 
-    $services->set('App\Form\UtilisateurType')
+    $services->set(UtilisateurType::class)
         ->arg('$enforceSecurity', '%app.enforce_security%');
-    $services->set('App\Form\CommissionRegleType')
+    $services->set(CommissionRegleType::class)
         ->arg('$commissionCommunaleType', '%app.commission_communale_type%');
-    $services->set('App\Form\DescriptifOriginalType')
+    $services->set(DescriptifOriginalType::class)
         ->arg('$risquesNaturelsExemples', '%app.risques_naturels_exemples%')
         ->arg('$risquesTechnologiquesExemples', '%app.risques_technologiques_exemples%');
 
-    $services->set('App\Validator\PasswordValidator')
+    $services->set(PasswordValidator::class)
         ->arg('$enforceSecurity', '%app.enforce_security%');
 
-    $services->set('App\Service\Authentification')
+    $services->set(Authentification::class)
         ->arg('$casEnabled', '%app.cas_enabled%')
         ->arg('$ntlmEnabled', '%app.ntlm_enabled%')
         ->arg('$ldapEnabled', '%app.ldap_enabled%');
 
     // @todo: à retirer une fois les mots de passe réhashés
-    $services->set('App\Security\Md5SaltedEncoder')
+    $services->set(Md5SaltedEncoder::class)
         ->arg('$globalSalt', '%app.security_salt%');
 
     // Service LDAP partagé : connexion lazy, évite une nouvelle instance à chaque tentative d'auth.
@@ -93,10 +119,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             ['connection_string' => 'ldap://%app.ldap_host%:%app.ldap_port%'],
         ]);
 
-    $services->set('App\Security\LogoutHandler')
+    $services->set(LogoutHandler::class)
         ->arg('$casEnabled', '%app.cas_enabled%');
 
-    $services->set('App\Security\CasLogoutSuccessHandler')
+    $services->set(CasLogoutSuccessHandler::class)
         ->arg('$casEnabled', '%app.cas_enabled%')
         ->arg('$casHost', '%app.cas_host%')
         ->arg('$casPort', '%app.cas_port%')
@@ -105,7 +131,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$casContext', '%app.cas_context%')
         ->arg('$casNoSsl', '%app.cas_no_ssl%');
 
-    $services->set('App\Security\FormLoginAuthenticator')
+    $services->set(FormLoginAuthenticator::class)
         ->arg('$tokenStorage', service('security.token_storage'))
         ->arg('$csrfTokenManager', service('security.csrf.token_manager'))
         ->arg('$casEnabled', '%app.cas_enabled%')
@@ -129,32 +155,26 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$enforceSecurity', '%app.enforce_security%')
         ->arg('$ldap', service('app.ldap'));
 
-    $services->set('App\Service\DataStore\DataStoreFactory')
+    $services->set(DataStoreFactory::class)
         ->arg('$adapter', '%app.datastore_adapter%');
 
-    $services->set('App\Service\CouchesCarto')
+    $services->set(CouchesCarto::class)
         ->arg('$cache', service('cache.ign_capabilities'));
 
-    $services->set('App\Service\EtablissementSearchService');
-
-    $services->set('App\Service\DossierSearchService');
-
-    $services->set('App\Controller\TableauDesPeriodicitesController')
+    $services->set(TableauDesPeriodicitesController::class)
         ->tag('controller.service_arguments');
 
-    $services->set('App\Controller\ElementsSupprimesController')
+    $services->set(ElementsSupprimesController::class)
         ->tag('controller.service_arguments');
 
-    $services->set('App\Service\Dossier\DossierSauvegardeService');
-
-    $services->set('App\Service\EtablissementPieceJointeService')
+    $services->set(EtablissementPieceJointeService::class)
         ->arg('$datastoreLogger', service('monolog.logger.datastore'));
 
     $services->set('logger.null', NullLogger::class);
 
-    $services->set('App\Service\DossierRapportOdtService')
+    $services->set(DossierRapportOdtService::class)
         ->arg('$rapportLogger', expr("parameter('app.debug') ? service('monolog.logger.rapport') : service('logger.null')"));
-    $services->set('App\Service\ProxyConfigurationService')
+    $services->set(ProxyConfigurationService::class)
         ->arg('$proxyEnabled', '%app.proxy_enabled%')
         ->arg('$proxyProtocol', '%app.proxy_protocol%')
         ->arg('$proxyPort', '%app.proxy_port%')
@@ -162,31 +182,31 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$proxyUsername', '%app.proxy_username%')
         ->arg('$proxyPassword', '%app.proxy_password%');
 
-    $services->set('App\Controller\SearchController')
+    $services->set(SearchController::class)
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->tag('controller.service_arguments');
 
-    $services->set('App\Controller\IndexController')
+    $services->set(IndexController::class)
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->arg('$platauNoHealthcheck', '%app.platau_no_healthcheck%')
         ->tag('controller.service_arguments');
 
-    $services->set('App\Controller\Dossier\DossierController')
+    $services->set(DossierController::class)
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->tag('controller.service_arguments');
 
-    $services->set('App\Service\Dashboard\DashboardBlocConfig')
+    $services->set(DashboardBlocConfig::class)
         ->arg('$deactivatePlatau', '%app.deactivate_platau%')
         ->arg('$nextCommissionsDays', '%app.dashboard.next_commissions_days%')
         ->arg('$dossiersSansAvisDays', '%app.dashboard.dossiers_sans_avis_days%')
         ->arg('$courrierSansReponseDays', '%app.dashboard.courrier_sans_reponse_days%');
 
-    $services->set('App\Service\PlatauHealthcheckService')
+    $services->set(PlatauHealthcheckService::class)
         ->arg('$platauConfigFile', '%app.platau_config_file%')
         ->arg('$projectDir', '%kernel.project_dir%')
         ->arg('$appEnv', '%kernel.environment%');
 
-    $services->set('App\Service\Mail\MailerConfiguration')
+    $services->set(MailerConfiguration::class)
         ->arg('$transport', '%app.mail_transport%')
         ->arg('$host', '%app.mail_host%')
         ->arg('$port', '%app.mail_port%')
