@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Doctrine\DossierSupprimeFilter;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
@@ -32,7 +33,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             'enable_lazy_ghost_objects' => true,
             'filters' => [
                 'dossier_non_supprime' => [
-                    'class' => \App\Doctrine\DossierSupprimeFilter::class,
+                    'class' => DossierSupprimeFilter::class,
                     'enabled' => false,
                 ],
             ]

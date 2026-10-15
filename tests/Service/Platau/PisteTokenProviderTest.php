@@ -39,12 +39,12 @@ final class PisteTokenProviderTest extends TestCase
             new MockResponse('{"access_token":"second","expires_in":3600}'),
         ]);
         $provider = $this->buildProvider($client, $cache);
-        $before = microtime(true);
+        $before = (float) $clock->now()->format('U.u');
 
         $this->assertSame('first', $provider->getToken());
         $expiry = $cache->getItem('platau_piste_token')->getMetadata()[ItemInterface::METADATA_EXPIRY];
         $this->assertGreaterThanOrEqual($before + 3300, $expiry);
-        $this->assertLessThanOrEqual(microtime(true) + 3300, $expiry);
+        $this->assertLessThanOrEqual((float) $clock->now()->format('U.u') + 3300, $expiry);
 
         $clock->sleep(3299);
         $this->assertSame('first', $provider->getToken());
