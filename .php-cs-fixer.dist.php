@@ -6,6 +6,7 @@ use Tombenevides\DumpLinter\DumpRemovalFixer;
 
 $finder = Finder::create()
     ->in([
+        __DIR__.'/config',
         __DIR__.'/src',
         __DIR__.'/migrations',
         __DIR__.'/tests',

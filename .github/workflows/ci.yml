@@ -6,6 +6,7 @@ on:
     branches:
       - develop
       - main
+      - 'release/**'
 
 permissions:
   contents: read
@@ -22,8 +23,102 @@ env:
   DATABASE_URL: 'mysql://ci:ci@127.0.0.1:3306/prevarisc_ci?serverVersion=11.8.8-MariaDB&charset=utf8mb4'
 
 jobs:
+  changes:
+    name: Detect changed files
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      phpstan: ${{ steps.changes.outputs.phpstan || steps.push.outputs.phpstan }}
+      rector: ${{ steps.changes.outputs.rector || steps.push.outputs.rector }}
+      phpunit: ${{ steps.changes.outputs.phpunit || steps.push.outputs.phpunit }}
+      php_style: ${{ steps.changes.outputs.php_style || steps.push.outputs.php_style }}
+      php_style_full: ${{ steps.changes.outputs.php_style_full || steps.push.outputs.php_style_full }}
+      php_style_files: ${{ steps.changes.outputs.php_style_files }}
+      twig_style: ${{ steps.changes.outputs.twig_style || steps.push.outputs.twig_style }}
+      twig_style_full: ${{ steps.changes.outputs.twig_style_full || steps.push.outputs.twig_style_full }}
+      twig_style_files: ${{ steps.changes.outputs.twig_style_files }}
+    steps:
+      - name: Filter changed files
+        id: changes
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          list-files: json
+          filters: |
+            phpstan:
+              - 'src/**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - 'config/**'
+              - 'phpstan*.neon*'
+              - '.env'
+              - '.env.test'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            rector:
+              - '**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - 'config/**'
+              - 'phpstan*.neon*'
+              - 'phpunit.xml.dist'
+              - '.env'
+              - '.env.test'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            phpunit:
+              - 'src/**/*.php'
+              - 'tests/**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'config/**'
+              - 'phpunit.xml.dist'
+              - '.env'
+              - '.env.test'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            php_style:
+              - 'src/**/*.php'
+              - 'migrations/**/*.php'
+              - 'tests/**/*.php'
+            php_style_full:
+              - '.php-cs-fixer.dist.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            twig_style:
+              - 'templates/**/*.twig'
+            twig_style_full:
+              - '.twig-cs-fixer.dist.php'
+              - 'linter/**'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+      - name: Run all checks for pushes
+        id: push
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          echo "phpstan=true" >> "$GITHUB_OUTPUT"
+          echo "rector=true" >> "$GITHUB_OUTPUT"
+          echo "phpunit=true" >> "$GITHUB_OUTPUT"
+          echo "php_style=true" >> "$GITHUB_OUTPUT"
+          echo "php_style_full=true" >> "$GITHUB_OUTPUT"
+          echo "twig_style=true" >> "$GITHUB_OUTPUT"
+          echo "twig_style_full=true" >> "$GITHUB_OUTPUT"
+
   phpstan:
     name: PHPStan
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.phpstan == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -46,6 +141,8 @@ jobs:
 
   rector:
     name: Rector
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.rector == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -68,6 +165,8 @@ jobs:
 
   php-cs-fixer:
     name: PHP-CS-Fixer
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.php_style == 'true' || needs.changes.outputs.php_style_full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -84,11 +183,29 @@ jobs:
           key: ${{ runner.os }}-php85-php-cs-fixer-${{ hashFiles('tools/composer.lock', '.php-cs-fixer.dist.php') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-php85-php-cs-fixer-${{ hashFiles('tools/composer.lock', '.php-cs-fixer.dist.php') }}-
-      - name: Check PHP style
+      - name: Check PHP style on the whole configured scope
+        if: github.event_name == 'push' || needs.changes.outputs.php_style_full == 'true'
         run: tools/vendor/bin/php-cs-fixer fix --dry-run --diff
+      - name: Check PHP style on changed files
+        if: github.event_name == 'pull_request' && needs.changes.outputs.php_style == 'true' && needs.changes.outputs.php_style_full != 'true'
+        env:
+          CHANGED_FILES: ${{ needs.changes.outputs.php_style_files }}
+        run: |
+          mapfile -d '' -t files < <(jq -j '.[] | ., "\u0000"' <<< "$CHANGED_FILES")
+          existing_files=()
+          for file in "${files[@]}"; do
+            if [[ -f "$file" ]]; then
+              existing_files+=("$file")
+            fi
+          done
+          if ((${#existing_files[@]})); then
+            tools/vendor/bin/php-cs-fixer fix --dry-run --diff --path-mode=intersection "${existing_files[@]}"
+          fi
 
   twig-cs-fixer:
     name: Twig-CS-Fixer
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.twig_style == 'true' || needs.changes.outputs.twig_style_full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -105,11 +222,29 @@ jobs:
           key: ${{ runner.os }}-php85-twig-cs-fixer-${{ hashFiles('tools/composer.lock', '.twig-cs-fixer.dist.php', 'linter/**') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-php85-twig-cs-fixer-${{ hashFiles('tools/composer.lock', '.twig-cs-fixer.dist.php', 'linter/**') }}-
-      - name: Check Twig style
+      - name: Check Twig style on the whole configured scope
+        if: github.event_name == 'push' || needs.changes.outputs.twig_style_full == 'true'
         run: tools/vendor/bin/twig-cs-fixer check
+      - name: Check Twig style on changed files
+        if: github.event_name == 'pull_request' && needs.changes.outputs.twig_style == 'true' && needs.changes.outputs.twig_style_full != 'true'
+        env:
+          CHANGED_FILES: ${{ needs.changes.outputs.twig_style_files }}
+        run: |
+          mapfile -d '' -t files < <(jq -j '.[] | ., "\u0000"' <<< "$CHANGED_FILES")
+          existing_files=()
+          for file in "${files[@]}"; do
+            if [[ -f "$file" ]]; then
+              existing_files+=("$file")
+            fi
+          done
+          if ((${#existing_files[@]})); then
+            tools/vendor/bin/twig-cs-fixer check "${existing_files[@]}"
+          fi
 
   phpunit:
     name: PHPUnit
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.phpunit == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -164,3 +299,21 @@ jobs:
         if: ${{ !cancelled() }}
         working-directory: tools
         run: composer audit --locked
+
+  ci:
+    name: CI
+    if: always()
+    needs:
+      - changes
+      - phpstan
+      - rector
+      - php-cs-fixer
+      - twig-cs-fixer
+      - phpunit
+      - conflicts
+      - audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail when a check failed or was cancelled
+        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+        run: exit 1

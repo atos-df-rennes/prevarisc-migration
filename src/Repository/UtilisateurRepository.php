@@ -4,7 +4,11 @@ namespace App\Repository;
 
 use App\Constant\Fonction;
 use App\Entity\Utilisateur;
+use App\Enum\MotifConservationUtilisateurEnum;
+use App\Enum\ResultatSuppressionUtilisateurEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -371,5 +375,105 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function findIdsByGroupe(int $groupeId): array
+    {
+        /** @var list<int|string> $ids */
+        $ids = $this->getEntityManager()->getConnection()->fetchFirstColumn(
+            'SELECT ID_UTILISATEUR FROM utilisateur WHERE ID_GROUPE = ? ORDER BY ID_UTILISATEUR',
+            [$groupeId],
+        );
+
+        return array_map(intval(...), $ids);
+    }
+
+    /**
+     * Références métier empêchant la suppression définitive des utilisateurs donnés (RG-USR-028).
+     *
+     * @param list<int> $ids
+     *
+     * @return array<int, list<MotifConservationUtilisateurEnum>> motifs indexés par identifiant d'utilisateur
+     */
+    public function findReferencesBloquantes(array $ids): array
+    {
+        $requetes = [
+            MotifConservationUtilisateurEnum::CreateurDossier->value => 'SELECT DISTINCT CREATEUR_DOSSIER FROM dossier WHERE CREATEUR_DOSSIER IN (:ids)',
+            MotifConservationUtilisateurEnum::PreventionnisteDossier->value => 'SELECT DISTINCT ID_PREVENTIONNISTE FROM dossierpreventionniste WHERE ID_PREVENTIONNISTE IN (:ids)',
+            MotifConservationUtilisateurEnum::PreventionnisteEtablissement->value => 'SELECT DISTINCT ID_UTILISATEUR FROM etablissementinformationspreventionniste WHERE ID_UTILISATEUR IN (:ids)',
+            MotifConservationUtilisateurEnum::PreventionnisteGroupement->value => 'SELECT DISTINCT ID_UTILISATEUR FROM groupementpreventionniste WHERE ID_UTILISATEUR IN (:ids)',
+            MotifConservationUtilisateurEnum::AuteurHistoriqueEtablissement->value => 'SELECT DISTINCT UTILISATEUR_ETABLISSEMENTINFORMATIONS FROM etablissementinformations WHERE UTILISATEUR_ETABLISSEMENTINFORMATIONS IN (:ids)',
+            MotifConservationUtilisateurEnum::AuteurSuppressionDossier->value => 'SELECT DISTINCT DELETED_BY FROM dossier WHERE DELETED_BY IN (:ids)',
+            MotifConservationUtilisateurEnum::AuteurSuppressionEtablissement->value => 'SELECT DISTINCT DELETED_BY FROM etablissement WHERE DELETED_BY IN (:ids)',
+            MotifConservationUtilisateurEnum::AuteurActualite->value => 'SELECT DISTINCT ID_UTILISATEUR FROM news WHERE ID_UTILISATEUR IN (:ids)',
+        ];
+
+        $connection = $this->getEntityManager()->getConnection();
+        $references = [];
+
+        foreach (array_chunk($ids, 500) as $lot) {
+            foreach ($requetes as $motif => $sql) {
+                /** @var list<int|string> $idsReferences */
+                $idsReferences = $connection->fetchFirstColumn($sql, ['ids' => $lot], ['ids' => ArrayParameterType::INTEGER]);
+
+                foreach ($idsReferences as $id) {
+                    $references[(int) $id][] = MotifConservationUtilisateurEnum::from($motif);
+                }
+            }
+        }
+
+        ksort($references);
+
+        return $references;
+    }
+
+    /**
+     * Supprime définitivement l'utilisateur, ses préférences et ses rattachements, dans une
+     * transaction dédiée (RG-USR-029, RG-USR-030). Sa fiche d'informations personnelles est
+     * supprimée, sauf si elle est partagée (fiche mairie d'une commune, contact, membre de commission, autre compte) :
+     * elle est alors conservée intacte.
+     */
+    public function supprimerDefinitivement(int $id, int $groupeId): ResultatSuppressionUtilisateurEnum
+    {
+        return $this->getEntityManager()->getConnection()->transactional(static function (Connection $connection) use ($id, $groupeId): ResultatSuppressionUtilisateurEnum {
+            $informationsId = $connection->fetchOne(
+                'SELECT ID_UTILISATEURINFORMATIONS FROM utilisateur WHERE ID_UTILISATEUR = ? AND ID_GROUPE = ? FOR UPDATE',
+                [$id, $groupeId],
+            );
+
+            if (false === $informationsId) {
+                return ResultatSuppressionUtilisateurEnum::Absent;
+            }
+
+            $connection->executeStatement('DELETE FROM utilisateurpreferences WHERE ID_UTILISATEUR = ?', [$id]);
+            $connection->executeStatement('DELETE FROM utilisateurcommission WHERE ID_UTILISATEUR = ?', [$id]);
+            $connection->executeStatement('DELETE FROM utilisateurgroupement WHERE ID_UTILISATEUR = ?', [$id]);
+            $connection->executeStatement('DELETE FROM utilisateur WHERE ID_UTILISATEUR = ?', [$id]);
+
+            $informationsPartagees = (bool) $connection->fetchOne(
+                <<<'SQL'
+                    SELECT EXISTS (SELECT 1 FROM adressecommune WHERE ID_UTILISATEURINFORMATIONS = :informations)
+                        OR EXISTS (SELECT 1 FROM commissioncontact WHERE ID_UTILISATEURINFORMATIONS = :informations)
+                        OR EXISTS (SELECT 1 FROM commissionmembre WHERE ID_UTILISATEURINFORMATIONS = :informations)
+                        OR EXISTS (SELECT 1 FROM dossiercontact WHERE ID_UTILISATEURINFORMATIONS = :informations)
+                        OR EXISTS (SELECT 1 FROM etablissementcontact WHERE ID_UTILISATEURINFORMATIONS = :informations)
+                        OR EXISTS (SELECT 1 FROM groupementcontact WHERE ID_UTILISATEURINFORMATIONS = :informations)
+                        OR EXISTS (SELECT 1 FROM groupement WHERE ID_UTILISATEURINFORMATIONS = :informations)
+                        OR EXISTS (SELECT 1 FROM utilisateur WHERE ID_UTILISATEURINFORMATIONS = :informations)
+                    SQL,
+                ['informations' => $informationsId],
+            );
+
+            if ($informationsPartagees) {
+                return ResultatSuppressionUtilisateurEnum::SupprimeFicheConservee;
+            }
+
+            $connection->executeStatement('DELETE FROM utilisateurinformations WHERE ID_UTILISATEURINFORMATIONS = ?', [$informationsId]);
+
+            return ResultatSuppressionUtilisateurEnum::Supprime;
+        });
     }
 }

@@ -30,6 +30,10 @@ Les versions des dépendances PHP sont des contraintes Composer, pas une affirma
 - [Notifications toast](toast-notifications.md) — API JavaScript et limites actuelles.
 - [Démo des notifications toast](toast-demo.html) — page de démonstration autonome.
 
+### Exploitation
+
+- [Suppression définitive des utilisateurs d'un groupe](suppression-utilisateurs.md) — commande console, garde-fous et journal d'audit.
+
 ### Intégration continue
 
 - [Intégration continue](integration-continue.md) — contrôles GitHub Actions, environnement et caches.
