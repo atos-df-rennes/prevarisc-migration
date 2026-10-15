@@ -58,9 +58,11 @@ final class FileTest extends TestCase
             '/var/www/html/../config/database.yml',
             'database.yml',
         ];
-        yield 'windows path - basename not extracted on Linux' => [
+        yield 'windows path - platform-dependent basename' => [
             'C:\\Windows\\System32\\config.ini',
-            'C:\\Windows\\System32\\config.ini',
+            '\\' === DIRECTORY_SEPARATOR
+                ? 'config.ini'
+                : 'C:\\Windows\\System32\\config.ini',
         ];
         yield 'mixed slashes - basename extracted' => [
             '../uploads/../../sensitive.txt',
