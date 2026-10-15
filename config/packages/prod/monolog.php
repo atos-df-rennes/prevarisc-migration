@@ -41,6 +41,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                     'rapport',
                 ],
             ],
+            'suppression_utilisateurs' => [
+                'type' => 'rotating_file',
+                'path' => '%kernel.logs_dir%/suppression_utilisateurs.log',
+                'level' => 'info',
+                'max_files' => 30,
+                'channels' => [
+                    'suppression_utilisateurs',
+                ],
+            ],
             'console' => [
                 'type' => 'console',
                 'process_psr_3_messages' => false,
@@ -53,6 +62,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'channels' => [
             'datastore',
             'rapport',
+            'suppression_utilisateurs',
         ]
     ]);
 };
