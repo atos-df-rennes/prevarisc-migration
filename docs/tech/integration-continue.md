@@ -25,6 +25,11 @@ soit la liste de fichiers modifies.
 Les jobs de controle s'executent en parallele sur `ubuntu-latest`
 avec PHP 8.5, sans Castor ni service de base de donnees :
 
+PHPUnit s'execute aussi sur `windows-latest`, avec la meme suite hors groupe
+`functional`. Les deux variantes vont jusqu'au bout meme si l'une echoue
+(`fail-fast: false`), et leurs resultats sont bloquants pour le job `CI`.
+Les autres controles restent uniquement sur Ubuntu.
+
 | Job | Commande |
 | --- | --- |
 | PHPStan | `tools/vendor/bin/phpstan --memory-limit=-1 --no-progress` |
