@@ -242,10 +242,14 @@ jobs:
           fi
 
   phpunit:
-    name: PHPUnit
+    name: PHPUnit (${{ matrix.os }})
     needs: changes
     if: github.event_name == 'push' || needs.changes.outputs.phpunit == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     timeout-minutes: 15
     env:
       APP_ENV: test
