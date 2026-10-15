@@ -25,7 +25,7 @@ Consultez la [documentation dédiée](docs/guide.md).
 - **MariaDB**: Utilisé en version 11.8+ pour les migrations
 - **JavaScript** : Framework JavaScript moderne pour l'interface utilisateur
 - **Bootstrap** : Utilisé en [version 3](https://getbootstrap.com/docs/3.4/)
-- **LibreOffice** : Utilisé en version 7.x pour l'édition des documents (Les dernières versions ne sont actuellement pas compatibles)
+- **LibreOffice** : Utilisé pour créer et éditer les documents ; les modèles ODT LibreOffice 7 et 25 sont pris en charge
 
 ## Installation
 
