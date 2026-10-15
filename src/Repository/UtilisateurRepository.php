@@ -433,7 +433,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
     /**
      * Supprime définitivement l'utilisateur, ses préférences et ses rattachements, dans une
      * transaction dédiée (RG-USR-029, RG-USR-030). Sa fiche d'informations personnelles est
-     * supprimée, sauf si elle est partagée (fiche mairie d'une commune, contact, autre compte) :
+     * supprimée, sauf si elle est partagée (fiche mairie d'une commune, contact, membre de commission, autre compte) :
      * elle est alors conservée intacte.
      */
     public function supprimerDefinitivement(int $id, int $groupeId): ResultatSuppressionUtilisateurEnum
@@ -457,6 +457,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
                 <<<'SQL'
                     SELECT EXISTS (SELECT 1 FROM adressecommune WHERE ID_UTILISATEURINFORMATIONS = :informations)
                         OR EXISTS (SELECT 1 FROM commissioncontact WHERE ID_UTILISATEURINFORMATIONS = :informations)
+                        OR EXISTS (SELECT 1 FROM commissionmembre WHERE ID_UTILISATEURINFORMATIONS = :informations)
                         OR EXISTS (SELECT 1 FROM dossiercontact WHERE ID_UTILISATEURINFORMATIONS = :informations)
                         OR EXISTS (SELECT 1 FROM etablissementcontact WHERE ID_UTILISATEURINFORMATIONS = :informations)
                         OR EXISTS (SELECT 1 FROM groupementcontact WHERE ID_UTILISATEURINFORMATIONS = :informations)

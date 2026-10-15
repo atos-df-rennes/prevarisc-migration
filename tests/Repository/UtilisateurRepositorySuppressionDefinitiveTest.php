@@ -69,16 +69,26 @@ final class UtilisateurRepositorySuppressionDefinitiveTest extends KernelTestCas
         $this->assertSame([$auteur->getId() => [MotifConservationUtilisateurEnum::AuteurActualite]], $this->repository->findReferencesBloquantes([$auteur->getId(), $libre->getId()]));
     }
 
-    public function testSupprimerDefinitivementSupprimeLeCompteSesPreferencesEtSaFiche(): void
+    public function testSupprimerDefinitivementSupprimeLeCompteSesPreferencesSesRattachementsEtSaFiche(): void
     {
         $utilisateur = $this->creerUtilisateur();
         $id = $this->idUtilisateur($utilisateur);
         $informationsId = $this->idInformations($utilisateur);
         $this->connection->insert('utilisateurpreferences', ['ID_UTILISATEUR' => $id]);
+        $this->connection->insert('utilisateurcommission', [
+            'ID_UTILISATEUR' => $id,
+            'ID_COMMISSION' => $this->creerCommissionId(),
+        ]);
+        $this->connection->insert('utilisateurgroupement', [
+            'ID_UTILISATEUR' => $id,
+            'ID_GROUPEMENT' => $this->creerGroupementId(),
+        ]);
 
         $this->assertSame(ResultatSuppressionUtilisateurEnum::Supprime, $this->repository->supprimerDefinitivement($id, $this->groupeId()));
         $this->assertSame(0, $this->compter('utilisateur', 'ID_UTILISATEUR', $id));
         $this->assertSame(0, $this->compter('utilisateurpreferences', 'ID_UTILISATEUR', $id));
+        $this->assertSame(0, $this->compter('utilisateurcommission', 'ID_UTILISATEUR', $id));
+        $this->assertSame(0, $this->compter('utilisateurgroupement', 'ID_UTILISATEUR', $id));
         $this->assertSame(0, $this->compter('utilisateurinformations', 'ID_UTILISATEURINFORMATIONS', $informationsId));
     }
 
@@ -95,6 +105,31 @@ final class UtilisateurRepositorySuppressionDefinitiveTest extends KernelTestCas
         $this->assertSame(ResultatSuppressionUtilisateurEnum::SupprimeFicheConservee, $this->repository->supprimerDefinitivement($id, $this->groupeId()));
         $this->assertSame(0, $this->compter('utilisateur', 'ID_UTILISATEUR', $id));
         $this->assertSame(1, $this->compter('utilisateurinformations', 'ID_UTILISATEURINFORMATIONS', $informationsId));
+    }
+
+    public function testSupprimerDefinitivementConserveUneFicheReferenceeUniquementParUnMembreDeCommission(): void
+    {
+        $utilisateur = $this->creerUtilisateur();
+        $id = $this->idUtilisateur($utilisateur);
+        $informationsId = $this->idInformations($utilisateur);
+        $informations = $this->connection->fetchAssociative(
+            'SELECT * FROM utilisateurinformations WHERE ID_UTILISATEURINFORMATIONS = ?',
+            [$informationsId],
+        );
+        $this->connection->insert('commissionmembre', [
+            'LIBELLE_COMMISSIONMEMBRE' => 'Test suppression',
+            'PRESENCE_COMMISSIONMEMBRE' => 1,
+            'ID_COMMISSION' => $this->creerCommissionId(),
+            'ID_UTILISATEURINFORMATIONS' => $informationsId,
+        ]);
+
+        $this->assertSame(ResultatSuppressionUtilisateurEnum::SupprimeFicheConservee, $this->repository->supprimerDefinitivement($id, $this->groupeId()));
+        $this->assertSame(0, $this->compter('utilisateur', 'ID_UTILISATEUR', $id));
+        $this->assertSame(1, $this->compter('commissionmembre', 'ID_UTILISATEURINFORMATIONS', $informationsId));
+        $this->assertSame($informations, $this->connection->fetchAssociative(
+            'SELECT * FROM utilisateurinformations WHERE ID_UTILISATEURINFORMATIONS = ?',
+            [$informationsId],
+        ));
     }
 
     public function testSupprimerDefinitivementIgnoreUnUtilisateurQuiNAppartientPlusAuGroupe(): void
@@ -122,6 +157,17 @@ final class UtilisateurRepositorySuppressionDefinitiveTest extends KernelTestCas
         $this->entityManager->flush();
 
         return $utilisateur;
+    }
+
+    private function creerCommissionId(): int
+    {
+        $this->connection->insert('commissiontype', ['LIBELLE_COMMISSIONTYPE' => 'Test suppression']);
+        $this->connection->insert('commission', [
+            'LIBELLE_COMMISSION' => 'Test suppression',
+            'ID_COMMISSIONTYPE' => (int) $this->connection->lastInsertId(),
+        ]);
+
+        return (int) $this->connection->lastInsertId();
     }
 
     private function creerGroupementId(): int

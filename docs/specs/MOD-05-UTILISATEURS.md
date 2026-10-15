@@ -144,7 +144,7 @@ Un utilisateur est décrit par les informations suivantes :
 
 **Données supprimées avec l'utilisateur :** compte, informations personnelles (nom, prénom, coordonnées, etc.), préférences, rattachements aux commissions et aux groupements de communes.
 
-**Fiche d'informations partagée :** Si la fiche d'informations personnelles de l'utilisateur est également utilisée ailleurs (coordonnées de la mairie d'une commune, groupement de communes, contact d'établissement, de dossier, de groupement ou de commission, autre compte), le compte est supprimé mais la fiche est conservée intacte, et ce cas est tracé. L'application ne crée pas de tels partages : ils proviennent de liaisons faites manuellement en base de données sur certaines installations.
+**Fiche d'informations partagée :** Si la fiche d'informations personnelles de l'utilisateur est également utilisée ailleurs (coordonnées de la mairie d'une commune, groupement de communes, contact d'établissement, de dossier, de groupement ou de commission, membre de commission, autre compte), le compte est supprimé mais la fiche est conservée intacte, et ce cas est tracé. La référence d'un membre de commission suffit à conserver la fiche, même si celle-ci n'est plus associée aux contacts de la commission. L'application ne crée pas de tels partages : ils proviennent de liaisons faites manuellement en base de données sur certaines installations.
 
 **Mode simulation :** Le système effectue la sélection, l'analyse et le récapitulatif sans rien supprimer.
 
@@ -399,7 +399,7 @@ Une mesure de protection est disponible lorsque le mode de sécurité renforcée
 | **RG-USR-026** | La suppression définitive porte sur tous les utilisateurs d'un seul groupe, choisi interactivement, sans autre filtre. Elle n'est exécutée qu'après confirmation explicite de l'exploitant ; une exécution non interactive est refusée. |
 | **RG-USR-027** | Le groupe par défaut et tout groupe disposant du droit d'administration ne peuvent pas être vidés par la suppression définitive. |
 | **RG-USR-028** | Un utilisateur encore référencé par des données métier (créateur ou préventionniste de dossier, préventionniste d'établissement ou de groupement, auteur d'historique d'établissement, de suppression ou d'actualité) est conservé et le motif est tracé. |
-| **RG-USR-029** | La suppression définitive d'un utilisateur supprime aussi ses informations personnelles, ses préférences et ses rattachements aux commissions et aux groupements. Si la fiche d'informations personnelles est partagée avec d'autres données (commune, groupement, contact, autre compte), elle est conservée intacte et ce cas est tracé. |
+| **RG-USR-029** | La suppression définitive d'un utilisateur supprime aussi ses informations personnelles, ses préférences et ses rattachements aux commissions et aux groupements. Si la fiche d'informations personnelles est partagée avec d'autres données (commune, groupement, contact, membre de commission, autre compte), elle est conservée intacte et ce cas est tracé. |
 | **RG-USR-030** | Une erreur sur un utilisateur n'interrompt pas la suppression des autres ; l'utilisateur en erreur reste intact. |
 | **RG-USR-031** | Le mode simulation produit l'analyse et les traces sans rien supprimer. |
 | **RG-USR-032** | Chaque exécution de la suppression définitive est tracée dans un journal d'audit dédié conservé 30 jours, ne contenant que des identifiants techniques. |
