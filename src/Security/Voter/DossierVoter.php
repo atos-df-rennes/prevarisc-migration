@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class DossierVoter extends Voter
+final class DossierVoter extends Voter
 {
     public const LECTURE = 'view_doss';
 

@@ -16,7 +16,7 @@ use App\Entity\PieceJointe;
  * This architectural pattern helps to defer resource-intensive initialization and allows
  * for flexible runtime selection of the DataStore implementation.
  */
-class RuntimeDataStore implements DataStore
+final class RuntimeDataStore implements DataStore
 {
     private ?DataStore $dataStore = null;
 

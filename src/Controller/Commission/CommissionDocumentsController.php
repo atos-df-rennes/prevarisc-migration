@@ -20,7 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gère les onglets "Courriers types" et "Document type" d'une commission.
  */
 #[IsGranted('gestion_commissions')]
-class CommissionDocumentsController extends AbstractController
+final class CommissionDocumentsController extends AbstractController
 {
     public function __construct(private readonly CommissionDocumentCrService $commissionDocumentCrService, private readonly CommissionMembreCourrierService $commissionMembreCourrierService, private readonly CommissionMembreRepository $commissionMembreRepository, private readonly string $documentsCommissionDataPath, private readonly string $courriersMembresDataPath)
     {

@@ -32,7 +32,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Contrôleur de recherche.
  * Port direct de SearchController (legacy).
  */
-class SearchController extends AbstractController
+final class SearchController extends AbstractController
 {
     public function __construct(private readonly EtablissementSearchService $etablissementSearchService, private readonly DossierSearchService $dossierSearchService, private readonly GroupementRepository $groupementRepository, private readonly CommissionRepository $commissionRepository, private readonly DossierTypeRepository $dossierTypeRepository, private readonly GenreRepository $genreRepository, private readonly EtablissementStatutRepository $etablissementStatutRepository, private readonly EtablissementCategorieRepository $etablissementCategorieRepository, private readonly IghClasseRepository $ighClasseRepository, private readonly EtablissementActiviteRepository $etablissementActiviteRepository, private readonly FamilleRepository $familleRepository, private readonly CommuneRepository $communeRepository, private readonly AdresseRueRepository $adresseRueRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly bool $deactivatePlatau, private readonly SearchExport $searchExport, private readonly SearchQueryHelper $searchQueryHelper)
     {

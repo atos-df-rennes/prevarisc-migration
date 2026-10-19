@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class ChangelogController extends AbstractController
+final class ChangelogController extends AbstractController
 {
     public function __construct(private readonly VersionService $versionService, private readonly UtilisateurPreferencesRepository $prefsRepository, private readonly EntityManagerInterface $em)
     {

@@ -6,7 +6,7 @@ use App\Entity\Dossier;
 use App\Service\DossierFields;
 use Twig\Attribute\AsTwigFilter;
 
-class DossierExtension
+final class DossierExtension
 {
     public function __construct(private readonly DossierFields $dossierFieldsService)
     {

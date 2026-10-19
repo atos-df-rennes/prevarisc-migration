@@ -6,7 +6,7 @@ use App\Enum\PlatauStatutAvisEnum;
 use App\Enum\PlatauStatutPecEnum;
 use Twig\Attribute\AsTwigFilter;
 
-class PlatauExtension
+final class PlatauExtension
 {
     #[AsTwigFilter(name: 'platau_pec_label')]
     public function getPecLabel(?string $statut): string

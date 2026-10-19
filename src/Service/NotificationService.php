@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * Gestion des dates de dernière visite pour les notifications Plat'AU.
  * Port direct de Service_Notification (legacy).
  */
-class NotificationService
+final class NotificationService
 {
     public const DASHBOARD_NAMESPACE = 'DERNIERE_VISITE_DASHBOARD';
 

@@ -11,7 +11,7 @@ use App\Service\Voter\VoterUtils;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
-class EtablissementIghVoter extends EtablissementVoter
+final class EtablissementIghVoter extends EtablissementVoter
 {
     public function __construct(private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository, private readonly VoterUtils $voterUtils)
     {

@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class PrivilegeVoter implements VoterInterface
+final class PrivilegeVoter implements VoterInterface
 {
     /**
      * Index en mémoire des privileges (name → entité), chargé en une seule requête.

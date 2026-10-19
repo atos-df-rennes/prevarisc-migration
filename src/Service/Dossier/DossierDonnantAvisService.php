@@ -14,7 +14,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Service de gestion des dossiers donnant avis pour les établissements.
  */
-class DossierDonnantAvisService
+final class DossierDonnantAvisService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly LoggerInterface $logger, private readonly DossierRepository $dossierRepository)
     {

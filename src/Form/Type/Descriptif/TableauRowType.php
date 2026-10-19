@@ -16,7 +16,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Chaque colonne correspond à un Champ enfant.
  * Le property_path 'cells[{champId}]' assure le binding vers TableauRowData::$cells.
  */
-class TableauRowType extends AbstractType
+final class TableauRowType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

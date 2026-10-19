@@ -19,7 +19,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UtilisateurType extends AbstractType
+final class UtilisateurType extends AbstractType
 {
     public function __construct(private readonly bool $enforceSecurity, private readonly Authentification $authentification)
     {

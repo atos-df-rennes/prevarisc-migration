@@ -12,7 +12,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class PlatauHealthcheckService
+final class PlatauHealthcheckService
 {
     private const string HEALTHCHECK_ENDPOINT = 'healthcheck';
 

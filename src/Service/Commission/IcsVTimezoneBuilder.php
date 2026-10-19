@@ -13,7 +13,7 @@ use Sabre\VObject\Component\VCalendar;
  * résolvable par certains clients (Outlook desktop notamment), qui retombent
  * alors sur un décalage horaire erroné (ex : avance/retard d'une heure).
  */
-class IcsVTimezoneBuilder
+final class IcsVTimezoneBuilder
 {
     /**
      * Ajoute le composant VTIMEZONE au calendrier.

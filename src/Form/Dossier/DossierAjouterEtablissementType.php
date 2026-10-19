@@ -7,7 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class DossierAjouterEtablissementType extends AbstractType
+final class DossierAjouterEtablissementType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

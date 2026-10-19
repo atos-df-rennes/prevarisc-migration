@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_formulaires')]
-class ChampController extends AbstractController
+final class ChampController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly FormFactoryInterface $formFactory, private readonly ChampRepository $champRepository, private readonly ChampValeurListeRepository $champValeurListeRepository, private readonly TypeChampRepository $typeChampRepository)
     {

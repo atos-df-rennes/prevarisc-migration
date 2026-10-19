@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class DossierDocumentsConsultesController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierDocumentsConsultesController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierDocumentsConsultesService $documentsConsultesService)
     {

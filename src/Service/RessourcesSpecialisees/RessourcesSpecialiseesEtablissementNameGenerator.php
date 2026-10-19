@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
-class RessourcesSpecialiseesEtablissementNameGenerator
+final class RessourcesSpecialiseesEtablissementNameGenerator
 {
     public static function fromRequest(Request $request): string
     {

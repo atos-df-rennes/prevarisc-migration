@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * Équivalent legacy : ChangementController (alerteformAction)
  */
-class AlerteController extends AbstractController
+final class AlerteController extends AbstractController
 {
     public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly ChangementRepository $changementRepository, private readonly AlerteService $alerteService, private readonly MailerInterface $mailer, private readonly MailerConfiguration $mailerConfig)
     {

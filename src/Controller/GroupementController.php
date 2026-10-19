@@ -25,7 +25,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(requirements: ['id' => '\d+'])]
 #[IsGranted('groupement_communes')]
-class GroupementController extends AbstractController
+final class GroupementController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommuneRepository $communeRepository, private readonly GroupementTypeRepository $groupementTypeRepository, private readonly GroupementCommunes $groupementCommunes, private readonly Contact $contactService, private readonly TagAwareAdapterInterface $searchCache)
     {

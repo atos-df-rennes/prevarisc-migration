@@ -2,7 +2,7 @@
 
 namespace App\Utils;
 
-class StringHelper
+final class StringHelper
 {
     /**
      * Tronque une chaîne UTF-8 à un nombre de caractères donné, en ajoutant un

@@ -29,7 +29,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Portage de SDIS29_EtablissementController (legacy Zend, module "sdis29",
  * modules/sdis29/controllers/EtablissementController.php).
  */
-class EtablissementController extends AbstractController
+final class EtablissementController extends AbstractController
 {
     public function __construct(private readonly NumeroIdGenerator $numeroIdGenerator)
     {

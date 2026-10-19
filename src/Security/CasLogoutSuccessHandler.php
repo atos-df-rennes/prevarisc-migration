@@ -14,7 +14,7 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
  * Redirige vers le serveur CAS pour invalider le TGT quand CAS est activé,
  * sinon redirige vers /session/login (géré par Symfony ou Zend selon PREVARISC_SYMFONY_LOGIN).
  */
-class CasLogoutSuccessHandler implements EventSubscriberInterface
+final class CasLogoutSuccessHandler implements EventSubscriberInterface
 {
     public function __construct(private readonly bool $casEnabled, private readonly string $casHost, private readonly int $casPort, private readonly string $casPublicHost, private readonly int $casPublicPort, private readonly string $casContext, private readonly bool $casNoSsl)
     {

@@ -7,7 +7,7 @@ namespace App\Dto\Commission;
  * Utilisé par DossierRapportController pour passer des données typées au template Twig
  * en lieu et place d'un tableau associatif brut (REF-R-07).
  */
-class CommissionOdtDto
+final class CommissionOdtDto
 {
     /**
      * @var int

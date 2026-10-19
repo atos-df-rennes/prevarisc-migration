@@ -6,7 +6,7 @@ namespace App\ValueObject;
  * Objet de pagination pour les résultats de recherche.
  * Remplace Zend_Paginator dans la migration.
  */
-class SearchPagination
+final class SearchPagination
 {
     private readonly int $currentPage;
 

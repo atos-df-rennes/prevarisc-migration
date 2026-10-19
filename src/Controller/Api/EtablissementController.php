@@ -26,7 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * API pour les établissements (autocomplete + valeurs par défaut).
  */
-class EtablissementController extends AbstractController
+final class EtablissementController extends AbstractController
 {
     /**
      * Nombre minimum de caractères pour déclencher une recherche (parité legacy minChars: 3).

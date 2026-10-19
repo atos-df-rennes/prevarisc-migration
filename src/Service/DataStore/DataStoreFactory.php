@@ -7,7 +7,7 @@ namespace App\Service\DataStore;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
 
-class DataStoreFactory
+final class DataStoreFactory
 {
     public function __construct(
         private readonly EtablissementRepository $etablissementRepository,

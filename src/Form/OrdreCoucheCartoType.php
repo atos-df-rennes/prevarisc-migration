@@ -10,7 +10,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 
-class OrdreCoucheCartoType extends AbstractType
+final class OrdreCoucheCartoType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

@@ -12,7 +12,7 @@ use App\Constant\GenreEtablissement;
  * (nav-main.phtml, dossier/liees.phtml, etablissement/edit.phtml) : la commune affichée
  * dépend du genre de l'établissement.
  */
-class EtablissementAutocompleteNormalizer
+final class EtablissementAutocompleteNormalizer
 {
     /**
      * @param array<int|string, array<string, mixed>> $rows Lignes SQL brutes de la recherche

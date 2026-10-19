@@ -11,7 +11,7 @@ use App\Entity\Etablissement;
  * (fil d'Ariane) et dans l'API d'aperçu établissement (bulle popover) : climb via getParent()
  * jusqu'à la racine, puis inversion pour obtenir un ordre "racine en premier".
  */
-class EtablissementAncestryService
+final class EtablissementAncestryService
 {
     /**
      * @return Etablissement[] Ancêtres de l'établissement, racine en premier, parent direct en dernier.

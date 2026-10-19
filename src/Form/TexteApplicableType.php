@@ -14,7 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TexteApplicableType extends AbstractType
+final class TexteApplicableType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

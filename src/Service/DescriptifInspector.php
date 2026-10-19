@@ -10,7 +10,7 @@ use App\Entity\Valeur;
  * Inspecte le contenu des formulaires personnalisés (rubriques/champs/valeurs)
  * pour déterminer si des données ont été saisies.
  */
-class DescriptifInspector
+final class DescriptifInspector
 {
     /**
      * Indique si au moins un champ du descriptif contient une donnée saisie.

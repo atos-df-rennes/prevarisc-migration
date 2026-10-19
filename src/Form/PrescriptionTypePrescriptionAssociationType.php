@@ -12,7 +12,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class PrescriptionTypePrescriptionAssociationType extends AbstractType
+final class PrescriptionTypePrescriptionAssociationType extends AbstractType
 {
     public function __construct(private readonly PrescriptionArticleListeRepository $prescriptionArticleListeRepository, private readonly PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
     {

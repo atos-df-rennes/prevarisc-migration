@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * Service de gestion de l'export des pièces jointes vers Plat'AU.
  */
-class PieceJointeExportService
+final class PieceJointeExportService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PieceJointeStatutRepository $statutRepository)
     {

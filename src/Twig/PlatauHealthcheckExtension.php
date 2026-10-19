@@ -6,7 +6,7 @@ use App\Dto\Platau\HealthcheckStatus;
 use App\Service\Platau\PlatauHealthcheckStatusProvider;
 use Twig\Attribute\AsTwigFunction;
 
-class PlatauHealthcheckExtension
+final class PlatauHealthcheckExtension
 {
     public function __construct(
         private readonly bool $deactivatePlatau,

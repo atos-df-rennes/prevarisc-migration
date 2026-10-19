@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Port de Api_CalendarController + Api_Service_Calendar::sync() (version simplifiée).
  * Fonctionne SANS session utilisateur — authentification par clé de sécurité dans l'URL.
  */
-class IcalendarController extends AbstractController
+final class IcalendarController extends AbstractController
 {
     public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly IcalendarSyncService $icalendarSyncService)
     {

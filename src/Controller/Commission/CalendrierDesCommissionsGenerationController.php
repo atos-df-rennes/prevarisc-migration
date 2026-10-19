@@ -16,7 +16,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Génération des documents de commission (convocation, ODJ, PV, compte-rendu).
  */
 #[IsGranted('generation_doc_com')]
-class CalendrierDesCommissionsGenerationController extends AbstractController
+final class CalendrierDesCommissionsGenerationController extends AbstractController
 {
     public function __construct(private readonly CommissionDocumentGenerationService $generationService, private readonly ManagerRegistry $managerRegistry)
     {

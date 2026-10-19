@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * Pourrait aussi être rapatrié dans DossierController avec _dossier_lateral_nav: false.
  */
-class DossierAjaxController extends AbstractController
+final class DossierAjaxController extends AbstractController
 {
     public function __construct(private readonly DossierRepository $dossierRepository, private readonly ServiceDossier $dossierService)
     {

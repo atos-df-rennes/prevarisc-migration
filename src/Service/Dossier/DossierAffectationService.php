@@ -15,7 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * Service de gestion des affectations de dossiers aux commissions/visites.
  */
-class DossierAffectationService
+final class DossierAffectationService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierAffectationRepository $affectationRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly DossierFields $dossierFieldsService)
     {

@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_formulaires')]
-class RubriqueController extends AbstractController
+final class RubriqueController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly RubriqueRepository $rubriqueRepository, private readonly ChampValeurListeRepository $champValeurListeRepository)
     {

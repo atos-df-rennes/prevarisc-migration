@@ -8,7 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ListeDocumentAjouteType extends AbstractType
+final class ListeDocumentAjouteType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

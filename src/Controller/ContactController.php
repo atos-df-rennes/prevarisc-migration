@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 
-class ContactController extends AbstractController
+final class ContactController extends AbstractController
 {
     public function __construct(private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly RouterInterface $router, private readonly EntityManagerInterface $entityManager)
     {

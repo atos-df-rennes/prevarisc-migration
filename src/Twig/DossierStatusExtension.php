@@ -9,7 +9,7 @@ use App\Dto\Repository\AbstractDossierResultDto;
 use App\Service\DateDiffFormatterService;
 use Twig\Attribute\AsTwigFilter;
 
-class DossierStatusExtension
+final class DossierStatusExtension
 {
     public function __construct(private readonly DateDiffFormatterService $dateDiffFormatter)
     {

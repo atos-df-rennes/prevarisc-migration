@@ -15,7 +15,7 @@ use Symfony\Component\PasswordHasher\LegacyPasswordHasherInterface;
  * Utilisé via migrate_from dans security.php pour migrer automatiquement
  * les anciens hashs MD5 vers bcrypt lors de la prochaine connexion réussie.
  */
-class Md5SaltedEncoder implements LegacyPasswordHasherInterface
+final class Md5SaltedEncoder implements LegacyPasswordHasherInterface
 {
     /**
      * @param string $globalSalt La valeur de PREVARISC_SECURITY_SALT

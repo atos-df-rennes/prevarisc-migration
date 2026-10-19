@@ -22,7 +22,7 @@ use App\Service\NotificationService;
  * Chaque méthode getData* retourne les données pour un bloc,
  * chaque méthode getCount* retourne le comptage.
  */
-class DashboardService
+final class DashboardService
 {
     public function __construct(private readonly DashboardBlocConfig $blocConfig, private readonly DateCommissionRepository $dateCommissionRepository, private readonly EtablissementRepository $etablissementRepository, private readonly DossierRepository $dossierRepository, private readonly FeedService $feedService, private readonly NotificationService $notificationService)
     {

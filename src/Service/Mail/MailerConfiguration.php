@@ -8,7 +8,7 @@ namespace App\Service\Mail;
  * Équivalent legacy : Service_Mail::__construct()
  * Construit dynamiquement la DSN Mailer selon la configuration Apache.
  */
-class MailerConfiguration
+final class MailerConfiguration
 {
     /**
      * @param string $transport  Type transport (smtp, sendmail, mail)

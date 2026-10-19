@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\EnvVarProcessorInterface;
  *
  * Équivalent legacy : Bootstrap::run() (chargement des plugins tiers).
  */
-class ThirdpartyPluginEnvVarProcessor implements EnvVarProcessorInterface
+final class ThirdpartyPluginEnvVarProcessor implements EnvVarProcessorInterface
 {
     /**
      * Association préfixe env(...) => nom de classe Plugin_* legacy détectée

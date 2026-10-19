@@ -15,7 +15,7 @@ use App\Entity\EtablissementType;
  *
  * Équivalent legacy : Service_Changement::getObjet()
  */
-class ObjetService
+final class ObjetService
 {
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis

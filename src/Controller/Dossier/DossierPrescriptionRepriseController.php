@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class DossierPrescriptionRepriseController extends AbstractController implements DossierPrescriptionsAccessInterface
+final class DossierPrescriptionRepriseController extends AbstractController implements DossierPrescriptionsAccessInterface
 {
     public function __construct(private readonly DossierPrescriptionService $service, private readonly DossierRepository $dossierRepo, private readonly LoggerInterface $logger)
     {

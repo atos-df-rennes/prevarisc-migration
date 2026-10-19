@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class IndexController extends AbstractController
+final class IndexController extends AbstractController
 {
     public function __construct(private readonly VersionBuilder $versionBuilder, private readonly DashboardBlocConfig $dashboardBlocConfig, private readonly DashboardService $dashboardService, private readonly FeedService $feedService, private readonly GroupeRepository $groupeRepository, private readonly NotificationService $notificationService, private readonly PlatauHealthcheckStatusProvider $platauHealthcheckStatusProvider, private readonly bool $deactivatePlatau, private readonly bool $platauNoHealthcheck, private readonly LoggerInterface $logger, private readonly bool $sdis29CustomEnabled)
     {

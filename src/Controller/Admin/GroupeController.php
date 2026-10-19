@@ -28,7 +28,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(requirements: ['id' => '\d+'])]
 #[IsGranted('admin')]
-class GroupeController extends AbstractController
+final class GroupeController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly GroupeRepository $groupeRepository, private readonly UtilisateurRepository $utilisateurRepository, private readonly ResourcesRepository $resourcesRepository, private readonly RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, private readonly RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
     {

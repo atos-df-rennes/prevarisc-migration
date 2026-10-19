@@ -11,7 +11,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  * Recherche et export des établissements.
  * Extrait de Search (refactoring REF-SVC-01).
  */
-class EtablissementSearchService
+final class EtablissementSearchService
 {
     public const MAX_LIMIT_PAGES_ETABLISSEMENTS = 1000;
 

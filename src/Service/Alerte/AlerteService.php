@@ -21,7 +21,7 @@ use App\Repository\UtilisateurRepository;
  *
  * Équivalent legacy : Service_Alerte + coordination Service_Changement
  */
-class AlerteService
+final class AlerteService
 {
     /**
      * Mapping type changement → nom privilege.

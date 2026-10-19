@@ -23,7 +23,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * @see prevarisc/application/controllers/DossierController.php::deleteAction()
  * @see prevarisc/application/services/Dossier.php::delete()
  */
-class DossierSuppressionService
+final class DossierSuppressionService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly DossierRepository $dossierRepository)
     {

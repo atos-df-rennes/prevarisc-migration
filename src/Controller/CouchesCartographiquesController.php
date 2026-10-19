@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[IsGranted('admin')]
-class CouchesCartographiquesController extends AbstractController
+final class CouchesCartographiquesController extends AbstractController
 {
     public function __construct(private readonly CouchesCarto $couchesCarto, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly EntityManagerInterface $entityManager, private readonly IgnAutoconfiguration $ignAutoconfiguration)
     {

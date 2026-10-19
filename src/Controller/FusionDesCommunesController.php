@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('communes')]
-class FusionDesCommunesController extends AbstractController
+final class FusionDesCommunesController extends AbstractController
 {
     public function __construct(private readonly FusionDesCommunes $fusionDesCommunes)
     {

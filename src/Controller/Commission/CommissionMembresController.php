@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_commissions')]
-class CommissionMembresController extends AbstractController
+final class CommissionMembresController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommissionMembreRepository $membreRepository, private readonly DossierNatureListeRepository $dossierNatureListeRepository, private readonly CommissionMembreCourrierService $courrierService)
     {

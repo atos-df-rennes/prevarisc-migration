@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * API pour les groupements (autocomplete service instructeur).
  */
-class GroupementController extends AbstractController
+final class GroupementController extends AbstractController
 {
     public function __construct(private readonly GroupementRepository $groupementRepository)
     {

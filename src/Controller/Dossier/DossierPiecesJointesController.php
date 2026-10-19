@@ -35,7 +35,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * Port direct de PieceJointeController (type=dossier) et DossierController (pieceJointeAction, getZipAllPjAction).
  */
-class DossierPiecesJointesController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierPiecesJointesController extends AbstractController implements DossierLateralNavigationInterface
 {
     private const array FORBIDDEN_EXTENSIONS = ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'];
 

@@ -10,7 +10,7 @@ use App\Repository\EtablissementRepository;
 /**
  * This class abstract the data access to the repository.
  */
-class HashedFileDataStore extends SimpleFileDataStore
+final class HashedFileDataStore extends SimpleFileDataStore
 {
     /** @var string[] */
     protected $nonHashedTypes = DataStoreObjectTypes::NON_HASHED_TYPES;

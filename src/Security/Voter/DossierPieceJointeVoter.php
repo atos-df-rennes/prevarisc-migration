@@ -15,7 +15,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *
  * @extends Voter<string, DossierPieceJointe>
  */
-class DossierPieceJointeVoter extends Voter implements ResetInterface
+final class DossierPieceJointeVoter extends Voter implements ResetInterface
 {
     public const string MODIFICATION = 'edit_dossier_pj';
 

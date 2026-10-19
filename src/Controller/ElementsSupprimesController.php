@@ -17,7 +17,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[IsGranted(new Expression("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))"))]
-class ElementsSupprimesController extends AbstractController
+final class ElementsSupprimesController extends AbstractController
 {
     public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly DossierRepository $dossierRepository, private readonly EtablissementService $etablissementService, private readonly DossierService $dossierService, private readonly TagAwareCacheInterface $searchCache)
     {

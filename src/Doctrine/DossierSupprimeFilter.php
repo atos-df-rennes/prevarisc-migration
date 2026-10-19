@@ -11,7 +11,7 @@ use Doctrine\ORM\Query\Filter\SQLFilter;
  *
  * Cette classe permet de s'assurer que seuls les dossiers actifs (non supprimés) sont retournés par les requêtes.
  */
-class DossierSupprimeFilter extends SQLFilter
+final class DossierSupprimeFilter extends SQLFilter
 {
     public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias): string
     {

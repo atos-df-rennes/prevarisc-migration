@@ -28,7 +28,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[IsGranted('gestion_formulaires')]
-class FormulairesController extends AbstractController
+final class FormulairesController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly FormFactoryInterface $formFactory, private readonly SerializerInterface $serializer, private readonly FormulairesImporter $formulairesImporter, private readonly LoggerInterface $logger)
     {

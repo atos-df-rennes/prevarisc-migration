@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * API d'autocomplétion des adresses.
  * Port de Api_AdresseController + Service_Adresse + Model_DbTable_EtablissementAdresse.
  */
-class AdresseController extends AbstractController
+final class AdresseController extends AbstractController
 {
     private const int LONGUEUR_CODE_POSTAL = 5;
 

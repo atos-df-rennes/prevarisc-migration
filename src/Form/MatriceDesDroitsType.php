@@ -7,7 +7,7 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class MatriceDesDroitsType extends AbstractType
+final class MatriceDesDroitsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

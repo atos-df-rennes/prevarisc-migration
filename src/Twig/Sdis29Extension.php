@@ -21,7 +21,7 @@ use Twig\Attribute\AsTwigFunction;
  * l'appel depuis les templates qui est conditionné par `sdis29_custom_enabled`
  * et par la présence de l'URL Géobretagne (`geobretagne_url`).
  */
-class Sdis29Extension
+final class Sdis29Extension
 {
     public function __construct(private readonly GeobretagneUrlBuilder $geobretagneUrlBuilder, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly UrlGeneratorInterface $urlGenerator)
     {

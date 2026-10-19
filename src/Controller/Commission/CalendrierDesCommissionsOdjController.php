@@ -22,7 +22,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gestion de l'ordre du jour (ODJ) d'une date de commission.
  * Extrait de CalendrierDesCommissionsController (REF-CTL-01).
  */
-class CalendrierDesCommissionsOdjController extends AbstractController
+final class CalendrierDesCommissionsOdjController extends AbstractController
 {
     public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly EntityManagerInterface $entityManager)
     {

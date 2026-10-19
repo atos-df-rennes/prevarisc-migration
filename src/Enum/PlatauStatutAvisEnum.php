@@ -2,7 +2,7 @@
 
 namespace App\Enum;
 
-class PlatauStatutAvisEnum
+final class PlatauStatutAvisEnum
 {
     public const LABELS = [
         self::INCONNU => 'Statut inconnu',

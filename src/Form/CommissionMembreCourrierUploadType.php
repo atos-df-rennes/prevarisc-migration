@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\File;
  * Formulaire d'upload d'un courrier type pour un membre de commission.
  * Accepte uniquement les fichiers ODT.
  */
-class CommissionMembreCourrierUploadType extends AbstractType
+final class CommissionMembreCourrierUploadType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

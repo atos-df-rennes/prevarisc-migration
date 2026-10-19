@@ -20,7 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(requirements: ['id' => '\d+'])]
 #[IsGranted('admin')]
-class UtilisateursController extends AbstractController
+final class UtilisateursController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,

@@ -8,7 +8,7 @@ use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGe
 /**
  * @phpstan-import-type FormData from RessourcesSpecialiseesEtablissementTextGenerator
  */
-class RessourcesSpecialiseesBupNamer implements RessourcesSpecialiseesEtablissementNamer
+final class RessourcesSpecialiseesBupNamer implements RessourcesSpecialiseesEtablissementNamer
 {
     /**
      * @param FormData $formData

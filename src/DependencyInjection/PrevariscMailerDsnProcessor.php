@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\EnvVarProcessorInterface;
  *
  * Équivalent legacy : Service_Mail::__construct()
  */
-class PrevariscMailerDsnProcessor implements EnvVarProcessorInterface
+final class PrevariscMailerDsnProcessor implements EnvVarProcessorInterface
 {
     public function __construct(private readonly MailerConfiguration $mailerConfiguration)
     {

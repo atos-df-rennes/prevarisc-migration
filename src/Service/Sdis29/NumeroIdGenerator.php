@@ -16,7 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * Portage de SDIS29_EtablissementController::generateidAction()
  * (legacy Zend, modules/sdis29/controllers/EtablissementController.php).
  */
-class NumeroIdGenerator
+final class NumeroIdGenerator
 {
     private const array RANGES = [
         'Brest' => [1000, 39999],

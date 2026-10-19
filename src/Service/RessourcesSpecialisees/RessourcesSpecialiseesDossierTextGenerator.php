@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  *     natures?: array<int, string>
  * }
  */
-class RessourcesSpecialiseesDossierTextGenerator
+final class RessourcesSpecialiseesDossierTextGenerator
 {
     public function __construct(private readonly DossierNatureListeRepository $naturesRepository)
     {

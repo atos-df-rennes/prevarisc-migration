@@ -26,7 +26,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gère les actions liées aux effectifs et dégagements d'un dossier.
  */
 #[Route(requirements: ['id' => '\d+'])]
-class DossierEffectifsController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierEffectifsController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private readonly DescriptifService $descriptifService, private readonly DescriptifInspector $descriptifInspector, private readonly DescriptifCopier $descriptifCopier, private readonly DossierRepository $dossierRepository, private readonly EffectifsDegagementsRepriseValidator $repriseValidator, private readonly LoggerInterface $logger, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly FormFactoryInterface $formFactory)
     {

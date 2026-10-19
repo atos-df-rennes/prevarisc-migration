@@ -5,7 +5,7 @@ namespace App\Service;
 use App\Entity\Utilisateur;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UtilisateurManager
+final class UtilisateurManager
 {
     public function __construct(private readonly UserPasswordHasherInterface $hasher)
     {

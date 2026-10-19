@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Champ textarea pour les formulaires personnalisés.
  */
-class ChampTextareaType extends AbstractType
+final class ChampTextareaType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver): void
     {

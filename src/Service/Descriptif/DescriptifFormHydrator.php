@@ -24,7 +24,7 @@ use App\ValueObject\RubriqueEtat;
  *
  * @phpstan-import-type RubriqueData from Descriptif
  */
-class DescriptifFormHydrator
+final class DescriptifFormHydrator
 {
     /**
      * Hydrate un DescriptifFormData depuis les données d'un Dossier.

@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_textes_applicables')]
-class TextesApplicablesController extends AbstractController
+final class TextesApplicablesController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly TexteApplicableRepository $texteApplicableRepository, private readonly \App\Service\TexteApplicable $serviceTexteApplicable)
     {

@@ -34,7 +34,7 @@ use Doctrine\ORM\EntityManagerInterface;
  *
  * @phpstan-import-type RubriqueData from Descriptif
  */
-class DescriptifFormPersister
+final class DescriptifFormPersister
 {
     public function __construct(private readonly ValeurRepository $valeurRepository, private readonly ChampRepository $champRepository, private readonly DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private readonly EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository, private readonly EntityManagerInterface $entityManager)
     {

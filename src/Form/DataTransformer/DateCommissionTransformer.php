@@ -11,7 +11,7 @@ use Symfony\Component\Form\DataTransformerInterface;
  * avec le format Y-m-d (ex: "2025-12-16"). Ce transformer permet d'utiliser
  * un DateType dans le formulaire tout en conservant la compatibilité avec la base.
  */
-class DateCommissionTransformer implements DataTransformerInterface
+final class DateCommissionTransformer implements DataTransformerInterface
 {
     /**
      * Transforme une string (Y-m-d) en DateTime pour l'affichage dans le form.

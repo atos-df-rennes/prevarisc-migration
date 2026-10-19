@@ -10,7 +10,7 @@ use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class PisteTokenProvider
+final class PisteTokenProvider
 {
     private const string CACHE_KEY = 'platau_piste_token';
 

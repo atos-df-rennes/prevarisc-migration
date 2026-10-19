@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints\File;
  * Formulaire d'upload du document type (Compte Rendu) d'une commission.
  * Accepte uniquement les fichiers ODT.
  */
-class CommissionDocumentCrType extends AbstractType
+final class CommissionDocumentCrType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

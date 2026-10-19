@@ -24,7 +24,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gère les contacts d'un dossier.
  */
 #[Route(requirements: ['id' => '\d+'])]
-class DossierContactController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierContactController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierRepository $dossierRepository, private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly Contact $contactService)
     {

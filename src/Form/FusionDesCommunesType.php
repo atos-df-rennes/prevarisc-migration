@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class FusionDesCommunesType extends AbstractType
+final class FusionDesCommunesType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

@@ -14,7 +14,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class ChampType extends AbstractType
+final class ChampType extends AbstractType
 {
     public function __construct(private readonly TypeChampRepository $typeChampRepository)
     {

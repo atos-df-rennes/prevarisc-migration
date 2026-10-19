@@ -40,7 +40,7 @@ use Symfony\Component\Security\Http\Util\TargetPathTrait;
  *   3. LDAP (Symfony\Component\Ldap) — si PREVARISC_LDAP_ENABLED=1 (fallback du dbtable)
  *   4. dbtable MD5 → bcrypt via migrate_from — cas par défaut
  */
-class FormLoginAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface, InteractiveAuthenticatorInterface
+final class FormLoginAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface, InteractiveAuthenticatorInterface
 {
     use TargetPathTrait;
 

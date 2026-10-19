@@ -34,7 +34,7 @@ use Psr\Log\LoggerInterface;
  *
  * @phpstan-import-type RubriqueData from Descriptif
  */
-class CommissionDocumentGenerationService
+final class CommissionDocumentGenerationService
 {
     public function __construct(private readonly EntityManagerInterface $em, private readonly DataStore $dataStore, private readonly LoggerInterface $logger, private readonly CommissionMembreEligibilityChecker $eligibilityChecker, private readonly Descriptif $descriptif, private readonly DateCommissionRepository $dateCommissionRepo, private readonly OdtWriter $odtWriter, private readonly DossierPrescriptionService $prescriptionService, private readonly CommissionDataProvider $dataProvider, private readonly string $courriersMembresRealDataPath, private readonly string $documentsCommissionRealDataPath)
     {

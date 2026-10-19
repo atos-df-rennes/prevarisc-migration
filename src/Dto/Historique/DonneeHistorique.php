@@ -2,7 +2,7 @@
 
 namespace App\Dto\Historique;
 
-class DonneeHistorique
+final class DonneeHistorique
 {
     private ?int $fin = null;
 

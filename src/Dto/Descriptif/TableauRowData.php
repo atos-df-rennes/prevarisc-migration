@@ -8,7 +8,7 @@ namespace App\Dto\Descriptif;
  * Chaque cellule est indexée par le champId de l'enfant correspondant.
  * Les valeurIds permettent de suivre les Valeur existantes pour update vs insert.
  */
-class TableauRowData
+final class TableauRowData
 {
     /**
      * @param array<int, mixed>    $cells     Valeurs des cellules indexées par champId enfant

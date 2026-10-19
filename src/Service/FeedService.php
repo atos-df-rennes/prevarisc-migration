@@ -12,7 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * Gestion des messages/news du tableau de bord.
  * Port direct de Service_Feed (legacy).
  */
-class FeedService
+final class FeedService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly NewsRepository $newsRepository, private readonly GroupeRepository $groupeRepository)
     {

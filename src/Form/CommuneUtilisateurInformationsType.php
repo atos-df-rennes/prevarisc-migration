@@ -15,7 +15,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CommuneUtilisateurInformationsType extends AbstractType
+final class CommuneUtilisateurInformationsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

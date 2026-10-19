@@ -44,7 +44,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * Génère un rapport ODT pour un dossier/établissement et retourne un lien HTML
  * vers la pièce jointe nouvellement créée.
  */
-class DossierRapportOdtService
+final class DossierRapportOdtService
 {
     public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger, private readonly CommuneRepository $communeRepository, private readonly GroupementRepository $groupementRepository)
     {

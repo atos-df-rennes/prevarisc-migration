@@ -17,7 +17,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[IsGranted('periodicites')]
-class TableauDesPeriodicitesController extends AbstractController
+final class TableauDesPeriodicitesController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PeriodiciteRepository $periodiciteRepository, private readonly EtablissementTypeRepository $etablissementTypeRepository, private readonly EtablissementCategorieRepository $etablissementCategorieRepository, private readonly IghClasseRepository $ighClasseRepository, private readonly TagAwareCacheInterface $searchCache)
     {

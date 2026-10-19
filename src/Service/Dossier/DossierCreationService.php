@@ -19,7 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
  *
  * Ces opérations sont spécifiques à la création et n'ont pas lieu lors de l'édition.
  */
-class DossierCreationService
+final class DossierCreationService
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierRepository $dossierRepository, private readonly DossierPrescriptionService $prescriptionService, private readonly Prescriptions $prescriptions)
     {

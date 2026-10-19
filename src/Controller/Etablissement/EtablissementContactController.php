@@ -22,7 +22,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gère les contacts d'un établissement.
  */
 #[Route(requirements: ['id' => '\d+'])]
-class EtablissementContactController extends AbstractController implements EtablissementLateralNavigationInterface
+final class EtablissementContactController extends AbstractController implements EtablissementLateralNavigationInterface
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly EtablissementRepository $etablissementRepository, private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly Contact $contactService)
     {
