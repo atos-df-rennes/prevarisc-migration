@@ -140,7 +140,7 @@ L'utilisateur est redirigé vers la liste des groupements.
 
 ### 4.6 Réassigner les préventionnistes aux établissements
 
-**Description :** Un bouton « Affecter aux établissements » est disponible dans l'onglet « Préventionnistes affectés », à condition qu'au moins un préventionniste soit affecté au groupement.
+**Description :** Un bouton « Sauvegarder et affecter aux établissements » est disponible dans l'onglet « Préventionnistes affectés », à condition qu'au moins un préventionniste soit affecté au groupement. Cette action sauvegarde d'abord les modifications de cet onglet, puis lance l'affectation aux établissements.
 
 Le déclenchement de cette action effectue les opérations suivantes :
 
@@ -209,7 +209,7 @@ Un groupement peut être créé sans aucune commune. Dans ce cas :
 
 ### 7.2 Groupement sans préventionniste
 
-Un groupement peut exister sans préventionniste affecté. Le bouton « Affecter aux établissements » n'est alors pas affiché.
+Un groupement peut exister sans préventionniste affecté. Le bouton « Sauvegarder et affecter aux établissements » n'est alors pas affiché.
 
 ### 7.3 Coordonnées absentes
 
