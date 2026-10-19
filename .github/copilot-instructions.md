@@ -50,3 +50,8 @@ Before modifying code:
 To follow the detailed workflow, refer to the skill `.agents/skills/specifications-fonctionnelles/SKILL.md`. To answer domain questions or assess functional impact, use the `functional-specialist` agent defined in `.github/agents/functional-specialist.agent.md`.
 
 Purely technical changes with no observable functional effect do not require updating the specifications.
+
+## Agent selection
+
+- Use `symfony-maintenance` for implementation work and `functional-specialist` when business rules need clarification against the specifications.
+- Treat `code-review`, `security-review`, `performance-review`, and `rgaa-review` as read-only audits; choose a reviewer only when its focus matches the requested review.
