@@ -44,9 +44,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * Génère un rapport ODT pour un dossier/établissement et retourne un lien HTML
  * vers la pièce jointe nouvellement créée.
  */
-final class DossierRapportOdtService
+final readonly class DossierRapportOdtService
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger, private readonly CommuneRepository $communeRepository, private readonly GroupementRepository $groupementRepository)
+    public function __construct(private EntityManagerInterface $em, private Connection $conn, private DataStore $dataStore, private DossierPrescriptionService $prescriptionService, private DossierAffectationRepository $dossierAffectationRepository, private EtablissementAdresseRepository $etablissementAdresseRepository, private DateCommissionRepository $dateCommissionRepository, private Descriptif $descriptifService, private ListeDocumentConsulteRepository $listeDocRepository, private DossierRepository $dossierRepository, private UrlGeneratorInterface $urlGenerator, private OdtWriter $odtWriter, private DossierVisiteConvocationService $visiteConvocationService, private string $realDataPath, private LoggerInterface $rapportLogger, private CommuneRepository $communeRepository, private GroupementRepository $groupementRepository)
     {
     }
 

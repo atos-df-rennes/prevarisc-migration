@@ -2,6 +2,7 @@
 
 namespace App\Controller\Commission;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Commission;
 use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
@@ -69,7 +70,7 @@ final class CommissionsController extends AbstractController
      * Redirige vers l'onglet compétences (point d'entrée générique par commission).
      */
     #[Route(path: '/admin/commissions/{id}', name: 'admin_commissions_show', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function show(Commission $commission): Response
+    public function show(Commission $commission): RedirectResponse
     {
         return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
     }

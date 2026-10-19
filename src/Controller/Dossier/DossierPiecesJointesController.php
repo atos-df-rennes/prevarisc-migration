@@ -232,7 +232,7 @@ final class DossierPiecesJointesController extends AbstractController implements
      */
     #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/telecharger', name: 'dossier_pieces_jointes_get', methods: ['GET'], requirements: ['idpj' => '\d+'])]
     #[IsGranted('view_doss', subject: 'dossier')]
-    public function download(Dossier $dossier, #[MapEntity(id: 'idpj')] PieceJointe $pj): Response
+    public function download(Dossier $dossier, #[MapEntity(id: 'idpj')] PieceJointe $pj): BinaryFileResponse
     {
         $dpj = $this->dossierPieceJointeRepository->findOneBy([
             'pieceJointe' => $pj,

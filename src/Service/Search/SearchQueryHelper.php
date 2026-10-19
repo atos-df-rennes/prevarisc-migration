@@ -8,9 +8,9 @@ use Doctrine\DBAL\Connection;
  * Helper de construction de conditions SQL pour les services de recherche.
  * Extrait de Search (refactoring REF-SVC-01) pour permettre la testabilité unitaire.
  */
-final class SearchQueryHelper
+final readonly class SearchQueryHelper
 {
-    public function __construct(private readonly Connection $connection)
+    public function __construct(private Connection $connection)
     {
     }
 

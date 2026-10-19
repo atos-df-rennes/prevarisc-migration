@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Periodicite;
 use App\Repository\EtablissementCategorieRepository;
 use App\Repository\EtablissementTypeRepository;
@@ -47,7 +48,7 @@ final class TableauDesPeriodicitesController extends AbstractController
     }
 
     #[Route(path: '/admin/tableau-des-periodicites/sauvegarder', name: 'admin_tableau_des_periodicites_save')]
-    public function save(Request $request): Response
+    public function save(Request $request): RedirectResponse
     {
         foreach ($request->request->all() as $periodiciteKey => $periodicite) {
             $clesTableauDesPeriodicites = ClesTableauDesPeriodicites::fromRequest($periodiciteKey);
@@ -92,7 +93,7 @@ final class TableauDesPeriodicitesController extends AbstractController
     }
 
     #[Route(path: '/admin/tableau-des-periodicites/appliquer', name: 'admin_tableau_des_periodicites_apply', methods: ['POST'])]
-    public function apply(Request $request): Response
+    public function apply(Request $request): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');

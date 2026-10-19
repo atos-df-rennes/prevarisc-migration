@@ -2,6 +2,7 @@
 
 namespace App\Controller\Prescription;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Entity\PrescriptionArticle;
 use App\Entity\PrescriptionCategorie;
 use App\Entity\PrescriptionTexte;
@@ -42,7 +43,7 @@ final class PrescriptionsTypesController extends AbstractController
     }
 
     #[Route(path: '/admin/prescriptions/changement-ordre', name: 'admin_prescriptions_types_changement_ordre', methods: ['POST'], options: ['expose' => true])]
-    public function reOrder(Request $request): Response
+    public function reOrder(Request $request): JsonResponse
     {
         $orders = $request->request->all()['order'] ?? null;
         $type = $request->request->get('type');

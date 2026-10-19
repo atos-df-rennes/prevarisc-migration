@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Controller\Contract\DossierPrescriptionsAccessInterface;
 use App\Entity\Dossier;
 use App\Repository\DossierRepository;
@@ -57,7 +58,7 @@ final class DossierPrescriptionRepriseController extends AbstractController impl
      */
     #[Route(path: '/dossier/{id}/prescriptions/reprendre', name: 'dossier_prescriptions_reprendre', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function reprendre(Request $request, Dossier $dossier): Response
+    public function reprendre(Request $request, Dossier $dossier): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');

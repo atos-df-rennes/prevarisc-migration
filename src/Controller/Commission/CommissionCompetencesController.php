@@ -2,6 +2,7 @@
 
 namespace App\Controller\Commission;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Commission;
 use App\Form\CommissionReglesCollectionType;
 use App\Repository\EtablissementInformationsRepository;
@@ -57,7 +58,7 @@ final class CommissionCompetencesController extends AbstractController
      * Met à jour ID_COMMISSION sur les établissements correspondants, puis vide le cache legacy.
      */
     #[Route(path: '/admin/commissions/{id}/competences/appliquer-regles', name: 'admin_commissions_apply_regles', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function applyRegles(Request $request, Commission $commission): Response
+    public function applyRegles(Request $request, Commission $commission): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');

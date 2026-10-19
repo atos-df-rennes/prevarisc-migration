@@ -12,9 +12,9 @@ namespace App\ValueObject;
  *
  * Immuable.
  */
-final class RubriqueEtat
+final readonly class RubriqueEtat
 {
-    public function __construct(private readonly bool $display = true, private readonly bool $opened = false)
+    public function __construct(private bool $display = true, private bool $opened = false)
     {
     }
 

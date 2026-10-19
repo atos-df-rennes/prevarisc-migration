@@ -2,6 +2,7 @@
 
 namespace App\Controller\Etablissement;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Constant\DossierType;
 use App\Constant\GenreEtablissement;
 use App\Constant\NomInterneCapsule;
@@ -254,7 +255,7 @@ final class EtablissementController extends AbstractController implements Etabli
         int $id,
         Request $request,
         Etablissement $etablissement
-    ): Response {
+    ): RedirectResponse {
         $typeAlerte = $request->query->getInt('type_alerte', 0);
         $lienAlerte = '';
 
@@ -461,7 +462,7 @@ final class EtablissementController extends AbstractController implements Etabli
      */
     #[Route(path: '/etablissement/{id}/pieces-jointes/supprimer', name: 'etablissement_pieces_jointes_supprimer', methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
     #[IsGranted('edit_ets', subject: 'etablissement')]
-    public function deletePieceJointe(Etablissement $etablissement, Request $request): Response
+    public function deletePieceJointe(Etablissement $etablissement, Request $request): RedirectResponse
     {
         $idPj = $request->request->getInt('id_pj');
 
@@ -736,7 +737,7 @@ final class EtablissementController extends AbstractController implements Etabli
      */
     #[Route(path: '/etablissement/{id}/supprimer', name: 'etablissement_supprimer', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
     #[IsGranted('delete_etablissement')]
-    public function deleteEtablissement(Etablissement $etablissement, Request $request): Response
+    public function deleteEtablissement(Etablissement $etablissement, Request $request): RedirectResponse
     {
         $rawToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('delete_etablissement_'.$etablissement->getId(), is_string($rawToken) ? $rawToken : null)) {

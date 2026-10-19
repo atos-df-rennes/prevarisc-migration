@@ -20,9 +20,9 @@ use Psr\Log\LoggerInterface;
  *
  * @phpstan-import-type RubriqueData from Descriptif
  */
-final class DescriptifCopier
+final readonly class DescriptifCopier
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly LoggerInterface $logger)
+    public function __construct(private EntityManagerInterface $entityManager, private LoggerInterface $logger)
     {
     }
 

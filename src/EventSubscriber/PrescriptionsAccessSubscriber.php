@@ -15,9 +15,9 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Interdit l'accès aux routes de prescriptions d'un dossier dont la nature
  * ou le type ne permet pas les prescriptions (cf. templates/layouts/dossier.html.twig).
  */
-final class PrescriptionsAccessSubscriber implements EventSubscriberInterface
+final readonly class PrescriptionsAccessSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly DossierRepository $dossierRepository)
+    public function __construct(private DossierRepository $dossierRepository)
     {
     }
 

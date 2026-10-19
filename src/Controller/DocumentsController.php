@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Dto\FormDocument;
 use App\Form\DocumentType;
 use App\Repository\CommissionRepository;
@@ -121,7 +122,7 @@ final class DocumentsController extends AbstractController
     }
 
     #[Route(path: '/admin/documents/supprimer', name: 'admin_documents_delete', methods: ['POST'], options: ['expose' => true])]
-    public function supprimer(Request $request, string $documentsRealDataPath): Response
+    public function supprimer(Request $request, string $documentsRealDataPath): JsonResponse
     {
         // @todo: Générer un nom de fichier plus sûr
         $nomFichier = $request->request->get('nomFichier');

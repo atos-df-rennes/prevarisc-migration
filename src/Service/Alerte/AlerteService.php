@@ -21,18 +21,18 @@ use App\Repository\UtilisateurRepository;
  *
  * Équivalent legacy : Service_Alerte + coordination Service_Changement
  */
-final class AlerteService
+final readonly class AlerteService
 {
     /**
      * Mapping type changement → nom privilege.
      */
-    public const PRIVILEGES_CHANGEMENT = [
+    public const array PRIVILEGES_CHANGEMENT = [
         TypeChangement::STATUT => 'alerte_statut',
         TypeChangement::AVIS => 'alerte_avis',
         TypeChangement::CLASSEMENT => 'alerte_classement',
     ];
 
-    public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly ObjetService $objetService, private readonly MessageService $messageService)
+    public function __construct(private UtilisateurRepository $utilisateurRepository, private ObjetService $objetService, private MessageService $messageService)
     {
     }
 

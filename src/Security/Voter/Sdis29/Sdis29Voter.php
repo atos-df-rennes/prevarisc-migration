@@ -16,11 +16,11 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  * artefact applicatif étant déployé pour tous les SDIS, ce voter évite
  * d'exposer ces fonctionnalités chez les autres clients.
  */
-final class Sdis29Voter implements VoterInterface
+final readonly class Sdis29Voter implements VoterInterface
 {
-    public const ENABLED = 'sdis29_enabled';
+    public const string ENABLED = 'sdis29_enabled';
 
-    public function __construct(private readonly bool $sdis29CustomEnabled)
+    public function __construct(private bool $sdis29CustomEnabled)
     {
     }
 

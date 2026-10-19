@@ -92,7 +92,7 @@ final class GroupeController extends AbstractController
     }
 
     #[Route(path: '/admin/groupes/{id}/supprimer', name: 'admin_groupe_delete')]
-    public function supprimer(Groupe $groupe): Response
+    public function supprimer(Groupe $groupe): RedirectResponse
     {
         $groupeId = $groupe->getId();
 

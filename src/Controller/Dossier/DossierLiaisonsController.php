@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Form\Dossier\DossierAjouterEtablissementType;
@@ -79,7 +80,7 @@ final class DossierLiaisonsController extends AbstractController implements Doss
      */
     #[Route(path: '/dossier/{id}/liees/etablissements/ajouter', name: 'dossier_liees_etab_ajouter', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function ajouterEtablissementLie(Request $request, Dossier $dossier): Response
+    public function ajouterEtablissementLie(Request $request, Dossier $dossier): RedirectResponse
     {
         $form = $this->createForm(DossierAjouterEtablissementType::class);
         $form->handleRequest($request);

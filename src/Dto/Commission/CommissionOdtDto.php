@@ -10,44 +10,9 @@ namespace App\Dto\Commission;
 final class CommissionOdtDto
 {
     /**
-     * @var int
-     */
-    public $id;
-
-    /**
-     * @var string|null
-     */
-    public $libelle;
-
-    /**
-     * @var int
-     */
-    public $typeId;
-
-    /**
-     * @var string|null
-     */
-    public $typeLibelle;
-
-    /**
-     * @var string[]
-     */
-    public $listeFichier;
-
-    /**
      * @param string[] $listeFichier
      */
-    public function __construct(
-        int $id,
-        ?string $libelle,
-        int $typeId,
-        ?string $typeLibelle,
-        array $listeFichier
-    ) {
-        $this->id = $id;
-        $this->libelle = $libelle;
-        $this->typeId = $typeId;
-        $this->typeLibelle = $typeLibelle;
-        $this->listeFichier = $listeFichier;
+    public function __construct(public int $id, public ?string $libelle, public int $typeId, public ?string $typeLibelle, public array $listeFichier)
+    {
     }
 }

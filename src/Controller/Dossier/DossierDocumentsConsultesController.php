@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierDocumentConsulte;
@@ -93,7 +94,7 @@ final class DossierDocumentsConsultesController extends AbstractController imple
 
     #[Route(path: '/dossier/{id}/documents-consultes/{idDocumentConsulte}/supprimer', name: 'dossier_documents_consultes_delete', requirements: ['id' => '\d+', 'idDocumentConsulte' => '\d+'], methods: ['DELETE'], options: ['_dossier_lateral_nav' => false])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function deleteDocumentConsulte(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentConsulte')] DossierDocumentConsulte $documentConsulte): Response
+    public function deleteDocumentConsulte(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentConsulte')] DossierDocumentConsulte $documentConsulte): RedirectResponse
     {
         if ($documentConsulte->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
@@ -142,7 +143,7 @@ final class DossierDocumentsConsultesController extends AbstractController imple
 
     #[Route(path: '/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/supprimer', name: 'dossier_documents_ajoutes_delete', requirements: ['id' => '\d+', 'idDocumentAjoute' => '\d+'], methods: ['DELETE'], options: ['_dossier_lateral_nav' => false])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function deleteDocumentAjoute(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentAjoute')] ListeDocumentAjoute $documentAjoute): Response
+    public function deleteDocumentAjoute(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentAjoute')] ListeDocumentAjoute $documentAjoute): RedirectResponse
     {
         if ($documentAjoute->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');

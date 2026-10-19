@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Builder\VersionBuilder;
 use App\Entity\Utilisateur;
 use App\Repository\GroupeRepository;
@@ -24,7 +25,7 @@ final class IndexController extends AbstractController
     }
 
     #[Route(path: '/', name: 'homepage')]
-    public function homepage(): Response
+    public function homepage(): RedirectResponse
     {
         return $this->redirectToRoute('accueil_index', [], 301);
     }
@@ -166,7 +167,7 @@ final class IndexController extends AbstractController
      * Suppression d'un message du flux.
      */
     #[Route(path: '/accueil/delete-message', name: 'accueil_delete_message', methods: ['POST'])]
-    public function deleteMessage(Request $request): Response
+    public function deleteMessage(Request $request): RedirectResponse
     {
         $this->denyAccessUnlessGranted('fil_actus');
 

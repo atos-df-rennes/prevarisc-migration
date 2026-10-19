@@ -8,9 +8,9 @@ use Twig\Attribute\AsTwigFunction;
 /**
  * Extension pour ajouter des fonctions personnalisées Twig permettant d'accéder aux paramètres du parameterBag.
  */
-final class ParameterExtension
+final readonly class ParameterExtension
 {
-    public function __construct(private readonly ParameterBagInterface $parameterBag)
+    public function __construct(private ParameterBagInterface $parameterBag)
     {
     }
 

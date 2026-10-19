@@ -4,9 +4,9 @@ namespace App\Twig;
 
 use Twig\Attribute\AsTwigFunction;
 
-final class AssetExistExtension
+final readonly class AssetExistExtension
 {
-    public function __construct(private readonly string $srcDir)
+    public function __construct(private string $srcDir)
     {
     }
 

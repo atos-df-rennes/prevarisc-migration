@@ -2,9 +2,9 @@
 
 namespace App\Dto\Historique;
 
-final class Auteur
+final readonly class Auteur
 {
-    public function __construct(private readonly ?int $id, private readonly string $name)
+    public function __construct(private ?int $id, private string $name)
     {
     }
 

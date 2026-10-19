@@ -13,7 +13,7 @@ use App\Repository\EtablissementRepository;
 final class HashedFileDataStore extends SimpleFileDataStore
 {
     /** @var string[] */
-    protected $nonHashedTypes = DataStoreObjectTypes::NON_HASHED_TYPES;
+    private $nonHashedTypes = DataStoreObjectTypes::NON_HASHED_TYPES;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,

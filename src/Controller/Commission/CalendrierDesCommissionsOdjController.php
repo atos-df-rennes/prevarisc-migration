@@ -289,7 +289,7 @@ final class CalendrierDesCommissionsOdjController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/resize-odj', name: 'calendrier_des_commissions_resize_odj', methods: ['POST'])]
     #[IsGranted('lecture_commission')]
-    public function resizeOdj(Request $request): Response
+    public function resizeOdj(Request $request): JsonResponse
     {
         try {
             /** @var string $rawDateCommId */
@@ -329,7 +329,7 @@ final class CalendrierDesCommissionsOdjController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/drop-odj', name: 'calendrier_des_commissions_drop_odj', methods: ['POST'])]
     #[IsGranted('modification_odj')]
-    public function dropOdj(Request $request): Response
+    public function dropOdj(Request $request): JsonResponse
     {
         try {
             /** @var string $rawDateCommId */
@@ -458,7 +458,7 @@ final class CalendrierDesCommissionsOdjController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/changement-ordre', name: 'calendrier_des_commissions_changement_ordre', methods: ['POST'])]
     #[IsGranted('modification_odj')]
-    public function changementOrdre(Request $request): Response
+    public function changementOrdre(Request $request): JsonResponse
     {
         try {
             /** @var string $rawDateCommId */

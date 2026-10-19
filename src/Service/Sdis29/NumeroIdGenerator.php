@@ -16,7 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * Portage de SDIS29_EtablissementController::generateidAction()
  * (legacy Zend, modules/sdis29/controllers/EtablissementController.php).
  */
-final class NumeroIdGenerator
+final readonly class NumeroIdGenerator
 {
     private const array RANGES = [
         'Brest' => [1000, 39999],
@@ -25,7 +25,7 @@ final class NumeroIdGenerator
         'Châteaulin' => [90000, 99999],
     ];
 
-    public function __construct(private readonly EntityManagerInterface $entityManager)
+    public function __construct(private EntityManagerInterface $entityManager)
     {
     }
 

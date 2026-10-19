@@ -21,9 +21,9 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
  *
  * Enregistré automatiquement comme subscriber du LogoutEvent.
  */
-final class LogoutHandler implements EventSubscriberInterface
+final readonly class LogoutHandler implements EventSubscriberInterface
 {
-    public function __construct(private readonly LastActionUpdater $lastActionUpdater, private readonly bool $casEnabled)
+    public function __construct(private LastActionUpdater $lastActionUpdater, private bool $casEnabled)
     {
     }
 

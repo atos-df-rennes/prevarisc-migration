@@ -13,12 +13,12 @@ use App\Service\Changement;
  * Remplace les balises dans le template de message avec les valeurs de l'établissement.
  * Équivalent legacy : Service_Changement::convertMessage()
  */
-final class MessageService
+final readonly class MessageService
 {
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis
      */
-    public function __construct(private readonly AvisService $avisService)
+    public function __construct(private AvisService $avisService)
     {
     }
 

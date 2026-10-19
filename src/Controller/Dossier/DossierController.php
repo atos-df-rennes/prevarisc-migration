@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Constant\CommissionTypeEvenement;
 use App\Constant\DossierNature;
 use App\Constant\NomInterneCapsule;
@@ -465,7 +466,7 @@ final class DossierController extends AbstractController implements DossierLater
 
     #[Route(path: '/dossier/{id}/verrouiller', name: 'dossier_verrouiller', defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('verrouillage_dossier', subject: 'dossier')]
-    public function verrouiller(Request $request, Dossier $dossier): Response
+    public function verrouiller(Request $request, Dossier $dossier): RedirectResponse
     {
         $referer = $request->headers->get('referer');
 
@@ -485,7 +486,7 @@ final class DossierController extends AbstractController implements DossierLater
 
     #[Route(path: '/dossier/{id}/deverrouiller', name: 'dossier_deverrouiller', defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('verrouillage_dossier', subject: 'dossier')]
-    public function deverrouiller(Request $request, Dossier $dossier): Response
+    public function deverrouiller(Request $request, Dossier $dossier): RedirectResponse
     {
         $referer = $request->headers->get('referer');
 
@@ -850,7 +851,7 @@ final class DossierController extends AbstractController implements DossierLater
     #[Route(path: '/dossier/{id}/supprimer', name: 'dossier_supprimer', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('delete_dossier')]
     #[IsGranted('view_doss', subject: 'dossier')]
-    public function supprimer(Request $request, Dossier $dossier): Response
+    public function supprimer(Request $request, Dossier $dossier): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');

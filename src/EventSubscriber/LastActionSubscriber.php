@@ -16,9 +16,9 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
  * mise à jour au logout est prise en charge directement par LogoutHandler (via
  * $token->getUser(), encore disponible à ce stade).
  */
-final class LastActionSubscriber implements EventSubscriberInterface
+final readonly class LastActionSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly Security $security, private readonly LastActionUpdater $lastActionUpdater)
+    public function __construct(private Security $security, private LastActionUpdater $lastActionUpdater)
     {
     }
 

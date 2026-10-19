@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\CoucheCarto;
 use App\Form\CoucheCartoType;
 use App\Form\ReOrderCoucheCartoType;
@@ -152,7 +153,7 @@ final class CouchesCartographiquesController extends AbstractController
     }
 
     #[Route(path: '/admin/couches-cartographiques/{id}/supprimer', name: 'couche_cartographique_delete')]
-    public function supprimer(CoucheCarto $coucheCarto): Response
+    public function supprimer(CoucheCarto $coucheCarto): RedirectResponse
     {
         try {
             $this->coucheCartoRepository->remove($coucheCarto);

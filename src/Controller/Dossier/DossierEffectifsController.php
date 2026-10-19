@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Dto\Descriptif\DescriptifFormData;
@@ -56,7 +57,7 @@ final class DossierEffectifsController extends AbstractController implements Dos
     public function copierEffectifsDegagementsEtablissement(
         Dossier $dossier,
         Request $request
-    ): Response {
+    ): JsonResponse {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('copier_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {
@@ -109,7 +110,7 @@ final class DossierEffectifsController extends AbstractController implements Dos
     public function recupererEffectifsDegagementsEtablissement(
         Dossier $dossier,
         Request $request
-    ): Response {
+    ): JsonResponse {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('recuperer_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {
@@ -192,7 +193,7 @@ final class DossierEffectifsController extends AbstractController implements Dos
     public function reprendreEffectifsDegagementsDepuisEtude(
         Dossier $dossier,
         Request $request
-    ): Response {
+    ): JsonResponse {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('reprendre_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {

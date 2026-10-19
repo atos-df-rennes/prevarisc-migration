@@ -15,12 +15,12 @@ use App\Entity\EtablissementType;
  *
  * Équivalent legacy : Service_Changement::getObjet()
  */
-final class ObjetService
+final readonly class ObjetService
 {
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis
      */
-    public function __construct(private readonly AvisService $avisService)
+    public function __construct(private AvisService $avisService)
     {
     }
 

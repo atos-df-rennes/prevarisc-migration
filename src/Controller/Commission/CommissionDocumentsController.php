@@ -2,6 +2,7 @@
 
 namespace App\Controller\Commission;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Commission;
 use App\Enum\CommissionMembreCourrierType;
 use App\Form\CommissionDocumentCrType;
@@ -72,7 +73,7 @@ final class CommissionDocumentsController extends AbstractController
      * Upload d'un courrier type pour un membre de commission.
      */
     #[Route(path: '/admin/commissions/{id}/courriers/{membreId}/{type}', name: 'admin_commissions_courriers_upload', requirements: ['id' => '\d+', 'membreId' => '\d+'], methods: ['POST'])]
-    public function uploadCourrier(Commission $commission, int $membreId, string $type, Request $request): Response
+    public function uploadCourrier(Commission $commission, int $membreId, string $type, Request $request): RedirectResponse
     {
         if (!CommissionMembreCourrierType::isValid($type)) {
             $this->addFlash('danger', 'Type de courrier invalide.');
@@ -117,7 +118,7 @@ final class CommissionDocumentsController extends AbstractController
      * Suppression d'un courrier type d'un membre de commission.
      */
     #[Route(path: '/admin/commissions/{id}/courriers/{membreId}/{type}', name: 'admin_commissions_courriers_delete', requirements: ['id' => '\d+', 'membreId' => '\d+'], methods: ['DELETE'])]
-    public function deleteCourrier(Commission $commission, int $membreId, string $type, Request $request): Response
+    public function deleteCourrier(Commission $commission, int $membreId, string $type, Request $request): RedirectResponse
     {
         /** @var string $token */
         $token = $request->request->get('_token', '');
@@ -196,7 +197,7 @@ final class CommissionDocumentsController extends AbstractController
      * Suppression du document type (Compte Rendu) de la commission.
      */
     #[Route(path: '/admin/commissions/{id}/documents', name: 'admin_commissions_documents_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function deleteDocument(Commission $commission, Request $request): Response
+    public function deleteDocument(Commission $commission, Request $request): RedirectResponse
     {
         /** @var string $token */
         $token = $request->request->get('_token', '');

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\UtilisateurInformations;
@@ -75,7 +76,7 @@ final class DossierContactController extends AbstractController implements Dossi
 
     #[Route(path: '/dossier/{id}/contacts/ajouter/existant', name: 'dossier_contacts_add_existing', methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted(DossierVoter::MODIFICATION, subject: 'dossier')]
-    public function addExistingContact(Request $request, Dossier $dossier): Response
+    public function addExistingContact(Request $request, Dossier $dossier): RedirectResponse
     {
         if (!is_string($request->request->get('token')) || !$this->isCsrfTokenValid('dossier_contacts_add_existing_'.$dossier->getId(), $request->request->get('token'))) {
             throw $this->createAccessDeniedException("Le jeton CSRF n'est pas valide.");

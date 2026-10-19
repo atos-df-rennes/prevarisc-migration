@@ -6,12 +6,12 @@ use App\Dto\Platau\HealthcheckStatus;
 use App\Service\Platau\PlatauHealthcheckStatusProvider;
 use Twig\Attribute\AsTwigFunction;
 
-final class PlatauHealthcheckExtension
+final readonly class PlatauHealthcheckExtension
 {
     public function __construct(
-        private readonly bool $deactivatePlatau,
-        private readonly bool $platauNoHealthcheck,
-        private readonly PlatauHealthcheckStatusProvider $statusProvider
+        private bool $deactivatePlatau,
+        private bool $platauNoHealthcheck,
+        private PlatauHealthcheckStatusProvider $statusProvider
     ) {
     }
 

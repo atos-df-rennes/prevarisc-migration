@@ -2,6 +2,7 @@
 
 namespace App\Controller\Etablissement;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
@@ -72,7 +73,7 @@ final class EtablissementContactController extends AbstractController implements
     public function addExistingContact(
         Request $request,
         Etablissement $etablissement
-    ): Response {
+    ): RedirectResponse {
         if (!is_string($request->request->get('token')) || !$this->isCsrfTokenValid('etablissement_contacts_add_existing_'.$etablissement->getId(), $request->request->get('token'))) {
             throw $this->createAccessDeniedException("Le jeton CSRF n'est pas valide.");
         }

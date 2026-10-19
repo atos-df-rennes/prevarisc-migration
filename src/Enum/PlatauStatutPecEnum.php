@@ -4,7 +4,7 @@ namespace App\Enum;
 
 final class PlatauStatutPecEnum
 {
-    public const LABELS = [
+    public const array LABELS = [
         self::INCONNU => 'Statut inconnu',
         self::EN_ATTENTE => 'En attente de complétude sur Prevarisc',
         self::SAISIE_A_TRANSMETTRE => "Complétude renseignée sur Prevarisc (en attente de transmission à Plat'AU)",
@@ -13,18 +13,18 @@ final class PlatauStatutPecEnum
         self::EN_ERREUR => "En erreur sur Plat'AU",
     ];
 
-    public const INCONNU = 'unknown';
+    public const string INCONNU = 'unknown';
 
-    public const EN_ATTENTE = 'awaiting';
+    public const string EN_ATTENTE = 'awaiting';
 
     // Statut d'affichage uniquement, jamais persiste.
-    public const SAISIE_A_TRANSMETTRE = 'filled_awaiting_export';
+    public const string SAISIE_A_TRANSMETTRE = 'filled_awaiting_export';
 
-    public const PRISE_EN_COMPTE = 'taken_into_account';
+    public const string PRISE_EN_COMPTE = 'taken_into_account';
 
-    public const A_RENVOYER = 'to_export';
+    public const string A_RENVOYER = 'to_export';
 
-    public const EN_ERREUR = 'in_error';
+    public const string EN_ERREUR = 'in_error';
 
     public static function getLabel(?string $enumValue): string
     {

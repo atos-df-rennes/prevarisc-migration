@@ -25,9 +25,9 @@ use Sabre\VObject\Component\VCalendar;
  *  5. Avis d'exploitation de l'établissement
  *  6. Préventionniste(s) du dossier
  */
-final class IcalendarSyncService
+final readonly class IcalendarSyncService
 {
-    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly IcsVTimezoneBuilder $icsVTimezoneBuilder)
+    public function __construct(private DateCommissionRepository $dateCommissionRepository, private IcsVTimezoneBuilder $icsVTimezoneBuilder)
     {
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
@@ -139,7 +140,7 @@ final class FormulairesController extends AbstractController
     #[Route(path: '/admin/formulaires/import', name: 'admin_formulaires_import')]
     public function import(
         Request $request
-    ): Response {
+    ): RedirectResponse {
         /** @var UploadedFile $configurationFile */
         $configurationFile = $request->files->get('configuration-file');
         $deleteExistingConfiguration = $request->request->get('delete-existing-configuration');

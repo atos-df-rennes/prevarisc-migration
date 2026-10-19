@@ -26,7 +26,7 @@ final class CalendrierDesCommissionsGenerationController extends AbstractControl
      * Génère les convocations pour une date de commission.
      */
     #[Route(path: '/commission/calendrier/{dateCommId}/generation/convocation', name: 'commission_calendrier_generation_convocation', requirements: ['dateCommId' => '\d+'], methods: ['POST'])]
-    public function generationConvocation(int $dateCommId, Request $request): Response
+    public function generationConvocation(int $dateCommId, Request $request): JsonResponse
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_convocation');
         if (null !== $errorResponse) {
@@ -42,7 +42,7 @@ final class CalendrierDesCommissionsGenerationController extends AbstractControl
      * Génère les ordres du jour pour une date de commission.
      */
     #[Route(path: '/commission/calendrier/{dateCommId}/generation/odj', name: 'commission_calendrier_generation_odj', requirements: ['dateCommId' => '\d+'], methods: ['POST'])]
-    public function generationOdj(int $dateCommId, Request $request): Response
+    public function generationOdj(int $dateCommId, Request $request): JsonResponse
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_odj');
         if (null !== $errorResponse) {
@@ -58,7 +58,7 @@ final class CalendrierDesCommissionsGenerationController extends AbstractControl
      * Génère les procès-verbaux pour une date de commission.
      */
     #[Route(path: '/commission/calendrier/{dateCommId}/generation/pv', name: 'commission_calendrier_generation_pv', requirements: ['dateCommId' => '\d+'], methods: ['POST'])]
-    public function generationPv(int $dateCommId, Request $request): Response
+    public function generationPv(int $dateCommId, Request $request): JsonResponse
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_pv');
         if (null !== $errorResponse) {
@@ -74,7 +74,7 @@ final class CalendrierDesCommissionsGenerationController extends AbstractControl
      * Génère le compte-rendu pour une date de commission.
      */
     #[Route(path: '/commission/calendrier/{dateCommId}/generation/compte-rendu', name: 'commission_calendrier_generation_compte_rendu', requirements: ['dateCommId' => '\d+'], methods: ['POST'])]
-    public function generationCompteRendu(int $dateCommId, Request $request): Response
+    public function generationCompteRendu(int $dateCommId, Request $request): JsonResponse
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_compte_rendu');
         if (null !== $errorResponse) {

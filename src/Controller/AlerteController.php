@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\ChangementRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\Alerte\AlerteService;
@@ -92,7 +93,7 @@ final class AlerteController extends AbstractController
      * @param Request $request Requête HTTP
      */
     #[Route(path: '/symfony/alerte/envoyer', name: 'alerte_envoyer', methods: ['POST'], options: ['expose' => true])]
-    public function envoyer(Request $request): Response
+    public function envoyer(Request $request): JsonResponse
     {
         $emailsRaw = $request->request->get('emails');
         $objetRaw = $request->request->get('objet');

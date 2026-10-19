@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dossier;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Constant\TypePrescription;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Controller\Contract\DossierPrescriptionsAccessInterface;
@@ -104,7 +105,7 @@ final class DossierPrescriptionController extends AbstractController implements 
 
     #[Route(path: '/dossier/{id}/prescriptions/{idPrescription}/supprimer', name: 'dossier_prescriptions_supprimer', requirements: ['id' => '\d+', 'idPrescription' => '\d+'], methods: ['DELETE'])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function supprimer(Request $request, Dossier $dossier, #[MapEntity(id: 'idPrescription')] PrescriptionDossier $prescription): Response
+    public function supprimer(Request $request, Dossier $dossier, #[MapEntity(id: 'idPrescription')] PrescriptionDossier $prescription): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
