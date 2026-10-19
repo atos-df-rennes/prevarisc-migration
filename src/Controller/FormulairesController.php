@@ -17,6 +17,7 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -28,7 +29,7 @@ use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[IsGranted('gestion_formulaires')]
-class FormulairesController extends AbstractController
+final class FormulairesController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly FormFactoryInterface $formFactory, private readonly SerializerInterface $serializer, private readonly FormulairesImporter $formulairesImporter, private readonly LoggerInterface $logger)
     {
@@ -139,7 +140,7 @@ class FormulairesController extends AbstractController
     #[Route(path: '/admin/formulaires/import', name: 'admin_formulaires_import')]
     public function import(
         Request $request
-    ): Response {
+    ): RedirectResponse {
         /** @var UploadedFile $configurationFile */
         $configurationFile = $request->files->get('configuration-file');
         $deleteExistingConfiguration = $request->request->get('delete-existing-configuration');

@@ -14,13 +14,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('docs')]
-class DocumentsController extends AbstractController
+final class DocumentsController extends AbstractController
 {
     public function __construct(private readonly LoggerInterface $logger, private readonly CommissionRepository $commissionRepository, private readonly CommissionDocumentBuilder $commissionDocumentBuilder, private readonly Filesystem $filesystem, private readonly Documents $documents)
     {
@@ -121,7 +122,7 @@ class DocumentsController extends AbstractController
     }
 
     #[Route(path: '/admin/documents/supprimer', name: 'admin_documents_delete', methods: ['POST'], options: ['expose' => true])]
-    public function supprimer(Request $request, string $documentsRealDataPath): Response
+    public function supprimer(Request $request, string $documentsRealDataPath): JsonResponse
     {
         // @todo: Générer un nom de fichier plus sûr
         $nomFichier = $request->request->get('nomFichier');

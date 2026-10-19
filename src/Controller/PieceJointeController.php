@@ -10,7 +10,6 @@ use App\Service\DataStore\DataStore;
 use App\Utils\File;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -18,7 +17,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * Port direct de PieceJointeController (Zend).
  */
-class PieceJointeController extends AbstractController
+final class PieceJointeController extends AbstractController
 {
     public function __construct(private readonly DataStore $dataStore, private readonly EtablissementPieceJointeRepository $etablissementPieceJointeRepository, private readonly PieceJointeRepository $pieceJointeRepository, private readonly DateCommissionRepository $dateCommissionRepository)
     {
@@ -33,7 +32,7 @@ class PieceJointeController extends AbstractController
      */
     #[Route(path: '/piece-jointe/etablissement/{id}/recuperer/{idpj}', name: 'piece_jointe_get_etablissement', methods: ['GET'], requirements: ['id' => '\d+', 'idpj' => '\d+'])]
     #[IsGranted('ROLE_USER')]
-    public function getEtablissement(int $id, int $idpj): Response
+    public function getEtablissement(int $id, int $idpj): BinaryFileResponse
     {
         $pieceJointe = $this->pieceJointeRepository->find($idpj);
         if (null === $pieceJointe) {
@@ -75,7 +74,7 @@ class PieceJointeController extends AbstractController
      */
     #[Route(path: '/piece-jointe/date-commission/{id}/recuperer/{idpj}', name: 'piece_jointe_get_date_commission', methods: ['GET'], requirements: ['id' => '\d+', 'idpj' => '\d+'])]
     #[IsGranted('ROLE_USER')]
-    public function getDateCommission(int $id, int $idpj): Response
+    public function getDateCommission(int $id, int $idpj): BinaryFileResponse
     {
         $pieceJointe = $this->pieceJointeRepository->find($idpj);
         if (null === $pieceJointe) {

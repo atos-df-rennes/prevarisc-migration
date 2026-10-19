@@ -35,7 +35,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 // ODJ → CalendrierDesCommissionsOdjController
 // Export ICS → CalendrierDesCommissionsExportController
 // Pièces jointes → CalendrierDesCommissionsPiecesJointesController
-class CalendrierDesCommissionsController extends AbstractController
+final class CalendrierDesCommissionsController extends AbstractController
 {
     public function __construct(private readonly CalendarService $calendarService, private readonly DateCommissionRepository $dateCommissionRepository, private readonly CommissionDatesTransformer $commissionDatesTransformer, private readonly CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private readonly CommissionRepository $commissionRepository, private readonly EntityManagerInterface $entityManager, private readonly DataStore $dataStore)
     {

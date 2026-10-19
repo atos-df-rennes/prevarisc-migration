@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class DossierController extends AbstractController
+final class DossierController extends AbstractController
 {
     public function __construct(private readonly DossierNatureListeRepository $dossierNatureListeRepository)
     {

@@ -16,17 +16,17 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class GroupementType extends AbstractType
+final class GroupementType extends AbstractType
 {
-    public const SCOPE_CREATE = 'create';
+    public const string SCOPE_CREATE = 'create';
 
-    public const SCOPE_GENERAL = 'general';
+    public const string SCOPE_GENERAL = 'general';
 
-    public const SCOPE_AFFECTATIONS = 'affectations';
+    public const string SCOPE_AFFECTATIONS = 'affectations';
 
-    public const SCOPE_COORDONNEES = 'coordonnees';
+    public const string SCOPE_COORDONNEES = 'coordonnees';
 
-    public const SCOPE_CONTACTS = 'contacts';
+    public const string SCOPE_CONTACTS = 'contacts';
 
     /**
      * Configure le formulaire à construire selon les options fournies.

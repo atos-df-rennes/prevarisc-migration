@@ -12,7 +12,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Rendu comme un input texte au format d/m/Y avec le datepicker Bootstrap.
  * Un DataTransformer assure la conversion \DateTime ↔ string.
  */
-class ChampDateType extends AbstractType
+final class ChampDateType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver): void
     {

@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('admin')]
-class AdminController extends AbstractController
+final class AdminController extends AbstractController
 {
     public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly VersionBuilder $versionBuilder)
     {

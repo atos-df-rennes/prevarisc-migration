@@ -4,7 +4,7 @@ namespace App\Service\Etablissement;
 
 use App\Constant\GenreEtablissement;
 
-class CelluleCategorieResolver
+final class CelluleCategorieResolver
 {
     /**
      * @param array<string, mixed>      $informations

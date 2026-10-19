@@ -18,7 +18,7 @@ use App\Entity\IghClasse;
  *  - ERP  (ID_GENRE = 2) : commune + local sommeil + type + catégorie
  *  - IGH  (ID_GENRE = 5) : commune + classe
  */
-class CommissionRegleCompetenceService
+final class CommissionRegleCompetenceService
 {
     /**
      * Retourne les IDs des établissements correspondant à au moins une règle de compétence.

@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Formulaire de modification d'une pièce jointe (nom et description uniquement, la date d'ajout n'est pas modifiable).
  */
-class PieceJointeType extends AbstractType
+final class PieceJointeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

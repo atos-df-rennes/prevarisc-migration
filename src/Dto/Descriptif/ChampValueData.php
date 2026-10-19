@@ -11,7 +11,7 @@ namespace App\Dto\Descriptif;
  * Pour les champs Parent avec tableau=true, $lignes contient les lignes du tableau.
  * Pour les champs Parent avec tableau=false, $sousChamps contient les sous-champs du groupe.
  */
-class ChampValueData
+final class ChampValueData
 {
     /**
      * @param int                                     $champId    ID du champ

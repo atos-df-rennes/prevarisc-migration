@@ -19,7 +19,7 @@ use App\Constant\GenreEtablissement;
  * ET DANS TOUS LES CAS :
  * - Le type de dossier est dans les compétences du membre
  */
-class CommissionMembreEligibilityChecker
+final class CommissionMembreEligibilityChecker
 {
     /**
      * Vérifie si un dossier concerne un membre de commission.

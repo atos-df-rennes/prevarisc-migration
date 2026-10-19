@@ -13,7 +13,7 @@ namespace App\Dto\Descriptif;
  *
  * @implements \ArrayAccess<array-key, RubriqueFormData|null>
  */
-class DescriptifFormData implements \ArrayAccess
+final class DescriptifFormData implements \ArrayAccess
 {
     /**
      * @param array<int, RubriqueFormData> $rubriques Données des rubriques indexées par rubriqueId

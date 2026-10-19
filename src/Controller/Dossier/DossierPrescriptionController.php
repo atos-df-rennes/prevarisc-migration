@@ -11,12 +11,13 @@ use App\Form\PrescriptionDossierType;
 use App\Service\DossierPrescriptionService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class DossierPrescriptionController extends AbstractController implements DossierLateralNavigationInterface, DossierPrescriptionsAccessInterface
+final class DossierPrescriptionController extends AbstractController implements DossierLateralNavigationInterface, DossierPrescriptionsAccessInterface
 {
     public function __construct(private readonly DossierPrescriptionService $service)
     {
@@ -104,7 +105,7 @@ class DossierPrescriptionController extends AbstractController implements Dossie
 
     #[Route(path: '/dossier/{id}/prescriptions/{idPrescription}/supprimer', name: 'dossier_prescriptions_supprimer', requirements: ['id' => '\d+', 'idPrescription' => '\d+'], methods: ['DELETE'])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function supprimer(Request $request, Dossier $dossier, #[MapEntity(id: 'idPrescription')] PrescriptionDossier $prescription): Response
+    public function supprimer(Request $request, Dossier $dossier, #[MapEntity(id: 'idPrescription')] PrescriptionDossier $prescription): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');

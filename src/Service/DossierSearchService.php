@@ -12,11 +12,11 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
  * Recherche et export des dossiers.
  * Extrait de Search (refactoring REF-SVC-01).
  */
-class DossierSearchService
+final readonly class DossierSearchService
 {
-    public const MAX_LIMIT_PAGES_DOSSIERS = 100;
+    public const int MAX_LIMIT_PAGES_DOSSIERS = 100;
 
-    public function __construct(private readonly Connection $connection, private readonly SearchQueryHelper $queryHelper, private readonly TagAwareCacheInterface $searchCache)
+    public function __construct(private Connection $connection, private SearchQueryHelper $queryHelper, private TagAwareCacheInterface $searchCache)
     {
     }
 

@@ -13,12 +13,13 @@ use App\Service\Dossier\DossierDocumentsConsultesService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class DossierDocumentsConsultesController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierDocumentsConsultesController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierDocumentsConsultesService $documentsConsultesService)
     {
@@ -93,7 +94,7 @@ class DossierDocumentsConsultesController extends AbstractController implements 
 
     #[Route(path: '/dossier/{id}/documents-consultes/{idDocumentConsulte}/supprimer', name: 'dossier_documents_consultes_delete', requirements: ['id' => '\d+', 'idDocumentConsulte' => '\d+'], methods: ['DELETE'], options: ['_dossier_lateral_nav' => false])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function deleteDocumentConsulte(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentConsulte')] DossierDocumentConsulte $documentConsulte): Response
+    public function deleteDocumentConsulte(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentConsulte')] DossierDocumentConsulte $documentConsulte): RedirectResponse
     {
         if ($documentConsulte->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');
@@ -142,7 +143,7 @@ class DossierDocumentsConsultesController extends AbstractController implements 
 
     #[Route(path: '/dossier/{id}/documents-ajoutes/{idDocumentAjoute}/supprimer', name: 'dossier_documents_ajoutes_delete', requirements: ['id' => '\d+', 'idDocumentAjoute' => '\d+'], methods: ['DELETE'], options: ['_dossier_lateral_nav' => false])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function deleteDocumentAjoute(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentAjoute')] ListeDocumentAjoute $documentAjoute): Response
+    public function deleteDocumentAjoute(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentAjoute')] ListeDocumentAjoute $documentAjoute): RedirectResponse
     {
         if ($documentAjoute->getDossier() !== $dossier) {
             throw $this->createAccessDeniedException('Ce document ne fait pas partie de ce dossier.');

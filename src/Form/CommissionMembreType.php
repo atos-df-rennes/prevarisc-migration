@@ -24,7 +24,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class CommissionMembreType extends AbstractType
+final class CommissionMembreType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

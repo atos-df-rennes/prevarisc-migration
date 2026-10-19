@@ -13,20 +13,20 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
-class DossierVoter extends Voter
+final class DossierVoter extends Voter
 {
-    public const LECTURE = 'view_doss';
+    public const string LECTURE = 'view_doss';
 
-    public const MODIFICATION = 'edit_doss';
+    public const string MODIFICATION = 'edit_doss';
 
     /**
      * Vérifie le privilège edit_doss sans tenir compte du verrouillage.
      * Utilisé pour les actions qui, dans le legacy, ne sont pas bloquées par le verrou
      * (textes applicables, vérifications techniques, effectifs/dégagements, avis/dérogations, génération rapport).
      */
-    public const MODIFICATION_IGNORE_VERROU = 'edit_doss_ignore_verrou';
+    public const string MODIFICATION_IGNORE_VERROU = 'edit_doss_ignore_verrou';
 
-    public const VERROUILLAGE = 'verrouillage_dossier';
+    public const string VERROUILLAGE = 'verrouillage_dossier';
 
     /**
      * @var Resources[]

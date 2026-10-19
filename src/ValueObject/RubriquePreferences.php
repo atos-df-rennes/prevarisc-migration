@@ -13,9 +13,9 @@ namespace App\ValueObject;
  *
  * Immuable — construit une seule fois depuis l'entité DisplayRubrique.
  */
-class RubriquePreferences
+final readonly class RubriquePreferences
 {
-    public function __construct(private readonly ?bool $display = null, private readonly ?bool $opened = null)
+    public function __construct(private ?bool $display = null, private ?bool $opened = null)
     {
     }
 

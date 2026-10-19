@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * API pour les préférences utilisateur.
  * Port direct du module api/UserController (legacy) — action preferences.
  */
-class UtilisateurPreferencesController extends AbstractController
+final class UtilisateurPreferencesController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager)
     {

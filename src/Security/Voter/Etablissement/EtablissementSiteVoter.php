@@ -11,7 +11,7 @@ use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
-class EtablissementSiteVoter extends EtablissementVoter
+final class EtablissementSiteVoter extends EtablissementVoter
 {
     public function __construct(private readonly EtablissementCollectionAccessChecker $collectionAccessChecker, private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository)
     {

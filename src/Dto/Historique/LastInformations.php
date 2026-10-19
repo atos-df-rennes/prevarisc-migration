@@ -8,7 +8,7 @@ use App\Entity\EtablissementType;
 use App\Entity\Famille;
 use App\Entity\IghClasse;
 
-class LastInformations
+final class LastInformations
 {
     private ?EtablissementStatut $statut;
 

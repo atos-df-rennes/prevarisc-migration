@@ -48,13 +48,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-class DossierController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PlatauConsultation $platauConsultationService, private readonly DateCommission $dateCommissionService, private readonly DossierTypeRepository $dossierTypeRepository, private readonly AvisRepository $avisRepository, private readonly AvisDerogationsRepository $avisDerogationsRepository, private readonly CommissionTypeRepository $commissionTypeRepository, private readonly CommissionRepository $commissionRepository, private readonly EtablissementRepository $etablissementRepository, private readonly UtilisateurRepository $utilisateurRepository, private readonly DossierFields $dossierFieldsService, private readonly DossierDocumentManquantService $documentManquantService, private readonly PieceJointeExportService $pieceJointeExportService, private readonly DossierAffectationService $dossierAffectationService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly LoggerInterface $logger, private readonly DossierService $dossierService, private readonly DossierRepository $dossierRepository, private readonly DossierCreationService $dossierCreationService, private readonly DossierSauvegardeService $dossierSauvegardeService, private readonly DossierSuppressionService $dossierSuppressionService, private readonly TagAwareCacheInterface $searchCache, private readonly DescriptifService $descriptifService, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly FormFactoryInterface $formFactory, private readonly EtablissementHistoriqueService $etablissementHistoriqueService, private readonly DocumentConsulteTransferService $documentConsulteTransferService, private readonly bool $deactivatePlatau = false)
     {
@@ -465,7 +466,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
     #[Route(path: '/dossier/{id}/verrouiller', name: 'dossier_verrouiller', defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('verrouillage_dossier', subject: 'dossier')]
-    public function verrouiller(Request $request, Dossier $dossier): Response
+    public function verrouiller(Request $request, Dossier $dossier): RedirectResponse
     {
         $referer = $request->headers->get('referer');
 
@@ -485,7 +486,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
 
     #[Route(path: '/dossier/{id}/deverrouiller', name: 'dossier_deverrouiller', defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('verrouillage_dossier', subject: 'dossier')]
-    public function deverrouiller(Request $request, Dossier $dossier): Response
+    public function deverrouiller(Request $request, Dossier $dossier): RedirectResponse
     {
         $referer = $request->headers->get('referer');
 
@@ -850,7 +851,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
     #[Route(path: '/dossier/{id}/supprimer', name: 'dossier_supprimer', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('delete_dossier')]
     #[IsGranted('view_doss', subject: 'dossier')]
-    public function supprimer(Request $request, Dossier $dossier): Response
+    public function supprimer(Request $request, Dossier $dossier): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');

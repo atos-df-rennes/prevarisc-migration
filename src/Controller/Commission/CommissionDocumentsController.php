@@ -11,6 +11,7 @@ use App\Service\Commission\CommissionDocumentCrService;
 use App\Service\Commission\CommissionMembreCourrierService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gère les onglets "Courriers types" et "Document type" d'une commission.
  */
 #[IsGranted('gestion_commissions')]
-class CommissionDocumentsController extends AbstractController
+final class CommissionDocumentsController extends AbstractController
 {
     public function __construct(private readonly CommissionDocumentCrService $commissionDocumentCrService, private readonly CommissionMembreCourrierService $commissionMembreCourrierService, private readonly CommissionMembreRepository $commissionMembreRepository, private readonly string $documentsCommissionDataPath, private readonly string $courriersMembresDataPath)
     {
@@ -72,7 +73,7 @@ class CommissionDocumentsController extends AbstractController
      * Upload d'un courrier type pour un membre de commission.
      */
     #[Route(path: '/admin/commissions/{id}/courriers/{membreId}/{type}', name: 'admin_commissions_courriers_upload', requirements: ['id' => '\d+', 'membreId' => '\d+'], methods: ['POST'])]
-    public function uploadCourrier(Commission $commission, int $membreId, string $type, Request $request): Response
+    public function uploadCourrier(Commission $commission, int $membreId, string $type, Request $request): RedirectResponse
     {
         if (!CommissionMembreCourrierType::isValid($type)) {
             $this->addFlash('danger', 'Type de courrier invalide.');
@@ -117,7 +118,7 @@ class CommissionDocumentsController extends AbstractController
      * Suppression d'un courrier type d'un membre de commission.
      */
     #[Route(path: '/admin/commissions/{id}/courriers/{membreId}/{type}', name: 'admin_commissions_courriers_delete', requirements: ['id' => '\d+', 'membreId' => '\d+'], methods: ['DELETE'])]
-    public function deleteCourrier(Commission $commission, int $membreId, string $type, Request $request): Response
+    public function deleteCourrier(Commission $commission, int $membreId, string $type, Request $request): RedirectResponse
     {
         /** @var string $token */
         $token = $request->request->get('_token', '');
@@ -196,7 +197,7 @@ class CommissionDocumentsController extends AbstractController
      * Suppression du document type (Compte Rendu) de la commission.
      */
     #[Route(path: '/admin/commissions/{id}/documents', name: 'admin_commissions_documents_delete', requirements: ['id' => '\d+'], methods: ['DELETE'])]
-    public function deleteDocument(Commission $commission, Request $request): Response
+    public function deleteDocument(Commission $commission, Request $request): RedirectResponse
     {
         /** @var string $token */
         $token = $request->request->get('_token', '');

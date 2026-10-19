@@ -10,10 +10,10 @@ use App\Repository\EtablissementRepository;
 /**
  * This class abstract the data access to the repository.
  */
-class HashedFileDataStore extends SimpleFileDataStore
+final class HashedFileDataStore extends SimpleFileDataStore
 {
     /** @var string[] */
-    protected $nonHashedTypes = DataStoreObjectTypes::NON_HASHED_TYPES;
+    private $nonHashedTypes = DataStoreObjectTypes::NON_HASHED_TYPES;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,
@@ -42,7 +42,7 @@ class HashedFileDataStore extends SimpleFileDataStore
     }
 
     #[\Override]
-    public function getURLPath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId): ?string
+    public function getURLPath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId): string
     {
         $type = $this->types[$linkedObjectType] ?? $linkedObjectType;
 

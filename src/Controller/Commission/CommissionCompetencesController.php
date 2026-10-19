@@ -8,13 +8,14 @@ use App\Repository\EtablissementInformationsRepository;
 use App\Service\Commission\CommissionRegleCompetenceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_commissions')]
-class CommissionCompetencesController extends AbstractController
+final class CommissionCompetencesController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommissionRegleCompetenceService $competenceService, private readonly EtablissementInformationsRepository $etablissementInformationsRepository)
     {
@@ -57,7 +58,7 @@ class CommissionCompetencesController extends AbstractController
      * Met à jour ID_COMMISSION sur les établissements correspondants, puis vide le cache legacy.
      */
     #[Route(path: '/admin/commissions/{id}/competences/appliquer-regles', name: 'admin_commissions_apply_regles', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function applyRegles(Request $request, Commission $commission): Response
+    public function applyRegles(Request $request, Commission $commission): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');

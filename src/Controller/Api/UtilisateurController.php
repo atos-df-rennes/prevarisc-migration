@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 /**
  * API pour les utilisateurs (autocomplete préventionnistes).
  */
-class UtilisateurController extends AbstractController
+final class UtilisateurController extends AbstractController
 {
     public function __construct(private readonly UtilisateurRepository $utilisateurRepository)
     {

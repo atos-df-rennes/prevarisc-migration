@@ -16,7 +16,7 @@ use App\Entity\EtablissementAdresse;
  * Portage de Plugin_SDIS29::changeViewer() / changeViewerAdmin() /
  * wgs84ToWebMercator() (legacy Zend, application/plugins/SDIS29.php).
  */
-class GeobretagneUrlBuilder
+final class GeobretagneUrlBuilder
 {
     /**
      * Coordonnées d'exemple utilisées par l'admin des couches cartographiques

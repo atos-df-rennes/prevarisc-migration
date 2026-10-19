@@ -9,7 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class PrescriptionTexteListeType extends AbstractType
+final class PrescriptionTexteListeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

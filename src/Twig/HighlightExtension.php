@@ -4,7 +4,7 @@ namespace App\Twig;
 
 use Twig\Attribute\AsTwigFilter;
 
-class HighlightExtension
+final class HighlightExtension
 {
     /**
      * Entoure les occurrences des mots-clés dans le sujet HTML avec une balise <span class="highlight">.

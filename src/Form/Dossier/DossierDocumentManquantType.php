@@ -12,7 +12,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Formulaire pour un document manquant d'un dossier.
  */
-class DossierDocumentManquantType extends AbstractType
+final class DossierDocumentManquantType extends AbstractType
 {
     /**
      * @param array<string, mixed> $options

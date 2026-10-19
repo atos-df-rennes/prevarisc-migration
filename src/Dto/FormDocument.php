@@ -2,9 +2,9 @@
 
 namespace App\Dto;
 
-class FormDocument
+final readonly class FormDocument
 {
-    public function __construct(private readonly int $id, private readonly string $nom, private readonly ?string $type = null)
+    public function __construct(private int $id, private string $nom, private ?string $type = null)
     {
     }
 

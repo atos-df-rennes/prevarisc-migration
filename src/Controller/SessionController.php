@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-class SessionController extends AbstractController
+final class SessionController extends AbstractController
 {
     public function __construct(private readonly AuthenticationUtils $authenticationUtils)
     {
@@ -43,7 +43,7 @@ class SessionController extends AbstractController
      * délégué à App\Security\LogoutHandler (enregistré dans security.php).
      */
     #[Route(path: '/session/logout', name: 'session_logout', methods: ['GET', 'POST'])]
-    public function logout(): void
+    public function logout(): never
     {
         throw new \RuntimeException('La déconnexion est gérée par le firewall Symfony (LogoutListener). Ce code ne doit jamais être atteint.');
     }

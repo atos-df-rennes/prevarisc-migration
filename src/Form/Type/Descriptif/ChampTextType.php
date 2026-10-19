@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Champ texte simple pour les formulaires personnalisés.
  */
-class ChampTextType extends AbstractType
+final class ChampTextType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver): void
     {

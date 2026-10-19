@@ -7,6 +7,7 @@ use App\Repository\EtablissementRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Mail\MailerConfiguration;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
  *
  * Équivalent legacy : ChangementController (alerteformAction)
  */
-class AlerteController extends AbstractController
+final class AlerteController extends AbstractController
 {
     public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly ChangementRepository $changementRepository, private readonly AlerteService $alerteService, private readonly MailerInterface $mailer, private readonly MailerConfiguration $mailerConfig)
     {
@@ -92,7 +93,7 @@ class AlerteController extends AbstractController
      * @param Request $request Requête HTTP
      */
     #[Route(path: '/symfony/alerte/envoyer', name: 'alerte_envoyer', methods: ['POST'], options: ['expose' => true])]
-    public function envoyer(Request $request): Response
+    public function envoyer(Request $request): JsonResponse
     {
         $emailsRaw = $request->request->get('emails');
         $objetRaw = $request->request->get('objet');

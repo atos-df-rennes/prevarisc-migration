@@ -42,6 +42,7 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -49,7 +50,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-class EtablissementController extends AbstractController implements EtablissementLateralNavigationInterface
+final class EtablissementController extends AbstractController implements EtablissementLateralNavigationInterface
 {
     public function __construct(private readonly EtablissementPieceJointeRepository $etablissementPieceJointeRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DossierRepository $dossierRepository, private readonly EtablissementService $etablissementService, private readonly EtablissementRepository $etablissementRepository, private readonly EntityManagerInterface $entityManager, private readonly Dossier $dossierService, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly PeriodiciteRepository $periodiciteRepository, private readonly GroupementRepository $groupementRepository, private readonly DataStore $dataStore, private readonly SerializerInterface $serializer, private readonly MailerConfiguration $mailerConfig, private readonly AlerteService $alerteService, private readonly int $nbDossiersAAfficher, private readonly DescriptifService $descriptifService, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly bool $descriptifPersonnalise, private readonly LoggerInterface $logger, private readonly FormFactoryInterface $formFactory, private readonly LoggerInterface $pieceJointeLogger, private readonly EtablissementHistoriqueService $etablissementHistoriqueService, private readonly EtablissementPieceJointeService $etablissementPieceJointeService, private readonly EtablissementFormDataLoader $formDataLoader, private readonly TagAwareCacheInterface $searchCache, private readonly IgnAutoconfiguration $ignAutoconfiguration)
     {
@@ -254,7 +255,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         int $id,
         Request $request,
         Etablissement $etablissement
-    ): Response {
+    ): RedirectResponse {
         $typeAlerte = $request->query->getInt('type_alerte', 0);
         $lienAlerte = '';
 
@@ -461,7 +462,7 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     #[Route(path: '/etablissement/{id}/pieces-jointes/supprimer', name: 'etablissement_pieces_jointes_supprimer', methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
     #[IsGranted('edit_ets', subject: 'etablissement')]
-    public function deletePieceJointe(Etablissement $etablissement, Request $request): Response
+    public function deletePieceJointe(Etablissement $etablissement, Request $request): RedirectResponse
     {
         $idPj = $request->request->getInt('id_pj');
 
@@ -736,7 +737,7 @@ class EtablissementController extends AbstractController implements Etablissemen
      */
     #[Route(path: '/etablissement/{id}/supprimer', name: 'etablissement_supprimer', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_etablissement_lateral_nav' => false])]
     #[IsGranted('delete_etablissement')]
-    public function deleteEtablissement(Etablissement $etablissement, Request $request): Response
+    public function deleteEtablissement(Etablissement $etablissement, Request $request): RedirectResponse
     {
         $rawToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('delete_etablissement_'.$etablissement->getId(), is_string($rawToken) ? $rawToken : null)) {

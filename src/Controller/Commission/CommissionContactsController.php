@@ -19,7 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gère l'onglet "Contacts" d'une commission.
  */
 #[IsGranted('gestion_commissions')]
-class CommissionContactsController extends AbstractController
+final class CommissionContactsController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly Contact $contactService)
     {

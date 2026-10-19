@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Extrait de CalendrierDesCommissionsController (REF-CTL-01).
  */
 #[IsGranted('modification_odj')]
-class CalendrierDesCommissionsPiecesJointesController extends AbstractController
+final class CalendrierDesCommissionsPiecesJointesController extends AbstractController
 {
     public function __construct(private readonly PieceJointeRepository $pieceJointeRepository, private readonly DataStore $dataStore, private readonly EntityManagerInterface $entityManager)
     {

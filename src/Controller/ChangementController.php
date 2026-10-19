@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted(new Expression("is_granted('alerte_statut') or is_granted('alerte_avis') or is_granted('alerte_classement')"))]
-class ChangementController extends AbstractController
+final class ChangementController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly ChangementRepository $changementRepository, private readonly Changement $changement)
     {

@@ -11,7 +11,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * Les choices doivent être passées en option lors de l'instanciation.
  */
-class ChampSelectType extends AbstractType
+final class ChampSelectType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver): void
     {

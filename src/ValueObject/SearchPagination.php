@@ -6,14 +6,14 @@ namespace App\ValueObject;
  * Objet de pagination pour les résultats de recherche.
  * Remplace Zend_Paginator dans la migration.
  */
-class SearchPagination
+final readonly class SearchPagination
 {
-    private readonly int $currentPage;
+    private int $currentPage;
 
     /**
      * @param array<int|string, mixed> $items
      */
-    public function __construct(private readonly array $items, private readonly int $totalCount, int $currentPage, private readonly int $itemsPerPage)
+    public function __construct(private array $items, private int $totalCount, int $currentPage, private int $itemsPerPage)
     {
         $this->currentPage = max(1, $currentPage);
     }

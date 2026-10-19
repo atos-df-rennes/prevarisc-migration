@@ -19,7 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 /**
  * Onglet Rapport du dossier : affichage du formulaire de génération et génération ODT.
  */
-class DossierRapportController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierRapportController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(
         private readonly CommissionRepository $commissionRepository,

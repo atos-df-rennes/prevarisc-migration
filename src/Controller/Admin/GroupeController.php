@@ -28,7 +28,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(requirements: ['id' => '\d+'])]
 #[IsGranted('admin')]
-class GroupeController extends AbstractController
+final class GroupeController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly GroupeRepository $groupeRepository, private readonly UtilisateurRepository $utilisateurRepository, private readonly ResourcesRepository $resourcesRepository, private readonly RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, private readonly RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
     {
@@ -92,7 +92,7 @@ class GroupeController extends AbstractController
     }
 
     #[Route(path: '/admin/groupes/{id}/supprimer', name: 'admin_groupe_delete')]
-    public function supprimer(Groupe $groupe): Response
+    public function supprimer(Groupe $groupe): RedirectResponse
     {
         $groupeId = $groupe->getId();
 

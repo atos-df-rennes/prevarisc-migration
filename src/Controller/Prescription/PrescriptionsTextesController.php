@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_prescriptions')]
-class PrescriptionsTextesController extends AbstractController
+final class PrescriptionsTextesController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly Prescriptions $servicePrescTextes, private readonly PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
     {

@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Export ICS (Outlook) des dates de commission.
  * Extrait de CalendrierDesCommissionsController (REF-CTL-01).
  */
-class CalendrierDesCommissionsExportController extends AbstractController
+final class CalendrierDesCommissionsExportController extends AbstractController
 {
     public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly CommissionRepository $commissionRepository, private readonly IcsVTimezoneBuilder $icsVTimezoneBuilder)
     {

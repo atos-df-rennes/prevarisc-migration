@@ -9,7 +9,7 @@ use App\Entity\Dossier;
  * Valide qu'un dossier peut être utilisé comme source lors de la reprise
  * des effectifs et dégagements vers un dossier cible.
  */
-class EffectifsDegagementsRepriseValidator
+final class EffectifsDegagementsRepriseValidator
 {
     /**
      * Retourne null si le dossier source est valide, ou un message d'erreur sinon.

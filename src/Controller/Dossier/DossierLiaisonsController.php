@@ -12,12 +12,13 @@ use App\Service\Dossier\DossierLiaisonsService;
 use App\Service\Dossier\DossierSauvegardeService;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class DossierLiaisonsController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierLiaisonsController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private readonly DossierLiaisonsService $dossierLiaisonsService, private readonly DossierSauvegardeService $dossierSauvegardeService, private readonly EtablissementRepository $etablissementRepository, private readonly DossierRepository $dossierRepository)
     {
@@ -79,7 +80,7 @@ class DossierLiaisonsController extends AbstractController implements DossierLat
      */
     #[Route(path: '/dossier/{id}/liees/etablissements/ajouter', name: 'dossier_liees_etab_ajouter', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function ajouterEtablissementLie(Request $request, Dossier $dossier): Response
+    public function ajouterEtablissementLie(Request $request, Dossier $dossier): RedirectResponse
     {
         $form = $this->createForm(DossierAjouterEtablissementType::class);
         $form->handleRequest($request);

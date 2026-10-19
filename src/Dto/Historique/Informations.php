@@ -2,7 +2,7 @@
 
 namespace App\Dto\Historique;
 
-class Informations
+final class Informations
 {
     /** @var DonneeHistorique[] */
     private array $statut;

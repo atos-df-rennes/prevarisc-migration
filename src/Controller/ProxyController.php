@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * Relai HTTP côté serveur pour contourner les restrictions réseau (CORS, intranet SDIS).
  * Port direct de ProxyController Zend.
  */
-class ProxyController extends AbstractController
+final class ProxyController extends AbstractController
 {
     public function __construct(private readonly ProxyConfigurationService $proxyConfiguration, private readonly LoggerInterface $logger, private readonly bool $debugEnabled)
     {

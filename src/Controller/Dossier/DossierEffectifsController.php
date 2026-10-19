@@ -17,6 +17,7 @@ use App\Service\Dossier\EffectifsDegagementsRepriseValidator;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -26,7 +27,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gère les actions liées aux effectifs et dégagements d'un dossier.
  */
 #[Route(requirements: ['id' => '\d+'])]
-class DossierEffectifsController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierEffectifsController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private readonly DescriptifService $descriptifService, private readonly DescriptifInspector $descriptifInspector, private readonly DescriptifCopier $descriptifCopier, private readonly DossierRepository $dossierRepository, private readonly EffectifsDegagementsRepriseValidator $repriseValidator, private readonly LoggerInterface $logger, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly FormFactoryInterface $formFactory)
     {
@@ -56,7 +57,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
     public function copierEffectifsDegagementsEtablissement(
         Dossier $dossier,
         Request $request
-    ): Response {
+    ): JsonResponse {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('copier_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {
@@ -109,7 +110,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
     public function recupererEffectifsDegagementsEtablissement(
         Dossier $dossier,
         Request $request
-    ): Response {
+    ): JsonResponse {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('recuperer_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {
@@ -192,7 +193,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
     public function reprendreEffectifsDegagementsDepuisEtude(
         Dossier $dossier,
         Request $request
-    ): Response {
+    ): JsonResponse {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('reprendre_effectifs_degagements_'.$dossier->getId(), $csrfToken)) {

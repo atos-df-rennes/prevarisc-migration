@@ -10,6 +10,7 @@ use App\Repository\PeriodiciteRepository;
 use App\ValueObject\ClesTableauDesPeriodicites;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[IsGranted('periodicites')]
-class TableauDesPeriodicitesController extends AbstractController
+final class TableauDesPeriodicitesController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PeriodiciteRepository $periodiciteRepository, private readonly EtablissementTypeRepository $etablissementTypeRepository, private readonly EtablissementCategorieRepository $etablissementCategorieRepository, private readonly IghClasseRepository $ighClasseRepository, private readonly TagAwareCacheInterface $searchCache)
     {
@@ -47,7 +48,7 @@ class TableauDesPeriodicitesController extends AbstractController
     }
 
     #[Route(path: '/admin/tableau-des-periodicites/sauvegarder', name: 'admin_tableau_des_periodicites_save')]
-    public function save(Request $request): Response
+    public function save(Request $request): RedirectResponse
     {
         foreach ($request->request->all() as $periodiciteKey => $periodicite) {
             $clesTableauDesPeriodicites = ClesTableauDesPeriodicites::fromRequest($periodiciteKey);
@@ -92,7 +93,7 @@ class TableauDesPeriodicitesController extends AbstractController
     }
 
     #[Route(path: '/admin/tableau-des-periodicites/appliquer', name: 'admin_tableau_des_periodicites_apply', methods: ['POST'])]
-    public function apply(Request $request): Response
+    public function apply(Request $request): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');

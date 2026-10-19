@@ -13,9 +13,9 @@ use Doctrine\DBAL\Connection;
  * Centralise toutes les requêtes SQL brutes (lecture) utilisées lors
  * de la génération des convocations, ODJ, PV et comptes-rendus.
  */
-class CommissionDataProvider
+final readonly class CommissionDataProvider
 {
-    public function __construct(private readonly Connection $conn, private readonly EtablissementAdresseRepository $etablissementAdresseRepository)
+    public function __construct(private Connection $conn, private EtablissementAdresseRepository $etablissementAdresseRepository)
     {
     }
 

@@ -16,17 +16,17 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UtilisateurInformationsType extends AbstractType
+final class UtilisateurInformationsType extends AbstractType
 {
-    public const SCOPE_GRADE = 'grade';
+    public const string SCOPE_GRADE = 'grade';
 
-    public const SCOPE_FONCTION = 'fonction';
+    public const string SCOPE_FONCTION = 'fonction';
 
-    public const SCOPE_ADRESSE = 'adresse';
+    public const string SCOPE_ADRESSE = 'adresse';
 
-    public const SCOPE_SOCIETE = 'societe';
+    public const string SCOPE_SOCIETE = 'societe';
 
-    public const SCOPE_CIVILITE = 'civilite';
+    public const string SCOPE_CIVILITE = 'civilite';
 
     /**
      * Construit le formulaire en ajoutant différents champs selon les options et portées fournies.

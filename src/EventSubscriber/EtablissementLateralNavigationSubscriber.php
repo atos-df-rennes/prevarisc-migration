@@ -15,9 +15,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
+final readonly class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly EtablissementAncestryService $etablissementAncestryService, private readonly AvisDerogationsRepository $avisDerogationsRepository)
+    public function __construct(private EtablissementRepository $etablissementRepository, private CapsuleRubriqueRepository $capsuleRubriqueRepository, private AuthorizationCheckerInterface $authorizationChecker, private EtablissementAncestryService $etablissementAncestryService, private AvisDerogationsRepository $avisDerogationsRepository)
     {
     }
 

@@ -31,6 +31,7 @@ jobs:
     outputs:
       phpstan: ${{ steps.changes.outputs.phpstan || steps.push.outputs.phpstan }}
       rector: ${{ steps.changes.outputs.rector || steps.push.outputs.rector }}
+      finalize_classes: ${{ steps.changes.outputs.finalize_classes || steps.push.outputs.finalize_classes }}
       phpunit: ${{ steps.changes.outputs.phpunit || steps.push.outputs.phpunit }}
       php_style: ${{ steps.changes.outputs.php_style || steps.push.outputs.php_style }}
       php_style_full: ${{ steps.changes.outputs.php_style_full || steps.push.outputs.php_style_full }}
@@ -71,6 +72,15 @@ jobs:
               - '.env.test'
               - '.github/workflows/ci.yml'
               - '.github/actions/**'
+            finalize_classes:
+              - 'src/**/*.php'
+              - 'tests/**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
             phpunit:
               - 'src/**/*.php'
               - 'tests/**/*.php'
@@ -109,6 +119,7 @@ jobs:
         run: |
           echo "phpstan=true" >> "$GITHUB_OUTPUT"
           echo "rector=true" >> "$GITHUB_OUTPUT"
+          echo "finalize_classes=true" >> "$GITHUB_OUTPUT"
           echo "phpunit=true" >> "$GITHUB_OUTPUT"
           echo "php_style=true" >> "$GITHUB_OUTPUT"
           echo "php_style_full=true" >> "$GITHUB_OUTPUT"
@@ -162,6 +173,23 @@ jobs:
             ${{ runner.os }}-php85-rector-${{ hashFiles('composer.lock', 'tools/composer.lock', 'rector.php') }}-
       - name: Check refactoring
         run: tools/vendor/bin/rector --dry-run --no-progress-bar
+
+  finalize-classes:
+    name: Final classes
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.finalize_classes == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          app: 'true'
+          tools: 'true'
+      - name: Check final classes
+        run: tools/vendor/bin/swiss-knife finalize-classes src tests --skip-mocked --dry-run
 
   php-cs-fixer:
     name: PHP-CS-Fixer
@@ -311,6 +339,7 @@ jobs:
       - changes
       - phpstan
       - rector
+      - finalize-classes
       - php-cs-fixer
       - twig-cs-fixer
       - phpunit

@@ -8,13 +8,14 @@ use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Service\Commission\CommissionManagerService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_commissions')]
-class CommissionsController extends AbstractController
+final class CommissionsController extends AbstractController
 {
     public function __construct(private readonly CommissionRepository $commissionRepository, private readonly CommissionTypeRepository $commissionTypeRepository, private readonly CommissionManagerService $commissionManagerService)
     {
@@ -69,7 +70,7 @@ class CommissionsController extends AbstractController
      * Redirige vers l'onglet compétences (point d'entrée générique par commission).
      */
     #[Route(path: '/admin/commissions/{id}', name: 'admin_commissions_show', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function show(Commission $commission): Response
+    public function show(Commission $commission): RedirectResponse
     {
         return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);
     }

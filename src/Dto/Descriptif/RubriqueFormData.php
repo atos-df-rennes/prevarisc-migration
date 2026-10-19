@@ -15,7 +15,7 @@ use App\ValueObject\RubriqueEtat;
  *
  * @implements \ArrayAccess<array-key, ChampValueData|null>
  */
-class RubriqueFormData implements \ArrayAccess
+final class RubriqueFormData implements \ArrayAccess
 {
     /**
      * @param array<int, ChampValueData> $champs Données des champs racines indexées par champId

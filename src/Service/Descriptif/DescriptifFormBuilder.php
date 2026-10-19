@@ -20,7 +20,7 @@ use Symfony\Component\Form\FormInterface;
  *
  * @phpstan-import-type RubriqueData from Descriptif
  */
-class DescriptifFormBuilder
+final class DescriptifFormBuilder
 {
     /**
      * Construit le formulaire Symfony depuis un DescriptifFormData et la structure de rubriques.

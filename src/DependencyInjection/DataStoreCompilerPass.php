@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * This approach fits into the application's runtime resolution architecture,
  * allowing for flexible and efficient service instantiation.
  */
-class DataStoreCompilerPass implements CompilerPassInterface
+final class DataStoreCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {

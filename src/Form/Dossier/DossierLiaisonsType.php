@@ -9,7 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Count;
 
-class DossierLiaisonsType extends AbstractType
+final class DossierLiaisonsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

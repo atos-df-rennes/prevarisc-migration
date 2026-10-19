@@ -12,17 +12,17 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class PlatauHealthcheckService
+final readonly class PlatauHealthcheckService
 {
     private const string HEALTHCHECK_ENDPOINT = 'healthcheck';
 
     private const string UNAVAILABLE_RESPONSE_MESSAGE = "La connexion à Plat'AU depuis Prevarisc a échouée. La réponse Plat'AU n'a pas pu être récupérée. Veuillez consulter les logs de l'application.";
 
     public function __construct(
-        private readonly PlatauGatewayConfig $config,
-        private readonly PisteTokenProvider $tokenProvider,
-        private readonly HttpClientInterface $httpClient,
-        private readonly LoggerInterface $logger
+        private PlatauGatewayConfig $config,
+        private PisteTokenProvider $tokenProvider,
+        private HttpClientInterface $httpClient,
+        private LoggerInterface $logger
     ) {
     }
 

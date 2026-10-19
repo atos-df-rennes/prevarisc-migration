@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Champ checkbox pour les formulaires personnalisés.
  */
-class ChampCheckboxType extends AbstractType
+final class ChampCheckboxType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver): void
     {

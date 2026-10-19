@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Champ numérique entier pour les formulaires personnalisés.
  */
-class ChampNumberType extends AbstractType
+final class ChampNumberType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver): void
     {

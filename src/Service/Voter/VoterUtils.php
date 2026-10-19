@@ -5,7 +5,7 @@ namespace App\Service\Voter;
 use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 
-class VoterUtils
+final class VoterUtils
 {
     public function isUserGroupementsAndCommuneAllowed(Utilisateur $user, Etablissement $subject, int $useUserGroupements, int $useUserCommune): bool
     {

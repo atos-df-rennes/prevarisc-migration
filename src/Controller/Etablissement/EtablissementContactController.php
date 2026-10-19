@@ -12,6 +12,7 @@ use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -22,7 +23,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gère les contacts d'un établissement.
  */
 #[Route(requirements: ['id' => '\d+'])]
-class EtablissementContactController extends AbstractController implements EtablissementLateralNavigationInterface
+final class EtablissementContactController extends AbstractController implements EtablissementLateralNavigationInterface
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly EtablissementRepository $etablissementRepository, private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly Contact $contactService)
     {
@@ -72,7 +73,7 @@ class EtablissementContactController extends AbstractController implements Etabl
     public function addExistingContact(
         Request $request,
         Etablissement $etablissement
-    ): Response {
+    ): RedirectResponse {
         if (!is_string($request->request->get('token')) || !$this->isCsrfTokenValid('etablissement_contacts_add_existing_'.$etablissement->getId(), $request->request->get('token'))) {
             throw $this->createAccessDeniedException("Le jeton CSRF n'est pas valide.");
         }

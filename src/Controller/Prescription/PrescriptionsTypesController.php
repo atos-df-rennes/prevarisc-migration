@@ -19,6 +19,7 @@ use App\Utils\FormHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -26,7 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('gestion_prescriptions')]
-class PrescriptionsTypesController extends AbstractController
+final class PrescriptionsTypesController extends AbstractController
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PrescriptionCategorieRepository $prescriptionCategorieRepository, private readonly PrescriptionTexteRepository $prescriptionTexteRepository, private readonly PrescriptionArticleRepository $prescriptionArticleRepository, private readonly PrescriptionTypeRepository $prescriptionTypeRepository, private readonly Prescriptions $prescriptionsService, private readonly FormHelper $formHelper)
     {
@@ -42,7 +43,7 @@ class PrescriptionsTypesController extends AbstractController
     }
 
     #[Route(path: '/admin/prescriptions/changement-ordre', name: 'admin_prescriptions_types_changement_ordre', methods: ['POST'], options: ['expose' => true])]
-    public function reOrder(Request $request): Response
+    public function reOrder(Request $request): JsonResponse
     {
         $orders = $request->request->all()['order'] ?? null;
         $type = $request->request->get('type');

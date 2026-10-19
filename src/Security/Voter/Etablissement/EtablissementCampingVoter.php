@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
-class EtablissementCampingVoter extends EtablissementVoter
+final class EtablissementCampingVoter extends EtablissementVoter
 {
     public function __construct(private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository, private readonly LoggerInterface $logger)
     {

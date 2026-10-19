@@ -2,7 +2,7 @@
 
 namespace App\Utils;
 
-class Date
+final class Date
 {
     /**
      * Formate une date en libellé français court (ex: "Lundi 12 Jan 2026").

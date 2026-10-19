@@ -14,7 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-class PrescriptionDossierType extends AbstractType
+final class PrescriptionDossierType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

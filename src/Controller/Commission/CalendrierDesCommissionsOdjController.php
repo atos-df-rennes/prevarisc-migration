@@ -22,7 +22,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gestion de l'ordre du jour (ODJ) d'une date de commission.
  * Extrait de CalendrierDesCommissionsController (REF-CTL-01).
  */
-class CalendrierDesCommissionsOdjController extends AbstractController
+final class CalendrierDesCommissionsOdjController extends AbstractController
 {
     public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly EntityManagerInterface $entityManager)
     {
@@ -289,7 +289,7 @@ class CalendrierDesCommissionsOdjController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/resize-odj', name: 'calendrier_des_commissions_resize_odj', methods: ['POST'])]
     #[IsGranted('lecture_commission')]
-    public function resizeOdj(Request $request): Response
+    public function resizeOdj(Request $request): JsonResponse
     {
         try {
             /** @var string $rawDateCommId */
@@ -329,7 +329,7 @@ class CalendrierDesCommissionsOdjController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/drop-odj', name: 'calendrier_des_commissions_drop_odj', methods: ['POST'])]
     #[IsGranted('modification_odj')]
-    public function dropOdj(Request $request): Response
+    public function dropOdj(Request $request): JsonResponse
     {
         try {
             /** @var string $rawDateCommId */
@@ -458,7 +458,7 @@ class CalendrierDesCommissionsOdjController extends AbstractController
      */
     #[Route(path: '/commissions/calendrier/changement-ordre', name: 'calendrier_des_commissions_changement_ordre', methods: ['POST'])]
     #[IsGranted('modification_odj')]
-    public function changementOrdre(Request $request): Response
+    public function changementOrdre(Request $request): JsonResponse
     {
         try {
             /** @var string $rawDateCommId */

@@ -10,7 +10,7 @@ use Symfony\Component\Form\ChoiceList\Loader\CallbackChoiceLoader;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AddExistingContactsType extends AbstractType
+final class AddExistingContactsType extends AbstractType
 {
     public function __construct(private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository)
     {

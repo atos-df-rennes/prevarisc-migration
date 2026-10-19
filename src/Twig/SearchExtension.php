@@ -7,9 +7,9 @@ use App\Service\Platau\PlatauTempsRestant;
 use Twig\Attribute\AsTwigFilter;
 use Twig\Attribute\AsTwigFunction;
 
-class SearchExtension
+final readonly class SearchExtension
 {
-    public function __construct(private readonly PlatauTempsRestant $platauTempsRestant, private readonly DateDiffFormatterService $dateDiffFormatter)
+    public function __construct(private PlatauTempsRestant $platauTempsRestant, private DateDiffFormatterService $dateDiffFormatter)
     {
     }
 

@@ -12,19 +12,20 @@ use App\Service\NotificationService;
 use App\Service\Platau\PlatauHealthcheckStatusProvider;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-class IndexController extends AbstractController
+final class IndexController extends AbstractController
 {
     public function __construct(private readonly VersionBuilder $versionBuilder, private readonly DashboardBlocConfig $dashboardBlocConfig, private readonly DashboardService $dashboardService, private readonly FeedService $feedService, private readonly GroupeRepository $groupeRepository, private readonly NotificationService $notificationService, private readonly PlatauHealthcheckStatusProvider $platauHealthcheckStatusProvider, private readonly bool $deactivatePlatau, private readonly bool $platauNoHealthcheck, private readonly LoggerInterface $logger, private readonly bool $sdis29CustomEnabled)
     {
     }
 
     #[Route(path: '/', name: 'homepage')]
-    public function homepage(): Response
+    public function homepage(): RedirectResponse
     {
         return $this->redirectToRoute('accueil_index', [], 301);
     }
@@ -166,7 +167,7 @@ class IndexController extends AbstractController
      * Suppression d'un message du flux.
      */
     #[Route(path: '/accueil/delete-message', name: 'accueil_delete_message', methods: ['POST'])]
-    public function deleteMessage(Request $request): Response
+    public function deleteMessage(Request $request): RedirectResponse
     {
         $this->denyAccessUnlessGranted('fil_actus');
 

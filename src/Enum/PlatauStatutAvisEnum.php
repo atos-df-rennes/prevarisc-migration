@@ -2,9 +2,9 @@
 
 namespace App\Enum;
 
-class PlatauStatutAvisEnum
+final class PlatauStatutAvisEnum
 {
-    public const LABELS = [
+    public const array LABELS = [
         self::INCONNU => 'Statut inconnu',
         self::EN_COURS => "En attente d'avis sur Prevarisc",
         self::SAISI_A_TRANSMETTRE => "Avis renseigné sur Prevarisc (en attente de transmission à Plat'AU)",
@@ -13,18 +13,18 @@ class PlatauStatutAvisEnum
         self::EN_ERREUR => "En erreur sur Plat'AU",
     ];
 
-    public const INCONNU = 'unknown';
+    public const string INCONNU = 'unknown';
 
-    public const EN_COURS = 'in_progress';
+    public const string EN_COURS = 'in_progress';
 
     // Statut d'affichage uniquement, jamais persiste.
-    public const SAISI_A_TRANSMETTRE = 'filled_awaiting_export';
+    public const string SAISI_A_TRANSMETTRE = 'filled_awaiting_export';
 
-    public const TRAITE = 'treated';
+    public const string TRAITE = 'treated';
 
-    public const A_RENVOYER = 'to_export';
+    public const string A_RENVOYER = 'to_export';
 
-    public const EN_ERREUR = 'in_error';
+    public const string EN_ERREUR = 'in_error';
 
     public static function getLabel(?string $enumValue): string
     {

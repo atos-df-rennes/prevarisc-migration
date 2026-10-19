@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class AboutController extends AbstractController
+final class AboutController extends AbstractController
 {
     public function __construct(private readonly Doc $docService)
     {

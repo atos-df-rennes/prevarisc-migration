@@ -10,7 +10,7 @@ use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class PisteTokenProvider
+final readonly class PisteTokenProvider
 {
     private const string CACHE_KEY = 'platau_piste_token';
 
@@ -19,10 +19,10 @@ class PisteTokenProvider
     private const string UNAVAILABLE_MESSAGE = "La connexion à Plat'AU depuis Prevarisc a échouée. Impossible d'obtenir un identifiant de connexion à PISTE. Veuillez consulter les logs de l'application.";
 
     public function __construct(
-        private readonly PlatauGatewayConfig $config,
-        private readonly HttpClientInterface $httpClient,
-        private readonly CacheInterface $cache,
-        private readonly LoggerInterface $logger
+        private PlatauGatewayConfig $config,
+        private HttpClientInterface $httpClient,
+        private CacheInterface $cache,
+        private LoggerInterface $logger
     ) {
     }
 

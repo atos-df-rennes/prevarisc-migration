@@ -10,7 +10,7 @@ use App\Service\Voter\VoterUtils;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
-class EtablissementCelluleVoter extends EtablissementVoter
+final class EtablissementCelluleVoter extends EtablissementVoter
 {
     public function __construct(
         private readonly ResourcesRepository $resourcesRepository,

@@ -14,7 +14,7 @@ use Symfony\Component\Form\DataTransformerInterface;
  *
  * Exemple d'usage : champ 'prescription' dans TexteApplicableType.
  */
-class BooleanStringTransformer implements DataTransformerInterface
+final class BooleanStringTransformer implements DataTransformerInterface
 {
     /**
      * Transforme un bool (donnée modèle) en string pour l'affichage dans le form.

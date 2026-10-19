@@ -28,9 +28,9 @@ use Symfony\Component\HttpFoundation\Request;
  *     commune: bool
  * }
  */
-class RessourcesSpecialiseesEtablissementTextGenerator
+final readonly class RessourcesSpecialiseesEtablissementTextGenerator
 {
-    public function __construct(private readonly RessourcesSpecialiseesZoneTexter $zoneTexter, private readonly RessourcesSpecialiseesHabitationTexter $habitationTexter, private readonly RessourcesSpecialiseesIghTexter $ighTexter, private readonly RessourcesSpecialiseesCelluleTexter $celluleTexter, private readonly RessourcesSpecialiseesErpTexter $erpTexter, private readonly RessourcesSpecialiseesBupTexter $bupTexter, private readonly RessourcesSpecialiseesCampingTexter $campingTexter, private readonly RessourcesSpecialiseesIopTexter $iopTexter, private readonly RessourcesSpecialiseesManifestationTemporaireTexter $manifestationTemporaireTexter)
+    public function __construct(private RessourcesSpecialiseesZoneTexter $zoneTexter, private RessourcesSpecialiseesHabitationTexter $habitationTexter, private RessourcesSpecialiseesIghTexter $ighTexter, private RessourcesSpecialiseesCelluleTexter $celluleTexter, private RessourcesSpecialiseesErpTexter $erpTexter, private RessourcesSpecialiseesBupTexter $bupTexter, private RessourcesSpecialiseesCampingTexter $campingTexter, private RessourcesSpecialiseesIopTexter $iopTexter, private RessourcesSpecialiseesManifestationTemporaireTexter $manifestationTemporaireTexter)
     {
     }
 

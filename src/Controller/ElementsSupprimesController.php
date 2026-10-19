@@ -10,6 +10,7 @@ use App\Service\Dossier as DossierService;
 use App\Service\Etablissement as EtablissementService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -17,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[IsGranted(new Expression("is_granted('admin') and (is_granted('delete_dossier') or is_granted('delete_etablissement'))"))]
-class ElementsSupprimesController extends AbstractController
+final class ElementsSupprimesController extends AbstractController
 {
     public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly DossierRepository $dossierRepository, private readonly EtablissementService $etablissementService, private readonly DossierService $dossierService, private readonly TagAwareCacheInterface $searchCache)
     {
@@ -37,7 +38,7 @@ class ElementsSupprimesController extends AbstractController
 
     #[Route(path: '/admin/elements-supprimes/dossier/restaurer/{id}', name: 'admin_elements_supprimes_restore_dossier', requirements: ['id' => '\d+'])]
     #[IsGranted('delete_dossier')]
-    public function restoreDossier(Request $request, Dossier $id): Response
+    public function restoreDossier(Request $request, Dossier $id): RedirectResponse
     {
         $this->dossierService->restore($id);
         $this->addFlash('success', 'Le dossier a bien été rétabli.');
@@ -52,7 +53,7 @@ class ElementsSupprimesController extends AbstractController
 
     #[Route(path: '/admin/elements-supprimes/etablissement/restaurer/{id}', name: 'admin_elements_supprimes_restore_etablissement', requirements: ['id' => '\d+'])]
     #[IsGranted('delete_etablissement')]
-    public function restoreEtablissement(Etablissement $id): Response
+    public function restoreEtablissement(Etablissement $id): RedirectResponse
     {
         $this->etablissementService->restore($id);
         $this->addFlash('success', 'L\'établissement a bien été rétabli.');

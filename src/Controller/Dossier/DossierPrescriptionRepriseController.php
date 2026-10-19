@@ -8,12 +8,13 @@ use App\Repository\DossierRepository;
 use App\Service\DossierPrescriptionService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class DossierPrescriptionRepriseController extends AbstractController implements DossierPrescriptionsAccessInterface
+final class DossierPrescriptionRepriseController extends AbstractController implements DossierPrescriptionsAccessInterface
 {
     public function __construct(private readonly DossierPrescriptionService $service, private readonly DossierRepository $dossierRepo, private readonly LoggerInterface $logger)
     {
@@ -57,7 +58,7 @@ class DossierPrescriptionRepriseController extends AbstractController implements
      */
     #[Route(path: '/dossier/{id}/prescriptions/reprendre', name: 'dossier_prescriptions_reprendre', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[IsGranted('edit_doss', subject: 'dossier')]
-    public function reprendre(Request $request, Dossier $dossier): Response
+    public function reprendre(Request $request, Dossier $dossier): RedirectResponse
     {
         /** @var string $csrfToken */
         $csrfToken = $request->request->get('_token', '');

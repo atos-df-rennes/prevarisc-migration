@@ -2,7 +2,7 @@
 
 namespace App\Utils;
 
-class File
+final class File
 {
     /**
      * Sanitize a filename by removing any directory components and rejecting invalid names.

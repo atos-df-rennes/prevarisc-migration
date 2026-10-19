@@ -14,6 +14,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -24,7 +25,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  * Gère les contacts d'un dossier.
  */
 #[Route(requirements: ['id' => '\d+'])]
-class DossierContactController extends AbstractController implements DossierLateralNavigationInterface
+final class DossierContactController extends AbstractController implements DossierLateralNavigationInterface
 {
     public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierRepository $dossierRepository, private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly Contact $contactService)
     {
@@ -75,7 +76,7 @@ class DossierContactController extends AbstractController implements DossierLate
 
     #[Route(path: '/dossier/{id}/contacts/ajouter/existant', name: 'dossier_contacts_add_existing', methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted(DossierVoter::MODIFICATION, subject: 'dossier')]
-    public function addExistingContact(Request $request, Dossier $dossier): Response
+    public function addExistingContact(Request $request, Dossier $dossier): RedirectResponse
     {
         if (!is_string($request->request->get('token')) || !$this->isCsrfTokenValid('dossier_contacts_add_existing_'.$dossier->getId(), $request->request->get('token'))) {
             throw $this->createAccessDeniedException("Le jeton CSRF n'est pas valide.");

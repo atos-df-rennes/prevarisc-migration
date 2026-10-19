@@ -10,7 +10,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Ldap\Ldap;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -40,11 +39,11 @@ use Symfony\Component\Security\Http\Util\TargetPathTrait;
  *   3. LDAP (Symfony\Component\Ldap) — si PREVARISC_LDAP_ENABLED=1 (fallback du dbtable)
  *   4. dbtable MD5 → bcrypt via migrate_from — cas par défaut
  */
-class FormLoginAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface, InteractiveAuthenticatorInterface
+final class FormLoginAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface, InteractiveAuthenticatorInterface
 {
     use TargetPathTrait;
 
-    public const MAX_LOGIN_ATTEMPTS = 2;
+    public const int MAX_LOGIN_ATTEMPTS = 2;
 
     /**
      * Dernier utilisateur tentant une authentification (pour onAuthenticationFailure).
@@ -100,7 +99,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
      *   - POST sur /session/login → true
      *   - Sinon → false
      */
-    public function supports(Request $request): ?bool
+    public function supports(Request $request): bool
     {
         if (
             $this->casEnabled
@@ -357,7 +356,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
      * @param TokenInterface $token        Le token de sécurité Symfony
      * @param string         $firewallName La clé du firewall
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): RedirectResponse
     {
         /** @var Utilisateur $utilisateur */
         $utilisateur = $token->getUser();
@@ -399,7 +398,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
      * @param Request                 $request   La requête HTTP
      * @param AuthenticationException $exception L'exception d'authentification
      */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): RedirectResponse
     {
         // Incrémenter le compteur d'échecs si l'utilisateur existe
         if (null !== $this->lastAttemptedUser) {
@@ -428,7 +427,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
      * @param Request                      $request       La requête HTTP
      * @param AuthenticationException|null $authException L'exception éventuelle
      */
-    public function start(Request $request, ?AuthenticationException $authException = null): Response
+    public function start(Request $request, ?AuthenticationException $authException = null): RedirectResponse
     {
         // Ne sauvegarder le target path que pour les requêtes GET non-XHR.
         // Les requêtes POST/AJAX rejouées en GET après login aboutiraient à un 405.

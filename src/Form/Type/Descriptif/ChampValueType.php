@@ -20,7 +20,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * Utilise un listener PRE_SET_DATA car le type est stocké en BDD et inconnu
  * au moment de la construction du FormType.
  */
-class ChampValueType extends AbstractType
+final class ChampValueType extends AbstractType
 {
     public function __construct(private readonly ChampRepository $champRepository)
     {

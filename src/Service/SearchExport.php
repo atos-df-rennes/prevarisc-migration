@@ -14,7 +14,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
  * Service d'export ODS (Calc) pour les recherches d'établissements et de dossiers.
  * Encapsule la construction du Spreadsheet PhpSpreadsheet et écrit sur php://output.
  */
-class SearchExport
+final class SearchExport
 {
     /**
      * Exporte une liste d'établissements au format ODS sur php://output.

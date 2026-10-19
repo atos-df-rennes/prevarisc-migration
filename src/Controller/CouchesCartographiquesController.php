@@ -11,6 +11,7 @@ use App\Service\IgnAutoconfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,7 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[IsGranted('admin')]
-class CouchesCartographiquesController extends AbstractController
+final class CouchesCartographiquesController extends AbstractController
 {
     public function __construct(private readonly CouchesCarto $couchesCarto, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly EntityManagerInterface $entityManager, private readonly IgnAutoconfiguration $ignAutoconfiguration)
     {
@@ -152,7 +153,7 @@ class CouchesCartographiquesController extends AbstractController
     }
 
     #[Route(path: '/admin/couches-cartographiques/{id}/supprimer', name: 'couche_cartographique_delete')]
-    public function supprimer(CoucheCarto $coucheCarto): Response
+    public function supprimer(CoucheCarto $coucheCarto): RedirectResponse
     {
         try {
             $this->coucheCartoRepository->remove($coucheCarto);

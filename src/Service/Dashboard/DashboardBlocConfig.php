@@ -12,7 +12,7 @@ namespace App\Service\Dashboard;
  *   - title  : libellé affiché dans l'entête du bloc
  *   - type   : type de partial à utiliser (commissions, odj, etablissements, dossiers, feeds)
  */
-class DashboardBlocConfig
+final class DashboardBlocConfig
 {
     /** @var array<string, array<string, mixed>> */
     private $blocsConfig = [

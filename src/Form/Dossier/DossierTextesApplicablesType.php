@@ -10,7 +10,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class DossierTextesApplicablesType extends AbstractType
+final class DossierTextesApplicablesType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

@@ -19,9 +19,9 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-class DossierSauvegardeService
+final readonly class DossierSauvegardeService
 {
-    public function __construct(private readonly DossierDonnantAvisService $dossierDonnantAvisService, private readonly AlerteService $alerteService, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly RequestStack $requestStack, private readonly UrlGeneratorInterface $urlGenerator, private readonly DossierFields $dossierFields, private readonly TagAwareCacheInterface $searchCache)
+    public function __construct(private DossierDonnantAvisService $dossierDonnantAvisService, private AlerteService $alerteService, private AuthorizationCheckerInterface $authorizationChecker, private RequestStack $requestStack, private UrlGeneratorInterface $urlGenerator, private DossierFields $dossierFields, private TagAwareCacheInterface $searchCache)
     {
     }
 
