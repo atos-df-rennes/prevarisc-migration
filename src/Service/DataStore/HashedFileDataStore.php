@@ -42,7 +42,7 @@ final class HashedFileDataStore extends SimpleFileDataStore
     }
 
     #[\Override]
-    public function getURLPath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId): ?string
+    public function getURLPath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId): string
     {
         $type = $this->types[$linkedObjectType] ?? $linkedObjectType;
 

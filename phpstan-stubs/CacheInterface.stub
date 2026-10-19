@@ -1,0 +1,47 @@
+<?php
+
+namespace Psr\Cache;
+
+interface CacheItemInterface
+{
+}
+
+interface InvalidArgumentException extends \Throwable
+{
+}
+
+namespace Symfony\Contracts\Cache;
+
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\InvalidArgumentException;
+
+interface ItemInterface extends CacheItemInterface
+{
+}
+
+/**
+ * @template T
+ */
+interface CallbackInterface
+{
+    /**
+     * @return T
+     */
+    public function __invoke(CacheItemInterface $item, bool &$save): mixed;
+}
+
+interface CacheInterface
+{
+    /**
+     * @template T
+     *
+     * @param (callable(CacheItemInterface,bool):T)|(callable(ItemInterface,bool):T)|CallbackInterface<T> $callback
+     * @param array<mixed> $metadata
+     * @param-immediately-invoked-callable $callback
+     *
+     * @return T
+     *
+     * @throws InvalidArgumentException
+     */
+    public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): mixed;
+}

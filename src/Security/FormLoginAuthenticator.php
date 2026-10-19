@@ -100,7 +100,7 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
      *   - POST sur /session/login → true
      *   - Sinon → false
      */
-    public function supports(Request $request): ?bool
+    public function supports(Request $request): bool
     {
         if (
             $this->casEnabled
@@ -357,7 +357,7 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
      * @param TokenInterface $token        Le token de sécurité Symfony
      * @param string         $firewallName La clé du firewall
      */
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): Response
     {
         /** @var Utilisateur $utilisateur */
         $utilisateur = $token->getUser();
@@ -399,7 +399,7 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
      * @param Request                 $request   La requête HTTP
      * @param AuthenticationException $exception L'exception d'authentification
      */
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         // Incrémenter le compteur d'échecs si l'utilisateur existe
         if (null !== $this->lastAttemptedUser) {
