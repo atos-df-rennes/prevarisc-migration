@@ -33,7 +33,10 @@ final readonly class EnvironmentType implements VersionType
         try {
             $githubApiResponse = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/refs/tags')->getContent();
         } catch (\Exception $exception) {
-            $this->logger->notice("La vérification des tags sur le dépôt n'a pas pu être effectuée : ".$exception->getMessage());
+            $this->logger->notice("La vérification des tags sur le dépôt n'a pas pu être effectuée : {message}", [
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
 
             return true;
         }

@@ -67,7 +67,10 @@ final readonly class GithubType implements VersionType
                 'timeout' => 3,
             ])->getContent();
         } catch (\Exception $exception) {
-            $this->logger->notice("La vérification des commits sur le dépôt n'a pas pu être effectuée : ".$exception->getMessage());
+            $this->logger->notice("La vérification des commits sur le dépôt n'a pas pu être effectuée : {message}", [
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
 
             return true;
         }

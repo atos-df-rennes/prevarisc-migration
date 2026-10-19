@@ -610,7 +610,7 @@ final readonly class Etablissement
             return $etablissement->getId();
         } catch (\Exception $exception) {
             $connection->rollBack();
-            $this->logger->error('Erreur création établissement', ['error' => $exception->getMessage()]);
+            $this->logger->error('Erreur création établissement', ['exception' => $exception]);
             throw $exception;
         }
     }
@@ -765,7 +765,7 @@ final readonly class Etablissement
             $this->logger->info('Établissement mis à jour', ['id' => $idEtablissement, 'genre' => $idGenre]);
         } catch (\Exception $exception) {
             $connection->rollBack();
-            $this->logger->error('Erreur mise à jour établissement', ['error' => $exception->getMessage()]);
+            $this->logger->error('Erreur mise à jour établissement', ['exception' => $exception]);
             throw $exception;
         }
     }

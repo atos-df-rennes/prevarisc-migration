@@ -48,7 +48,10 @@ class LastActionUpdater
             $this->entityManager->persist($utilisateur);
             $this->entityManager->flush();
         } catch (\Exception $exception) {
-            $this->logger->error('LastActionUpdater: '.$exception->getMessage());
+            $this->logger->error('LastActionUpdater: {message}', [
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
         }
     }
 }

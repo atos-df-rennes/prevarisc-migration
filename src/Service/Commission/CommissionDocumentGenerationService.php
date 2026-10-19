@@ -197,7 +197,7 @@ class CommissionDocumentGenerationService
                     'pieceJointeId' => $pjId,
                 ];
             } catch (\Exception $e) {
-                $this->logger->error('Erreur génération convocation membre '.$membreLabel, ['exception' => $e]);
+                $this->logger->error('Erreur génération convocation membre {member}', ['member' => $membreLabel, 'exception' => $e]);
                 $results[] = [
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
@@ -323,7 +323,7 @@ class CommissionDocumentGenerationService
                     ];
                 }
             } catch (\Exception $e) {
-                $this->logger->error('Erreur génération ODJ membre '.$membreLabel, ['exception' => $e]);
+                $this->logger->error('Erreur génération ODJ membre {member}', ['member' => $membreLabel, 'exception' => $e]);
                 $results[] = [
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,
@@ -428,7 +428,7 @@ class CommissionDocumentGenerationService
                     'pieceJointeId' => $pjId,
                 ];
             } catch (\Exception $e) {
-                $this->logger->error('Erreur génération PV membre '.$membreLabel, ['exception' => $e]);
+                $this->logger->error('Erreur génération PV membre {member}', ['member' => $membreLabel, 'exception' => $e]);
                 $results[] = [
                     'memberId' => $membreId,
                     'memberLabel' => $membreLabel,

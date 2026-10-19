@@ -21,7 +21,7 @@ final readonly class Doc
         $contents = file_get_contents($path);
 
         if (false === $contents) {
-            $this->logger->warning(sprintf("Le contenu du fichier %s n'a pas pu être lu.", $filename));
+            $this->logger->warning("Le contenu du fichier {filename} n'a pas pu être lu.", ['filename' => $filename]);
 
             return '';
         }

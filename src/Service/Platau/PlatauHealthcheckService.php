@@ -84,7 +84,7 @@ class PlatauHealthcheckService
         }
 
         if ($httpCode < 200 || $httpCode >= 300) {
-            $this->logger->error(sprintf("Healthcheck Plat'AU : code HTTP %d.", $httpCode));
+            $this->logger->error("Healthcheck Plat'AU : code HTTP {http_code}.", ['http_code' => $httpCode]);
 
             return HealthcheckResult::platauError(
                 sprintf("Plat'AU est en erreur (HTTP %d). Veuillez réessayer ultérieurement.", $httpCode),

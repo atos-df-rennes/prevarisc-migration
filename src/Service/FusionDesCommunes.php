@@ -61,7 +61,10 @@ final readonly class FusionDesCommunes
 
                 $resultat->ajouterSucces($fusionCommune->nom());
             } catch (FusionFunctionalException $exception) {
-                $this->logger->error($exception->getMessage());
+                $this->logger->error('Échec fonctionnel de la fusion de communes : {message}', [
+                    'message' => $exception->getMessage(),
+                    'exception' => $exception,
+                ]);
                 $resultat->ajouterEchec($fusionCommune->nom(), $exception->getMessage());
             }
         }
@@ -130,7 +133,10 @@ final readonly class FusionDesCommunes
 
                 $this->entityManager->flush();
             } catch (\Exception $exception) {
-                $this->logger->error($exception->getMessage());
+                $this->logger->error('Échec de la mise à jour des rues pour une commune : {message}', [
+                    'message' => $exception->getMessage(),
+                    'exception' => $exception,
+                ]);
             }
         }
     }
@@ -190,11 +196,17 @@ final readonly class FusionDesCommunes
 
                 if (null === $utilisateur || null === $utilisateurInformations) {
                     if (null === $utilisateur) {
-                        $this->logger->error(\sprintf('Aucun utilisateur associé à la commune %s (%s).', $communeEntity->getLibelle(), $communeEntity->getId()));
+                        $this->logger->error('Aucun utilisateur associé à la commune {commune} ({commune_id}).', [
+                            'commune' => $communeEntity->getLibelle(),
+                            'commune_id' => $communeEntity->getId(),
+                        ]);
                     }
 
                     if (null === $utilisateurInformations) {
-                        $this->logger->error(\sprintf('Aucune information utilisateur associée à la commune %s (%s).', $communeEntity->getLibelle(), $communeEntity->getId()));
+                        $this->logger->error('Aucune information utilisateur associée à la commune {commune} ({commune_id}).', [
+                            'commune' => $communeEntity->getLibelle(),
+                            'commune_id' => $communeEntity->getId(),
+                        ]);
                     }
 
                     throw new FusionFunctionalException("Des éléments d'informations sont manquants. Veuillez consulter les logs.");
@@ -206,7 +218,12 @@ final readonly class FusionDesCommunes
 
                 $this->entityManager->flush();
             } catch (\Exception $e) {
-                $this->logger->error(\sprintf('Erreur lors de la suppression de la commune %s (%s) : %s', $commune->nom(), $commune->numinsee(), $e->getMessage()));
+                $this->logger->error('Erreur lors de la suppression de la commune {commune} ({commune_code}) : {message}', [
+                    'commune' => $commune->nom(),
+                    'commune_code' => $commune->numinsee(),
+                    'message' => $e->getMessage(),
+                    'exception' => $e,
+                ]);
 
                 throw new FusionFunctionalException(\sprintf('Erreur lors de la suppression de la commune %s (%s)', $commune->nom(), $commune->numinsee()), $e->getCode(), $e);
             }

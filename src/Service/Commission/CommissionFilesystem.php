@@ -27,7 +27,7 @@ final readonly class CommissionFilesystem
             $this->logger->error('Impossible de créer le dossier de commission', [
                 'commission_id' => $commissionId,
                 'path' => $commissionDir,
-                'error' => $ioException->getMessage(),
+                'exception' => $ioException,
             ]);
         }
     }
@@ -42,7 +42,7 @@ final readonly class CommissionFilesystem
             $this->logger->error('Impossible de supprimer le dossier de commission', [
                 'commission_id' => $commissionId,
                 'path' => $commissionDir,
-                'error' => $ioException->getMessage(),
+                'exception' => $ioException,
             ]);
         }
     }

@@ -159,7 +159,9 @@ class FormulairesController extends AbstractController
 
             $this->addFlash('success', 'La configuration a bien été importée.');
         } catch (\Exception $exception) {
-            $this->logger->error($exception->getMessage(), ['service' => 'Importeur de configuration de formulaires']);
+            $this->logger->error("Erreur lors de l'import de la configuration des formulaires.", [
+                'exception' => $exception,
+            ]);
 
             $this->addFlash('danger', "Un problème a eu lieu lors de l'import de la configuration.");
         }

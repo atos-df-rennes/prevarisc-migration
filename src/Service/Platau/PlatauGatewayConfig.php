@@ -105,7 +105,7 @@ class PlatauGatewayConfig
     private function readOptions(): ?array
     {
         if (!file_exists($this->configFilePath)) {
-            $this->logger->warning("Le fichier de configuration Plat'AU est introuvable : ".$this->configFilePath);
+            $this->logger->warning("Le fichier de configuration Plat'AU est introuvable : {path}", ['path' => $this->configFilePath]);
 
             return null;
         }
@@ -167,7 +167,7 @@ class PlatauGatewayConfig
             }
         }
 
-        $this->logger->error(sprintf("L'URL %s n'a pas pu être récupérée correctement dans la passerelle Plat'AU.", $constant));
+        $this->logger->error("L'URL {constant} n'a pas pu être récupérée correctement dans la passerelle Plat'AU.", ['constant' => $constant]);
 
         return null;
     }

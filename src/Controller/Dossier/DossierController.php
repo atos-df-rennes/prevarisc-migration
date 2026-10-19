@@ -198,7 +198,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 $this->entityManager->clear();
 
                 $this->logger->error('Erreur lors de la création du dossier', [
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                     'trace' => $e->getTraceAsString(),
                 ]);
 
@@ -383,7 +383,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
                 // Log de l'erreur technique pour le service informatique
                 $this->logger->error('Erreur lors de la sauvegarde du dossier', [
                     'dossier_id' => $dossier->getId(),
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                     'trace' => $e->getTraceAsString(),
                 ]);
 
@@ -626,7 +626,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
             } catch (\Exception $e) {
                 $this->logger->error('Erreur lors de la sauvegarde des vérifications techniques', [
                     'dossier_id' => $dossier->getId(),
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                 ]);
                 $this->addFlash('danger', 'Les vérifications techniques n\'ont pas été mises à jour. Veuillez réessayer.');
             }
@@ -881,7 +881,7 @@ class DossierController extends AbstractController implements DossierLateralNavi
         } catch (\Throwable $throwable) {
             $this->logger->error('Erreur lors de la suppression du dossier', [
                 'dossier_id' => $dossier->getId(),
-                'exception' => $throwable->getMessage(),
+                'exception' => $throwable,
                 'trace' => $throwable->getTraceAsString(),
             ]);
 

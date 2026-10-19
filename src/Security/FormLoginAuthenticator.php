@@ -208,7 +208,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
         }
 
         if (!$user->getActif()) {
-            $this->logger->notice(sprintf("Auth: utilisateur inactif '%s'", $username));
+            $this->logger->notice('Auth: utilisateur inactif {username}', ['username' => $username]);
             throw new AuthenticationException('Authentification invalide.');
         }
 
@@ -244,10 +244,10 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
         // même avec sso=true, car LDAP est un vérificateur de credentials sur le formulaire,
         // pas une délégation de token (comportement identique au legacy — cf. SessionController).
         if (true === $utilisateur->getSso() && !$this->ldapEnabled) {
-            $this->logger->error(sprintf(
-                "Auth: utilisateur SSO '%s' tentant une connexion par formulaire (CAS/NTLM non activé)",
-                $utilisateur->getUsername()
-            ));
+            $this->logger->error(
+                "Auth: utilisateur SSO '{username}' tentant une connexion par formulaire (CAS/NTLM non activé)",
+                ['username' => $utilisateur->getUsername()]
+            );
 
             return false;
         }
@@ -261,11 +261,10 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
             && '' !== $utilisateur->getIp()
             && $utilisateur->getIp() !== $remoteAddr
         ) {
-            $this->logger->error(sprintf(
-                "Auth: trop d'essais infructueux, denying IP %s which does not match last login IP %s",
-                $remoteAddr,
-                $utilisateur->getIp()
-            ));
+            $this->logger->error(
+                "Auth: trop d'essais infructueux, denying IP {remote_addr} which does not match last login IP {last_login_ip}",
+                ['remote_addr' => $remoteAddr, 'last_login_ip' => $utilisateur->getIp()]
+            );
 
             return false;
         }
@@ -294,7 +293,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
                         if ([] !== $results) {
                             $entry = $results[0];
                             $ldap->bind($entry->getDn(), (string) $credentials['password']);
-                            $this->logger->info(sprintf("Auth LDAP (service-account): succès pour '%s'", $credentials['username']));
+                            $this->logger->info("Auth LDAP (service-account): succès pour '{username}'", ['username' => $credentials['username']]);
 
                             return true;
                         }
@@ -305,7 +304,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
                     } catch (\Exception $e) {
                         $this->logger->notice('Auth LDAP: bind service account échoué, fallback direct bind', [
                             'service_account' => $this->ldapUsername,
-                            'exception' => $e->getMessage(),
+                            'exception' => $e,
                         ]);
                     }
                 }
@@ -319,13 +318,13 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
                     ? sprintf($this->ldapAccountForm, $credentials['username'])
                     : $credentials['username'];
                 $ldap->bind($bindUsername, (string) $credentials['password']);
-                $this->logger->info(sprintf("Auth LDAP (direct): succès pour '%s'", $credentials['username']));
+                $this->logger->info("Auth LDAP (direct): succès pour '{username}'", ['username' => $credentials['username']]);
 
                 return true;
             } catch (\Exception $e) {
                 $this->logger->notice('Auth LDAP: échec, fallback sur dbtable', [
                     'username' => $credentials['username'],
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                 ]);
             }
         }
@@ -369,7 +368,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
 
         $this->entityManager->flush();
 
-        $this->logger->info(sprintf("Auth: connexion réussie pour '%s'", $utilisateur->getUsername()));
+        $this->logger->info("Auth: connexion réussie pour '{username}'", ['username' => $utilisateur->getUsername()]);
 
         // Redirection post-login : priorité au target path Symfony (mécanisme natif),
         // sinon fallback sur le paramètre query ?redirect= (mitigation open redirect).
@@ -407,11 +406,10 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
             $attempts = (int) $this->lastAttemptedUser->getFailedLoginAttempts();
             $this->lastAttemptedUser->setFailedLoginAttempts($attempts + 1);
             $this->entityManager->flush();
-            $this->logger->notice(sprintf(
-                "Auth: échec pour '%s' (tentative %d)",
-                $this->lastAttemptedUser->getUsername(),
-                $attempts + 1
-            ));
+            $this->logger->notice(
+                "Auth: échec pour '{username}' (tentative {attempt})",
+                ['username' => $this->lastAttemptedUser->getUsername(), 'attempt' => $attempts + 1]
+            );
         }
 
         // Flash message d'erreur (lu par le template de login)

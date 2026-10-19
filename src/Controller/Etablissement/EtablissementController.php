@@ -109,7 +109,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                 return $this->redirectToRoute('etablissement_informations', ['id' => $idEtablissement]);
             } catch (\Exception $e) {
                 // F9 : logger l'exception, ne pas exposer $e->getMessage() à l'utilisateur
-                $this->logger->error('Erreur ajout établissement', ['error' => $e->getMessage()]);
+                $this->logger->error('Erreur ajout établissement', ['exception' => $e]);
                 // F9 : 'error' → 'danger' + message générique aligné legacy
                 $this->addFlash('danger', "L'établissement n'a pas été ajouté. Veuillez rééssayez.");
             }
@@ -168,7 +168,7 @@ class EtablissementController extends AbstractController implements Etablissemen
 
                 return $this->redirectToRoute('etablissement_informations', ['id' => $etablissement->getId()]);
             } catch (\Exception $e) {
-                $this->logger->error('Erreur modification établissement', ['error' => $e->getMessage()]);
+                $this->logger->error('Erreur modification établissement', ['exception' => $e]);
                 $this->addFlash('danger', "L'établissement n'a pas été mis à jour. Veuillez rééssayez.");
             }
         }
@@ -444,7 +444,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         } catch (\Exception $exception) {
             $this->pieceJointeLogger->error('Erreur lors de l\'ajout d\'une pièce jointe', [
                 'etablissement_id' => $etablissement->getId(),
-                'error' => $exception->getMessage(),
+                'exception' => $exception,
             ]);
             $this->addFlash('danger', 'La pièce jointe n\'a pas été ajoutée. Veuillez réessayer.');
         }
@@ -624,7 +624,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             } catch (\Exception $e) {
                 $this->logger->error('Erreur lors de la sauvegarde du descriptif original', [
                     'etablissement_id' => $etablissement->getId(),
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                 ]);
                 $this->addFlash('danger', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
             }
@@ -659,7 +659,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             } catch (\Exception $e) {
                 $this->logger->error('Erreur lors de la sauvegarde du descriptif personnalisé', [
                     'etablissement_id' => $etablissement->getId(),
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                 ]);
                 $this->addFlash('danger', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
             }
@@ -698,7 +698,7 @@ class EtablissementController extends AbstractController implements Etablissemen
             } catch (\Exception $e) {
                 $this->logger->error('Erreur lors de la sauvegarde des effectifs et dégagements', [
                     'etablissement_id' => $etablissement->getId(),
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                 ]);
                 $this->addFlash('danger', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
             }
@@ -759,7 +759,7 @@ class EtablissementController extends AbstractController implements Etablissemen
         } catch (\Exception $exception) {
             $this->logger->error('Erreur suppression établissement', [
                 'etablissement_id' => $etablissement->getId(),
-                'exception' => $exception->getMessage(),
+                'exception' => $exception,
             ]);
             $this->addFlash('danger', "L'établissement n'a pas été supprimé. Veuillez réessayer.");
 
