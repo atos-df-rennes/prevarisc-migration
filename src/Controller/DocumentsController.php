@@ -96,11 +96,11 @@ class DocumentsController extends AbstractController
 
                     $this->addFlash('success', 'Le document a bien été ajouté.');
                 } catch (IOException $ioException) {
-                    $this->logger->error('Erreur lors de la copie du document dans la Gestion des documents : '.$ioException->getMessage());
+                    $this->logger->error('Erreur lors de la copie du document dans la Gestion des documents.', ['exception' => $ioException]);
 
                     $this->addFlash('danger', "Erreur lors de l'ajout du document.");
                 } catch (\InvalidArgumentException $invalidArgumentException) {
-                    $this->logger->error('Erreur lors du nommage du document dans la Gestion des documents : '.$invalidArgumentException->getMessage());
+                    $this->logger->error('Erreur lors du nommage du document dans la Gestion des documents.', ['exception' => $invalidArgumentException]);
 
                     $this->addFlash('danger', "Erreur lors de l'ajout du document.");
                 }
@@ -150,7 +150,7 @@ class DocumentsController extends AbstractController
         try {
             $this->filesystem->remove($filepath);
         } catch (IOException $ioException) {
-            $this->logger->error($ioException->getMessage());
+            $this->logger->error('Erreur lors de la suppression du document.', ['exception' => $ioException]);
             $this->addFlash('danger', 'Erreur lors de la suppression du document.');
 
             return $this->json([], 500);

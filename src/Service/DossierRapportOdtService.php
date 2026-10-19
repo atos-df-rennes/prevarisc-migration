@@ -379,7 +379,7 @@ class DossierRapportOdtService
         } catch (\Exception $exception) {
             $this->rapportLogger->error('Erreur lors de la génération du rapport ODT.', [
                 'dossier_id' => $idDossier,
-                'exception' => $exception->getMessage(),
+                'exception' => $exception,
             ]);
             throw $exception;
         }

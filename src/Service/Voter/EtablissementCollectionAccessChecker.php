@@ -33,7 +33,7 @@ class EtablissementCollectionAccessChecker
             } catch (\OutOfBoundsException $e) {
                 $this->logger->warning('Établissement sans informations', [
                     'etablissement_id' => $etablissement->getId(),
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                 ]);
                 continue;
             }

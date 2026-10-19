@@ -41,7 +41,7 @@ abstract class AbstractOdtDocumentService
             $this->logger->error('Échec du déplacement du fichier ODT', [
                 'filename' => $storedFilename,
                 'destination' => $this->getStoragePath().$storedFilename,
-                'error' => $fileException->getMessage(),
+                'exception' => $fileException,
             ]);
 
             throw $fileException;
@@ -65,7 +65,7 @@ abstract class AbstractOdtDocumentService
         } catch (IOException $ioException) {
             $this->logger->warning('Impossible de supprimer le fichier ODT', [
                 'path' => $path,
-                'error' => $ioException->getMessage(),
+                'exception' => $ioException,
             ]);
         }
     }
@@ -86,7 +86,7 @@ abstract class AbstractOdtDocumentService
             } catch (IOException $ioException) {
                 $this->logger->error('Impossible de créer le répertoire de stockage ODT', [
                     'path' => $this->getStoragePath(),
-                    'error' => $ioException->getMessage(),
+                    'exception' => $ioException,
                 ]);
             }
         }

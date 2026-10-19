@@ -34,7 +34,11 @@ class OdtWriter
             $target->setVars($name, $value ?? '', true, 'UTF8');
             if (null !== $logger) {
                 $prefix = $target instanceof Segment ? '['.$target->getName().'] ' : '';
-                $logger->debug($prefix.'{'.$name.'} : '.json_encode($value, JSON_UNESCAPED_UNICODE));
+                $logger->debug('{prefix}{name} : {value}', [
+                    'prefix' => $prefix,
+                    'name' => '{'.$name.'}',
+                    'value' => json_encode($value, JSON_UNESCAPED_UNICODE),
+                ]);
             }
         } catch (\Exception) {
             // Silencieux — variable absente du template ODT

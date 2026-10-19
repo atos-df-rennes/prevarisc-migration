@@ -48,11 +48,12 @@ final readonly class CommissionDocumentBuilder
                     $this->documents->findForCommission($commissionId)
                 );
             } catch (DirectoryNotFoundException $directoryNotFoundException) {
-                $this->logger->error($directoryNotFoundException->getMessage(), [
+                $this->logger->error('Répertoire de documents manquant pour la commission {commission_id}.', [
                     'commission_id' => $commissionId,
                     'commission_libelle' => $commissionLibelle,
                     'commission_type' => $commissionType,
-                    'commission_type_libelle' => $commissionTypeLibelle
+                    'commission_type_libelle' => $commissionTypeLibelle,
+                    'exception' => $directoryNotFoundException,
                 ]);
 
                 $documents[] = new CommissionDocument(

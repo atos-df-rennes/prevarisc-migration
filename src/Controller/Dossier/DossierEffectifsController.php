@@ -94,7 +94,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
             $this->logger->error('Erreur lors de la copie des effectifs et dégagements dossier→établissement.', [
                 'dossier_id' => $dossier->getId(),
                 'etablissement_id' => $etablissement->getId(),
-                'error' => $exception->getMessage(),
+                'exception' => $exception,
             ]);
 
             return $this->json(['error' => 'Erreur technique lors de la copie. Veuillez réessayer.'], 500);
@@ -147,7 +147,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
             $this->logger->error('Erreur lors de la récupération des effectifs et dégagements établissement→dossier.', [
                 'dossier_id' => $dossier->getId(),
                 'etablissement_id' => $etablissement->getId(),
-                'error' => $exception->getMessage(),
+                'exception' => $exception,
             ]);
 
             return $this->json(['error' => 'Erreur technique lors de la récupération. Veuillez réessayer.'], 500);
@@ -231,7 +231,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
             $this->logger->error('Erreur lors de la reprise des effectifs et dégagements depuis un autre dossier.', [
                 'dossier_cible_id' => $dossier->getId(),
                 'dossier_source_id' => $idDossierSource,
-                'error' => $exception->getMessage(),
+                'exception' => $exception,
             ]);
 
             return $this->json(['error' => 'Erreur technique lors de la reprise. Veuillez réessayer.'], 500);
@@ -263,7 +263,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
             } catch (\Exception $e) {
                 $this->logger->error('Erreur lors de la sauvegarde des effectifs et dégagements du dossier', [
                     'dossier_id' => $dossier->getId(),
-                    'exception' => $e->getMessage(),
+                    'exception' => $e,
                 ]);
                 $this->addFlash('danger', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
             }

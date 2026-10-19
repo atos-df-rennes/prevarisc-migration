@@ -70,7 +70,7 @@ final readonly class CouchesCarto
             $url = $crawler->filterXPath('//ows:OperationsMetadata/ows:Operation[@name="GetCapabilities"]/ows:DCP/ows:HTTP/ows:Get')->attr('xlink:href');
 
             if (null === $url) {
-                $this->logger->error(sprintf("L'URL du service de cartographie pour le format %s n'est pas valide.", $format));
+                $this->logger->error("L'URL du service de cartographie pour le format {format} n'est pas valide.", ['format' => $format]);
 
                 return [];
             }
@@ -81,7 +81,7 @@ final readonly class CouchesCarto
             $url = $contents->filterXPath('//default:Request/default:GetCapabilities/default:DCPType/default:HTTP/default:Get/default:OnlineResource')->attr('xlink:href');
 
             if (null === $url) {
-                $this->logger->error(sprintf("L'URL du service de cartographie pour le format %s n'est pas valide.", $format));
+                $this->logger->error("L'URL du service de cartographie pour le format {format} n'est pas valide.", ['format' => $format]);
 
                 return [];
             }
@@ -187,7 +187,11 @@ final readonly class CouchesCarto
             try {
                 $couchesIGN[$format] = $this->getCapabilitiesLayers($capabilities, $format);
             } catch (\Exception $exception) {
-                $this->logger->error(sprintf('Erreur lors du parsing des capabilities IGN pour le format %s : %s', $format, $exception->getMessage()));
+                $this->logger->error('Erreur lors du parsing des capabilities IGN pour le format {format} : {message}', [
+                    'format' => $format,
+                    'message' => $exception->getMessage(),
+                    'exception' => $exception,
+                ]);
                 $couchesIGN[$format] = [];
             }
         }
@@ -218,7 +222,10 @@ final readonly class CouchesCarto
             $cacheIgn->expiresAfter(\DateInterval::createFromDateString('1 week'));
             $this->cache->save($cacheIgn);
         } catch (\Exception $exception) {
-            $this->logger->error("Problème lors de la connexion a l'API IGN : ".$exception->getMessage());
+            $this->logger->error("Problème lors de la connexion a l'API IGN : {message}", [
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
 
             return null;
         }
