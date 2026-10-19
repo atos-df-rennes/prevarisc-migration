@@ -44,7 +44,7 @@ Before modifying code:
 1. Read `docs/specs/INDEX.md`, then the relevant sections of the affected modules and, if necessary, related modules.
 2. For a bug, compare the reported behavior with the documented rule and determine whether the code deviates from an approved rule, the specification is incorrect, or the expected behavior remains ambiguous.
 3. Update or draft the affected specifications before writing code and tests. Do not present an uncertain rule or one inferred from reverse-engineering as validated by business domain experts.
-4. If business requirements cannot be determined safely, request clarification before choosing or altering the expected behavior. Explicitly record assumptions to confirm rather than treating them as established rules.
+4. If business requirements cannot be determined safely, consult the `functional-specialist` agent first to check the existing specifications and related functional rules, then request clarification before choosing or altering the expected behavior. Use the specialist to frame the ambiguity and viable interpretations, not to make or validate the business decision. Explicitly record assumptions to confirm rather than treating them as established rules.
 5. Then implement the change and update tests to verify the described scenarios and rules.
 
 To follow the detailed workflow, refer to the skill `.agents/skills/specifications-fonctionnelles/SKILL.md`. To answer domain questions or assess functional impact, use the `functional-specialist` agent defined in `.github/agents/functional-specialist.agent.md`.
