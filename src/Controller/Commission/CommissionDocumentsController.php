@@ -2,7 +2,6 @@
 
 namespace App\Controller\Commission;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Commission;
 use App\Enum\CommissionMembreCourrierType;
 use App\Form\CommissionDocumentCrType;
@@ -12,6 +11,7 @@ use App\Service\Commission\CommissionDocumentCrService;
 use App\Service\Commission\CommissionMembreCourrierService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

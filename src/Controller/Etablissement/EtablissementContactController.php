@@ -2,7 +2,6 @@
 
 namespace App\Controller\Etablissement;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Etablissement;
 use App\Entity\UtilisateurInformations;
@@ -13,6 +12,7 @@ use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Builder\VersionBuilder;
 use App\Entity\Utilisateur;
 use App\Repository\GroupeRepository;
@@ -13,6 +12,7 @@ use App\Service\NotificationService;
 use App\Service\Platau\PlatauHealthcheckStatusProvider;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\ChangementRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\Alerte\AlerteService;
 use App\Service\Mail\MailerConfiguration;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;

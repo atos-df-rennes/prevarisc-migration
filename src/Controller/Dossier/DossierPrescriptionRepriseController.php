@@ -2,13 +2,13 @@
 
 namespace App\Controller\Dossier;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Controller\Contract\DossierPrescriptionsAccessInterface;
 use App\Entity\Dossier;
 use App\Repository\DossierRepository;
 use App\Service\DossierPrescriptionService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

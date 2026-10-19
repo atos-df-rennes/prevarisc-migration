@@ -2,7 +2,6 @@
 
 namespace App\Controller\Dossier;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Constant\TypePrescription;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Controller\Contract\DossierPrescriptionsAccessInterface;
@@ -12,6 +11,7 @@ use App\Form\PrescriptionDossierType;
 use App\Service\DossierPrescriptionService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;

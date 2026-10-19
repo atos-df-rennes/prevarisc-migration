@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Periodicite;
 use App\Repository\EtablissementCategorieRepository;
 use App\Repository\EtablissementTypeRepository;
@@ -11,6 +10,7 @@ use App\Repository\PeriodiciteRepository;
 use App\ValueObject\ClesTableauDesPeriodicites;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
