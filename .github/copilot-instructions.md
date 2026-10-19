@@ -18,6 +18,7 @@ This is the independent Git repository for the current production application. B
 - Critically assess the scope of any request before implementation, especially for refactorings or wide-reaching tasks.
 - If a requested change or refactoring touches too many files, responsibilities, or behaviors at once, warn the user upfront that the scope is overly broad and that review, testing, and validation will be difficult to conduct.
 - Proactively propose a reduced, incremental scope focused on a single cohesive part (e.g., an isolated class, method, or single responsibility) before executing, rather than attempting a large-scale change in a single session.
+- Before implementing a change with multiple materially different viable designs, present the options, their tradeoffs, and the behavior each preserves. Ask the user to decide any unresolved business-rule or API choice, and wait for approval before implementing that choice. Do not add this step for straightforward changes where the requirements determine the design.
 
 ## Git and delivery
 
