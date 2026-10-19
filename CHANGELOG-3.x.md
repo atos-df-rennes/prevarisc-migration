@@ -4,6 +4,60 @@
 
 <!-- END HEADER -->
 
+## [3.0.0-rc.3](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.8...v3.0.0-rc.3) (19-10-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
+
+
+##### Platau
+
+* Indication de saisie Prevarisc non encore transmise à Plat'AU (#446) ([0c0bcb](https://github.com/atos-df-rennes/prevarisc-migration/commit/0c0bcb90209e9facb5fb8daebf83d007c9651d92))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Normalise les valeurs des rôles utilisateur (#455) ([c12639](https://github.com/atos-df-rennes/prevarisc-migration/commit/c12639ae10bb9eeef583d77f47fdbcd2adff185b))
+* Barre de recherche réduite au focus en tablette (#444) ([d2d384](https://github.com/atos-df-rennes/prevarisc-migration/commit/d2d384c29d24bdd36ede37944ac4e6b416a6354c))
+* Mauvais affichage de la catégorie sur les cellules (#437) ([455a33](https://github.com/atos-df-rennes/prevarisc-migration/commit/455a33937cfe6e34b277894ede7dbc64380bf418))
+
+##### Cartographie
+
+* Mauvaise interprétation de l'autoconfiguration locale (#438) ([796244](https://github.com/atos-df-rennes/prevarisc-migration/commit/796244a93fd914ace40081299e8e5131b88c2c62))
+
+##### Commissions
+
+* Formatage du nom de téléchargement des fichiers (#440) ([a0954a](https://github.com/atos-df-rennes/prevarisc-migration/commit/a0954aad4fa505794adbbd034eef7949b4ceeca9))
+
+##### Dossier
+
+* Utilise le type de service instructeur pour le rapport (#448) ([61128c](https://github.com/atos-df-rennes/prevarisc-migration/commit/61128ce49243f85496333d527a52ddbcc0023109))
+* Présélection des préventionnistes de l'établissement (#426) ([03a3b2](https://github.com/atos-df-rennes/prevarisc-migration/commit/03a3b221bf9379977a4ddef685d608db82e653b0))
+
+##### Etablissement
+
+* Affiche correctement les icônes des types (#443) ([0ad5d7](https://github.com/atos-df-rennes/prevarisc-migration/commit/0ad5d7c7b424767b373a85aa98db26319b6b5624))
+* Mauvais préventionnistes suggérés (#430) ([531f6d](https://github.com/atos-df-rennes/prevarisc-migration/commit/531f6dad2964eb2d7b6c3cab175a6d3f66d27633))
+
+##### Groupements
+
+* Libellé du bouton d'affectation qui correspond à l'action effectuée (#460) ([4e8768](https://github.com/atos-df-rennes/prevarisc-migration/commit/4e876814fe8ac4c3ce5d895098b58b7d1b8a35c5))
+
+##### Privileges
+
+* Erreur lors de la création de ressources spécialisées (#432) ([128c5e](https://github.com/atos-df-rennes/prevarisc-migration/commit/128c5e432e890df362625c9f57fc8a4b0f9a841e))
+
+##### Rapport
+
+* Chemins d'accès aux modèles indiqués invalides avec un partage Windows (#439) ([8553a5](https://github.com/atos-df-rennes/prevarisc-migration/commit/8553a5826162e0e3ccb08d97d4c9b3608faee137))
+* Récupère l'adresse de l'établissement en fonction de son genre (#427) ([9a2933](https://github.com/atos-df-rennes/prevarisc-migration/commit/9a29337b78c7b3723bbebbbef049d9de1a15d18c))
+* Formatage du nom de téléchargement des fichiers (#441) ([c74fd2](https://github.com/atos-df-rennes/prevarisc-migration/commit/c74fd207d68e24ef4c93bd19eba70769f2837650))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/lock.svg" width="20" height="20"> Sécurité
+
+* Utilisation d'un algorithme de hashage plus sécurisé pour les mots de passe (#422) ([06ac3b](https://github.com/atos-df-rennes/prevarisc-migration/commit/06ac3bc044ce6d81fcc85ac2fb556e6c884b7a58))
+
+
+---
+
 ## [3.0.0-rc.2](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.6...v3.0.0-rc.2) (16-09-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gauge-high.svg" width="20" height="20"> Performances
