@@ -54,6 +54,9 @@ Il ne necessite ni compte ni cle de licence Gitleaks.
 Le checkout recupere l'historique complet et le scan couvre toutes les
 references Git disponibles, y compris les commits qui ont ajoute puis supprime
 un secret. Aucun filtre de chemins ni baseline n'est applique.
+Le fichier `.gitleaksignore` contient uniquement l'empreinte historique du faux
+positif `generic-api-key` sur le code de rendu minifie du SDK Geoportail IGN
+(`this.textKey_,a=this.fillKey_;`). Il n'exclut ni le fichier ni ses futurs commits.
 Les valeurs detectees sont masquees dans les logs et aucun rapport n'est publie.
 Un secret historique reel doit etre revoque ou renouvele, pas simplement ignore.
 Ce controle intervient apres le push ; il ne remplace pas une protection
