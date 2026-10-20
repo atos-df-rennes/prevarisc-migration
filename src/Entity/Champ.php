@@ -30,16 +30,16 @@ class Champ
     private ?int $idx = null;
 
     #[ORM\ManyToOne(targetEntity: TypeChamp::class)]
-    #[ORM\JoinColumn(name: 'ID_TYPECHAMP', referencedColumnName: 'ID_TYPECHAMP', nullable: false)]
+    #[ORM\JoinColumn(name: 'ID_TYPECHAMP', referencedColumnName: 'ID_TYPECHAMP', nullable: false, onDelete: 'CASCADE')]
     private ?TypeChamp $type = null;
 
     #[ORM\ManyToOne(targetEntity: Rubrique::class, inversedBy: 'champs')]
-    #[ORM\JoinColumn(name: 'ID_RUBRIQUE', referencedColumnName: 'ID_RUBRIQUE', nullable: false)]
+    #[ORM\JoinColumn(name: 'ID_RUBRIQUE', referencedColumnName: 'ID_RUBRIQUE', nullable: false, onDelete: 'CASCADE')]
     private ?Rubrique $rubrique = null;
 
     #[MaxDepth(1)]
     #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'enfants')]
-    #[ORM\JoinColumn(name: 'ID_PARENT', referencedColumnName: 'ID_CHAMP', nullable: true)]
+    #[ORM\JoinColumn(name: 'ID_PARENT', referencedColumnName: 'ID_CHAMP', nullable: true, onDelete: 'CASCADE')]
     private ?Champ $parent = null;
 
     /**

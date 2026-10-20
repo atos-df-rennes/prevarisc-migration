@@ -110,8 +110,8 @@ class Dossier
      * @var Collection<int, Valeur>
      */
     #[ORM\JoinTable(name: 'dossiervaleur')]
-    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER')]
-    #[ORM\InverseJoinColumn(name: 'ID_VALEUR', referencedColumnName: 'ID_VALEUR')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(name: 'ID_VALEUR', referencedColumnName: 'ID_VALEUR', onDelete: 'CASCADE')]
     #[ORM\ManyToMany(targetEntity: Valeur::class, cascade: ['persist', 'remove'])]
     private Collection $valeurs;
 
