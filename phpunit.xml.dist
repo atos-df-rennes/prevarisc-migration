@@ -6,9 +6,14 @@
          backupGlobals="false"
          colors="true"
          bootstrap="tests/bootstrap.php"
+         failOnSelfDeprecation="true"
+         failOnDirectDeprecation="true"
+         failOnPhpunitDeprecation="true"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
 >
     <php>
         <ini name="error_reporting" value="-1" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[total]=0" force="true" />
         <server name="APP_ENV" value="test" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
     </php>
@@ -19,14 +24,18 @@
         </testsuite>
     </testsuites>
 
-    <source>
+    <source ignoreSuppressionOfDeprecations="true"
+            ignoreSuppressionOfPhpDeprecations="true">
         <include>
             <directory suffix=".php">src</directory>
         </include>
     </source>
 
-    <!-- Uncomment when adding extensions
     <extensions>
+        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
+        <bootstrap class="Zenstruck\Foundry\PHPUnit\FoundryExtension">
+            <parameter name="enabled-auto-reset" value="false" />
+            <parameter name="exit-on-reset-database-failure" value="true" />
+        </bootstrap>
     </extensions>
-    -->
 </phpunit>

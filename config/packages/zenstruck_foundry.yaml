@@ -1,0 +1,53 @@
+when@test:
+    zenstruck_foundry:
+        persistence:
+            flush_once: true
+        orm:
+            reset:
+                mode: schema
+        global_state:
+            - App\Tests\Story\AvisStory
+            - App\Tests\Story\CapsuleRubriqueStory
+            - App\Tests\Story\CategorieStory
+            - App\Tests\Story\ClasseStory
+            - App\Tests\Story\ClassementStory
+            - App\Tests\Story\CommissionTypeStory
+            - App\Tests\Story\CommissionTypeEvenementStory
+            - App\Tests\Story\DocmanquantStory
+            - App\Tests\Story\DossierTypeStory
+            - App\Tests\Story\DossierNatureListeStory
+            - App\Tests\Story\FamilleStory
+            - App\Tests\Story\FonctionStory
+            - App\Tests\Story\GenreStory
+            - App\Tests\Story\GroupementTypeStory
+            - App\Tests\Story\ListeTypeChampRubriqueStory
+            - App\Tests\Story\PieceJointeStatutStory
+            - App\Tests\Story\ResourcesStory
+            - App\Tests\Story\PrivilegesStory
+            - App\Tests\Story\GroupeDefautStory
+            - App\Tests\Story\StatutStory
+            - App\Tests\Story\TypeStory
+            - App\Tests\Story\TypeActiviteStory
+            - App\Tests\Story\TypePlanStory
+            - App\Tests\Story\TypeTexteApplStory
+            - App\Tests\Story\UtilisateurCiviliteStory
+
+    services: &foundry_services
+        App\Tests\Factory\:
+            resource: '%kernel.project_dir%/tests/Factory/'
+            autowire: true
+            autoconfigure: true
+        App\Tests\Story\:
+            resource: '%kernel.project_dir%/tests/Story/'
+            autowire: true
+            autoconfigure: true
+
+when@dev:
+    zenstruck_foundry:
+        persistence:
+            flush_once: true
+        orm:
+            reset:
+                mode: schema
+
+    services: *foundry_services

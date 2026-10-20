@@ -23,10 +23,12 @@ soit la liste de fichiers modifies.
 ## Controles
 
 Les jobs de controle s'executent en parallele sur `ubuntu-latest`
-avec PHP 8.5, sans Castor ni service de base de donnees :
+avec PHP 8.5, sans Castor. Le job PHPUnit Ubuntu dispose d'un service
+MariaDB 11.8 pour les tests du groupe `database`.
 
 PHPUnit s'execute aussi sur `windows-latest`, avec la meme suite hors groupe
-`functional`. Les deux variantes vont jusqu'au bout meme si l'une echoue
+`functional`, et exclut aussi `database` (les services Docker GitHub Actions
+necessitent Linux). Les deux variantes vont jusqu'au bout meme si l'une echoue
 (`fail-fast: false`), et leurs resultats sont bloquants pour le job `CI`.
 Les autres controles restent uniquement sur Ubuntu.
 
@@ -36,7 +38,8 @@ Les autres controles restent uniquement sur Ubuntu.
 | Rector | `tools/vendor/bin/rector --dry-run --no-progress-bar` |
 | PHP-CS-Fixer | `tools/vendor/bin/php-cs-fixer fix --dry-run --diff [fichiers modifies]` sur PR, tout le perimetre configure sinon |
 | Twig-CS-Fixer | `tools/vendor/bin/twig-cs-fixer check [fichiers modifies]` sur PR, tout le perimetre configure sinon |
-| PHPUnit | `php vendor/bin/phpunit --testdox --exclude-group functional` |
+| PHPUnit Ubuntu | `php vendor/bin/phpunit --testdox --exclude-group functional` |
+| PHPUnit Windows | `php vendor/bin/phpunit --testdox --exclude-group functional,database` |
 | Git conflict markers | `tools/vendor/bin/swiss-knife check-conflicts .` avec exclusions des dependances et fichiers generes |
 | Composer audit | `composer audit --locked` a la racine et dans `tools/` |
 
@@ -46,8 +49,11 @@ ou est annule, et accepte les jobs ignores par les filtres. L'audit ignore les
 paquets abandonnes, comme la CI historique, mais echoue en cas de vulnerabilite
 connue. Les deux projets Composer sont audites, meme si le premier audit echoue.
 
-Les tests qui dependent d'une base de donnees ou de donnees de reference portent
-le groupe PHPUnit `functional`, y compris ceux dans `tests/Repository/`.
+Les nouveaux tests sur base portent le groupe PHPUnit `database`. Foundry
+reconstruit le schema ORM et charge les stories globales ; DAMA annule la
+transaction de chaque test. Ils ne dependent pas d'un contenu de base existant.
+Le groupe historique `functional`, notamment dans `tests/Repository/`, reste
+exclu en attendant sa migration. Voir [Tests PHP](tests-php.md).
 Cypress, les controles du titre et des labels de PR, ainsi que le deploiement
 ne font pas partie de ce workflow.
 
@@ -83,8 +89,9 @@ Symfony dev utilise par PHPStan et generent les routes JavaScript.
 Aucun fichier `.env` n'est genere. Les variables necessaires sont definies dans
 le bloc `env:` du workflow : `APP_ENV`, `APP_DEBUG`, `APP_SECRET`, `DATABASE_URL`
 et `APP_RUNTIME_OPTIONS`. Les valeurs sont propres a la CI, sans secret de
-production ; l'URL de base contient une version MariaDB explicite et ne suppose
-aucun serveur accessible. Les autres reglages utilisent les valeurs par defaut
+production ; l'URL de base contient une version MariaDB explicite. Seul le
+job PHPUnit Ubuntu demarre un serveur correspondant a cette connexion.
+Les autres reglages utilisent les valeurs par defaut
 des configurations Symfony.
 
 `APP_RUNTIME_OPTIONS='{"disable_dotenv":true}'` desactive le chargement Dotenv
@@ -120,5 +127,7 @@ des PR.
 
 En dehors de GitHub Actions, conserver les commandes Castor de
 `prevarisc-infra` : `castor symfony:validate` ou les taches ciblees.
-La CI ne remplace pas la validation locale et n'impose aucun changement aux
+Ces deux commandes incluent `database` : la base de test de `.env.test` doit
+etre accessible avec les droits de reconstruction du schema. La CI ne
+remplace pas la validation locale et n'impose aucun changement aux
 infrastructures clientes.
