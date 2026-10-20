@@ -26,6 +26,6 @@ return [
     SecurityBundle::class => ['all' => true],
     TwigExtraBundle::class => ['all' => true],
     FOSJsRoutingBundle::class => ['all' => true],
-    ZenstruckFoundryBundle::class => ['test' => true],
+    ZenstruckFoundryBundle::class => ['dev' => true, 'test' => true],
     DAMADoctrineTestBundle::class => ['test' => true],
 ];

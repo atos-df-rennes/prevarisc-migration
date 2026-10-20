@@ -32,7 +32,7 @@ when@test:
             - App\Tests\Story\TypeTexteApplStory
             - App\Tests\Story\UtilisateurCiviliteStory
 
-    services:
+    services: &foundry_services
         App\Tests\Factory\:
             resource: '%kernel.project_dir%/tests/Factory/'
             autowire: true
@@ -41,3 +41,13 @@ when@test:
             resource: '%kernel.project_dir%/tests/Story/'
             autowire: true
             autoconfigure: true
+
+when@dev:
+    zenstruck_foundry:
+        persistence:
+            flush_once: true
+        orm:
+            reset:
+                mode: schema
+
+    services: *foundry_services

@@ -9,8 +9,8 @@ dediee, des factories et des stories
 `dama/doctrine-test-bundle` annule la transaction de chaque test pour isoler
 les scenarios.
 
-Les dependances Foundry et DAMA sont en `require-dev` et leurs bundles sont
-actifs uniquement en environnement `test`. Les factories et stories sont
+Les dependances Foundry et DAMA sont en `require-dev`. Foundry est actif
+en `dev` et `test`, DAMA uniquement en `test`. Les factories et stories sont
 rangees dans `tests/Factory/` et `tests/Story/` (`App\Tests\Factory` et
 `App\Tests\Story`), jamais dans `src/` : elles ne doivent pas etre chargees
 par le conteneur de production.
@@ -65,6 +65,41 @@ avec les droits de reconstruction du schema. Une erreur de connexion ou
 de permissions est un prerequis manquant a corriger, pas une raison
 d'ignorer le groupe. `castor symfony:test --all` inclut aussi les anciens
 tests `functional`, dont la migration n'est pas realisee dans ce lot.
+
+## Environnement manuel de developpement
+
+`DeveloppementStory`, exposee par `#[AsFixture('developpement')]`, charge
+explicitement les memes referentiels que les tests, le groupe par defaut
+et `NavigationAdminStory`. Elle n'est pas ajoutee au `global_state` des
+tests : leurs comptes et scenarios restent crees a la demande.
+
+**Attention : la commande suivante reconstruit la base configuree en
+environnement `dev` et efface ses donnees, apres confirmation interactive.**
+Utiliser uniquement une base locale jetable, jamais une base a conserver
+ni une base de production. Verifier la connexion effective, y compris une
+eventuelle variable `DATABASE_URL` exportee, avant de confirmer.
+Depuis la racine `prevarisc-infra` :
+
+```bash
+docker compose --file compose.dev.yaml exec -w /var/www/html/prevarisc-migration app \
+    php bin/console foundry:load-fixtures developpement --env=dev
+```
+
+Ne pas utiliser `--append` : les insertions de referentiels avec IDs explicites
+ne sont pas compatibles avec une base deja peuplee. Le schema provient du
+mapping ORM ; les migrations ne sont pas executees par ce chargement.
+Les dependances Composer de developpement et l'autoload-dev doivent etre
+disponibles.
+
+Se connecter ensuite avec `admin` et le mot de passe public de fixture
+`Fixture-only-password-123!`. Le compte dispose de tous les droits charges ;
+le groupe par defaut conserve uniquement recherche et lecture. Ce jeu minimal
+permet la connexion et l'accueil, sans etablissements, dossiers ni commissions.
+Les valeurs Faker ne sont pas figees ; les IDs des referentiels restent
+deterministes. La base de test demeure distincte et utilise `.env.test`.
+
+Les prochains scenarios de donnees pourront etre ajoutes a cette story
+d'entree sans devenir des preconditions globales des tests.
 
 ## Conventions de donnees
 
