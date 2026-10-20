@@ -78,9 +78,11 @@ y compris leurs ajouts ulterieurs. Les IDs ne sont pas necessairement
 consecutifs : ne pas compter sur l'ordre d'auto-increment pour les obtenir.
 Pour ces references, une insertion DBAL avec IDs explicites dans la story
 permet de respecter ce contrat sans modifier le mapping Doctrine.
-Un test de concordance verifie les IDs et libelles, en utilisant les constantes
-de `App\Constant\*` lorsqu'elles existent, sans supposer un contenu de base
-preexistant.
+Utiliser les constantes de `App\Constant\*` lorsqu'elles existent.
+Les stories sont des preconditions des tests applicatifs : ne pas ajouter
+un test par referentiel qui relit simplement les valeurs qu'elles inserent.
+Un tel test ne verifie pas leur conformite aux donnees livrees par les
+migrations.
 
 Le premier referentiel est `AvisStory`, avec les acces nommes
 `AvisStory::favorable()` et `AvisStory::defavorable()`. Ses valeurs sont
@@ -107,8 +109,9 @@ Foundry `#[ResetDatabase]` et `#[Group('database')]`. Les anciens traits
 `ResetDatabase` et `Factories` sont deprecies dans la version installee :
 appeler directement les factories et stories.
 Regrouper les scenarios lies dans une classe avec plusieurs methodes
-ou un fournisseur de donnees. Le test du referentiel Avis couvre la
-concordance des trois IDs et libelles. Le rollback est pris en charge par
+ou un fournisseur de donnees. Verifier les comportements applicatifs qui
+utilisent les referentiels, pas la seule insertion des fixtures.
+Le rollback est pris en charge par
 DAMA : ne pas ajouter de tests dedies au fonctionnement interne de cet
 outil ou de Foundry.
 
@@ -135,8 +138,8 @@ Docker GitHub Actions n'y sont pas disponibles. Voir
 
 Les etapes suivantes ne sont pas encore implementees :
 
-1. Etendre les stories globales aux autres referentiels et verifier leurs
-   constantes.
+1. Etendre les stories globales aux autres referentiels selon les besoins
+   des scenarios applicatifs, avec les IDs et valeurs de reference.
 2. Ajouter les factories metier et leurs etats nommes (utilisateur,
    etablissement, dossier, commission, etc.).
 3. Migrer progressivement les tests `functional` vers `database`, sans

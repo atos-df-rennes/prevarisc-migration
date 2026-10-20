@@ -21,8 +21,10 @@ test transaction.
 Keep factories in `tests/Factory/` and stories in `tests/Story/`, never in
 `src/`, because Foundry is a development-only dependency. Use one global
 story per reference table with explicit reference IDs and values from the
-migrations, including subsequent additions, verified by a concordance test
-against `App\Constant\*` where available. Named states are optional shortcuts,
+migrations, including subsequent additions, using `App\Constant\*` where
+available. Do not add tests that merely read back the values inserted by a
+story; test application behavior using those fixtures instead.
+Named states are optional shortcuts,
 not required for every row; use repository lookups by ID for large reference
 tables. Use factories for scenario-specific data. Do not add tests of
 Foundry/DAMA internals such as transaction rollback.
