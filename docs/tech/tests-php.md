@@ -91,6 +91,33 @@ Le premier referentiel est `AvisStory`, avec les acces nommes
 Les deux premiers proviennent de la migration initiale ; le dernier est
 ajoute par `Version20251107152219`.
 
+Le lot 2 ajoute une story globale pour chaque table demandee : `capsulerubrique`
+(4 lignes), `categorie` (5), `classe` (10), `classement` (5), `commissiontype`
+(5), `commissiontypeevenement` (3), `docmanquant` (aucune ligne de reference
+dans les migrations), `dossiernatureliste` (62), `dossiertype` (7), `famille`
+(11), `fonction` (17), `genre` (10), `groupementtype` (13),
+`listetypechamprubrique` (7), `piecejointestatut` (5), `privileges` (55),
+`resources` (13), `statut` (4), `type` (27), `typeactivite` (115),
+`typeplan` (5), `typetextesappl` (6) et `utilisateurcivilite` (2), soit
+394 lignes ajoutees aux 3 lignes d'`avis`.
+
+Les jeux reflectent l'etat final des migrations, et non seulement leur premier
+seed : genre 6 devient `BUP`, les libelles de statuts de pièces jointes sont
+completes par `Version20250220152927`, l'activite 25 est corrigee par
+`Version20250220140918`, les libelles `Lycee` sont accentues par
+`Version20260113071712` et les privileges de lecture/ecriture sont ceux apres
+`Version20260929180000`. Les IDs 118 a 120 de `typeactivite` sont ceux que la
+migration attribue aux trois insertions sans ID apres le maximum explicite 117.
+
+Les ressources specialisees sont celles reconnues par
+`ResourcesRepository::findRessourcesSpecialiseesDossier()` et
+`findRessourcesSpecialiseesEtablissement()` : leurs noms commencent par
+`dossier_` ou `etablissement_`. Les lignes de ces ressources (IDs 4 a 9 et
+52 a 55) et leurs privileges (IDs 17 a 29 et 52 a 59) ne font pas partie des
+stories globales. Les autres ressources et privileges de la migration sont
+conserves, y compris les insertions ultérieures; aucun test de concordance
+des stories n'est ajoute.
+
 Les states nommes et leurs methodes d'acces sont des raccourcis facultatifs
 pour les valeurs frequemment utilisees dans les scenarios, pas une obligation
 par ligne. Pour les referentiels volumineux, comme les types et types
@@ -138,8 +165,9 @@ Docker GitHub Actions n'y sont pas disponibles. Voir
 
 Les etapes suivantes ne sont pas encore implementees :
 
-1. Etendre les stories globales aux autres referentiels selon les besoins
-   des scenarios applicatifs, avec les IDs et valeurs de reference.
+1. **Termine — lot 2 :** stories globales des referentiels demandees, avec
+   IDs deterministes, valeurs des migrations et exclusions des ressources
+   specialisees. Pas de tests de concordance autonomes.
 2. Ajouter les factories metier et leurs etats nommes (utilisateur,
    etablissement, dossier, commission, etc.).
 3. Migrer progressivement les tests `functional` vers `database`, sans
@@ -155,4 +183,4 @@ Le schema ORM et le schema migre ne sont pas garantis identiques ; le
 controle de derive reste a ajouter. Pour `avis.LIBELLE_AVIS`, le mapping
 et le schema apres `Version20251107152219` definissent tous deux une
 longueur de 75 caracteres : il n'y a pas de divergence sur ce point.
-Le PoC n'altere ni le mapping ni les migrations.
+Les stories globales n'alterent ni le mapping ni les migrations.
