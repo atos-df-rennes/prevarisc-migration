@@ -81,8 +81,7 @@ eventuelle variable `DATABASE_URL` exportee, avant de confirmer.
 Depuis la racine `prevarisc-infra` :
 
 ```bash
-docker compose --file compose.dev.yaml exec -w /var/www/html/prevarisc-migration app \
-    php bin/console foundry:load-fixtures developpement --env=dev
+castor symfony:fixtures
 ```
 
 Ne pas utiliser `--append` : les insertions de referentiels avec IDs explicites
