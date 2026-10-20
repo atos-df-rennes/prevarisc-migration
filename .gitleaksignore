@@ -1,2 +1,5 @@
-# IGN Geoportal SDK: minified rendering code (this.textKey_,a=this.fillKey_;), not an API key.
+# IGN Geoportal SDK: minified text rendering code, not an API key.
 572316a74f81a9a4f1e57becaaa951699a48f829:public/js/geoportail/sdk-ol/GpSDK2D.js:generic-api-key:112
+# The same false positive was copied into the ignore comment and CI documentation.
+f47151e205835ff06195f10dd3236eeb3c94b1a0:.gitleaksignore:generic-api-key:1
+f47151e205835ff06195f10dd3236eeb3c94b1a0:docs/tech/integration-continue.md:generic-api-key:59
