@@ -4,16 +4,31 @@ declare(strict_types=1);
 
 namespace App\Tests\Story;
 
+use App\Constant\Avis as AvisId;
 use App\Entity\Avis;
-use App\Tests\Factory\AvisFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Zenstruck\Foundry\Story;
 
 final class AvisStory extends Story
 {
+    public function __construct(private readonly EntityManagerInterface $entityManager)
+    {
+    }
+
     public function build(): void
     {
-        $this->addState('favorable', AvisFactory::createOne(['libelle' => 'Favorable']));
-        $this->addState('defavorable', AvisFactory::createOne(['libelle' => 'Défavorable']));
+        $connection = $this->entityManager->getConnection();
+        foreach ([
+            AvisId::FAVORABLE => 'Favorable',
+            AvisId::DEFAVORABLE => 'Défavorable',
+            6 => "Pas d'avis - à motiver dans la partie Fondement de l'avis",
+        ] as $id => $libelle) {
+            $connection->insert('avis', ['ID_AVIS' => $id, 'LIBELLE_AVIS' => $libelle]);
+        }
+
+        $repository = $this->entityManager->getRepository(Avis::class);
+        $this->addState('favorable', $repository->find(AvisId::FAVORABLE));
+        $this->addState('defavorable', $repository->find(AvisId::DEFAVORABLE));
     }
 
     public static function favorable(): Avis

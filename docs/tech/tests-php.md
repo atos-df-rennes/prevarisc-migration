@@ -73,14 +73,27 @@ tests `functional`, dont la migration n'est pas realisee dans ce lot.
 Une story par table de reference est enregistree dans le `global_state`
 Foundry. Elle est chargee apres la reconstruction du schema, avant les
 transactions DAMA, et ses donnees restent disponibles pour chaque test.
-Les valeurs et leur ordre de creation reprennent le seed de migration.
-Les IDs doivent correspondre aux constantes de `App\Constant\*` ; un test
-de concordance doit verifier ce contrat, sans supposer un contenu de base
+Les valeurs et IDs reprennent les donnees de reference des migrations,
+y compris leurs ajouts ulterieurs. Les IDs ne sont pas necessairement
+consecutifs : ne pas compter sur l'ordre d'auto-increment pour les obtenir.
+Pour ces references, une insertion DBAL avec IDs explicites dans la story
+permet de respecter ce contrat sans modifier le mapping Doctrine.
+Un test de concordance verifie les IDs et libelles, en utilisant les constantes
+de `App\Constant\*` lorsqu'elles existent, sans supposer un contenu de base
 preexistant.
 
 Le premier referentiel est `AvisStory`, avec les acces nommes
 `AvisStory::favorable()` et `AvisStory::defavorable()`. Ses valeurs sont
-`Favorable` et `Défavorable`, avec l'orthographe exacte du seed.
+`Favorable` (1), `Défavorable` (2) et
+`Pas d'avis - à motiver dans la partie Fondement de l'avis` (6).
+Les deux premiers proviennent de la migration initiale ; le dernier est
+ajoute par `Version20251107152219`.
+
+Les states nommes et leurs methodes d'acces sont des raccourcis facultatifs
+pour les valeurs frequemment utilisees dans les scenarios, pas une obligation
+par ligne. Pour les referentiels volumineux, comme les types et types
+d'activite, rechercher la valeur utile par son ID dans le repository de
+l'entite ; ne pas multiplier les states et methodes.
 
 ### Donnees saisies
 
@@ -94,8 +107,10 @@ Foundry `#[ResetDatabase]` et `#[Group('database')]`. Les anciens traits
 `ResetDatabase` et `Factories` sont deprecies dans la version installee :
 appeler directement les factories et stories.
 Regrouper les scenarios lies dans une classe avec plusieurs methodes
-ou un fournisseur de donnees. Le PoC couvre la concordance des avis et
-l'absence, dans le test suivant, d'un avis ajoute dans un premier test.
+ou un fournisseur de donnees. Le test du referentiel Avis couvre la
+concordance des trois IDs et libelles. Le rollback est pris en charge par
+DAMA : ne pas ajouter de tests dedies au fonctionnement interne de cet
+outil ou de Foundry.
 
 Les extensions PHPUnit Foundry et DAMA sont activees. Le reset automatique
 de tous les tests est desactive : seuls les tests marques
@@ -133,7 +148,8 @@ Les etapes suivantes ne sont pas encore implementees :
    dediee, sans dump partage ni modification de la base de developpement.
 6. Ajouter un controle de derive entre mapping et migrations.
 
-Le schema ORM et le schema migre ne sont pas garantis identiques :
-`avis.LIBELLE_AVIS` est notamment limite a 75 caracteres dans le mapping,
-contre 30 dans la migration initiale. Le PoC n'altere ni le mapping ni
-les migrations.
+Le schema ORM et le schema migre ne sont pas garantis identiques ; le
+controle de derive reste a ajouter. Pour `avis.LIBELLE_AVIS`, le mapping
+et le schema apres `Version20251107152219` definissent tous deux une
+longueur de 75 caracteres : il n'y a pas de divergence sur ce point.
+Le PoC n'altere ni le mapping ni les migrations.
