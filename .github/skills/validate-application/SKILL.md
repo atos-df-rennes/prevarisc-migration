@@ -57,6 +57,23 @@ Run only checks whose dependencies are installed and report clearly when a check
 
 The default PHPUnit command excludes the `functional` group. Browser-driven end-to-end tests live under `cypress/`; `tests/Functional/` contains PHPUnit HTTP-level functional tests.
 
+The `database` group is included in both `castor symfony:test` and
+`castor symfony:validate`. It requires the dedicated test database configured
+in `.env.test` and a database user allowed to create the database and rebuild
+its schema. Foundry's `#[ResetDatabase]` attribute uses the ORM schema and loads reference
+stories from `global_state`; DAMA rolls back each test transaction. Never
+point the test connection at a development or production database.
+No Castor initialization task is needed: use Symfony's standard
+`doctrine:database:create --env=test` in the app container, then let Foundry
+rebuild the schema. See `docs/tech/tests-php.md` for setup and conventions.
+If the database is missing or inaccessible, report that prerequisite rather
+than excluding `database` or changing the test connection to the dev database.
+The legacy Foundry `ResetDatabase` and `Factories` traits are deprecated;
+use the attribute and call factories directly. PHPUnit's strict deprecation
+options are authoritative with PHPUnit 13: the installed Symfony PHPUnit
+bridge disables itself on PHPUnit 10 and later, even though
+`SYMFONY_DEPRECATIONS_HELPER=max[total]=0` is configured.
+
 ## GitHub Actions
 
 `.github/workflows/ci.yml` runs the tools directly (no Castor on the runner)
@@ -80,7 +97,10 @@ PHP and Composer installation is shared through
 `.github/actions/setup/action.yml`; configuration is supplied through workflow
 environment variables, without generating `.env`.
 
-The PHPUnit job excludes `functional` and requires no database. When `.env`
+The PHPUnit job excludes `functional`. Ubuntu runs the `database` group
+against a MariaDB 11.8 service; Windows also excludes `database`, because
+GitHub Actions service containers require Linux. The workflow's
+`DATABASE_URL` takes precedence over `.env.test`. When `.env`
 is absent, `tests/bootstrap.php` loads `.env.test` only. See
 `docs/tech/integration-continue.md` for the commands, caches and scope.
 This CI configuration does not change the required local Castor workflow.

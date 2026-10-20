@@ -37,6 +37,7 @@ Les versions des dépendances PHP sont des contraintes Composer, pas une affirma
 ### Intégration continue
 
 - [Intégration continue](integration-continue.md) — contrôles GitHub Actions, environnement et caches.
+- [Tests PHP](tests-php.md) — base dédiée, Foundry, isolation transactionnelle et feuille de route.
 
 ### Formulaires personnalisés et documents
 

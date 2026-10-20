@@ -281,6 +281,20 @@ jobs:
     timeout-minutes: 15
     env:
       APP_ENV: test
+      DATABASE_URL: 'mysql://root:root@127.0.0.1:3306/prevarisc_ci?serverVersion=11.8.8-MariaDB&charset=utf8mb4'
+    services:
+      mariadb:
+        image: ${{ matrix.os == 'ubuntu-latest' && 'mariadb:11.8' || '' }}
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: prevarisc_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     steps:
       - uses: actions/checkout@v7
         with:
@@ -288,8 +302,12 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           app: 'true'
-      - name: Run tests without database-dependent scenarios
+      - name: Run tests including database scenarios
+        if: runner.os == 'Linux'
         run: php vendor/bin/phpunit --testdox --exclude-group functional
+      - name: Run tests without database scenarios on Windows
+        if: runner.os == 'Windows'
+        run: php vendor/bin/phpunit --testdox --exclude-group functional,database
 
   conflicts:
     name: Git conflict markers

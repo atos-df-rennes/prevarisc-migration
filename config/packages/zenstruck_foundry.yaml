@@ -1,0 +1,18 @@
+when@test:
+    zenstruck_foundry:
+        persistence:
+            flush_once: true
+        orm:
+            reset:
+                mode: schema
+        global_state:
+            - App\Tests\Story\AvisStory
+
+    services:
+        App\Tests\Factory\:
+            resource: '%kernel.project_dir%/tests/Factory/'
+            autowire: true
+            autoconfigure: true
+        App\Tests\Story\AvisStory:
+            autowire: true
+            autoconfigure: true

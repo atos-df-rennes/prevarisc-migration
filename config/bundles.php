@@ -1,5 +1,6 @@
 <?php
 
+use DAMA\DoctrineTestBundle\DAMADoctrineTestBundle;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle;
 use FOS\JsRoutingBundle\FOSJsRoutingBundle;
@@ -11,6 +12,7 @@ use Symfony\Bundle\SecurityBundle\SecurityBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Twig\Extra\TwigExtraBundle\TwigExtraBundle;
+use Zenstruck\Foundry\ZenstruckFoundryBundle;
 
 return [
     FrameworkBundle::class => ['all' => true],
@@ -24,4 +26,6 @@ return [
     SecurityBundle::class => ['all' => true],
     TwigExtraBundle::class => ['all' => true],
     FOSJsRoutingBundle::class => ['all' => true],
+    ZenstruckFoundryBundle::class => ['test' => true],
+    DAMADoctrineTestBundle::class => ['test' => true],
 ];
