@@ -11,7 +11,7 @@ class Valeur
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_VALEUR', type: Types::INTEGER)]
+    #[ORM\Column(name: 'ID_VALEUR', type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\Column(name: 'VALEUR_STR', type: Types::STRING, length: 255, nullable: true)]
