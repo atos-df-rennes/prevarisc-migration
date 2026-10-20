@@ -17,8 +17,8 @@ modifies. Ils analysent tout leur perimetre configure lorsque leur configuration
 leurs dependances, le workflow CI ou l'action composite partagee changent. Les
 fichiers supprimes sont ignores. Sur les push vers les branches suivies, tous
 les controles s'executent et les deux formateurs analysent leur perimetre
-complet. Les jobs de conflits et d'audit restent toujours actifs, quelle que
-soit la liste de fichiers modifies.
+complet. Les jobs de conflits, de detection de secrets et d'audit restent
+toujours actifs, quelle que soit la liste de fichiers modifies.
 
 ## Controles
 
@@ -38,6 +38,7 @@ Les autres controles restent uniquement sur Ubuntu.
 | Twig-CS-Fixer | `tools/vendor/bin/twig-cs-fixer check [fichiers modifies]` sur PR, tout le perimetre configure sinon |
 | PHPUnit | `php vendor/bin/phpunit --testdox --exclude-group functional` |
 | Git conflict markers | `tools/vendor/bin/swiss-knife check-conflicts .` avec exclusions des dependances et fichiers generes |
+| Gitleaks | `gitleaks git --redact --no-banner --log-opts="--all" .` |
 | Composer audit | `composer audit --locked` a la racine et dans `tools/` |
 
 Les outils de style et Rector ne modifient pas le code. Les controles executes
@@ -45,6 +46,19 @@ sont bloquants. Le job `CI` agrege tous les jobs : il echoue si l'un d'eux echou
 ou est annule, et accepte les jobs ignores par les filtres. L'audit ignore les
 paquets abandonnes, comme la CI historique, mais echoue en cas de vulnerabilite
 connue. Les deux projets Composer sont audites, meme si le premier audit echoue.
+
+Gitleaks s'execute sans PHP ni Composer. Le CLI officiel est telecharge a une
+version figee, puis son archive est verifiee avec une empreinte SHA-256 figee
+dans le workflow ; les deux valeurs doivent etre mises a jour ensemble.
+Il ne necessite ni compte ni cle de licence Gitleaks.
+Le checkout recupere l'historique complet et le scan couvre toutes les
+references Git disponibles, y compris les commits qui ont ajoute puis supprime
+un secret. Aucun filtre de chemins ni baseline n'est applique.
+Les valeurs detectees sont masquees dans les logs et aucun rapport n'est publie.
+Un secret historique reel doit etre revoque ou renouvele, pas simplement ignore.
+Ce controle intervient apres le push ; il ne remplace pas une protection
+avant publication. Pour bloquer les fusions, le controle `CI` doit etre requis
+dans les regles de branche GitHub.
 
 Les tests qui dependent d'une base de donnees ou de donnees de reference portent
 le groupe PHPUnit `functional`, y compris ceux dans `tests/Repository/`.
