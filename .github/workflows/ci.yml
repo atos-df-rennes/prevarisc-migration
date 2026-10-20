@@ -307,7 +307,7 @@ jobs:
         run: php vendor/bin/phpunit --testdox --exclude-group functional
       - name: Run tests without database scenarios on Windows
         if: runner.os == 'Windows'
-        run: php vendor/bin/phpunit --testdox --exclude-group functional,database
+        run: php vendor/bin/phpunit --testdox --exclude-group functional --exclude-group database
 
   conflicts:
     name: Git conflict markers
