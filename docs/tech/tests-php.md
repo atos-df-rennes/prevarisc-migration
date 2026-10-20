@@ -130,9 +130,9 @@ et `verrouillage_dossier`. Ces valeurs permettent aux voters de trouver
 les ressources par defaut ; les ressources specialisees personnalisees
 restent exclues des stories globales.
 Les autres ressources et privileges des migrations sont conserves,
-y compris les insertions ulterieures. Aucun groupe, role ou octroi
-automatique universel n'est ajoute : les groupes propres aux scenarios
-pourront recevoir ces privileges au lot 3. Les ACL de production ne
+y compris les insertions ulterieures. Le profil de groupe ajoute au premier
+sous-lot du lot 3 est decrit ci-dessous ; aucun role administrateur ni octroi
+automatique universel n'est ajoute aux utilisateurs ordinaires. Les ACL de production ne
 changent pas ; aucun test de concordance des stories n'est ajoute.
 
 Les states nommes et leurs methodes d'acces sont des raccourcis facultatifs
@@ -159,10 +159,113 @@ Le rollback est pris en charge par
 DAMA : ne pas ajouter de tests dedies au fonctionnement interne de cet
 outil ou de Foundry.
 
+### Lot 3 (premier sous-lot) : utilisateurs et groupes
+
+Les quatre factories sont des `PersistentObjectFactory` (objets Doctrine,
+pas proxies Foundry) :
+
+- `GroupeFactory` cree un groupe **sans aucun droit**. Le raccourci
+  `withPrivileges(int ...$ids)` ajoute seulement les privileges de reference
+  demandes, via `Groupe::addPrivilege()`. Pas d'heritage implicite des droits
+  du groupe par defaut.
+- `UtilisateurInformationsFactory` fournit nom et prenom ; les autres
+  scalaires, la civilite et la fonction sont optionnels. `preventionniste()`
+  selectionne la reference `App\Constant\Fonction::PREVENTIONNISTE`.
+- `UtilisateurFactory` cree un compte actif, non SSO, username unique,
+  `roles = []` (`getRoles()` ajoute `ROLE_USER`), rattache au groupe global
+  par defaut, avec informations et preferences. `preventionniste()` est le
+  seul raccourci metier ; sans celui-ci, la fonction est nulle, donc le
+  compte n'est pas preventionniste. Une fonction n'accorde aucun droit ACL.
+  Inactivation, groupe et autres variantes restent des attributs explicites.
+- `UtilisateurPreferencesFactory` peut creer seule des preferences et leur
+  utilisateur. Son hook synchronise les deux cotes de la relation.
+
+Relations minimales : le groupe est obligatoire et doit deja etre persiste
+(pas de cascade sur `Utilisateur::groupe`). Les informations sont obligatoires,
+avec cascade persist. Les preferences portent la FK utilisateur non nulle ;
+`Utilisateur::setPreferences()` synchronise le cote proprietaire. Pour eviter
+une recursion de factories, la factory utilisateur cree une simple instance
+de preferences dans son hook, tandis que la factory preferences construit son
+utilisateur sans le persister avant de synchroniser la relation, puis utilise
+la cascade persist. Ne pas creer une seconde ligne de preferences pour un
+utilisateur qui en possede deja une : modifier sa ligne existante.
+Commune est facultative, commissions et groupements peuvent rester vides.
+Aucune factory Commune, Adresse, Etablissement, Dossier ou Commission n'est
+ajoutee dans ce sous-lot.
+
+`GroupeDefautStory` est globale, apres `PrivilegesStory`. Elle insere
+explicitement le groupe **ID 1**, requis par l'application, avec le libelle
+et la description de `Version20250211103328`. Son **profil de test** est
+volontairement different du seed de cette migration : **pas de privilege
+admin 11**. La decision utilisateur pour les fixtures est :
+
+- `search_ets` (63), `search_dossiers` (64) ;
+- lecture des neuf ressources generiques d'etablissements
+  (17, 19, 21, 23, 25, 52, 54, 56, 58), couvrant les genres ; le Site
+  s'appuie sur les droits de ses fils ou sur une ressource d'etablissement ;
+- lecture des dossiers de toutes natures (`view_doss`, 27).
+
+Ce sont les seuls 12 droits : ni creation, modification, verrouillage,
+administration, export ou droits de blocs dashboard supplementaires.
+Le bloc Messages reste accessible sans privilege specifique, selon les
+regles applicatives existantes.
+
+`NavigationAdminStory` n'est **pas globale** : les tests de navigation la
+chargent explicitement. Elle cree un groupe distinct avec tous les privileges
+charges (actuellement **76**) et un compte **`admin`**, sans commune ni
+fonction imposee. Acces reutilisables : `NavigationAdminStory::admin()` et
+`NavigationAdminStory::groupe()` ; `GroupeDefautStory::groupe()` pour le profil
+ordinaire. Les acces de story retrouvent des entites gerees apres reboot du
+kernel ; ne pas conserver des objets Doctrine detaches entre requetes.
+
+Le mot de passe **public et exclusivement reserve aux fixtures de test** est
+`Fixture-only-password-123!` (`UtilisateurFactory::DEFAULT_PASSWORD`), pour
+admin comme pour les comptes ordinaires. `plainPassword` permet de le remplacer.
+Le hash est calcule par `UserPasswordHasherInterface` **apres** attribution du
+username (sel legacy). Aucun hash de production ni secret d'environnement
+n'est reutilise. Ces stories ne sont pas des seeds de production.
+
+Exemples (dans un test `database` avec kernel et `#[ResetDatabase]`) :
+
+```php
+$user = UtilisateurFactory::createOne();
+$preventionniste = UtilisateurFactory::new()->preventionniste()->create();
+$inactive = UtilisateurFactory::createOne(['actif' => false]);
+$editorGroup = GroupeFactory::new()->withPrivileges(27, 28, 29)->create();
+$editor = UtilisateurFactory::createOne(['groupe' => $editorGroup]);
+$preferences = UtilisateurPreferencesFactory::createOne([
+    'blocsDashboard' => '["feeds"]',
+]);
+
+NavigationAdminStory::load(); // explicit, never global
+$admin = NavigationAdminStory::admin();
+```
+
+`tests/Security/UtilisateurLoginTest.php` couvre le formulaire reel
+(`/session/login`, champs `_username`, `_password`, CSRF `authenticate`
+issu du formulaire), le refus des comptes inactifs, l'accueil admin et
+ordinaire et les autorisations applicatives de recherche/lecture, avec
+refus de modification, verrouillage et administration du profil ordinaire.
+L'authentification redirige directement vers `/accueil` ; `/` reste une
+redirection 301 vers `/accueil`. Le profiler verifie l'absence d'erreurs
+logguees sur l'accueil, y compris les exceptions de compteurs absorbees par
+le controleur avec une reponse 200. Aucun appel externe Plat'AU ni test UI
+n'est necessaire.
+
+Attention : l'exercice de ces relations peut declencher la depreciation
+amont `ProxyHelper::generateLazyGhost()` (Doctrine ORM 2.x / Symfony
+VarExporter 7.3+, deja documentee dans `config/packages/doctrine.php`).
+Cette depreciation entre dependances reste visible mais ne fait pas
+echouer PHPUnit ; aucune modification des regles de production n'est necessaire.
+
 Les extensions PHPUnit Foundry et DAMA sont activees. Le reset automatique
 de tous les tests est desactive : seuls les tests marques
 `#[ResetDatabase]` reconstruisent la base. PHPUnit echoue sur les
-depreciations PHP et PHPUnit, y compris celles supprimees avec `@`.
+depreciations internes au code applicatif et celles provoquees par ses
+appels directs a des API depreciees (`failOnSelfDeprecation` et
+`failOnDirectDeprecation`), ainsi que sur les depreciations PHPUnit.
+Les depreciations entre dependances restent affichees mais non bloquantes.
+Les messages supprimes avec `@` restent detectes.
 `SYMFONY_DEPRECATIONS_HELPER=max[total]=0` est configure, mais le bridge
 Symfony installe se desactive avec PHPUnit 13 : ce sont donc les options
 strictes de PHPUnit qui assurent ce controle.
@@ -180,15 +283,18 @@ Docker GitHub Actions n'y sont pas disponibles. Voir
 
 ## Feuille de route
 
-Les etapes suivantes ne sont pas encore implementees :
+Etat des lots et suites restant a implementer :
 
 1. **Termine — lot 2 :** stories globales des referentiels demandees, avec
    IDs deterministes, valeurs des migrations et ressources generiques par
    defaut incluses ; ressources specialisees personnalisees exclues.
    Liste utilisateur pour `docmanquant`, avec IDs locaux aux fixtures.
    Pas de tests de concordance autonomes.
-2. Ajouter les factories metier et leurs etats nommes (utilisateur,
-   etablissement, dossier, commission, etc.).
+2. **Partiel — lot 3 :** factories Utilisateur, UtilisateurInformations,
+   UtilisateurPreferences et Groupe, groupe global ID 1 a droits limites,
+   story admin de navigation explicite et tests HTTP/Security implementes.
+   Factories Commune/Adresse/Etablissement/Dossier/Commission et autres
+   scenarios metier non implementes dans ce sous-lot.
 3. Migrer progressivement les tests `functional` vers `database`, sans
    dependance au contenu d'une base de developpement ni
    `markTestSkipped` conditionne par ce contenu.

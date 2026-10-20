@@ -24,6 +24,7 @@ when@test:
             - App\Tests\Story\PieceJointeStatutStory
             - App\Tests\Story\ResourcesStory
             - App\Tests\Story\PrivilegesStory
+            - App\Tests\Story\GroupeDefautStory
             - App\Tests\Story\StatutStory
             - App\Tests\Story\TypeStory
             - App\Tests\Story\TypeActiviteStory

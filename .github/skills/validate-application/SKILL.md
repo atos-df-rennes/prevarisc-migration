@@ -70,7 +70,9 @@ If the database is missing or inaccessible, report that prerequisite rather
 than excluding `database` or changing the test connection to the dev database.
 The legacy Foundry `ResetDatabase` and `Factories` traits are deprecated;
 use the attribute and call factories directly. PHPUnit's strict deprecation
-options are authoritative with PHPUnit 13: the installed Symfony PHPUnit
+options are authoritative with PHPUnit 13: self and direct deprecations fail
+the run, while indirect dependency deprecations remain visible but non-blocking.
+PHPUnit deprecations also fail the run. The installed Symfony PHPUnit
 bridge disables itself on PHPUnit 10 and later, even though
 `SYMFONY_DEPRECATIONS_HELPER=max[total]=0` is configured.
 

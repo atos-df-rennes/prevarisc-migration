@@ -6,7 +6,8 @@
          backupGlobals="false"
          colors="true"
          bootstrap="tests/bootstrap.php"
-         failOnDeprecation="true"
+         failOnSelfDeprecation="true"
+         failOnDirectDeprecation="true"
          failOnPhpunitDeprecation="true"
          displayDetailsOnTestsThatTriggerDeprecations="true"
 >
