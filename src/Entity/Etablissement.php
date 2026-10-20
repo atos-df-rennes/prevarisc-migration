@@ -105,8 +105,8 @@ class Etablissement
      * @var Collection<int, Valeur>
      */
     #[ORM\JoinTable(name: 'etablissementvaleur')]
-    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
-    #[ORM\InverseJoinColumn(name: 'ID_VALEUR', referencedColumnName: 'ID_VALEUR')]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', onDelete: 'CASCADE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_VALEUR', referencedColumnName: 'ID_VALEUR', onDelete: 'CASCADE')]
     #[ORM\ManyToMany(targetEntity: Valeur::class, cascade: ['persist', 'remove'])]
     private Collection $valeurs;
 

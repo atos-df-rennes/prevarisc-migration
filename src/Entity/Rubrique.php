@@ -22,14 +22,14 @@ class Rubrique
     #[ORM\Column(name: 'NOM', type: Types::STRING, length: 255, nullable: false)]
     private ?string $nom = null;
 
-    #[ORM\Column(name: 'DEFAULT_DISPLAY', type: Types::BOOLEAN, nullable: true)]
+    #[ORM\Column(name: 'DEFAULT_DISPLAY', type: Types::BOOLEAN, nullable: true, options: ['default' => 0])]
     private ?bool $defaultDisplay = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private ?int $idx = null;
 
     #[ORM\ManyToOne(targetEntity: CapsuleRubrique::class, inversedBy: 'rubriques')]
-    #[ORM\JoinColumn(name: 'ID_CAPSULERUBRIQUE', referencedColumnName: 'ID_CAPSULERUBRIQUE', nullable: false)]
+    #[ORM\JoinColumn(name: 'ID_CAPSULERUBRIQUE', referencedColumnName: 'ID_CAPSULERUBRIQUE', nullable: false, onDelete: 'CASCADE')]
     private ?CapsuleRubrique $capsuleRubrique = null;
 
     /**

@@ -19,7 +19,7 @@ class ChampValeurListe
     private string $valeur;
 
     #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'valeursListe')]
-    #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false)]
+    #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false, onDelete: 'CASCADE')]
     private ?Champ $champ = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]

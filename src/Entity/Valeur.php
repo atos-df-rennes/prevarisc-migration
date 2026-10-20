@@ -33,7 +33,7 @@ class Valeur
     private ?int $idx = null;
 
     #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'valeurs')]
-    #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false)]
+    #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false, onDelete: 'CASCADE')]
     private ?Champ $champ = null;
 
     public function getId(): ?int
