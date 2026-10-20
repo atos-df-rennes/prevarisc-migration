@@ -17,7 +17,7 @@ class Champ
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_CHAMP', type: Types::INTEGER)]
+    #[ORM\Column(name: 'ID_CHAMP', type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\Column(name: 'NOM', type: Types::STRING, length: 255, nullable: false)]

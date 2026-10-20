@@ -12,7 +12,7 @@ class ChampValeurListe
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_VALEURLISTE', type: Types::INTEGER)]
+    #[ORM\Column(name: 'ID_VALEURLISTE', type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\Column(name: 'VALEUR', type: Types::STRING, length: 255, nullable: false)]
