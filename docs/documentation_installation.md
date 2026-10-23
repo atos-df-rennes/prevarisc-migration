@@ -3,6 +3,7 @@
 > [!IMPORTANT]
 > Cette documentation s'adresse principalement aux installations Prevarisc 2.x (Zend Framework). 
 > Pour **Prevarisc 3.0+** (Symfony 7.4), consultez le [README.md](../README.md) pour les instructions modernes.
+> Pour migrer une installation existante **2.5, 2.8 ou 2.10 vers 3.0**, suivez le [guide de migration dédié](../MIGRATION_3.0.md).
 > Les sections ci-dessous restent disponibles comme référence historique.
 
 ## Table des matières
