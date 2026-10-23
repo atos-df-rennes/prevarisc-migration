@@ -23,20 +23,22 @@ class ChangelogController extends AbstractController
     #[Route(path: '/changelog', name: 'changelog_index')]
     public function index(): Response
     {
-        $rawSections = $this->versionService->getChangelogByMinorVersion();
+        $rawSections = $this->versionService->getChangelogByMajorVersion();
 
         $sections = [];
-        foreach ($rawSections as $minorVersion => $entries) {
-            $rendered = [];
-            foreach ($entries as $entry) {
-                $rendered[] = [
-                    'version' => $entry['version'],
-                    'date' => $entry['date'],
-                    'html' => Markdown::defaultTransform($entry['content']),
-                ];
-            }
+        foreach ($rawSections as $majorVersion => $minorVersions) {
+            foreach ($minorVersions as $minorVersion => $entries) {
+                $rendered = [];
+                foreach ($entries as $entry) {
+                    $rendered[] = [
+                        'version' => $entry['version'],
+                        'date' => $entry['date'],
+                        'html' => Markdown::defaultTransform($entry['content']),
+                    ];
+                }
 
-            $sections[(string) $minorVersion] = $rendered;
+                $sections[$majorVersion][$minorVersion] = $rendered;
+            }
         }
 
         return $this->render('changelog/index.html.twig', [
