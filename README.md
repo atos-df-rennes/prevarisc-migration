@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/status-rc.2-orange)
+![Version](https://img.shields.io/badge/version-3.0.0--rc.4-orange)
 ![Static Badge](https://img.shields.io/badge/php-8.5-blue)
 ![Static Badge](https://img.shields.io/badge/symfony-7.4-green)
 ![Static Badge](https://img.shields.io/badge/license-CeCILL--B-yellow)
@@ -11,6 +11,7 @@ Application web open-source gérant l'ensemble de l'activité du service préven
 
 - [Guide](#guide)
 - [Technologies utilisées](#technologies-utilisées)
+- [Versions](#versions)
 - [Installation](#installation)
 - [Exploitation](#exploitation)
 - [Licence](#licence)
@@ -27,14 +28,34 @@ Consultez la [documentation dédiée](docs/guide.md).
 - **Bootstrap** : Utilisé en [version 3](https://getbootstrap.com/docs/3.4/)
 - **LibreOffice** : Utilisé pour créer et éditer les documents ; les modèles ODT LibreOffice 7 et 25 sont pris en charge
 
+## Versions
+
+Prevarisc suit le [versionnage sémantique (SemVer)](https://semver.org/lang/fr/) au format `MAJEUR.MINEUR.CORRECTIF` :
+
+- **MAJEUR** : peut introduire des changements incompatibles et nécessite de suivre le guide de migration correspondant, le cas échéant.
+- **MINEUR** : apporte de nouvelles fonctionnalités rétrocompatibles. La mise à jour peut nécessiter des migrations de base de données ou de nouvelles variables d'environnement ; consultez le changelog et les instructions de mise à jour.
+- **CORRECTIF** : apporte des corrections rétrocompatibles.
+
+| Type de version | Exemple | Utilisation |
+| --- | --- | --- |
+| Préversion (`-rc.N`) | `3.0.0-rc.4` | Release candidate destinée à l'environnement de test/recette. Elle peut encore contenir des anomalies et être suivie d'autres RC. |
+| Stable (sans suffixe) | `3.0.0` | Version destinée à la production, après une mise en test préalable. |
+
+> [!WARNING]
+> Ne déployez jamais une version `-rc.N` en production : il s'agit d'une préversion destinée à la recette.
+
+Les branches `develop` (intégration) et `release/x.y` (préparation des versions `x.y`) ne sont pas des versions à déployer. `main` correspond à la dernière version stable publiée. Pour installer ou mettre à jour Prevarisc, choisissez un tag `vX.Y.Z` stable ; utilisez un tag `vX.Y.Z-rc.N` uniquement pour la recette. Consultez les [tags publiés](https://github.com/atos-df-rennes/prevarisc-migration/tags), le [changelog 3.x](CHANGELOG-3.x.md) et le [changelog 2.x](CHANGELOG-2.x.md).
+
 ## Installation
 
 1. Clonez le dépôt :
 ```sh
 $ git clone https://github.com/atos-df-rennes/prevarisc-migration.git prevarisc
 $ cd prevarisc
-$ git checkout release/3.0
+$ git fetch --tags origin
+$ git checkout vX.Y.Z
 ```
+Pour installer une préversion en environnement de test/recette, remplacez `vX.Y.Z` par le tag `vX.Y.Z-rc.N` souhaité. Consultez la section [Versions](#versions) avant de choisir un tag.
 
 2. Copiez le fichier de variables d'environnement d'exemple et renseignez les valeurs suivant votre configuration :
 ```sh

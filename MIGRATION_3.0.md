@@ -1,10 +1,10 @@
 # Prevarisc 2.10 → 3.0 Migration Guide
 
-This guide describes the steps required to upgrade from **Prevarisc 2.10** to **Prevarisc 3.0** (Release Candidate).
+This guide describes the steps required to upgrade from **Prevarisc 2.10** to **Prevarisc 3.0** (Release Candidate). Release candidates are pre-releases intended for test/acceptance environments only; do not deploy them to production.
 
-**Status:** Release Candidate  
-**Version Target:** 3.0.0-rc.1  
-**Release Date:** August 5, 2026
+**Status:** Release Candidate
+**Version Target:** 3.0.0-rc.4
+**Release Date:** October 23, 2026
 
 ---
 
@@ -297,15 +297,15 @@ systemctl reload apache2
 ```bash
 cd /path/to/prevarisc
 
-# Clone 3.0 release branch
+# Clone the repository and select the release candidate for testing
 git clone https://github.com/atos-df-rennes/prevarisc-migration.git prevarisc-3.0
 cd prevarisc-3.0
-git checkout release/3.0
+git checkout v3.0.0-rc.4
 
 # Or if already cloned:
 cd /path/to/existing/prevarisc-migration
-git fetch origin
-git checkout release/3.0
+git fetch --tags origin
+git checkout v3.0.0-rc.4
 ```
 
 #### 2.2 Configure Environment Variables
@@ -806,8 +806,8 @@ tail -50 /var/log/apache2/error.log
 
 ---
 
-**Last Updated:** August 5, 2026  
-**Status:** Release Candidate  
+**Last Updated:** October 23, 2026
+**Status:** Release Candidate
 **Maintainer:** Atos - Rennes Digital Factory
 
 For updates and clarifications, see: https://github.com/atos-df-rennes/prevarisc-migration/
