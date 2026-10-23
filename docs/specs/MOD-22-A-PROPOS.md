@@ -99,7 +99,7 @@ Chaque opération est documentée avec son chemin d'accès, ses paramètres (req
 | **RG-APR-004** | Conversion automatique | Le contenu Markdown est automatiquement converti en page lisible (HTML) au moment de l'affichage. Aucune mise en cache n'est appliquée. |
 | **RG-APR-005** | Vue unique partagée | Les quatre pages utilisent un même gabarit d'affichage. La présentation est homogène quel que soit le contenu affiché. |
 | **RG-APR-006** | Accès depuis le pied de page | Les liens vers les quatre pages sont présents dans le pied de page global de l'application, visible sur toutes les pages. |
-| **RG-APR-007** | Affichage de la version | Le pied de page affiche le numéro de version de l'application ainsi qu'un lien vers le détail du code source correspondant. |
+| **RG-APR-007** | Affichage de la version | Le pied de page affiche la version de l'application ainsi qu'un lien vers le détail du code source correspondant dans `atos-df-rennes/prevarisc-migration` : commit courant en mode Git, release correspondante en mode version définie par l'environnement. Le nom de branche Git est affiché sans transformation, y compris le préfixe `release/`. |
 | **RG-APR-008** | Copyright dynamique | L'année affichée dans la mention de copyright du pied de page est calculée automatiquement (année en cours). |
 | **RG-APR-009** | Liens institutionnels | Le pied de page contient des liens vers les sites du SDIS 62 (avec logo) et du Ministère de l'Intérieur, identifiant les organismes à l'origine du projet. |
 | **RG-APR-010** | Lien vers les notes de versions | Le pied de page contient un lien vers la page « Notes de versions » (changelog), distincte de ce module mais accessible depuis le même espace. |
