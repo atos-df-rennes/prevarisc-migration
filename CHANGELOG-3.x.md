@@ -4,6 +4,16 @@
 
 <!-- END HEADER -->
 
+## [3.0.0-rc.4](https://github.com/atos-df-rennes/prevarisc-migration/compare/v3.0.0-rc.3...v3.0.0-rc.4) (23-10-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Règles de mapping manquantes pour les formulaires personnalisés (#465) ([201e44](https://github.com/atos-df-rennes/prevarisc-migration/commit/201e449d3fdca8a5a26c8a920b8fa95489d8b538))
+* Mapping erroné par rapport à la définition de la base de données (#464) ([6aae4a](https://github.com/atos-df-rennes/prevarisc-migration/commit/6aae4a83ec1dfb994466ed0470722cba367814e7))
+
+
+---
+
 ## [3.0.0-rc.3](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.8...v3.0.0-rc.3) (19-10-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions
