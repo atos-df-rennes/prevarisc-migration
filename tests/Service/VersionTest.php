@@ -34,7 +34,7 @@ final class VersionTest extends KernelTestCase
             '0',
             [
                 'version' => 'v3.0.0',
-                'link' => 'https://github.com/atos-df-rennes/prevarisc/releases/tag/v3.0.0',
+                'link' => 'https://github.com/atos-df-rennes/prevarisc-migration/releases/tag/v3.0.0',
             ],
         ];
     }

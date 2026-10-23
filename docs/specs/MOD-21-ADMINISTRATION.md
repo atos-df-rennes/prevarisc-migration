@@ -37,8 +37,8 @@ Le panneau est organisé en deux blocs visuels : « Informations générales » 
 
 | Donnée | Description |
 |---|---|
-| **Version applicative** | Numéro de version de l'instance Prevarisc déployée. |
-| **Indicateur de mise à jour** | Comparaison entre la révision locale et la dernière révision publiée sur le dépôt officiel (branche stable). Si une mise à jour est disponible, un badge informatif « Mise à jour disponible » s'affiche à côté de la version. |
+| **Version applicative** | Version de l'instance Prevarisc déployée. En mode Git, la branche et le commit courants sont lus dans le dépôt de l'application, sans dépendre du nom de son dossier ni du dépôt legacy. Le nom de branche est conservé tel quel, par exemple `release/3.0@abc1234`. |
+| **Indicateur de mise à jour** | En mode Git, comparaison entre le commit courant de l'instance et le dernier commit de la même branche sur le dépôt officiel `atos-df-rennes/prevarisc-migration`. Si la branche locale est indisponible, si HEAD est détachée ou si cette branche n'existe pas sur le dépôt distant (404), la comparaison se fait avec `main`. Une différence affiche le badge informatif « Mise à jour disponible ». Une instance sur `develop` ou `release/3.1` n'est donc pas comparée systématiquement à `main`. |
 
 > La vérification de mise à jour est **toujours activée**, même quand la branche de déploiement est explicitement définie dans la configuration de l'environnement. Cela permet à l'administrateur de savoir si une nouvelle version est disponible, indépendamment du mode de déploiement. La requête distante gère les erreurs réseau sans exposer les défaillances à l'utilisateur.
 
@@ -170,10 +170,10 @@ Cette section regroupe les paramètres de configuration spécifiques à la plate
 | # | Règle |
 |---|---|
 | **RG-ADM-001** | La version applicative est toujours affichée en haut du panneau d'administration. |
-| **RG-ADM-002** | La vérification de mise à jour compare la révision locale à la dernière révision de la branche stable du dépôt officiel. |
+| **RG-ADM-002** | En mode Git, la vérification compare le commit courant de l'instance au dernier commit de sa branche sur `atos-df-rennes/prevarisc-migration`. Si la branche locale est indisponible, si HEAD est détachée ou si la branche distante est absente (404), la branche de référence est `main`. En mode version définie par l'environnement, la comparaison des tags est conservée sur ce même dépôt. |
 | **RG-ADM-003** | Si la révision locale diffère de la révision distante, le badge « Mise à jour disponible » est affiché. |
 | **RG-ADM-004** | La vérification de mise à jour est toujours effectuée, indépendamment de la configuration de la branche de déploiement. Cela offre une visibilité complète sur la disponibilité d'une nouvelle version, quel que soit le contexte de déploiement. |
-| **RG-ADM-005** | Si la vérification de mise à jour échoue (réseau indisponible, délai d'attente dépassé), aucune erreur n'est affichée à l'utilisateur et le badge de mise à jour n'apparaît pas. Le délai d'attente maximal pour contacter le dépôt officiel est de **3 secondes**. La branche stable ciblée est `refs/heads/2.5` (ou équivalent `2.x` pour les dépôts configurés différemment). |
+| **RG-ADM-005** | Si la vérification de mise à jour échoue (réseau indisponible, délai d'attente dépassé, échec du repli sur `main`), aucune erreur n'est affichée à l'utilisateur et le badge de mise à jour n'apparaît pas. L'échec est journalisé. En mode Git, chaque requête au dépôt officiel conserve un délai d'attente de **3 secondes**. Seule l'absence de la branche distante (404) déclenche un repli après une première requête ; les autres erreurs ne déclenchent pas de nouvelle comparaison avec `main`. |
 
 ### Services cartographiques
 
