@@ -63,8 +63,8 @@ final readonly class GithubType implements VersionType
         try {
             $branch = in_array($this->branch, ['HEAD', 'indisponible'], true) ? 'main' : $this->branch;
             $branchRef = explode('/', $branch)
-                    |> (fn($x): array => array_map(rawurlencode(...), $x))
-                    |> (fn($x): string => implode('/', $x));
+                    |> (fn ($x): array => array_map(rawurlencode(...), $x))
+                    |> (fn ($x): string => implode('/', $x));
             $response = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/ref/heads/'.$branchRef, [
                 'timeout' => 3,
             ]);
