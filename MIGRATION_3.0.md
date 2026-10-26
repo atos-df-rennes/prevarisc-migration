@@ -31,11 +31,18 @@ ls
 | **2.5** | Application Zend seule ; PHP 7.1.33 ; MySQL 5.6.28 ; Apache 2.4 (version à relever) | Pas d'application Symfony ni de `.env` Symfony. Des installations peuvent provenir de `SDIS62/prevarisc` ou du fork `atos-df-rennes/prevarisc`. |
 | **2.8** | Zend et Symfony 4.4 côte à côte ; PHP 7.1.33 ; MySQL 5.6.51 ; Apache 2.4.59 | La configuration Symfony se trouve généralement dans `prevarisc-migration/.env`. |
 | **2.10** | Zend et Symfony 4.4 côte à côte ; PHP 7.1.33 ; MySQL 5.6.51 ; Apache 2.4.59 | Même socle technique que 2.8 ; la table des versions de migrations Doctrine existe normalement déjà. |
-| **3.0** | Symfony 7.4 ; PHP 8.5 ; MariaDB 11.8 ; Apache 2.4 | Le répertoire de l'application devient `prevarisc/`; le Zend n'est plus livré. |
+| **3.0** | Symfony 7.4 ; PHP 8.5 ; MariaDB 11.8 ; Apache 2.4 | Symfony est la seule application ; le nom du répertoire reste libre (`prevarisc-migration/`, `prevarisc/`, etc.). |
 
 Symfony **4.4 est bien la version attendue en 2.8 et en 2.10** : ces branches
 fonctionnent avec PHP 7.1.33. La migration vers PHP 8.5 et Symfony 7.4 a lieu
 au passage en 3.0.
+
+Le renommage de `prevarisc-migration/` en `prevarisc/` est **optionnel** :
+il permet de retirer un suffixe temporaire, mais n'est pas nécessaire au
+fonctionnement de 3.0. Un clonage sans nom de destination conserve le nom
+`prevarisc-migration/`. Les noms de répertoires de ce guide sont des exemples :
+adaptez tous les chemins à votre installation, notamment dans Apache, les
+variables d'environnement, les tâches planifiées et les intégrations.
 
 > [!NOTE]
 > Les versions ci-dessus sont les versions usuelles des branches. Une
@@ -304,7 +311,9 @@ l'application Symfony 3.0.
 Vérifiez au minimum :
 
 - `DocumentRoot` et le bloc `<Directory>` pointent vers
-  `/chemin/vers/prevarisc/public` ;
+  le sous-répertoire `public/` de l'application Symfony 3.0 réellement déployée
+  (par exemple `/chemin/vers/prevarisc-migration/public`,
+  `/chemin/vers/prevarisc/public` ou `/chemin/vers/prevarisc-3.0/public`) ;
 - `mod_rewrite` est activé et les règles Symfony du VirtualHost sont présentes ;
 - le module PHP et le MPM sont compatibles (`mod_php` avec prefork) ;
 - les alias de données (par exemple `/data`) continuent de pointer vers le bon
@@ -315,8 +324,11 @@ Vérifiez au minimum :
 - `apache2ctl configtest` réussit avant le redémarrage.
 
 Un exemple de VirtualHost est disponible dans le [README](README.md#installation).
-Adaptez-le à votre configuration existante plutôt que de remplacer sans examen
-les règles d'authentification, de proxy, de TLS ou d'accès aux fichiers.
+Le chemin `prevarisc/public` de cet exemple suppose un clonage dans `prevarisc/` ;
+ce nom n'est pas imposé. Utilisez le même chemin réel dans `DocumentRoot` et
+`<Directory>`, sans pointer vers la racine du dépôt ni vers l'ancien Zend.
+Adaptez le reste à votre configuration existante plutôt que de remplacer sans
+examen les règles d'authentification, de proxy, de TLS ou d'accès aux fichiers.
 
 > [!NOTE]
 > Sous Linux, l'accès à un serveur de fichiers Windows se fait normalement par
@@ -358,14 +370,22 @@ git checkout vX.Y.Z
 Remplacez `vX.Y.Z` par le tag stable choisi. Gardez une copie ou un lien vers
 le commit actuel pour revenir à la version précédente.
 
+Dans cet exemple, `prevarisc-3.0/` est le répertoire choisi pour isoler la
+nouvelle version : Apache devra donc pointer vers son sous-répertoire
+`prevarisc-3.0/public`. Vous pouvez choisir un autre nom de destination libre,
+y compris `prevarisc-migration/` ou `prevarisc/`, sans renommer ni écraser
+l'ancienne installation. Aucun renommage supplémentaire n'est requis avant
+la mise en service.
+
 ### 6.2 Créer ou reprendre le fichier `.env`
 
 Prevarisc 3.0 utilise le `.env` Symfony. Ne publiez jamais ses secrets dans Git.
 
 - En **2.5**, créez un `.env` depuis `.env.example`, générez un nouvel
   `APP_SECRET`, renseignez `DATABASE_URL` et les variables applicatives requises.
-- En **2.8/2.10**, reprenez le `.env` de `prevarisc-migration/` (ou le fichier
-  propre à l'environnement) et comparez-le à `.env.example` de 3.0. Conservez
+- En **2.8/2.10**, reprenez le `.env` de l'ancienne application Symfony,
+  généralement dans `prevarisc-migration/` (ou le fichier propre à
+  l'environnement), et comparez-le à `.env.example` de 3.0. Conservez
   les paramètres spécifiques, ajoutez/supprimez ceux requis par 3.0, et vérifiez
   particulièrement `DATABASE_URL`.
 
@@ -467,9 +487,11 @@ personnalisations locales, doivent être traitées au cas par cas.
 
 ### 7.2 Depuis Prevarisc 2.8
 
-2.8 contient deux applications : le Zend historique (`prevarisc/`) et
-Symfony 4.4 (`prevarisc-migration/`). En 3.0, Symfony devient l'application
-principale et le code Zend n'est plus nécessaire.
+2.8 contient deux applications : le Zend historique (généralement dans
+`prevarisc/`) et Symfony 4.4 (généralement dans `prevarisc-migration/`).
+En 3.0, Symfony devient la seule application et le code Zend n'est plus
+nécessaire. Cela n'impose pas de reprendre le nom du répertoire Zend pour
+Symfony.
 
 1. Sauvegardez les deux répertoires, la configuration et le `.env` situé
    généralement dans `prevarisc-migration/`.
@@ -477,9 +499,11 @@ principale et le code Zend n'est plus nécessaire.
    `.env.example` et mettez à jour `DATABASE_URL` vers MariaDB 11.8.8 (ou
    la version exacte du moteur conservé).
 3. Migrez PHP et le moteur de base selon les sections communes.
-4. Pointez le `DocumentRoot` Apache vers `prevarisc/public`. Vérifiez que les
-   variables `SetEnv`, les alias de données et les règles d'authentification
-   ont été conservés.
+4. Pointez le `DocumentRoot` et le bloc `<Directory>` Apache vers le
+   sous-répertoire `public/` de la nouvelle application 3.0, quel que soit le
+   nom choisi pour son répertoire (voir section 5). Vérifiez que les variables
+   `SetEnv`, les alias de données et les règles d'authentification ont été
+   conservés.
 5. Contrôlez l'état de `doctrine_migration_versions`, puis appliquez les
    migrations 3.0 en attente. Ne supprimez pas la table de suivi.
 6. Vérifiez la configuration et les tâches Plat'AU. Si l'ancienne installation
@@ -540,8 +564,9 @@ Avant de remettre Prevarisc à disposition :
 - [ ] `DATABASE_URL` correspond au serveur réel ; l'application se connecte à
       la base attendue.
 - [ ] Toutes les migrations Doctrine prévues ont été exécutées.
-- [ ] Le DocumentRoot pointe vers `public/`, la réécriture d'URL fonctionne,
-      et les alias de données restent accessibles.
+- [ ] `DocumentRoot` et `<Directory>` pointent vers le même sous-répertoire
+      `public/` de l'application 3.0 réellement déployée ; la réécriture d'URL
+      fonctionne et les alias de données restent accessibles.
 - [ ] Les répertoires de cache, journaux, données et pièces jointes sont
       accessibles avec les bons droits.
 - [ ] Connexion utilisateur, recherche, consultation d'un dossier, pièces
@@ -586,6 +611,7 @@ rapport ou un ticket public.
 | Emplacement | Contenu courant | Action pendant la migration |
 | --- | --- | --- |
 | `.env` / `.env.<environnement>` | `APP_ENV`, `APP_DEBUG`, `APP_SECRET`, `DATABASE_URL`, mail, `PLATAU_CONFIG_FILE` | Reprendre ou créer ; comparer au nouvel `.env.example` ; vérifier le moteur et ne pas exposer les secrets. |
+| VirtualHost Apache | `DocumentRoot`, `<Directory>` | Pointer vers le même sous-répertoire `public/` du répertoire 3.0 choisi ; aucun nom de répertoire n'est imposé. |
 | VirtualHost Apache | `SetEnv PREVARISC_*` : chemins, base/config héritée, LDAP/CAS/NTLM, cartographie, sécurité, plugins et options métier | Conserver les réglages encore utilisés ; examiner les nouvelles variables ; valider le VirtualHost avec Apache. |
 | Configuration MariaDB | charset, collation, adresse d'écoute, journalisation, réglages locaux | Déplacer hors de `/usr/my.cnf` si nécessaire ; contrôler la configuration réellement chargée. |
 | Cron et scripts | Chemins de l'application et de Plat'AU, binaire PHP | Mettre à jour les chemins et utiliser PHP 8.5. |
