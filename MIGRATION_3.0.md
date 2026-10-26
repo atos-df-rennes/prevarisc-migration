@@ -1,9 +1,8 @@
 # Migrer Prevarisc 2.5, 2.8 ou 2.10 vers 3.0
 
-Ce guide s'adresse aux équipes qui exploitent Prevarisc installé directement
-depuis Git, sans livraison ni accompagnement de l'équipe Prevarisc. Il décrit
-les changements d'infrastructure et d'application nécessaires pour passer à
-Prevarisc 3.0.
+Ce guide s'adresse aux SDIS qui installent et mettent à jour eux-mêmes
+Prevarisc depuis le dépôt Git. Il décrit les étapes nécessaires pour migrer
+leur installation vers Prevarisc 3.0.
 
 > [!WARNING]
 > N'utilisez en production qu'un **tag stable** (par exemple `v3.0.0` sans
@@ -12,7 +11,7 @@ Prevarisc 3.0.
 > [versions et tags publiés](README.md#versions) avant de commencer.
 
 La procédure cible **Debian 12**, **PHP 8.5**, **MariaDB 11.8.8** et Apache
-HTTP Server 2.4. L'équipe a testé Debian 12. La mise à niveau de l'OS n'est pas
+HTTP Server 2.4. La mise à niveau de l'OS n'est pas
 détaillée ici : consultez la documentation Debian et assurez-vous que
 l'installation est à jour avant la migration.
 
@@ -95,9 +94,7 @@ recette préalable.
 ## 3. Mettre à niveau PHP vers 8.5
 
 La version de référence est **PHP 8.5.12** ; privilégiez le dernier correctif
-de sécurité disponible de la branche 8.5. Si une exploitation impose
-strictement le numéro 8.5.12, vérifiez que cette version précise est encore
-disponible dans le dépôt et qu'elle reçoit les correctifs requis. Prevarisc 3.0
+de sécurité disponible de la branche 8.5. Prevarisc 3.0
 utilise PHP chargé dans Apache par **mod_php**. Les versions d'Apache et PHP
 doivent donc être configurées ensemble ; `mod_php` nécessite le MPM prefork,
 pas `mpm_event`.
@@ -138,8 +135,8 @@ des modules ; planifiez la coupure de service au moment de la bascule.
 
 ### 3.2 Compilation depuis les sources (alternative)
 
-La livraison Prevarisc compile PHP avec Apache via `apxs2`. Cette approche est
-possible si vous gérez vous-même la compilation, mais elle implique de maintenir
+Vous pouvez compiler PHP avec le module Apache via `apxs2` plutôt qu'utiliser
+les paquets. Cette approche implique de maintenir
 les dépendances de compilation, le module Apache, le `php.ini` et son
 `extension_dir`. La configuration de compilation doit couvrir au minimum les
 extensions nécessaires : PDO MySQL, GD avec JPEG, EXIF, cURL, LDAP, Intl,
@@ -213,16 +210,26 @@ paquets :
   MariaDB : recréez le compte applicatif après la bascule ;
 - gardez le dump et l'ancien datadir archivés pour permettre un retour arrière.
 
-Le script `crossgrade_mysql_to_mariadb.sh` du dépôt de livraison décrit et
-automatise ce chemin pour les installations qui disposent de ces scripts.
-Si vous gérez une installation Git sans ces scripts, préparez la procédure
-équivalente et faites-la d'abord sur une copie. Ne purgez pas l'ancien serveur
-avant d'avoir produit et vérifié le dump et d'avoir confirmé le plan de retour
-arrière.
+Procédez d'abord sur une copie :
 
-Après installation de MariaDB, restaurez le dump applicatif puis exécutez
-`mariadb-upgrade` selon la procédure de la version installée. Recréez ensuite le
-compte applicatif (voir [Compte SQL](#annexe-compte-sql)).
+1. Exportez la base applicative avec `mysqldump`, comme décrit en section 2.1,
+   et vérifiez le dump. N'incluez pas les bases système MySQL dans la restauration.
+2. Installez MariaDB 11.8.8 avec un nouveau répertoire de données, en suivant
+   la documentation officielle MariaDB correspondant à votre système.
+3. Configurez les jeux de caractères et les collations selon la section 4.3
+   avant de restaurer les données.
+4. Restaurez le dump applicatif :
+
+   ```sh
+   mariadb -u root -p < /chemin/backup/prevarisc-mysql.sql
+   ```
+
+5. Exécutez `mariadb-upgrade` si la procédure de la version installée l'exige.
+6. Recréez le compte applicatif (voir [Compte SQL](#annexe-compte-sql)) et
+   vérifiez sa connexion à la base restaurée.
+
+Ne purgez pas l'ancien serveur avant d'avoir produit et vérifié le dump et
+d'avoir confirmé le plan de retour arrière.
 
 ### 4.2 Cas B — MariaDB 10.x vers MariaDB 11.8.8
 
@@ -437,7 +444,7 @@ ses modules et sa configuration doivent être adaptés.
    `.env.example`. Conservez les valeurs métier encore utiles, migrez les
    paramètres d'application qui appartiennent désormais à `.env`, et retirez
    uniquement les directives explicitement obsolètes. Les clés spécifiques
-   aux plugins ou au client nécessitent une vérification manuelle ; ne les
+   aux plugins ou à votre installation nécessitent une vérification manuelle ; ne les
    supprimez pas par simple différence de fichiers.
 3. **Créez le `.env` 3.0.** Il n'y a pas de `.env` Symfony 2.5 à reprendre.
    Générez `APP_SECRET`, configurez la base et renseignez les variables
