@@ -20,6 +20,9 @@ Application web open-source gérant l'ensemble de l'activité du service préven
 
 Consultez la [documentation dédiée](docs/guide.md).
 
+Pour migrer une installation **2.5, 2.8 ou 2.10 vers 3.0**, consultez le
+[guide de migration](MIGRATION_3.0.md).
+
 ## Technologies utilisées
 
 - **PHP** : Utilisé en version 8.5+ avec le framework [Symfony 7.4 LTS](https://symfony.com/doc/7.4/index.html)
@@ -36,6 +39,9 @@ Prevarisc suit le [versionnage sémantique (SemVer)](https://semver.org/lang/fr/
 - **MINEUR** : apporte de nouvelles fonctionnalités rétrocompatibles. La mise à jour peut nécessiter des migrations de base de données ou de nouvelles variables d'environnement ; consultez le changelog et les instructions de mise à jour.
 - **CORRECTIF** : apporte des corrections rétrocompatibles.
 
+Pour une migration majeure depuis Prevarisc 2.x, suivez le
+[guide de migration vers 3.0](MIGRATION_3.0.md) avant de déployer.
+
 | Type de version | Exemple | Utilisation |
 | --- | --- | --- |
 | Préversion (`-rc.N`) | `3.0.0-rc.4` | Release candidate destinée à l'environnement de test/recette. Elle peut encore contenir des anomalies et être suivie d'autres RC. |
@@ -47,6 +53,11 @@ Prevarisc suit le [versionnage sémantique (SemVer)](https://semver.org/lang/fr/
 Les branches `develop` (intégration) et `release/x.y` (préparation des versions `x.y`) ne sont pas des versions à déployer. `main` correspond à la dernière version stable publiée. Pour installer ou mettre à jour Prevarisc, choisissez un tag `vX.Y.Z` stable ; utilisez un tag `vX.Y.Z-rc.N` uniquement pour la recette. Consultez les [tags publiés](https://github.com/atos-df-rennes/prevarisc-migration/tags), le [changelog 3.x](CHANGELOG-3.x.md) et le [changelog 2.x](CHANGELOG-2.x.md).
 
 ## Installation
+
+> [!IMPORTANT]
+> Pour migrer une installation existante 2.5, 2.8 ou 2.10, ne suivez pas
+> directement une procédure d'installation neuve : consultez le
+> [guide de migration vers 3.0](MIGRATION_3.0.md).
 
 1. Clonez le dépôt :
 ```sh
