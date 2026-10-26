@@ -2,7 +2,9 @@
 
 Ce guide s'adresse aux SDIS qui installent et mettent à jour eux-mêmes
 Prevarisc depuis le dépôt Git. Il décrit les étapes nécessaires pour migrer
-leur installation vers Prevarisc 3.0.
+leur installation existante vers Prevarisc 3.0 avec le dépôt
+[`atos-df-rennes/prevarisc-migration`](https://github.com/atos-df-rennes/prevarisc-migration).
+Il ne nécessite aucun script de déploiement extérieur à ce dépôt.
 
 > [!WARNING]
 > N'utilisez en production qu'un **tag stable** (par exemple `v3.0.0` sans
@@ -15,6 +17,12 @@ HTTP Server 2.4. La mise à niveau de l'OS n'est pas
 détaillée ici : consultez la documentation Debian et assurez-vous que
 l'installation est à jour avant la migration.
 
+Lisez le guide en entier avant l'intervention. Les sections 3 à 8 décrivent les
+changements à préparer ; la section 6.5 donne l'ordre de bascule en production.
+Les commandes système nécessitent un compte administrateur. Exécutez Git,
+Composer et les commandes Symfony avec le compte de déploiement, depuis le
+répertoire indiqué, et arrêtez la procédure si une commande échoue.
+
 ## 1. Choisir la procédure correspondant à votre version
 
 Vérifiez la version installée à partir de la version du dépôt et de son
@@ -23,6 +31,8 @@ arborescence. Ne vous fiez pas uniquement au nom du répertoire :
 ```sh
 cd /chemin/vers/votre/prevarisc
 git describe --tags --always
+git remote -v
+git status --short
 ls
 ```
 
@@ -57,6 +67,10 @@ une fenêtre de maintenance : l'application doit être arrêtée pendant la
 sauvegarde finale, la bascule du moteur de base de données et l'exécution des
 migrations Doctrine.
 
+Sur la copie de recette, utilisez une base et des fichiers distincts de la
+production. Désactivez les envois de mails et les échanges Plat'AU réels afin
+que les essais ne modifient pas les données ou les services de production.
+
 ### 2.1 Sauvegardes indispensables
 
 Avant toute modification :
@@ -68,7 +82,7 @@ Avant toute modification :
   VirtualHosts, les alias et les règles d'accès ;
 - sauvegardez le `php.ini` et la configuration MySQL/MariaDB ;
 - sauvegardez les fichiers `.env` présents, y compris ceux des environnements
-  additionnels ;
+  additionnels et les surcharges `.env.local` / `.env.*.local` ;
 - sauvegardez les données applicatives hors dépôt : pièces jointes, documents,
   exports et fichiers de stockage ;
 - sauvegardez la configuration et les tâches planifiées de la passerelle
@@ -128,7 +142,10 @@ dans le dépôt configuré, ainsi que les besoins propres à vos intégrations
 (par exemple SOAP).
 
 Activez le MPM et le module PHP correspondant aux paquets installés. L'exemple
-ci-dessous suppose que le paquet a installé le module `php8.5` :
+ci-dessous suppose que le paquet a installé le module `php8.5`. Au moment de
+la bascule, désactivez d'abord l'ancien module PHP s'il est encore activé
+(par exemple `a2dismod php7.1` pour un module installé sous ce nom) ; ne chargez
+pas simultanément les deux versions :
 
 ```sh
 a2dismod mpm_event
@@ -191,6 +208,11 @@ Vérifiez le PHP CLI :
 php -v
 php -m
 ```
+
+Toutes les commandes `php` et Composer de la suite doivent utiliser PHP 8.5.
+Si `php -v` indique encore PHP 7.1, corrigez la sélection du binaire CLI avant
+de poursuivre ; activer `php8.5` dans Apache ne modifie pas à lui seul le PHP
+en ligne de commande.
 
 Vérifiez aussi le module Apache avec `apache2ctl -M` et, après la bascule,
 contrôlez la version et les extensions réellement chargées par une requête
@@ -360,6 +382,12 @@ Conservez l'application actuelle intacte et préparez un répertoire séparé po
 le code 3.0. Utilisez un tag stable publié ; ne déployez pas directement une
 branche de développement ou de release.
 
+Il s'agit d'une reprise d'installation existante, pas d'une installation
+neuve : conservez la base et les données. Le clonage séparé ci-dessous permet
+de changer de dépôt sans modifier l'historique ni les changements locaux de
+l'ancien dépôt. Un simple `git pull` dans l'ancien Zend ne réalise pas cette
+migration.
+
 ```sh
 git clone https://github.com/atos-df-rennes/prevarisc-migration.git prevarisc-3.0
 cd prevarisc-3.0
@@ -417,22 +445,62 @@ Les paramètres historiques du VirtualHost en `SetEnv PREVARISC_*` restent
 distincts de ce fichier : `.env` ne remplace pas à lui seul la configuration
 Apache existante.
 
+> [!IMPORTANT]
+> Les directives Apache `SetEnv` ne sont pas transmises aux commandes lancées
+> dans un terminal ni aux tâches cron. Rendez les paramètres nécessaires
+> disponibles aussi pour ces commandes, par exemple dans le `.env` privé de
+> la nouvelle installation. Ne copiez pas la syntaxe `SetEnv` dans ce fichier :
+> utilisez la syntaxe `NOM="valeur"`. Les variables réelles de l'environnement
+> sont prioritaires sur les fichiers `.env` ; évitez les valeurs contradictoires
+> entre Apache, les fichiers et les tâches planifiées.
+
+Reprenez notamment **à l'identique `PREVARISC_SECURITY_SALT`**, avec sa valeur
+effective dans l'ancienne installation, même si elle n'apparaît pas dans
+`.env.example`. Elle permet de vérifier les mots de passe historiques ; la
+remplacer par un nouveau secret peut empêcher les utilisateurs de se connecter.
+Elle est distincte de `APP_SECRET`.
+
+Les variables `PREVARISC_*` disponibles ne sont pas toutes listées dans
+`.env.example` : consultez également leurs définitions dans
+[`config/prevarisc.php`](config/prevarisc.php) pour le tag choisi. Ne supprimez
+pas un réglage existant au seul motif qu'il manque dans `.env.example`.
+Ne recopiez pas l'ancien `.env.local.php` compilé : il sera régénéré pour 3.0.
+Vérifiez aussi les surcharges `.env.local`, `.env.prod` et `.env.prod.local`
+reprises, qui peuvent remplacer les valeurs de `.env`.
+
 ### 6.3 Dépendances, migrations et cache
 
 Depuis la racine de l'application 3.0, après configuration de `.env` et accès à
-la base :
+la base, utilisez **Composer 2.x exécuté avec PHP 8.5**. Installez les versions
+verrouillées du dépôt avec `install`, et non `update` :
 
 ```sh
-composer install --no-dev --classmap-authoritative
+APP_ENV=prod APP_DEBUG=0 composer install --no-dev --classmap-authoritative
+composer check-platform-reqs --no-dev
 composer dump-env prod
 APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:status
-APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction
-APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
+APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:list
 ```
 
-La commande `doctrine:migrations:status` permet d'inspecter les migrations
-avant leur exécution. Examinez les changements annoncés et assurez-vous que la
-sauvegarde de la base est disponible. En 2.8/2.10, Symfony 4.4 et les migrations
+Composer exécute aussi les commandes du dépôt qui installent les ressources
+publiques et génèrent les routes JavaScript. N'utilisez pas `--no-scripts`
+pour contourner une erreur : corrigez sa cause avant de poursuivre. Aucune
+installation npm n'est nécessaire pour cette procédure de production.
+
+Après examen de l'état et de la liste des migrations, et **uniquement sur la
+copie de recette ou pendant la coupure de production**, exécutez :
+
+```sh
+APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction
+APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
+APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:status
+```
+
+Les commandes `status` et `list` indiquent les migrations présentes et leur
+état ; elles ne détaillent pas toutes les modifications SQL. Consultez si
+nécessaire les fichiers du répertoire `migrations/` du tag choisi et
+assurez-vous que la sauvegarde de la base est disponible.
+En 2.8/2.10, Symfony 4.4 et les migrations
 Doctrine étaient déjà utilisés : vérifiez les migrations en attente, sans
 supprimer ni recréer la table `doctrine_migration_versions`.
 
@@ -446,6 +514,66 @@ migrations Doctrine 3.0.
 Appliquez les permissions nécessaires selon l'utilisateur système du serveur
 web. À minima, `var/` doit être accessible en écriture à Apache/PHP ; ne rendez
 pas tout le code ou les secrets accessibles en écriture au serveur web.
+
+### 6.4 Reprendre les fichiers et les réglages locaux
+
+Un clonage Git ne reprend ni les fichiers téléversés ni les fichiers locaux
+non versionnés de l'ancienne installation :
+
+- conservez le répertoire de données existant ou recopiez-le intégralement
+  vers le nouveau serveur, avec son arborescence et ses droits ;
+- renseignez `PREVARISC_REAL_DATA_PATH` avec son chemin physique réel. Sans
+  cette variable, 3.0 utilise `public/data` dans le nouveau dépôt, qui ne
+  contient pas les fichiers de l'ancienne installation ;
+- conservez `PREVARISC_DATA_PATH` (préfixe d'URL, par défaut `/data`) et les
+  alias Apache correspondants ; ne confondez pas ce préfixe avec le chemin
+  physique des fichiers ;
+- conservez `PREVARISC_DATASTORE_ADAPTER` : changer d'adaptateur ne convertit
+  pas l'arborescence des pièces jointes existantes ;
+- reprenez les modèles de documents, les fichiers d'autoconfiguration IGN
+  et les autres fichiers locaux utilisés. Un fichier IGN servi par une URL
+  sous `public/` doit être présent dans le nouveau répertoire public ou
+  accessible par un alias adapté ;
+- examinez les modifications de code et plugins locaux avant la migration :
+  ne recopiez pas des modules Zend dans Symfony en supposant qu'ils fonctionneront.
+  Leur compatibilité doit être vérifiée en recette.
+
+Vérifiez la lecture des fichiers existants et la création d'une nouvelle pièce
+jointe avec le compte du serveur web. Conservez l'ancienne copie des fichiers
+jusqu'à la validation de la migration.
+
+### 6.5 Effectuer la bascule en production
+
+Après réussite de la recette :
+
+1. Préparez le nouveau dépôt, les dépendances et la configuration. N'exécutez
+   pas les migrations contre la base de production encore utilisée par
+   l'ancienne application.
+2. Bloquez l'accès des utilisateurs à l'ancienne application et suspendez les
+   tâches planifiées et intégrations susceptibles d'écrire en base ou dans les
+   fichiers. L'arrêt du seul accès web ne suspend pas les tâches cron.
+3. Effectuez les sauvegardes finales de la base et des fichiers, puis leur
+   transfert final si vous changez de serveur. N'autorisez plus d'écriture
+   dans l'ancienne installation.
+4. Basculez le moteur SQL si nécessaire (section 4), vérifiez le compte SQL et
+   mettez à jour la configuration de connexion.
+5. Terminez la reprise des fichiers et réglages (sections 6.2 et 6.4),
+   régénérez l'environnement compilé, puis appliquez les migrations et videz
+   le cache comme décrit en section 6.3.
+6. Activez PHP 8.5 dans Apache et la configuration du nouveau site (section 5).
+   Sur Debian avec le service `apache2`, vérifiez puis redémarrez :
+
+   ```sh
+   apache2ctl configtest
+   systemctl restart apache2
+   ```
+
+7. En maintenant l'accès limité aux personnes chargées de la vérification,
+   effectuez les contrôles de la section 9. En cas d'erreur bloquante, ne
+   rouvrez pas le service ; corrigez-la ou appliquez le retour arrière.
+8. Mettez à jour et réactivez les tâches planifiées vers la nouvelle installation,
+   vérifiez leur fonctionnement, puis rouvrez l'accès aux utilisateurs.
+   Ne laissez pas les anciennes et nouvelles tâches actives simultanément.
 
 ## 7. Particularités selon la version de départ
 
@@ -525,7 +653,9 @@ apportées depuis 2.8, puis suivez les étapes de la
 
 ## 8. Passerelle Plat'AU et autres intégrations
 
-La passerelle Plat'AU est un composant séparé. Vérifiez sa version, son
+Cette section ne concerne que les intégrations utilisées par votre SDIS.
+La passerelle Plat'AU est un composant séparé ; le clonage de l'application ne
+l'installe ni ne la met à jour. Vérifiez sa version, son
 répertoire, ses identifiants et son fichier `config.json`. La variable
 `PLATAU_CONFIG_FILE` désigne le fichier de configuration ; `PREVARISC_PLATAU_PATH`
 peut indiquer le chemin de l'installation de la passerelle. Si cette dernière
@@ -571,6 +701,11 @@ Avant de remettre Prevarisc à disposition :
       accessibles avec les bons droits.
 - [ ] Connexion utilisateur, recherche, consultation d'un dossier, pièces
       jointes, génération de documents et exports fonctionnent.
+- [ ] Un compte local existant peut se connecter avec son mot de passe
+      habituel ; une pièce jointe antérieure peut être téléchargée et une
+      nouvelle pièce peut être ajoutée.
+- [ ] Les ressources CSS/JavaScript se chargent sans erreur et les écrans
+      utilisant les routes JavaScript fonctionnent.
 - [ ] Les tâches planifiées, mails, LDAP/SSO, IGN, plugins et Plat'AU sont
       vérifiés selon les fonctionnalités utilisées.
 - [ ] Les journaux Apache, PHP, Symfony et MariaDB ne signalent pas d'erreur
@@ -604,21 +739,24 @@ restaurable.
 
 ## Annexe A — Variables d'environnement et configuration
 
-La liste faisant autorité est le `.env.example` livré avec le tag 3.0 choisi.
-Comparez-le aux fichiers de l'installation, sans recopier les secrets dans un
-rapport ou un ticket public.
+Consultez le `.env.example` et les définitions des variables applicatives dans
+`config/prevarisc.php` du tag 3.0 choisi. Comparez-les aux fichiers de
+l'installation, sans recopier les secrets dans un rapport ou un ticket public.
 
 | Emplacement | Contenu courant | Action pendant la migration |
 | --- | --- | --- |
-| `.env` / `.env.<environnement>` | `APP_ENV`, `APP_DEBUG`, `APP_SECRET`, `DATABASE_URL`, mail, `PLATAU_CONFIG_FILE` | Reprendre ou créer ; comparer au nouvel `.env.example` ; vérifier le moteur et ne pas exposer les secrets. |
+| `.env`, `.env.local`, `.env.<environnement>`, `.env.<environnement>.local` | `APP_ENV`, `APP_DEBUG`, `APP_SECRET`, `DATABASE_URL`, mail, `PLATAU_CONFIG_FILE` et réglages applicatifs | Reprendre ou créer ; vérifier les priorités et le moteur ; ne pas exposer les secrets. |
+| Environnement applicatif | `PREVARISC_SECURITY_SALT`, `PREVARISC_REAL_DATA_PATH`, `PREVARISC_DATA_PATH`, `PREVARISC_DATASTORE_ADAPTER` | Conserver le sel historique et l'adaptateur ; vérifier les chemins et leur disponibilité pour Apache et les commandes CLI. |
 | VirtualHost Apache | `DocumentRoot`, `<Directory>` | Pointer vers le même sous-répertoire `public/` du répertoire 3.0 choisi ; aucun nom de répertoire n'est imposé. |
 | VirtualHost Apache | `SetEnv PREVARISC_*` : chemins, base/config héritée, LDAP/CAS/NTLM, cartographie, sécurité, plugins et options métier | Conserver les réglages encore utilisés ; examiner les nouvelles variables ; valider le VirtualHost avec Apache. |
 | Configuration MariaDB | charset, collation, adresse d'écoute, journalisation, réglages locaux | Déplacer hors de `/usr/my.cnf` si nécessaire ; contrôler la configuration réellement chargée. |
 | Cron et scripts | Chemins de l'application et de Plat'AU, binaire PHP | Mettre à jour les chemins et utiliser PHP 8.5. |
 
 `composer dump-env prod` compile les variables d'environnement en production.
-Relancez cette commande après toute modification de `.env` afin que la
-configuration compilée soit à jour.
+Relancez cette commande après toute modification des fichiers `.env*`, puis
+videz le cache en production afin que la configuration soit à jour. Une
+modification des directives Apache nécessite aussi la prise en compte de la
+nouvelle configuration par Apache.
 
 <a id="annexe-compte-sql"></a>
 
@@ -629,15 +767,16 @@ Utilisez un secret fort et ne le placez pas dans un historique de commandes ou
 un fichier versionné.
 
 ```sql
-CREATE DATABASE `PRV_prevarisc_v2`
-  CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci;
-
 CREATE USER 'prevarisc'@'localhost' IDENTIFIED BY '<mot-de-passe>';
 GRANT CREATE, DROP, ALTER, INDEX, CREATE VIEW,
       SELECT, INSERT, UPDATE, DELETE
 ON `PRV_prevarisc_v2`.*
 TO 'prevarisc'@'localhost';
 ```
+
+Ces commandes supposent que la base applicative existe déjà ou a été restaurée.
+Ne créez pas une base vide à la place de la base historique. Si le compte SQL
+existe déjà, vérifiez ses droits et adaptez-les au lieu de rejouer `CREATE USER`.
 
 Si le serveur SQL est distant, remplacez `localhost` par l'adresse du frontend
 ou par une portée réseau strictement nécessaire. Les migrations Doctrine
