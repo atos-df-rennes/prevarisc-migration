@@ -81,6 +81,8 @@ DATABASE_URL="mysql://<user>:<password>@<host>:<port>/<database_name>?serverVers
 (e.g. mysql://root:root@localhost:3306/PRV_prevarisc_v2?serverVersion=11.8.8-MariaDB&charset=utf8mb4)
 ```
 
+Consultez le [catalogue complet des variables d'environnement](docs/documentation_installation.md#configuration-de-lapplication-30) pour les types, les valeurs par défaut et les réglages optionnels (LDAP, CAS, courriels, Plat'AU, stockage, etc.).
+
 3. Installez les dépendances (Composer 2.x requis) :
 ```sh
 $ composer install --no-dev --classmap-authoritative
