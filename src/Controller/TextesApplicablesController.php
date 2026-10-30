@@ -113,7 +113,7 @@ class TextesApplicablesController extends AbstractController
 
             return new JsonResponse(['success' => true, 'message' => 'Ordre des textes applicables mis à jour.']);
         } catch (\Exception $exception) {
-            return new JsonResponse(['success' => false, 'error' => 'Erreur lors de la mise à jour de l\'ordre : '.$exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return new JsonResponse(['success' => false, 'error' => "Erreur lors de la mise à jour de l'ordre : ".$exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

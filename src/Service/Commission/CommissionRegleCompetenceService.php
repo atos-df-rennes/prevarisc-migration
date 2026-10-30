@@ -6,8 +6,10 @@ use App\Constant\GenreEtablissement;
 use App\Entity\Commission;
 use App\Entity\CommissionRegle;
 use App\Entity\CommissionRegleLocalSommeil;
+use App\Entity\Commune;
 use App\Entity\EtablissementCategorie;
 use App\Entity\EtablissementType;
+use App\Entity\Groupement;
 use App\Entity\IghClasse;
 
 /**
@@ -108,11 +110,11 @@ class CommissionRegleCompetenceService
      */
     private function communeMatches(string $numInseeEts, CommissionRegle $regle): bool
     {
-        if (null !== $regle->getCommune()) {
+        if ($regle->getCommune() instanceof Commune) {
             return $numInseeEts === $regle->getCommune()->getId();
         }
 
-        if (null !== $regle->getGroupement()) {
+        if ($regle->getGroupement() instanceof Groupement) {
             foreach ($regle->getGroupement()->getCommunes() as $commune) {
                 if ($numInseeEts === $commune->getId()) {
                     return true;

@@ -83,7 +83,7 @@ final class DossierNatureListeRepositoryTest extends KernelTestCase
         $type = $this->dossierTypeRepository->find(2); // Type 2 = Visite
 
         if (!$type) {
-            self::markTestSkipped('Le type 2 n\'existe pas en base de données');
+            self::markTestSkipped("Le type 2 n'existe pas en base de données");
         }
 
         $natures = $this->repository->findByTypeOrderedByOrdre($type);

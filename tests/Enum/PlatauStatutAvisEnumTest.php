@@ -21,8 +21,8 @@ final class PlatauStatutAvisEnumTest extends TestCase
         yield 'inconnu' => [PlatauStatutAvisEnum::INCONNU, 'Statut inconnu'];
         yield 'en cours' => [PlatauStatutAvisEnum::EN_COURS, "En attente d'avis sur Prevarisc"];
         yield 'avis renseigné' => [PlatauStatutAvisEnum::SAISI_A_TRANSMETTRE, "Avis renseigné sur Prevarisc (en attente de transmission à Plat'AU)"];
-        yield 'traité' => [PlatauStatutAvisEnum::TRAITE, 'Traité sur Plat\'AU'];
-        yield 'renvoi' => [PlatauStatutAvisEnum::A_RENVOYER, 'Traité sur Plat\'AU (en attente de renvoi)'];
+        yield 'traité' => [PlatauStatutAvisEnum::TRAITE, "Traité sur Plat'AU"];
+        yield 'renvoi' => [PlatauStatutAvisEnum::A_RENVOYER, "Traité sur Plat'AU (en attente de renvoi)"];
         yield 'en erreur' => [PlatauStatutAvisEnum::EN_ERREUR, "En erreur sur Plat'AU"];
         yield 'null' => [null, 'Statut inconnu'];
         yield 'invalide' => ['invalid_status', 'Statut inconnu'];

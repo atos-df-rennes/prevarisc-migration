@@ -22,7 +22,7 @@ class EtablissementAncestryService
         $ancetres = [];
         $courant = $etablissement->getParent();
 
-        while (null !== $courant) {
+        while ($courant instanceof Etablissement) {
             $ancetres[] = $courant;
             $courant = $courant->getParent();
         }

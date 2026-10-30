@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Dossier;
+use App\Entity\DossierNatureListe;
 
 /**
  * Service de gestion des champs à afficher selon la nature du dossier.
@@ -170,7 +171,7 @@ final class DossierFields
     {
         $nature = $dossier->getNature();
 
-        if (null === $nature) {
+        if (!$nature instanceof DossierNatureListe) {
             return [];
         }
 

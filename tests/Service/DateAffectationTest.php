@@ -102,7 +102,7 @@ final class DateAffectationTest extends KernelTestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
             ->method('error')
-            ->with('Le type d\'événement de la date de commission est null.', [
+            ->with("Le type d'événement de la date de commission est null.", [
                 'id_dossier' => 1,
                 'id_date_commission' => 2
             ]);

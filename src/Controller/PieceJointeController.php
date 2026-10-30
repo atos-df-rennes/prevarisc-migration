@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Constant\DataStoreObjectTypes;
+use App\Entity\DateCommission;
 use App\Repository\DateCommissionRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\PieceJointeRepository;
@@ -84,7 +85,7 @@ class PieceJointeController extends AbstractController
 
         $dateCommission = $this->dateCommissionRepository->findOneByPieceJointe($id, $idpj);
 
-        if (null === $dateCommission) {
+        if (!$dateCommission instanceof DateCommission) {
             throw $this->createNotFoundException('Pièce jointe non rattachée à cette date de commission.');
         }
 

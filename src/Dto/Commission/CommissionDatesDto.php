@@ -41,7 +41,7 @@ final class CommissionDatesDto
     #[Assert\Callback]
     public function validatePeriodicite(ExecutionContextInterface $context): void
     {
-        if ($this->withPeriodicite && null === $this->dateFin) {
+        if ($this->withPeriodicite && !$this->dateFin instanceof \DateTimeInterface) {
             $context->buildViolation('La date de fin est obligatoire pour la répétition périodique')
                 ->atPath('dateFin')
                 ->addViolation();

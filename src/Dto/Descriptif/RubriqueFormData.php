@@ -73,7 +73,7 @@ class RubriqueFormData implements \ArrayAccess
             return false;
         }
 
-        return null !== $this->getChamp($this->parseChampId($offset));
+        return $this->getChamp($this->parseChampId($offset)) instanceof ChampValueData;
     }
 
     public function offsetGet($offset): ?ChampValueData

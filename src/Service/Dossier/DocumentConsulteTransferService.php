@@ -42,7 +42,7 @@ final readonly class DocumentConsulteTransferService
         ?DossierNatureListe $nouvelleNature
     ): void {
         $ancienType = $dossier->getType();
-        if (null === $ancienType) {
+        if (!$ancienType instanceof DossierTypeEntity) {
             return; // Pas de type : rien à faire
         }
 
@@ -144,7 +144,7 @@ final readonly class DocumentConsulteTransferService
     {
         // Si la nouvelle nature est null, on ne peut pas mettre à jour (setNature n'accepte pas null)
         // Dans ce cas, on ne fait rien (les documents gardent leur ancienne nature)
-        if (null === $nouvelleNature) {
+        if (!$nouvelleNature instanceof DossierNatureListe) {
             return;
         }
 

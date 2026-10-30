@@ -1494,7 +1494,7 @@ class Dossier
     {
         $nature = $this->getNature();
 
-        if (null === $nature) {
+        if (!$nature instanceof DossierNatureListe) {
             return false;
         }
 

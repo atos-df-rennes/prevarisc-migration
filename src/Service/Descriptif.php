@@ -65,7 +65,7 @@ class Descriptif
     {
         $capsule = $this->capsuleRubriqueRepository->findByNomInterneWithFullData($capsuleNomInterne);
 
-        if (null === $capsule) {
+        if (!$capsule instanceof CapsuleRubrique) {
             return ['capsule' => null, 'rubriques' => []];
         }
 
@@ -116,7 +116,7 @@ class Descriptif
     private function buildChamp(Champ $champ, array $valeurs): array
     {
         $type = $champ->getType();
-        if (null !== $type && TypeChamp::PARENT === $type->getId()) {
+        if ($type instanceof \App\Entity\TypeChamp && TypeChamp::PARENT === $type->getId()) {
             return $this->buildParentChamp($champ, $valeurs);
         }
 

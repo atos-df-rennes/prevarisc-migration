@@ -171,11 +171,11 @@ final readonly class CalendarService
 
         $dateCommission->setDate($nouvelleDate);
 
-        if (null !== $nouvelleHeureDebut) {
+        if ($nouvelleHeureDebut instanceof \DateTimeInterface) {
             $dateCommission->setHeureDebut($nouvelleHeureDebut);
         }
 
-        if (null !== $nouvelleHeureFin) {
+        if ($nouvelleHeureFin instanceof \DateTimeInterface) {
             $dateCommission->setHeureFin($nouvelleHeureFin);
         }
 
@@ -486,7 +486,7 @@ final readonly class CalendarService
                 continue;
             }
 
-            if (null === $nouvelleDate) {
+            if (!$nouvelleDate instanceof \DateTimeInterface) {
                 continue;
             }
 

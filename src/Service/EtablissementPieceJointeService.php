@@ -162,13 +162,13 @@ final readonly class EtablissementPieceJointeService
             function (EtablissementPieceJointe $pj) use ($store): bool {
                 $path = '';
 
-                if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
+                if ($pj->getPieceJointe() instanceof PieceJointe && $pj->getEtablissement() instanceof EtablissementEntity) {
                     $path = $store->getFilePath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
                 }
 
                 if ('' === $path || !is_readable($path)) {
                     $piece = $pj->getPieceJointe();
-                    $this->datastoreLogger->warning('La pièce jointe n\'est pas accessible en lecture.', [
+                    $this->datastoreLogger->warning("La pièce jointe n'est pas accessible en lecture.", [
                         'path' => $path,
                         'filename' => $piece instanceof PieceJointe ? $piece->getNom().$piece->getExtension() : 'Nom de la pièce inconnu',
                     ]);
@@ -184,7 +184,7 @@ final readonly class EtablissementPieceJointeService
             $path = '';
             $miniatureUrl = null;
 
-            if (null !== $pj->getPieceJointe() && null !== $pj->getEtablissement()) {
+            if ($pj->getPieceJointe() instanceof PieceJointe && $pj->getEtablissement() instanceof EtablissementEntity) {
                 $path = $store->getURLPath($pj->getPieceJointe(), 'etablissement', $pj->getEtablissement()->getId());
 
                 if (in_array($pj->getPieceJointe()->getExtension(), $imageExtensions, true)) {

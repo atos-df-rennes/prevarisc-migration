@@ -53,7 +53,7 @@ final class DossierEditNatureTest extends WebTestCase
     {
         $dossier = $this->findDossierForNature($natureId);
 
-        if (null === $dossier) {
+        if (!$dossier instanceof Dossier) {
             $this->markTestSkipped(sprintf('Aucun dossier de nature %d disponible', $natureId));
         }
 
@@ -98,7 +98,7 @@ final class DossierEditNatureTest extends WebTestCase
         yield '11 (Demande de registre de sécurité CTS)' => [11];
         yield "12 (Demande d'implantation CTS < 6mois)" => [12];
         yield '13 (Implantation CTS > 6mois)' => [13];
-        yield '14 (Permis d\'aménager)' => [14];
+        yield "14 (Permis d'aménager)" => [14];
         yield '15 (Permis de démolir)' => [15];
         yield '16 (CR visite organismes inspection sécurité)' => [16];
         yield '17 (Etude suite à avis différé)' => [17];

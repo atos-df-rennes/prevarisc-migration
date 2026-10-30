@@ -257,7 +257,7 @@ final readonly class EtablissementPersistenceService
                 if (GenreEtablissement::SITE === $idGenre
                     && !in_array($filsGenreId, [GenreEtablissement::ERP, GenreEtablissement::HABITATION, GenreEtablissement::IGH, GenreEtablissement::BUP, GenreEtablissement::CAMPING, GenreEtablissement::MANIFESTATION_TEMPORAIRE, GenreEtablissement::IOP], true)
                 ) {
-                    throw new \InvalidArgumentException('L\'établissement enfant n\'est pas compatible avec un site.', 500);
+                    throw new \InvalidArgumentException("L'établissement enfant n'est pas compatible avec un site.", 500);
                 }
 
                 if (in_array($idGenre, [GenreEtablissement::ERP, GenreEtablissement::IGH], true)
@@ -267,7 +267,7 @@ final readonly class EtablissementPersistenceService
                 }
 
                 if (GenreEtablissement::SITE === $filsGenreId) {
-                    throw new \InvalidArgumentException('Un site ne peut pas être enfant d\'un autre établissement.', 500);
+                    throw new \InvalidArgumentException("Un site ne peut pas être enfant d'un autre établissement.", 500);
                 }
 
                 $etablissement->addFils($fils);
@@ -294,7 +294,7 @@ final readonly class EtablissementPersistenceService
                 if (in_array($idGenre, [GenreEtablissement::ERP, GenreEtablissement::HABITATION, GenreEtablissement::IGH, GenreEtablissement::BUP, GenreEtablissement::CAMPING, GenreEtablissement::MANIFESTATION_TEMPORAIRE, GenreEtablissement::IOP], true)
                     && GenreEtablissement::SITE !== $pereGenreId
                 ) {
-                    throw new \InvalidArgumentException('L\'établissement père doit être un site.', 500);
+                    throw new \InvalidArgumentException("L'établissement père doit être un site.", 500);
                 }
 
                 if (GenreEtablissement::CELLULE === $idGenre

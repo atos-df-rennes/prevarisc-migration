@@ -9,17 +9,18 @@ use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
 use App\Service\DateAffectation;
 use App\Service\Dossier;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class DossierLateralNavigationSubscriber implements EventSubscriberInterface
+class DossierLateralNavigationSubscriber
 {
     public function __construct(private readonly DossierRepository $dossierRepository, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly DateAffectation $dateAffectation, private readonly Dossier $serviceDossier)
     {
     }
 
+    #[AsEventListener(event: KernelEvents::CONTROLLER)]
     public function onKernelController(ControllerEvent $event): void
     {
         $controller = $event->getController();
@@ -55,12 +56,5 @@ class DossierLateralNavigationSubscriber implements EventSubscriberInterface
         $capsuleEffectifsDegagements = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER]);
         $event->getRequest()->attributes->set('libelle_verifications_techniques', null !== $capsuleVerificationsTechniques ? $capsuleVerificationsTechniques->getNom() : 'Vérifications techniques');
         $event->getRequest()->attributes->set('libelle_effectifs_degagements', null !== $capsuleEffectifsDegagements ? $capsuleEffectifsDegagements->getNom() : 'Effectifs et Dégagements');
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::CONTROLLER => 'onKernelController',
-        ];
     }
 }

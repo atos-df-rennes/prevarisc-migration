@@ -32,7 +32,7 @@ class OdtWriter
     {
         try {
             $target->setVars($name, $value ?? '', true, 'UTF8');
-            if (null !== $logger) {
+            if ($logger instanceof LoggerInterface) {
                 $prefix = $target instanceof Segment ? '['.$target->getName().'] ' : '';
                 $logger->debug($prefix.'{'.$name.'} : '.json_encode($value, JSON_UNESCAPED_UNICODE));
             }

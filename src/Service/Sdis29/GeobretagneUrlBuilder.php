@@ -7,6 +7,7 @@ namespace App\Service\Sdis29;
 use App\Entity\CoucheCarto;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
+use App\Entity\EtablissementInformations;
 
 /**
  * Construit les URLs du visualiseur cartographique Géobretagne (sviewer),
@@ -60,7 +61,7 @@ class GeobretagneUrlBuilder
         }
 
         $latestInformations = $etablissement->getLatestInformationsOrNull();
-        $libelle = null !== $latestInformations ? (string) $latestInformations->getLibelle() : '';
+        $libelle = $latestInformations instanceof EtablissementInformations ? (string) $latestInformations->getLibelle() : '';
 
         return $this->buildUrl($geobretagneBaseUrl, $coordinates, $couchesCartographiques, $libelle, $kmlUrl);
     }

@@ -19,7 +19,7 @@ final class DateCommissionItemDto
         #[Assert\NotNull(message: 'La date est obligatoire')]
         private ?\DateTime $date = null)
     {
-        if (null !== $this->date) {
+        if ($this->date instanceof \DateTime) {
             $heureDebut = clone $this->date;
             $this->heureDebut = $heureDebut->setTime(9, 0);
 

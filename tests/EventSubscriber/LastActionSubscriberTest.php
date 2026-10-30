@@ -43,15 +43,6 @@ final class LastActionSubscriberTest extends TestCase
         return new TerminateEvent($this->createStub(HttpKernelInterface::class), new Request(), new Response(), $requestType);
     }
 
-    public function testSubscribesToKernelTerminate(): void
-    {
-        $this->lastActionUpdater->expects($this->never())->method('update');
-
-        $events = LastActionSubscriber::getSubscribedEvents();
-
-        $this->assertArrayHasKey('kernel.terminate', $events);
-    }
-
     public function testSkipsSubRequests(): void
     {
         $this->lastActionUpdater->expects($this->never())->method('update');

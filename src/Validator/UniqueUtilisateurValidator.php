@@ -3,6 +3,7 @@
 namespace App\Validator;
 
 use App\Entity\Utilisateur;
+use App\Entity\UtilisateurInformations;
 use App\Repository\UtilisateurRepository;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -54,7 +55,7 @@ final class UniqueUtilisateurValidator extends ConstraintValidator
         }
 
         // Cas 2 : Login vide → vérifier unicité du mail
-        if (null !== $informations) {
+        if ($informations instanceof UtilisateurInformations) {
             $mail = $informations->getMail();
 
             // Vérifier que le mail est renseigné

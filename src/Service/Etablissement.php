@@ -87,7 +87,7 @@ final readonly class Etablissement
     {
         $textesApplicablesData = $this->etablissementRepository->getTextesApplicablesByType($id);
 
-        if (null === $textesApplicablesData) {
+        if (!$textesApplicablesData instanceof EtablissementEntity) {
             return [];
         }
 
@@ -222,7 +222,7 @@ final readonly class Etablissement
                     $periodicity = $periodiciteEnfant;
                 }
             }
-        } elseif (3 === $genreId && ($parent = $etablissement->getParent()) !== null) {
+        } elseif (3 === $genreId && ($parent = $etablissement->getParent()) instanceof EtablissementEntity) {
             $periodicity = $parent->getLatestInformations()->getPeriodicite();
         }
 
@@ -310,7 +310,7 @@ final readonly class Etablissement
 
         // Récupération des contacts des parents
         $currentEtablissement = $etablissement;
-        while (null !== $currentEtablissement->getParent()) {
+        while ($currentEtablissement->getParent() instanceof EtablissementEntity) {
             $parent = $currentEtablissement->getParent();
             $allContacts = array_merge($allContacts, $parent->getContacts()->toArray());
             $currentEtablissement = $parent;
@@ -558,7 +558,7 @@ final readonly class Etablissement
             $statut = $em->getReference(EtablissementStatut::class, $statutId);
             $informations->setStatut($statut);
 
-            if (null !== $user) {
+            if ($user instanceof Utilisateur) {
                 $informations->setUtilisateur($user);
             }
 
@@ -714,7 +714,7 @@ final readonly class Etablissement
             $statut = $em->getReference(EtablissementStatut::class, $statutId);
             $informations->setStatut($statut);
 
-            if (null !== $user) {
+            if ($user instanceof Utilisateur) {
                 $informations->setUtilisateur($user);
             }
 
