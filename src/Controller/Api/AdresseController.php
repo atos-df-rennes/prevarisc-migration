@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Repository\EtablissementAdresseRepository;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,8 +18,10 @@ class AdresseController extends AbstractController
 {
     private const int LONGUEUR_CODE_POSTAL = 5;
 
-    public function __construct(private readonly Connection $connection)
-    {
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly EtablissementAdresseRepository $etablissementAdresseRepository,
+    ) {
     }
 
     /**
@@ -97,11 +100,7 @@ class AdresseController extends AbstractController
             return new JsonResponse(['response' => []]);
         }
 
-        /** @var array<int, array<string, mixed>> $rows */
-        $rows = $this->connection->executeQuery(
-            'SELECT DISTINCT NUMERO_ADRESSE FROM etablissementadresse WHERE ID_RUE = ? ORDER BY NUMERO_ADRESSE',
-            [(int) $idRue]
-        )->fetchAllAssociative();
+        $rows = $this->etablissementAdresseRepository->findDistinctNumerosByRue((int) $idRue);
 
         return new JsonResponse(['response' => $rows]);
     }
