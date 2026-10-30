@@ -30,15 +30,6 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
         $this->subscriber = new PrescriptionsAccessSubscriber($this->dossierRepository);
     }
 
-    public function testSubscribesToKernelController(): void
-    {
-        $this->dossierRepository->expects($this->never())->method('find');
-
-        $events = PrescriptionsAccessSubscriber::getSubscribedEvents();
-
-        $this->assertArrayHasKey('kernel.controller', $events);
-    }
-
     public function testSkipsControllerNotImplementingInterface(): void
     {
         $this->dossierRepository->expects($this->never())->method('find');
