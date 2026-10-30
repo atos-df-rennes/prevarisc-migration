@@ -39,7 +39,7 @@ final class ThirdpartyPluginEnvVarProcessorTest extends TestCase
      */
     public static function getEnvProvider(): \Iterator
     {
-        yield 'Plugin_SDIS29 présent parmi d\'autres' => ['sdis29_plugin_enabled', 'Plugin_Foo;Plugin_SDIS29;Plugin_Bar', true];
+        yield "Plugin_SDIS29 présent parmi d'autres" => ['sdis29_plugin_enabled', 'Plugin_Foo;Plugin_SDIS29;Plugin_Bar', true];
         yield 'Plugin_SDIS29 absent' => ['sdis29_plugin_enabled', 'Plugin_Foo;Plugin_Bar', false];
         yield 'variable vide' => ['sdis29_plugin_enabled', '', false];
         yield 'Plugin_FacteurCriticite présent' => ['facteur_criticite_plugin_enabled', 'Plugin_FacteurCriticite;Plugin_SDIS29', true];

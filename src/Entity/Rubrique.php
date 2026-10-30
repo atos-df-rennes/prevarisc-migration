@@ -118,7 +118,7 @@ class Rubrique
      */
     public function getRootChamps(): Collection
     {
-        return $this->champs->filter(fn (Champ $champ): bool => null === $champ->getParent());
+        return $this->champs->filter(fn (Champ $champ): bool => !$champ->getParent() instanceof Champ);
     }
 
     public function addChamp(Champ $champ): self
@@ -126,7 +126,7 @@ class Rubrique
         if (!$this->champs->contains($champ)) {
             $this->champs[] = $champ;
             $champ->setRubrique($this);
-            $champ->setIdx($this->champs->filter(fn (Champ $champ): bool => null === $champ->getParent())->count() - 1);
+            $champ->setIdx($this->champs->filter(fn (Champ $champ): bool => !$champ->getParent() instanceof Champ)->count() - 1);
         }
 
         return $this;

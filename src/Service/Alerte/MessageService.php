@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Alerte;
 
+use App\Entity\EtablissementCategorie;
 use App\Entity\Etablissement;
 use App\Service\Changement;
 
@@ -70,7 +71,7 @@ class MessageService
         if ('getCategorie' === $method) {
             $categorie = $etablissement->getCategorieEffective();
 
-            return null !== $categorie ? ($categorie->getLibelle() ?? '') : '';
+            return $categorie instanceof EtablissementCategorie ? ($categorie->getLibelle() ?? '') : '';
         }
 
         // Autres cas : méthode sur LatestInformations

@@ -2,6 +2,7 @@
 
 namespace App\Service\Dossier;
 
+use App\Entity\DossierNatureListe;
 use App\Constant\DossierNature;
 use App\Constant\DossierType;
 use App\Entity\Dossier as DossierEntity;
@@ -22,7 +23,7 @@ final readonly class DossierDocumentsConsultesService
         $nature = $dossier->getNature();
         $type = $dossier->getType();
 
-        if (null === $nature || null === $type) {
+        if (!$nature instanceof DossierNatureListe || !$type instanceof \App\Entity\DossierType) {
             return [];
         }
 

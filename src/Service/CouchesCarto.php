@@ -61,7 +61,7 @@ final readonly class CouchesCarto
 
         $crawler = $this->getCrawler($capabilities, $format);
 
-        if (null === $crawler) {
+        if (!$crawler instanceof Crawler) {
             return [];
         }
 

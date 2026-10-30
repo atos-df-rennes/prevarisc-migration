@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraint;
 final class UniqueUtilisateur extends Constraint
 {
     /** @var string Message d'erreur pour login déjà utilisé */
-    public $usernameMessage = 'Ce nom d\'utilisateur est déjà utilisé. Veuillez en choisir un autre.';
+    public $usernameMessage = "Ce nom d'utilisateur est déjà utilisé. Veuillez en choisir un autre.";
 
     /** @var string Message d'erreur pour mail déjà utilisé */
     public $mailMessage = 'Cette adresse email est déjà utilisée. Veuillez en choisir une autre.';

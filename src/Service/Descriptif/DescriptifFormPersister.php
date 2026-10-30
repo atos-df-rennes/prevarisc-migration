@@ -2,6 +2,7 @@
 
 namespace App\Service\Descriptif;
 
+use App\Dto\Descriptif\RubriqueFormData;
 use App\Constant\TypeChamp;
 use App\Dto\Descriptif\ChampValueData;
 use App\Dto\Descriptif\DescriptifFormData;
@@ -82,7 +83,7 @@ class DescriptifFormPersister
             $rubriqueId = (int) $rubrique->getId();
             $rubriqueData = $formData->getRubrique($rubriqueId);
 
-            if (null === $rubriqueData) {
+            if (!$rubriqueData instanceof RubriqueFormData) {
                 continue;
             }
 

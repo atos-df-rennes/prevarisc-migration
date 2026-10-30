@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\News;
 use App\Builder\VersionBuilder;
 use App\Entity\Utilisateur;
 use App\Repository\GroupeRepository;
@@ -182,10 +183,10 @@ class IndexController extends AbstractController
             $id = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
             if (false !== $id) {
                 $news = $this->feedService->findMessage((int) $id);
-                if (null !== $news) {
+                if ($news instanceof News) {
                     /** @var Utilisateur $currentUser */
                     $currentUser = $this->getUser();
-                    if (null !== $news->getUtilisateur() && $news->getUtilisateur()->getId() !== $currentUser->getId()) {
+                    if ($news->getUtilisateur() instanceof Utilisateur && $news->getUtilisateur()->getId() !== $currentUser->getId()) {
                         throw $this->createAccessDeniedException("Vous ne pouvez pas supprimer le message d'un autre utilisateur.");
                     }
 

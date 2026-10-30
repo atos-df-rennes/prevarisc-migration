@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter\Etablissement;
 
+use App\Entity\Groupe;
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
@@ -88,7 +89,7 @@ class EtablissementSiteVoter extends EtablissementVoter
     private function userHasAnyEtablissementResource(Utilisateur $user, string $attribute): bool
     {
         $groupe = $user->getGroupe();
-        if (null === $groupe) {
+        if (!$groupe instanceof Groupe) {
             return false;
         }
 

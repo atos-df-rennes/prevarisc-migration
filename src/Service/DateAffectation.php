@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\DossierType;
+use App\Entity\CommissionTypeEvenement;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use Psr\Log\LoggerInterface;
@@ -21,7 +23,7 @@ final readonly class DateAffectation
         $dossierId = $dossier->getId();
 
         $dossierType = $dossier->getType();
-        if (null === $dossierType) {
+        if (!$dossierType instanceof DossierType) {
             $this->logger->error('Le type de dossier est null.', [
                 'id_dossier' => $dossierId
             ]);
@@ -36,7 +38,7 @@ final readonly class DateAffectation
             return null;
         }
 
-        if (null === $dateCommission) {
+        if (!$dateCommission instanceof DateCommission) {
             return null;
         }
 
@@ -44,8 +46,8 @@ final readonly class DateAffectation
         // on vérifie d'abord le type d'événement
         if (in_array($dossierTypeId, [2, 3], true)) {
             $dateCommissionTypeEvenement = $dateCommission->getTypeEvenement();
-            if (null === $dateCommissionTypeEvenement) {
-                $this->logger->error('Le type d\'événement de la date de commission est null.', [
+            if (!$dateCommissionTypeEvenement instanceof CommissionTypeEvenement) {
+                $this->logger->error("Le type d'événement de la date de commission est null.", [
                     'id_dossier' => $dossierId,
                     'id_date_commission' => $dateCommission->getId()
                 ]);

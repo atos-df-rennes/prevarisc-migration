@@ -146,7 +146,7 @@ class ResourcesRepository extends ServiceEntityRepository
             ->setParameter('tousClassements', 'etablissement_zone_0_0_0')
         ;
 
-        if (null !== $classement) {
+        if ($classement instanceof Classement) {
             $queryBuilder
                 ->orWhere('r.name LIKE :classement')
                 ->setParameter('classement', 'etablissement\_zone\_%'.$classement->getId().'%\_0\_0');
@@ -185,7 +185,7 @@ class ResourcesRepository extends ServiceEntityRepository
             ->setParameter('toutesFamilles', 'etablissement\_hab\_0\__\__')
         ;
 
-        if (null !== $famille) {
+        if ($famille instanceof Famille) {
             $queryBuilder
                 ->orWhere('r.name LIKE :famille')
                 ->setParameter('famille', 'etablissement\_hab\_%'.$famille->getId().'%\__\__')
@@ -209,7 +209,7 @@ class ResourcesRepository extends ServiceEntityRepository
             ->setParameter('toutesClasses', 'etablissement\_igh\_0\__\__\__')
         ;
 
-        if (null !== $classe) {
+        if ($classe instanceof IghClasse) {
             $queryBuilder
                 ->orWhere('r.name LIKE :classe')
                 ->setParameter('classe', 'etablissement\_igh\_%'.$classe->getId().'%\__\__\__')
@@ -233,14 +233,14 @@ class ResourcesRepository extends ServiceEntityRepository
             ->setParameter('toutesClasses', 'etablissement\_cell\_%0%\_%0%')
         ;
 
-        if (null !== $typeActivite) {
+        if ($typeActivite instanceof EtablissementActivite) {
             $queryBuilder
                 ->orWhere('r.name LIKE :classe')
                 ->setParameter('classe', 'etablissement\_cell\_%'.$typeActivite->getId().'%\_%')
             ;
         }
 
-        if (null !== $categorie) {
+        if ($categorie instanceof EtablissementCategorie) {
             $queryBuilder
                 ->orWhere('r.name LIKE :categorie')
                 ->setParameter('categorie', 'etablissement\_cell\_%\_%'.$categorie->getId().'%')
@@ -264,14 +264,14 @@ class ResourcesRepository extends ServiceEntityRepository
             ->setParameter('toutesActivitesCategories', 'etablissement\_erp\_0\_0\__\__\__')
         ;
 
-        if (null !== $typeActivite) {
+        if ($typeActivite instanceof EtablissementActivite) {
             $queryBuilder
                 ->orWhere('r.name LIKE :typeActivite')
                 ->setParameter('typeActivite', 'etablissement\_erp\_%'.$typeActivite->getId().'%\__%\__\__\__')
             ;
         }
 
-        if (null !== $categorie) {
+        if ($categorie instanceof EtablissementCategorie) {
             $queryBuilder
                 ->orWhere('r.name LIKE :categorie')
                 ->setParameter('categorie', 'etablissement\_erp\__%\_%'.$categorie->getId().'%\__\__\__')

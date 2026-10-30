@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\UtilisateurInformations;
 use App\Constant\Fonction;
 use App\Entity\Commune;
 use App\Form\CommuneType;
@@ -39,7 +40,7 @@ class CommunesController extends AbstractController
     {
         // Force la fonction à maire pour les communes
         $utilisateurInformations = $commune->getUtilisateurInformations();
-        if (null !== $utilisateurInformations) {
+        if ($utilisateurInformations instanceof UtilisateurInformations) {
             $fonctionMaire = $this->fonctionRepository->find(Fonction::MAIRE);
             if ($fonctionMaire) {
                 $utilisateurInformations->setFonction($fonctionMaire);

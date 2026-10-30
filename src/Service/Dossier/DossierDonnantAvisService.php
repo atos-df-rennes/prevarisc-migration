@@ -102,7 +102,7 @@ class DossierDonnantAvisService
         $ancienDossier = $etablissement->getDossierDonnantAvis();
 
         // Pas de dossier donnant avis actuel → OK pour mettre à jour
-        if (null === $ancienDossier) {
+        if (!$ancienDossier instanceof Dossier) {
             return true;
         }
 
@@ -185,7 +185,7 @@ class DossierDonnantAvisService
         }
 
         if (in_array($natureId, DossierNature::NATURES_VISITES_COMMISSION, true)) {
-            return null !== $dossier->getDateVisite();
+            return $dossier->getDateVisite() instanceof \DateTimeInterface;
         }
 
         // Études et groupes → dateCommission
@@ -213,7 +213,7 @@ class DossierDonnantAvisService
 
         if (null !== $natureId && in_array($natureId, DossierNature::NATURES_VISITES_COMMISSION, true)) {
             // Visites → dateVisite en priorité
-            if (null !== $dossier->getDateVisite()) {
+            if ($dossier->getDateVisite() instanceof \DateTimeInterface) {
                 return new \DateTime($dossier->getDateVisite()->format('Y-m-d'))->setTime(0, 0, 0);
             }
         } elseif (null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission()) {
@@ -225,7 +225,7 @@ class DossierDonnantAvisService
         }
 
         // Fallback : dateInsert (toujours définie à la création)
-        if (null !== $dossier->getDateInsert()) {
+        if ($dossier->getDateInsert() instanceof \DateTimeInterface) {
             return new \DateTime($dossier->getDateInsert()->format('Y-m-d'))->setTime(0, 0, 0);
         }
 

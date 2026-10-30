@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Sdis29;
 
+use App\Entity\EtablissementInformations;
 use App\Entity\CoucheCarto;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
@@ -60,7 +61,7 @@ class GeobretagneUrlBuilder
         }
 
         $latestInformations = $etablissement->getLatestInformationsOrNull();
-        $libelle = null !== $latestInformations ? (string) $latestInformations->getLibelle() : '';
+        $libelle = $latestInformations instanceof EtablissementInformations ? (string) $latestInformations->getLibelle() : '';
 
         return $this->buildUrl($geobretagneBaseUrl, $coordinates, $couchesCartographiques, $libelle, $kmlUrl);
     }

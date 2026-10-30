@@ -2,6 +2,8 @@
 
 namespace App\Form;
 
+use App\Entity\CommissionType;
+use App\Entity\GroupementType;
 use App\Entity\Commission;
 use App\Entity\Commune;
 use App\Entity\Groupe;
@@ -84,7 +86,7 @@ class UtilisateurType extends AbstractType
                 'group_by' => function (Commission $choice): ?string {
                     $typeCommission = $choice->getType();
 
-                    if (null === $typeCommission) {
+                    if (!$typeCommission instanceof CommissionType) {
                         return null;
                     }
 
@@ -103,7 +105,7 @@ class UtilisateurType extends AbstractType
                 'group_by' => function (Groupement $choice): ?string {
                     $typeGroupement = $choice->getType();
 
-                    if (null === $typeGroupement) {
+                    if (!$typeGroupement instanceof GroupementType) {
                         return null;
                     }
 

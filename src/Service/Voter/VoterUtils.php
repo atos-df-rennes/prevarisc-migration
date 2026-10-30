@@ -2,6 +2,8 @@
 
 namespace App\Service\Voter;
 
+use App\Entity\EtablissementActivite;
+use App\Entity\EtablissementCategorie;
 use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 
@@ -74,14 +76,14 @@ class VoterUtils
         $erpTypeActivite = $subject->getLatestInformations()->getTypeActivite();
 
         $erpTypeActiviteId = null;
-        if (null !== $erpTypeActivite) {
+        if ($erpTypeActivite instanceof EtablissementActivite) {
             $erpTypeActiviteId = $erpTypeActivite->getId();
         }
 
         $erpCategorie = $subject->getCategorieEffective();
 
         $erpCategorieId = null;
-        if (null !== $erpCategorie) {
+        if ($erpCategorie instanceof EtablissementCategorie) {
             $erpCategorieId = $erpCategorie->getId();
         }
 

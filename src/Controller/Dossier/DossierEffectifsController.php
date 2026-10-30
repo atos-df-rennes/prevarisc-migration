@@ -69,7 +69,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         if (1 !== $nbEtablissements) {
             return $this->json([
                 'error' => sprintf(
-                    'Impossible de copier : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n\'ont pas été copiés.',
+                    "Impossible de copier : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n'ont pas été copiés.",
                     $nbEtablissements
                 ),
             ], 400);
@@ -78,7 +78,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         $etablissement = $etablissements[0];
 
         if (!$this->isGranted('edit_ets', $etablissement)) {
-            return $this->json(['error' => 'Vous n\'avez pas le droit de modifier cet établissement.'], 403);
+            return $this->json(['error' => "Vous n'avez pas le droit de modifier cet établissement."], 403);
         }
 
         try {
@@ -122,7 +122,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         if (1 !== $nbEtablissements) {
             return $this->json([
                 'error' => sprintf(
-                    'Impossible de récupérer : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n\'ont pas été récupérés.',
+                    "Impossible de récupérer : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n'ont pas été récupérés.",
                     $nbEtablissements
                 ),
             ], 400);
@@ -131,7 +131,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         $etablissement = $etablissements[0];
 
         if (!$this->isGranted('view_ets', $etablissement)) {
-            return $this->json(['error' => 'Vous n\'avez pas le droit de consulter cet établissement.'], 403);
+            return $this->json(['error' => "Vous n'avez pas le droit de consulter cet établissement."], 403);
         }
 
         try {
@@ -265,7 +265,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
                     'dossier_id' => $dossier->getId(),
                     'exception' => $e->getMessage(),
                 ]);
-                $this->addFlash('danger', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
+                $this->addFlash('danger', "Les effectifs et dégagements n'ont pas été mis à jour. Veuillez réessayer.");
             }
 
             return $this->redirectToRoute('dossier_effectifs_degagements', ['id' => $dossier->getId()]);

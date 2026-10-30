@@ -2,11 +2,11 @@
 
 namespace App\EventSubscriber;
 
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use App\Constant\DossierNature;
 use App\Constant\DossierType as DossierTypeConstant;
 use App\Controller\Contract\DossierPrescriptionsAccessInterface;
 use App\Repository\DossierRepository;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -15,12 +15,12 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * Interdit l'accès aux routes de prescriptions d'un dossier dont la nature
  * ou le type ne permet pas les prescriptions (cf. templates/layouts/dossier.html.twig).
  */
-class PrescriptionsAccessSubscriber implements EventSubscriberInterface
+class PrescriptionsAccessSubscriber
 {
     public function __construct(private readonly DossierRepository $dossierRepository)
     {
     }
-
+    #[AsEventListener(event: KernelEvents::CONTROLLER)]
     public function onKernelController(ControllerEvent $event): void
     {
         $controller = $event->getController();
@@ -49,12 +49,5 @@ class PrescriptionsAccessSubscriber implements EventSubscriberInterface
         if ($natureSansPrescriptions || $typeSansPrescriptions) {
             throw new NotFoundHttpException('Les prescriptions ne sont pas disponibles pour ce dossier.');
         }
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::CONTROLLER => 'onKernelController',
-        ];
     }
 }

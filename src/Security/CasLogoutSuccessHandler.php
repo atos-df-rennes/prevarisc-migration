@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
@@ -14,15 +15,15 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
  * Redirige vers le serveur CAS pour invalider le TGT quand CAS est activé,
  * sinon redirige vers /session/login (géré par Symfony ou Zend selon PREVARISC_SYMFONY_LOGIN).
  */
-class CasLogoutSuccessHandler implements EventSubscriberInterface
+class CasLogoutSuccessHandler
 {
     public function __construct(private readonly bool $casEnabled, private readonly string $casHost, private readonly int $casPort, private readonly string $casPublicHost, private readonly int $casPublicPort, private readonly string $casContext, private readonly bool $casNoSsl)
     {
     }
-
+    #[AsEventListener(event: LogoutEvent::class, priority: 64)]
     public function onLogout(LogoutEvent $logoutEvent): void
     {
-        if (null !== $logoutEvent->getResponse()) {
+        if ($logoutEvent->getResponse() instanceof Response) {
             return;
         }
 
@@ -42,13 +43,5 @@ class CasLogoutSuccessHandler implements EventSubscriberInterface
         }
 
         $logoutEvent->setResponse(new RedirectResponse('/session/login'));
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [LogoutEvent::class => ['onLogout', 64]];
     }
 }

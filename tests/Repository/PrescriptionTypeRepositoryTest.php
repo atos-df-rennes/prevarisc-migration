@@ -30,7 +30,7 @@ final class PrescriptionTypeRepositoryTest extends KernelTestCase
         $premiereCategorie = $tous[0]->getCategorie();
 
         if (null === $premiereCategorie) {
-            $this->markTestSkipped('La première prescription type n\'a pas de catégorie.');
+            $this->markTestSkipped("La première prescription type n'a pas de catégorie.");
         }
 
         $filtres = $this->repository->findByClassement((int) $premiereCategorie, 0, 0);
@@ -68,7 +68,7 @@ final class PrescriptionTypeRepositoryTest extends KernelTestCase
         $premierLibelle = $tous[0]->getLibelle();
 
         if (null === $premierLibelle || '' === $premierLibelle) {
-            $this->markTestSkipped('La première prescription type n\'a pas de libellé.');
+            $this->markTestSkipped("La première prescription type n'a pas de libellé.");
         }
 
         $premierMot = explode(' ', trim($premierLibelle))[0];

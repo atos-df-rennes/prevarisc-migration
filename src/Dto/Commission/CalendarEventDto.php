@@ -28,23 +28,23 @@ final readonly class CalendarEventDto
         }
 
         $date = $dateCommission->getDate();
-        if (null === $date) {
+        if (!$date instanceof \DateTimeInterface) {
             throw new \InvalidArgumentException('La date de commission est requise.');
         }
 
         $heureDebut = $dateCommission->getHeureDebut();
-        if (null === $heureDebut) {
-            throw new \InvalidArgumentException('L\'heure de début de commission est requise.');
+        if (!$heureDebut instanceof \DateTimeInterface) {
+            throw new \InvalidArgumentException("L'heure de début de commission est requise.");
         }
 
         $heureFin = $dateCommission->getHeureFin();
-        if (null === $heureFin) {
+        if (!$heureFin instanceof \DateTimeInterface) {
             throw new \InvalidArgumentException("L'heure de fin de commission est requise.");
         }
 
         $typeEvenement = $dateCommission->getTypeEvenement();
-        if (null === $typeEvenement) {
-            throw new \InvalidArgumentException('Le type d\'événement de commission est requis.');
+        if (!$typeEvenement instanceof CommissionTypeEvenement) {
+            throw new \InvalidArgumentException("Le type d'événement de commission est requis.");
         }
 
         $dateStr = $date->format('Y-m-d');

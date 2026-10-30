@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\EtablissementCategorie;
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\Periodicite;
@@ -116,7 +117,7 @@ class PeriodiciteRepository extends ServiceEntityRepository
         }
 
         $categorieId = 0;
-        if (($categorie = $information->getCategorie()) !== null) {
+        if (($categorie = $information->getCategorie()) instanceof EtablissementCategorie) {
             $categorieId = $categorie->getId();
         }
 

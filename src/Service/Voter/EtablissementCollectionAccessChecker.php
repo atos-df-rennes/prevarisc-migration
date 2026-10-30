@@ -55,11 +55,11 @@ class EtablissementCollectionAccessChecker
             }
 
             $voter = $this->voterFactory->getVoterForGenre($genreId);
-            if (null === $voter) {
+            if (!$voter instanceof VoterInterface) {
                 // Certains genres (ex. Site, genre 1) n'ont pas de voter dédié dans la factory
                 // (pour éviter une dépendance circulaire Factory -> EtablissementSiteVoter -> ce service).
                 // On délègue à la chaîne de voters Symfony complète via l'authorization checker.
-                $this->logger->info('Aucun voter dédié dans la factory pour le genre, délégation à l\'authorization checker', [
+                $this->logger->info("Aucun voter dédié dans la factory pour le genre, délégation à l'authorization checker", [
                     'etablissement_id' => $etablissement->getId(),
                     'genre_id' => $genreId,
                 ]);

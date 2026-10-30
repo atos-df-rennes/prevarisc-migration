@@ -45,7 +45,7 @@ final readonly class FusionDesCommunes
             /** @var FusionDeCommunes[] $listeFusionCommunes */
             $listeFusionCommunes = $this->serializer->deserialize($fileContent, FusionDeCommunes::class.'[]', 'json');
         } catch (\Exception $exception) {
-            throw new FusionTechnicalException('Le fichier de fusion est invalide et n\'a pas pu être analysé.', 0, $exception);
+            throw new FusionTechnicalException("Le fichier de fusion est invalide et n'a pas pu être analysé.", 0, $exception);
         }
 
         $resultat = new ResultatFusion();

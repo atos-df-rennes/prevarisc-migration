@@ -65,7 +65,7 @@ final readonly class FormulairesImporter
                     $refetchedCapsule = $this->capsuleRubriqueRepository->find($capsuleRubriqueId);
 
                     if (!$refetchedCapsule instanceof CapsuleRubrique) {
-                        $this->logger->error('Impossible de récupérer la capsule rubrique avec l\'ID {id}.', ['id' => $capsuleRubriqueId]);
+                        $this->logger->error("Impossible de récupérer la capsule rubrique avec l'ID {id}.", ['id' => $capsuleRubriqueId]);
                         continue;
                     }
 
@@ -75,7 +75,7 @@ final readonly class FormulairesImporter
                 // Crée la nouvelle rubrique
                 $newRubrique = $this->createRubrique($entityManager, $rubrique, $managedCapsuleRubrique, false);
 
-                if (null === $newRubrique) {
+                if (!$newRubrique instanceof Rubrique) {
                     continue;
                 }
 
@@ -87,7 +87,7 @@ final readonly class FormulairesImporter
                     // Crée le nouveau champ, les champs enfants sont exclus
                     $newChamp = $this->createChamp($entityManager, $champ, $newRubrique, null, false, $typeChampMap);
 
-                    if (null === $newChamp) {
+                    if (!$newChamp instanceof Champ) {
                         continue;
                     }
 
@@ -96,7 +96,7 @@ final readonly class FormulairesImporter
                             // Crée le nouveau champ enfant depuis le champ parent créé au préalable
                             $enfantNewChamp = $this->createChamp($entityManager, $enfant, $newRubrique, $newChamp, false, $typeChampMap);
 
-                            if (null === $enfantNewChamp) {
+                            if (!$enfantNewChamp instanceof Champ) {
                                 continue;
                             }
 
@@ -153,7 +153,7 @@ final readonly class FormulairesImporter
     {
         $champType = $exportedChamp->getType();
 
-        if (null === $champType) {
+        if (!$champType instanceof TypeChamp) {
             $this->logger->warning('Le type du champ doit être renseigné.');
 
             return null;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Sdis29;
 
+use App\Entity\EtablissementInformations;
 use App\Entity\Etablissement;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Security\Voter\Sdis29\Sdis29Voter;
@@ -57,7 +58,7 @@ class EtablissementController extends AbstractController
         $latestInformations = $etablissement->getLatestInformationsOrNull();
 
         $response = $this->render('sdis29/kml.xml.twig', [
-            'libelle' => null !== $latestInformations ? $latestInformations->getLibelle() : '',
+            'libelle' => $latestInformations instanceof EtablissementInformations ? $latestInformations->getLibelle() : '',
             'adresse' => $adresse,
             'image_url' => $request->getSchemeAndHttpHost().'/images/red-dot.png',
         ]);

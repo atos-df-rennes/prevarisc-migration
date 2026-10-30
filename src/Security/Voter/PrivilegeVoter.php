@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\Groupe;
 use App\Entity\Privileges;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
@@ -46,7 +47,7 @@ class PrivilegeVoter implements VoterInterface
 
         $privilege = $this->findPrivilegeByName($attribute);
 
-        if (null === $privilege) {
+        if (!$privilege instanceof Privileges) {
             return self::ACCESS_ABSTAIN;
         }
 
@@ -58,7 +59,7 @@ class PrivilegeVoter implements VoterInterface
 
         $userGroup = $user->getGroupe();
 
-        if (null === $userGroup) {
+        if (!$userGroup instanceof Groupe) {
             return self::ACCESS_ABSTAIN;
         }
 

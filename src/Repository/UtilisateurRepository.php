@@ -361,7 +361,7 @@ class UtilisateurRepository extends ServiceEntityRepository implements PasswordU
         ;
 
         // Ne prend pas en compte l'utilisateur en cours d'édition
-        if (null !== $utilisateur) {
+        if ($utilisateur instanceof Utilisateur) {
             $queryBuilder->andWhere('u.id != :utilisateurId')
                 ->setParameter('utilisateurId', $utilisateur->getId())
             ;

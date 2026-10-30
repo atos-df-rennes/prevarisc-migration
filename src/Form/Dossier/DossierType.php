@@ -252,7 +252,7 @@ class DossierType extends AbstractType
                 'mapped' => false,
             ])
             ->add('avisDiffere', CheckboxType::class, [
-                'label' => 'Diffère l\'avis',
+                'label' => "Diffère l'avis",
                 'required' => false,
                 'attr' => ['class' => 'form-check-input'],
                 'help' => "(Disponible uniquement lorsque l'avis d'exploitation de l'établissement est favorable)",
@@ -413,7 +413,7 @@ class DossierType extends AbstractType
             $builder
                 // Pièces jointes exportables vers Plat'AU (multiselect avec checkboxes)
                 ->add('piecesJointesPlatau', EntityType::class, [
-                    'label' => 'Liste des pièces jointes pouvant être envoyées vers Plat\'AU',
+                    'label' => "Liste des pièces jointes pouvant être envoyées vers Plat'AU",
                     'class' => PieceJointe::class,
                     'choices' => $this->getPiecesJointesExportables($options),
                     'choice_label' => fn (PieceJointe $pieceJointe): string => $pieceJointe->getNom().$pieceJointe->getExtension(),
@@ -570,7 +570,7 @@ class DossierType extends AbstractType
 
         $typeDossier = $options['data']->getType();
 
-        if (null === $typeDossier) {
+        if (!$typeDossier instanceof DossierTypeEntity) {
             return [];
         }
 

@@ -47,6 +47,6 @@ final class IgnAutoconfigurationTest extends TestCase
         yield 'fichier existant' => ['/ign/customConfig.json', '/ign/customConfig.json', false];
         yield 'fichier existant sans slash initial' => ['ign/customConfig.json', '/ign/customConfig.json', false];
         yield 'fichier introuvable' => ['/ign/missing.json', '', true];
-        yield 'répertoire au lieu d\'un fichier' => ['/ign', '', true];
+        yield "répertoire au lieu d'un fichier" => ['/ign', '', true];
     }
 }

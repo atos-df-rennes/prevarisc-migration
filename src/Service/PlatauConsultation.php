@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Avis;
 use App\Dto\PlatauTempsRestantInfo;
 use App\Entity\Dossier;
 use App\Entity\PlatauConsultation as PlatauConsultationEntity;
@@ -26,12 +27,12 @@ final readonly class PlatauConsultation
      */
     public function getTempsRestantInfo(?PlatauConsultationEntity $consultation): PlatauTempsRestantInfo
     {
-        if (null === $consultation) {
+        if (!$consultation instanceof PlatauConsultationEntity) {
             return PlatauTempsRestantInfo::empty();
         }
 
         $dateReponseAttendue = $consultation->getDateReponseAttendue();
-        if (null === $dateReponseAttendue) {
+        if (!$dateReponseAttendue instanceof \DateTimeInterface) {
             return PlatauTempsRestantInfo::empty();
         }
 
@@ -55,7 +56,7 @@ final readonly class PlatauConsultation
      */
     public function getPlatauDataForView(?PlatauConsultationEntity $consultation, Dossier $dossier): ?array
     {
-        if (null === $consultation) {
+        if (!$consultation instanceof PlatauConsultationEntity) {
             return null;
         }
 
@@ -67,7 +68,7 @@ final readonly class PlatauConsultation
             'couleur_temps_restant' => $tempsRestantInfo->getCouleur(),
             'statut_pec' => $this->resolveStatutPecAffiche($consultation->getStatutPriseEnCompte(), $dossier->isIncomplet()),
             'date_pec' => $consultation->getDatePriseEnCompte(),
-            'statut_avis' => $this->resolveStatutAvisAffiche($consultation->getStatutAvis(), null !== $dossier->getAvisCommission()),
+            'statut_avis' => $this->resolveStatutAvisAffiche($consultation->getStatutAvis(), $dossier->getAvisCommission() instanceof Avis),
             'date_avis' => $consultation->getDateAvis(),
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace App\Service\Formulaires\Fusion;
 
+use App\Entity\TypeChamp;
 use App\Dto\Formulaires\NomFusion;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
@@ -18,7 +19,7 @@ final class ChampCreator
         $typeChamp = $champ->getType();
         $nomFormulaire = $formulaire->getNomInterne();
 
-        if (null === $typeChamp) {
+        if (!$typeChamp instanceof TypeChamp) {
             throw new \InvalidArgumentException('Le type du champ est invalide.');
         }
 
@@ -32,7 +33,7 @@ final class ChampCreator
          */
         if (
             ('Parent' === $typeChamp->getType() && !$champ->getTableau())
-            || (null !== $champ->getParent() && $champ->getParent()->getTableau())
+            || ($champ->getParent() instanceof Champ && $champ->getParent()->getTableau())
         ) {
             return null;
         }
@@ -62,7 +63,7 @@ final class ChampCreator
          */
         $options = [(string) $rubrique->getNom()];
 
-        if (null !== $champ->getParent()) {
+        if ($champ->getParent() instanceof Champ) {
             $options[] = (string) $champ->getParent()->getNom();
         }
 

@@ -2,10 +2,10 @@
 
 namespace App\EventSubscriber;
 
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use App\Entity\Utilisateur;
 use App\Service\LastActionUpdater;
 use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 
 /**
@@ -16,12 +16,12 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
  * mise à jour au logout est prise en charge directement par LogoutHandler (via
  * $token->getUser(), encore disponible à ce stade).
  */
-class LastActionSubscriber implements EventSubscriberInterface
+class LastActionSubscriber
 {
     public function __construct(private readonly Security $security, private readonly LastActionUpdater $lastActionUpdater)
     {
     }
-
+    #[AsEventListener(event: 'kernel.terminate')]
     public function onKernelTerminate(TerminateEvent $event): void
     {
         if (!$event->isMainRequest()) {
@@ -35,15 +35,5 @@ class LastActionSubscriber implements EventSubscriberInterface
         }
 
         $this->lastActionUpdater->update($utilisateur);
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            'kernel.terminate' => 'onKernelTerminate',
-        ];
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Controller\Dossier;
 
+use App\Entity\PlatauConsultation;
+use App\Entity\PieceJointeStatut;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
@@ -47,7 +49,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      */
     private function resolvePjFilePath(PieceJointe $pj, Dossier $dossier, bool $createDir = false): string
     {
-        if (null !== $dossier->getConsultationPlatau()) {
+        if ($dossier->getConsultationPlatau() instanceof PlatauConsultation) {
             $path = PathNormalizer::join($this->realDataPath, 'uploads/pieces-jointes', $pj->getId().$pj->getExtension());
             if ($createDir) {
                 $this->filesystem->mkdir(dirname($path));
@@ -74,7 +76,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $user = $this->getUser();
         $lastVisit = $this->notificationService->getLastVisitDate($user, NotificationService::PIECES_DOSSIER_NAMESPACE);
 
-        $isPlatau = null !== $dossier->getConsultationPlatau();
+        $isPlatau = $dossier->getConsultationPlatau() instanceof PlatauConsultation;
 
         $listePj = [];
         foreach ($dossierPjs as $dpj) {
@@ -279,7 +281,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         }
 
         $statut = $pj->getStatut();
-        if (null !== $statut && in_array($statut->getNomStatut(), ['to_be_exported', 'exported', 'awaiting_status'], true)) {
+        if ($statut instanceof PieceJointeStatut && in_array($statut->getNomStatut(), ['to_be_exported', 'exported', 'awaiting_status'], true)) {
             return $this->json([
                 'error' => "Impossible de supprimer une pièce jointe en cours de traitement Plat'AU.",
             ], 403);
@@ -325,7 +327,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         $html = $this->renderView('dossier/pieces_jointes/_piece_jointe_row.html.twig', [
             'dpj' => $dpj,
             'isNew' => false,
-            'isPlatau' => null !== $dossier->getConsultationPlatau(),
+            'isPlatau' => $dossier->getConsultationPlatau() instanceof PlatauConsultation,
             'verrou' => $dossier->hasVerrou(),
             'dossier' => $dossier,
         ]);

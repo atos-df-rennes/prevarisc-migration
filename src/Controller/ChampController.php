@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\TypeChamp;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
@@ -58,7 +59,7 @@ class ChampController extends AbstractController
             ]);
         }
 
-        if (null === $initialType) {
+        if (!$initialType instanceof TypeChamp) {
             throw new \InvalidArgumentException('Le type du champ est invalide.');
         }
 

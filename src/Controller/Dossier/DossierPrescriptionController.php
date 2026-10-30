@@ -61,7 +61,7 @@ class DossierPrescriptionController extends AbstractController implements Dossie
     #[IsGranted('edit_doss', subject: 'dossier')]
     public function form(Request $request, Dossier $dossier, #[MapEntity(id: 'idPrescription')] ?PrescriptionDossier $prescription = null): Response
     {
-        $isNew = null === $prescription;
+        $isNew = !$prescription instanceof PrescriptionDossier;
         $ancienType = null;
 
         if ($isNew) {

@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\DossierNatureListe;
 use App\Entity\Dossier;
 
 /**
@@ -170,7 +171,7 @@ final class DossierFields
     {
         $nature = $dossier->getNature();
 
-        if (null === $nature) {
+        if (!$nature instanceof DossierNatureListe) {
             return [];
         }
 

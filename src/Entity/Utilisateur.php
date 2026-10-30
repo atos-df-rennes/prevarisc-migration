@@ -334,7 +334,7 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
     public function isConnected(): bool
     {
         // L'utilisateur ne s'est jamais connecté.
-        if (null === $this->getLastAction()) {
+        if (!$this->getLastAction() instanceof \DateTimeInterface) {
             return false;
         }
 
@@ -443,7 +443,7 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
         $label = $this->username;
 
         $info = $this->getInformations();
-        if (null !== $info) {
+        if ($info instanceof UtilisateurInformations) {
             $fullName = $info->getFullName();
             if ('' !== $fullName) {
                 $label = $fullName;

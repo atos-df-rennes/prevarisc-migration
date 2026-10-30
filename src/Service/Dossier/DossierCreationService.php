@@ -2,6 +2,7 @@
 
 namespace App\Service\Dossier;
 
+use App\Entity\DossierNatureListe;
 use App\Constant\DossierNature;
 use App\Constant\DossierType;
 use App\Constant\Fonction;
@@ -35,7 +36,7 @@ class DossierCreationService
     {
         $nature = $dossier->getNature();
 
-        if (null === $nature || in_array($nature->getId(), DossierNature::NATURES_SANS_CONTACTS, true)) {
+        if (!$nature instanceof DossierNatureListe || in_array($nature->getId(), DossierNature::NATURES_SANS_CONTACTS, true)) {
             return;
         }
 
@@ -61,7 +62,7 @@ class DossierCreationService
     {
         $nature = $dossier->getNature();
 
-        if (null === $nature || !in_array($nature->getId(), DossierNature::NATURES_COPIE_TEXTES_APPLICABLES, true)) {
+        if (!$nature instanceof DossierNatureListe || !in_array($nature->getId(), DossierNature::NATURES_COPIE_TEXTES_APPLICABLES, true)) {
             return;
         }
 
@@ -79,7 +80,7 @@ class DossierCreationService
     {
         $nature = $dossier->getNature();
 
-        if (null === $nature || !in_array($nature->getId(), DossierNature::LEVEES, true)) {
+        if (!$nature instanceof DossierNatureListe || !in_array($nature->getId(), DossierNature::LEVEES, true)) {
             return;
         }
 
@@ -102,13 +103,13 @@ class DossierCreationService
     {
         $nature = $dossier->getNature();
 
-        if (null === $nature || !in_array($nature->getId(), DossierNature::VISITE_PERIODIQUE, true)) {
+        if (!$nature instanceof DossierNatureListe || !in_array($nature->getId(), DossierNature::VISITE_PERIODIQUE, true)) {
             return;
         }
 
         $derniereVP = $this->dossierRepository->findDerniereVP($etablissement);
 
-        if (null === $derniereVP) {
+        if (!$derniereVP instanceof Dossier) {
             return;
         }
 
@@ -168,7 +169,7 @@ class DossierCreationService
     {
         $type = $dossier->getType();
 
-        if (null === $type) {
+        if (!$type instanceof \App\Entity\DossierType) {
             return;
         }
 
@@ -213,7 +214,7 @@ class DossierCreationService
     {
         $type = $dossier->getType();
 
-        if (null === $type || !in_array($type->getId(), DossierType::TYPES_VISITE, true)) {
+        if (!$type instanceof \App\Entity\DossierType || !in_array($type->getId(), DossierType::TYPES_VISITE, true)) {
             return;
         }
 

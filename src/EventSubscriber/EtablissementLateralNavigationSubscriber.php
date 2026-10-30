@@ -2,6 +2,7 @@
 
 namespace App\EventSubscriber;
 
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Etablissement;
@@ -9,18 +10,17 @@ use App\Repository\AvisDerogationsRepository;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\EtablissementAncestryService;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
+class EtablissementLateralNavigationSubscriber
 {
     public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly EtablissementAncestryService $etablissementAncestryService, private readonly AvisDerogationsRepository $avisDerogationsRepository)
     {
     }
-
+    #[AsEventListener(event: KernelEvents::CONTROLLER)]
     public function onKernelController(ControllerEvent $event): void
     {
         $controller = $event->getController();
@@ -67,7 +67,6 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
 
         $event->getRequest()->attributes->set('has_avis_derogations', $this->avisDerogationsRepository->hasForEtablissements($this->getIdsEtablissementEtFils($etablissement)));
     }
-
     /**
      * Retourne les ids de l'établissement et de ses fils (ex. cellules d'un ERP),
      * conformément à Service\Etablissement::getAvisDerogations() utilisée pour l'affichage.
@@ -83,12 +82,5 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
         }
 
         return $ids;
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::CONTROLLER => 'onKernelController',
-        ];
     }
 }

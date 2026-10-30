@@ -45,7 +45,7 @@ class DossierSauvegardeService
             return $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
         }
 
-        if (null !== $ancienneNature) {
+        if ($ancienneNature instanceof DossierNatureListe) {
             return $this->dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
         }
 
@@ -92,7 +92,7 @@ class DossierSauvegardeService
 
             $session->getFlashBag()->add('warning', sprintf(
                 '<strong>Avertissement</strong><br>'.
-                'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
+                "La visite d'avant ouverture étant favorable, vous devriez passer le statut de l'établissement ".
                 '<a title="Ouvrir" href="%s">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
                 $informationsEtablissement,
                 htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8')
@@ -144,7 +144,7 @@ class DossierSauvegardeService
             }
 
             $session->getFlashBag()->add('success', sprintf(
-                '<p>L\'établissement %s a bien été mis à jour.</p>%s',
+                "<p>L'établissement %s a bien été mis à jour.</p>%s",
                 htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8'),
                 $lienAlerter
             ));
@@ -179,7 +179,7 @@ class DossierSauvegardeService
         // @fixme: variable non utilisée mais conservée une fois les caches entité implémentés à nouveau
         $etablissementsJson = json_encode($etablissementsIds);
         if (false === $etablissementsJson) {
-            throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
+            throw new \RuntimeException("Impossible d'encoder les IDs établissements en JSON");
         }
 
         return $target;

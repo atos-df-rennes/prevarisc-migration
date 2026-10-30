@@ -21,13 +21,13 @@ final readonly class DateCommission
     {
         $dateVisite = $dossier->getDateVisite();
 
-        if (null === $dateVisite) {
+        if (!$dateVisite instanceof \DateTimeInterface) {
             return [];
         }
 
         $dateCommissionPrincipale = $this->dateCommissionRepository->findForDossier($dossier, $dateVisite);
 
-        if (null === $dateCommissionPrincipale) {
+        if (!$dateCommissionPrincipale instanceof DateCommissionEntity) {
             return [];
         }
 

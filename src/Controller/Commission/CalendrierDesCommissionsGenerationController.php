@@ -29,7 +29,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
     public function generationConvocation(int $dateCommId, Request $request): Response
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_convocation');
-        if (null !== $errorResponse) {
+        if ($errorResponse instanceof JsonResponse) {
             return $errorResponse;
         }
 
@@ -45,7 +45,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
     public function generationOdj(int $dateCommId, Request $request): Response
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_odj');
-        if (null !== $errorResponse) {
+        if ($errorResponse instanceof JsonResponse) {
             return $errorResponse;
         }
 
@@ -61,7 +61,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
     public function generationPv(int $dateCommId, Request $request): Response
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_pv');
-        if (null !== $errorResponse) {
+        if ($errorResponse instanceof JsonResponse) {
             return $errorResponse;
         }
 
@@ -77,7 +77,7 @@ class CalendrierDesCommissionsGenerationController extends AbstractController
     public function generationCompteRendu(int $dateCommId, Request $request): Response
     {
         $errorResponse = $this->validateRequest($dateCommId, $request, 'generation_compte_rendu');
-        if (null !== $errorResponse) {
+        if ($errorResponse instanceof JsonResponse) {
             return $errorResponse;
         }
 

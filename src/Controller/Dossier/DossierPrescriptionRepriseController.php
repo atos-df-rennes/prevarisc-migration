@@ -32,7 +32,7 @@ class DossierPrescriptionRepriseController extends AbstractController implements
 
         if (1 !== $etablissements->count()) {
             return new Response(
-                'Pour pouvoir utiliser cette fonctionnalité, le dossier ne doit concerner qu\'un seul établissement.',
+                "Pour pouvoir utiliser cette fonctionnalité, le dossier ne doit concerner qu'un seul établissement.",
                 Response::HTTP_BAD_REQUEST
             );
         }

@@ -31,7 +31,7 @@ final class CalendarServiceTest extends TestCase
     {
         $result = $this->calendarService->parseTimestamp($timestamp);
 
-        if (null === $expectedResult) {
+        if (!$expectedResult instanceof \DateTimeInterface) {
             $this->assertNull($result);
         } else {
             $this->assertInstanceOf(\DateTimeInterface::class, $result);
