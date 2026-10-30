@@ -21,6 +21,7 @@ class LastActionSubscriber
     public function __construct(private readonly Security $security, private readonly LastActionUpdater $lastActionUpdater)
     {
     }
+
     #[AsEventListener(event: 'kernel.terminate')]
     public function onKernelTerminate(TerminateEvent $event): void
     {

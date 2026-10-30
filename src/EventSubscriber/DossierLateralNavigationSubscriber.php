@@ -19,6 +19,7 @@ class DossierLateralNavigationSubscriber
     public function __construct(private readonly DossierRepository $dossierRepository, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly DateAffectation $dateAffectation, private readonly Dossier $serviceDossier)
     {
     }
+
     #[AsEventListener(event: KernelEvents::CONTROLLER)]
     public function onKernelController(ControllerEvent $event): void
     {

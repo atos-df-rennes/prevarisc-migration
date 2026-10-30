@@ -20,6 +20,7 @@ class CasLogoutSuccessHandler
     public function __construct(private readonly bool $casEnabled, private readonly string $casHost, private readonly int $casPort, private readonly string $casPublicHost, private readonly int $casPublicPort, private readonly string $casContext, private readonly bool $casNoSsl)
     {
     }
+
     #[AsEventListener(event: LogoutEvent::class, priority: 64)]
     public function onLogout(LogoutEvent $logoutEvent): void
     {

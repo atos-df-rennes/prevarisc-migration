@@ -20,6 +20,7 @@ class EtablissementLateralNavigationSubscriber
     public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly EtablissementAncestryService $etablissementAncestryService, private readonly AvisDerogationsRepository $avisDerogationsRepository)
     {
     }
+
     #[AsEventListener(event: KernelEvents::CONTROLLER)]
     public function onKernelController(ControllerEvent $event): void
     {
@@ -67,6 +68,7 @@ class EtablissementLateralNavigationSubscriber
 
         $event->getRequest()->attributes->set('has_avis_derogations', $this->avisDerogationsRepository->hasForEtablissements($this->getIdsEtablissementEtFils($etablissement)));
     }
+
     /**
      * Retourne les ids de l'établissement et de ses fils (ex. cellules d'un ERP),
      * conformément à Service\Etablissement::getAvisDerogations() utilisée pour l'affichage.

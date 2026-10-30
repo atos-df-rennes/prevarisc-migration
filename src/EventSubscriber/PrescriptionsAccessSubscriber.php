@@ -20,6 +20,7 @@ class PrescriptionsAccessSubscriber
     public function __construct(private readonly DossierRepository $dossierRepository)
     {
     }
+
     #[AsEventListener(event: KernelEvents::CONTROLLER)]
     public function onKernelController(ControllerEvent $event): void
     {

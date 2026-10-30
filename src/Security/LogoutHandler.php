@@ -27,6 +27,7 @@ class LogoutHandler
     public function __construct(private readonly LastActionUpdater $lastActionUpdater, private readonly bool $casEnabled)
     {
     }
+
     #[AsEventListener(event: LogoutEvent::class)]
     public function onLogout(LogoutEvent $logoutEvent): void
     {
