@@ -325,8 +325,7 @@ class DateCommissionRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        /** @var array<int, array<string, mixed>> $dossiers */
-        $dossiers = $conn->fetchAllAssociative(
+        $dossiers = $conn->fetchFirstColumn(
             'SELECT ID_DOSSIER_AFFECT FROM dossieraffectation WHERE ID_DATECOMMISSION_AFFECT = :id',
             ['id' => $idDateCommission]
         );
@@ -335,7 +334,7 @@ class DateCommissionRepository extends ServiceEntityRepository
             return;
         }
 
-        $dossierIds = array_map(fn (array $row): int => (int) $row['ID_DOSSIER_AFFECT'], $dossiers);
+        $dossierIds = array_map(intval(...), $dossiers);
 
         if (1 === $idTypeEvenement) {
             $conn->executeStatement(
