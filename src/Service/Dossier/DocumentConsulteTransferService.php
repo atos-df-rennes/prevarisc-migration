@@ -42,7 +42,7 @@ final readonly class DocumentConsulteTransferService
         ?DossierNatureListe $nouvelleNature
     ): void {
         $ancienType = $dossier->getType();
-        if (!$ancienType instanceof \App\Entity\DossierType) {
+        if (!$ancienType instanceof DossierTypeEntity) {
             return; // Pas de type : rien à faire
         }
 

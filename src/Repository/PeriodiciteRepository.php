@@ -2,9 +2,9 @@
 
 namespace App\Repository;
 
-use App\Entity\EtablissementCategorie;
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
+use App\Entity\EtablissementCategorie;
 use App\Entity\Periodicite;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Exception;

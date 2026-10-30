@@ -2,8 +2,8 @@
 
 namespace App\Validator;
 
-use App\Entity\UtilisateurInformations;
 use App\Entity\Utilisateur;
+use App\Entity\UtilisateurInformations;
 use App\Repository\UtilisateurRepository;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;

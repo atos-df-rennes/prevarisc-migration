@@ -2,12 +2,12 @@
 
 namespace App\Controller\Dossier;
 
-use App\Entity\PlatauConsultation;
-use App\Entity\PieceJointeStatut;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
 use App\Entity\PieceJointe;
+use App\Entity\PieceJointeStatut;
+use App\Entity\PlatauConsultation;
 use App\Entity\Utilisateur;
 use App\Repository\DossierPieceJointeRepository;
 use App\Repository\PieceJointeStatutRepository;

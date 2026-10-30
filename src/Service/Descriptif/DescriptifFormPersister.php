@@ -2,10 +2,10 @@
 
 namespace App\Service\Descriptif;
 
-use App\Dto\Descriptif\RubriqueFormData;
 use App\Constant\TypeChamp;
 use App\Dto\Descriptif\ChampValueData;
 use App\Dto\Descriptif\DescriptifFormData;
+use App\Dto\Descriptif\RubriqueFormData;
 use App\Dto\Descriptif\TableauRowData;
 use App\Entity\Champ;
 use App\Entity\Dossier;

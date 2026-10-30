@@ -2,7 +2,6 @@
 
 namespace App\EventSubscriber;
 
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Repository\CapsuleRubriqueRepository;
@@ -10,6 +9,7 @@ use App\Repository\DossierAffectationRepository;
 use App\Repository\DossierRepository;
 use App\Service\DateAffectation;
 use App\Service\Dossier;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Service\Alerte;
 
-use App\Entity\Dossier;
-use App\Entity\Avis;
-use App\Entity\Genre;
 use App\Constant\GenreEtablissement;
+use App\Entity\Avis;
+use App\Entity\Dossier;
 use App\Entity\Etablissement;
+use App\Entity\Genre;
 use App\Repository\DossierRepository;
 
 /**

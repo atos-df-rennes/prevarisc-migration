@@ -2,14 +2,14 @@
 
 namespace App\Service\Commission;
 
-use App\Entity\Commune;
-use App\Entity\Groupement;
 use App\Constant\GenreEtablissement;
 use App\Entity\Commission;
 use App\Entity\CommissionRegle;
 use App\Entity\CommissionRegleLocalSommeil;
+use App\Entity\Commune;
 use App\Entity\EtablissementCategorie;
 use App\Entity\EtablissementType;
+use App\Entity\Groupement;
 use App\Entity\IghClasse;
 
 /**

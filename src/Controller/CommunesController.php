@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\UtilisateurInformations;
 use App\Constant\Fonction;
 use App\Entity\Commune;
+use App\Entity\UtilisateurInformations;
 use App\Form\CommuneType;
 use App\Repository\CommuneRepository;
 use App\Repository\FonctionRepository;

@@ -2,8 +2,8 @@
 
 namespace App\Controller;
 
-use App\Entity\News;
 use App\Builder\VersionBuilder;
+use App\Entity\News;
 use App\Entity\Utilisateur;
 use App\Repository\GroupeRepository;
 use App\Service\Dashboard\DashboardBlocConfig;

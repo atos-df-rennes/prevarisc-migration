@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\Alerte;
 
-use App\Entity\EtablissementCategorie;
 use App\Entity\Etablissement;
+use App\Entity\EtablissementCategorie;
 use App\Service\Changement;
 
 /**

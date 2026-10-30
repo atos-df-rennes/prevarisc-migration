@@ -2,10 +2,10 @@
 
 namespace App\Controller\Dossier;
 
-use App\Entity\DossierNatureListe;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierDocumentConsulte;
+use App\Entity\DossierNatureListe;
 use App\Entity\ListeDocumentAjoute;
 use App\Entity\ListeDocumentConsulte;
 use App\Form\Dossier\DossierDocumentConsulteType;

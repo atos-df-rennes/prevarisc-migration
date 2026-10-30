@@ -2,9 +2,9 @@
 
 namespace App\Service\Voter;
 
+use App\Entity\Etablissement;
 use App\Entity\EtablissementActivite;
 use App\Entity\EtablissementCategorie;
-use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 
 class VoterUtils

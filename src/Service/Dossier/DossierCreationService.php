@@ -2,12 +2,12 @@
 
 namespace App\Service\Dossier;
 
-use App\Entity\DossierNatureListe;
 use App\Constant\DossierNature;
 use App\Constant\DossierType;
 use App\Constant\Fonction;
 use App\Entity\Dossier;
 use App\Entity\DossierDocumentConsulte;
+use App\Entity\DossierNatureListe;
 use App\Entity\Etablissement;
 use App\Entity\ListeDocumentAjoute;
 use App\Repository\DossierRepository;

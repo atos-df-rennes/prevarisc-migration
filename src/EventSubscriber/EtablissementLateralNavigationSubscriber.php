@@ -2,7 +2,6 @@
 
 namespace App\EventSubscriber;
 
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use App\Constant\NomInterneCapsule;
 use App\Controller\Contract\EtablissementLateralNavigationInterface;
 use App\Entity\Etablissement;
@@ -10,6 +9,7 @@ use App\Repository\AvisDerogationsRepository;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\EtablissementAncestryService;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;

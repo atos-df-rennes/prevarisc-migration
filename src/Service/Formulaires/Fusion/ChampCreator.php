@@ -2,11 +2,11 @@
 
 namespace App\Service\Formulaires\Fusion;
 
-use App\Entity\TypeChamp;
 use App\Dto\Formulaires\NomFusion;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
+use App\Entity\TypeChamp;
 
 /**
  * Gère la création d'un champ de fusion en fonction du type de champ et de la relation parent-enfant.

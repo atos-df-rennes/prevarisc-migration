@@ -2,10 +2,10 @@
 
 namespace App\EventSubscriber;
 
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use App\Entity\Utilisateur;
 use App\Service\LastActionUpdater;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 
 /**

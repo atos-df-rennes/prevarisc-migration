@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Service\Sdis29;
 
-use App\Entity\EtablissementInformations;
 use App\Entity\CoucheCarto;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
+use App\Entity\EtablissementInformations;
 
 /**
  * Construit les URLs du visualiseur cartographique Géobretagne (sviewer),

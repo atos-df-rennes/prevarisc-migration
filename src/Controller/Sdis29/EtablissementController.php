@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Sdis29;
 
-use App\Entity\EtablissementInformations;
 use App\Entity\Etablissement;
+use App\Entity\EtablissementInformations;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Security\Voter\Sdis29\Sdis29Voter;
 use App\Service\Sdis29\NumeroIdGenerator;

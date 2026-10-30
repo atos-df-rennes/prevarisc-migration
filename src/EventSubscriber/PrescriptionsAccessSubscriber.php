@@ -2,11 +2,11 @@
 
 namespace App\EventSubscriber;
 
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use App\Constant\DossierNature;
 use App\Constant\DossierType as DossierTypeConstant;
 use App\Controller\Contract\DossierPrescriptionsAccessInterface;
 use App\Repository\DossierRepository;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;

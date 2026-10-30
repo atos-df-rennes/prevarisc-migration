@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use App\Entity\Utilisateur;
 use App\Service\LastActionUpdater;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 /**

@@ -2,9 +2,9 @@
 
 namespace App\Form;
 
-use App\Entity\Resources;
 use App\Entity\Groupe;
 use App\Entity\Privileges;
+use App\Entity\Resources;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;

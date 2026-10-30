@@ -2,13 +2,13 @@
 
 namespace App\Form;
 
-use App\Entity\EtablissementType;
 use App\Entity\Commission;
 use App\Entity\CommissionMembre;
 use App\Entity\DossierNatureListe;
 use App\Entity\DossierType;
 use App\Entity\EtablissementActivite;
 use App\Entity\EtablissementCategorie;
+use App\Entity\EtablissementType;
 use App\Entity\Groupement;
 use App\Entity\GroupementType;
 use App\Entity\IghClasse;

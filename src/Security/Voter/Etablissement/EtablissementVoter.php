@@ -2,9 +2,9 @@
 
 namespace App\Security\Voter\Etablissement;
 
-use App\Entity\Groupe;
-use App\Entity\Genre;
 use App\Entity\Etablissement;
+use App\Entity\Genre;
+use App\Entity\Groupe;
 use App\Entity\Utilisateur;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;

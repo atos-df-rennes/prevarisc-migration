@@ -2,10 +2,10 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Periodicite;
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
+use App\Entity\Periodicite;
 use App\Entity\Utilisateur;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\EtablissementRepository;

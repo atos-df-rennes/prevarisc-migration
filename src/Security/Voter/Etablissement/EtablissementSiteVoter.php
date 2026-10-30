@@ -2,9 +2,9 @@
 
 namespace App\Security\Voter\Etablissement;
 
-use App\Entity\Groupe;
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
+use App\Entity\Groupe;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;

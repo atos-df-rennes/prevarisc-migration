@@ -2,9 +2,9 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Entity\Groupe;
-use App\Entity\Dossier;
 use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;

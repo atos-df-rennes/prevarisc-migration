@@ -2,10 +2,10 @@
 
 namespace App\Service;
 
-use App\Entity\DossierType;
 use App\Entity\CommissionTypeEvenement;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
+use App\Entity\DossierType;
 use Psr\Log\LoggerInterface;
 
 final readonly class DateAffectation

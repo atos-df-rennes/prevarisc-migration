@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
-use App\Entity\DossierNatureListe;
 use App\Entity\Dossier;
+use App\Entity\DossierNatureListe;
 
 /**
  * Service de gestion des champs à afficher selon la nature du dossier.

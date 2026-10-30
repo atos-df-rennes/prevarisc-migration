@@ -2,10 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\TypeChamp;
 use App\Entity\CapsuleRubrique;
 use App\Entity\Champ;
 use App\Entity\Rubrique;
+use App\Entity\TypeChamp;
 use App\Form\ChampType;
 use App\Repository\ChampRepository;
 use App\Repository\ChampValeurListeRepository;
