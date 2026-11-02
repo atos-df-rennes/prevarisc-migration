@@ -380,8 +380,6 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
             return $this->redirectToRoute('dossier_pieces_jointes', ['id' => $dossier->getId()]);
         }
 
-        $zipPath .= '.zip';
-
         $zip = new \ZipArchive();
         if (true !== $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE)) {
             $this->addFlash('danger', "Impossible de créer l'archive ZIP. Veuillez contacter votre service informatique.");
