@@ -9,32 +9,48 @@
     {% if sections is empty %}
         <p class="text-muted">Aucun changelog disponible.</p>
     {% else %}
-        {# Navigation par version mineure #}
+        {# Navigation par version majeure #}
         <ul class="nav nav-pills" id="changelog-nav">
-            {% for minor_version, entries in sections %}
+            {% for major_version, minor_versions in sections %}
                 <li{% if loop.first %} class="active"{% endif %}>
-                    <a href="#changelog-{{ minor_version|replace({'.': '-'}) }}" data-toggle="tab">
-                        {{ minor_version }}.x
+                    <a href="#changelog-{{ major_version|replace({'.': '-'}) }}" data-toggle="tab">
+                        {{ major_version }}
                     </a>
                 </li>
             {% endfor %}
         </ul>
 
-        {# Contenu par version mineure #}
+        {# Contenu par version majeure puis mineure #}
         <div class="tab-content">
-            {% for minor_version, entries in sections %}
-                <div class="tab-pane{% if loop.first %} active{% endif %}" id="changelog-{{ minor_version|replace({'.': '-'}) }}">
-                    {% for entry in entries %}
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <strong>{{ entry.version }}</strong>
-                                <span class="text-muted">{{ entry.date }}</span>
+            {% for major_version, minor_versions in sections %}
+                <div class="tab-pane{% if loop.first %} active{% endif %}" id="changelog-{{ major_version|replace({'.': '-'}) }}">
+                    <ul class="nav nav-tabs changelog-minor-nav">
+                        {% for minor_version, entries in minor_versions %}
+                            <li{% if loop.first %} class="active"{% endif %}>
+                                <a href="#changelog-{{ major_version|replace({'.': '-'}) }}-{{ minor_version|replace({'.': '-'}) }}" data-toggle="tab">
+                                    {{ minor_version }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="tab-content">
+                        {% for minor_version, entries in minor_versions %}
+                            <div class="tab-pane{% if loop.first %} active{% endif %}" id="changelog-{{ major_version|replace({'.': '-'}) }}-{{ minor_version|replace({'.': '-'}) }}">
+                                {% for entry in entries %}
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <strong>{{ entry.version }}</strong>
+                                            <span class="text-muted">{{ entry.date }}</span>
+                                        </div>
+                                        <div class="panel-body changelog-content">
+                                            {{ entry.html|raw }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
-                            <div class="panel-body changelog-content">
-                                {{ entry.html|raw }}
-                            </div>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
             {% endfor %}
         </div>

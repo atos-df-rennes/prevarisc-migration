@@ -38,15 +38,21 @@ Les documents sont présentés dans une liste organisée par thèmes. L'utilisat
 
 ## 4. Règles de gestion
 
-| Référence | Règle |
-|---|---|
-| **RG-APR-001** | Les pages « À propos », « Conditions d'utilisation », « Aide », les informations pour les développeurs et la documentation fonctionnelle sont accessibles aux utilisateurs connectés. |
-| **RG-APR-002** | Les pages de cet espace sont consultables en lecture seule. |
-| **RG-APR-003** | La documentation destinée à l'administration et au fonctionnement de l'application est réservée aux administrateurs. |
-| **RG-APR-004** | Les liens vers les pages d'information et la documentation sont disponibles dans le pied de page. |
-| **RG-APR-005** | Le pied de page affiche la version de l'application et l'année en cours dans la mention de droits d'auteur. |
-| **RG-APR-006** | Le pied de page donne accès aux sites institutionnels concernés et aux notes de version. |
-| **RG-APR-007** | La liste des documents et leur contenu restent lisibles sur les petits écrans. |
+| N° | Intitulé | Description |
+|----|----------|-------------|
+| **RG-APR-001** | Accès authentifié | Les pages « À propos », « Conditions d'utilisation », « Aide », les informations pour les développeurs et la documentation fonctionnelle sont accessibles aux utilisateurs connectés. La documentation destinée à l'administration et au fonctionnement de l'application est réservée aux administrateurs. |
+| **RG-APR-002** | Lecture seule | Le contenu des pages est exclusivement en lecture. Aucune action de création, modification ou suppression n'est possible depuis l'interface utilisateur. |
+| **RG-APR-003** | Contenu externalisé | Le contenu rédactionnel de chaque page est stocké dans un fichier texte enrichi (Markdown) distinct, indépendant de l'interface. La modification du contenu passe par la mise à jour de ces fichiers sources. |
+| **RG-APR-004** | Conversion automatique | Le contenu Markdown est automatiquement converti en page lisible (HTML) au moment de l'affichage. Aucune mise en cache n'est appliquée. |
+| **RG-APR-005** | Vue unique partagée | Les quatre pages utilisent un même gabarit d'affichage. La présentation est homogène quel que soit le contenu affiché. |
+| **RG-APR-006** | Accès depuis le pied de page | Les liens vers les quatre pages sont présents dans le pied de page global de l'application, visible sur toutes les pages. |
+| **RG-APR-007** | Affichage de la version | Le pied de page affiche la version de l'application ainsi qu'un lien vers le détail du code source correspondant dans `atos-df-rennes/prevarisc-migration` : commit courant en mode Git, release correspondante en mode version définie par l'environnement. Le nom de branche Git est affiché sans transformation, y compris le préfixe `release/`. |
+| **RG-APR-008** | Copyright dynamique | L'année affichée dans la mention de copyright du pied de page est calculée automatiquement (année en cours). |
+| **RG-APR-009** | Liens institutionnels | Le pied de page contient des liens vers les sites du SDIS 62 (avec logo) et du Ministère de l'Intérieur, identifiant les organismes à l'origine du projet. |
+| **RG-APR-010** | Lien vers les notes de versions | Le pied de page contient un lien vers la page « Notes de versions » (changelog), distincte de ce module mais accessible depuis le même espace. |
+| **RG-APR-011** | Sources des notes de versions | La page « Notes de versions » présente les entrées des fichiers de changelog disponibles, organisés par version majeure (`CHANGELOG-2.x.md`, `CHANGELOG-3.x.md`, etc.). Si aucun fichier exploitable n'est disponible, la page indique qu'aucun changelog n'est disponible. |
+| **RG-APR-012** | Navigation des notes de versions | Les entrées sont regroupées par version majeure puis par version mineure. Les onglets des deux niveaux sont triés par ordre sémantique décroissant ; chaque entrée conserve sa version, sa date et son contenu. |
+| **RG-APR-013** | Version courante | La version courante est la plus élevée selon l'ordre sémantique parmi les entrées de tous les changelogs. Elle est utilisée pour signaler les nouveautés et mémoriser la dernière version consultée. |
 
 ## 5. Limites
 

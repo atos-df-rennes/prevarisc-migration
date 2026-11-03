@@ -102,7 +102,7 @@ final class DossierLiaisonsController extends AbstractController implements Doss
         }
 
         $etablissementsIds = $this->dossierLiaisonsService->addEtablissement($dossier, $etablissement);
-        $this->addFlash('success', 'L\'établissement a bien été lié au dossier.');
+        $this->addFlash('success', "L'établissement a bien été lié au dossier.");
 
         return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection(
             $dossier,
@@ -136,7 +136,7 @@ final class DossierLiaisonsController extends AbstractController implements Doss
 
         if ($form->isSubmitted() && $form->isValid()) {
             $etablissementsIds = $this->dossierLiaisonsService->removeEtablissement($dossier, $etablissement);
-            $this->addFlash('success', 'Le lien avec l\'établissement a bien été supprimé.');
+            $this->addFlash('success', "Le lien avec l'établissement a bien été supprimé.");
 
             return $this->redirect($this->dossierSauvegardeService->construireUrlRedirection(
                 $dossier,
@@ -169,7 +169,7 @@ final class DossierLiaisonsController extends AbstractController implements Doss
             || $dossierLie->getDossiersLies()->contains($dossier);
 
         if (!$isLinked) {
-            $this->addFlash('warning', 'Ce dossier n\'est pas lié au dossier courant.');
+            $this->addFlash('warning', "Ce dossier n'est pas lié au dossier courant.");
 
             return $this->redirectToRoute('dossier_liees', ['id' => $dossier->getId()]);
         }

@@ -124,7 +124,7 @@ final class DescriptifFormHydrator
      */
     private function extractValue(?Valeur $valeur, ?int $typeId): int|bool|\DateTimeInterface|string|null
     {
-        if (null === $valeur) {
+        if (!$valeur instanceof Valeur) {
             return null;
         }
 

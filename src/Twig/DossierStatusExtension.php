@@ -51,11 +51,11 @@ final readonly class DossierStatusExtension
         $exploitation = $this->isExploitationNature($item);
 
         if (Avis::FAVORABLE === $idAvis) {
-            return '<span class="avis F">Favorable'.($exploitation ? ' à l\'exploitation' : '').'</span>';
+            return '<span class="avis F">Favorable'.($exploitation ? " à l'exploitation" : '').'</span>';
         }
 
         if (Avis::DEFAVORABLE === $idAvis) {
-            return '<span class="avis D">Défavorable'.($exploitation ? ' à l\'exploitation' : '').'</span>';
+            return '<span class="avis D">Défavorable'.($exploitation ? " à l'exploitation" : '').'</span>';
         }
 
         return '<span class="avis">Avis indisponible</span>';

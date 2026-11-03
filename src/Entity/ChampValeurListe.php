@@ -12,14 +12,14 @@ class ChampValeurListe
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_VALEURLISTE', type: Types::INTEGER)]
+    #[ORM\Column(name: 'ID_VALEURLISTE', type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\Column(name: 'VALEUR', type: Types::STRING, length: 255, nullable: false)]
     private string $valeur;
 
     #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'valeursListe')]
-    #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false)]
+    #[ORM\JoinColumn(name: 'ID_CHAMP', referencedColumnName: 'ID_CHAMP', nullable: false, onDelete: 'CASCADE')]
     private ?Champ $champ = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]

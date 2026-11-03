@@ -10,6 +10,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'dbal' => [
             'url' => '%env(DATABASE_URL)%',
             'use_savepoints' => true,
+            'mapping_types' => [
+                'enum' => 'string',
+            ],
         ],
         'orm' => [
             'auto_generate_proxy_classes' => true,

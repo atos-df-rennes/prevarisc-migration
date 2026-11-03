@@ -35,7 +35,7 @@ final class EtablissementCategorieEffectiveTest extends TestCase
 
         $categorie = $etablissement->getCategorieEffective();
         $this->assertSame($attendue, $categorie?->getId());
-        $this->assertSame($categoriePropre, null !== $etablissement->getLatestInformations()->getCategorie() ? $etablissement->getLatestInformations()->getCategorie()->getId() : null);
+        $this->assertSame($categoriePropre, $etablissement->getLatestInformations()->getCategorie() instanceof EtablissementCategorie ? $etablissement->getLatestInformations()->getCategorie()->getId() : null);
     }
 
     public static function categorieProvider(): \Iterator

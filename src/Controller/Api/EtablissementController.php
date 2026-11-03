@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
+use App\Entity\Periodicite;
 use App\Entity\Utilisateur;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\EtablissementRepository;
@@ -398,7 +399,7 @@ final class EtablissementController extends AbstractController
                         (string) $type,
                         $localSommeil
                     );
-                    if (null !== $periodicite) {
+                    if ($periodicite instanceof Periodicite) {
                         $results['periodicite'] = $periodicite->getPeriodicite();
                     }
                 }
@@ -451,7 +452,7 @@ final class EtablissementController extends AbstractController
                 // Périodicité selon classe
                 if (null !== $classe) {
                     $periodicite = $this->periodiciteRepository->gn4(0, (string) $classe, false);
-                    if (null !== $periodicite) {
+                    if ($periodicite instanceof Periodicite) {
                         $results['periodicite'] = $periodicite->getPeriodicite();
                     }
                 }

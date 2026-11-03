@@ -3,6 +3,8 @@
 namespace App\Security\Voter\Etablissement;
 
 use App\Entity\Etablissement;
+use App\Entity\Genre;
+use App\Entity\Groupe;
 use App\Entity\Utilisateur;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
@@ -39,7 +41,7 @@ abstract class EtablissementVoter extends Voter
 
         $userGroupe = $user->getGroupe();
 
-        return null !== $userGroupe;
+        return $userGroupe instanceof Groupe;
     }
 
     /**
@@ -57,7 +59,7 @@ abstract class EtablissementVoter extends Voter
         $latestInformations = $subject->getLatestInformations();
         $genre = $latestInformations->getGenre();
 
-        if (null === $genre) {
+        if (!$genre instanceof Genre) {
             return false;
         }
 

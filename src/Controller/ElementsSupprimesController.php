@@ -56,7 +56,7 @@ final class ElementsSupprimesController extends AbstractController
     public function restoreEtablissement(Etablissement $id): RedirectResponse
     {
         $this->etablissementService->restore($id);
-        $this->addFlash('success', 'L\'établissement a bien été rétabli.');
+        $this->addFlash('success', "L'établissement a bien été rétabli.");
 
         $this->searchCache->invalidateTags(['search']);
 

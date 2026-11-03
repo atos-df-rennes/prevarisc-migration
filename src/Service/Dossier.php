@@ -95,7 +95,7 @@ final readonly class Dossier
 
         $dateDerniereVisitePage = $user->getDerniereVisitePiecesDossier();
 
-        if (null === $dateDerniereVisitePage) {
+        if (!$dateDerniereVisitePage instanceof \DateTimeInterface) {
             return 0;
         }
 
@@ -261,7 +261,7 @@ final readonly class Dossier
             return $dossier->getDateInsert() ?? new \DateTime();
         }
 
-        if (null !== $dossier->getDateVisite()) {
+        if ($dossier->getDateVisite() instanceof \DateTimeInterface) {
             return $dossier->getDateVisite();
         }
 
@@ -276,7 +276,7 @@ final readonly class Dossier
     public function getTextesApplicables(int $idDossier): array
     {
         $textesApplicablesData = $this->dossierRepository->getTextesApplicablesByType($idDossier);
-        if (null === $textesApplicablesData) {
+        if (!$textesApplicablesData instanceof DossierEntity) {
             return [];
         }
 

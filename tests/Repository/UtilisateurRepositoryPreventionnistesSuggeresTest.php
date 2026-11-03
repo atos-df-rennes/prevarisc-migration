@@ -80,7 +80,7 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
         ]);
         $commune = $this->entityManager->getReference(Commune::class, $numinsee);
         if (!$commune instanceof Commune) {
-            throw new \UnexpectedValueException('La commune de test n\'a pas pu être chargée.');
+            throw new \UnexpectedValueException("La commune de test n'a pas pu être chargée.");
         }
 
         $this->commune = $commune;
@@ -94,11 +94,11 @@ final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTest
 
     protected function tearDown(): void
     {
-        if (null !== $this->connection && $this->connection->isTransactionActive()) {
+        if ($this->connection instanceof Connection && $this->connection->isTransactionActive()) {
             $this->connection->rollBack();
         }
 
-        if (null !== $this->entityManager && $this->entityManager->isOpen()) {
+        if ($this->entityManager instanceof EntityManagerInterface && $this->entityManager->isOpen()) {
             $this->entityManager->clear();
         }
 

@@ -159,7 +159,7 @@ final class CouchesCartographiquesController extends AbstractController
             $this->coucheCartoRepository->remove($coucheCarto);
             $this->addFlash('success', 'La couche cartographique a été supprimée.');
         } catch (\Exception $exception) {
-            $this->addFlash('danger', 'La couche cartographique n\'a pas été supprimée. Veuillez rééssayez. ('.$exception->getMessage().')');
+            $this->addFlash('danger', "La couche cartographique n'a pas été supprimée. Veuillez rééssayez. (".$exception->getMessage().')');
         }
 
         return $this->redirectToRoute('couches_cartographiques');

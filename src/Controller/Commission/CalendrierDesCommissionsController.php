@@ -496,7 +496,7 @@ final class CalendrierDesCommissionsController extends AbstractController
         $dateDebut = $this->calendarService->parseTimestamp($start);
         $dateFin = $this->calendarService->parseTimestamp($end);
 
-        if (null === $dateDebut || null === $dateFin) {
+        if (!$dateDebut instanceof \DateTimeInterface || !$dateFin instanceof \DateTimeInterface) {
             return $this->json(['items' => []]);
         }
 
@@ -572,7 +572,7 @@ final class CalendrierDesCommissionsController extends AbstractController
 
             return $this->json([
                 'success' => true,
-                'message' => 'L\'événement a bien été modifié',
+                'message' => "L'événement a bien été modifié",
             ]);
         } catch (\InvalidArgumentException $e) {
             return $this->json([
@@ -582,7 +582,7 @@ final class CalendrierDesCommissionsController extends AbstractController
         } catch (\Exception) {
             return $this->json([
                 'success' => false,
-                'error' => 'Erreur lors de la modification de l\'événement',
+                'error' => "Erreur lors de la modification de l'événement",
             ], 500);
         }
     }
@@ -633,7 +633,7 @@ final class CalendrierDesCommissionsController extends AbstractController
 
             return $this->json([
                 'success' => true,
-                'message' => 'L\'événement a bien été déplacé',
+                'message' => "L'événement a bien été déplacé",
             ]);
         } catch (\InvalidArgumentException $e) {
             return $this->json([
@@ -643,7 +643,7 @@ final class CalendrierDesCommissionsController extends AbstractController
         } catch (\Exception) {
             return $this->json([
                 'success' => false,
-                'error' => 'Erreur lors du déplacement de l\'événement',
+                'error' => "Erreur lors du déplacement de l'événement",
             ], 500);
         }
     }

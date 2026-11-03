@@ -77,12 +77,12 @@ final class DescriptifInspector
      */
     private function valeurHasData(?Valeur $valeur, Champ $champ): bool
     {
-        if (null === $valeur) {
+        if (!$valeur instanceof Valeur) {
             return false;
         }
 
         $type = $champ->getType();
-        if (null !== $type && TypeChamp::CHECKBOX === $type->getId()) {
+        if ($type instanceof \App\Entity\TypeChamp && TypeChamp::CHECKBOX === $type->getId()) {
             return true === $valeur->getCheckbox();
         }
 

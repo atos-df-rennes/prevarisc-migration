@@ -8,6 +8,7 @@ use App\Entity\DossierNatureListe;
 use App\Entity\DossierType;
 use App\Entity\EtablissementActivite;
 use App\Entity\EtablissementCategorie;
+use App\Entity\EtablissementType;
 use App\Entity\Groupement;
 use App\Entity\GroupementType;
 use App\Entity\IghClasse;
@@ -129,11 +130,11 @@ final class CommissionMembreType extends AbstractType
             'multiple' => true,
             'expanded' => true,
             'required' => false,
-            'label' => 'Types d\'activité ERP',
+            'label' => "Types d'activité ERP",
             'group_by' => function (EtablissementActivite $activite): string {
                 $type = $activite->getType();
 
-                return null !== $type ? (string) $type->getLibelle() : 'Autres';
+                return $type instanceof EtablissementType ? (string) $type->getLibelle() : 'Autres';
             },
             'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('a')
                 ->leftJoin('a.type', 't')
@@ -196,9 +197,9 @@ final class CommissionMembreType extends AbstractType
         // Détermine le type de membre initial
         $typeMembre = 3; // Commune par défaut
         if ($membre instanceof CommissionMembre) {
-            if (null !== $membre->getGroupement()) {
+            if ($membre->getGroupement() instanceof Groupement) {
                 $typeMembre = 1;
-            } elseif (null !== $membre->getUtilisateurInformations()) {
+            } elseif ($membre->getUtilisateurInformations() instanceof UtilisateurInformations) {
                 $typeMembre = 2;
             }
         }

@@ -17,7 +17,7 @@ class CapsuleRubrique
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_CAPSULERUBRIQUE', type: Types::INTEGER)]
+    #[ORM\Column(name: 'ID_CAPSULERUBRIQUE', type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\Column(name: 'NOM_INTERNE', type: Types::STRING, length: 255, nullable: false)]

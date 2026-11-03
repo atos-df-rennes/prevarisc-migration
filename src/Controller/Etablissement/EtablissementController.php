@@ -165,7 +165,7 @@ final class EtablissementController extends AbstractController implements Etabli
                     }
                 }
 
-                $this->addFlash('success', 'L\'établissement a bien été mis à jour.'.$lienAlerte);
+                $this->addFlash('success', "L'établissement a bien été mis à jour.".$lienAlerte);
 
                 return $this->redirectToRoute('etablissement_informations', ['id' => $etablissement->getId()]);
             } catch (\Exception $e) {
@@ -267,7 +267,7 @@ final class EtablissementController extends AbstractController implements Etabli
             }
         }
 
-        $this->addFlash('success', 'L\'établissement a bien été mis à jour.'.$lienAlerte);
+        $this->addFlash('success', "L'établissement a bien été mis à jour.".$lienAlerte);
 
         return $this->redirectToRoute('etablissement_informations', ['id' => $id]);
     }
@@ -443,11 +443,11 @@ final class EtablissementController extends AbstractController implements Etabli
             $this->etablissementPieceJointeService->addPJ($etablissement, $file, $name, $description, $mise_en_avant);
             $this->addFlash('success', 'La pièce jointe a bien été ajoutée.');
         } catch (\Exception $exception) {
-            $this->pieceJointeLogger->error('Erreur lors de l\'ajout d\'une pièce jointe', [
+            $this->pieceJointeLogger->error("Erreur lors de l'ajout d'une pièce jointe", [
                 'etablissement_id' => $etablissement->getId(),
                 'exception' => $exception,
             ]);
-            $this->addFlash('danger', 'La pièce jointe n\'a pas été ajoutée. Veuillez réessayer.');
+            $this->addFlash('danger', "La pièce jointe n'a pas été ajoutée. Veuillez réessayer.");
         }
 
         if ($request->isXmlHttpRequest()) {
@@ -477,7 +477,7 @@ final class EtablissementController extends AbstractController implements Etabli
             $this->etablissementPieceJointeService->deletePJ($etablissement, $idPj);
             $this->addFlash('success', 'La pièce jointe a bien été supprimée.');
         } catch (\Exception) {
-            $this->addFlash('danger', 'La pièce jointe n\'a pas été supprimée. Veuillez réessayer.');
+            $this->addFlash('danger', "La pièce jointe n'a pas été supprimée. Veuillez réessayer.");
         }
 
         return $this->redirectToRoute('etablissement_pieces_jointes_modifier', ['id' => $etablissement->getId()]);
@@ -627,7 +627,7 @@ final class EtablissementController extends AbstractController implements Etabli
                     'etablissement_id' => $etablissement->getId(),
                     'exception' => $e,
                 ]);
-                $this->addFlash('danger', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
+                $this->addFlash('danger', "Les descriptifs n'ont pas été mis à jour. Veuillez réessayer.");
             }
 
             return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
@@ -662,7 +662,7 @@ final class EtablissementController extends AbstractController implements Etabli
                     'etablissement_id' => $etablissement->getId(),
                     'exception' => $e,
                 ]);
-                $this->addFlash('danger', 'Les descriptifs n\'ont pas été mis à jour. Veuillez réessayer.');
+                $this->addFlash('danger', "Les descriptifs n'ont pas été mis à jour. Veuillez réessayer.");
             }
 
             return $this->redirectToRoute('etablissement_descriptif', ['id' => $etablissement->getId()]);
@@ -701,7 +701,7 @@ final class EtablissementController extends AbstractController implements Etabli
                     'etablissement_id' => $etablissement->getId(),
                     'exception' => $e,
                 ]);
-                $this->addFlash('danger', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
+                $this->addFlash('danger', "Les effectifs et dégagements n'ont pas été mis à jour. Veuillez réessayer.");
             }
 
             return $this->redirectToRoute('etablissement_effectifs_degagements', ['id' => $etablissement->getId()]);

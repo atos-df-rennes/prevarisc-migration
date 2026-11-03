@@ -119,7 +119,7 @@ final class PrescriptionsTypesController extends AbstractController
     {
         $actionUrl = $this->getCurrentUrl($request);
 
-        if (null === $texte) {
+        if (!$texte instanceof PrescriptionTexte) {
             $maxNumCat = $this->prescriptionTexteRepository->recupMaxNumCat();
 
             $texte = new PrescriptionTexte();
@@ -173,7 +173,7 @@ final class PrescriptionsTypesController extends AbstractController
     {
         $actionUrl = $this->getCurrentUrl($request);
 
-        if (null === $article) {
+        if (!$article instanceof PrescriptionArticle) {
             $maxNumCat = $this->prescriptionArticleRepository->recupMaxNumCat();
 
             $article = new PrescriptionArticle();
@@ -238,16 +238,16 @@ final class PrescriptionsTypesController extends AbstractController
     ): Response {
         $actionUrl = $this->getCurrentUrl($request);
 
-        if (null === $prescription) {
+        if (!$prescription instanceof PrescriptionType) {
             $maxNumCat = $this->prescriptionTypeRepository->recupMaxNumCat();
 
             $texteId = 0;
-            if (null !== $texte) {
+            if ($texte instanceof PrescriptionTexte) {
                 $texteId = $texte->getId();
             }
 
             $articleId = 0;
-            if (null !== $article) {
+            if ($article instanceof PrescriptionArticle) {
                 $articleId = $article->getId();
             }
 

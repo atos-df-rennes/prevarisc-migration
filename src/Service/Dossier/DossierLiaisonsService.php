@@ -148,7 +148,7 @@ final readonly class DossierLiaisonsService
      */
     public function removeEtablissement(Dossier $dossier, Etablissement $etablissement): array
     {
-        $isDonnantAvis = null !== $etablissement->getDossierDonnantAvis()
+        $isDonnantAvis = $etablissement->getDossierDonnantAvis() instanceof Dossier
             && $etablissement->getDossierDonnantAvis()->getId() === $dossier->getId();
 
         $dossier->removeEtablissement($etablissement);

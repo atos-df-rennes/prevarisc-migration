@@ -15,7 +15,7 @@ class TypeChamp
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_TYPECHAMP', type: Types::INTEGER)]
+    #[ORM\Column(name: 'ID_TYPECHAMP', type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\Column(name: 'TYPE', type: Types::STRING, length: 50, nullable: false)]

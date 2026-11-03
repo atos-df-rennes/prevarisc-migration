@@ -3,6 +3,7 @@
 namespace App\Validator;
 
 use App\Entity\Dossier;
+use App\Entity\DossierNatureListe;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -41,7 +42,7 @@ final class DossierObjetValidator extends ConstraintValidator
 
         // Récupère la nature du dossier (un dossier n'a qu'une nature)
         $nature = $value->getNature();
-        if (null === $nature) {
+        if (!$nature instanceof DossierNatureListe) {
             // Si pas de nature, pas de validation (sera validée par @Assert\Count sur nature)
             return;
         }

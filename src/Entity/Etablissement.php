@@ -105,8 +105,8 @@ class Etablissement
      * @var Collection<int, Valeur>
      */
     #[ORM\JoinTable(name: 'etablissementvaleur')]
-    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', options: ['unsigned' => true])]
-    #[ORM\InverseJoinColumn(name: 'ID_VALEUR', referencedColumnName: 'ID_VALEUR')]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', onDelete: 'CASCADE', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_VALEUR', referencedColumnName: 'ID_VALEUR', onDelete: 'CASCADE')]
     #[ORM\ManyToMany(targetEntity: Valeur::class, cascade: ['persist', 'remove'])]
     private Collection $valeurs;
 
@@ -407,7 +407,7 @@ class Etablissement
         $result = $this->informations->matching(self::createLatestInformationsCriteria());
 
         if ($result->isEmpty()) {
-            throw new \OutOfBoundsException('Aucune information existante pour l\'établissement '.$this->id);
+            throw new \OutOfBoundsException("Aucune information existante pour l'établissement ".$this->id);
         }
 
         /** @var EtablissementInformations $latest */
@@ -421,7 +421,7 @@ class Etablissement
         $informations = $this->getLatestInformations();
         $genre = $informations->getGenre();
 
-        if (null !== $genre && GenreEtablissement::CELLULE === $genre->getId()) {
+        if ($genre instanceof Genre && GenreEtablissement::CELLULE === $genre->getId()) {
             foreach ($this->getParents() as $parent) {
                 if (null === $parent->getDateSuppression()) {
                     $parentInformations = $parent->getLatestInformationsOrNull();
@@ -634,7 +634,7 @@ class Etablissement
      */
     public function getFilsActifs(): Collection
     {
-        return $this->fils->filter(static fn (self $fils): bool => null === $fils->getDateSuppression());
+        return $this->fils->filter(static fn (self $fils): bool => !$fils->getDateSuppression() instanceof \DateTimeInterface);
     }
 
     public function addFils(self $fils): self
@@ -728,7 +728,7 @@ class Etablissement
     public function hasAvisDiffere(): bool
     {
         $dossiersAvisDiffere = $this->getDossiers()->filter(fn (Dossier $dossier): bool => $dossier->hasAvisDiffere()
-            && null === $dossier->getDateSuppression());
+            && !$dossier->getDateSuppression() instanceof \DateTimeInterface);
 
         return !$dossiersAvisDiffere->isEmpty();
     }
@@ -738,12 +738,12 @@ class Etablissement
         $dossiersEcheancier = $this->getDossiers()->filter(function (Dossier $dossier): bool {
             $nature = $dossier->getNature();
 
-            if (null === $nature) {
+            if (!$nature instanceof DossierNatureListe) {
                 return false;
             }
 
             return DossierNature::ECHEANCIER_TRAVAUX === $nature->getId()
-                && null === $dossier->getDateSuppression();
+                && !$dossier->getDateSuppression() instanceof \DateTimeInterface;
         });
 
         return !$dossiersEcheancier->isEmpty();

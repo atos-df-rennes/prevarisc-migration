@@ -12,15 +12,15 @@ class EtablissementDisplayRubrique
 {
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Etablissement::class, inversedBy: 'displayRubriques')]
-    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', nullable: false)]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', nullable: false, onDelete: 'CASCADE')]
     private ?Etablissement $etablissement = null;
 
     #[ORM\Id]
     #[ORM\ManyToOne(targetEntity: Rubrique::class)]
-    #[ORM\JoinColumn(name: 'ID_RUBRIQUE', referencedColumnName: 'ID_RUBRIQUE', nullable: false)]
+    #[ORM\JoinColumn(name: 'ID_RUBRIQUE', referencedColumnName: 'ID_RUBRIQUE', nullable: false, onDelete: 'CASCADE')]
     private ?Rubrique $rubrique = null;
 
-    #[ORM\Column(name: 'USER_DISPLAY', type: Types::BOOLEAN, nullable: false)]
+    #[ORM\Column(name: 'USER_DISPLAY', type: Types::BOOLEAN, nullable: true, options: ['default' => 0])]
     private ?bool $userDisplay = null;
 
     #[ORM\Column(name: 'USER_OPENED', type: Types::BOOLEAN, nullable: true)]

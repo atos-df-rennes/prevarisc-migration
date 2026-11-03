@@ -111,7 +111,7 @@ final class TableauDesPeriodicitesController extends AbstractController
 
             return $this->redirectToRoute('admin_tableau_des_periodicites');
         } catch (\Throwable $throwable) {
-            $this->addFlash('danger', 'Erreur lors de l\'application des périodicités : '.$throwable->getMessage());
+            $this->addFlash('danger', "Erreur lors de l'application des périodicités : ".$throwable->getMessage());
         }
 
         return $this->redirectToRoute('admin_tableau_des_periodicites');

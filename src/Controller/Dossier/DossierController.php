@@ -75,7 +75,7 @@ final class DossierController extends AbstractController implements DossierLater
             && !$dossier->hasNePeutSePrononcer()
         ;
 
-        if ($this->deactivatePlatau && null !== $dossier->getConsultationPlatau()) {
+        if ($this->deactivatePlatau && $dossier->getConsultationPlatau() instanceof \App\Entity\PlatauConsultation) {
             throw new \Exception("Plat'AU est désactivé, vous ne pouvez pas voir ce dossier");
         }
 
@@ -256,7 +256,7 @@ final class DossierController extends AbstractController implements DossierLater
         bool $mailEnabled
     ): Response {
         // Vérification Plat'AU désactivé
-        if ($this->deactivatePlatau && null !== $dossier->getConsultationPlatau()) {
+        if ($this->deactivatePlatau && $dossier->getConsultationPlatau() instanceof \App\Entity\PlatauConsultation) {
             throw new \Exception("Plat'AU est désactivé, vous ne pouvez pas voir ce dossier");
         }
 
@@ -325,7 +325,7 @@ final class DossierController extends AbstractController implements DossierLater
                 }
 
                 $platauConsultation = $dossier->getConsultationPlatau();
-                if (null !== $platauConsultation) {
+                if ($platauConsultation instanceof \App\Entity\PlatauConsultation) {
                     $platauRetryPec = (bool) $form->get('platauRetryPec')->getData();
                     if ($platauRetryPec) {
                         $platauConsultation->setStatutPriseEnCompte(PlatauStatutPecEnum::A_RENVOYER);
@@ -629,7 +629,7 @@ final class DossierController extends AbstractController implements DossierLater
                     'dossier_id' => $dossier->getId(),
                     'exception' => $e,
                 ]);
-                $this->addFlash('danger', 'Les vérifications techniques n\'ont pas été mises à jour. Veuillez réessayer.');
+                $this->addFlash('danger', "Les vérifications techniques n'ont pas été mises à jour. Veuillez réessayer.");
             }
 
             return $this->redirectToRoute('dossier_verifications_techniques', ['id' => $dossier->getId()]);
@@ -716,7 +716,7 @@ final class DossierController extends AbstractController implements DossierLater
             $this->entityManager->persist($avisDerogation);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'L\'avis ou la dérogation a été ajouté(e) avec succès.');
+            $this->addFlash('success', "L'avis ou la dérogation a été ajouté(e) avec succès.");
 
             return $this->redirectToRoute('dossier_avis_et_derogations', ['id' => $dossier->getId()]);
         }
@@ -804,7 +804,7 @@ final class DossierController extends AbstractController implements DossierLater
 
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'L\'avis ou la dérogation a été modifié(e) avec succès.');
+            $this->addFlash('success', "L'avis ou la dérogation a été modifié(e) avec succès.");
 
             return $this->redirectToRoute('dossier_avis_et_derogations', ['id' => $dossier->getId()]);
         }
@@ -886,7 +886,7 @@ final class DossierController extends AbstractController implements DossierLater
                 'trace' => $throwable->getTraceAsString(),
             ]);
 
-            $this->addFlash('danger', 'Le dossier n\'a pas été supprimé. Veuillez réessayer ou contacter le service informatique.');
+            $this->addFlash('danger', "Le dossier n'a pas été supprimé. Veuillez réessayer ou contacter le service informatique.");
 
             return $this->redirectToRoute('dossier_index', ['id' => $dossier->getId()]);
         }

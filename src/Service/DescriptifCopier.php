@@ -138,7 +138,7 @@ final readonly class DescriptifCopier
      */
     private function copySimpleChamp(?Valeur $sourceValeur, array $targetChampData, Dossier|Etablissement $targetEntity): void
     {
-        if (null === $sourceValeur) {
+        if (!$sourceValeur instanceof Valeur) {
             return;
         }
 
@@ -231,7 +231,7 @@ final readonly class DescriptifCopier
         foreach ($sourceLignes as $sourceLigne) {
             foreach ($sourceLigne as $sourceChampId => $sourceValeur) {
                 $sourceEnfant = $this->findEnfantById($sourceChamp, $sourceChampId);
-                if (null === $sourceEnfant) {
+                if (!$sourceEnfant instanceof Champ) {
                     continue;
                 }
 
@@ -241,7 +241,7 @@ final readonly class DescriptifCopier
                 }
 
                 $targetEnfant = $this->matchChampByNomInArray($targetEnfants, $nom);
-                if (null === $targetEnfant) {
+                if (!$targetEnfant instanceof Champ) {
                     $this->logger->warning('DescriptifCopier : colonne tableau "{nom}" absente dans le champ cible, ignorée.', ['nom' => $nom]);
                     continue;
                 }
@@ -274,7 +274,7 @@ final readonly class DescriptifCopier
      */
     private function writeValeur(Valeur $source, Champ $targetChamp, ?Valeur $existing, Dossier|Etablissement $targetEntity, ?int $idx): void
     {
-        if (null !== $existing) {
+        if ($existing instanceof Valeur) {
             $this->applySourceToTarget($source, $existing);
         } else {
             $newValeur = $this->createValeur($targetChamp, $idx);

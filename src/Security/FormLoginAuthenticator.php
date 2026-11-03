@@ -110,7 +110,7 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
             // supports() — le token est chargé paresseusement et getToken() retourne null même
             // si le token existe en session. On vérifie donc la session directement en complément.
             $token = $this->tokenStorage->getToken();
-            if (null !== $token?->getUser()) {
+            if ($token?->getUser() instanceof UserInterface) {
                 return false;
             }
 
@@ -297,7 +297,7 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
                             return true;
                         }
 
-                        $this->logger->notice('Auth LDAP: utilisateur non trouvé dans l\'annuaire, fallback direct bind', [
+                        $this->logger->notice("Auth LDAP: utilisateur non trouvé dans l'annuaire, fallback direct bind", [
                             'username' => $credentials['username'],
                         ]);
                     } catch (\Exception $e) {
@@ -401,7 +401,7 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): RedirectResponse
     {
         // Incrémenter le compteur d'échecs si l'utilisateur existe
-        if (null !== $this->lastAttemptedUser) {
+        if ($this->lastAttemptedUser instanceof Utilisateur) {
             $attempts = (int) $this->lastAttemptedUser->getFailedLoginAttempts();
             $this->lastAttemptedUser->setFailedLoginAttempts($attempts + 1);
             $this->entityManager->flush();

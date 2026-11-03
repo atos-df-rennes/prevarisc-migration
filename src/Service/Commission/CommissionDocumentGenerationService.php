@@ -1409,7 +1409,7 @@ final readonly class CommissionDocumentGenerationService
         $dateVisiteStr = $dossierInfos['DATEVISITE_DOSSIER'] ?? null;
         if (null !== $dateVisiteStr && '' !== $dateVisiteStr) {
             $dtVisite = $this->parseDateSql($dateVisiteStr);
-            if (null !== $dtVisite) {
+            if ($dtVisite instanceof \DateTime) {
                 $dateVisite = $dtVisite->format('d/m/Y');
             }
         }
@@ -1535,7 +1535,7 @@ final readonly class CommissionDocumentGenerationService
 
                 // Date commission
                 $dateCommObj = $this->parseDateSql($dateComm);
-                $this->addChamp($dossInfos, 'dateCommission', null !== $dateCommObj ? DateFormatterFr::formatLong($dateCommObj) : '');
+                $this->addChamp($dossInfos, 'dateCommission', $dateCommObj instanceof \DateTime ? DateFormatterFr::formatLong($dateCommObj) : '');
 
                 // Date visite
                 $dateVisite = null;
@@ -1549,7 +1549,7 @@ final readonly class CommissionDocumentGenerationService
                     $dateVisite = $this->parseDateSql($pvLastVisite);
                 }
 
-                $this->addChamp($dossInfos, 'dateVisite', null !== $dateVisite ? DateFormatterFr::formatLong($dateVisite) : '');
+                $this->addChamp($dossInfos, 'dateVisite', $dateVisite instanceof \DateTime ? DateFormatterFr::formatLong($dateVisite) : '');
 
                 // Adresse
                 $pvAdresse0 = $pvAdresses[0] ?? [];
@@ -1694,7 +1694,7 @@ final readonly class CommissionDocumentGenerationService
 
                 // Date commission
                 $dateCommObj = $this->parseDateSql($dateComm);
-                $this->addChamp($dossInfos, 'dateCommission', null !== $dateCommObj ? DateFormatterFr::formatLong($dateCommObj) : '');
+                $this->addChamp($dossInfos, 'dateCommission', $dateCommObj instanceof \DateTime ? DateFormatterFr::formatLong($dateCommObj) : '');
 
                 // Date visite
                 $dateVisite = null;
@@ -1708,7 +1708,7 @@ final readonly class CommissionDocumentGenerationService
                     $dateVisite = $this->parseDateSql($crLastVisite);
                 }
 
-                $this->addChamp($dossInfos, 'dateVisite', null !== $dateVisite ? DateFormatterFr::formatLong($dateVisite) : '');
+                $this->addChamp($dossInfos, 'dateVisite', $dateVisite instanceof \DateTime ? DateFormatterFr::formatLong($dateVisite) : '');
 
                 // Adresse
                 $crAdresse0 = $crAdresses[0] ?? [];

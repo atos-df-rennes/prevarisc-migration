@@ -16,7 +16,7 @@ final class DateExtension
     #[AsTwigFilter(name: 'date_fr')]
     public function formatDateFr(?\DateTimeInterface $date): string
     {
-        if (null === $date) {
+        if (!$date instanceof \DateTimeInterface) {
             return '';
         }
 

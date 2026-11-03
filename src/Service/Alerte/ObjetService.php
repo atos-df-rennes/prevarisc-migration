@@ -50,7 +50,7 @@ final readonly class ObjetService
 
         // Ajouter parent direct si existe
         $parent = $etablissement->getParent();
-        if (null !== $parent) {
+        if ($parent instanceof Etablissement) {
             $parentInfos = $parent->getLatestInformations();
             $parentLibelle = $parentInfos->getLibelle() ?? '';
             if ('' !== $parentLibelle) {

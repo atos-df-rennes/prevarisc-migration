@@ -16,20 +16,20 @@ class Rubrique
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'ID_RUBRIQUE', type: Types::INTEGER)]
+    #[ORM\Column(name: 'ID_RUBRIQUE', type: Types::BIGINT)]
     private ?int $id = null;
 
     #[ORM\Column(name: 'NOM', type: Types::STRING, length: 255, nullable: false)]
     private ?string $nom = null;
 
-    #[ORM\Column(name: 'DEFAULT_DISPLAY', type: Types::BOOLEAN, nullable: true)]
+    #[ORM\Column(name: 'DEFAULT_DISPLAY', type: Types::BOOLEAN, nullable: true, options: ['default' => 0])]
     private ?bool $defaultDisplay = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private ?int $idx = null;
 
     #[ORM\ManyToOne(targetEntity: CapsuleRubrique::class, inversedBy: 'rubriques')]
-    #[ORM\JoinColumn(name: 'ID_CAPSULERUBRIQUE', referencedColumnName: 'ID_CAPSULERUBRIQUE', nullable: false)]
+    #[ORM\JoinColumn(name: 'ID_CAPSULERUBRIQUE', referencedColumnName: 'ID_CAPSULERUBRIQUE', nullable: false, onDelete: 'CASCADE')]
     private ?CapsuleRubrique $capsuleRubrique = null;
 
     /**
@@ -118,7 +118,7 @@ class Rubrique
      */
     public function getRootChamps(): Collection
     {
-        return $this->champs->filter(fn (Champ $champ): bool => null === $champ->getParent());
+        return $this->champs->filter(fn (Champ $champ): bool => !$champ->getParent() instanceof Champ);
     }
 
     public function addChamp(Champ $champ): self
@@ -126,7 +126,7 @@ class Rubrique
         if (!$this->champs->contains($champ)) {
             $this->champs[] = $champ;
             $champ->setRubrique($this);
-            $champ->setIdx($this->champs->filter(fn (Champ $champ): bool => null === $champ->getParent())->count() - 1);
+            $champ->setIdx($this->champs->filter(fn (Champ $champ): bool => !$champ->getParent() instanceof Champ)->count() - 1);
         }
 
         return $this;

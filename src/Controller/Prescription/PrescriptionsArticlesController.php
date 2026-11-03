@@ -45,7 +45,7 @@ final class PrescriptionsArticlesController extends AbstractController
                 $this->entityManager->persist($articleListe);
                 $this->entityManager->flush();
 
-                $this->addFlash('success', 'L\'article a bien été enregistré');
+                $this->addFlash('success', "L'article a bien été enregistré");
             } catch (\Exception $e) {
                 $this->addFlash('danger', 'Une erreur s\'est produite lors de l\enregistrement de la prescription ('.$e->getMessage().')');
             }
@@ -76,7 +76,7 @@ final class PrescriptionsArticlesController extends AbstractController
 
             try {
                 $this->prescriptionArticleListeRepository->replaceAndRemove($articleListe, $newArticle);
-                $this->addFlash('success', 'L\'article a bien été supprimé');
+                $this->addFlash('success', "L'article a bien été supprimé");
             } catch (\Exception $e) {
                 $this->addFlash('danger', "Une erreur s'est produite lors de la suppression du article (".$e->getMessage().')');
             }

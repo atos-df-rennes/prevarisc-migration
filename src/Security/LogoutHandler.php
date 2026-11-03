@@ -6,7 +6,8 @@ namespace App\Security;
 
 use App\Entity\Utilisateur;
 use App\Service\LastActionUpdater;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 /**
@@ -21,16 +22,17 @@ use Symfony\Component\Security\Http\Event\LogoutEvent;
  *
  * Enregistré automatiquement comme subscriber du LogoutEvent.
  */
-final readonly class LogoutHandler implements EventSubscriberInterface
+final readonly class LogoutHandler
 {
     public function __construct(private LastActionUpdater $lastActionUpdater, private bool $casEnabled)
     {
     }
 
+    #[AsEventListener(event: LogoutEvent::class)]
     public function onLogout(LogoutEvent $logoutEvent): void
     {
         $token = $logoutEvent->getToken();
-        if (null !== $token) {
+        if ($token instanceof TokenInterface) {
             // Mettre à jour la dernière action avant l'invalidation du token.
             // $token->getUser() est encore disponible à ce stade, contrairement à
             // kernel.terminate où le token a déjà été invalidé.
@@ -46,13 +48,5 @@ final readonly class LogoutHandler implements EventSubscriberInterface
         if ($this->casEnabled && isset($_SESSION['phpCAS'])) {
             unset($_SESSION['phpCAS']);
         }
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public static function getSubscribedEvents(): array
-    {
-        return [LogoutEvent::class => 'onLogout'];
     }
 }

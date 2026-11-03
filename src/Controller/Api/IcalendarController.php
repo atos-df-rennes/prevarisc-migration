@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
+use App\Entity\Groupe;
 use App\Entity\Utilisateur;
 use App\Repository\UtilisateurRepository;
 use App\Service\Commission\IcalendarSyncService;
@@ -75,7 +76,7 @@ final class IcalendarController extends AbstractController
     private function hasCalendarViewAllPrivilege(Utilisateur $utilisateur): bool
     {
         $groupe = $utilisateur->getGroupe();
-        if (null === $groupe) {
+        if (!$groupe instanceof Groupe) {
             return false;
         }
 

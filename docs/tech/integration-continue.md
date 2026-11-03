@@ -17,8 +17,8 @@ modifies. Ils analysent tout leur perimetre configure lorsque leur configuration
 leurs dependances, le workflow CI ou l'action composite partagee changent. Les
 fichiers supprimes sont ignores. Sur les push vers les branches suivies, tous
 les controles s'executent et les deux formateurs analysent leur perimetre
-complet. Les jobs de conflits et d'audit restent toujours actifs, quelle que
-soit la liste de fichiers modifies.
+complet. Les jobs de conflits, de detection de secrets et d'audit restent
+toujours actifs, quelle que soit la liste de fichiers modifies.
 
 ## Controles
 
@@ -41,6 +41,7 @@ Les autres controles restent uniquement sur Ubuntu.
 | PHPUnit Ubuntu | `php vendor/bin/phpunit --testdox --exclude-group functional` |
 | PHPUnit Windows | `php vendor/bin/phpunit --testdox --exclude-group functional,database` |
 | Git conflict markers | `tools/vendor/bin/swiss-knife check-conflicts .` avec exclusions des dependances et fichiers generes |
+| Gitleaks | `gitleaks git --redact --no-banner --log-opts="--all" .` |
 | Composer audit | `composer audit --locked` a la racine et dans `tools/` |
 
 Les outils de style et Rector ne modifient pas le code. Les controles executes
@@ -54,6 +55,24 @@ reconstruit le schema ORM et charge les stories globales ; DAMA annule la
 transaction de chaque test. Ils ne dependent pas d'un contenu de base existant.
 Le groupe historique `functional`, notamment dans `tests/Repository/`, reste
 exclu en attendant sa migration. Voir [Tests PHP](tests-php.md).
+
+Gitleaks s'execute sans PHP ni Composer. Le CLI officiel est telecharge a une
+version figee, puis son archive est verifiee avec une empreinte SHA-256 figee
+dans le workflow ; les deux valeurs doivent etre mises a jour ensemble.
+Il ne necessite ni compte ni cle de licence Gitleaks.
+Le checkout recupere l'historique complet et le scan couvre toutes les
+references Git disponibles, y compris les commits qui ont ajoute puis supprime
+un secret. Aucun filtre de chemins ni baseline n'est applique.
+Le fichier `.gitleaksignore` contient uniquement les empreintes historiques du
+faux positif `generic-api-key` sur le code de rendu de texte minifie du SDK
+Geoportail IGN et de ses copies dans le commentaire d'exclusion et cette
+documentation. Il n'exclut aucun fichier ni ses futurs commits.
+Les valeurs detectees sont masquees dans les logs et aucun rapport n'est publie.
+Un secret historique reel doit etre revoque ou renouvele, pas simplement ignore.
+Ce controle intervient apres le push ; il ne remplace pas une protection
+avant publication. Pour bloquer les fusions, le controle `CI` doit etre requis
+dans les regles de branche GitHub.
+
 Cypress, les controles du titre et des labels de PR, ainsi que le deploiement
 ne font pas partie de ce workflow.
 

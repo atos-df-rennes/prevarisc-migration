@@ -23,7 +23,7 @@ final class PrescriptionReglementaireType extends AbstractType
                 ]
             ])
             ->add('visible', ChoiceType::class, [
-                'label' => 'Ajouter par défaut à la création d\'un nouveau dossier',
+                'label' => "Ajouter par défaut à la création d'un nouveau dossier",
                 'choices' => [
                     'Oui' => true,
                     'Non' => false,

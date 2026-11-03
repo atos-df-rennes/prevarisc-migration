@@ -14,7 +14,7 @@ final class PrescriptionTypeArticleType extends AbstractType
     {
         $builder
             ->add('libelle', TextType::class, [
-                'label' => 'Libellé de l\'article',
+                'label' => "Libellé de l'article",
                 'required' => false,
             ])
         ;

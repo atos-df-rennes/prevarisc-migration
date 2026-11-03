@@ -26,7 +26,7 @@ final class EffectifsDegagementsRepriseValidator
         }
 
         $type = $source->getType();
-        if (null === $type || DossierType::ETUDE !== $type->getId()) {
+        if (!$type instanceof \App\Entity\DossierType || DossierType::ETUDE !== $type->getId()) {
             return 'Le dossier source doit être une étude.';
         }
 
@@ -46,6 +46,6 @@ final class EffectifsDegagementsRepriseValidator
             }
         }
 
-        return 'Le dossier source n\'appartient pas au même établissement que le dossier courant.';
+        return "Le dossier source n'appartient pas au même établissement que le dossier courant.";
     }
 }

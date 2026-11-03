@@ -12,10 +12,10 @@ use Symfony\Component\Validator\Constraint;
 final class DossierDocumentsManquants extends Constraint
 {
     /** @var string */
-    public $messageCollectionVide = 'Le dossier est marqué incomplet mais aucun document manquant n\'a été renseigné.';
+    public $messageCollectionVide = "Le dossier est marqué incomplet mais aucun document manquant n'a été renseigné.";
 
     /** @var string */
-    public $messageChampsManquants = 'Chaque document manquant doit avoir une date d\'incomplétude et un contenu renseignés.';
+    public $messageChampsManquants = "Chaque document manquant doit avoir une date d'incomplétude et un contenu renseignés.";
 
     #[\Override]
     public function getTargets(): string

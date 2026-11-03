@@ -105,7 +105,7 @@ class DossierPrescriptionService
         $this->em->remove($prescription);
         $this->em->flush();
 
-        if (null !== $dossier && null !== $type) {
+        if ($dossier instanceof Dossier && null !== $type) {
             $this->renumeroterSequence($dossier, $type);
         }
     }
@@ -124,7 +124,7 @@ class DossierPrescriptionService
     {
         $prescriptionType = $prescription->getPrescriptionType();
 
-        if (null === $prescriptionType) {
+        if (!$prescriptionType instanceof PrescriptionType) {
             return;
         }
 

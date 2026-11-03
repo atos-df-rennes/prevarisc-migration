@@ -59,11 +59,11 @@ final class EtablissementSaveTest extends TestCase
         $etablissementRepo = $this->createStub(EtablissementRepository::class);
         $etablissementRepo->method('find')->willReturnCallback(
             function ($id) use ($filsEtablissement, $pereEtablissement): ?Etablissement {
-                if (null !== $filsEtablissement && 10 === (int) $id) {
+                if ($filsEtablissement instanceof Etablissement && 10 === (int) $id) {
                     return $filsEtablissement;
                 }
 
-                if (null !== $pereEtablissement && 99 === (int) $id) {
+                if ($pereEtablissement instanceof Etablissement && 99 === (int) $id) {
                     return $pereEtablissement;
                 }
 

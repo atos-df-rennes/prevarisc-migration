@@ -40,7 +40,7 @@ final readonly class DossierAffectationService
         $nature = $dossier->getNature();
         $natureId = $nature instanceof DossierNatureListe ? $nature->getId() : null;
 
-        if (null === $nature || null === $natureId) {
+        if (!$nature instanceof DossierNatureListe || null === $natureId) {
             // Pas de nature → Supprimer toutes affectations
             $this->affectationRepository->deleteAllAffectations($dossier);
             $dossier->setDateCommission(null);
@@ -101,7 +101,7 @@ final readonly class DossierAffectationService
             $setter = 'set'.ucfirst($colonneDate);
             $dossier->$setter(null);
 
-            if (null !== $affectationExistante) {
+            if ($affectationExistante instanceof DossierAffectation) {
                 $this->entityManager->remove($affectationExistante);
             }
 
@@ -115,7 +115,7 @@ final readonly class DossierAffectationService
         }
 
         // Cas 2.1 : Nouvelle affectation → INSERT et early return
-        if (null === $affectationExistante) {
+        if (!$affectationExistante instanceof DossierAffectation) {
             $nouvelleAffectation = new DossierAffectation();
             $nouvelleAffectation->setDossier($dossier);
             $nouvelleAffectation->setDateCommission($dateCommission);
@@ -160,7 +160,7 @@ final readonly class DossierAffectationService
         $setter = 'set'.ucfirst($colonneDate);
 
         // Si date null → effacement
-        if (null === $date) {
+        if (!$date instanceof \DateTimeInterface) {
             $dossier->$setter(null);
 
             return;

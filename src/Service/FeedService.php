@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Groupe;
 use App\Entity\News;
 use App\Entity\Utilisateur;
 use App\Repository\GroupeRepository;
@@ -26,7 +27,7 @@ final readonly class FeedService
     public function getFeeds(Utilisateur $user, int $count = 5): array
     {
         $groupe = $user->getGroupe();
-        if (null === $groupe) {
+        if (!$groupe instanceof Groupe) {
             return [];
         }
 
@@ -39,7 +40,7 @@ final readonly class FeedService
     public function getFeedsCount(Utilisateur $user): int
     {
         $groupe = $user->getGroupe();
-        if (null === $groupe) {
+        if (!$groupe instanceof Groupe) {
             return 0;
         }
 

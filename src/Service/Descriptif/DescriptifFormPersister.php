@@ -5,6 +5,7 @@ namespace App\Service\Descriptif;
 use App\Constant\TypeChamp;
 use App\Dto\Descriptif\ChampValueData;
 use App\Dto\Descriptif\DescriptifFormData;
+use App\Dto\Descriptif\RubriqueFormData;
 use App\Dto\Descriptif\TableauRowData;
 use App\Entity\Champ;
 use App\Entity\Dossier;
@@ -86,7 +87,7 @@ final readonly class DescriptifFormPersister
             $rubriqueId = (int) $rubrique->getId();
             $rubriqueData = $formData->getRubrique($rubriqueId);
 
-            if (null === $rubriqueData) {
+            if (!$rubriqueData instanceof RubriqueFormData) {
                 continue;
             }
 

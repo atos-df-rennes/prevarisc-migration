@@ -193,31 +193,7 @@ class DateCommissionRepository extends ServiceEntityRepository
      */
     public function findDossierAffectForCommission(int $idDateCommission): array
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS, GROUP_CONCAT(dossierdocurba.NUM_DOCURBA SEPARATOR \', \') AS NUM_DOCURBA
-            FROM dossier doss
-            JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
-            JOIN datecommission dateComm ON dossAffect.ID_DATECOMMISSION_AFFECT = dateComm.ID_DATECOMMISSION
-            JOIN dossiernature dossNat ON dossNat.ID_DOSSIER = doss.ID_DOSSIER
-            JOIN dossiernatureliste dossNatListe ON dossNat.ID_NATURE = dossNatListe.ID_DOSSIERNATURE
-            JOIN dossiertype dossType ON doss.TYPE_DOSSIER = dossType.ID_DOSSIERTYPE
-            LEFT JOIN etablissementdossier e ON doss.ID_DOSSIER = e.ID_DOSSIER
-            LEFT JOIN etablissementinformations ON e.ID_ETABLISSEMENT = etablissementinformations.ID_ETABLISSEMENT
-                AND etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS = (
-                    SELECT MAX(ei.DATE_ETABLISSEMENTINFORMATIONS)
-                    FROM etablissementinformations ei
-                    WHERE ei.ID_ETABLISSEMENT = e.ID_ETABLISSEMENT
-                )
-            LEFT JOIN dossierdocurba ON doss.ID_DOSSIER = dossierdocurba.ID_DOSSIER
-            WHERE dateComm.ID_DATECOMMISSION = :idDateCommission
-            AND dossAffect.HEURE_DEB_AFFECT IS NOT NULL
-            AND dossAffect.HEURE_FIN_AFFECT IS NOT NULL
-            GROUP BY doss.ID_DOSSIER';
-
-        /** @var array<int, array<string, mixed>> $rows */
-        $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
-
-        return array_map(DossierAffectationDto::fromArray(...), $rows);
+        return $this->findDossiersForCommission($idDateCommission, true);
     }
 
     /**
@@ -228,7 +204,22 @@ class DateCommissionRepository extends ServiceEntityRepository
      */
     public function findDossierNonAffectForCommission(int $idDateCommission): array
     {
+        return $this->findDossiersForCommission($idDateCommission, false);
+    }
+
+    /**
+     * @return DossierAffectationDto[]
+     */
+    private function findDossiersForCommission(int $idDateCommission, bool $withHours): array
+    {
         $conn = $this->getEntityManager()->getConnection();
+        $hourConditions = $withHours
+            ? 'AND dossAffect.HEURE_DEB_AFFECT IS NOT NULL
+            AND dossAffect.HEURE_FIN_AFFECT IS NOT NULL'
+            : 'AND dossAffect.HEURE_DEB_AFFECT IS NULL
+            AND dossAffect.HEURE_FIN_AFFECT IS NULL';
+        $orderBy = $withHours ? '' : 'ORDER BY dossAffect.NUM_DOSSIER';
+
         $sql = 'SELECT doss.*, dossAffect.ID_DOSSIER_AFFECT, dossAffect.HEURE_DEB_AFFECT, dossAffect.HEURE_FIN_AFFECT, dossAffect.NUM_DOSSIER, dossAffect.ID_DATECOMMISSION_AFFECT, dossNatListe.LIBELLE_DOSSIERNATURE, dossType.LIBELLE_DOSSIERTYPE, etablissementinformations.LIBELLE_ETABLISSEMENTINFORMATIONS, GROUP_CONCAT(dossierdocurba.NUM_DOCURBA SEPARATOR \', \') AS NUM_DOCURBA
             FROM dossier doss
             JOIN dossieraffectation dossAffect ON doss.ID_DOSSIER = dossAffect.ID_DOSSIER_AFFECT
@@ -245,10 +236,9 @@ class DateCommissionRepository extends ServiceEntityRepository
                 )
             LEFT JOIN dossierdocurba ON doss.ID_DOSSIER = dossierdocurba.ID_DOSSIER
             WHERE dateComm.ID_DATECOMMISSION = :idDateCommission
-            AND dossAffect.HEURE_DEB_AFFECT IS NULL
-            AND dossAffect.HEURE_FIN_AFFECT IS NULL
+            '.$hourConditions.'
             GROUP BY doss.ID_DOSSIER
-            ORDER BY dossAffect.NUM_DOSSIER';
+            '.$orderBy;
 
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idDateCommission' => $idDateCommission]);
@@ -325,8 +315,7 @@ class DateCommissionRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        /** @var array<int, array<string, mixed>> $dossiers */
-        $dossiers = $conn->fetchAllAssociative(
+        $dossiers = $conn->fetchFirstColumn(
             'SELECT ID_DOSSIER_AFFECT FROM dossieraffectation WHERE ID_DATECOMMISSION_AFFECT = :id',
             ['id' => $idDateCommission]
         );
@@ -335,7 +324,7 @@ class DateCommissionRepository extends ServiceEntityRepository
             return;
         }
 
-        $dossierIds = array_map(fn (array $row): int => (int) $row['ID_DOSSIER_AFFECT'], $dossiers);
+        $dossierIds = array_map(intval(...), $dossiers);
 
         if (1 === $idTypeEvenement) {
             $conn->executeStatement(

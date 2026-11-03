@@ -48,7 +48,7 @@ final class UtilisateurPreferencesController extends AbstractController
 
         $userPreferences = $user->getPreferences();
 
-        if (null === $userPreferences) {
+        if (!$userPreferences instanceof UtilisateurPreferences) {
             $userPreferences = new UtilisateurPreferences();
             $userPreferences->setUtilisateur($user);
             $this->entityManager->persist($userPreferences);

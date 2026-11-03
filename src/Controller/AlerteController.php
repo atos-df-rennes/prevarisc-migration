@@ -140,7 +140,7 @@ final class AlerteController extends AbstractController
         if (!$this->mailerConfig->isEnabled()) {
             return $this->json([
                 'success' => false,
-                'message' => 'L\'envoi d\'email est désactivé dans la configuration',
+                'message' => "L'envoi d'email est désactivé dans la configuration",
             ]);
         }
 

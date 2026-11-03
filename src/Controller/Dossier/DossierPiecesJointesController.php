@@ -6,6 +6,7 @@ use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierPieceJointe;
 use App\Entity\PieceJointe;
+use App\Entity\PlatauConsultation;
 use App\Entity\Utilisateur;
 use App\Enum\PieceJointeStatutEnum;
 use App\Form\PieceJointeType;
@@ -50,7 +51,7 @@ final class DossierPiecesJointesController extends AbstractController implements
      */
     private function resolvePjFilePath(PieceJointe $pj, Dossier $dossier, bool $createDir = false): string
     {
-        if (null !== $dossier->getConsultationPlatau()) {
+        if ($dossier->getConsultationPlatau() instanceof PlatauConsultation) {
             $path = PathNormalizer::join($this->realDataPath, 'uploads/pieces-jointes', $pj->getId().$pj->getExtension());
             if ($createDir) {
                 $this->filesystem->mkdir(dirname($path));
@@ -77,7 +78,7 @@ final class DossierPiecesJointesController extends AbstractController implements
         $user = $this->getUser();
         $lastVisit = $this->notificationService->getLastVisitDate($user, NotificationService::PIECES_DOSSIER_NAMESPACE);
 
-        $isPlatau = null !== $dossier->getConsultationPlatau();
+        $isPlatau = $dossier->getConsultationPlatau() instanceof PlatauConsultation;
 
         $listePj = [];
         foreach ($dossierPjs as $dpj) {
@@ -364,7 +365,7 @@ final class DossierPiecesJointesController extends AbstractController implements
         $html = $this->renderView('dossier/pieces_jointes/_piece_jointe_row.html.twig', [
             'dpj' => $dpj,
             'isNew' => false,
-            'isPlatau' => null !== $dossier->getConsultationPlatau(),
+            'isPlatau' => $dossier->getConsultationPlatau() instanceof PlatauConsultation,
             'verrou' => $dossier->hasVerrou(),
             'dossier' => $dossier,
         ]);
@@ -416,8 +417,6 @@ final class DossierPiecesJointesController extends AbstractController implements
 
             return $this->redirectToRoute('dossier_pieces_jointes', ['id' => $dossier->getId()]);
         }
-
-        $zipPath .= '.zip';
 
         $zip = new \ZipArchive();
         if (true !== $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE)) {

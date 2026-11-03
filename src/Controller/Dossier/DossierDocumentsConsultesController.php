@@ -5,6 +5,7 @@ namespace App\Controller\Dossier;
 use App\Controller\Contract\DossierLateralNavigationInterface;
 use App\Entity\Dossier;
 use App\Entity\DossierDocumentConsulte;
+use App\Entity\DossierNatureListe;
 use App\Entity\ListeDocumentAjoute;
 use App\Entity\ListeDocumentConsulte;
 use App\Form\Dossier\DossierDocumentConsulteType;
@@ -69,7 +70,7 @@ final class DossierDocumentsConsultesController extends AbstractController imple
         $documentConsulte->setDossier($dossier);
         $documentConsulte->setDocument((string) $documentConsultable->getId());
         $documentConsulte->setConsulte(true);
-        if (null !== $dossier->getNature()) {
+        if ($dossier->getNature() instanceof DossierNatureListe) {
             $documentConsulte->setNature($dossier->getNature());
         }
 
@@ -167,12 +168,12 @@ final class DossierDocumentsConsultesController extends AbstractController imple
     #[IsGranted('edit_doss', subject: 'dossier')]
     public function editDocumentAjoute(Request $request, Dossier $dossier, #[MapEntity(id: 'idDocumentAjoute')] ?ListeDocumentAjoute $documentAjoute = null): Response
     {
-        $isNew = null === $documentAjoute;
+        $isNew = !$documentAjoute instanceof ListeDocumentAjoute;
 
         if ($isNew) {
             $documentAjoute = new ListeDocumentAjoute();
             $documentAjoute->setDossier($dossier);
-            if (null !== $dossier->getNature()) {
+            if ($dossier->getNature() instanceof DossierNatureListe) {
                 $documentAjoute->setNature($dossier->getNature());
             }
 

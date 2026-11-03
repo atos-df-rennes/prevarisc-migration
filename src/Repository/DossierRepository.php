@@ -326,7 +326,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         ;
 
         // Exclure le dossier spécifié (pour éviter de retrouver le dossier courant en désaffectation)
-        if (null !== $excludeDossier) {
+        if ($excludeDossier instanceof Dossier) {
             $qb->andWhere('d.id != :excludeDossierId')
                 ->setParameter('excludeDossierId', $excludeDossier->getId());
         }
@@ -588,8 +588,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         // Legacy sort: autres → dateInsert DESC
         usort($autres, function (Dossier $a, Dossier $b): int {
-            $dateA = null !== $a->getDateInsert() ? $a->getDateInsert()->format('Y-m-d') : '0000-00-00';
-            $dateB = null !== $b->getDateInsert() ? $b->getDateInsert()->format('Y-m-d') : '0000-00-00';
+            $dateA = $a->getDateInsert() instanceof \DateTimeInterface ? $a->getDateInsert()->format('Y-m-d') : '0000-00-00';
+            $dateB = $b->getDateInsert() instanceof \DateTimeInterface ? $b->getDateInsert()->format('Y-m-d') : '0000-00-00';
 
             return $dateB <=> $dateA;
         });
@@ -602,7 +602,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     private function sortDateVisite(Dossier $dossier): string
     {
-        if (null !== $dossier->getDateVisite()) {
+        if ($dossier->getDateVisite() instanceof \DateTimeInterface) {
             return $dossier->getDateVisite()->format('Y-m-d');
         }
 
@@ -610,7 +610,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             return substr($dossier->getDateCommission(), 0, 10);
         }
 
-        return null !== $dossier->getDateInsert() ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
+        return $dossier->getDateInsert() instanceof \DateTimeInterface ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
     }
 
     /**
@@ -622,7 +622,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             return substr($dossier->getDateCommission(), 0, 10);
         }
 
-        return null !== $dossier->getDateInsert() ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
+        return $dossier->getDateInsert() instanceof \DateTimeInterface ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
     }
 
     /**

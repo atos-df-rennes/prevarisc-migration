@@ -9,18 +9,19 @@ use App\Repository\AvisDerogationsRepository;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
 use App\Service\EtablissementAncestryService;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-final readonly class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
+final readonly class EtablissementLateralNavigationSubscriber
 {
     public function __construct(private EtablissementRepository $etablissementRepository, private CapsuleRubriqueRepository $capsuleRubriqueRepository, private AuthorizationCheckerInterface $authorizationChecker, private EtablissementAncestryService $etablissementAncestryService, private AvisDerogationsRepository $avisDerogationsRepository)
     {
     }
 
+    #[AsEventListener(event: KernelEvents::CONTROLLER)]
     public function onKernelController(ControllerEvent $event): void
     {
         $controller = $event->getController();
@@ -83,12 +84,5 @@ final readonly class EtablissementLateralNavigationSubscriber implements EventSu
         }
 
         return $ids;
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::CONTROLLER => 'onKernelController',
-        ];
     }
 }

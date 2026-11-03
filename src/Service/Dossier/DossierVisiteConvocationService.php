@@ -3,6 +3,7 @@
 namespace App\Service\Dossier;
 
 use App\Constant\CommissionTypeEvenement as TypeEvenement;
+use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
@@ -40,7 +41,7 @@ class DossierVisiteConvocationService
 
         $dateCommission = $affectation?->getDateCommission();
 
-        if (null === $dateCommission) {
+        if (!$dateCommission instanceof DateCommission) {
             return ['dateVisite' => '', 'heureVisite' => ''];
         }
 
