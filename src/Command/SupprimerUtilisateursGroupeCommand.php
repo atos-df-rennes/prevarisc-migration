@@ -76,7 +76,7 @@ final readonly class SupprimerUtilisateursGroupeCommand
             && !$io->confirm(\sprintf('Supprimer définitivement %d utilisateur(s) du groupe « %s » ?', \count($analyse->supprimables()), $analyse->groupeLibelle), false)
         ) {
             $this->suppressionUtilisateurs->journaliserAnnulation($analyse);
-            $io->warning('Opération annulée : aucun utilisateur n\'a été supprimé.');
+            $io->warning("Opération annulée : aucun utilisateur n'a été supprimé.");
 
             return Command::SUCCESS;
         }
@@ -102,7 +102,7 @@ final readonly class SupprimerUtilisateursGroupeCommand
     {
         $lignes = [[($bilan->simulation ? 'Utilisateurs qui seraient supprimés' : 'Utilisateurs supprimés') => \count($bilan->supprimes)]];
         if (!$bilan->simulation) {
-            $lignes[] = ['dont fiche d\'informations partagée conservée' => \count($bilan->fichesConservees)];
+            $lignes[] = ["dont fiche d'informations partagée conservée" => \count($bilan->fichesConservees)];
         }
 
         $lignes[] = ['Utilisateurs conservés' => \count($bilan->conserves)];
@@ -118,7 +118,7 @@ final readonly class SupprimerUtilisateursGroupeCommand
                 array_keys($bilan->erreurs),
                 $bilan->erreurs,
             ));
-            $io->error('Des erreurs sont survenues : les utilisateurs concernés n\'ont pas été supprimés.');
+            $io->error("Des erreurs sont survenues : les utilisateurs concernés n'ont pas été supprimés.");
 
             return;
         }

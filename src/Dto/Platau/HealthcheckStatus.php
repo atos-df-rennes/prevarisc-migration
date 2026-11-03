@@ -54,7 +54,7 @@ final readonly class HealthcheckStatus
             return self::STATUS_ERROR;
         }
 
-        return null !== $this->result->getMaintenanceInfo() ? self::STATUS_WARNING : self::STATUS_OK;
+        return $this->result->getMaintenanceInfo() instanceof MaintenanceInfo ? self::STATUS_WARNING : self::STATUS_OK;
     }
 
     public function getLabel(): string

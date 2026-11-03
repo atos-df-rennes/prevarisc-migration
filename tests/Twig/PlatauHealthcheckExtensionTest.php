@@ -20,7 +20,7 @@ final class PlatauHealthcheckExtensionTest extends TestCase
     public static function configurations(): iterable
     {
         yield 'actif' => [false, false, true];
-        yield 'plat\'au désactivé' => [true, false, false];
+        yield "plat'au désactivé" => [true, false, false];
         yield 'healthcheck désactivé' => [false, true, false];
     }
 

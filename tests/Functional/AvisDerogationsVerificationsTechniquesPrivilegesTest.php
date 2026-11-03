@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Entity\Groupe;
 use App\Constant\DossierType;
 use App\Entity\AvisDerogations;
 use App\Entity\Dossier;
@@ -60,7 +61,7 @@ final class AvisDerogationsVerificationsTechniquesPrivilegesTest extends WebTest
         }
 
         $group = $user->getGroupe();
-        if (null === $group) {
+        if (!$group instanceof Groupe) {
             $this->markTestSkipped("Le compte root n'a pas de groupe.");
         }
 

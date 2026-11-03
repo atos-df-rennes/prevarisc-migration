@@ -89,7 +89,7 @@ final class RubriquePreferencesTest extends TestCase
         $nouvelEtat = $etat->withDisplay(false);
 
         $this->assertNotSame($etat, $nouvelEtat);
-        $this->assertTrue($etat->isDisplay(), 'l\'instance d\'origine doit rester inchangée (immuabilité)');
+        $this->assertTrue($etat->isDisplay(), "l'instance d'origine doit rester inchangée (immuabilité)");
         $this->assertFalse($nouvelEtat->isDisplay());
         $this->assertTrue($nouvelEtat->isOpened());
     }
@@ -100,7 +100,7 @@ final class RubriquePreferencesTest extends TestCase
         $nouvelEtat = $etat->withOpened(true);
 
         $this->assertNotSame($etat, $nouvelEtat);
-        $this->assertFalse($etat->isOpened(), 'l\'instance d\'origine doit rester inchangée (immuabilité)');
+        $this->assertFalse($etat->isOpened(), "l'instance d'origine doit rester inchangée (immuabilité)");
         $this->assertTrue($nouvelEtat->isOpened());
         $this->assertTrue($nouvelEtat->isDisplay());
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Platau;
 
+use App\Dto\Platau\MaintenanceInfo;
 use App\Constant\Platau\HealthcheckErrorSource;
 use App\Dto\Platau\HealthcheckStatus;
 use App\Service\Platau\PisteTokenProvider;
@@ -115,7 +116,7 @@ final class PlatauHealthcheckHttpTest extends TestCase
 
         $this->assertSame($success, $result->isSuccess());
         $this->assertSame($errorSource, $result->getErrorSource());
-        $this->assertSame($hasMaintenance, null !== $result->getMaintenanceInfo());
+        $this->assertSame($hasMaintenance, $result->getMaintenanceInfo() instanceof MaintenanceInfo);
         if ($hasMaintenance) {
             $this->assertSame(200 === $httpCode ? null : '1.0', $result->getVersionInfo()?->getVersion());
         }
