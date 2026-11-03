@@ -64,15 +64,27 @@ class CommissionRepository extends ServiceEntityRepository implements HasContact
         foreach ($types as $type) {
             $typeId = (int) $type['ID_COMMISSIONTYPE'];
 
-            /** @var array<int, array<string, mixed>> $commissions */
-            $commissions = $conn->executeQuery(
-                'SELECT ID_COMMISSION, LIBELLE_COMMISSION FROM commission WHERE ID_COMMISSIONTYPE = ? ORDER BY LIBELLE_COMMISSION ASC',
-                [$typeId]
-            )->fetchAllAssociative();
-
             $result[$typeId] = [
                 'LIBELLE' => (string) $type['LIBELLE_COMMISSIONTYPE'],
-                'ARRAY' => $commissions,
+                'ARRAY' => [],
+            ];
+        }
+
+        /** @var array<int, array<string, mixed>> $commissions */
+        $commissions = $conn->executeQuery(
+            'SELECT ID_COMMISSIONTYPE, ID_COMMISSION, LIBELLE_COMMISSION FROM commission WHERE ID_COMMISSIONTYPE IS NOT NULL ORDER BY ID_COMMISSIONTYPE ASC, LIBELLE_COMMISSION ASC'
+        )->fetchAllAssociative();
+
+        foreach ($commissions as $commission) {
+            $typeId = (int) $commission['ID_COMMISSIONTYPE'];
+
+            if (!isset($result[$typeId])) {
+                continue;
+            }
+
+            $result[$typeId]['ARRAY'][] = [
+                'ID_COMMISSION' => $commission['ID_COMMISSION'],
+                'LIBELLE_COMMISSION' => $commission['LIBELLE_COMMISSION'],
             ];
         }
 
