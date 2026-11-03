@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Service\Platau;
 
-use App\Dto\Platau\MaintenanceInfo;
 use App\Constant\Platau\HealthcheckErrorSource;
 use App\Dto\Platau\HealthcheckStatus;
+use App\Dto\Platau\MaintenanceInfo;
 use App\Service\Platau\PisteTokenProvider;
 use App\Service\Platau\PlatauGatewayConfig;
 use App\Service\Platau\PlatauHealthcheckService;

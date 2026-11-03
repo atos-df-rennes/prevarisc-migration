@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
-use App\Entity\Groupe;
 use App\Constant\DossierType;
 use App\Entity\AvisDerogations;
 use App\Entity\Dossier;
+use App\Entity\Groupe;
 use App\Entity\Privileges;
 use App\Entity\Utilisateur;
 use App\Repository\DossierRepository;
