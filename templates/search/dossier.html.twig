@@ -169,6 +169,11 @@
                                value="{{ app.request.query.get('permis', '') }}"
                                placeholder="Numéro de permis" onkeypress="masquerBoutonExportCalc()" />
                     </div>
+                    <div class='col-md-6'>
+                        <input type="text" name='courrier' class='form-control'
+                               value="{{ app.request.query.get('courrier', '') }}"
+                               placeholder="Référence du courrier" onkeypress="masquerBoutonExportCalc()" />
+                    </div>
                 </div>
             </div>
             <div class='col-md-5'>

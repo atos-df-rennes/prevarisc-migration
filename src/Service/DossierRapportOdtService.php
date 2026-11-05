@@ -427,6 +427,7 @@ class DossierRapportOdtService
 
         // --- objetDossier ---
         $this->addChamp($odf, 'objetDossier', $dossier->getObjet() ?? '');
+        $this->addChamp($odf, 'referenceCourrier', $dossier->getReferenceCourrier() ?? '');
 
         // --- analyseRisque ---
         $this->addChamp($odf, 'analyseRisque', $dossier->getAnalyseDeRisque() ?? '');

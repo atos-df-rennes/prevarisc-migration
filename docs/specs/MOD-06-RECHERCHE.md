@@ -200,13 +200,16 @@ Un champ texte libre permet de rechercher un dossier :
 | 9 | **Numéro** | Sélection simple | Numéros de la voie sélectionnée (chargement dynamique) | Aucun |
 | 10 | **Préventionniste** | Sélection simple | Liste des préventionnistes actifs | Aucun |
 | 11 | **Numéro de permis** | Champ texte libre | Numéro de document d'urbanisme | Vide |
-| 12 | **Date de création** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
-| 13 | **Date de réception** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
-| 14 | **Date de réponse** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
-| 15 | **Date de passage en commission** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
-| 16 | **Date de visite** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 12 | **Référence courrier** | Champ texte libre | Référence courrier du dossier | Vide |
+| 13 | **Date de création** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 14 | **Date de réception** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 15 | **Date de réponse** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 16 | **Date de passage en commission** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 17 | **Date de visite** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
 
 > **Critère conditionnel :** le filtre « Provenance » (Plat'AU) n'est affiché que si l'intégration Plat'AU est activée dans la configuration de l'application.
+
+Le critère « Référence courrier » effectue une recherche partielle : la chaîne saisie peut apparaître n'importe où dans la référence enregistrée.
 
 #### 4.1.3 Adresse en cascade
 
@@ -290,7 +293,7 @@ Les dossiers marqués comme **supprimés** sont systématiquement exclus des ré
 
 #### 4.3.3 Colonnes du fichier d'export
 
-L'export contient 22 colonnes :
+L'export contient 23 colonnes :
 
 | # | Colonne | Description |
 |---|---------|-------------|
@@ -306,16 +309,17 @@ L'export contient 22 colonnes :
 | 10 | Type du dossier | Type de dossier (visite, étude, courrier…) |
 | 11 | Nature du dossier | Nature précise du dossier |
 | 12 | Date de création du dossier | Date de création |
-| 13 | Objet du dossier | Texte libre de l'objet |
-| 14 | Numéro document urbanisme | Numéro(s) de permis liés |
-| 15 | Date de visite | Date de visite du dossier |
-| 16 | Date de la commission en salle | Date du passage en commission |
-| 17 | Commission du dossier | Nom de la commission affectée |
-| 18 | Avis rapporteur | Avis du rapporteur (favorable / défavorable) |
-| 19 | Avis commission | Avis de la commission (favorable / défavorable) |
-| 20 | Préventionniste en charge du dossier | Nom et prénom |
-| 21 | Pièces jointes ? | « Oui » ou « Non » |
-| 22 | Identifiant Plat'AU | Affiché uniquement si le filtre de provenance Plat'AU est actif |
+| 13 | Référence courrier | Référence courrier du dossier |
+| 14 | Objet du dossier | Texte libre de l'objet |
+| 15 | Numéro document urbanisme | Numéro(s) de permis liés |
+| 16 | Date de visite | Date de visite du dossier |
+| 17 | Date de la commission en salle | Date du passage en commission |
+| 18 | Commission du dossier | Nom de la commission affectée |
+| 19 | Avis rapporteur | Avis du rapporteur (favorable / défavorable) |
+| 20 | Avis commission | Avis de la commission (favorable / défavorable) |
+| 21 | Préventionniste en charge du dossier | Nom et prénom |
+| 22 | Pièces jointes ? | « Oui » ou « Non » |
+| 23 | Identifiant Plat'AU | Affiché uniquement si le filtre de provenance Plat'AU est actif |
 
 ---
 

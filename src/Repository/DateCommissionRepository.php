@@ -490,6 +490,7 @@ class DateCommissionRepository extends ServiceEntityRepository
                     c.LIBELLE_COMMISSION,
                     d.ID_DOSSIER,
                     d.OBJET_DOSSIER,
+                    d.REFCOURRIER_DOSSIER,
                     d.TYPE_DOSSIER,
                     d.TYPESERVINSTRUC_DOSSIER,
                     d.SERVICEINSTRUC_DOSSIER,
