@@ -8,6 +8,10 @@ describe('Dossier — recherche', () => {
     it('Page chargée → formulaire de recherche visible', () => {
         cy.contains('Dossiers').should('exist');
         cy.get('[name=Rechercher]').should('exist');
+        cy.get('[name="date-commission-start"]').should('be.visible');
+        cy.get('[name="date-commission-end"]').should('be.visible');
+        cy.get('[name="date-visite-start"]').should('be.visible');
+        cy.get('[name="date-visite-end"]').should('be.visible');
     });
 
     // Use URL query params to filter by avis — avoids fragile jQuery Chosen interactions.
@@ -21,6 +25,18 @@ describe('Dossier — recherche', () => {
         cy.visit('/rechercher/dossier?avisCommission[]=2')
         cy.get('.avis.D').should('exist')
         cy.get('.avis.F').should('not.exist')
+    });
+
+    it('Filtre les dossiers par date de passage en commission', () => {
+        cy.visit('/rechercher/dossier?date-commission-start=31%2F12%2F9999')
+        cy.get('[name="date-commission-start"]').should('have.value', '31/12/9999')
+        cy.contains('Aucun résultat disponible.').should('exist')
+    });
+
+    it('Filtre les dossiers par date de visite', () => {
+        cy.visit('/rechercher/dossier?date-visite-start=31%2F12%2F9999')
+        cy.get('[name="date-visite-start"]').should('have.value', '31/12/9999')
+        cy.contains('Aucun résultat disponible.').should('exist')
     });
 
     it('Affiche le numéro et le libellé de la catégorie de l’établissement', () => {

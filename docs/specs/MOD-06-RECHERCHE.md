@@ -203,6 +203,8 @@ Un champ texte libre permet de rechercher un dossier :
 | 12 | **Date de création** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
 | 13 | **Date de réception** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
 | 14 | **Date de réponse** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 15 | **Date de passage en commission** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 16 | **Date de visite** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
 
 > **Critère conditionnel :** le filtre « Provenance » (Plat'AU) n'est affiché que si l'intégration Plat'AU est activée dans la configuration de l'application.
 
@@ -399,6 +401,7 @@ Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté
 | **RG-RCH-038** | La colonne « Identifiant Plat'AU » dans l'export n'est remplie que si le filtre de provenance Plat'AU est actif. |
 | **RG-RCH-039** | L'affichage du **temps restant** avant l'échéance de réponse utilise un code couleur variable selon l'urgence. |
 | **RG-RCH-040** | L'objet du dossier affiché dans la liste est **tronqué à 70 caractères** suivi de « (...) » s'il dépasse cette longueur. |
+| **RG-RCH-041** | Les filtres par date de passage en commission et par date de visite s'appliquent comme des plages inclusives aux dates correspondantes du dossier. Lorsqu'une borne est renseignée, les dossiers sans date correspondante sont exclus. Les mêmes critères s'appliquent à la liste et à l'export. |
 
 ---
 
@@ -446,6 +449,6 @@ La date affichée sous chaque dossier suit la priorité suivante :
 2. **Date de visite** (si la date de commission n'est pas disponible)
 3. **Date de création du dossier** (en dernier recours)
 
-### 7.8 Critères non exposés dans l'interface
+### 7.8 Filtres par date de passage en commission et par date de visite
 
-Les filtres par date de passage en commission et par date de visite n'ont jamais été exposés dans le formulaire de recherche des dossiers. Les valeurs ne sont pas transmises au contrôleur, le code de traitement est du code mort. Ces critères ont été supprimés du moteur de recherche Symfony (voir écart MOD-06-ECART-02).
+Les plages de dates filtrent respectivement la date de passage en commission et la date de visite enregistrées sur le dossier. Chaque borne renseignée est inclusive ; les dossiers sans date correspondante ne sont pas retenus lorsque le filtre est actif. Les critères sont combinables avec les autres filtres et produisent les mêmes résultats dans la liste et l'export.
