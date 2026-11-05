@@ -72,6 +72,16 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
             ])
+            ->add('referenceCourrier', TextType::class, [
+                'label' => 'Référence courrier',
+                'required' => false,
+                'attr' => [
+                    'maxlength' => 15,
+                ],
+                'constraints' => [
+                    new Assert\Length(max: 15),
+                ],
+            ])
             ->add('objet', TextareaType::class, [
                 'label' => 'Objet',
                 'required' => false,

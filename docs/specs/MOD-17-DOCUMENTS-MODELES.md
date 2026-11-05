@@ -46,6 +46,7 @@ Exemples de champs de fusion disponibles :
 | Nature du dossier | ERP, IGH, habitation, etc. |
 | Libellé de la commission | Nom de la commission compétente |
 | Identifiant établissement | Numéro Prevarisc de l'établissement |
+| Référence courrier | Référence courrier renseignée sur le dossier |
 | Objet du dossier | Description libre saisie dans le dossier |
 | Analyse de risque | Anomalies constatées |
 | Observations | Observations de l'instructeur |

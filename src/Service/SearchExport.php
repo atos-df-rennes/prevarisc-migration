@@ -145,9 +145,9 @@ class SearchExport
         $styleArray = [
             'borders' => ['allBorders' => ['style' => Border::BORDER_THIN]],
         ];
-        $sheet->getStyle('A1:V1')->applyFromArray($styleArray);
-        $sheet->getStyle('A1:V1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:V1')->getFont()->setSize(11)->setBold(true);
+        $sheet->getStyle('A1:W1')->applyFromArray($styleArray);
+        $sheet->getStyle('A1:W1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:W1')->getFont()->setSize(11)->setBold(true);
 
         $sheet->setCellValue('A1', 'Groupement');
         $sheet->setCellValue('B1', 'Commune');
@@ -161,16 +161,17 @@ class SearchExport
         $sheet->setCellValue('J1', 'Type du dossier');
         $sheet->setCellValue('K1', 'Nature du dossier');
         $sheet->setCellValue('L1', 'Date de création du dossier');
-        $sheet->setCellValue('M1', 'Objet du dossier');
-        $sheet->setCellValue('N1', 'Numéro document urbanisme');
-        $sheet->setCellValue('O1', 'Date de visite');
-        $sheet->setCellValue('P1', 'Date de la commission en salle');
-        $sheet->setCellValue('Q1', 'Commission du dossier');
-        $sheet->setCellValue('R1', 'Avis rapporteur');
-        $sheet->setCellValue('S1', 'Avis commission');
-        $sheet->setCellValue('T1', 'Préventionniste en charge du dossier');
-        $sheet->setCellValue('U1', 'Pièces jointes ?');
-        $sheet->setCellValue('V1', 'Identifiant PLATAU');
+        $sheet->setCellValue('M1', 'Référence courrier');
+        $sheet->setCellValue('N1', 'Objet du dossier');
+        $sheet->setCellValue('O1', 'Numéro document urbanisme');
+        $sheet->setCellValue('P1', 'Date de visite');
+        $sheet->setCellValue('Q1', 'Date de la commission en salle');
+        $sheet->setCellValue('R1', 'Commission du dossier');
+        $sheet->setCellValue('S1', 'Avis rapporteur');
+        $sheet->setCellValue('T1', 'Avis commission');
+        $sheet->setCellValue('U1', 'Préventionniste en charge du dossier');
+        $sheet->setCellValue('V1', 'Pièces jointes ?');
+        $sheet->setCellValue('W1', 'Identifiant PLATAU');
 
         $ligne = 2;
         foreach ($rows as $row) {
@@ -188,22 +189,23 @@ class SearchExport
 
             $this->writeDateCell($sheet, 'L'.$ligne, $row['DATEINSERT_DOSSIER'] ?? null);
 
-            $this->writeTextCell($sheet, 'M'.$ligne, $row['OBJET_DOSSIER'] ?? '');
-            $this->writeTextCell($sheet, 'N'.$ligne, $row['NUM_DOCURBA'] ?? '');
+            $this->writeTextCell($sheet, 'M'.$ligne, $row['REFCOURRIER_DOSSIER'] ?? '');
+            $this->writeTextCell($sheet, 'N'.$ligne, $row['OBJET_DOSSIER'] ?? '');
+            $this->writeTextCell($sheet, 'O'.$ligne, $row['NUM_DOCURBA'] ?? '');
 
-            $this->writeDateCell($sheet, 'O'.$ligne, $row['DATEVISITE_DOSSIER'] ?? null);
+            $this->writeDateCell($sheet, 'P'.$ligne, $row['DATEVISITE_DOSSIER'] ?? null);
 
-            $this->writeDateCell($sheet, 'P'.$ligne, $row['DATECOMM_DOSSIER'] ?? null);
+            $this->writeDateCell($sheet, 'Q'.$ligne, $row['DATECOMM_DOSSIER'] ?? null);
 
-            $this->writeTextCell($sheet, 'Q'.$ligne, $row['LIBELLE_COMMISSION'] ?? '');
-            $this->writeTextCell($sheet, 'R'.$ligne, $row['LIBELLE_AVIS_RAPPORTEUR'] ?? '');
-            $this->writeTextCell($sheet, 'S'.$ligne, $row['LIBELLE_AVIS_COMMISSION'] ?? '');
-            $this->writeTextCell($sheet, 'T'.$ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
+            $this->writeTextCell($sheet, 'R'.$ligne, $row['LIBELLE_COMMISSION'] ?? '');
+            $this->writeTextCell($sheet, 'S'.$ligne, $row['LIBELLE_AVIS_RAPPORTEUR'] ?? '');
+            $this->writeTextCell($sheet, 'T'.$ligne, $row['LIBELLE_AVIS_COMMISSION'] ?? '');
+            $this->writeTextCell($sheet, 'U'.$ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
 
-            $sheet->setCellValue('U'.$ligne, '' !== ($row['ID_PIECEJOINTE'] ?? '') ? 'Oui' : 'Non');
+            $sheet->setCellValue('V'.$ligne, '' !== ($row['ID_PIECEJOINTE'] ?? '') ? 'Oui' : 'Non');
 
             if ('1' === $provenance) {
-                $this->writeTextCell($sheet, 'V'.$ligne, $row['ID_PLATAU'] ?? '');
+                $this->writeTextCell($sheet, 'W'.$ligne, $row['ID_PLATAU'] ?? '');
             }
 
             ++$ligne;

@@ -57,6 +57,7 @@
                     </li>
                 {% endif %}
 
+                {{ dm.champ_texte(dossier, 'referenceCourrier', 'Référence courrier') }}
                 {{ dm.champ_texte(dossier, 'objet', 'Objet', true) }}
                 {{ dm.champ_texte(dossier, 'demandeur', 'Demandeur') }}
                 {{ dm.champ_texte(dossier, 'lieuReunion', 'Lieu réunion', true) }}

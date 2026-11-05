@@ -1069,6 +1069,7 @@ class CommissionDocumentGenerationService
         $this->addChamp($segment, 'categorieEtab', $informations['LIBELLE_CATEGORIE'] ?? '');
         $this->addChamp($segment, 'typeLettreP', $informations['LIBELLE_TYPE_PRINCIPAL'] ?? '');
         $this->addChamp($segment, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
+        $this->addChamp($segment, 'referenceCourrier', $dossierInfos['REFCOURRIER_DOSSIER'] ?? '');
         $this->addChamp($segment, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
         $this->addChamp($segment, 'avisDossierCommission', AvisCommission::getLibelle($avisDossierCommission));
         $this->addChamp($segment, 'avisDossier', AvisCommission::getLibelle($avisDossier));
@@ -1416,6 +1417,7 @@ class CommissionDocumentGenerationService
         $this->addChamp($infosDoss, 'categorieEtab', $informations['LIBELLE_CATEGORIE'] ?? '');
         $this->addChamp($infosDoss, 'typeLettreP', $informations['LIBELLE_TYPE_PRINCIPAL'] ?? '');
         $this->addChamp($infosDoss, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
+        $this->addChamp($infosDoss, 'referenceCourrier', $dossierInfos['REFCOURRIER_DOSSIER'] ?? '');
         $this->addChamp($infosDoss, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
         $this->addChamp($infosDoss, 'communeConcerne', $adresseCourante['LIBELLE_COMMUNE'] ?? '');
 
@@ -1523,6 +1525,7 @@ class CommissionDocumentGenerationService
                 }
 
                 $this->addChamp($dossInfos, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
+                $this->addChamp($dossInfos, 'referenceCourrier', $dossierInfos['REFCOURRIER_DOSSIER'] ?? '');
                 $this->addChamp($dossInfos, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
 
                 // Avis dérogations
@@ -1687,6 +1690,7 @@ class CommissionDocumentGenerationService
                 }
 
                 $this->addChamp($dossInfos, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
+                $this->addChamp($dossInfos, 'referenceCourrier', $dossierInfos['REFCOURRIER_DOSSIER'] ?? '');
                 $this->addChamp($dossInfos, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
                 $this->addChamp($dossInfos, 'observationDossier', $dossierInfos['OBSERVATION_DOSSIER'] ?? '');
 
