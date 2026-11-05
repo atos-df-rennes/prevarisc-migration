@@ -8,13 +8,23 @@
     <div class='pull-left'>
 
         {# Affichage du libellé du type #}
-        <small style='display: inline-block; width: 65px'>
+        <small style='display: inline-block'>
             <strong>
             {% if item.ID_TYPE %}
                 <img src='{{ asset('images/types/b/icone-type-' ~ item.LIBELLE_TYPE ~ '.png') }}' title='{{ item.LIBELLE_TYPE|e('html_attr') }}'
-                     onerror="this.outerHTML='{{ item.LIBELLE_TYPE|e('js') }}&amp;nbsp;-&amp;nbsp;'" />&nbsp;-&nbsp;
+                     onerror="this.remove()" />
             {% endif %}
-            {{ item.LIBELLE_GENRE|upper|slice(0, 4) }}
+            {% if item.LIBELLE_TYPE is not empty %}
+                <span class="lettre-type">{{ item.LIBELLE_TYPE }}</span>
+            {% endif %}
+            {% if item.LIBELLE_GENRE is not empty %}
+                {% if item.LIBELLE_TYPE is not empty or item.ID_TYPE %}&nbsp;-&nbsp;{% endif %}
+                <span class="genre-etablissement">{{ item.LIBELLE_GENRE|upper|slice(0, 4) }}</span>
+            {% endif %}
+            {% if item.ID_CATEGORIE is not empty %}
+                {% if item.LIBELLE_GENRE is not empty or item.LIBELLE_TYPE is not empty or item.ID_TYPE %}&nbsp;-&nbsp;{% endif %}
+                <span class="categorie-etablissement" title="{{ item.LIBELLE_CATEGORIE|default('')|e('html_attr') }}">{{ item.ID_CATEGORIE }}</span>
+            {% endif %}
             </strong>
         </small>
 
