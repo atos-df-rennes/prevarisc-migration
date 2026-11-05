@@ -311,6 +311,26 @@ class DossierSearchService
                     $hasAdditionalConditions = true;
                 }
 
+                if (isset($criterias['dateCommissionStart']) && is_string($criterias['dateCommissionStart'])) {
+                    $whereConditions[] = "STR_TO_DATE(d.DATECOMM_DOSSIER, '%Y-%m-%d') >= STR_TO_DATE(".$this->queryHelper->safeQuote($criterias['dateCommissionStart']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateCommissionEnd']) && is_string($criterias['dateCommissionEnd'])) {
+                    $whereConditions[] = "STR_TO_DATE(d.DATECOMM_DOSSIER, '%Y-%m-%d') <= STR_TO_DATE(".$this->queryHelper->safeQuote($criterias['dateCommissionEnd']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateVisiteStart']) && is_string($criterias['dateVisiteStart'])) {
+                    $whereConditions[] = 'd.DATEVISITE_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteStart']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateVisiteEnd']) && is_string($criterias['dateVisiteEnd'])) {
+                    $whereConditions[] = 'd.DATEVISITE_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteEnd']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
                 $provenanceValue = isset($criterias['provenance']) && is_string($criterias['provenance']) ? $criterias['provenance'] : null;
                 if (null !== $provenanceValue) {
                     if ('1' === $provenanceValue) {
@@ -715,6 +735,22 @@ class DossierSearchService
 
             if (isset($criterias['dateReponseEnd']) && is_string($criterias['dateReponseEnd'])) {
                 $whereConditions[] = 'd.DATEREP_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReponseEnd']).", '%d/%m/%Y')";
+            }
+
+            if (isset($criterias['dateCommissionStart']) && is_string($criterias['dateCommissionStart'])) {
+                $whereConditions[] = "STR_TO_DATE(d.DATECOMM_DOSSIER, '%Y-%m-%d') >= STR_TO_DATE(".$this->queryHelper->safeQuote($criterias['dateCommissionStart']).", '%d/%m/%Y')";
+            }
+
+            if (isset($criterias['dateCommissionEnd']) && is_string($criterias['dateCommissionEnd'])) {
+                $whereConditions[] = "STR_TO_DATE(d.DATECOMM_DOSSIER, '%Y-%m-%d') <= STR_TO_DATE(".$this->queryHelper->safeQuote($criterias['dateCommissionEnd']).", '%d/%m/%Y')";
+            }
+
+            if (isset($criterias['dateVisiteStart']) && is_string($criterias['dateVisiteStart'])) {
+                $whereConditions[] = 'd.DATEVISITE_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteStart']).", '%d/%m/%Y')";
+            }
+
+            if (isset($criterias['dateVisiteEnd']) && is_string($criterias['dateVisiteEnd'])) {
+                $whereConditions[] = 'd.DATEVISITE_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteEnd']).", '%d/%m/%Y')";
             }
 
             $provenanceValue = isset($criterias['provenance']) && is_string($criterias['provenance']) ? $criterias['provenance'] : null;
