@@ -11,8 +11,7 @@
         <small style='display: inline-block'>
             <strong>
             {% if item.ID_TYPE %}
-                <img src='{{ asset('images/types/b/icone-type-' ~ item.LIBELLE_TYPE ~ '.png') }}' title='{{ item.LIBELLE_TYPE|e('html_attr') }}'
-                     onerror="this.remove()" />
+                <img src='{{ asset('images/types/b/icone-type-' ~ item.LIBELLE_TYPE ~ '.png') }}' title='{{ item.LIBELLE_TYPE|e('html_attr') }}' />
             {% endif %}
             {% if item.LIBELLE_TYPE is not empty %}
                 <span class="lettre-type">{{ item.LIBELLE_TYPE }}</span>
