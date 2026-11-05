@@ -142,6 +142,11 @@ final class EtablissementDashboardDto
     /**
      * @var string|null
      */
+    public $LIBELLE_CATEGORIE;
+
+    /**
+     * @var string|null
+     */
     public $LIBELLE_GENRE;
 
     // ---- etablissementlie.* ----
@@ -248,6 +253,7 @@ final class EtablissementDashboardDto
         $dto->ID_AVIS = SqlTypeHelper::toInt($row['ID_AVIS'] ?? null);
         $dto->LIBELLE_AVIS = SqlTypeHelper::toStr($row['LIBELLE_AVIS'] ?? null);
         $dto->LIBELLE_TYPE = SqlTypeHelper::toStr($row['LIBELLE_TYPE'] ?? null);
+        $dto->LIBELLE_CATEGORIE = SqlTypeHelper::toStr($row['LIBELLE_CATEGORIE'] ?? null);
         $dto->LIBELLE_GENRE = SqlTypeHelper::toStr($row['LIBELLE_GENRE'] ?? null);
         $dto->pere = SqlTypeHelper::toInt($row['pere'] ?? null);
         $dto->ID_FILS_ETABLISSEMENT = SqlTypeHelper::toInt($row['ID_FILS_ETABLISSEMENT'] ?? null);

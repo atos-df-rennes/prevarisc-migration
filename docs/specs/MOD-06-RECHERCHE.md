@@ -96,7 +96,7 @@ Chaque résultat affiché comporte :
 
 | Information | Détail |
 |-------------|--------|
-| Type et genre | Icône du type (si disponible) et 4 premières lettres du genre en majuscules |
+| Type, genre et catégorie | Icône du type (si disponible), libellé du type en texte, 4 premières lettres du genre en majuscules et numéro de catégorie. Le numéro de catégorie est affiché uniquement s'il est renseigné ; son libellé complet est accessible au survol. Les éléments absents et leurs séparateurs sont masqués. |
 | Libellé | Nom de l'établissement (lien vers la fiche). Si vide : « Libellé non renseigné » |
 | Commune | Affichée selon le genre : commune du site (pour un site), commune de la cellule (pour une cellule), commune de l'adresse directe (sinon) |
 | Avis d'exploitation | Favorable / Défavorable / Avis différé / Avis d'exploitation indisponible, avec date de l'avis (date de visite ou date de passage en commission) |
@@ -229,7 +229,7 @@ Les résultats sont affichés sous forme de tableau à 5 colonnes :
 
 | Colonne | Contenu |
 |---------|---------|
-| **Établissement** | Libellé de l'établissement lié (lien vers sa fiche), type et genre |
+| **Établissement** | Libellé de l'établissement lié (lien vers sa fiche), pictogramme du type (si disponible), libellé du type en texte, genre abrégé (4 premières lettres en majuscules) et numéro de catégorie. Le libellé complet de la catégorie est accessible au survol. Les éléments absents et leurs séparateurs sont masqués. |
 | **Objet** | Type + nature + objet du dossier + numéro d'urbanisme. Comprend également : date significative (commission, visite ou création), avis (favorable / défavorable / différé / incomplet / répondu / réponse à faire), alertes (réception de travaux, échéancier de travaux), badges Plat'AU, temps restant avant échéance de réponse |
 | **Date** | Trois dates empilées : date de création, date de réception, date de réponse |
 | **Préventionnistes** | Noms des préventionnistes affectés au dossier |

@@ -44,6 +44,11 @@ Chaque utilisateur voit uniquement les blocs d'information auxquels son profil l
 
 ### 3.2 Blocs liés aux établissements
 
+Les lignes des blocs d'établissements affichent le pictogramme du type lorsqu'il est disponible, le libellé
+du type en texte, les quatre premières lettres du genre en majuscules et le numéro de catégorie lorsqu'il
+est renseigné. Le libellé complet de la catégorie est accessible au survol. Les éléments absents et leurs
+séparateurs sont masqués.
+
 #### 3.2.1 Établissements suivis
 
 - **Contenu** : Liste des établissements suivis par l'utilisateur connecté, répondant aux critères suivants :

@@ -92,8 +92,9 @@ class DossierSearchService
             ) AS ECHEANCIER_TRAVAUX,
             dossiernatureliste.LIBELLE_DOSSIERNATURE, dossiernatureliste.ID_DOSSIERNATURE,
             dossiertype.LIBELLE_DOSSIERTYPE,
-            eia.LIBELLE_ETABLISSEMENTINFORMATIONS, eia.ID_ETABLISSEMENT,
+            eia.LIBELLE_ETABLISSEMENTINFORMATIONS, eia.ID_ETABLISSEMENT, eia.ID_CATEGORIE,
             type.ID_TYPE, type.LIBELLE_TYPE,
+            categorie.LIBELLE_CATEGORIE,
             genre.LIBELLE_GENRE,
             avis.ID_AVIS,
             adressecommune.CODEPOSTAL_COMMUNE, adressecommune.LIBELLE_COMMUNE,
@@ -107,6 +108,7 @@ class DossierSearchService
             LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
             LEFT JOIN etablissementinformationsactuel eia ON e.ID_ETABLISSEMENT = eia.ID_ETABLISSEMENT
             LEFT JOIN type ON type.ID_TYPE = eia.ID_TYPE
+            LEFT JOIN categorie ON categorie.ID_CATEGORIE = eia.ID_CATEGORIE
             LEFT JOIN genre ON genre.ID_GENRE = eia.ID_GENRE
             LEFT JOIN avis ON d.AVIS_DOSSIER_COMMISSION = avis.ID_AVIS
             LEFT JOIN dossierdocurba ON dossierdocurba.ID_DOSSIER = d.ID_DOSSIER

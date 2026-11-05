@@ -22,4 +22,14 @@ describe('Dossier — recherche', () => {
         cy.get('.avis.D').should('exist')
         cy.get('.avis.F').should('not.exist')
     });
+
+    it('Affiche le numéro et le libellé de la catégorie de l’établissement', () => {
+        cy.visit('/rechercher/dossier?avisCommission[]=1')
+        cy.get('.categorie-etablissement')
+            .should('exist')
+            .first()
+            .should('have.attr', 'title')
+            .and('not.be.empty')
+        cy.get('.categorie-etablissement').first().invoke('text').should('match', /^\s*[1-5]\s*$/)
+    });
 });

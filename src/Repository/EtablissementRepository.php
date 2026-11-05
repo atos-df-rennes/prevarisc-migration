@@ -313,6 +313,7 @@ SQL;
                 dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER,
                 avis.ID_AVIS, avis.LIBELLE_AVIS,
                 type.LIBELLE_TYPE,
+                categorie.LIBELLE_CATEGORIE,
                 genre.LIBELLE_GENRE,
                 etablissementlie.ID_ETABLISSEMENT AS pere, etablissementlie.ID_FILS_ETABLISSEMENT,
                 utilisateur.ID_UTILISATEUR,
@@ -336,6 +337,7 @@ SQL;
             LEFT JOIN dossier ON e.ID_DOSSIER_DONNANT_AVIS = dossier.ID_DOSSIER
             LEFT JOIN avis ON dossier.AVIS_DOSSIER_COMMISSION = avis.ID_AVIS
             LEFT JOIN type ON etablissementinformations.ID_TYPE = type.ID_TYPE
+            '.(!$getCount ? 'LEFT JOIN categorie ON categorie.ID_CATEGORIE = etablissementinformations.ID_CATEGORIE' : '').'
             JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE
             LEFT JOIN etablissementlie ON e.ID_ETABLISSEMENT = etablissementlie.ID_FILS_ETABLISSEMENT
             LEFT JOIN etablissementinformationspreventionniste
