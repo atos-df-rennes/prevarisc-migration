@@ -6,6 +6,7 @@ use App\Dto\Repository\DossierAffectationDto;
 use App\Dto\Repository\NextCommissionDto;
 use App\Entity\DateCommission;
 use App\Entity\Dossier;
+use App\Entity\DossierAffectation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
@@ -163,26 +164,18 @@ class DateCommissionRepository extends ServiceEntityRepository
      */
     public function countNextCommissionsForDashboard(array $commissionIds, int $fromTimestamp, int $toTimestamp): int
     {
-        $conn = $this->getEntityManager()->getConnection();
-        $fromDate = date('Y-m-d', $fromTimestamp);
-        $toDate = date('Y-m-d', $toTimestamp);
-
-        $sql = 'SELECT COUNT(*) as count FROM datecommission d
-            LEFT JOIN commission c ON d.COMMISSION_CONCERNE = c.ID_COMMISSION
-            WHERE DATE_COMMISSION BETWEEN :fromDate AND :toDate';
-
-        $params = ['fromDate' => $fromDate, 'toDate' => $toDate];
-        $types = [];
+        $qb = $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->where('d.date BETWEEN :fromDate AND :toDate')
+            ->setParameter('fromDate', date('Y-m-d', $fromTimestamp))
+            ->setParameter('toDate', date('Y-m-d', $toTimestamp));
 
         if ([] !== $commissionIds) {
-            $sql .= ' AND d.COMMISSION_CONCERNE IN (:commissionIds)';
-            $params['commissionIds'] = array_map(intval(...), $commissionIds);
-            $types['commissionIds'] = ArrayParameterType::INTEGER;
+            $qb->andWhere('IDENTITY(d.commission) IN (:commissionIds)')
+                ->setParameter('commissionIds', array_map(intval(...), $commissionIds));
         }
 
-        $count = $conn->fetchOne($sql, $params, $types);
-
-        return is_numeric($count) ? (int) $count : 0;
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     /**
@@ -315,10 +308,13 @@ class DateCommissionRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $dossiers = $conn->fetchFirstColumn(
-            'SELECT ID_DOSSIER_AFFECT FROM dossieraffectation WHERE ID_DATECOMMISSION_AFFECT = :id',
-            ['id' => $idDateCommission]
-        );
+        $dossiers = $this->getEntityManager()->createQueryBuilder()
+            ->select('IDENTITY(a.dossier)')
+            ->from(DossierAffectation::class, 'a')
+            ->where('IDENTITY(a.dateCommission) = :id')
+            ->setParameter('id', $idDateCommission)
+            ->getQuery()
+            ->getSingleColumnResult();
 
         if ([] === $dossiers) {
             return;

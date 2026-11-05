@@ -11,7 +11,6 @@ use App\Entity\UtilisateurInformations;
 use App\Repository\CommuneRepository;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
-use App\Repository\DossierRepository;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\ListeDocumentConsulteRepository;
@@ -80,7 +79,6 @@ final class DossierRapportOdtServiceTest extends TestCase
             $this->createStub(DateCommissionRepository::class),
             $this->createStub(Descriptif::class),
             $this->createStub(ListeDocumentConsulteRepository::class),
-            $this->createStub(DossierRepository::class),
             $this->createStub(UrlGeneratorInterface::class),
             $this->createStub(OdtWriter::class),
             $this->createStub(DossierVisiteConvocationService::class),

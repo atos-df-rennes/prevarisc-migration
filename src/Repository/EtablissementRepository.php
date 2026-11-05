@@ -254,6 +254,23 @@ SQL;
     }
 
     /**
+     * Retourne les numéros d'identifiant (NUMEROID) commençant par le préfixe donné.
+     *
+     * @return list<string>
+     */
+    public function findNumerosByPrefix(string $prefix): array
+    {
+        /** @var list<string> */
+        return $this->createQueryBuilder('e')
+            ->select('e.numero')
+            ->where('SUBSTRING(e.numero, 1, :length) = :prefix')
+            ->setParameter('length', strlen($prefix))
+            ->setParameter('prefix', $prefix)
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
+
+    /**
      * Retourne les établissements fils triés par libellé de leur dernière information (ID max).
      *
      * La sous-requête DQL isole la dernière EtablissementInformations de chaque fils,

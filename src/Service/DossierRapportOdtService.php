@@ -19,7 +19,6 @@ use App\Entity\UtilisateurInformations;
 use App\Repository\CommuneRepository;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
-use App\Repository\DossierRepository;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\ListeDocumentConsulteRepository;
@@ -46,7 +45,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 class DossierRapportOdtService
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly DossierRepository $dossierRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger, private readonly CommuneRepository $communeRepository, private readonly GroupementRepository $groupementRepository)
+    public function __construct(private readonly EntityManagerInterface $em, private readonly Connection $conn, private readonly DataStore $dataStore, private readonly DossierPrescriptionService $prescriptionService, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly Descriptif $descriptifService, private readonly ListeDocumentConsulteRepository $listeDocRepository, private readonly UrlGeneratorInterface $urlGenerator, private readonly OdtWriter $odtWriter, private readonly DossierVisiteConvocationService $visiteConvocationService, private readonly string $realDataPath, private readonly LoggerInterface $rapportLogger, private readonly CommuneRepository $communeRepository, private readonly GroupementRepository $groupementRepository)
     {
     }
 
@@ -115,20 +114,9 @@ class DossierRapportOdtService
         // --- Type dossier et nature (partagés entre fillSegmentsPrescriptions et listeDocs) ---
         $typeDossierId = $dossier->getType()?->getId();
 
-        $dossierNature = $this->dossierRepository->getDossierNatureId($idDossier);
-        $natureDossierLabel = '';
-        if (null !== $dossierNature) {
-            /** @var array<string, string|null>|false $natureRowFetch */
-            // Port direct de Model_DbTable_DossierNature::getDossierNatureLibelle()
-            // La table `nature` n'existe pas — la jointure est dossiernature → dossiernatureliste
-            $natureRowFetch = $this->conn->fetchAssociative(
-                'SELECT LIBELLE_DOSSIERNATURE FROM dossiernatureliste WHERE ID_DOSSIERNATURE = :id',
-                ['id' => $dossierNature]
-            );
-            if (false !== $natureRowFetch) {
-                $natureDossierLabel = $natureRowFetch['LIBELLE_DOSSIERNATURE'] ?? '';
-            }
-        }
+        $nature = $dossier->getNature();
+        $dossierNature = $nature?->getId();
+        $natureDossierLabel = $nature?->getLibelle() ?? '';
 
         // --- Adresse établissement (numInsee utilisé par fillChampsMaire) ---
         // Résolution par genre d'établissement (site => enfant à l'effectif max, cellule => établissement
@@ -642,13 +630,10 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'communeEtab', $communeEtab);
         $this->addChamp($odf, 'etablissementAdresse', $etablissementAdresse);
 
+        // @fixme: le ->first() ici est étrange je trouve, il faudrait vérifier si on doit pas avoir une concaténation
         // Numéro document d'urbanisme
-        /** @var array<string, string|null>|false $numDocUrbaRowFetch */
-        $numDocUrbaRowFetch = $this->conn->fetchAssociative(
-            'SELECT NUM_DOCURBA FROM dossierdocurba WHERE ID_DOSSIER = :id',
-            ['id' => $idDossier]
-        );
-        $this->addChamp($odf, 'numDocUrba', false !== $numDocUrbaRowFetch ? ($numDocUrbaRowFetch['NUM_DOCURBA'] ?? '') : '');
+        $docUrba = $dossier->getDocumentsUrbanisme()->first() ?: null;
+        $this->addChamp($odf, 'numDocUrba', $docUrba?->getNumero() ?? '');
 
         // Catégorie / Famille — port direct legacy : seul le premier mot de LIBELLE_CATEGORIE est utilisé
         $libelleCat = $libelleCategorie;
@@ -668,17 +653,7 @@ class DossierRapportOdtService
         // Avis dossier
         $this->addChamp($odf, 'avisDossier', $dossier->getAvis()?->getLibelle() ?? '');
 
-        $avisDossierCommRow = null;
-        if (!empty($rawDossier['AVIS_DOSSIER_COMMISSION'])) {
-            /** @var array<string, string|null>|false $avisDossierCommRowFetch */
-            $avisDossierCommRowFetch = $this->conn->fetchAssociative(
-                'SELECT LIBELLE_AVIS FROM avis WHERE ID_AVIS = :id',
-                ['id' => $rawDossier['AVIS_DOSSIER_COMMISSION']]
-            );
-            $avisDossierCommRow = false !== $avisDossierCommRowFetch ? $avisDossierCommRowFetch : null;
-        }
-
-        $this->addChamp($odf, 'avisDossierCommission', null !== $avisDossierCommRow ? ($avisDossierCommRow['LIBELLE_AVIS'] ?? '') : '');
+        $this->addChamp($odf, 'avisDossierCommission', $dossier->getAvisCommission()?->getLibelle() ?? '');
 
         // Etat dossier
         $etatDossier = ('1' === $rawDossier['INCOMPLET_DOSSIER']) ? 'Incomplet' : 'Complet';
@@ -978,12 +953,7 @@ class DossierRapportOdtService
         // =====================================================================
         // Établissement père
         // =====================================================================
-        /** @var array<string, string|null>|false $pereRowFetch */
-        $pereRowFetch = $this->conn->fetchAssociative(
-            'SELECT el.ID_ETABLISSEMENT AS ID_PERE FROM etablissementlie el WHERE el.ID_FILS_ETABLISSEMENT = :id LIMIT 1',
-            ['id' => $idEtab]
-        );
-        $idPere = false !== $pereRowFetch ? ($pereRowFetch['ID_PERE'] ?? null) : null;
+        $idPere = $this->em->find(Etablissement::class, $idEtab)?->getParent()?->getId();
 
         $etablissementLibelleP = '';
         $typeLettrePPere = '';
@@ -1520,13 +1490,8 @@ class DossierRapportOdtService
             if ($isEtablissement) {
                 // Batch : parent + enfants en une seule requête (évite le N+1, port du fix legacy 986f23f).
                 $etabIds = [$idEtab];
-                /** @var array<int, array<string, string|null>> $enfantsFetch */
-                $enfantsFetch = $this->conn->fetchAllAssociative(
-                    'SELECT ID_FILS_ETABLISSEMENT FROM etablissementlie WHERE ID_ETABLISSEMENT = :id',
-                    ['id' => $idEtab]
-                );
-                foreach ($enfantsFetch as $enfant) {
-                    $etabIds[] = (int) ($enfant['ID_FILS_ETABLISSEMENT'] ?? '0');
+                foreach ($this->em->find(Etablissement::class, $idEtab)?->getFils() ?? [] as $enfant) {
+                    $etabIds[] = (int) $enfant->getId();
                 }
 
                 /** @var array<int, array<string, string|null>> $rows */
