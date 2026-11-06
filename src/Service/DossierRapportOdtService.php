@@ -630,10 +630,8 @@ class DossierRapportOdtService
         $this->addChamp($odf, 'communeEtab', $communeEtab);
         $this->addChamp($odf, 'etablissementAdresse', $etablissementAdresse);
 
-        // @fixme: le ->first() ici est étrange je trouve, il faudrait vérifier si on doit pas avoir une concaténation
-        // Numéro document d'urbanisme
-        $docUrba = $dossier->getDocumentsUrbanisme()->first() ?: null;
-        $this->addChamp($odf, 'numDocUrba', $docUrba?->getNumero() ?? '');
+        // Numéros des documents d'urbanisme
+        $this->addChamp($odf, 'numDocUrba', $dossier->getNumerosUrbanisme());
 
         // Catégorie / Famille — port direct legacy : seul le premier mot de LIBELLE_CATEGORIE est utilisé
         $libelleCat = $libelleCategorie;
