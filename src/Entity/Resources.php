@@ -16,7 +16,7 @@ class Resources
     #[ORM\Column(name: 'id_resource', type: Types::BIGINT, options: ['unsigned' => true])]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
