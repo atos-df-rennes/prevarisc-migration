@@ -346,6 +346,8 @@ L'onglet « Gestion des ressources spécialisées » permet à l'administrateur 
 - **Ajouter** une ressource spécialisée (établissement ou dossier) en définissant ses critères via un formulaire dédié.
 - **Supprimer** une ressource spécialisée existante. La suppression entraîne la suppression en cascade de ses privilèges et de toutes les associations groupe–privilège correspondantes.
 
+Une ressource établissement peut comporter une sélection étendue de types d'activité, par exemple tous les types sauf les établissements pénitentiaires. Les types sélectionnés restent les seuls autorisés par ce critère ; les droits des ressources existantes restent inchangés.
+
 Un formulaire d'ajout invalide ne crée ni ressource ni privilège ; l'administrateur est informé de l'échec.
 
 Les ressources spécialisées ajoutées apparaissent ensuite automatiquement dans la matrice des droits.

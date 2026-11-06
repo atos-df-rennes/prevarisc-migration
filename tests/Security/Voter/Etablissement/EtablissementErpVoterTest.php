@@ -107,6 +107,22 @@ final class EtablissementErpVoterTest extends TestCase
         $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $subjectCat3, [EtablissementVoter::LECTURE]));
     }
 
+    public function testAccessWithLongActivityListOnlyGrantsSelectedActivities(): void
+    {
+        $activities = array_values(array_diff(range(1, 120), [50]));
+        $name = 'etablissement_erp_'.implode('-', $activities).'_0_0_0_0';
+        $this->assertGreaterThan(255, strlen($name));
+
+        $resource = $this->createConfiguredStub(Resources::class, ['getName' => $name]);
+        $privilege = $this->createStub(Privileges::class);
+        $token = $this->createStub(TokenInterface::class);
+        $token->method('getUser')->willReturn($this->createMockUserWithPrivileges($privilege));
+        $voter = $this->createVoter([$resource], $privilege);
+
+        $this->assertSame(VoterInterface::ACCESS_GRANTED, $voter->vote($token, $this->createMockEtablissement(120, 1), [EtablissementVoter::LECTURE]));
+        $this->assertSame(VoterInterface::ACCESS_DENIED, $voter->vote($token, $this->createMockEtablissement(50, 1), [EtablissementVoter::LECTURE]));
+    }
+
     public function testAccessWithGroupementsGrantsAccessOnlyForMatchingGroupements(): void
     {
         $resource = $this->createConfiguredStub(Resources::class, ['getName' => 'etablissement_erp_1_2_0_1_0']);
