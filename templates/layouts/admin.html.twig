@@ -29,7 +29,7 @@
             <a href="{{ path('admin_fusion_des_communes') }}"><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Fusion des communes</a>
         </li>
 
-        <li {% if app.current_route is same as('couches_cartographiques') %}class="active"{% endif %}>
+        <li {% if app.current_route starts with 'couches_cartographiques' %}class="active"{% endif %}>
             <a href="{{ path('couches_cartographiques') }}"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Gestion des couches cartographiques</a>
         </li>
 
