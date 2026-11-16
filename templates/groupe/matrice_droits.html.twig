@@ -36,7 +36,7 @@
 
         {# Si on est bien dans un groupe #}
         {% if label_attr is defined %}
-            <table class="table table-condensed table-hover">
+            <table class="table table-condensed table-hover matrice-des-droits">
                 <thead>
                     <tr>
                         <th>Ressources</th>
@@ -58,7 +58,7 @@
                                     </tr>
                                 {% endif %}
                                 <tr>
-                                    <td>{{ resource }}</td>
+                                    <td class="matrice-des-droits--nom">{{ resource }}</td>
                                     <td>
                             {% endif %}
                         {% endif %}

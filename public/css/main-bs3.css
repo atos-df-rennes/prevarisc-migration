@@ -1385,7 +1385,8 @@ form.checkbox--checked__label--bold div.checkbox label:has(input[checked='checke
 .table-ressources-specialisees > tbody > tr > td {
   vertical-align: middle;
 }
-.table-ressources-specialisees .table-ressources-specialisees--nom {
+.table-ressources-specialisees .table-ressources-specialisees--nom,
+.matrice-des-droits .matrice-des-droits--nom{
   word-break: break-word;
 }
 .ui-multiselect-checkboxes label > span {
