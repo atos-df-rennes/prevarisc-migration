@@ -221,13 +221,16 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $query->setParameter('id', $id);
 
         if ($reverse) {
-            $query->orderBy('d.dateInsert', 'DESC');
+            $query->orderBy('d.dateInsert', 'DESC')
+                ->addOrderBy('d.referenceCourrier', 'DESC');
         } elseif ([1] === $types) {
             $query->addSelect('COALESCE(d.dateCommission, d.dateInsert) as HIDDEN sortDate')
-                ->orderBy('sortDate', 'DESC');
+                ->orderBy('sortDate', 'DESC')
+                ->addOrderBy('d.referenceCourrier', 'DESC');
         } else {
             $query->addSelect('COALESCE(d.dateVisite, d.dateCommission, d.dateInsert) as HIDDEN sortDate')
-                ->orderBy('sortDate', 'DESC');
+                ->orderBy('sortDate', 'DESC')
+                ->addOrderBy('d.referenceCourrier', 'DESC');
         }
 
         if (null === $limit && 0 === $offset) {

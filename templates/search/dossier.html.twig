@@ -11,6 +11,10 @@
 {% set date_reception_end = app.request.query.get('date-reception-end', '') %}
 {% set date_reponse_start = app.request.query.get('date-reponse-start', '') %}
 {% set date_reponse_end = app.request.query.get('date-reponse-end', '') %}
+{% set date_commission_start = app.request.query.get('date-commission-start', '') %}
+{% set date_commission_end = app.request.query.get('date-commission-end', '') %}
+{% set date_visite_start = app.request.query.get('date-visite-start', '') %}
+{% set date_visite_end = app.request.query.get('date-visite-end', '') %}
 {% set query_params = app.request.query.all() %}
 
 <h2 class="page-header">Dossiers</h2>
@@ -165,6 +169,11 @@
                                value="{{ app.request.query.get('permis', '') }}"
                                placeholder="Numéro de permis" onkeypress="masquerBoutonExportCalc()" />
                     </div>
+                    <div class='col-md-6'>
+                        <input type="text" name='courrier' class='form-control'
+                               value="{{ app.request.query.get('courrier', '') }}"
+                               placeholder="Référence du courrier" onkeypress="masquerBoutonExportCalc()" />
+                    </div>
                 </div>
             </div>
             <div class='col-md-5'>
@@ -199,6 +208,28 @@
                     <div class='col-md-1'>au</div>
                     <div class="col-md-4">
                         <input type='text' name='date-reponse-end' value='{{ date_reponse_end }}' class='datepicker form-control' onchange="masquerBoutonExportCalc()" onkeypress="masquerBoutonExportCalc()"/>
+                    </div>
+                </div>
+                <div class='row' style="margin-top: 4px;">
+                    <div class='col-md-2'>Commission</div>
+                    <div class='col-md-1'>du</div>
+                    <div class='col-md-4'>
+                        <input type='text' name='date-commission-start' value='{{ date_commission_start }}' class='datepicker form-control' onchange="masquerBoutonExportCalc()" onkeypress="masquerBoutonExportCalc()"/>
+                    </div>
+                    <div class='col-md-1'>au</div>
+                    <div class="col-md-4">
+                        <input type='text' name='date-commission-end' value='{{ date_commission_end }}' class='datepicker form-control' onchange="masquerBoutonExportCalc()" onkeypress="masquerBoutonExportCalc()"/>
+                    </div>
+                </div>
+                <div class='row' style="margin-top: 4px;">
+                    <div class='col-md-2'>Visite</div>
+                    <div class='col-md-1'>du</div>
+                    <div class='col-md-4'>
+                        <input type='text' name='date-visite-start' value='{{ date_visite_start }}' class='datepicker form-control' onchange="masquerBoutonExportCalc()" onkeypress="masquerBoutonExportCalc()"/>
+                    </div>
+                    <div class='col-md-1'>au</div>
+                    <div class="col-md-4">
+                        <input type='text' name='date-visite-end' value='{{ date_visite_end }}' class='datepicker form-control' onchange="masquerBoutonExportCalc()" onkeypress="masquerBoutonExportCalc()"/>
                     </div>
                 </div>
             </div>

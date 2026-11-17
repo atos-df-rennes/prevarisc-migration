@@ -339,6 +339,14 @@ final class SearchController extends AbstractController
                     $criteresRecherche['dateReponseStart'] = $checkDateFormat($dateReponseStart) ? $dateReponseStart : null;
                     $dateReponseEnd = $this->getStringQueryParam($request, 'date-reponse-end');
                     $criteresRecherche['dateReponseEnd'] = $checkDateFormat($dateReponseEnd) ? $dateReponseEnd : null;
+                    $dateCommissionStart = $this->getStringQueryParam($request, 'date-commission-start');
+                    $criteresRecherche['dateCommissionStart'] = $checkDateFormat($dateCommissionStart) ? $dateCommissionStart : null;
+                    $dateCommissionEnd = $this->getStringQueryParam($request, 'date-commission-end');
+                    $criteresRecherche['dateCommissionEnd'] = $checkDateFormat($dateCommissionEnd) ? $dateCommissionEnd : null;
+                    $dateVisiteStart = $this->getStringQueryParam($request, 'date-visite-start');
+                    $criteresRecherche['dateVisiteStart'] = $checkDateFormat($dateVisiteStart) ? $dateVisiteStart : null;
+                    $dateVisiteEnd = $this->getStringQueryParam($request, 'date-visite-end');
+                    $criteresRecherche['dateVisiteEnd'] = $checkDateFormat($dateVisiteEnd) ? $dateVisiteEnd : null;
                     $criteresRecherche['provenance'] = $this->getStringQueryParam($request, 'provenance');
 
                     $groupements_territoriaux = $this->getArrayQueryParam($request, 'groupements_territoriaux');
@@ -414,6 +422,18 @@ final class SearchController extends AbstractController
 
                 $dateReponseEnd = $this->getStringQueryParam($request, 'date-reponse-end');
                 $criteresRecherche['dateReponseEnd'] = $checkDateFormat($dateReponseEnd) ? $dateReponseEnd : null;
+
+                $dateCommissionStart = $this->getStringQueryParam($request, 'date-commission-start');
+                $criteresRecherche['dateCommissionStart'] = $checkDateFormat($dateCommissionStart) ? $dateCommissionStart : null;
+
+                $dateCommissionEnd = $this->getStringQueryParam($request, 'date-commission-end');
+                $criteresRecherche['dateCommissionEnd'] = $checkDateFormat($dateCommissionEnd) ? $dateCommissionEnd : null;
+
+                $dateVisiteStart = $this->getStringQueryParam($request, 'date-visite-start');
+                $criteresRecherche['dateVisiteStart'] = $checkDateFormat($dateVisiteStart) ? $dateVisiteStart : null;
+
+                $dateVisiteEnd = $this->getStringQueryParam($request, 'date-visite-end');
+                $criteresRecherche['dateVisiteEnd'] = $checkDateFormat($dateVisiteEnd) ? $dateVisiteEnd : null;
 
                 $provenanceRaw = $this->getStringQueryParam($request, 'provenance');
                 $criteresRecherche['provenance'] = $provenanceRaw;

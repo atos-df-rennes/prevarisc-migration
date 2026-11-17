@@ -37,6 +37,10 @@ class Dossier
     #[ORM\Column(name: 'OBJET_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $objet = null;
 
+    #[ORM\Column(name: 'REFCOURRIER_DOSSIER', type: Types::STRING, length: 15, nullable: true)]
+    #[Assert\Length(max: 15)]
+    private ?string $referenceCourrier = null;
+
     #[ORM\Column(name: 'DESCGEN_DOSSIER', type: Types::TEXT, nullable: true)]
     private ?string $descriptifGeneral = null;
 
@@ -397,6 +401,18 @@ class Dossier
     public function setObjet(?string $objet): self
     {
         $this->objet = $objet;
+
+        return $this;
+    }
+
+    public function getReferenceCourrier(): ?string
+    {
+        return $this->referenceCourrier;
+    }
+
+    public function setReferenceCourrier(?string $referenceCourrier): self
+    {
+        $this->referenceCourrier = $referenceCourrier;
 
         return $this;
     }

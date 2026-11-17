@@ -30,6 +30,7 @@
 {% endif %}
 
 {% set fulltext_parts = [item.LIBELLE_DOSSIERTYPE, item.LIBELLE_DOSSIERNATURE] %}
+{% if item.REFCOURRIER_DOSSIER is not empty %}{% set fulltext_parts = fulltext_parts|merge([item.REFCOURRIER_DOSSIER]) %}{% endif %}
 {% if objet is not empty %}{% set fulltext_parts = fulltext_parts|merge([objet]) %}{% endif %}
 {% set fulltext = fulltext_parts|join(' - ') %}
 

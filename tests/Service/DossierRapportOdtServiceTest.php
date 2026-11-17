@@ -6,12 +6,12 @@ namespace App\Tests\Service;
 
 use App\Entity\Commune;
 use App\Entity\Dossier;
+use App\Entity\DossierDocumentUrbanisme;
 use App\Entity\Groupement;
 use App\Entity\UtilisateurInformations;
 use App\Repository\CommuneRepository;
 use App\Repository\DateCommissionRepository;
 use App\Repository\DossierAffectationRepository;
-use App\Repository\DossierRepository;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\GroupementRepository;
 use App\Repository\ListeDocumentConsulteRepository;
@@ -23,6 +23,7 @@ use App\Service\DossierRapportOdtService;
 use App\Service\Odt\OdtWriter;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Odtphp\Odf;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -30,6 +31,79 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class DossierRapportOdtServiceTest extends TestCase
 {
+    /**
+     * @param list<string> $numeros
+     */
+    #[DataProvider('numerosUrbanismeProvider')]
+    public function testNumerosUrbanismeDansLeRapport(array $numeros, string $attendu): void
+    {
+        $dossier = new Dossier();
+        foreach ($numeros as $numero) {
+            $dossier->addDocumentsUrbanisme(new DossierDocumentUrbanisme()->setNumero($numero));
+        }
+
+        $valeurFusion = null;
+        $writer = $this->createMock(OdtWriter::class);
+        $writer->expects($this->atLeastOnce())->method('setVariable')->willReturnCallback(
+            static function (Odf $odf, string $nom, ?string $valeur) use (&$valeurFusion): void {
+                if ('numDocUrba' === $nom) {
+                    $valeurFusion = $valeur;
+                }
+            }
+        );
+        $service = new DossierRapportOdtService(
+            $this->createStub(EntityManagerInterface::class),
+            $this->createStub(Connection::class),
+            $this->createStub(DataStore::class),
+            $this->createStub(DossierPrescriptionService::class),
+            $this->createStub(DossierAffectationRepository::class),
+            $this->createStub(EtablissementAdresseRepository::class),
+            $this->createStub(DateCommissionRepository::class),
+            $this->createStub(Descriptif::class),
+            $this->createStub(ListeDocumentConsulteRepository::class),
+            $this->createStub(UrlGeneratorInterface::class),
+            $writer,
+            $this->createStub(DossierVisiteConvocationService::class),
+            '',
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(CommuneRepository::class),
+            $this->createStub(GroupementRepository::class)
+        );
+
+        new \ReflectionMethod($service, 'fillChampsEtablissement')->invoke(
+            $service,
+            new class extends Odf {
+                public function __construct()
+                {
+                }
+
+                public function __destruct()
+                {
+                }
+            },
+            $dossier,
+            [],
+            [],
+            [],
+            ['INCOMPLET_DOSSIER' => '0'],
+            1,
+            1,
+            ''
+        );
+
+        $this->assertSame($attendu, $valeurFusion);
+    }
+
+    /**
+     * @return iterable<string, array{list<string>, string}>
+     */
+    public static function numerosUrbanismeProvider(): iterable
+    {
+        yield 'aucun numero' => [[], ''];
+        yield 'un numero' => [['PC 123'], 'PC 123'];
+        yield 'plusieurs numeros' => [['PC 123', 'AT 456', 'DP 789'], 'PC 123, AT 456, DP 789'];
+    }
+
     #[DataProvider('serviceInstructeurProvider')]
     public function testCoordonneesDuServiceInstructeur(
         ?string $libelle,
@@ -80,7 +154,6 @@ final class DossierRapportOdtServiceTest extends TestCase
             $this->createStub(DateCommissionRepository::class),
             $this->createStub(Descriptif::class),
             $this->createStub(ListeDocumentConsulteRepository::class),
-            $this->createStub(DossierRepository::class),
             $this->createStub(UrlGeneratorInterface::class),
             $this->createStub(OdtWriter::class),
             $this->createStub(DossierVisiteConvocationService::class),

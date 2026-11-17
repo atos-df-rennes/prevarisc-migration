@@ -113,4 +113,15 @@ describe('Établissement — recherche', () => {
             })
         })
     })
+    it('Affiche la lettre, le genre et le numéro de catégorie', () => {
+        cy.visit('/rechercher/etablissement?categories[]=1')
+        cy.get('.categorie-etablissement')
+            .should('exist')
+            .first()
+            .should('have.attr', 'title')
+            .and('not.be.empty')
+        cy.get('.categorie-etablissement').first().should('have.text', '1')
+        cy.get('.lettre-type').should('exist')
+        cy.get('.genre-etablissement').should('exist')
+    });
 });

@@ -90,6 +90,7 @@ final readonly class EtablissementSearchService
             dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER,
             avis.ID_AVIS, avis.LIBELLE_AVIS,
             type.LIBELLE_TYPE,
+            categorie.LIBELLE_CATEGORIE,
             typeactivite.LIBELLE_ACTIVITE,
             genre.LIBELLE_GENRE,
             etablissementlie.ID_ETABLISSEMENT AS pere, etablissementlie.ID_FILS_ETABLISSEMENT,
@@ -137,7 +138,8 @@ final readonly class EtablissementSearchService
                 ON etablissementadressecell.NUMINSEE_COMMUNE = adressecommunecell.NUMINSEE_COMMUNE';
 
             // Requête de données : inclut toujours adressesite/adressecell pour l'affichage
-            $sqlFrom = $sqlFromBase.$sqlFromAdresseSiteCell;
+            $sqlFrom = $sqlFromBase.$sqlFromAdresseSiteCell.'
+            LEFT JOIN categorie ON categorie.ID_CATEGORIE = etablissementinformations.ID_CATEGORIE';
 
             $whereConditions = ['e.DATESUPPRESSION_ETABLISSEMENT IS NULL'];
             $hasAdditionalConditions = false;
@@ -170,7 +172,7 @@ final readonly class EtablissementSearchService
 
             // Critères : catégorie
             if (null !== $categories) {
-                $whereConditions[] = $this->queryHelper->buildCriteria('ID_CATEGORIE', $categories);
+                $whereConditions[] = $this->queryHelper->buildCriteria('etablissementinformations.ID_CATEGORIE', $categories);
                 $hasAdditionalConditions = true;
             }
 

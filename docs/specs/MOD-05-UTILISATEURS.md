@@ -291,7 +291,9 @@ L'administrateur peut gérer les règles qui limitent l'accès à certains étab
 - **Ajouter** une règle d'accès et définir les critères concernés.
 - **Supprimer** une règle d'accès. Les droits associés sont également supprimés.
 
-Si les critères saisis ne sont pas valides, la règle n'est pas créée et l'administrateur est informé de l'échec.
+Une ressource établissement peut comporter une sélection étendue de types d'activité, par exemple tous les types sauf les établissements pénitentiaires. Les types sélectionnés restent les seuls autorisés par ce critère ; les droits des ressources existantes restent inchangés.
+
+Un formulaire d'ajout invalide ne crée ni ressource ni privilège ; l'administrateur est informé de l'échec.
 
 Les règles ajoutées apparaissent ensuite dans la matrice des droits.
 

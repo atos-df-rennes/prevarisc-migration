@@ -46,6 +46,7 @@ Exemples de champs de fusion disponibles :
 | Nature du dossier | ERP, IGH, habitation, etc. |
 | Libellé de la commission | Nom de la commission compétente |
 | Identifiant établissement | Numéro Prevarisc de l'établissement |
+| Référence courrier | Référence courrier renseignée sur le dossier |
 | Objet du dossier | Description libre saisie dans le dossier |
 | Analyse de risque | Anomalies constatées |
 | Observations | Observations de l'instructeur |
@@ -226,6 +227,7 @@ Pour les convocations et ordres du jour, la génération utilise les courriers t
 | **RG-DOC-018** | Le champ `categorieEtab` utilise la catégorie effective définie par RG-ETB-062, pour les rapports de dossier et les documents de commission. Pour une cellule, la catégorie du parent direct non supprimé remplace la catégorie propre, y compris lorsqu'elle est vide. Le rapport conserve le premier mot du libellé (ex. `5ème`), les documents de commission conservent le libellé complet. |
 | **RG-DOC-019** | Dans un rapport de dossier, les coordonnées du service instructeur sont celles du service désigné par le libellé et le type enregistrés sur le dossier. Pour une commune, la recherche historique porte sur les communes dont le libellé contient le libellé renseigné, en retenant le libellé le plus court, puis sur sa fiche mairie. Pour un groupement, la recherche porte sur le libellé exact, puis sur sa fiche de coordonnées propre (pas ses contacts liés). Sans type, sans service correspondant ou sans fiche de coordonnées, prénom, nom et courriel restent vides. Aucun repli sur la commune de l'établissement n'est effectué. Le libellé renseigné reste affiché, y compris en saisie libre. |
 | **RG-DOC-020** | Lorsqu'une commission est supprimée, l'application tente de supprimer son répertoire de modèles de rapports et son contenu. Si cette suppression échoue, la commission reste supprimée et le répertoire peut subsister. Cette suppression ne concerne pas le modèle de compte-rendu propre à la commission, qui est stocké séparément. |
+| **RG-DOC-021** | Dans un rapport de dossier, le champ `numDocUrba` contient tous les numéros de documents d'urbanisme associés au dossier, séparés par une virgule et un espace. Il est vide si le dossier n'en comporte aucun. Cette règle reprend le comportement historique ; aucun ordre particulier n'est garanti. |
 
 La règle RG-DOC-019 reprend la résolution historique des coordonnées, confirmée pour ce correctif ; le maintien du libellé affiché et l'absence de type pour une saisie libre sont les comportements convenus. Un dossier sans type doit être corrigé par resélection du service et sauvegarde (MOD-02), puis son rapport régénéré. Les rapports déjà produits ne sont pas modifiés.
 

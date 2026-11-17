@@ -24,12 +24,22 @@
             </a>
             <br/>
             {# Affichage du libellé du type #}
-            <small style='display: inline-block; width: 65px'>
+            <small style='display: inline-block'>
                 <strong>
                 {% if item.ID_TYPE %}
-                    <img src='{{ asset('images/types/b/icone-type-' ~ item.LIBELLE_TYPE ~ '.png') }}' title='{{ item.LIBELLE_TYPE|e('html_attr') }}' />&nbsp;-&nbsp;
+                    <img src='{{ asset('images/types/b/icone-type-' ~ item.LIBELLE_TYPE ~ '.png') }}' title='{{ item.LIBELLE_TYPE|e('html_attr') }}' />
                 {% endif %}
-                {{ item.LIBELLE_GENRE|upper|slice(0, 4) }}
+                {% if item.LIBELLE_TYPE is not empty %}
+                    <span class="lettre-type">{{ item.LIBELLE_TYPE }}</span>
+                {% endif %}
+                {% if item.LIBELLE_GENRE is not empty %}
+                    {% if item.LIBELLE_TYPE is not empty or item.ID_TYPE %}&nbsp;-&nbsp;{% endif %}
+                    <span class="genre-etablissement">{{ item.LIBELLE_GENRE|upper|slice(0, 4) }}</span>
+                {% endif %}
+                {% if item.ID_CATEGORIE is not empty %}
+                    {% if item.LIBELLE_GENRE is not empty or item.LIBELLE_TYPE is not empty or item.ID_TYPE %}&nbsp;-&nbsp;{% endif %}
+                    <span class="categorie-etablissement" title="{{ item.LIBELLE_CATEGORIE|default('')|e('html_attr') }}">{{ item.ID_CATEGORIE }}</span>
+                {% endif %}
                 </strong>
             </small>
         {% endif %}
@@ -40,8 +50,8 @@
         {% if item.VERROU_DOSSIER == 1 %}
             <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
         {% endif %}
-        <a href='{{ path('dossier_index', {id: item.ID_DOSSIER}) }}' title='{{ (item.LIBELLE_DOSSIERTYPE ~ ' - ' ~ item.LIBELLE_DOSSIERNATURE ~ (item.OBJET_DOSSIER is not empty ? ' - ' ~ item.OBJET_DOSSIER : ''))|e('html_attr') }}'>
-            {{ item.LIBELLE_DOSSIERTYPE }} - {{ item.LIBELLE_DOSSIERNATURE }}{% if item.OBJET_DOSSIER is not empty %} - {{ item.OBJET_DOSSIER|slice(0, 70) }}{% if item.OBJET_DOSSIER|length > 70 %}(...){% endif %}{% endif %}{% if item.NB_URBA is not empty %} - {{ item.NB_URBA }}{% endif %}
+        <a href='{{ path('dossier_index', {id: item.ID_DOSSIER}) }}' title='{{ (item.LIBELLE_DOSSIERTYPE ~ ' - ' ~ item.LIBELLE_DOSSIERNATURE ~ (item.REFCOURRIER_DOSSIER is not empty ? ' - ' ~ item.REFCOURRIER_DOSSIER : '') ~ (item.OBJET_DOSSIER is not empty ? ' - ' ~ item.OBJET_DOSSIER : ''))|e('html_attr') }}'>
+            {{ item.LIBELLE_DOSSIERTYPE }} - {{ item.LIBELLE_DOSSIERNATURE }}{% if item.REFCOURRIER_DOSSIER is not empty %} - {{ item.REFCOURRIER_DOSSIER }}{% endif %}{% if item.OBJET_DOSSIER is not empty %} - {{ item.OBJET_DOSSIER|slice(0, 70) }}{% if item.OBJET_DOSSIER|length > 70 %}(...){% endif %}{% endif %}{% if item.NB_URBA is not empty %} - {{ item.NB_URBA }}{% endif %}
         </a>
         <small class='text-muted'>{{ date_text|raw }} {{ date }}</small>
         <br/>

@@ -57,6 +57,24 @@ class GroupementRepository extends ServiceEntityRepository implements HasContact
     }
 
     /**
+     * Indique si la commune (code INSEE) fait partie du groupement.
+     */
+    public function containsCommune(int $idGroupement, string $numInsee): bool
+    {
+        $count = $this->createQueryBuilder('g')
+            ->select('COUNT(c.id)')
+            ->join('g.communes', 'c')
+            ->where('g.id = :idGroupement')
+            ->andWhere('c.id = :numInsee')
+            ->setParameter('idGroupement', $idGroupement)
+            ->setParameter('numInsee', $numInsee)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $count > 0;
+    }
+
+    /**
      * Retourne une liste de groupements associés à une ville identifiée par son code INSEE.
      *
      * @param string $codeInsee code INSEE de la commune

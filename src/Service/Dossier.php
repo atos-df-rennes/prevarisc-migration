@@ -196,6 +196,15 @@ final readonly class Dossier
                 $libelle .= $nature;
             }
 
+            $referenceCourrier = $dossierEntity->getReferenceCourrier();
+            if (null !== $referenceCourrier && '' !== $referenceCourrier) {
+                if ('' !== $libelle) {
+                    $libelle .= ' - ';
+                }
+
+                $libelle .= $referenceCourrier;
+            }
+
             if ('' !== $donneeUtile['objet']) {
                 if ('' !== $libelle) {
                     $libelle .= ' - ';

@@ -129,4 +129,18 @@ final class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
 
         $this->assertNull($result[0]['etablissement']);
     }
+
+    public function testReferenceCourrierEstAjouteeAuLibelleDuDossierAvantObjet(): void
+    {
+        $etablissement = $this->creerEtablissementAvecHistorique();
+        $dossier = $this->creerDossier($etablissement)
+            ->setType(new DossierType()->setLibelle('Étude'))
+            ->setNature(new DossierNatureListe()->setLibelle('Permis de construire'))
+            ->setReferenceCourrier('REF-2026-01')
+            ->setObjet('Objet du dossier');
+
+        $result = $this->service->extraireDonneesUtiles([$dossier]);
+
+        $this->assertSame('Étude - Permis de construire - REF-2026-01 - Objet du dossier', $result[0]['objet']);
+    }
 }

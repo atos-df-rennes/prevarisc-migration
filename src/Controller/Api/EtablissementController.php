@@ -9,6 +9,7 @@ use App\Entity\Periodicite;
 use App\Entity\Utilisateur;
 use App\Repository\EtablissementAdresseRepository;
 use App\Repository\EtablissementRepository;
+use App\Repository\GroupementRepository;
 use App\Repository\PeriodiciteRepository;
 use App\Repository\UtilisateurRepository;
 use App\Security\Voter\Etablissement\EtablissementVoter;
@@ -56,6 +57,7 @@ final class EtablissementController extends AbstractController
         private readonly SearchQueryHelper $searchQueryHelper,
         private readonly EtablissementAncestryService $etablissementAncestryService,
         private readonly UtilisateurRepository $utilisateurRepository,
+        private readonly GroupementRepository $groupementRepository,
     ) {
     }
 
@@ -582,14 +584,7 @@ final class EtablissementController extends AbstractController
                         ];
                     }
                 } elseif (null !== $idGroupement) {
-                    /** @var string|false $countResult */
-                    $countResult = $conn->executeQuery(
-                        'SELECT COUNT(*) FROM groupementcommune WHERE ID_GROUPEMENT = ? AND NUMINSEE_COMMUNE = ?',
-                        [$idGroupement, $numinsee]
-                    )->fetchOne();
-                    $count = (int) $countResult;
-
-                    if ($count > 0) {
+                    if ($this->groupementRepository->containsCommune((int) $idGroupement, $numinsee)) {
                         return [
                             'ID_COMMISSION' => (int) $result['ID_COMMISSION'],
                             'LIBELLE_COMMISSION' => $result['LIBELLE_COMMISSION'],
@@ -652,14 +647,7 @@ final class EtablissementController extends AbstractController
                         ];
                     }
                 } elseif (null !== $idGroupement) {
-                    /** @var string|false $countResult */
-                    $countResult = $conn->executeQuery(
-                        'SELECT COUNT(*) FROM groupementcommune WHERE ID_GROUPEMENT = ? AND NUMINSEE_COMMUNE = ?',
-                        [$idGroupement, $numinsee]
-                    )->fetchOne();
-                    $count = (int) $countResult;
-
-                    if ($count > 0) {
+                    if ($this->groupementRepository->containsCommune((int) $idGroupement, $numinsee)) {
                         return [
                             'ID_COMMISSION' => (int) $result['ID_COMMISSION'],
                             'LIBELLE_COMMISSION' => $result['LIBELLE_COMMISSION'],

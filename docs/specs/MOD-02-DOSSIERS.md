@@ -157,6 +157,7 @@ Selon la nature du dossier, différents champs d'instruction sont disponibles :
 
 **Informations générales :**
 - Objet du dossier
+- Référence courrier (15 caractères maximum)
 - Numéro chronologique
 - Numéro(s) de document d'urbanisme (un dossier peut avoir plusieurs numéros)
 - Commission compétente
@@ -541,6 +542,8 @@ Un dossier supprimé peut être **rétabli** par un utilisateur ayant les droits
 ### Notifications
 
 **RG-DOS-047** — Lorsqu'un avis est propagé à un établissement et que l'envoi de mails est activé, une notification par courriel peut être déclenchée si l'utilisateur dispose du droit correspondant. Un lien vers l'alerte est proposé dans un message de confirmation.
+
+**RG-DOS-048** — La référence courrier est facultative, limitée à 15 caractères et disponible pour toutes les natures de dossier. Lorsqu'elle est renseignée, elle est saisie et consultable sur la fiche du dossier, apparaît dans les libellés des listes de dossiers et peut être utilisée comme critère de recherche. Elle est également disponible dans les documents générés depuis le dossier et les documents de commission. Dans l'historique d'un établissement, à date égale, les dossiers avec référence apparaissent avant ceux sans référence ; les dossiers ayant la même valeur de référence vide conservent le tri existant.
 
 ---
 

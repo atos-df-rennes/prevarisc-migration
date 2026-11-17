@@ -4,6 +4,42 @@
 
 <!-- END HEADER -->
 
+## [3.0.0](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.8...v3.0.0) (17-11-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* La migration des données écrasaient des résultats valides (#480) ([d0744f](https://github.com/atos-df-rennes/prevarisc-migration/commit/d0744f8170129d1c2988877703d3cee9dd1a3449))
+* Suppression de fichiers temporaires non effacés ([230008](https://github.com/atos-df-rennes/prevarisc-migration/commit/230008ada912bcd7545657b3b140de16dcb7916d))
+* Modification de table avant sa création ([c758a3](https://github.com/atos-df-rennes/prevarisc-migration/commit/c758a397c7887962e5800e453eca36137048aab5))
+* Traite les enums MySQL comme des chaînes si existantes dans le schéma ([646cb6](https://github.com/atos-df-rennes/prevarisc-migration/commit/646cb610781cbde64b99a99c28dca67c4d4a90bb))
+
+##### Administration
+
+* Surbrillance de l'onglet sur l'édition des couches cartographiques ([d680a6](https://github.com/atos-df-rennes/prevarisc-migration/commit/d680a64288bef0d7c9542bfe5f3151cfdc65773c))
+
+##### Dossier
+
+* Libellé secrétariat incorrect ([c70a81](https://github.com/atos-df-rennes/prevarisc-migration/commit/c70a811a364cb99e4786f4967f4ffb3a01fdad21))
+
+##### Ressources-specialisees
+
+* Permet l'exclusion de certains types d'activités (#481) ([0cc274](https://github.com/atos-df-rennes/prevarisc-migration/commit/0cc27436aa146c9ce7ad4a4014ea04994bba0cab))
+
+##### Version
+
+* Affiche la page des changelogs par version majeure (#468) ([bc9475](https://github.com/atos-df-rennes/prevarisc-migration/commit/bc94753a5c233f66b7e34ba872b56f776b4b536a))
+* Détection via le bon dépôt et les nouvelles conventions (#467) ([54b550](https://github.com/atos-df-rennes/prevarisc-migration/commit/54b550ec53b66e9fda6a1056f182e6614ac6a2b4))
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/palette.svg" width="20" height="20"> Style
+
+
+##### Ressources-specialisees
+
+* Le style n'était pas pris en compte sur l'affichage ([3a8db7](https://github.com/atos-df-rennes/prevarisc-migration/commit/3a8db76d69c3d763c9f8a760bed7de8c02399f4d))
+
+
+---
+
 ## [3.0.0-rc.4](https://github.com/atos-df-rennes/prevarisc-migration/compare/v3.0.0-rc.3...v3.0.0-rc.4) (23-10-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections

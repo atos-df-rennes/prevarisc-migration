@@ -41,9 +41,19 @@ final class DossierSearchResultDto extends AbstractDossierResultDto
     public $ID_TYPE;
 
     /**
+     * @var int|null
+     */
+    public $ID_CATEGORIE;
+
+    /**
      * @var string|null
      */
     public $LIBELLE_TYPE;
+
+    /**
+     * @var string|null
+     */
+    public $LIBELLE_CATEGORIE;
 
     /**
      * @var string|null
@@ -90,7 +100,9 @@ final class DossierSearchResultDto extends AbstractDossierResultDto
         $dto->ECHEANCIER_TRAVAUX = SqlTypeHelper::toInt($row['ECHEANCIER_TRAVAUX'] ?? null);
         $dto->ID_ETABLISSEMENT = SqlTypeHelper::toInt($row['ID_ETABLISSEMENT'] ?? null);
         $dto->ID_TYPE = SqlTypeHelper::toInt($row['ID_TYPE'] ?? null);
+        $dto->ID_CATEGORIE = SqlTypeHelper::toInt($row['ID_CATEGORIE'] ?? null);
         $dto->LIBELLE_TYPE = SqlTypeHelper::toStr($row['LIBELLE_TYPE'] ?? null);
+        $dto->LIBELLE_CATEGORIE = SqlTypeHelper::toStr($row['LIBELLE_CATEGORIE'] ?? null);
         $dto->LIBELLE_GENRE = SqlTypeHelper::toStr($row['LIBELLE_GENRE'] ?? null);
         $dto->CODEPOSTAL_COMMUNE = SqlTypeHelper::toStr($row['CODEPOSTAL_COMMUNE'] ?? null);
         $dto->LIBELLE_COMMUNE = SqlTypeHelper::toStr($row['LIBELLE_COMMUNE'] ?? null);

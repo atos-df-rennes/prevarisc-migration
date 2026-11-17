@@ -133,6 +133,13 @@ final class DossierFieldsTest extends TestCase
         $this->assertContains('dureeIntervention', $fields);
     }
 
+    public function testReferenceCourrierIsAvailableForEveryNature(): void
+    {
+        foreach ($this->service->getAllFieldsByNature() as $natureId => $fields) {
+            $this->assertContains('referenceCourrier', $fields, sprintf('Nature %s must display the reference courrier field.', $natureId));
+        }
+    }
+
     private function createDossierWithNature(int $natureId): Dossier
     {
         $nature = $this->createStub(DossierNatureListe::class);
