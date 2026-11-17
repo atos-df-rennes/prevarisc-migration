@@ -20,16 +20,8 @@ use Psr\Log\LoggerInterface;
  */
 class DescriptifCopier
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly LoggerInterface $logger)
     {
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
     }
 
     /**
@@ -82,9 +74,8 @@ class DescriptifCopier
      *
      * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $sourceRubriques
      * @param list<array{rubrique: Rubrique, display: bool, champs: list<array<string, mixed>>}> $targetRubriques
-     * @param Dossier|Etablissement                                                              $targetEntity
      */
-    private function doCopy(array $sourceRubriques, array $targetRubriques, $targetEntity): void
+    private function doCopy(array $sourceRubriques, array $targetRubriques, Etablissement|Dossier $targetEntity): void
     {
         foreach ($sourceRubriques as $sourceItem) {
             /** @var Rubrique $sourceRubrique */
@@ -141,12 +132,11 @@ class DescriptifCopier
      * Copie un champ simple (non parent).
      * Si la source n'a pas de valeur, le champ est ignoré.
      *
-     * @param Dossier|Etablissement $targetEntity
-     * @param array<string, mixed>  $targetChampData
+     * @param array<string, mixed> $targetChampData
      */
-    private function copySimpleChamp(?Valeur $sourceValeur, array $targetChampData, $targetEntity): void
+    private function copySimpleChamp(?Valeur $sourceValeur, array $targetChampData, Dossier|Etablissement $targetEntity): void
     {
-        if (null === $sourceValeur) {
+        if (!$sourceValeur instanceof Valeur) {
             return;
         }
 
@@ -162,11 +152,10 @@ class DescriptifCopier
      * Copie un champ parent non-tableau (groupe de sous-champs).
      * Les sous-champs sont matchés par nom.
      *
-     * @param array<string, mixed>  $sourceChampData
-     * @param array<string, mixed>  $targetChampData
-     * @param Dossier|Etablissement $targetEntity
+     * @param array<string, mixed> $sourceChampData
+     * @param array<string, mixed> $targetChampData
      */
-    private function copyParentNonTableau(array $sourceChampData, array $targetChampData, $targetEntity): void
+    private function copyParentNonTableau(array $sourceChampData, array $targetChampData, Dossier|Etablissement $targetEntity): void
     {
         /** @var list<array<string, mixed>> $sourceSousChamps */
         $sourceSousChamps = $sourceChampData['sous_champs'] ?? [];
@@ -206,11 +195,10 @@ class DescriptifCopier
      * Les valeurs cibles existantes sont supprimées, puis les valeurs sources sont insérées.
      * Les colonnes sont matchées par nom d'enfant.
      *
-     * @param array<string, mixed>  $sourceChampData
-     * @param array<string, mixed>  $targetChampData
-     * @param Dossier|Etablissement $targetEntity
+     * @param array<string, mixed> $sourceChampData
+     * @param array<string, mixed> $targetChampData
      */
-    private function copyParentTableau(array $sourceChampData, array $targetChampData, $targetEntity): void
+    private function copyParentTableau(array $sourceChampData, array $targetChampData, Dossier|Etablissement $targetEntity): void
     {
         // Suppression des valeurs tableau existantes dans la cible
         /** @var list<array<int, Valeur>> $targetLignes */
@@ -241,7 +229,7 @@ class DescriptifCopier
         foreach ($sourceLignes as $sourceLigne) {
             foreach ($sourceLigne as $sourceChampId => $sourceValeur) {
                 $sourceEnfant = $this->findEnfantById($sourceChamp, $sourceChampId);
-                if (null === $sourceEnfant) {
+                if (!$sourceEnfant instanceof Champ) {
                     continue;
                 }
 
@@ -251,7 +239,7 @@ class DescriptifCopier
                 }
 
                 $targetEnfant = $this->matchChampByNomInArray($targetEnfants, $nom);
-                if (null === $targetEnfant) {
+                if (!$targetEnfant instanceof Champ) {
                     $this->logger->warning('DescriptifCopier : colonne tableau "{nom}" absente dans le champ cible, ignorée.', ['nom' => $nom]);
                     continue;
                 }
@@ -281,12 +269,10 @@ class DescriptifCopier
 
     /**
      * Met à jour une Valeur existante ou en crée une nouvelle pour écrire la valeur source.
-     *
-     * @param Dossier|Etablissement $targetEntity
      */
-    private function writeValeur(Valeur $source, Champ $targetChamp, ?Valeur $existing, $targetEntity, ?int $idx): void
+    private function writeValeur(Valeur $source, Champ $targetChamp, ?Valeur $existing, Dossier|Etablissement $targetEntity, ?int $idx): void
     {
-        if (null !== $existing) {
+        if ($existing instanceof Valeur) {
             $this->applySourceToTarget($source, $existing);
         } else {
             $newValeur = $this->createValeur($targetChamp, $idx);

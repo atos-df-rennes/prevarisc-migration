@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
  * Pré-correction avant Version20250305163248 :
  *  1. Déduplique ID_UTILISATEURINFORMATIONS dans adressecommune pour permettre
- *     la contrainte UNIQUE (les lignes pointaient toutes vers le même enregistrement).
+ *     la contrainte UNIQUE sans perdre les coordonnées existantes.
  *  2. Normalise le nom de l'index sur groupement.ID_UTILISATEURINFORMATIONS
  *     afin que le DROP INDEX de Version20250305163248 puisse s'exécuter.
  */
@@ -23,7 +24,7 @@ final class Version20250305163100 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
 
         $this->fixAdressecommuneUnicite();
         $this->fixGroupementUnicite();
@@ -31,77 +32,58 @@ final class Version20250305163100 extends AbstractMigration
     }
 
     /**
-     * Insère des lignes vides dans utilisateurinformations et réaffecte
-     * un ID unique à chaque ligne d'adressecommune pour permettre
-     * la future contrainte UNIQUE sur ID_UTILISATEURINFORMATIONS.
+     * Conserve la fiche partagée pour la première commune et copie son contenu
+     * pour les autres. Les références orphelines sont traitées par Version20250305163248.
      */
     private function fixAdressecommuneUnicite(): void
     {
-        // Si aucun doublon, la correction n'est pas nécessaire
-        $duplicates = (int) $this->connection->fetchOne(
-            'SELECT COUNT(*) FROM (
-                SELECT ID_UTILISATEURINFORMATIONS
-                FROM adressecommune
-                WHERE ID_UTILISATEURINFORMATIONS IS NOT NULL
-                GROUP BY ID_UTILISATEURINFORMATIONS
-                HAVING COUNT(*) > 1
-            ) t'
-        );
-
-        if (0 === $duplicates) {
-            return;
-        }
-
-        /** @var array<int, array{NUMINSEE_COMMUNE: string}> $communes */
+        /** @var array<int, array{NUMINSEE_COMMUNE: string, ID_UTILISATEURINFORMATIONS: int|string}> $communes */
         $communes = $this->connection->fetchAllAssociative(
-            'SELECT NUMINSEE_COMMUNE FROM adressecommune ORDER BY NUMINSEE_COMMUNE'
+            'SELECT c.NUMINSEE_COMMUNE, c.ID_UTILISATEURINFORMATIONS
+             FROM adressecommune c
+             INNER JOIN utilisateurinformations ui
+                 ON ui.ID_UTILISATEURINFORMATIONS = c.ID_UTILISATEURINFORMATIONS
+             INNER JOIN (
+                 SELECT ID_UTILISATEURINFORMATIONS, MIN(NUMINSEE_COMMUNE) AS premiere_commune
+                 FROM adressecommune
+                 GROUP BY ID_UTILISATEURINFORMATIONS
+                 HAVING COUNT(*) > 1
+             ) doublons ON doublons.ID_UTILISATEURINFORMATIONS = c.ID_UTILISATEURINFORMATIONS
+             WHERE c.NUMINSEE_COMMUNE != doublons.premiere_commune
+             ORDER BY c.NUMINSEE_COMMUNE'
         );
 
-        if (empty($communes)) {
-            return;
-        }
-
-        $count = count($communes);
-
-        $maxId = (int) $this->connection->fetchOne(
-            'SELECT COALESCE(MAX(ID_UTILISATEURINFORMATIONS), 0) FROM utilisateurinformations'
-        );
-
-        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 0');
-
-        // Insère $count lignes vides dans utilisateurinformations (une par commune).
-        // Le cross-join génère jusqu'à 1000 lignes (10×10×10), LIMIT adapte au besoin réel.
-        $this->connection->executeStatement(
-            'INSERT INTO utilisateurinformations (
+        foreach ($communes as $commune) {
+            $this->connection->executeStatement(
+                'INSERT INTO utilisateurinformations (
                 NOM_UTILISATEURINFORMATIONS, PRENOM_UTILISATEURINFORMATIONS,
                 TELFIXE_UTILISATEURINFORMATIONS, TELPORTABLE_UTILISATEURINFORMATIONS,
                 TELFAX_UTILISATEURINFORMATIONS, MAIL_UTILISATEURINFORMATIONS,
                 SOCIETE_UTILISATEURINFORMATIONS, NUMEROADRESSE_UTILISATEURINFORMATIONS,
                 RUEADRESSE_UTILISATEURINFORMATIONS, CPADRESSE_UTILISATEURINFORMATIONS,
                 VILLEADRESSE_UTILISATEURINFORMATIONS, WEB_UTILISATEURINFORMATIONS,
-                OBS_UTILISATEURINFORMATIONS, ID_UTILISATEURCIVILITE,
+                OBS_UTILISATEURINFORMATIONS, DATE_PRV2, DATE_RECYCLAGE, DATE_SID, ID_UTILISATEURCIVILITE,
                 ID_FONCTION, GRADE_UTILISATEURINFORMATIONS
             )
-            SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 2, NULL
-            FROM (SELECT 1 AS n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
-                  UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10) a
-            CROSS JOIN (SELECT 1 AS n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
-                        UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10) b
-            CROSS JOIN (SELECT 1 AS n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5
-                        UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION SELECT 10) c
-            LIMIT '.$count
-        );
+            SELECT
+                NOM_UTILISATEURINFORMATIONS, PRENOM_UTILISATEURINFORMATIONS,
+                TELFIXE_UTILISATEURINFORMATIONS, TELPORTABLE_UTILISATEURINFORMATIONS,
+                TELFAX_UTILISATEURINFORMATIONS, MAIL_UTILISATEURINFORMATIONS,
+                SOCIETE_UTILISATEURINFORMATIONS, NUMEROADRESSE_UTILISATEURINFORMATIONS,
+                RUEADRESSE_UTILISATEURINFORMATIONS, CPADRESSE_UTILISATEURINFORMATIONS,
+                VILLEADRESSE_UTILISATEURINFORMATIONS, WEB_UTILISATEURINFORMATIONS,
+                OBS_UTILISATEURINFORMATIONS, DATE_PRV2, DATE_RECYCLAGE, DATE_SID, ID_UTILISATEURCIVILITE,
+                ID_FONCTION, GRADE_UTILISATEURINFORMATIONS
+            FROM utilisateurinformations
+            WHERE ID_UTILISATEURINFORMATIONS = ?',
+                [$commune['ID_UTILISATEURINFORMATIONS']]
+            );
 
-        // Affecte un ID unique (les IDs fraîchement insérés) à chaque commune.
-        // Les IDs assignés vont de ($maxId + 1) à ($maxId + $count) inclus.
-        foreach ($communes as $i => $commune) {
             $this->connection->executeStatement(
                 'UPDATE adressecommune SET ID_UTILISATEURINFORMATIONS = ? WHERE NUMINSEE_COMMUNE = ?',
-                [$maxId + $i + 1, $commune['NUMINSEE_COMMUNE']]
+                [$this->connection->lastInsertId(), $commune['NUMINSEE_COMMUNE']]
             );
         }
-
-        $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS = 1');
     }
 
     /**

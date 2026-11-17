@@ -19,23 +19,15 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 final class PrescriptionsAccessSubscriberTest extends TestCase
 {
-    /** @var DossierRepository|MockObject */
-    private $dossierRepository;
+    /** @var MockObject&DossierRepository */
+    private MockObject $dossierRepository;
 
-    /** @var PrescriptionsAccessSubscriber */
-    private $subscriber;
+    private PrescriptionsAccessSubscriber $subscriber;
 
     protected function setUp(): void
     {
         $this->dossierRepository = $this->createMock(DossierRepository::class);
         $this->subscriber = new PrescriptionsAccessSubscriber($this->dossierRepository);
-    }
-
-    public function testSubscribesToKernelController(): void
-    {
-        $events = PrescriptionsAccessSubscriber::getSubscribedEvents();
-
-        $this->assertArrayHasKey('kernel.controller', $events);
     }
 
     public function testSkipsControllerNotImplementingInterface(): void
@@ -47,7 +39,7 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
 
     public function testThrowsNotFoundWhenDossierDoesNotExist(): void
     {
-        $this->dossierRepository->method('find')->with(1)->willReturn(null);
+        $this->dossierRepository->expects($this->once())->method('find')->with(1)->willReturn(null);
 
         $this->expectException(NotFoundHttpException::class);
 
@@ -58,7 +50,7 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
     {
         // Dérogation
         $dossier = $this->creerDossier($this->creerNature(31), $this->creerType(1));
-        $this->dossierRepository->method('find')->willReturn($dossier);
+        $this->dossierRepository->expects($this->once())->method('find')->with(1)->willReturn($dossier);
 
         $this->expectException(NotFoundHttpException::class);
 
@@ -69,7 +61,7 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
     {
         // Courrier / Courriel
         $dossier = $this->creerDossier($this->creerNature(1), $this->creerType(5));
-        $this->dossierRepository->method('find')->willReturn($dossier);
+        $this->dossierRepository->expects($this->once())->method('find')->with(1)->willReturn($dossier);
 
         $this->expectException(NotFoundHttpException::class);
 
@@ -79,7 +71,7 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
     public function testAllowsAccessWhenNatureEtTypeAutorisent(): void
     {
         $dossier = $this->creerDossier($this->creerNature(1), $this->creerType(1));
-        $this->dossierRepository->method('find')->willReturn($dossier);
+        $this->dossierRepository->expects($this->once())->method('find')->with(1)->willReturn($dossier);
 
         $this->subscriber->onKernelController($this->buildEvent($this->prescriptionsController(), 1));
 
@@ -95,16 +87,12 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
         };
     }
 
-    /**
-     * @param mixed $controller
-     */
-    private function buildEvent($controller, int $idDossier): ControllerEvent
+    private function buildEvent(\Closure|DossierPrescriptionsAccessInterface $controller, int $idDossier): ControllerEvent
     {
-        $kernel = $this->createMock(HttpKernelInterface::class);
         $request = new Request();
         $request->attributes->set('id', $idDossier);
 
-        return new ControllerEvent($kernel, $controller, $request, HttpKernelInterface::MASTER_REQUEST);
+        return new ControllerEvent($this->createStub(HttpKernelInterface::class), $controller, $request, HttpKernelInterface::MAIN_REQUEST);
     }
 
     private function creerDossier(DossierNatureListe $nature, DossierType $type): Dossier
@@ -122,7 +110,6 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
 
         $reflection = new \ReflectionClass($nature);
         $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
         $property->setValue($nature, $id);
 
         return $nature;
@@ -134,7 +121,6 @@ final class PrescriptionsAccessSubscriberTest extends TestCase
 
         $reflection = new \ReflectionClass($type);
         $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
         $property->setValue($type, $id);
 
         return $type;

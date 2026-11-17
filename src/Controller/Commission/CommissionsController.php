@@ -7,39 +7,20 @@ use App\Form\CommissionsCollectionType;
 use App\Repository\CommissionRepository;
 use App\Repository\CommissionTypeRepository;
 use App\Service\Commission\CommissionManagerService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("gestion_commissions")
- */
+#[IsGranted('gestion_commissions')]
 class CommissionsController extends AbstractController
 {
-    /** @var CommissionRepository */
-    private $commissionRepository;
-
-    /** @var CommissionTypeRepository */
-    private $commissionTypeRepository;
-
-    /** @var CommissionManagerService */
-    private $commissionManagerService;
-
-    public function __construct(
-        CommissionRepository $commissionRepository,
-        CommissionTypeRepository $commissionTypeRepository,
-        CommissionManagerService $commissionManagerService
-    ) {
-        $this->commissionRepository = $commissionRepository;
-        $this->commissionTypeRepository = $commissionTypeRepository;
-        $this->commissionManagerService = $commissionManagerService;
+    public function __construct(private readonly CommissionRepository $commissionRepository, private readonly CommissionTypeRepository $commissionTypeRepository, private readonly CommissionManagerService $commissionManagerService)
+    {
     }
 
-    /**
-     * @Route("/admin/commissions", name="admin_commissions_index")
-     */
+    #[Route(path: '/admin/commissions', name: 'admin_commissions_index')]
     public function index(): Response
     {
         $commissionTypes = $this->commissionTypeRepository->findWithCommissions();
@@ -49,9 +30,7 @@ class CommissionsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/commissions/gerer", name="admin_commissions_manage")
-     */
+    #[Route(path: '/admin/commissions/gerer', name: 'admin_commissions_manage')]
     public function manage(Request $request): Response
     {
         $commissions = $this->commissionRepository->findAll();
@@ -82,15 +61,14 @@ class CommissionsController extends AbstractController
         }
 
         return $this->render('commissions/manage.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
     /**
      * Redirige vers l'onglet compétences (point d'entrée générique par commission).
-     *
-     * @Route("/admin/commissions/{id}", name="admin_commissions_show", requirements={"id"="\d+"}, methods={"GET"})
      */
+    #[Route(path: '/admin/commissions/{id}', name: 'admin_commissions_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Commission $commission): Response
     {
         return $this->redirectToRoute('admin_commissions_competences', ['id' => $commission->getId()]);

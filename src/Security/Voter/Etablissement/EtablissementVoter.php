@@ -3,9 +3,11 @@
 namespace App\Security\Voter\Etablissement;
 
 use App\Entity\Etablissement;
-use App\Entity\EtablissementInformations;
+use App\Entity\Genre;
+use App\Entity\Groupe;
 use App\Entity\Utilisateur;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 abstract class EtablissementVoter extends Voter
@@ -20,7 +22,7 @@ abstract class EtablissementVoter extends Voter
      */
     public const CREATE = 'add_etablissement';
 
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION], true)) {
             return false;
@@ -29,7 +31,7 @@ abstract class EtablissementVoter extends Voter
         return $subject instanceof Etablissement;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
 
@@ -39,7 +41,7 @@ abstract class EtablissementVoter extends Voter
 
         $userGroupe = $user->getGroupe();
 
-        return null !== $userGroupe;
+        return $userGroupe instanceof Groupe;
     }
 
     /**
@@ -54,11 +56,10 @@ abstract class EtablissementVoter extends Voter
             return false;
         }
 
-        /** @var EtablissementInformations $latestInformations */
         $latestInformations = $subject->getLatestInformations();
         $genre = $latestInformations->getGenre();
 
-        if (null === $genre) {
+        if (!$genre instanceof Genre) {
             return false;
         }
 

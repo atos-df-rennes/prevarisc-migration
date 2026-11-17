@@ -8,18 +8,10 @@ use App\Service\Documents;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 
-final class CommissionDocumentBuilder
+final readonly class CommissionDocumentBuilder
 {
-    /** @var Documents */
-    private $documents;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(Documents $documents, LoggerInterface $logger)
+    public function __construct(private Documents $documents, private LoggerInterface $logger)
     {
-        $this->documents = $documents;
-        $this->logger = $logger;
     }
 
     /**
@@ -35,7 +27,7 @@ final class CommissionDocumentBuilder
             $commissionId = $commission->getId();
             $commissionLibelle = $commission->getLibelle();
             $commissionType = $commission->getType();
-            $commissionTypeLibelle = null !== $commissionType ? $commissionType->getLibelle() : null;
+            $commissionTypeLibelle = $commissionType?->getLibelle();
 
             if (in_array(null, [$commissionId, $commissionLibelle, $commissionType, $commissionTypeLibelle], true)) {
                 $this->logger->error("La commission n'a pas été trouvée.", [

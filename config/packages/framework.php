@@ -9,6 +9,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'secret' => '%env(APP_SECRET)%',
         'session' => [
             'handler_id' => null,
+            'storage_factory_id' => 'session.storage.factory.native',
             'cookie_secure' => 'auto',
             'cookie_samesite' => 'lax',
         ],
@@ -21,8 +22,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             'throw' => false,
         ],
         'http_method_override' => true,
+        'handle_all_throwables' => true,
         'assets' => [
-            'version' => 'v2.10.3',
+            'version' => 'v3.0.0-rc.1',
         ],
     ]);
 };

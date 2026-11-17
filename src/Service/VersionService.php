@@ -2,97 +2,120 @@
 
 namespace App\Service;
 
-final class VersionService
+final readonly class VersionService
 {
-    /** @var string */
-    private $srcDir;
-
-    public function __construct(string $srcDir)
+    public function __construct(private string $srcDir)
     {
-        $this->srcDir = $srcDir;
     }
 
     public function getCurrentVersion(): ?string
     {
-        $contents = $this->readChangelog();
+        $changelogs = $this->readChangelogs();
 
-        if (null === $contents) {
+        if (null === $changelogs) {
             return null;
         }
 
-        if (1 === preg_match('/^## \[([^\]]+)\]/m', $contents, $matches)) {
-            return $matches[1];
+        $currentVersion = null;
+
+        foreach ($changelogs as $contents) {
+            preg_match_all('/^## \[([^\]]+)\]/m', $contents, $matches);
+
+            foreach ($matches[1] as $version) {
+                if (null === $currentVersion || 0 < version_compare($version, $currentVersion)) {
+                    $currentVersion = $version;
+                }
+            }
         }
 
-        return null;
+        return $currentVersion;
     }
 
     /**
-     * Parse le CHANGELOG.md et retourne les entrées groupées par version mineure (ex: "2.8").
-     * Chaque entrée contient la version, la date et le contenu Markdown brut.
+     * Parse les entrées des changelogs et les groupe par version majeure puis mineure.
      *
-     * @return array<string, array<int, array{version: string, date: string, content: string}>>
+     * @return array<string, array<string, list<array{version: string, date: string, content: string}>>>
      */
-    public function getChangelogByMinorVersion(): array
+    public function getChangelogByMajorVersion(): array
     {
-        $contents = $this->readChangelog();
+        $changelogs = $this->readChangelogs();
 
-        if (null === $contents) {
+        if (null === $changelogs) {
             return [];
         }
 
         $pattern = '/^## \[([^\]]+)\]\([^)]*\)\s*\(([^)]+)\)/m';
-        preg_match_all($pattern, $contents, $headingMatches, PREG_OFFSET_CAPTURE);
-
-        if (empty($headingMatches[0])) {
-            return [];
-        }
-
         $sections = [];
-        $count = count($headingMatches[0]);
 
-        for ($i = 0; $i < $count; ++$i) {
-            $version = $headingMatches[1][$i][0];
-            $date = $headingMatches[2][$i][0];
-            $start = $headingMatches[0][$i][1];
-            $end = ($i + 1 < $count) ? $headingMatches[0][$i + 1][1] : strlen($contents);
+        foreach ($changelogs as $contents) {
+            preg_match_all($pattern, $contents, $headingMatches, PREG_OFFSET_CAPTURE);
+            $count = count($headingMatches[0]);
 
-            $block = substr($contents, $start, $end - $start);
-            $block = (string) preg_replace('/\s*---\s*$/', '', trim($block));
-            // Supprimer la ligne d'en-tête ## [x.y.z]... pour éviter la duplication dans le rendu
-            $block = (string) preg_replace('/^##[^\n]*\n\n?/', '', $block);
+            for ($i = 0; $i < $count; ++$i) {
+                $version = $headingMatches[1][$i][0];
+                $date = $headingMatches[2][$i][0];
+                $start = $headingMatches[0][$i][1];
+                $end = ($i + 1 < $count) ? $headingMatches[0][$i + 1][1] : strlen($contents);
 
-            $minorVersion = $this->extractMinorVersion($version);
+                $block = substr($contents, $start, $end - $start);
+                $block = (string) preg_replace('/\s*---\s*$/', '', trim($block));
+                $block = (string) preg_replace('/^##[^\n]*\n\n?/', '', $block);
 
-            if (!isset($sections[$minorVersion])) {
-                $sections[$minorVersion] = [];
+                $majorVersion = $this->extractMajorVersion($version);
+                $minorVersion = $this->extractMinorVersion($version);
+
+                $sections[$majorVersion][$minorVersion] ??= [];
+                $sections[$majorVersion][$minorVersion][] = [
+                    'version' => $version,
+                    'date' => $date,
+                    'content' => $block,
+                ];
             }
-
-            $sections[$minorVersion][] = [
-                'version' => $version,
-                'date' => $date,
-                'content' => $block,
-            ];
         }
 
-        uksort($sections, function (string $a, string $b): int {
-            return version_compare($b, $a);
-        });
+        uksort($sections, fn (string $a, string $b): int => version_compare($b, $a));
+
+        foreach ($sections as &$minorVersions) {
+            uksort($minorVersions, fn (string $a, string $b): int => version_compare($b, $a));
+        }
+
+        unset($minorVersions);
 
         return $sections;
     }
 
-    private function readChangelog(): ?string
+    /**
+     * @return list<string>|null
+     */
+    private function readChangelogs(): ?array
     {
-        $path = $this->srcDir.'/CHANGELOG.md';
+        $paths = glob($this->srcDir.'/CHANGELOG-*.x.md');
 
-        if (!file_exists($path)) {
+        if (false === $paths || [] === $paths) {
             return null;
         }
 
-        $contents = file_get_contents($path);
+        $changelogs = [];
 
-        return false !== $contents ? $contents : null;
+        foreach ($paths as $path) {
+            $contents = file_get_contents($path);
+
+            if (false === $contents) {
+                return null;
+            }
+
+            $changelogs[] = $contents;
+        }
+
+        return $changelogs;
+    }
+
+    private function extractMajorVersion(string $version): string
+    {
+        $clean = (string) preg_replace('/[^0-9.].*/', '', $version);
+        $parts = explode('.', $clean);
+
+        return $parts[0].'.x';
     }
 
     private function extractMinorVersion(string $version): string

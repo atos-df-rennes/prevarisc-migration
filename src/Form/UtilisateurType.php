@@ -3,9 +3,11 @@
 namespace App\Form;
 
 use App\Entity\Commission;
+use App\Entity\CommissionType;
 use App\Entity\Commune;
 use App\Entity\Groupe;
 use App\Entity\Groupement;
+use App\Entity\GroupementType;
 use App\Entity\Utilisateur;
 use App\Service\Authentification;
 use Doctrine\ORM\EntityRepository;
@@ -21,16 +23,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UtilisateurType extends AbstractType
 {
-    /** @var bool */
-    private $enforceSecurity;
-
-    /** @var Authentification */
-    private $authentification;
-
-    public function __construct(bool $enforceSecurity, Authentification $authentification)
+    public function __construct(private readonly bool $enforceSecurity, private readonly Authentification $authentification)
     {
-        $this->enforceSecurity = $enforceSecurity;
-        $this->authentification = $authentification;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -92,7 +86,7 @@ class UtilisateurType extends AbstractType
                 'group_by' => function (Commission $choice): ?string {
                     $typeCommission = $choice->getType();
 
-                    if (null === $typeCommission) {
+                    if (!$typeCommission instanceof CommissionType) {
                         return null;
                     }
 
@@ -104,17 +98,14 @@ class UtilisateurType extends AbstractType
                 'choice_label' => 'libelle',
                 'required' => false,
                 'multiple' => true,
-                'query_builder' => function (EntityRepository $entityRepository) {
-                    return $entityRepository->createQueryBuilder('g')
-                        ->addSelect('gt')
-                        ->join('g.type', 'gt')
-                        ->orderBy('gt.id, g.libelle')
-                    ;
-                },
+                'query_builder' => fn (EntityRepository $entityRepository) => $entityRepository->createQueryBuilder('g')
+                    ->addSelect('gt')
+                    ->join('g.type', 'gt')
+                    ->orderBy('gt.id, g.libelle'),
                 'group_by' => function (Groupement $choice): ?string {
                     $typeGroupement = $choice->getType();
 
-                    if (null === $typeGroupement) {
+                    if (!$typeGroupement instanceof GroupementType) {
                         return null;
                     }
 

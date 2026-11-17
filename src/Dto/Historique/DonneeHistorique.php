@@ -4,36 +4,13 @@ namespace App\Dto\Historique;
 
 class DonneeHistorique
 {
-    /** @var false|int */
-    private $date;
+    private ?int $fin = null;
 
-    /** @var ?string */
-    private $valeur;
-
-    /** @var ?Auteur */
-    private $auteur;
-
-    /** @var false|int */
-    private $fin;
-
-    /**
-     * @param false|int $date
-     */
-    public function __construct(
-        $date,
-        ?string $valeur,
-        ?Auteur $auteur
-    ) {
-        $this->date = $date;
-        $this->valeur = $valeur;
-        $this->auteur = $auteur;
-        $this->fin = false;
+    public function __construct(private readonly ?int $date, private readonly ?string $valeur, private readonly ?Auteur $auteur)
+    {
     }
 
-    /**
-     * @return false|int
-     */
-    public function getDate()
+    public function getDate(): ?int
     {
         return $this->date;
     }
@@ -48,20 +25,14 @@ class DonneeHistorique
         return $this->auteur;
     }
 
-    /**
-     * @param false|int $fin
-     */
-    public function setFin($fin): self
+    public function setFin(?int $fin): self
     {
         $this->fin = $fin;
 
         return $this;
     }
 
-    /**
-     * @return false|int
-     */
-    public function getFin()
+    public function getFin(): ?int
     {
         return $this->fin;
     }

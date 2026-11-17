@@ -3,48 +3,27 @@
 namespace App\Entity;
 
 use App\Repository\PrescriptionReglementaireAssociationRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrescriptionReglementaireAssociationRepository::class)
- *
- * @ORM\Table(name="prescriptionreglassoc")
- */
+#[ORM\Entity(repositoryClass: PrescriptionReglementaireAssociationRepository::class)]
+#[ORM\Table(name: 'prescriptionreglassoc')]
 class PrescriptionReglementaireAssociation
 {
-    /**
-     * @ORM\Id
-     *
-     * @var int
-     *
-     * @ORM\Column(name="NUM_PRESCRIPTIONASSOC", type="integer", nullable=false)
-     */
-    private $numero;
+    #[ORM\Id]
+    #[ORM\Column(name: 'NUM_PRESCRIPTIONASSOC', type: Types::INTEGER, nullable: false)]
+    private ?int $numero = null;
 
-    /**
-     * @ORM\Id
-     *
-     * @var ?PrescriptionReglementaire
-     *
-     * @ORM\ManyToOne(targetEntity=PrescriptionReglementaire::class, inversedBy="associations")
-     *
-     * @ORM\JoinColumn(name="ID_PRESCRIPTIONREGL", referencedColumnName="ID_PRESCRIPTIONREGL", nullable=false)
-     */
-    private $regle;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: PrescriptionReglementaire::class, inversedBy: 'associations')]
+    #[ORM\JoinColumn(name: 'ID_PRESCRIPTIONREGL', referencedColumnName: 'ID_PRESCRIPTIONREGL', nullable: false)]
+    private ?PrescriptionReglementaire $regle = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="ID_TEXTE", type="bigint", nullable=false)
-     */
-    private $texte;
+    #[ORM\Column(name: 'ID_TEXTE', type: Types::BIGINT, nullable: false)]
+    private ?int $texte = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="ID_ARTICLE", type="bigint", nullable=false)
-     */
-    private $article;
+    #[ORM\Column(name: 'ID_ARTICLE', type: Types::BIGINT, nullable: false)]
+    private ?int $article = null;
 
     public function getNumero(): ?int
     {

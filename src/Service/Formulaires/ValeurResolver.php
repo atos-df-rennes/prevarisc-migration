@@ -27,10 +27,10 @@ final class ValeurResolver
      */
     public static function resolve(?TypeChampEntity $typeChamp, ?Valeur $valeur): string
     {
-        $typeId = null !== $typeChamp ? $typeChamp->getId() : null;
+        $typeId = $typeChamp?->getId();
 
         if (TypeChamp::CHECKBOX === $typeId) {
-            if (null === $valeur) {
+            if (!$valeur instanceof Valeur) {
                 return 'Non';
             }
 
@@ -39,13 +39,13 @@ final class ValeurResolver
             return (true === $checkbox) ? 'Oui' : 'Non';
         }
 
-        if (null === $valeur) {
+        if (!$valeur instanceof Valeur) {
             return '';
         }
 
         if (TypeChamp::DATE === $typeId) {
             $date = $valeur->getDate();
-            if (null === $date) {
+            if (!$date instanceof \DateTimeInterface) {
                 return '';
             }
 

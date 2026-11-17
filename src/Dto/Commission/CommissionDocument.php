@@ -4,29 +4,13 @@ namespace App\Dto\Commission;
 
 use App\Dto\Document;
 
-final class CommissionDocument
+final readonly class CommissionDocument
 {
-    /** @var int */
-    private $id;
-
-    /** @var string */
-    private $nom;
-
-    /** @var string */
-    private $type;
-
-    /** @var Document[]|null */
-    private $documents;
-
     /**
      * @param Document[]|null $documents
      */
-    public function __construct(int $id, string $nom, string $type, ?array $documents)
+    public function __construct(private int $id, private string $nom, private string $type, private ?array $documents)
     {
-        $this->id = $id;
-        $this->nom = $nom;
-        $this->type = $type;
-        $this->documents = $documents;
     }
 
     public function getId(): int

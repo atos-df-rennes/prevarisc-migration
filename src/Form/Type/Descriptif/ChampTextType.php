@@ -18,6 +18,7 @@ class ChampTextType extends AbstractType
         ]);
     }
 
+    #[\Override]
     public function getParent(): string
     {
         return TextType::class;

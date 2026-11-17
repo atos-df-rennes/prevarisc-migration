@@ -3,6 +3,8 @@
 namespace App\Security\Voter;
 
 use App\Entity\Dossier;
+use App\Entity\DossierNatureListe;
+use App\Entity\Groupe;
 use App\Entity\Resources;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
@@ -10,6 +12,7 @@ use App\Repository\ResourcesRepository;
 use App\Security\Voter\Etablissement\EtablissementVoter;
 use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class DossierVoter extends Voter
@@ -28,33 +31,15 @@ class DossierVoter extends Voter
     public const VERROUILLAGE = 'verrouillage_dossier';
 
     /**
-     * @var ResourcesRepository
-     */
-    private $resourcesRepository;
-
-    /**
-     * @var PrivilegesRepository
-     */
-    private $privilegesRepository;
-
-    /**
      * @var Resources[]
      */
-    private $resources;
+    private array $resources = [];
 
-    /**
-     * @var EtablissementCollectionAccessChecker
-     */
-    private $collectionAccessChecker;
-
-    public function __construct(ResourcesRepository $resourcesRepository, PrivilegesRepository $privilegesRepository, EtablissementCollectionAccessChecker $collectionAccessChecker)
+    public function __construct(private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository, private readonly EtablissementCollectionAccessChecker $collectionAccessChecker)
     {
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
-        $this->collectionAccessChecker = $collectionAccessChecker;
     }
 
-    protected function supports($attribute, $subject): bool
+    protected function supports(string $attribute, mixed $subject): bool
     {
         if (false === in_array($attribute, [self::LECTURE, self::MODIFICATION, self::MODIFICATION_IGNORE_VERROU, self::VERROUILLAGE], true)) {
             return false;
@@ -70,7 +55,7 @@ class DossierVoter extends Voter
         return $subject instanceof Dossier;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
 
@@ -84,7 +69,7 @@ class DossierVoter extends Voter
 
         $natureDossier = $subject->getNature();
 
-        if (null === $natureDossier) {
+        if (!$natureDossier instanceof DossierNatureListe) {
             return false;
         }
 
@@ -96,7 +81,7 @@ class DossierVoter extends Voter
 
         $userGroup = $user->getGroupe();
 
-        if (null === $userGroup) {
+        if (!$userGroup instanceof Groupe) {
             return false;
         }
 

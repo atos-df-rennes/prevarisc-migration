@@ -69,9 +69,7 @@ class GroupementType extends AbstractType
         if (in_array(self::SCOPE_GENERAL, $scopes)) {
             $builder->add('communes', EntityType::class, [
                 'class' => Commune::class,
-                'choice_label' => function (Commune $commune): string {
-                    return $commune->getId().' '.$commune->getLibelle();
-                },
+                'choice_label' => fn (Commune $commune): string => $commune->getId().' '.$commune->getLibelle(),
                 'label' => 'Villes du groupement',
                 'multiple' => true,
                 'required' => false,
@@ -94,9 +92,7 @@ class GroupementType extends AbstractType
                     'label' => 'Préventionnistes affectés',
                     'multiple' => true,
                     'required' => false,
-                    'query_builder' => function (UtilisateurRepository $repository): QueryBuilder {
-                        return $repository->createPreventionnistesQueryBuilder();
-                    },
+                    'query_builder' => fn (UtilisateurRepository $repository): QueryBuilder => $repository->createPreventionnistesQueryBuilder(),
                 ])
                 ->add('reaffectationAutomatique', HiddenType::class, [
                     'mapped' => false,

@@ -2,20 +2,15 @@
 
 namespace App\Utils;
 
-use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 
-final class FormHelper
+final readonly class FormHelper
 {
-    /** @var RequestStack */
-    private $requestStack;
-
-    public function __construct(RequestStack $requestStack)
+    public function __construct(private RequestStack $requestStack)
     {
-        $this->requestStack = $requestStack;
     }
 
     public function addErrorsToFlashFromForm(FormInterface $form): void
@@ -33,10 +28,6 @@ final class FormHelper
         }
 
         foreach ($form->getErrors(true) as $error) {
-            if (!$error instanceof FormError) {
-                continue;
-            }
-
             $session->getFlashBag()->add('danger', $error->getMessage());
         }
     }

@@ -10,80 +10,48 @@ use App\Repository\CapsuleRubriqueRepository;
 use App\Service\Formulaires\FormulairesImporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\Exception\CircularReferenceException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @IsGranted("gestion_formulaires")
- */
+#[IsGranted('gestion_formulaires')]
 class FormulairesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /**
-     * @var CapsuleRubriqueRepository
-     */
-    private $capsuleRubriqueRepository;
-
-    /**
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
-
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
-
-    /**
-     * @var FormulairesImporter
-     */
-    private $formulairesImporter;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    public function __construct(EntityManagerInterface $entityManager, CapsuleRubriqueRepository $capsuleRubriqueRepository, FormFactoryInterface $formFactory, SerializerInterface $serializer, FormulairesImporter $formulairesImporter, LoggerInterface $logger)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly FormFactoryInterface $formFactory, private readonly SerializerInterface $serializer, private readonly FormulairesImporter $formulairesImporter, private readonly LoggerInterface $logger)
     {
-        $this->entityManager = $entityManager;
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->formFactory = $formFactory;
-        $this->serializer = $serializer;
-        $this->formulairesImporter = $formulairesImporter;
-        $this->logger = $logger;
     }
 
-    /**
-     * @Route("/admin/formulaires", name="admin_formulaires")
-     */
+    #[Route(path: '/admin/formulaires', name: 'admin_formulaires')]
     public function index(Request $request): Response
     {
         $formulaires = $this->capsuleRubriqueRepository->findAllInformations();
 
-        /** @var array<string, FormInterface<Rubrique>> $forms */
+        /** @var array<string, FormInterface> $forms */
         $forms = [];
         foreach ($formulaires as $formulaire) {
+            $nomInterne = $formulaire->getNomInterne();
+            if (null === $nomInterne) {
+                continue;
+            }
+
             $rubrique = new Rubrique();
             $rubrique->setIdx($formulaire->getRubriques()->count() + 1);
             $rubrique->setCapsuleRubrique($formulaire);
 
-            $forms[$formulaire->getNomInterne()] = $this->formFactory->createNamed($formulaire->getNomInterne(), RubriqueType::class, $rubrique);
+            $forms[$nomInterne] = $this->formFactory->createNamed($nomInterne, RubriqueType::class, $rubrique);
         }
 
         $submittedForm = $request->request->get('formulaire');
@@ -103,6 +71,10 @@ class FormulairesController extends AbstractController
             if ($form->isSubmitted() && $form->isValid()) {
                 $submittedRubrique = $form->getData();
 
+                if (!$submittedRubrique instanceof Rubrique) {
+                    throw new \LogicException(sprintf('Le formulaire de rubrique doit retourner une Rubrique, %s reçu.', get_debug_type($submittedRubrique)));
+                }
+
                 $this->entityManager->persist($submittedRubrique);
                 $this->entityManager->flush();
 
@@ -114,15 +86,11 @@ class FormulairesController extends AbstractController
 
         return $this->render('formulaires/index.html.twig', [
             'formulaires' => $formulaires,
-            'forms' => array_map(function (FormInterface $form) {
-                return $form->createView();
-            }, $forms),
+            'forms' => array_map(fn (FormInterface $form): FormView => $form->createView(), $forms),
         ]);
     }
 
-    /**
-     * @Route("/admin/formulaires/modifier-nom-capsule-rubrique", name="admin_formulaires_edit_capsule_rubrique_nom")
-     */
+    #[Route(path: '/admin/formulaires/modifier-nom-capsule-rubrique', name: 'admin_formulaires_edit_capsule_rubrique_nom')]
     public function editCapsuleRubriqueNom(Request $request): JsonResponse
     {
         $idCapsuleRubrique = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
@@ -145,9 +113,7 @@ class FormulairesController extends AbstractController
         return $this->json(['status' => 'success']);
     }
 
-    /**
-     * @Route("/admin/formulaires/export", name="admin_formulaires_export")
-     */
+    #[Route(path: '/admin/formulaires/export', name: 'admin_formulaires_export')]
     public function export(): JsonResponse
     {
         $context = [
@@ -170,9 +136,7 @@ class FormulairesController extends AbstractController
         return $this->json($this->capsuleRubriqueRepository->findAll(), 200, ['Content-Disposition' => $dispositions], $context);
     }
 
-    /**
-     * @Route("/admin/formulaires/import", name="admin_formulaires_import")
-     */
+    #[Route(path: '/admin/formulaires/import', name: 'admin_formulaires_import')]
     public function import(
         Request $request
     ): Response {

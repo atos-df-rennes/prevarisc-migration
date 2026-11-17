@@ -65,9 +65,7 @@ class PrescriptionDossierRepository extends ServiceEntityRepository
         ;
 
         $prescriptions = array_merge($typePrescriptions, $librePrescriptions);
-        usort($prescriptions, function (PrescriptionDossier $a, PrescriptionDossier $b): int {
-            return $a->getNumero() <=> $b->getNumero();
-        });
+        usort($prescriptions, fn (PrescriptionDossier $a, PrescriptionDossier $b): int => $a->getNumero() <=> $b->getNumero());
 
         return $prescriptions;
     }

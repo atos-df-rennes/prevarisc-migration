@@ -16,23 +16,8 @@ use Psr\Log\LoggerInterface;
  */
 class DossierDonnantAvisService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        LoggerInterface $logger,
-        DossierRepository $dossierRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
-        $this->dossierRepository = $dossierRepository;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly LoggerInterface $logger, private readonly DossierRepository $dossierRepository)
+    {
     }
 
     /**
@@ -117,7 +102,7 @@ class DossierDonnantAvisService
         $ancienDossier = $etablissement->getDossierDonnantAvis();
 
         // Pas de dossier donnant avis actuel → OK pour mettre à jour
-        if (null === $ancienDossier) {
+        if (!$ancienDossier instanceof Dossier) {
             return true;
         }
 
@@ -148,7 +133,7 @@ class DossierDonnantAvisService
             // Vérifier que l'enfant a des informations (relation avec statut)
             try {
                 $latestInfo = $enfant->getLatestInformations();
-            } catch (\OutOfBoundsException $e) {
+            } catch (\OutOfBoundsException) {
                 // Pas d'informations pour cet enfant, skip
                 continue;
             }
@@ -200,7 +185,7 @@ class DossierDonnantAvisService
         }
 
         if (in_array($natureId, DossierNature::NATURES_VISITES_COMMISSION, true)) {
-            return null !== $dossier->getDateVisite();
+            return $dossier->getDateVisite() instanceof \DateTimeInterface;
         }
 
         // Études et groupes → dateCommission
@@ -228,8 +213,8 @@ class DossierDonnantAvisService
 
         if (null !== $natureId && in_array($natureId, DossierNature::NATURES_VISITES_COMMISSION, true)) {
             // Visites → dateVisite en priorité
-            if (null !== $dossier->getDateVisite()) {
-                return (new \DateTime($dossier->getDateVisite()->format('Y-m-d')))->setTime(0, 0, 0);
+            if ($dossier->getDateVisite() instanceof \DateTimeInterface) {
+                return new \DateTime($dossier->getDateVisite()->format('Y-m-d'))->setTime(0, 0, 0);
             }
         } elseif (null !== $dossier->getDateCommission() && '' !== $dossier->getDateCommission()) {
             // Études et groupes → dateCommission en priorité
@@ -240,8 +225,8 @@ class DossierDonnantAvisService
         }
 
         // Fallback : dateInsert (toujours définie à la création)
-        if (null !== $dossier->getDateInsert()) {
-            return (new \DateTime($dossier->getDateInsert()->format('Y-m-d')))->setTime(0, 0, 0);
+        if ($dossier->getDateInsert() instanceof \DateTimeInterface) {
+            return new \DateTime($dossier->getDateInsert()->format('Y-m-d'))->setTime(0, 0, 0);
         }
 
         // Ne devrait jamais arriver (dateInsert est requis)
@@ -301,7 +286,7 @@ class DossierDonnantAvisService
 
             $this->logger->info('Établissement mis à jour après désaffectation', [
                 'etablissement_id' => $etablissement->getId(),
-                'dernier_dossier_valide_id' => $dernierDossierValide ? $dernierDossierValide->getId() : null,
+                'dernier_dossier_valide_id' => $dernierDossierValide instanceof Dossier ? $dernierDossierValide->getId() : null,
             ]);
         }
 

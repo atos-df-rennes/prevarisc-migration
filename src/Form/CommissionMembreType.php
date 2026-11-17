@@ -8,6 +8,7 @@ use App\Entity\DossierNatureListe;
 use App\Entity\DossierType;
 use App\Entity\EtablissementActivite;
 use App\Entity\EtablissementCategorie;
+use App\Entity\EtablissementType;
 use App\Entity\Groupement;
 use App\Entity\GroupementType;
 use App\Entity\IghClasse;
@@ -38,7 +39,7 @@ class CommissionMembreType extends AbstractType
             // @todo REF-FORM-02: libelle est NOT NULL en DB (commissionmembre.LIBELLE_COMMISSIONMEMBRE) mais
             // le champ est required=false dans le formulaire — vérifier si NotBlank doit être ajouté selon le legacy
             'constraints' => [
-                new Assert\Length(['max' => 255]),
+                new Assert\Length(max: 255),
             ],
         ]);
 
@@ -72,28 +73,22 @@ class CommissionMembreType extends AbstractType
                 'class' => 'tom-select',
                 'data-placeholder' => 'Sélectionnez un groupement',
             ],
-            'group_by' => function (Groupement $groupement): ?string {
-                return $groupement->getType() instanceof GroupementType ? $groupement->getType()->getLibelle() : 'Autre';
-            },
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('g')
-                    ->leftJoin('g.type', 't')
-                    ->addSelect('t')
-                    ->orderBy('t.id', 'ASC')
-                    ->addOrderBy('g.libelle', 'ASC');
-            },
+            'group_by' => fn (Groupement $groupement): ?string => $groupement->getType() instanceof GroupementType ? $groupement->getType()->getLibelle() : 'Autre',
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('g')
+                ->leftJoin('g.type', 't')
+                ->addSelect('t')
+                ->orderBy('t.id', 'ASC')
+                ->addOrderBy('g.libelle', 'ASC'),
         ]);
 
         // Contacts de la commission (filtrés sur cette commission uniquement)
         $contactIds = $commission->getContacts()
-            ->map(static function (UtilisateurInformations $c): ?int { return $c->getId(); })
+            ->map(static fn (UtilisateurInformations $c): ?int => $c->getId())
             ->toArray();
 
         $builder->add('utilisateurInformations', EntityType::class, [
             'class' => UtilisateurInformations::class,
-            'choice_label' => function (UtilisateurInformations $ui): string {
-                return trim($ui->getNom().' '.$ui->getPrenom());
-            },
+            'choice_label' => fn (UtilisateurInformations $ui): string => trim($ui->getNom().' '.$ui->getPrenom()),
             'placeholder' => 'Sélectionnez un contact',
             'required' => false,
             'label' => 'Contact',
@@ -125,9 +120,7 @@ class CommissionMembreType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Catégories ERP',
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('c')->orderBy('c.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('c')->orderBy('c.libelle', 'ASC'),
         ]);
 
         // Activités ERP - EntityType mappé sur CommissionMembre::types, groupé par type ERP
@@ -137,19 +130,17 @@ class CommissionMembreType extends AbstractType
             'multiple' => true,
             'expanded' => true,
             'required' => false,
-            'label' => 'Types d\'activité ERP',
+            'label' => "Types d'activité ERP",
             'group_by' => function (EtablissementActivite $activite): string {
                 $type = $activite->getType();
 
-                return null !== $type ? (string) $type->getLibelle() : 'Autres';
+                return $type instanceof EtablissementType ? (string) $type->getLibelle() : 'Autres';
             },
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('a')
-                    ->leftJoin('a.type', 't')
-                    ->addSelect('t')
-                    ->orderBy('t.id', 'ASC')
-                    ->addOrderBy('a.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('a')
+                ->leftJoin('a.type', 't')
+                ->addSelect('t')
+                ->orderBy('t.id', 'ASC')
+                ->addOrderBy('a.libelle', 'ASC'),
         ]);
 
         $builder->add('classes', EntityType::class, [
@@ -159,9 +150,7 @@ class CommissionMembreType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Classes IGH',
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('c')->orderBy('c.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('c')->orderBy('c.libelle', 'ASC'),
         ]);
 
         // Types de dossier - checkboxes
@@ -172,9 +161,7 @@ class CommissionMembreType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Types de dossier',
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('dt')->orderBy('dt.id', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('dt')->orderBy('dt.id', 'ASC'),
         ]);
 
         // Natures de dossier - checkboxes (imbriquées par type dans le template)
@@ -185,13 +172,11 @@ class CommissionMembreType extends AbstractType
             'expanded' => true,
             'required' => false,
             'label' => 'Natures de dossier',
-            'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('n')
-                    ->leftJoin('n.type', 'dt')
-                    ->addSelect('dt')
-                    ->orderBy('dt.id', 'ASC')
-                    ->addOrderBy('n.libelle', 'ASC');
-            },
+            'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('n')
+                ->leftJoin('n.type', 'dt')
+                ->addSelect('dt')
+                ->orderBy('dt.id', 'ASC')
+                ->addOrderBy('n.libelle', 'ASC'),
         ]);
 
         $builder->add('manifestation', CheckboxType::class, [
@@ -200,8 +185,8 @@ class CommissionMembreType extends AbstractType
         ]);
 
         $builder
-            ->addEventListener(FormEvents::PRE_SET_DATA, [$this, 'onPreSetData'])
-            ->addEventListener(FormEvents::POST_SUBMIT, [$this, 'onPostSubmit']);
+            ->addEventListener(FormEvents::PRE_SET_DATA, $this->onPreSetData(...))
+            ->addEventListener(FormEvents::POST_SUBMIT, $this->onPostSubmit(...));
     }
 
     public function onPreSetData(FormEvent $event): void
@@ -212,9 +197,9 @@ class CommissionMembreType extends AbstractType
         // Détermine le type de membre initial
         $typeMembre = 3; // Commune par défaut
         if ($membre instanceof CommissionMembre) {
-            if (null !== $membre->getGroupement()) {
+            if ($membre->getGroupement() instanceof Groupement) {
                 $typeMembre = 1;
-            } elseif (null !== $membre->getUtilisateurInformations()) {
+            } elseif ($membre->getUtilisateurInformations() instanceof UtilisateurInformations) {
                 $typeMembre = 2;
             }
         }
@@ -245,11 +230,6 @@ class CommissionMembreType extends AbstractType
         if (1 !== $typeMembre) {
             $membre->setGroupement(null);
         }
-    }
-
-    public function getBlockPrefix(): string
-    {
-        return 'commission_membre';
     }
 
     public function configureOptions(OptionsResolver $resolver): void

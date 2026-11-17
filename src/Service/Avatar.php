@@ -4,22 +4,21 @@ namespace App\Service;
 
 use App\Utils\PathNormalizer;
 
-final class Avatar
+final readonly class Avatar
 {
-    /** @var string */
-    private $basePath;
+    private string $basePath;
 
-    public const SMALL_DIRECTORY = 'small';
+    public const string SMALL_DIRECTORY = 'small';
 
-    public const SMALL_WIDTH = 25;
+    public const int SMALL_WIDTH = 25;
 
-    public const MEDIUM_DIRECTORY = 'medium';
+    public const string MEDIUM_DIRECTORY = 'medium';
 
-    public const MEDIUM_WIDTH = 150;
+    public const int MEDIUM_WIDTH = 150;
 
-    public const LARGE_DIRECTORY = 'large';
+    public const string LARGE_DIRECTORY = 'large';
 
-    public const LARGE_WIDTH = 224;
+    public const int LARGE_WIDTH = 224;
 
     public function __construct(string $realDataPath)
     {

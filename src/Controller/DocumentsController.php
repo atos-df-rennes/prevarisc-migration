@@ -10,64 +10,35 @@ use App\Service\Documents;
 use App\Utils\File;
 use App\Utils\PathNormalizer;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("docs")
- */
+#[IsGranted('docs')]
 class DocumentsController extends AbstractController
 {
-    /** @var LoggerInterface */
-    private $logger;
-
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
-
-    /**
-     * @var CommissionDocumentBuilder
-     */
-    private $commissionDocumentBuilder;
-
-    /**
-     * @var Filesystem
-     */
-    private $filesystem;
-
-    public function __construct(LoggerInterface $logger, CommissionRepository $commissionRepository, CommissionDocumentBuilder $commissionDocumentBuilder, Filesystem $filesystem)
+    public function __construct(private readonly LoggerInterface $logger, private readonly CommissionRepository $commissionRepository, private readonly CommissionDocumentBuilder $commissionDocumentBuilder, private readonly Filesystem $filesystem, private readonly Documents $documents)
     {
-        $this->logger = $logger;
-        $this->commissionRepository = $commissionRepository;
-        $this->commissionDocumentBuilder = $commissionDocumentBuilder;
-        $this->filesystem = $filesystem;
     }
 
-    /**
-     * @Route("/admin/documents", name="admin_documents")
-     */
-    public function index(Documents $documents): Response
+    #[Route(path: '/admin/documents', name: 'admin_documents')]
+    public function index(): Response
     {
         $commissions = $this->commissionRepository->findAll();
 
         return $this->render('documents/index.html.twig', [
-            'visibles_apres_verrouillage' => $documents->findForCommission(0),
+            'visibles_apres_verrouillage' => $this->documents->findForCommission(0),
             'commissions' => $this->commissionDocumentBuilder->buildWithCommissions($commissions),
         ]);
     }
 
-    /**
-     * @Route("/admin/documents/ajouter", name="admin_documents_add", options={"expose"=true})
-     */
+    #[Route(path: '/admin/documents/ajouter', name: 'admin_documents_add', options: ['expose' => true])]
     public function ajouter(Request $request, string $documentsRealDataPath): Response
     {
         $commissions = $this->commissionRepository->findAll();
@@ -126,10 +97,6 @@ class DocumentsController extends AbstractController
             }
 
             foreach ($form->getErrors(true) as $error) {
-                if (!$error instanceof FormError) {
-                    continue;
-                }
-
                 $this->addFlash('danger', $error->getMessage());
             }
 
@@ -137,13 +104,11 @@ class DocumentsController extends AbstractController
         }
 
         return $this->render('documents/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/documents/supprimer", name="admin_documents_delete", methods={"POST"}, options={"expose"=true})
-     */
+    #[Route(path: '/admin/documents/supprimer', name: 'admin_documents_delete', methods: ['POST'], options: ['expose' => true])]
     public function supprimer(Request $request, string $documentsRealDataPath): Response
     {
         // @todo: Générer un nom de fichier plus sûr

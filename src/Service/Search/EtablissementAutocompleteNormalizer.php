@@ -46,20 +46,11 @@ class EtablissementAutocompleteNormalizer
      */
     private function resolveCommune(array $row, ?int $genreId): ?string
     {
-        switch ($genreId) {
-            case GenreEtablissement::SITE:
-                $key = 'LIBELLE_COMMUNE_ADRESSE_SITE';
-
-                break;
-
-            case GenreEtablissement::CELLULE:
-                $key = 'LIBELLE_COMMUNE_ADRESSE_CELLULE';
-
-                break;
-
-            default:
-                $key = 'LIBELLE_COMMUNE_ADRESSE_DEFAULT';
-        }
+        $key = match ($genreId) {
+            GenreEtablissement::SITE => 'LIBELLE_COMMUNE_ADRESSE_SITE',
+            GenreEtablissement::CELLULE => 'LIBELLE_COMMUNE_ADRESSE_CELLULE',
+            default => 'LIBELLE_COMMUNE_ADRESSE_DEFAULT',
+        };
 
         return $this->extractString($row, $key);
     }

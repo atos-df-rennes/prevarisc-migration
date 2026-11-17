@@ -10,7 +10,7 @@ use Sabre\VObject\Component\VCalendar;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Export ICS (Outlook) des dates de commission.
@@ -18,37 +18,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CalendrierDesCommissionsExportController extends AbstractController
 {
-    /**
-     * @var DateCommissionRepository
-     */
-    private $dateCommissionRepository;
-
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
-
-    /**
-     * @var IcsVTimezoneBuilder
-     */
-    private $icsVTimezoneBuilder;
-
-    public function __construct(
-        DateCommissionRepository $dateCommissionRepository,
-        CommissionRepository $commissionRepository,
-        IcsVTimezoneBuilder $icsVTimezoneBuilder
-    ) {
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->icsVTimezoneBuilder = $icsVTimezoneBuilder;
+    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly CommissionRepository $commissionRepository, private readonly IcsVTimezoneBuilder $icsVTimezoneBuilder)
+    {
     }
 
     /**
      * Génère un fichier ICS pour une DateCommission unique (export Outlook).
      * Port direct de exportoutlookAction() — bug ligne 1539 ($ics .= $idDateComm) non reproduit.
-     *
-     * @Route("/commissions/calendrier/export-outlook/{dateCommId}", name="calendrier_des_commissions_export_outlook", methods={"GET"}, requirements={"dateCommId"="\d+"})
      */
+    #[Route(path: '/commissions/calendrier/export-outlook/{dateCommId}', name: 'calendrier_des_commissions_export_outlook', methods: ['GET'], requirements: ['dateCommId' => '\d+'])]
     public function exportOutlook(int $dateCommId): Response
     {
         $dateCommission = $this->dateCommissionRepository->find($dateCommId);
@@ -91,7 +69,7 @@ class CalendrierDesCommissionsExportController extends AbstractController
 
         $response = new Response($calendar->serialize());
         $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');
-        /** @var string $disposition */
+
         $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'calendar.ics');
         $response->headers->set('Content-Disposition', $disposition);
 
@@ -101,9 +79,8 @@ class CalendrierDesCommissionsExportController extends AbstractController
     /**
      * Génère un fichier ICS mensuel pour une commission (export Outlook — mois complet).
      * Port direct de exportoutlookmoisAction().
-     *
-     * @Route("/commissions/calendrier/export-outlook-mois/{commId}/{mois}/{annee}", name="calendrier_des_commissions_export_outlook_mois", methods={"GET"}, requirements={"commId"="\d+", "mois"="\d+", "annee"="\d+"}, options={"expose"=true})
      */
+    #[Route(path: '/commissions/calendrier/export-outlook-mois/{commId}/{mois}/{annee}', name: 'calendrier_des_commissions_export_outlook_mois', methods: ['GET'], requirements: ['commId' => '\d+', 'mois' => '\d+', 'annee' => '\d+'], options: ['expose' => true])]
     public function exportOutlookMois(int $commId, int $mois, int $annee): Response
     {
         if ($mois < 1 || $mois > 12 || $annee < 1) {
@@ -141,7 +118,7 @@ class CalendrierDesCommissionsExportController extends AbstractController
             try {
                 $dtStart = new \DateTime($dateCommStr.' '.$heureDebStr, $tz);
                 $dtEnd = new \DateTime($dateCommStr.' '.$heureFinStr, $tz);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 continue;
             }
 
@@ -149,9 +126,7 @@ class CalendrierDesCommissionsExportController extends AbstractController
 
             $dossieraffecte = $this->dateCommissionRepository->findDossierAffectForCommission($idDateComm);
             if ([] !== $dossieraffecte) {
-                $objetsDossiers = array_filter(array_map(function (DossierAffectationDto $d): string {
-                    return \is_string($d->OBJET_DOSSIER) ? $d->OBJET_DOSSIER : '';
-                }, $dossieraffecte));
+                $objetsDossiers = array_filter(array_map(fn (DossierAffectationDto $d): string => \is_string($d->OBJET_DOSSIER) ? $d->OBJET_DOSSIER : '', $dossieraffecte));
                 if ([] !== $objetsDossiers) {
                     $description .= ' / Ordre du jour : '.implode('; ', $objetsDossiers);
                 }
@@ -173,7 +148,7 @@ class CalendrierDesCommissionsExportController extends AbstractController
 
         $response = new Response($calendar->serialize());
         $response->headers->set('Content-Type', 'text/calendar; charset=utf-8');
-        /** @var string $disposition */
+
         $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $filename);
         $response->headers->set('Content-Disposition', $disposition);
 

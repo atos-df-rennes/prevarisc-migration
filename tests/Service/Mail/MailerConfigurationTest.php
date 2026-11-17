@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Mail;
 
 use App\Service\Mail\MailerConfiguration;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class MailerConfigurationTest extends TestCase
+final class MailerConfigurationTest extends TestCase
 {
     /**
-     * @dataProvider parametersProvider
-     *
      * @param array{
      *     transport: string,
      *     host: string,
@@ -21,6 +22,7 @@ class MailerConfigurationTest extends TestCase
      *     enabled: bool
      * } $parameters
      */
+    #[DataProvider('parametersProvider')]
     public function testGetDsn(array $parameters, string $expected): void
     {
         $mailerConfiguration = new MailerConfiguration(...$parameters);

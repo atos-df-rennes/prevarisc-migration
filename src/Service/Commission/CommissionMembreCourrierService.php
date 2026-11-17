@@ -23,21 +23,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 final class CommissionMembreCourrierService extends AbstractOdtDocumentService
 {
-    /** @var string */
-    private $courriersMembresRealDataPath;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
     public function __construct(
-        string $courriersMembresRealDataPath,
-        EntityManagerInterface $entityManager,
+        private readonly string $courriersMembresRealDataPath,
+        private readonly EntityManagerInterface $entityManager,
         Filesystem $filesystem,
         LoggerInterface $logger
     ) {
         parent::__construct($filesystem, $logger);
-        $this->courriersMembresRealDataPath = $courriersMembresRealDataPath;
-        $this->entityManager = $entityManager;
     }
 
     protected function getStoragePath(): string
@@ -152,18 +144,13 @@ final class CommissionMembreCourrierService extends AbstractOdtDocumentService
      */
     private function getCourrierFilename(CommissionMembre $membre, string $type): ?string
     {
-        switch ($type) {
-            case CommissionMembreCourrierType::CONVOCATIONVISITE:
-                return $membre->getCourrierConvocationVisite();
-            case CommissionMembreCourrierType::CONVOCATIONSALLE:
-                return $membre->getCourrierConvocationSalle();
-            case CommissionMembreCourrierType::ODJ:
-                return $membre->getCourrierOrdreDuJour();
-            case CommissionMembreCourrierType::PV:
-                return $membre->getCourrierProcesVerbal();
-            default:
-                return null;
-        }
+        return match ($type) {
+            CommissionMembreCourrierType::CONVOCATIONVISITE => $membre->getCourrierConvocationVisite(),
+            CommissionMembreCourrierType::CONVOCATIONSALLE => $membre->getCourrierConvocationSalle(),
+            CommissionMembreCourrierType::ODJ => $membre->getCourrierOrdreDuJour(),
+            CommissionMembreCourrierType::PV => $membre->getCourrierProcesVerbal(),
+            default => null,
+        };
     }
 
     /**

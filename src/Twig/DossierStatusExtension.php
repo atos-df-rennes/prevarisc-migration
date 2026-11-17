@@ -3,43 +3,22 @@
 namespace App\Twig;
 
 use App\Constant\Avis;
+use App\Constant\DossierNature;
 use App\Constant\DossierType;
 use App\Dto\Repository\AbstractDossierResultDto;
 use App\Service\DateDiffFormatterService;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
+use Twig\Attribute\AsTwigFilter;
 
-class DossierStatusExtension extends AbstractExtension
+class DossierStatusExtension
 {
-    /**
-     * IDs de natures de dossier correspondant à une nature d'exploitation.
-     * Union des deux templates legacy, normalisée.
-     *
-     * @var int[]
-     */
-    private const EXPLOITATION_NATURE_IDS = [7, 16, 17, 19, 21, 23, 24, 26, 28, 29, 47, 48];
-
-    /** @var DateDiffFormatterService */
-    private $dateDiffFormatter;
-
-    public function __construct(DateDiffFormatterService $dateDiffFormatter)
+    public function __construct(private readonly DateDiffFormatterService $dateDiffFormatter)
     {
-        $this->dateDiffFormatter = $dateDiffFormatter;
-    }
-
-    /**
-     * @return TwigFilter[]
-     */
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('dossier_avis_badge', [$this, 'renderAvisBadge'], ['is_safe' => ['html']]),
-        ];
     }
 
     /**
      * Retourne le badge HTML d'avis pour un dossier dans les résultats de recherche.
      */
+    #[AsTwigFilter(name: 'dossier_avis_badge', isSafe: ['html'])]
     public function renderAvisBadge(AbstractDossierResultDto $item): string
     {
         // INCOMPLET prioritaire
@@ -72,11 +51,11 @@ class DossierStatusExtension extends AbstractExtension
         $exploitation = $this->isExploitationNature($item);
 
         if (Avis::FAVORABLE === $idAvis) {
-            return '<span class="avis F">Favorable'.($exploitation ? ' à l\'exploitation' : '').'</span>';
+            return '<span class="avis F">Favorable'.($exploitation ? " à l'exploitation" : '').'</span>';
         }
 
         if (Avis::DEFAVORABLE === $idAvis) {
-            return '<span class="avis D">Défavorable'.($exploitation ? ' à l\'exploitation' : '').'</span>';
+            return '<span class="avis D">Défavorable'.($exploitation ? " à l'exploitation" : '').'</span>';
         }
 
         return '<span class="avis">Avis indisponible</span>';
@@ -88,7 +67,7 @@ class DossierStatusExtension extends AbstractExtension
     private function isExploitationNature(AbstractDossierResultDto $item): bool
     {
         return null !== $item->ID_DOSSIERNATURE
-            && in_array($this->mixedToInt($item->ID_DOSSIERNATURE), self::EXPLOITATION_NATURE_IDS, true);
+            && in_array($this->mixedToInt($item->ID_DOSSIERNATURE), DossierNature::NATURES_DONNANT_AVIS, true);
     }
 
     /**

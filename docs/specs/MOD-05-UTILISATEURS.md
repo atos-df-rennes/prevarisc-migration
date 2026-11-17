@@ -219,6 +219,8 @@ Au-delà des ressources génériques, le système permet de créer des **ressour
 
 Une ressource spécialisée sur les établissements combine plusieurs critères de filtrage qui varient selon le **genre** de l'établissement.
 
+L'administrateur choisit un genre dans le formulaire d'ajout. Une demande sans genre valide (ou avec un formulaire invalide) ne crée ni ressource ni privilège ; une erreur lui est signalée.
+
 > **Principe universel de sérialisation** : Lors de la création d'une ressource spécialisée, **seuls les critères visibles dans le formulaire front** sont sérialisés dans le nom de la ressource. Les paramètres **non affichés au formulaire** sont marqués `0` (ou `1` s'il s'agit de critères dynamiques utilisateur). Cette approche permet une configuration centralisée : les champs masqués au front auront toujours la valeur `0` en base, ce qui signifie "ignorer ce filtre" ou "s'adapter au runtime selon le profil de l'utilisateur".
 
 Par exemple :
@@ -343,6 +345,10 @@ L'onglet « Gestion des ressources spécialisées » permet à l'administrateur 
 
 - **Ajouter** une ressource spécialisée (établissement ou dossier) en définissant ses critères via un formulaire dédié.
 - **Supprimer** une ressource spécialisée existante. La suppression entraîne la suppression en cascade de ses privilèges et de toutes les associations groupe–privilège correspondantes.
+
+Une ressource établissement peut comporter une sélection étendue de types d'activité, par exemple tous les types sauf les établissements pénitentiaires. Les types sélectionnés restent les seuls autorisés par ce critère ; les droits des ressources existantes restent inchangés.
+
+Un formulaire d'ajout invalide ne crée ni ressource ni privilège ; l'administrateur est informé de l'échec.
 
 Les ressources spécialisées ajoutées apparaissent ensuite automatiquement dans la matrice des droits.
 

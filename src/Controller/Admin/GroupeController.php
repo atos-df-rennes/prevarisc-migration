@@ -19,61 +19,22 @@ use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesDossierTextGenerato
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementNameGenerator;
 use App\Service\RessourcesSpecialisees\RessourcesSpecialiseesEtablissementTextGenerator;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Route(requirements={"id"="\d+"})
- *
- * @IsGranted("admin")
- */
+#[Route(requirements: ['id' => '\d+'])]
+#[IsGranted('admin')]
 class GroupeController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /**
-     * @var GroupeRepository
-     */
-    private $groupeRepository;
-
-    /**
-     * @var UtilisateurRepository
-     */
-    private $utilisateurRepository;
-
-    /**
-     * @var ResourcesRepository
-     */
-    private $resourcesRepository;
-
-    /**
-     * @var RessourcesSpecialiseesDossierTextGenerator
-     */
-    private $ressourcesSpecialiseesDossierTextGenerator;
-
-    /**
-     * @var RessourcesSpecialiseesEtablissementTextGenerator
-     */
-    private $ressourcesSpecialiseesEtablissementTextGenerator;
-
-    public function __construct(EntityManagerInterface $entityManager, GroupeRepository $groupeRepository, UtilisateurRepository $utilisateurRepository, ResourcesRepository $resourcesRepository, RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly GroupeRepository $groupeRepository, private readonly UtilisateurRepository $utilisateurRepository, private readonly ResourcesRepository $resourcesRepository, private readonly RessourcesSpecialiseesDossierTextGenerator $ressourcesSpecialiseesDossierTextGenerator, private readonly RessourcesSpecialiseesEtablissementTextGenerator $ressourcesSpecialiseesEtablissementTextGenerator)
     {
-        $this->entityManager = $entityManager;
-        $this->groupeRepository = $groupeRepository;
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->resourcesRepository = $resourcesRepository;
-        $this->ressourcesSpecialiseesDossierTextGenerator = $ressourcesSpecialiseesDossierTextGenerator;
-        $this->ressourcesSpecialiseesEtablissementTextGenerator = $ressourcesSpecialiseesEtablissementTextGenerator;
     }
 
-    /**
-     * @Route("/admin/groupes/{id}/utilisateurs", name="admin_groupe_index")
-     */
+    #[Route(path: '/admin/groupes/{id}/utilisateurs', name: 'admin_groupe_index')]
     public function index(Groupe $groupe): Response
     {
         $groupeId = $groupe->getId();
@@ -86,9 +47,7 @@ class GroupeController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/ajouter", name="admin_groupe_add")
-     */
+    #[Route(path: '/admin/groupes/ajouter', name: 'admin_groupe_add')]
     public function ajouter(Request $request): Response
     {
         $groupe = new Groupe();
@@ -106,14 +65,12 @@ class GroupeController extends AbstractController
         }
 
         return $this->render('groupe/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/{id}/modifier", name="admin_groupe_edit")
-     */
+    #[Route(path: '/admin/groupes/{id}/modifier', name: 'admin_groupe_edit')]
     public function modifier(Request $request, Groupe $groupe): Response
     {
         $form = $this->createForm(GroupeType::class, $groupe);
@@ -128,15 +85,13 @@ class GroupeController extends AbstractController
         }
 
         return $this->render('groupe/modification.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
             'groupe_id' => $groupe->getId(),
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/{id}/supprimer", name="admin_groupe_delete")
-     */
+    #[Route(path: '/admin/groupes/{id}/supprimer', name: 'admin_groupe_delete')]
     public function supprimer(Groupe $groupe): Response
     {
         $groupeId = $groupe->getId();
@@ -163,9 +118,7 @@ class GroupeController extends AbstractController
         return $this->redirectToRoute('admin_utilisateurs_index');
     }
 
-    /**
-     * @Route("/admin/groupes/matrice-des-droits", name="admin_groupe_manage_privileges")
-     */
+    #[Route(path: '/admin/groupes/matrice-des-droits', name: 'admin_groupe_manage_privileges')]
     public function matriceDesDroits(Request $request): Response
     {
         $groupes = $this->groupeRepository->findAll();
@@ -178,18 +131,15 @@ class GroupeController extends AbstractController
 
             $this->addFlash('success', 'La matrice des droits a bien été mise à jour.');
 
-            // @todo: supprimer en v3.0.0 et rediriger directement vers Symfony
-            return $this->redirect('/legacy/admin/groupes/matrice-des-droits');
+            return $this->redirectToRoute('admin_groupe_manage_privileges');
         }
 
         return $this->render('groupe/matrice_droits.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/ressources-specialisees", name="admin_groupe_ressources_specialisees")
-     */
+    #[Route(path: '/admin/groupes/ressources-specialisees', name: 'admin_groupe_ressources_specialisees')]
     public function ressourcesSpecialisees(): Response
     {
         $ressourceDossierForm = $this->createForm(RessourceSpecialiseeDossierType::class, null, [
@@ -202,14 +152,12 @@ class GroupeController extends AbstractController
         return $this->render('groupe/ressources_specialisees/index.html.twig', [
             'ressources_dossier' => $this->resourcesRepository->findRessourcesSpecialiseesDossier(),
             'ressources_etablissement' => $this->resourcesRepository->findRessourcesSpecialiseesEtablissement(),
-            'form_dossier' => $ressourceDossierForm->createView(),
-            'form_etablissement' => $ressourceEtablissementForm->createView(),
+            'form_dossier' => $ressourceDossierForm,
+            'form_etablissement' => $ressourceEtablissementForm,
         ]);
     }
 
-    /**
-     * @Route("/admin/groupes/ressources-specialisees/{id}/supprimer", name="admin_groupe_ressources_specialisees_delete", methods={"DELETE"})
-     */
+    #[Route(path: '/admin/groupes/ressources-specialisees/{id}/supprimer', name: 'admin_groupe_ressources_specialisees_delete', methods: ['DELETE'])]
     public function supprimerRessourceSpecialisee(Resources $resources): RedirectResponse
     {
         $this->entityManager->remove($resources);
@@ -218,11 +166,17 @@ class GroupeController extends AbstractController
         return $this->redirectToRoute('admin_groupe_ressources_specialisees');
     }
 
-    /**
-     * @Route("/admin/groupes/ressources-specialisees/dossier/ajouter", name="admin_groupe_ressources_specialisees_add_dossier", methods={"POST"}))
-     */
+    #[Route(path: '/admin/groupes/ressources-specialisees/dossier/ajouter', name: 'admin_groupe_ressources_specialisees_add_dossier', methods: ['POST'])]
     public function ajouterRessourceSpecialiseeDossier(Request $request): RedirectResponse
     {
+        $form = $this->createForm(RessourceSpecialiseeDossierType::class);
+        $form->handleRequest($request);
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('danger', "La ressource spécialisée n'a pas pu être ajoutée : formulaire invalide.");
+
+            return $this->redirectToRoute('admin_groupe_ressources_specialisees');
+        }
+
         $resource = new Resources();
 
         $name = RessourcesSpecialiseesDossierNameGenerator::fromRequest($request);
@@ -259,11 +213,17 @@ class GroupeController extends AbstractController
         return $this->redirectToRoute('admin_groupe_ressources_specialisees');
     }
 
-    /**
-     * @Route("/admin/groupes/ressources-specialisees/etablissement/ajouter", name="admin_groupe_ressources_specialisees_add_etablissement", methods={"POST"}))
-     */
+    #[Route(path: '/admin/groupes/ressources-specialisees/etablissement/ajouter', name: 'admin_groupe_ressources_specialisees_add_etablissement', methods: ['POST'])]
     public function ajouterRessourceSpecialiseeEtablissement(Request $request): RedirectResponse
     {
+        $form = $this->createForm(RessourceSpecialiseeEtablissementType::class);
+        $form->handleRequest($request);
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('danger', "La ressource spécialisée n'a pas pu être ajoutée : formulaire invalide.");
+
+            return $this->redirectToRoute('admin_groupe_ressources_specialisees');
+        }
+
         $resource = new Resources();
 
         $name = RessourcesSpecialiseesEtablissementNameGenerator::fromRequest($request);

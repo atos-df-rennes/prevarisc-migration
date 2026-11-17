@@ -2,6 +2,7 @@
 
 namespace App\Service\DataStore;
 
+use App\Constant\DataStoreObjectTypes;
 use App\Entity\PieceJointe;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
@@ -12,7 +13,7 @@ use App\Repository\EtablissementRepository;
 class HashedFileDataStore extends SimpleFileDataStore
 {
     /** @var string[] */
-    protected $nonHashedTypes = ['document', 'courrier', 'avatar'];
+    protected $nonHashedTypes = DataStoreObjectTypes::NON_HASHED_TYPES;
 
     public function __construct(
         EtablissementRepository $etablissementRepository,
@@ -23,9 +24,10 @@ class HashedFileDataStore extends SimpleFileDataStore
     ) {
         parent::__construct($etablissementRepository, $dossierRepository, $dataPath, $realDataPath, $fileFormat);
 
-        $this->types = ['dateCommission' => 'commission'];
+        $this->types = [DataStoreObjectTypes::DATE_COMMISSION => 'commission'];
     }
 
+    #[\Override]
     public function getBasePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId): string
     {
         if (in_array($linkedObjectType, $this->nonHashedTypes)) {
@@ -39,6 +41,7 @@ class HashedFileDataStore extends SimpleFileDataStore
         return implode(DIRECTORY_SEPARATOR, [$this->realDataPath, 'uploads', $type, substr($hash, 0, 2), substr($hash, 2, 2), $linkedObjectId]);
     }
 
+    #[\Override]
     public function getURLPath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId): ?string
     {
         $type = $this->types[$linkedObjectType] ?? $linkedObjectType;

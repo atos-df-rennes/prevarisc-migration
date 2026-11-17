@@ -1,18 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Service\Documents;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
 final class DocumentsTest extends TestCase
 {
-    /** @var string */
-    private $tmpDir;
+    private string $tmpDir;
 
-    /** @var Documents */
-    private $documents;
+    private Documents $documents;
 
     protected function setUp(): void
     {
@@ -39,27 +40,25 @@ final class DocumentsTest extends TestCase
 
     protected function tearDown(): void
     {
-        (new Filesystem())->remove($this->tmpDir);
+        new Filesystem()->remove($this->tmpDir);
     }
 
     public function testListsOnlyImmediateOdtTemplates(): void
     {
-        self::assertSame(['Signatures membres sous commission.odt', 'template.odt'], $this->documents->listReportTemplates(1));
-        self::assertSame(['shared.odt'], $this->documents->listReportTemplates(0));
-        self::assertSame([], $this->documents->listReportTemplates(2));
+        $this->assertSame(['Signatures membres sous commission.odt', 'template.odt'], $this->documents->listReportTemplates(1));
+        $this->assertSame(['shared.odt'], $this->documents->listReportTemplates(0));
+        $this->assertSame([], $this->documents->listReportTemplates(2));
+    }
+
+    #[DataProvider('validTemplateProvider')]
+    public function testResolvesListedTemplate(string $relativeFile): void
+    {
+        $this->assertSame(realpath($this->tmpDir.'/documents/'.$relativeFile), $this->documents->resolveReportTemplate($relativeFile));
     }
 
     /**
-     * @dataProvider validTemplateProvider
+     * @return iterable<string, array{string}>
      */
-    public function testResolvesListedTemplate(string $relativeFile): void
-    {
-        self::assertSame(
-            realpath($this->tmpDir.'/documents/'.$relativeFile),
-            $this->documents->resolveReportTemplate($relativeFile)
-        );
-    }
-
     public static function validTemplateProvider(): iterable
     {
         yield 'commission template' => ['1/template.odt'];
@@ -67,14 +66,15 @@ final class DocumentsTest extends TestCase
         yield 'spaces in filename' => ['1/Signatures membres sous commission.odt'];
     }
 
-    /**
-     * @dataProvider invalidTemplateProvider
-     */
+    #[DataProvider('invalidTemplateProvider')]
     public function testRejectsInvalidTemplate(string $relativeFile): void
     {
-        self::assertNull($this->documents->resolveReportTemplate($relativeFile));
+        $this->assertNull($this->documents->resolveReportTemplate($relativeFile));
     }
 
+    /**
+     * @return iterable<string, array{string}>
+     */
     public static function invalidTemplateProvider(): iterable
     {
         yield 'empty selection' => [''];
@@ -99,10 +99,7 @@ final class DocumentsTest extends TestCase
     {
         $documents = new Documents('/data/', $this->tmpDir.'/documents/../documents');
 
-        self::assertSame(
-            realpath($this->tmpDir.'/documents/1/template.odt'),
-            $documents->resolveReportTemplate('1/template.odt')
-        );
+        $this->assertSame(realpath($this->tmpDir.'/documents/1/template.odt'), $documents->resolveReportTemplate('1/template.odt'));
     }
 
     public function testWindowsBaseWithDifferentCaseAndMixedSeparators(): void
@@ -114,10 +111,7 @@ final class DocumentsTest extends TestCase
         $base = str_replace('/', '\\', $this->tmpDir).'/DOCUMENTS/';
         $documents = new Documents('/data/', $base);
 
-        self::assertSame(
-            realpath($this->tmpDir.'/documents/1/template.odt'),
-            $documents->resolveReportTemplate('1/template.odt')
-        );
+        $this->assertSame(realpath($this->tmpDir.'/documents/1/template.odt'), $documents->resolveReportTemplate('1/template.odt'));
     }
 
     public function testSymbolicLinksCannotEscapeTheLibrary(): void
@@ -130,11 +124,8 @@ final class DocumentsTest extends TestCase
         symlink($this->tmpDir.'/documents-other', $this->tmpDir.'/documents/2');
         symlink($this->tmpDir.'/documents/1/template.odt', $this->tmpDir.'/documents/1/inside.odt');
 
-        self::assertNull($this->documents->resolveReportTemplate('1/outside.odt'));
-        self::assertNull($this->documents->resolveReportTemplate('2/outside.odt'));
-        self::assertSame(
-            realpath($this->tmpDir.'/documents/1/template.odt'),
-            $this->documents->resolveReportTemplate('1/inside.odt')
-        );
+        $this->assertNull($this->documents->resolveReportTemplate('1/outside.odt'));
+        $this->assertNull($this->documents->resolveReportTemplate('2/outside.odt'));
+        $this->assertSame(realpath($this->tmpDir.'/documents/1/template.odt'), $this->documents->resolveReportTemplate('1/inside.odt'));
     }
 }

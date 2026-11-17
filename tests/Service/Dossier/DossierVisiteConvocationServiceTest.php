@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Dossier;
 
 use App\Constant\CommissionTypeEvenement as TypeEvenement;
@@ -18,21 +20,18 @@ final class DossierVisiteConvocationServiceTest extends TestCase
         $dossier = new Dossier();
 
         $affectationRepository = $this->createMock(DossierAffectationRepository::class);
-        $affectationRepository->expects(self::once())
+        $affectationRepository->expects($this->once())
             ->method('findAffectationByDossierAndType')
             ->with($dossier, [TypeEvenement::TYPE_VISITE, TypeEvenement::TYPE_GROUPE_VISITE])
             ->willReturn(null)
         ;
 
         $dateCommissionRepository = $this->createMock(DateCommissionRepository::class);
-        $dateCommissionRepository->expects(self::never())->method('findGroupeDatesLiees');
+        $dateCommissionRepository->expects($this->never())->method('findGroupeDatesLiees');
 
         $service = new DossierVisiteConvocationService($affectationRepository, $dateCommissionRepository);
 
-        self::assertSame(
-            ['dateVisite' => '', 'heureVisite' => ''],
-            $service->getInfosConvocation($dossier)
-        );
+        $this->assertSame(['dateVisite' => '', 'heureVisite' => ''], $service->getInfosConvocation($dossier));
     }
 
     public function testConstruitLaDateEtLHeureDUneVisiteSurUneSeuleDate(): void
@@ -45,10 +44,13 @@ final class DossierVisiteConvocationServiceTest extends TestCase
         $affectation->setDateCommission($dateCommission);
 
         $affectationRepository = $this->createMock(DossierAffectationRepository::class);
-        $affectationRepository->method('findAffectationByDossierAndType')->willReturn($affectation);
+        $affectationRepository->expects($this->once())
+            ->method('findAffectationByDossierAndType')
+            ->with($dossier, [TypeEvenement::TYPE_VISITE, TypeEvenement::TYPE_GROUPE_VISITE])
+            ->willReturn($affectation);
 
         $dateCommissionRepository = $this->createMock(DateCommissionRepository::class);
-        $dateCommissionRepository->expects(self::once())
+        $dateCommissionRepository->expects($this->once())
             ->method('findGroupeDatesLiees')
             ->with($dateCommission)
             ->willReturn([$dateCommission])
@@ -56,10 +58,7 @@ final class DossierVisiteConvocationServiceTest extends TestCase
 
         $service = new DossierVisiteConvocationService($affectationRepository, $dateCommissionRepository);
 
-        self::assertSame(
-            ['dateVisite' => '15 septembre 2026', 'heureVisite' => '09:00 à 12:00'],
-            $service->getInfosConvocation($dossier)
-        );
+        $this->assertSame(['dateVisite' => '15 septembre 2026', 'heureVisite' => '09:00 à 12:00'], $service->getInfosConvocation($dossier));
     }
 
     public function testAgregeLesDatesEtHeuresDUnGroupeDeDatesLiees(): void
@@ -77,20 +76,23 @@ final class DossierVisiteConvocationServiceTest extends TestCase
         ];
 
         $affectationRepository = $this->createMock(DossierAffectationRepository::class);
-        $affectationRepository->method('findAffectationByDossierAndType')->willReturn($affectation);
+        $affectationRepository->expects($this->once())
+            ->method('findAffectationByDossierAndType')
+            ->with($dossier, [TypeEvenement::TYPE_VISITE, TypeEvenement::TYPE_GROUPE_VISITE])
+            ->willReturn($affectation);
 
         $dateCommissionRepository = $this->createMock(DateCommissionRepository::class);
-        $dateCommissionRepository->method('findGroupeDatesLiees')->with($dateCommissionAffectee)->willReturn($groupeDates);
+        $dateCommissionRepository->expects($this->once())
+            ->method('findGroupeDatesLiees')
+            ->with($dateCommissionAffectee)
+            ->willReturn($groupeDates);
 
         $service = new DossierVisiteConvocationService($affectationRepository, $dateCommissionRepository);
 
-        self::assertSame(
-            [
-                'dateVisite' => '15 septembre 2026, 16 septembre 2026',
-                'heureVisite' => '09:00 à 12:00, 14:00 à 18:00',
-            ],
-            $service->getInfosConvocation($dossier)
-        );
+        $this->assertSame([
+            'dateVisite' => '15 septembre 2026, 16 septembre 2026',
+            'heureVisite' => '09:00 à 12:00, 14:00 à 18:00',
+        ], $service->getInfosConvocation($dossier));
     }
 
     public function testRetourneDesChampsVidesQuandLAffectationNAPasDeDateDeCommission(): void
@@ -99,17 +101,17 @@ final class DossierVisiteConvocationServiceTest extends TestCase
         $affectation = new DossierAffectation();
 
         $affectationRepository = $this->createMock(DossierAffectationRepository::class);
-        $affectationRepository->method('findAffectationByDossierAndType')->willReturn($affectation);
+        $affectationRepository->expects($this->once())
+            ->method('findAffectationByDossierAndType')
+            ->with($dossier, [TypeEvenement::TYPE_VISITE, TypeEvenement::TYPE_GROUPE_VISITE])
+            ->willReturn($affectation);
 
         $dateCommissionRepository = $this->createMock(DateCommissionRepository::class);
-        $dateCommissionRepository->expects(self::never())->method('findGroupeDatesLiees');
+        $dateCommissionRepository->expects($this->never())->method('findGroupeDatesLiees');
 
         $service = new DossierVisiteConvocationService($affectationRepository, $dateCommissionRepository);
 
-        self::assertSame(
-            ['dateVisite' => '', 'heureVisite' => ''],
-            $service->getInfosConvocation($dossier)
-        );
+        $this->assertSame(['dateVisite' => '', 'heureVisite' => ''], $service->getInfosConvocation($dossier));
     }
 
     private function creerDateCommission(int $id, string $date, string $heureDebut, string $heureFin): DateCommission
@@ -121,7 +123,6 @@ final class DossierVisiteConvocationServiceTest extends TestCase
 
         $reflection = new \ReflectionClass($dateCommission);
         $property = $reflection->getProperty('id');
-        $property->setAccessible(true);
         $property->setValue($dateCommission, $id);
 
         return $dateCommission;

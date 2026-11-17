@@ -9,11 +9,11 @@ namespace App\Constant;
  */
 final class AvisCommission
 {
-    public const FAVORABLE = 1;
+    public const int FAVORABLE = 1;
 
-    public const DEFAVORABLE = 2;
+    public const int DEFAVORABLE = 2;
 
-    public const FAVORABLE_AVEC_PRESCRIPTIONS = 3;
+    public const int FAVORABLE_AVEC_PRESCRIPTIONS = 3;
 
     /**
      * Retourne le libellé d'un code d'avis.
@@ -26,16 +26,12 @@ final class AvisCommission
     {
         $avisInt = (int) $avis;
 
-        switch ($avisInt) {
-            case self::FAVORABLE:
-                return 'Favorable';
-            case self::DEFAVORABLE:
-                return 'Défavorable';
-            case self::FAVORABLE_AVEC_PRESCRIPTIONS:
-                return 'Favorable avec prescriptions';
-            default:
-                return '';
-        }
+        return match ($avisInt) {
+            self::FAVORABLE => 'Favorable',
+            self::DEFAVORABLE => 'Défavorable',
+            self::FAVORABLE_AVEC_PRESCRIPTIONS => 'Favorable avec prescriptions',
+            default => '',
+        };
     }
 
     /**

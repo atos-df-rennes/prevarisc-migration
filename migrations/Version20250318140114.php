@@ -21,7 +21,9 @@ final class Version20250318140114 extends AbstractMigration
     {
         $this->skipIf($schema->getTable('dossier')->hasIndex('idx_3d48e037792da484'), "Adaptation pour la suppression d'élément déjà effectuée.");
 
-        $this->addSql('ALTER TABLE changement CHANGE LIBELLE_CHANGEMENT LIBELLE_CHANGEMENT VARCHAR(255) NOT NULL');
+        if ($schema->hasTable('changement')) {
+            $this->addSql('ALTER TABLE changement CHANGE LIBELLE_CHANGEMENT LIBELLE_CHANGEMENT VARCHAR(255) NOT NULL');
+        }
         $this->addSql('DROP INDEX fk_commission_commissiontype1_idx ON commission');
         $this->addSql('ALTER TABLE dossier DROP FOREIGN KEY fk_dossier_dossiertype1');
         $this->addSql('ALTER TABLE dossier ADD CONSTRAINT FK_3D48E0372CBDFB70 FOREIGN KEY (DELETED_BY) REFERENCES utilisateur (ID_UTILISATEUR)');
@@ -61,7 +63,9 @@ final class Version20250318140114 extends AbstractMigration
     {
         $this->skipIf($schema->getTable('commission')->hasIndex('fk_commission_commissiontype1_idx'), "Adaptation pour la suppression d'élément déjà annulée.");
 
-        $this->addSql('ALTER TABLE changement CHANGE LIBELLE_CHANGEMENT LIBELLE_CHANGEMENT VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`');
+        if ($schema->hasTable('changement')) {
+            $this->addSql('ALTER TABLE changement CHANGE LIBELLE_CHANGEMENT LIBELLE_CHANGEMENT VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_general_ci`');
+        }
         $this->addSql('CREATE INDEX fk_commission_commissiontype1_idx ON commission (ID_COMMISSIONTYPE)');
         $this->addSql('ALTER TABLE dossier DROP FOREIGN KEY FK_3D48E0372CBDFB70');
         $this->addSql('ALTER TABLE dossier DROP FOREIGN KEY FK_3D48E037792DA484');

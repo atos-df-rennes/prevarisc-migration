@@ -168,7 +168,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
 
         $result = $queryBuilder->getQuery()->getOneOrNullResult();
 
-        return null === $result ? null : $result->getDateInsert();
+        return $result?->getDateInsert();
     }
 
     /**
@@ -219,13 +219,16 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $query->setParameter('id', $id);
 
         if ($reverse) {
-            $query->orderBy('d.dateInsert', 'DESC');
+            $query->orderBy('d.dateInsert', 'DESC')
+                ->addOrderBy('d.referenceCourrier', 'DESC');
         } elseif ([1] === $types) {
             $query->addSelect('COALESCE(d.dateCommission, d.dateInsert) as HIDDEN sortDate')
-                ->orderBy('sortDate', 'DESC');
+                ->orderBy('sortDate', 'DESC')
+                ->addOrderBy('d.referenceCourrier', 'DESC');
         } else {
             $query->addSelect('COALESCE(d.dateVisite, d.dateCommission, d.dateInsert) as HIDDEN sortDate')
-                ->orderBy('sortDate', 'DESC');
+                ->orderBy('sortDate', 'DESC')
+                ->addOrderBy('d.referenceCourrier', 'DESC');
         }
 
         if (null === $limit && 0 === $offset) {
@@ -324,7 +327,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         ;
 
         // Exclure le dossier spécifié (pour éviter de retrouver le dossier courant en désaffectation)
-        if (null !== $excludeDossier) {
+        if ($excludeDossier instanceof Dossier) {
             $qb->andWhere('d.id != :excludeDossierId')
                 ->setParameter('excludeDossierId', $excludeDossier->getId());
         }
@@ -437,7 +440,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->getQuery()
             ->getArrayResult();
 
-        $idsWithAlerte = array_map('intval', array_column($rows, 'id'));
+        $idsWithAlerte = array_map(intval(...), array_column($rows, 'id'));
 
         $map = [];
         foreach ($dossierIds as $id) {
@@ -475,7 +478,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             ->getQuery()
             ->getArrayResult();
 
-        $idsWithEcheancier = array_map('intval', array_column($rows, 'id'));
+        $idsWithEcheancier = array_map(intval(...), array_column($rows, 'id'));
 
         $map = [];
         foreach ($dossierIds as $id) {
@@ -513,9 +516,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         foreach ($dossierIds as $id) {
-            if (!isset($map[$id])) {
-                $map[$id] = 0;
-            }
+            $map[$id] ??= 0;
         }
 
         return $map;
@@ -581,19 +582,15 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         // Legacy sort: visites → COALESCE(dateVisite, dateCommission, dateInsert) DESC
-        usort($visites, function (Dossier $a, Dossier $b): int {
-            return $this->sortDateVisite($b) <=> $this->sortDateVisite($a);
-        });
+        usort($visites, fn (Dossier $a, Dossier $b): int => $this->sortDateVisite($b) <=> $this->sortDateVisite($a));
 
         // Legacy sort: études → COALESCE(dateCommission, dateInsert) DESC
-        usort($etudes, function (Dossier $a, Dossier $b): int {
-            return $this->sortDateEtude($b) <=> $this->sortDateEtude($a);
-        });
+        usort($etudes, fn (Dossier $a, Dossier $b): int => $this->sortDateEtude($b) <=> $this->sortDateEtude($a));
 
         // Legacy sort: autres → dateInsert DESC
         usort($autres, function (Dossier $a, Dossier $b): int {
-            $dateA = null !== $a->getDateInsert() ? $a->getDateInsert()->format('Y-m-d') : '0000-00-00';
-            $dateB = null !== $b->getDateInsert() ? $b->getDateInsert()->format('Y-m-d') : '0000-00-00';
+            $dateA = $a->getDateInsert() instanceof \DateTimeInterface ? $a->getDateInsert()->format('Y-m-d') : '0000-00-00';
+            $dateB = $b->getDateInsert() instanceof \DateTimeInterface ? $b->getDateInsert()->format('Y-m-d') : '0000-00-00';
 
             return $dateB <=> $dateA;
         });
@@ -606,7 +603,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
      */
     private function sortDateVisite(Dossier $dossier): string
     {
-        if (null !== $dossier->getDateVisite()) {
+        if ($dossier->getDateVisite() instanceof \DateTimeInterface) {
             return $dossier->getDateVisite()->format('Y-m-d');
         }
 
@@ -614,7 +611,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             return substr($dossier->getDateCommission(), 0, 10);
         }
 
-        return null !== $dossier->getDateInsert() ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
+        return $dossier->getDateInsert() instanceof \DateTimeInterface ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
     }
 
     /**
@@ -626,7 +623,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             return substr($dossier->getDateCommission(), 0, 10);
         }
 
-        return null !== $dossier->getDateInsert() ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
+        return $dossier->getDateInsert() instanceof \DateTimeInterface ? $dossier->getDateInsert()->format('Y-m-d') : '0000-00-00';
     }
 
     /**
@@ -800,7 +797,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
             AND (d.AVIS_DOSSIER_COMMISSION IS NULL OR d.AVIS_DOSSIER_COMMISSION = 0)';
 
         if ([] !== $idsCommission) {
-            $inList = implode(',', array_map('intval', $idsCommission));
+            $inList = implode(',', array_map(intval(...), $idsCommission));
             $sql .= ' AND datecommission.COMMISSION_CONCERNE IN ('.$inList.')';
         }
 
@@ -813,9 +810,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static function (array $row): DossierDateCommissionEchuDto {
-            return DossierDateCommissionEchuDto::fromArray($row);
-        }, $rows);
+        return array_map(DossierDateCommissionEchuDto::fromArray(...), $rows);
     }
 
     /**
@@ -832,7 +827,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         $sql = $this->buildSearchDossierBaseSql();
 
         if ([] !== $idsCommission) {
-            $inList = implode(',', array_map('intval', $idsCommission));
+            $inList = implode(',', array_map(intval(...), $idsCommission));
             $sql .= ' AND d.COMMISSION_DOSSIER IN ('.$inList.')';
         }
 
@@ -843,9 +838,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static function (array $row): DossierDashboardDto {
-            return DossierDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -872,32 +865,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static function (array $row): DossierDashboardDto {
-            return DossierDashboardDto::fromArray($row);
-        }, $rows);
-    }
-
-    /**
-     * Retourne le type d'un dossier (Etude=1 / Visite=2,3 / Courrier=5 etc.).
-     * Port direct de Model_DbTable_Dossier::getTypeDossier().
-     *
-     * @return array<string, mixed>|false
-     */
-    public function getTypeDossier(int $idDossier)
-    {
-        $result = $this->createQueryBuilder('d')
-            ->select('IDENTITY(d.type) as TYPE_DOSSIER')
-            ->where('d.id = :id')
-            ->setParameter('id', $idDossier)
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        if (null === $result) {
-            return false;
-        }
-
-        /* @var array<string, mixed> $result */
-        return $result;
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -921,9 +889,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static function (array $row): DossierDashboardDto {
-            return DossierDashboardDto::fromArray($row);
-        }, $dossiers);
+        return array_map(DossierDashboardDto::fromArray(...), $dossiers);
     }
 
     /**
@@ -947,9 +913,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static function (array $row): DossierDashboardDto {
-            return DossierDashboardDto::fromArray($row);
-        }, $dossiers);
+        return array_map(DossierDashboardDto::fromArray(...), $dossiers);
     }
 
     /**
@@ -973,9 +937,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $dossiers */
         $dossiers = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static function (array $row): DossierDashboardDto {
-            return DossierDashboardDto::fromArray($row);
-        }, $dossiers);
+        return array_map(DossierDashboardDto::fromArray(...), $dossiers);
     }
 
     /**
@@ -1037,9 +999,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static function (array $row): DossierDashboardDto {
-            return DossierDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -1063,9 +1023,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static function (array $row): DossierDashboardDto {
-            return DossierDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -1090,9 +1048,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static function (array $row): DossierDashboardDto {
-            return DossierDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(DossierDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -1212,9 +1168,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static function (array $row): DossierPlatauDto {
-            return DossierPlatauDto::fromArray($row);
-        }, $rows);
+        return array_map(DossierPlatauDto::fromArray(...), $rows);
     }
 
     /**
@@ -1245,9 +1199,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $this->getEntityManager()->createNativeQuery($sql, $rsm)->getResult();
 
-        return array_map(static function (array $row): DossierPlatauDto {
-            return DossierPlatauDto::fromArray($row);
-        }, $rows);
+        return array_map(DossierPlatauDto::fromArray(...), $rows);
     }
 
     /**
@@ -1283,9 +1235,7 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $query->getResult();
 
-        return array_map(static function (array $row): DossierPlatauDto {
-            return DossierPlatauDto::fromArray($row);
-        }, $rows);
+        return array_map(DossierPlatauDto::fromArray(...), $rows);
     }
 
     /**
@@ -1405,21 +1355,6 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
         }
 
         return is_numeric($result['id']) ? (int) $result['id'] : null;
-    }
-
-    /**
-     * Retourne le type d'un dossier (Etude=1/Visite=2,3/Courrier=5…).
-     * Port direct de Model_DbTable_Dossier::getTypeDossier() — retourne int ou null.
-     */
-    public function getDossierType(int $idDossier): ?int
-    {
-        $row = $this->getTypeDossier($idDossier);
-
-        if (!is_array($row) || !isset($row['TYPE_DOSSIER'])) {
-            return null;
-        }
-
-        return is_numeric($row['TYPE_DOSSIER']) ? (int) $row['TYPE_DOSSIER'] : null;
     }
 
     /**

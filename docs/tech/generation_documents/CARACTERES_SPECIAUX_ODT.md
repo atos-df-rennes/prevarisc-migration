@@ -24,7 +24,7 @@ Cette documentation traite d'un problème de robustesse identifié lors des test
 | Champ | 3084 - « Descriptif sommaire » |
 | Capsule | Descriptif établissement |
 | Rubrique | Descriptif de l'établissement |
-| Type éditeur | LibreOffice 7.x |
+| Type éditeur | LibreOffice |
 
 ### Root cause
 

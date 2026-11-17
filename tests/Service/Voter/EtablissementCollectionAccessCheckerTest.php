@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Voter;
 
 use App\Entity\Etablissement;
@@ -7,52 +9,57 @@ use App\Entity\EtablissementInformations;
 use App\Entity\Genre;
 use App\Service\Voter\EtablissementCollectionAccessChecker;
 use App\Service\Voter\EtablissementVoterFactory;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class EtablissementCollectionAccessCheckerTest extends TestCase
+final class EtablissementCollectionAccessCheckerTest extends TestCase
 {
-    /** @var MockObject&EtablissementVoterFactory */
-    private $factory;
+    private EtablissementVoterFactory $factory;
 
-    /** @var MockObject&LoggerInterface */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /** @var MockObject&AuthorizationCheckerInterface */
-    private $authorizationChecker;
+    private AuthorizationCheckerInterface $authorizationChecker;
 
-    /** @var EtablissementCollectionAccessChecker */
-    private $checker;
+    private EtablissementCollectionAccessChecker $checker;
 
     protected function setUp(): void
     {
-        $this->factory = $this->createMock(EtablissementVoterFactory::class);
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->authorizationChecker = $this->createMock(AuthorizationCheckerInterface::class);
-        $this->checker = new EtablissementCollectionAccessChecker($this->factory, $this->logger, $this->authorizationChecker);
+        $this->recreateChecker(
+            $this->createStub(EtablissementVoterFactory::class),
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(AuthorizationCheckerInterface::class)
+        );
     }
 
     /**
-     * Crée un mock d'établissement avec un genre donné.
-     *
-     * @return MockObject&Etablissement
+     * Crée un stub d'établissement avec un genre donné.
      */
-    private function createMockEtablissement(int $genreId): MockObject
+    private function createEtablissementStub(int $genreId): Etablissement
     {
-        $genre = $this->createMock(Genre::class);
+        $genre = $this->createStub(Genre::class);
         $genre->method('getId')->willReturn($genreId);
 
-        $informations = $this->createMock(EtablissementInformations::class);
+        $informations = $this->createStub(EtablissementInformations::class);
         $informations->method('getGenre')->willReturn($genre);
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $etablissement = $this->createStub(Etablissement::class);
         $etablissement->method('getLatestInformations')->willReturn($informations);
 
         return $etablissement;
+    }
+
+    private function recreateChecker(
+        EtablissementVoterFactory $factory,
+        LoggerInterface $logger,
+        AuthorizationCheckerInterface $authorizationChecker
+    ): void {
+        $this->factory = $factory;
+        $this->logger = $logger;
+        $this->authorizationChecker = $authorizationChecker;
+        $this->checker = new EtablissementCollectionAccessChecker($this->factory, $this->logger, $this->authorizationChecker);
     }
 
     /**
@@ -60,7 +67,7 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testCollectionVideRetourneFalse(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
 
         $result = $this->checker->hasAtLeastOneAccessible([], 'view_ets', $token);
 
@@ -72,13 +79,17 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testUnEtablissementAccessibleRetourneTrue(): void
     {
-        $token = $this->createMock(TokenInterface::class);
-        $etablissement = $this->createMockEtablissement(2);
+        $token = $this->createStub(TokenInterface::class);
+        $etablissement = $this->createEtablissementStub(2);
 
-        $voter = $this->createMock(VoterInterface::class);
+        $voter = $this->createStub(VoterInterface::class);
         $voter->method('vote')->willReturn(VoterInterface::ACCESS_GRANTED);
 
-        $this->factory->method('getVoterForGenre')->with(2)->willReturn($voter);
+        $this->factory->method('getVoterForGenre')->willReturnCallback(function (int $genreId) use ($voter): VoterInterface {
+            $this->assertSame(2, $genreId);
+
+            return $voter;
+        });
 
         $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 
@@ -90,13 +101,17 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testUnEtablissementNonAccessibleRetourneFalse(): void
     {
-        $token = $this->createMock(TokenInterface::class);
-        $etablissement = $this->createMockEtablissement(2);
+        $token = $this->createStub(TokenInterface::class);
+        $etablissement = $this->createEtablissementStub(2);
 
-        $voter = $this->createMock(VoterInterface::class);
+        $voter = $this->createStub(VoterInterface::class);
         $voter->method('vote')->willReturn(VoterInterface::ACCESS_DENIED);
 
-        $this->factory->method('getVoterForGenre')->with(2)->willReturn($voter);
+        $this->factory->method('getVoterForGenre')->willReturnCallback(function (int $genreId) use ($voter): VoterInterface {
+            $this->assertSame(2, $genreId);
+
+            return $voter;
+        });
 
         $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 
@@ -108,14 +123,14 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testDeuxEtablissementsAuMoinsUnAccessibleRetourneTrue(): void
     {
-        $token = $this->createMock(TokenInterface::class);
-        $ets1 = $this->createMockEtablissement(2);
-        $ets2 = $this->createMockEtablissement(3);
+        $token = $this->createStub(TokenInterface::class);
+        $ets1 = $this->createEtablissementStub(2);
+        $ets2 = $this->createEtablissementStub(3);
 
-        $denyingVoter = $this->createMock(VoterInterface::class);
+        $denyingVoter = $this->createStub(VoterInterface::class);
         $denyingVoter->method('vote')->willReturn(VoterInterface::ACCESS_DENIED);
 
-        $grantingVoter = $this->createMock(VoterInterface::class);
+        $grantingVoter = $this->createStub(VoterInterface::class);
         $grantingVoter->method('vote')->willReturn(VoterInterface::ACCESS_GRANTED);
 
         $this->factory->method('getVoterForGenre')->willReturnMap([
@@ -134,11 +149,20 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testEtablissementSansVoterDedieDelegueAAuthorizationCheckerEtRefuse(): void
     {
-        $token = $this->createMock(TokenInterface::class);
-        $etablissement = $this->createMockEtablissement(999);
+        $token = $this->createStub(TokenInterface::class);
+        $etablissement = $this->createEtablissementStub(999);
 
-        $this->factory->method('getVoterForGenre')->with(999)->willReturn(null);
-        $this->authorizationChecker->method('isGranted')->with('view_ets', $etablissement)->willReturn(false);
+        $this->factory->method('getVoterForGenre')->willReturnCallback(function (int $genreId): ?VoterInterface {
+            $this->assertSame(999, $genreId);
+
+            return null;
+        });
+        $this->authorizationChecker->method('isGranted')->willReturnCallback(function (string $attribute, Etablissement $subject) use ($etablissement): bool {
+            $this->assertSame('view_ets', $attribute);
+            $this->assertSame($etablissement, $subject);
+
+            return false;
+        });
 
         $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 
@@ -153,11 +177,20 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testEtablissementGenreSiteDelegueAAuthorizationCheckerEtAccorde(): void
     {
-        $token = $this->createMock(TokenInterface::class);
-        $etablissement = $this->createMockEtablissement(1);
+        $token = $this->createStub(TokenInterface::class);
+        $etablissement = $this->createEtablissementStub(1);
 
-        $this->factory->method('getVoterForGenre')->with(1)->willReturn(null);
-        $this->authorizationChecker->method('isGranted')->with('view_ets', $etablissement)->willReturn(true);
+        $this->factory->method('getVoterForGenre')->willReturnCallback(function (int $genreId): ?VoterInterface {
+            $this->assertSame(1, $genreId);
+
+            return null;
+        });
+        $this->authorizationChecker->method('isGranted')->willReturnCallback(function (string $attribute, Etablissement $subject) use ($etablissement): bool {
+            $this->assertSame('view_ets', $attribute);
+            $this->assertSame($etablissement, $subject);
+
+            return true;
+        });
 
         $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 
@@ -169,13 +202,15 @@ class EtablissementCollectionAccessCheckerTest extends TestCase
      */
     public function testEtablissementSansInformationsEstIgnoreAvecWarning(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
 
-        $etablissement = $this->createMock(Etablissement::class);
+        $logger = $this->createMock(LoggerInterface::class);
+        $this->recreateChecker($this->factory, $logger, $this->authorizationChecker);
+
+        $etablissement = $this->createStub(Etablissement::class);
         $etablissement->method('getLatestInformations')->willThrowException(new \OutOfBoundsException('No informations'));
 
-        $this->logger->expects($this->once())->method('warning');
-        $this->factory->expects($this->never())->method('getVoterForGenre');
+        $logger->expects($this->once())->method('warning');
 
         $result = $this->checker->hasAtLeastOneAccessible([$etablissement], 'view_ets', $token);
 

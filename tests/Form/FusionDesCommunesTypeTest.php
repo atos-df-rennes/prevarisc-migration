@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Form;
 
 use App\Form\FusionDesCommunesType;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
@@ -21,9 +22,9 @@ final class FusionDesCommunesTypeTest extends TestCase
         $type = new FusionDesCommunesType();
 
         $addedFields = [];
-        $builder = $this->createMock(FormBuilderInterface::class);
+        $builder = $this->createStub(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(
-            function (string $name, $fieldType = null, array $options = []) use (&$addedFields, $builder): MockObject {
+            function (string $name, ?string $fieldType = null, array $options = []) use (&$addedFields, $builder): FormBuilderInterface {
                 $addedFields[$name] = ['type' => $fieldType, 'options' => $options];
 
                 return $builder;
@@ -32,8 +33,8 @@ final class FusionDesCommunesTypeTest extends TestCase
 
         $type->buildForm($builder, []);
 
-        self::assertArrayHasKey('fichier', $addedFields, 'Form should add a fichier field');
-        self::assertTrue($addedFields['fichier']['options']['required'] ?? false, 'fichier field should be required');
+        $this->assertArrayHasKey('fichier', $addedFields, 'Form should add a fichier field');
+        $this->assertTrue($addedFields['fichier']['options']['required'] ?? false, 'fichier field should be required');
     }
 
     public function testFichierFieldHasValidationConstraints(): void
@@ -41,9 +42,9 @@ final class FusionDesCommunesTypeTest extends TestCase
         $type = new FusionDesCommunesType();
 
         $addedFields = [];
-        $builder = $this->createMock(FormBuilderInterface::class);
+        $builder = $this->createStub(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(
-            function (string $name, $fieldType = null, array $options = []) use (&$addedFields, $builder): MockObject {
+            function (string $name, ?string $fieldType = null, array $options = []) use (&$addedFields, $builder): FormBuilderInterface {
                 $addedFields[$name] = ['type' => $fieldType, 'options' => $options];
 
                 return $builder;
@@ -53,11 +54,11 @@ final class FusionDesCommunesTypeTest extends TestCase
         $type->buildForm($builder, []);
 
         $constraints = $addedFields['fichier']['options']['constraints'] ?? [];
-        self::assertNotEmpty($constraints, 'fichier field should have validation constraints');
+        $this->assertNotEmpty($constraints, 'fichier field should have validation constraints');
 
-        $constraintTypes = array_map('get_class', $constraints);
-        self::assertContains(NotBlank::class, $constraintTypes, 'Should have NotBlank constraint');
-        self::assertContains(File::class, $constraintTypes, 'Should have File constraint');
+        $constraintTypes = array_map(get_class(...), $constraints);
+        $this->assertContains(NotBlank::class, $constraintTypes, 'Should have NotBlank constraint');
+        $this->assertContains(File::class, $constraintTypes, 'Should have File constraint');
     }
 
     public function testFileConstraintAllowsJsonMimeType(): void
@@ -65,9 +66,9 @@ final class FusionDesCommunesTypeTest extends TestCase
         $type = new FusionDesCommunesType();
 
         $addedFields = [];
-        $builder = $this->createMock(FormBuilderInterface::class);
+        $builder = $this->createStub(FormBuilderInterface::class);
         $builder->method('add')->willReturnCallback(
-            function (string $name, $fieldType = null, array $options = []) use (&$addedFields, $builder): MockObject {
+            function (string $name, ?string $fieldType = null, array $options = []) use (&$addedFields, $builder): FormBuilderInterface {
                 $addedFields[$name] = ['type' => $fieldType, 'options' => $options];
 
                 return $builder;
@@ -86,7 +87,7 @@ final class FusionDesCommunesTypeTest extends TestCase
             }
         }
 
-        self::assertNotNull($fileConstraint, 'File constraint should be present');
-        self::assertContains('application/json', $fileConstraint->mimeTypes, 'Should accept application/json mime type');
+        $this->assertInstanceOf(File::class, $fileConstraint, 'File constraint should be present');
+        $this->assertContains('application/json', $fileConstraint->mimeTypes, 'Should accept application/json mime type');
     }
 }

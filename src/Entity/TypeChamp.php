@@ -2,40 +2,31 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\TypeChampRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="listetypechamprubrique")
- *
- * @ORM\Entity(repositoryClass=TypeChampRepository::class)
- */
+#[ORM\Entity(repositoryClass: TypeChampRepository::class)]
+#[ORM\Table(name: 'listetypechamprubrique')]
 class TypeChamp
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_TYPECHAMP", type="integer")
-     */
-    private $id;
+    use GetIdOrFailTrait;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="TYPE", type="string", length=50, nullable=false)
-     */
-    private $type;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_TYPECHAMP', type: Types::BIGINT)]
+    private ?int $id = null;
+
+    #[ORM\Column(name: 'TYPE', type: Types::STRING, length: 50, nullable: false)]
+    private string $type;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->type;
     }

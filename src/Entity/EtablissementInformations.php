@@ -6,263 +6,133 @@ use App\Repository\EtablissementInformationsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EtablissementInformationsRepository::class)
- *
- * @ORM\Table(name="etablissementinformations")
- */
+#[ORM\Entity(repositoryClass: EtablissementInformationsRepository::class)]
+#[ORM\Table(name: 'etablissementinformations')]
 class EtablissementInformations
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_ETABLISSEMENTINFORMATIONS", type="bigint", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_ETABLISSEMENTINFORMATIONS', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_ETABLISSEMENTINFORMATIONS", type="string", length=255, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_ETABLISSEMENTINFORMATIONS', type: Types::STRING, length: 255, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_ETABLISSEMENTINFORMATIONS", type="date", nullable=false)
-     */
-    private $date;
+    #[ORM\Column(name: 'DATE_ETABLISSEMENTINFORMATIONS', type: Types::DATE_MUTABLE, nullable: false)]
+    private ?\DateTimeInterface $date = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
-     */
-    private $localSommeil;
+    #[ORM\Column(name: 'LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS', type: Types::BOOLEAN, nullable: true)]
+    private ?bool $localSommeil = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="PERIODICITE_ETABLISSEMENTINFORMATIONS", type="smallint", nullable=true)
-     */
-    private $periodicite;
+    #[ORM\Column(name: 'PERIODICITE_ETABLISSEMENTINFORMATIONS', type: Types::SMALLINT, nullable: true)]
+    private ?int $periodicite = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="ICPE_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
-     */
-    private $icpe;
+    #[ORM\Column(name: 'ICPE_ETABLISSEMENTINFORMATIONS', type: Types::BOOLEAN, nullable: true)]
+    private ?bool $icpe = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="R14320_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
-     */
-    private $r14320;
+    #[ORM\Column(name: 'R14320_ETABLISSEMENTINFORMATIONS', type: Types::BOOLEAN, nullable: true)]
+    private ?bool $r14320 = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(name="DROITPUBLIC_ETABLISSEMENTINFORMATIONS", type="boolean", nullable=true)
-     */
-    private $droitPublic;
+    #[ORM\Column(name: 'DROITPUBLIC_ETABLISSEMENTINFORMATIONS', type: Types::BOOLEAN, nullable: true)]
+    private ?bool $droitPublic = null;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
-     */
-    private $effectifHabitation;
+    #[ORM\Column(name: 'EFFECTIFHABITATION_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
+    private ?int $effectifHabitation = null;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
-     */
-    private $effectifCaravane;
+    #[ORM\Column(name: 'EFFECTIFCARAVANE__ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
+    private ?int $effectifCaravane = null;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
-     */
-    private $effectifEmplacementNu;
+    #[ORM\Column(name: 'EFFECTIFEMPLACEMENTNU_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
+    private ?int $effectifEmplacementNu = null;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
-     */
-    private $effectifDivers;
+    #[ORM\Column(name: 'EFFECTIFDIVERS_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
+    private ?int $effectifDivers = null;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
-     */
-    private $effectifPublic;
+    #[ORM\Column(name: 'EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
+    private ?int $effectifPublic = null;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
-     */
-    private $effectifPersonnel;
+    #[ORM\Column(name: 'EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
+    private ?int $effectifPersonnel = null;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
-     */
-    private $effectifHeberge;
+    #[ORM\Column(name: 'EFFECTIFHEBERGE_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
+    private ?int $effectifHeberge = null;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(name="EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS", type="integer", nullable=true)
-     */
-    private $effectifJustifiantClassement;
+    #[ORM\Column(name: 'EFFECTIFJUSTIFIANTCLASSEMENT_ETABLISSEMENTINFORMATIONS', type: Types::INTEGER, nullable: true)]
+    private ?int $effectifJustifiantClassement = null;
 
-    /**
-     * @var ?Etablissement
-     *
-     * @ORM\ManyToOne(targetEntity=Etablissement::class, inversedBy="informations")
-     *
-     * @ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", nullable=false, options={"unsigned":true})
-     */
-    private $etablissement;
+    #[ORM\ManyToOne(targetEntity: Etablissement::class, inversedBy: 'informations')]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', nullable: false, options: ['unsigned' => true])]
+    private ?Etablissement $etablissement = null;
 
-    /**
-     * @var EtablissementStatut
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementStatut::class)
-     *
-     * @ORM\JoinColumn(name="ID_STATUT", referencedColumnName="ID_STATUT", nullable=false, options={"unsigned":true})
-     */
-    private $statut;
+    #[ORM\ManyToOne(targetEntity: EtablissementStatut::class)]
+    #[ORM\JoinColumn(name: 'ID_STATUT', referencedColumnName: 'ID_STATUT', nullable: false, options: ['unsigned' => true])]
+    private ?EtablissementStatut $statut = null;
 
-    /**
-     * @var ?EtablissementType
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementType::class)
-     *
-     * @ORM\JoinColumn(name="ID_TYPE", referencedColumnName="ID_TYPE", nullable=true, options={"unsigned":true})
-     */
-    private $type;
+    #[ORM\ManyToOne(targetEntity: EtablissementType::class)]
+    #[ORM\JoinColumn(name: 'ID_TYPE', referencedColumnName: 'ID_TYPE', nullable: true, options: ['unsigned' => true])]
+    private ?EtablissementType $type = null;
 
-    /**
-     * @var ?EtablissementCategorie
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementCategorie::class)
-     *
-     * @ORM\JoinColumn(name="ID_CATEGORIE", referencedColumnName="ID_CATEGORIE", nullable=true, options={"unsigned":true})
-     */
-    private $categorie;
+    #[ORM\ManyToOne(targetEntity: EtablissementCategorie::class)]
+    #[ORM\JoinColumn(name: 'ID_CATEGORIE', referencedColumnName: 'ID_CATEGORIE', nullable: true, options: ['unsigned' => true])]
+    private ?EtablissementCategorie $categorie = null;
 
-    /**
-     * @var ?IghClasse
-     *
-     * @ORM\ManyToOne(targetEntity=IghClasse::class)
-     *
-     * @ORM\JoinColumn(name="ID_CLASSE", referencedColumnName="ID_CLASSE", nullable=true, options={"unsigned":true})
-     */
-    private $classe;
+    #[ORM\ManyToOne(targetEntity: IghClasse::class)]
+    #[ORM\JoinColumn(name: 'ID_CLASSE', referencedColumnName: 'ID_CLASSE', nullable: true, options: ['unsigned' => true])]
+    private ?IghClasse $classe = null;
 
-    /**
-     * @var ?Famille
-     *
-     * @ORM\ManyToOne(targetEntity=Famille::class)
-     *
-     * @ORM\JoinColumn(name="ID_FAMILLE", referencedColumnName="ID_FAMILLE", nullable=true)
-     */
-    private $famille;
+    #[ORM\ManyToOne(targetEntity: Famille::class)]
+    #[ORM\JoinColumn(name: 'ID_FAMILLE', referencedColumnName: 'ID_FAMILLE', nullable: true)]
+    private ?Famille $famille = null;
 
-    /**
-     * @var ?Utilisateur
-     *
-     * @ORM\ManyToOne(targetEntity=Utilisateur::class)
-     *
-     * @ORM\JoinColumn(name="UTILISATEUR_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_UTILISATEUR", nullable=true, options={"unsigned":true})
-     */
-    private $utilisateur;
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
+    #[ORM\JoinColumn(name: 'UTILISATEUR_ETABLISSEMENTINFORMATIONS', referencedColumnName: 'ID_UTILISATEUR', nullable: true, options: ['unsigned' => true])]
+    private ?Utilisateur $utilisateur = null;
 
-    /**
-     * @var Genre
-     *
-     * @ORM\ManyToOne(targetEntity=Genre::class)
-     *
-     * @ORM\JoinColumn(name="ID_GENRE", referencedColumnName="ID_GENRE", nullable=false, options={"unsigned":true})
-     */
-    private $genre;
+    #[ORM\ManyToOne(targetEntity: Genre::class)]
+    #[ORM\JoinColumn(name: 'ID_GENRE', referencedColumnName: 'ID_GENRE', nullable: false, options: ['unsigned' => true])]
+    private ?Genre $genre = null;
 
     /**
      * @var Collection<int, Utilisateur>
-     *
-     * @ORM\JoinTable(
-     *     name="etablissementinformationspreventionniste",
-     *     joinColumns={@ORM\JoinColumn(name="ID_ETABLISSEMENTINFORMATIONS", referencedColumnName="ID_ETABLISSEMENTINFORMATIONS", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEUR", referencedColumnName="ID_UTILISATEUR", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=Utilisateur::class)
      */
-    private $preventionnistes;
+    #[ORM\JoinTable(name: 'etablissementinformationspreventionniste')]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENTINFORMATIONS', referencedColumnName: 'ID_ETABLISSEMENTINFORMATIONS', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_UTILISATEUR', referencedColumnName: 'ID_UTILISATEUR', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: Utilisateur::class)]
+    private Collection $preventionnistes;
 
     /**
      * @var Collection<int, EtablissementInformationsPlan>
-     *
-     * @ORM\OneToMany(targetEntity=EtablissementInformationsPlan::class, mappedBy="etablissementInformations", orphanRemoval=true)
      */
-    private $plans;
+    #[ORM\OneToMany(targetEntity: EtablissementInformationsPlan::class, mappedBy: 'etablissementInformations', orphanRemoval: true)]
+    private Collection $plans;
 
     /**
      * @var Collection<int, EtablissementInformationsTypesActivitesSecondaires>
-     *
-     * @ORM\OneToMany(targetEntity=EtablissementInformationsTypesActivitesSecondaires::class, mappedBy="etablissementInformations", orphanRemoval=true)
      */
-    private $typesActivitesSecondaires;
+    #[ORM\OneToMany(targetEntity: EtablissementInformationsTypesActivitesSecondaires::class, mappedBy: 'etablissementInformations', orphanRemoval: true)]
+    private Collection $typesActivitesSecondaires;
 
     /**
      * @var Collection<int, EtablissementInformationsRubriques>
-     *
-     * @ORM\OneToMany(targetEntity=EtablissementInformationsRubriques::class, mappedBy="etablissementInformations", orphanRemoval=true)
      */
-    private $rubriquesIcpe;
+    #[ORM\OneToMany(targetEntity: EtablissementInformationsRubriques::class, mappedBy: 'etablissementInformations', orphanRemoval: true)]
+    private Collection $rubriquesIcpe;
 
-    /**
-     * @var ?EtablissementActivite
-     *
-     * @ORM\ManyToOne(targetEntity=EtablissementActivite::class)
-     *
-     * @ORM\JoinColumn(name="ID_TYPEACTIVITE", referencedColumnName="ID_TYPEACTIVITE", nullable=true, options={"unsigned":true})
-     */
-    private $typeActivite;
+    #[ORM\ManyToOne(targetEntity: EtablissementActivite::class)]
+    #[ORM\JoinColumn(name: 'ID_TYPEACTIVITE', referencedColumnName: 'ID_TYPEACTIVITE', nullable: true, options: ['unsigned' => true])]
+    private ?EtablissementActivite $typeActivite = null;
 
-    /**
-     * @var ?Classement
-     *
-     * @ORM\ManyToOne(targetEntity=Classement::class)
-     *
-     * @ORM\JoinColumn(name="ID_CLASSEMENT", referencedColumnName="ID_CLASSEMENT", nullable=true, options={"unsigned":true})
-     */
-    private $classement;
+    #[ORM\ManyToOne(targetEntity: Classement::class)]
+    #[ORM\JoinColumn(name: 'ID_CLASSEMENT', referencedColumnName: 'ID_CLASSEMENT', nullable: true, options: ['unsigned' => true])]
+    private ?Classement $classement = null;
 
-    /**
-     * @var ?Commission
-     *
-     * @ORM\ManyToOne(targetEntity=Commission::class)
-     *
-     * @ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", nullable=true, options={"unsigned":true})
-     */
-    private $commission;
+    #[ORM\ManyToOne(targetEntity: Commission::class)]
+    #[ORM\JoinColumn(name: 'ID_COMMISSION', referencedColumnName: 'ID_COMMISSION', nullable: true, options: ['unsigned' => true])]
+    private ?Commission $commission = null;
 
     public function __construct()
     {
@@ -558,7 +428,7 @@ class EtablissementInformations
      */
     public function getPreventionnistes(): Collection
     {
-        $criteria = Criteria::create()->andWhere(Criteria::expr()->eq('actif', true));
+        $criteria = Criteria::create(true)->andWhere(Criteria::expr()->eq('actif', true));
 
         // PHPStan n'a pas l'extension Doctrine et n'est donc pas au courant que ça fonctionne bien.
         /* @phpstan-ignore-next-line */

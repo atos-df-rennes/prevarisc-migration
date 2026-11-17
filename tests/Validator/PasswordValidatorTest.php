@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Validator;
 
 use App\Entity\Utilisateur;
 use App\Validator\Password;
 use App\Validator\PasswordValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 final class PasswordValidatorTest extends ConstraintValidatorTestCase
@@ -14,18 +17,14 @@ final class PasswordValidatorTest extends ConstraintValidatorTestCase
         return new PasswordValidator(true);
     }
 
-    /**
-     * @dataProvider passwordIsValid
-     */
+    #[DataProvider('passwordIsValid')]
     public function testIsValid(Utilisateur $utilisateur): void
     {
         $this->validator->validate($utilisateur, new Password());
         $this->assertNoViolation();
     }
 
-    /**
-     * @dataProvider provideInvalidConstraints
-     */
+    #[DataProvider('provideInvalidConstraints')]
     public function testWithoutSsoAndWithoutPasswordIsInvalidIfHasLogin(Password $constraint): void
     {
         $utilisateur = new Utilisateur();
@@ -40,9 +39,7 @@ final class PasswordValidatorTest extends ConstraintValidatorTestCase
         ;
     }
 
-    /**
-     * @dataProvider provideInvalidConstraints
-     */
+    #[DataProvider('provideInvalidConstraints')]
     public function testWithoutSsoAndInvalidPasswordIsInvalid(Password $constraint): void
     {
         $utilisateur = new Utilisateur();
@@ -60,9 +57,9 @@ final class PasswordValidatorTest extends ConstraintValidatorTestCase
 
     public static function passwordIsValid(): iterable
     {
-        yield 'SSO' => [(new Utilisateur())->setSso(true)];
-        yield 'No SSO and valid password' => [(new Utilisateur())->setSso(false)->setPlainPassword('M3g4S3cur3P4ssw0rd.')];
-        yield 'No SSO, no password and no login' => [(new Utilisateur())->setSso(false)];
+        yield 'SSO' => [new Utilisateur()->setSso(true)];
+        yield 'No SSO and valid password' => [new Utilisateur()->setSso(false)->setPlainPassword('M3g4S3cur3P4ssw0rd.')];
+        yield 'No SSO, no password and no login' => [new Utilisateur()->setSso(false)];
     }
 
     public static function provideInvalidConstraints(): iterable

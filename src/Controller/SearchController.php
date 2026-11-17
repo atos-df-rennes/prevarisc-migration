@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Contrôleur de recherche.
@@ -34,100 +34,14 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SearchController extends AbstractController
 {
-    /** @var EtablissementSearchService */
-    private $etablissementSearchService;
-
-    /** @var DossierSearchService */
-    private $dossierSearchService;
-
-    /** @var GroupementRepository */
-    private $groupementRepository;
-
-    /** @var CommissionRepository */
-    private $commissionRepository;
-
-    /** @var DossierTypeRepository */
-    private $dossierTypeRepository;
-
-    /** @var GenreRepository */
-    private $genreRepository;
-
-    /** @var EtablissementStatutRepository */
-    private $etablissementStatutRepository;
-
-    /** @var EtablissementCategorieRepository */
-    private $etablissementCategorieRepository;
-
-    /** @var IghClasseRepository */
-    private $ighClasseRepository;
-
-    /** @var EtablissementActiviteRepository */
-    private $etablissementActiviteRepository;
-
-    /** @var FamilleRepository */
-    private $familleRepository;
-
-    /** @var CommuneRepository */
-    private $communeRepository;
-
-    /** @var AdresseRueRepository */
-    private $adresseRueRepository;
-
-    /** @var EtablissementAdresseRepository */
-    private $etablissementAdresseRepository;
-
-    /** @var SearchExport */
-    private $searchExport;
-
-    /** @var SearchQueryHelper */
-    private $searchQueryHelper;
-
-    /** @var bool */
-    private $deactivatePlatau;
-
-    public function __construct(
-        EtablissementSearchService $etablissementSearchService,
-        DossierSearchService $dossierSearchService,
-        GroupementRepository $groupementRepository,
-        CommissionRepository $commissionRepository,
-        DossierTypeRepository $dossierTypeRepository,
-        GenreRepository $genreRepository,
-        EtablissementStatutRepository $etablissementStatutRepository,
-        EtablissementCategorieRepository $etablissementCategorieRepository,
-        IghClasseRepository $ighClasseRepository,
-        EtablissementActiviteRepository $etablissementActiviteRepository,
-        FamilleRepository $familleRepository,
-        CommuneRepository $communeRepository,
-        AdresseRueRepository $adresseRueRepository,
-        EtablissementAdresseRepository $etablissementAdresseRepository,
-        bool $deactivatePlatau,
-        SearchExport $searchExport,
-        SearchQueryHelper $searchQueryHelper
-    ) {
-        $this->etablissementSearchService = $etablissementSearchService;
-        $this->dossierSearchService = $dossierSearchService;
-        $this->groupementRepository = $groupementRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->dossierTypeRepository = $dossierTypeRepository;
-        $this->genreRepository = $genreRepository;
-        $this->etablissementStatutRepository = $etablissementStatutRepository;
-        $this->etablissementCategorieRepository = $etablissementCategorieRepository;
-        $this->ighClasseRepository = $ighClasseRepository;
-        $this->etablissementActiviteRepository = $etablissementActiviteRepository;
-        $this->familleRepository = $familleRepository;
-        $this->communeRepository = $communeRepository;
-        $this->adresseRueRepository = $adresseRueRepository;
-        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
-        $this->deactivatePlatau = $deactivatePlatau;
-        $this->searchExport = $searchExport;
-        $this->searchQueryHelper = $searchQueryHelper;
+    public function __construct(private readonly EtablissementSearchService $etablissementSearchService, private readonly DossierSearchService $dossierSearchService, private readonly GroupementRepository $groupementRepository, private readonly CommissionRepository $commissionRepository, private readonly DossierTypeRepository $dossierTypeRepository, private readonly GenreRepository $genreRepository, private readonly EtablissementStatutRepository $etablissementStatutRepository, private readonly EtablissementCategorieRepository $etablissementCategorieRepository, private readonly IghClasseRepository $ighClasseRepository, private readonly EtablissementActiviteRepository $etablissementActiviteRepository, private readonly FamilleRepository $familleRepository, private readonly CommuneRepository $communeRepository, private readonly AdresseRueRepository $adresseRueRepository, private readonly EtablissementAdresseRepository $etablissementAdresseRepository, private readonly bool $deactivatePlatau, private readonly SearchExport $searchExport, private readonly SearchQueryHelper $searchQueryHelper)
+    {
     }
 
     /**
      * Recherche d'établissements.
-     *
-     * @Route("/rechercher/etablissement", name="search_etablissement", methods={"GET"})
      */
+    #[Route(path: '/rechercher/etablissement', name: 'search_etablissement', methods: ['GET'])]
     public function etablissement(Request $request): Response
     {
         $this->denyAccessUnlessGranted('search_ets');
@@ -201,7 +115,7 @@ class SearchController extends AbstractController
                     );
 
                     if ($search['search_metadata']['count'] > 10000) {
-                        $this->addFlash('error', 'L\'export Calc est limité à 10 000 éléments. Votre sélection en contient '.$search['search_metadata']['count'].'.');
+                        $this->addFlash('danger', "L'export Calc est limité à 10 000 éléments. Votre sélection en contient ".$search['search_metadata']['count'].'.');
 
                         return $this->redirectToRoute('search_etablissement', $request->query->all());
                     }
@@ -216,7 +130,7 @@ class SearchController extends AbstractController
                         'Content-Disposition' => HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, $filename),
                     ]);
                 } catch (\Exception $e) {
-                    $this->addFlash('error', 'L\'export a rencontré un problème. Veuillez rééssayez. ('.$e->getMessage().')');
+                    $this->addFlash('danger', "L'export a rencontré un problème. Veuillez rééssayez. (".$e->getMessage().')');
                 }
             }
 
@@ -311,7 +225,7 @@ class SearchController extends AbstractController
                     50
                 );
             } catch (\Exception $e) {
-                $this->addFlash('error', 'La recherche n\'a pas été effectuée correctement. Veuillez réessayer. ('.$e->getMessage().')');
+                $this->addFlash('danger', "La recherche n'a pas été effectuée correctement. Veuillez réessayer. (".$e->getMessage().')');
             }
         }
 
@@ -333,9 +247,8 @@ class SearchController extends AbstractController
 
     /**
      * Recherche de dossiers.
-     *
-     * @Route("/rechercher/dossier", name="search_dossier", methods={"GET"})
      */
+    #[Route(path: '/rechercher/dossier', name: 'search_dossier', methods: ['GET'])]
     public function dossier(Request $request): Response
     {
         $this->denyAccessUnlessGranted('search_dossiers');
@@ -426,6 +339,14 @@ class SearchController extends AbstractController
                     $criteresRecherche['dateReponseStart'] = $checkDateFormat($dateReponseStart) ? $dateReponseStart : null;
                     $dateReponseEnd = $this->getStringQueryParam($request, 'date-reponse-end');
                     $criteresRecherche['dateReponseEnd'] = $checkDateFormat($dateReponseEnd) ? $dateReponseEnd : null;
+                    $dateCommissionStart = $this->getStringQueryParam($request, 'date-commission-start');
+                    $criteresRecherche['dateCommissionStart'] = $checkDateFormat($dateCommissionStart) ? $dateCommissionStart : null;
+                    $dateCommissionEnd = $this->getStringQueryParam($request, 'date-commission-end');
+                    $criteresRecherche['dateCommissionEnd'] = $checkDateFormat($dateCommissionEnd) ? $dateCommissionEnd : null;
+                    $dateVisiteStart = $this->getStringQueryParam($request, 'date-visite-start');
+                    $criteresRecherche['dateVisiteStart'] = $checkDateFormat($dateVisiteStart) ? $dateVisiteStart : null;
+                    $dateVisiteEnd = $this->getStringQueryParam($request, 'date-visite-end');
+                    $criteresRecherche['dateVisiteEnd'] = $checkDateFormat($dateVisiteEnd) ? $dateVisiteEnd : null;
                     $criteresRecherche['provenance'] = $this->getStringQueryParam($request, 'provenance');
 
                     $groupements_territoriaux = $this->getArrayQueryParam($request, 'groupements_territoriaux');
@@ -436,7 +357,7 @@ class SearchController extends AbstractController
                     $search = $this->dossierSearchService->extractionDossiers($types, $objet, $num_doc_urba, null, null, $criteresRecherche);
 
                     if ($search['search_metadata']['count'] > 10000) {
-                        $this->addFlash('error', 'L\'export Calc est limité à 10 000 éléments. Votre sélection en contient '.$search['search_metadata']['count'].'.');
+                        $this->addFlash('danger', "L'export Calc est limité à 10 000 éléments. Votre sélection en contient ".$search['search_metadata']['count'].'.');
 
                         return $this->redirectToRoute('search_dossier', $request->query->all());
                     }
@@ -453,7 +374,7 @@ class SearchController extends AbstractController
                         'Content-Disposition' => HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, $filename),
                     ]);
                 } catch (\Exception $e) {
-                    $this->addFlash('error', 'L\'export a rencontré un problème. Veuillez rééssayez. ('.$e->getMessage().')');
+                    $this->addFlash('danger', "L'export a rencontré un problème. Veuillez rééssayez. (".$e->getMessage().')');
                 }
             }
 
@@ -502,6 +423,18 @@ class SearchController extends AbstractController
                 $dateReponseEnd = $this->getStringQueryParam($request, 'date-reponse-end');
                 $criteresRecherche['dateReponseEnd'] = $checkDateFormat($dateReponseEnd) ? $dateReponseEnd : null;
 
+                $dateCommissionStart = $this->getStringQueryParam($request, 'date-commission-start');
+                $criteresRecherche['dateCommissionStart'] = $checkDateFormat($dateCommissionStart) ? $dateCommissionStart : null;
+
+                $dateCommissionEnd = $this->getStringQueryParam($request, 'date-commission-end');
+                $criteresRecherche['dateCommissionEnd'] = $checkDateFormat($dateCommissionEnd) ? $dateCommissionEnd : null;
+
+                $dateVisiteStart = $this->getStringQueryParam($request, 'date-visite-start');
+                $criteresRecherche['dateVisiteStart'] = $checkDateFormat($dateVisiteStart) ? $dateVisiteStart : null;
+
+                $dateVisiteEnd = $this->getStringQueryParam($request, 'date-visite-end');
+                $criteresRecherche['dateVisiteEnd'] = $checkDateFormat($dateVisiteEnd) ? $dateVisiteEnd : null;
+
                 $provenanceRaw = $this->getStringQueryParam($request, 'provenance');
                 $criteresRecherche['provenance'] = $provenanceRaw;
 
@@ -549,7 +482,7 @@ class SearchController extends AbstractController
                     50
                 );
             } catch (\Exception $e) {
-                $this->addFlash('error', 'La recherche n\'a pas été effectuée correctement. Veuillez réessayer. ('.$e->getMessage().')');
+                $this->addFlash('danger', "La recherche n'a pas été effectuée correctement. Veuillez réessayer. (".$e->getMessage().')');
             }
         }
 
@@ -570,9 +503,8 @@ class SearchController extends AbstractController
 
     /**
      * AJAX : liste des établissements enfants d'un parent.
-     *
-     * @Route("/rechercher/display-ajax-search-etablissement", name="search_ajax_etablissement", methods={"POST"})
      */
+    #[Route(path: '/rechercher/display-ajax-search-etablissement', name: 'search_ajax_etablissement', methods: ['POST'])]
     public function ajaxEtablissement(Request $request): Response
     {
         $this->denyAccessUnlessGranted('search_ets');
@@ -618,7 +550,8 @@ class SearchController extends AbstractController
      */
     private function getArrayQueryParam(Request $request, string $key): ?array
     {
-        $value = $request->query->get($key);
+        $queryParams = $request->query->all();
+        $value = $queryParams[$key] ?? null;
         if (!is_array($value) || [] === $value) {
             return null;
         }

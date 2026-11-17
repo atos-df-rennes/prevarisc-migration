@@ -10,14 +10,10 @@ use Psr\Log\LoggerInterface;
 /**
  * Service pour transformer un DTO CommissionDates en entités DateCommission.
  */
-final class CommissionDatesTransformer
+final readonly class CommissionDatesTransformer
 {
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(LoggerInterface $logger)
+    public function __construct(private LoggerInterface $logger)
     {
-        $this->logger = $logger;
     }
 
     /**
@@ -35,7 +31,7 @@ final class CommissionDatesTransformer
         // Gestion de la périodicité
         if (
             $dto->isWithPeriodicite()
-            && $dto->getDateFin()
+            && $dto->getDateFin() instanceof \DateTimeInterface
             && $dto->getPeriodicite()
             && 1 === count($datesDto)
         ) {
@@ -46,7 +42,7 @@ final class CommissionDatesTransformer
         foreach ($datesDto as $dateDto) {
             try {
                 $dateCommission = $this->createDateCommission($dateDto, $dto);
-            } catch (\InvalidArgumentException $exception) {
+            } catch (\InvalidArgumentException) {
                 continue;
             }
 

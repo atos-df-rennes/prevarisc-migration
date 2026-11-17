@@ -5,22 +5,10 @@ namespace App\Dto\Platau;
 /**
  * Informations de version retournées par le healthcheck Plat'AU.
  */
-final class VersionInfo implements \JsonSerializable
+final readonly class VersionInfo implements \JsonSerializable
 {
-    /** @var string|null */
-    private $version;
-
-    /** @var string|null */
-    private $versionModel;
-
-    /** @var string|null */
-    private $versionNomenclature;
-
-    public function __construct(?string $version, ?string $versionModel, ?string $versionNomenclature)
+    public function __construct(private ?string $version, private ?string $versionModel, private ?string $versionNomenclature)
     {
-        $this->version = $version;
-        $this->versionModel = $versionModel;
-        $this->versionNomenclature = $versionNomenclature;
     }
 
     /**

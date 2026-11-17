@@ -5,16 +5,18 @@ namespace App\Controller\Api;
 use App\Repository\DocumentManquantRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DocumentManquantController extends AbstractController
 {
-    /**
-     * @Route("/api/document-manquant/liste", name="api_document_manquant_liste", methods={"GET"})
-     */
-    public function liste(DocumentManquantRepository $repository): JsonResponse
+    public function __construct(private readonly DocumentManquantRepository $repository)
     {
-        $documents = $repository->findAll();
+    }
+
+    #[Route(path: '/api/document-manquant/liste', name: 'api_document_manquant_liste', methods: ['GET'])]
+    public function liste(): JsonResponse
+    {
+        $documents = $this->repository->findAll();
 
         return $this->json($documents);
     }

@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Validator;
 
 use App\Entity\Dossier;
 use App\Entity\DossierDocumentManquant;
 use App\Validator\DossierDocumentsManquants;
 use App\Validator\DossierDocumentsManquantsValidator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
 /**
@@ -26,9 +29,8 @@ final class DossierDocumentsManquantsValidatorTest extends ConstraintValidatorTe
     /**
      * Un dossier non incomplet ne doit jamais lever de violation,
      * quelle que soit l'état de la collection.
-     *
-     * @dataProvider provideDossierNonIncomplet
      */
+    #[DataProvider('provideDossierNonIncomplet')]
     public function testPasDErreurSiDossierNonIncomplet(?bool $incomplet): void
     {
         $dossier = new Dossier();
@@ -93,9 +95,8 @@ final class DossierDocumentsManquantsValidatorTest extends ConstraintValidatorTe
      * Un dossier incomplet avec un document dont le champ documentManquant
      * est absent (null ou chaîne vide) doit lever une violation ciblée
      * sur documentsManquants[0].documentManquant.
-     *
-     * @dataProvider provideDocumentManquantVideOuNull
      */
+    #[DataProvider('provideDocumentManquantVideOuNull')]
     public function testViolationSiDocumentSansContenu(?string $contenu): void
     {
         $doc = new DossierDocumentManquant();

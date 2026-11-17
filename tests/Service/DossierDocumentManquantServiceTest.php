@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\Dossier;
@@ -9,8 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DossierDocumentManquantServiceTest extends TestCase
 {
-    /** @var DossierDocumentManquantService */
-    private $service;
+    private DossierDocumentManquantService $service;
 
     protected function setUp(): void
     {
@@ -26,7 +27,7 @@ final class DossierDocumentManquantServiceTest extends TestCase
 
         $this->service->assignerNumeros($dossier);
 
-        self::assertSame('1', $document->getNumero());
+        $this->assertSame('1', $document->getNumero());
     }
 
     public function testAssignerNumerosNeModifiePasLesNumerosExistants(): void
@@ -43,8 +44,8 @@ final class DossierDocumentManquantServiceTest extends TestCase
 
         $this->service->assignerNumeros($dossier);
 
-        self::assertSame('3', $documentExistant->getNumero());
-        self::assertSame('4', $nouveauDocument->getNumero());
+        $this->assertSame('3', $documentExistant->getNumero());
+        $this->assertSame('4', $nouveauDocument->getNumero());
     }
 
     public function testAssignerNumerosGereUnDossierSansDocument(): void
@@ -53,6 +54,6 @@ final class DossierDocumentManquantServiceTest extends TestCase
 
         $this->service->assignerNumeros($dossier);
 
-        self::assertCount(0, $dossier->getDocumentsManquants());
+        $this->assertCount(0, $dossier->getDocumentsManquants());
     }
 }

@@ -93,7 +93,7 @@ class DescriptifFormHydrator
         $valeur = $champData['valeur'] ?? null;
 
         $type = $champ->getType();
-        $typeId = null !== $type ? $type->getId() : null;
+        $typeId = $type?->getId();
 
         if (TypeChamp::PARENT === $typeId) {
             if ($champ->getTableau()) {
@@ -110,36 +110,27 @@ class DescriptifFormHydrator
         }
 
         $value = $this->extractValue($valeur, $typeId);
-        $valeurId = null !== $valeur ? $valeur->getId() : null;
+        $valeurId = $valeur?->getId();
 
         return new ChampValueData((int) $champ->getId(), $value, [], [], $valeurId);
     }
 
     /**
      * Extrait la valeur typée depuis une entité Valeur selon le TypeChamp.
-     *
-     * @return string|int|bool|\DateTimeInterface|null
      */
-    private function extractValue(?Valeur $valeur, ?int $typeId)
+    private function extractValue(?Valeur $valeur, ?int $typeId): int|bool|\DateTimeInterface|string|null
     {
-        if (null === $valeur) {
+        if (!$valeur instanceof Valeur) {
             return null;
         }
 
-        switch ($typeId) {
-            case TypeChamp::TEXT:
-            case TypeChamp::SELECT:
-            default:
-                return $valeur->getStr();
-            case TypeChamp::TEXTAREA:
-                return $valeur->getLongStr();
-            case TypeChamp::NUMBER:
-                return $valeur->getNumber();
-            case TypeChamp::CHECKBOX:
-                return $valeur->getCheckbox();
-            case TypeChamp::DATE:
-                return $valeur->getDate();
-        }
+        return match ($typeId) {
+            TypeChamp::TEXTAREA => $valeur->getLongStr(),
+            TypeChamp::NUMBER => $valeur->getNumber(),
+            TypeChamp::CHECKBOX => $valeur->getCheckbox(),
+            TypeChamp::DATE => $valeur->getDate(),
+            default => $valeur->getStr(),
+        };
     }
 
     /**
@@ -160,7 +151,7 @@ class DescriptifFormHydrator
                 $enfantTypeId = null;
                 if (null !== $enfantChamp) {
                     $enfantType = $enfantChamp->getType();
-                    $enfantTypeId = null !== $enfantType ? $enfantType->getId() : null;
+                    $enfantTypeId = $enfantType?->getId();
                 }
 
                 $cells[$champId] = $this->extractValue($valeur, $enfantTypeId);

@@ -7,10 +7,6 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
 
-    $parameters->set('env(PREVARISC_PATH)', '/home/prv/current/prevarisc');
-
-    $parameters->set('app.prevarisc_path', '%env(string:PREVARISC_PATH)%');
-
     $parameters->set('env(PREVARISC_DEBUG_ENABLED)', 0);
 
     $parameters->set('app.debug', '%env(bool:PREVARISC_DEBUG_ENABLED)%');
@@ -174,7 +170,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.data_path', '%env(string:PREVARISC_DATA_PATH)%');
 
-    $parameters->set('env(PREVARISC_REAL_DATA_PATH)', '%app.prevarisc_path%/public/data');
+    $parameters->set('env(PREVARISC_REAL_DATA_PATH)', '%kernel.project_dir%/public/data');
 
     $parameters->set('app.files_path', '%env(resolve:PREVARISC_REAL_DATA_PATH)%');
 
@@ -268,11 +264,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_NTLM_ENABLED)', 0);
 
     $parameters->set('app.ntlm_enabled', '%env(bool:PREVARISC_NTLM_ENABLED)%');
-
-    // @todo: Variable à retirer une fois le legacy retiré
-    $parameters->set('env(PREVARISC_SYMFONY_LOGIN)', 1);
-
-    $parameters->set('app.symfony_login', '%env(bool:PREVARISC_SYMFONY_LOGIN)%');
 
     $parameters->set('env(PREVARISC_LDAP_ACCOUNT_FORM)', '');
 

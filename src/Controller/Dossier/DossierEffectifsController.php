@@ -15,83 +15,29 @@ use App\Service\DescriptifCopier;
 use App\Service\DescriptifInspector;
 use App\Service\Dossier\EffectifsDegagementsRepriseValidator;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gère les actions liées aux effectifs et dégagements d'un dossier.
- *
- * @Route(requirements={"id"="\d+"})
  */
+#[Route(requirements: ['id' => '\d+'])]
 class DossierEffectifsController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /** @var DescriptifService */
-    private $descriptifService;
-
-    /** @var DescriptifInspector */
-    private $descriptifInspector;
-
-    /** @var DescriptifCopier */
-    private $descriptifCopier;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var EffectifsDegagementsRepriseValidator */
-    private $repriseValidator;
-
-    /** @var DescriptifFormHydrator */
-    private $descriptifFormHydrator;
-
-    /** @var DescriptifFormBuilder */
-    private $descriptifFormBuilder;
-
-    /** @var DescriptifFormPersister */
-    private $descriptifFormPersister;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /**
-     * @var FormFactoryInterface
-     */
-    private $formFactory;
-
-    public function __construct(
-        DescriptifService $descriptifService,
-        DescriptifInspector $descriptifInspector,
-        DescriptifCopier $descriptifCopier,
-        DossierRepository $dossierRepository,
-        EffectifsDegagementsRepriseValidator $repriseValidator,
-        LoggerInterface $logger,
-        DescriptifFormHydrator $descriptifFormHydrator,
-        DescriptifFormBuilder $descriptifFormBuilder,
-        DescriptifFormPersister $descriptifFormPersister,
-        FormFactoryInterface $formFactory
-    ) {
-        $this->descriptifService = $descriptifService;
-        $this->descriptifInspector = $descriptifInspector;
-        $this->descriptifCopier = $descriptifCopier;
-        $this->dossierRepository = $dossierRepository;
-        $this->repriseValidator = $repriseValidator;
-        $this->logger = $logger;
-        $this->descriptifFormHydrator = $descriptifFormHydrator;
-        $this->descriptifFormBuilder = $descriptifFormBuilder;
-        $this->descriptifFormPersister = $descriptifFormPersister;
-        $this->formFactory = $formFactory;
+    public function __construct(private readonly DescriptifService $descriptifService, private readonly DescriptifInspector $descriptifInspector, private readonly DescriptifCopier $descriptifCopier, private readonly DossierRepository $dossierRepository, private readonly EffectifsDegagementsRepriseValidator $repriseValidator, private readonly LoggerInterface $logger, private readonly DescriptifFormHydrator $descriptifFormHydrator, private readonly DescriptifFormBuilder $descriptifFormBuilder, private readonly DescriptifFormPersister $descriptifFormPersister, private readonly FormFactoryInterface $formFactory)
+    {
     }
 
     /**
      * Affiche l'onglet Effectifs et Dégagements du dossier.
-     *
-     * @Route("/dossier/{id}/effectifs-degagements", name="dossier_effectifs_degagements", methods={"GET"})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('view_doss', dossier)")
      */
+    #[Route(path: '/dossier/{id}/effectifs-degagements', name: 'dossier_effectifs_degagements', methods: ['GET'])]
+    #[IsGranted('effectifs_degagements_doss')]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function effectifsDegagements(Dossier $dossier): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
@@ -104,15 +50,9 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         ]);
     }
 
-    /**
-     * @Route("/dossier/{id}/copier-effectifs-degagements-etablissement",
-     *        name="dossier_copier_effectifs_degagements_etablissement",
-     *        requirements={"id"="\d+"},
-     *        methods={"POST"},
-     *        defaults={"_dossier_lateral_nav": false})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
-     */
+    #[Route(path: '/dossier/{id}/copier-effectifs-degagements-etablissement', name: 'dossier_copier_effectifs_degagements_etablissement', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('effectifs_degagements_doss')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function copierEffectifsDegagementsEtablissement(
         Dossier $dossier,
         Request $request
@@ -129,7 +69,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         if (1 !== $nbEtablissements) {
             return $this->json([
                 'error' => sprintf(
-                    'Impossible de copier : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n\'ont pas été copiés.',
+                    "Impossible de copier : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n'ont pas été copiés.",
                     $nbEtablissements
                 ),
             ], 400);
@@ -138,7 +78,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         $etablissement = $etablissements[0];
 
         if (!$this->isGranted('edit_ets', $etablissement)) {
-            return $this->json(['error' => 'Vous n\'avez pas le droit de modifier cet établissement.'], 403);
+            return $this->json(['error' => "Vous n'avez pas le droit de modifier cet établissement."], 403);
         }
 
         try {
@@ -163,15 +103,9 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         return $this->json(['success' => true]);
     }
 
-    /**
-     * @Route("/dossier/{id}/recuperer-effectifs-degagements-etablissement",
-     *        name="dossier_recuperer_effectifs_degagements_etablissement",
-     *        requirements={"id"="\d+"},
-     *        methods={"POST"},
-     *        defaults={"_dossier_lateral_nav": false})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
-     */
+    #[Route(path: '/dossier/{id}/recuperer-effectifs-degagements-etablissement', name: 'dossier_recuperer_effectifs_degagements_etablissement', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('effectifs_degagements_doss')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function recupererEffectifsDegagementsEtablissement(
         Dossier $dossier,
         Request $request
@@ -188,7 +122,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         if (1 !== $nbEtablissements) {
             return $this->json([
                 'error' => sprintf(
-                    'Impossible de récupérer : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n\'ont pas été récupérés.',
+                    "Impossible de récupérer : %d établissement(s) lié(s) au dossier (1 attendu). Les effectifs et dégagements n'ont pas été récupérés.",
                     $nbEtablissements
                 ),
             ], 400);
@@ -197,7 +131,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
         $etablissement = $etablissements[0];
 
         if (!$this->isGranted('view_ets', $etablissement)) {
-            return $this->json(['error' => 'Vous n\'avez pas le droit de consulter cet établissement.'], 403);
+            return $this->json(['error' => "Vous n'avez pas le droit de consulter cet établissement."], 403);
         }
 
         try {
@@ -224,15 +158,10 @@ class DossierEffectifsController extends AbstractController implements DossierLa
 
     /**
      * Retourne le contenu de la modale "Reprendre les effectifs et dégagements d'un dossier précédent".
-     *
-     * @Route("/dossier/{id}/effectifs-degagements/modal-reprise",
-     *        name="dossier_effectifs_degagements_modal_reprise",
-     *        requirements={"id"="\d+"},
-     *        methods={"GET"},
-     *        defaults={"_dossier_lateral_nav": false})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
+    #[Route(path: '/dossier/{id}/effectifs-degagements/modal-reprise', name: 'dossier_effectifs_degagements_modal_reprise', requirements: ['id' => '\d+'], methods: ['GET'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('effectifs_degagements_doss')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function effectifsDegagementsModalReprise(Dossier $dossier): Response
     {
         $etablissements = $dossier->getEtablissements();
@@ -256,15 +185,10 @@ class DossierEffectifsController extends AbstractController implements DossierLa
 
     /**
      * Reprend les effectifs et dégagements d'un dossier source vers le dossier courant.
-     *
-     * @Route("/dossier/{id}/effectifs-degagements/reprendre-depuis-etude",
-     *        name="dossier_effectifs_degagements_reprendre_depuis_etude",
-     *        requirements={"id"="\d+"},
-     *        methods={"POST"},
-     *        defaults={"_dossier_lateral_nav": false})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
+    #[Route(path: '/dossier/{id}/effectifs-degagements/reprendre-depuis-etude', name: 'dossier_effectifs_degagements_reprendre_depuis_etude', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('effectifs_degagements_doss')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function reprendreEffectifsDegagementsDepuisEtude(
         Dossier $dossier,
         Request $request
@@ -275,8 +199,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
         }
 
-        $rawDossierSelect = $request->request->get('dossierSelect', 0);
-        $idDossierSource = is_scalar($rawDossierSelect) ? (int) $rawDossierSelect : 0;
+        $idDossierSource = $request->request->getInt('dossierSelect', 0);
         if (0 === $idDossierSource) {
             return $this->json(['error' => 'Aucun dossier source sélectionné.'], 400);
         }
@@ -319,11 +242,10 @@ class DossierEffectifsController extends AbstractController implements DossierLa
 
     /**
      * Affiche et traite le formulaire d'édition des effectifs et dégagements du dossier.
-     *
-     * @Route("/dossier/{id}/effectifs-degagements/modifier", name="dossier_effectifs_degagements_edit", methods={"GET", "POST"})
-     *
-     * @Security("is_granted('effectifs_degagements_doss') and is_granted('edit_doss_ignore_verrou', dossier)")
      */
+    #[Route(path: '/dossier/{id}/effectifs-degagements/modifier', name: 'dossier_effectifs_degagements_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('effectifs_degagements_doss')]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function editEffectifsDegagements(Dossier $dossier, Request $request): Response
     {
         $data = $this->descriptifService->getForDossier($dossier, NomInterneCapsule::EFFECTIFS_DEGAGEMENTS_DOSSIER);
@@ -343,7 +265,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
                     'dossier_id' => $dossier->getId(),
                     'exception' => $e->getMessage(),
                 ]);
-                $this->addFlash('error', 'Les effectifs et dégagements n\'ont pas été mis à jour. Veuillez réessayer.');
+                $this->addFlash('danger', "Les effectifs et dégagements n'ont pas été mis à jour. Veuillez réessayer.");
             }
 
             return $this->redirectToRoute('dossier_effectifs_degagements', ['id' => $dossier->getId()]);
@@ -353,7 +275,7 @@ class DossierEffectifsController extends AbstractController implements DossierLa
             'dossier' => $dossier,
             'capsule' => $data['capsule'],
             'rubriques' => $data['rubriques'],
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 }

@@ -13,50 +13,16 @@ use App\Entity\Dossier;
 use App\Entity\DossierNatureListe;
 use App\Service\Alerte\AlerteService;
 use App\Service\DossierFields;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class DossierSauvegardeService
 {
-    /** @var DossierDonnantAvisService */
-    private $dossierDonnantAvisService;
-
-    /** @var AlerteService */
-    private $alerteService;
-
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
-    /** @var FlashBagInterface */
-    private $flashBag;
-
-    /** @var UrlGeneratorInterface */
-    private $urlGenerator;
-
-    /** @var DossierFields */
-    private $dossierFields;
-
-    /** @var TagAwareCacheInterface */
-    private $searchCache;
-
-    public function __construct(
-        DossierDonnantAvisService $dossierDonnantAvisService,
-        AlerteService $alerteService,
-        AuthorizationCheckerInterface $authorizationChecker,
-        FlashBagInterface $flashBag,
-        UrlGeneratorInterface $urlGenerator,
-        DossierFields $dossierFields,
-        TagAwareCacheInterface $searchCache
-    ) {
-        $this->dossierDonnantAvisService = $dossierDonnantAvisService;
-        $this->alerteService = $alerteService;
-        $this->authorizationChecker = $authorizationChecker;
-        $this->flashBag = $flashBag;
-        $this->urlGenerator = $urlGenerator;
-        $this->dossierFields = $dossierFields;
-        $this->searchCache = $searchCache;
+    public function __construct(private readonly DossierDonnantAvisService $dossierDonnantAvisService, private readonly AlerteService $alerteService, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly RequestStack $requestStack, private readonly UrlGeneratorInterface $urlGenerator, private readonly DossierFields $dossierFields, private readonly TagAwareCacheInterface $searchCache)
+    {
     }
 
     /**
@@ -79,7 +45,7 @@ class DossierSauvegardeService
             return $this->dossierDonnantAvisService->affecterDossierDonnantAvis($dossier, $repercuterAvis);
         }
 
-        if (null !== $ancienneNature) {
+        if ($ancienneNature instanceof DossierNatureListe) {
             return $this->dossierDonnantAvisService->desaffecterDossierDonnantAvis($dossier, $ancienneNature);
         }
 
@@ -119,9 +85,14 @@ class DossierSauvegardeService
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
 
-            $this->flashBag->add('warning', sprintf(
+            $session = $this->requestStack->getSession();
+            if (!$session instanceof FlashBagAwareSessionInterface) {
+                continue;
+            }
+
+            $session->getFlashBag()->add('warning', sprintf(
                 '<strong>Avertissement</strong><br>'.
-                'La visite d\'avant ouverture étant favorable, vous devriez passer le statut de l\'établissement '.
+                "La visite d'avant ouverture étant favorable, vous devriez passer le statut de l'établissement ".
                 '<a title="Ouvrir" href="%s">%s</a> à \'ouvert\' (statut actuellement à \'projet\').',
                 $informationsEtablissement,
                 htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8')
@@ -167,8 +138,13 @@ class DossierSauvegardeService
             $libelle = $informations->getLibelle() ?: 'Établissement #'.$etablissementId;
             $lienAlerter = $this->alerteService->getLink(TypeChangement::AVIS, $etablissementId);
 
-            $this->flashBag->add('success', sprintf(
-                '<p>L\'établissement %s a bien été mis à jour.</p>%s',
+            $session = $this->requestStack->getSession();
+            if (!$session instanceof FlashBagAwareSessionInterface) {
+                continue;
+            }
+
+            $session->getFlashBag()->add('success', sprintf(
+                "<p>L'établissement %s a bien été mis à jour.</p>%s",
                 htmlspecialchars($libelle, ENT_QUOTES, 'UTF-8'),
                 $lienAlerter
             ));
@@ -192,7 +168,7 @@ class DossierSauvegardeService
      */
     public function construireUrlRedirection(Dossier $dossier, array $etablissementsIds, ?string $target = null): string
     {
-        $target = $target ?? $this->urlGenerator->generate('dossier_index', ['id' => $dossier->getId()]);
+        $target ??= $this->urlGenerator->generate('dossier_index', ['id' => $dossier->getId()]);
 
         $this->searchCache->invalidateTags(['search']);
 
@@ -200,18 +176,13 @@ class DossierSauvegardeService
             return $target;
         }
 
+        // @fixme: variable non utilisée mais conservée une fois les caches entité implémentés à nouveau
         $etablissementsJson = json_encode($etablissementsIds);
         if (false === $etablissementsJson) {
-            throw new \RuntimeException('Impossible d\'encoder les IDs établissements en JSON');
+            throw new \RuntimeException("Impossible d'encoder les IDs établissements en JSON");
         }
 
-        // @todo: supprimer en v3.0.0 et rediriger directement vers Symfony
-        return sprintf(
-            '/legacy/dossier/vider-cache?id=%d&etablissements=%s&target=%s',
-            $dossier->getId(),
-            urlencode($etablissementsJson),
-            urlencode($target)
-        );
+        return $target;
     }
 
     /**

@@ -16,50 +16,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-final class FusionDesCommunes
+final readonly class FusionDesCommunes
 {
-    /** @var SerializerInterface */
-    private $serializer;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var CommuneRepository */
-    private $communeRepository;
-
-    /** @var EtablissementAdresseRepository */
-    private $etablissementAdresseRepository;
-
-    /** @var AdresseRueRepository */
-    private $adresseRueRepository;
-
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
-
-    /** @var CommissionRegleRepository */
-    private $commissionRegleRepository;
-
-    public function __construct(
-        SerializerInterface $serializer,
-        LoggerInterface $logger,
-        EntityManagerInterface $entityManager,
-        CommuneRepository $communeRepository,
-        EtablissementAdresseRepository $etablissementAdresseRepository,
-        AdresseRueRepository $adresseRueRepository,
-        UtilisateurRepository $utilisateurRepository,
-        CommissionRegleRepository $commissionRegleRepository
-    ) {
-        $this->serializer = $serializer;
-        $this->logger = $logger;
-        $this->entityManager = $entityManager;
-        $this->communeRepository = $communeRepository;
-        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
-        $this->adresseRueRepository = $adresseRueRepository;
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->commissionRegleRepository = $commissionRegleRepository;
+    public function __construct(private SerializerInterface $serializer, private LoggerInterface $logger, private EntityManagerInterface $entityManager, private CommuneRepository $communeRepository, private EtablissementAdresseRepository $etablissementAdresseRepository, private AdresseRueRepository $adresseRueRepository, private UtilisateurRepository $utilisateurRepository, private CommissionRegleRepository $commissionRegleRepository)
+    {
     }
 
     /**
@@ -85,7 +45,7 @@ final class FusionDesCommunes
             /** @var FusionDeCommunes[] $listeFusionCommunes */
             $listeFusionCommunes = $this->serializer->deserialize($fileContent, FusionDeCommunes::class.'[]', 'json');
         } catch (\Exception $exception) {
-            throw new FusionTechnicalException('Le fichier de fusion est invalide et n\'a pas pu être analysé.', 0, $exception);
+            throw new FusionTechnicalException("Le fichier de fusion est invalide et n'a pas pu être analysé.", 0, $exception);
         }
 
         $resultat = new ResultatFusion();

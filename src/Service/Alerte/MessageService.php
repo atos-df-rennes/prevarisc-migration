@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Alerte;
 
 use App\Entity\Etablissement;
+use App\Entity\EtablissementCategorie;
 use App\Service\Changement;
 
 /**
@@ -15,15 +16,11 @@ use App\Service\Changement;
  */
 class MessageService
 {
-    /** @var AvisService */
-    private $avisService;
-
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis
      */
-    public function __construct(AvisService $avisService)
+    public function __construct(private readonly AvisService $avisService)
     {
-        $this->avisService = $avisService;
     }
 
     /**
@@ -74,7 +71,7 @@ class MessageService
         if ('getCategorie' === $method) {
             $categorie = $etablissement->getCategorieEffective();
 
-            return null !== $categorie ? ($categorie->getLibelle() ?? '') : '';
+            return $categorie instanceof EtablissementCategorie ? ($categorie->getLibelle() ?? '') : '';
         }
 
         // Autres cas : méthode sur LatestInformations

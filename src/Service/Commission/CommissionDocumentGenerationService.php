@@ -21,8 +21,9 @@ use App\Service\Rapport\PrescriptionArrayHelper;
 use App\Utils\DateFormatterFr;
 use App\Utils\PathNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
+use Odtphp\Odf;
+use Odtphp\Segment;
 use Psr\Log\LoggerInterface;
-use Segment;
 
 /**
  * Service de génération des documents ODT de commission (convocations, ODJ, PV, compte-rendu).
@@ -33,63 +34,8 @@ use Segment;
  */
 class CommissionDocumentGenerationService
 {
-    /** @var EntityManagerInterface */
-    private $em;
-
-    /** @var DataStore */
-    private $dataStore;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var CommissionMembreEligibilityChecker */
-    private $eligibilityChecker;
-
-    /** @var string */
-    private $courriersMembresRealDataPath;
-
-    /** @var string */
-    private $documentsCommissionRealDataPath;
-
-    /** @var Descriptif */
-    private $descriptif;
-
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepo;
-
-    /** @var OdtWriter */
-    private $odtWriter;
-
-    /** @var DossierPrescriptionService */
-    private $prescriptionService;
-
-    /** @var CommissionDataProvider */
-    private $dataProvider;
-
-    public function __construct(
-        EntityManagerInterface $em,
-        DataStore $dataStore,
-        LoggerInterface $logger,
-        CommissionMembreEligibilityChecker $eligibilityChecker,
-        Descriptif $descriptif,
-        DateCommissionRepository $dateCommissionRepo,
-        OdtWriter $odtWriter,
-        DossierPrescriptionService $prescriptionService,
-        CommissionDataProvider $dataProvider,
-        string $courriersMembresRealDataPath,
-        string $documentsCommissionRealDataPath
-    ) {
-        $this->em = $em;
-        $this->dataStore = $dataStore;
-        $this->logger = $logger;
-        $this->eligibilityChecker = $eligibilityChecker;
-        $this->descriptif = $descriptif;
-        $this->dateCommissionRepo = $dateCommissionRepo;
-        $this->odtWriter = $odtWriter;
-        $this->prescriptionService = $prescriptionService;
-        $this->dataProvider = $dataProvider;
-        $this->courriersMembresRealDataPath = $courriersMembresRealDataPath;
-        $this->documentsCommissionRealDataPath = $documentsCommissionRealDataPath;
+    public function __construct(private readonly EntityManagerInterface $em, private readonly DataStore $dataStore, private readonly LoggerInterface $logger, private readonly CommissionMembreEligibilityChecker $eligibilityChecker, private readonly Descriptif $descriptif, private readonly DateCommissionRepository $dateCommissionRepo, private readonly OdtWriter $odtWriter, private readonly DossierPrescriptionService $prescriptionService, private readonly CommissionDataProvider $dataProvider, private readonly string $courriersMembresRealDataPath, private readonly string $documentsCommissionRealDataPath)
+    {
     }
 
     /**
@@ -704,7 +650,7 @@ class CommissionDocumentGenerationService
             if (!empty($etablissementLies)) {
                 /** @var array<int, int|string> $etabLiesColumn */
                 $etabLiesColumn = array_column($etablissementLies, 'ID_ETABLISSEMENT');
-                $etabLiesIds = array_map('intval', $etabLiesColumn);
+                $etabLiesIds = array_map(intval(...), $etabLiesColumn);
                 $idsEtablissements = array_merge($idsEtablissements, $etabLiesIds);
             }
 
@@ -838,15 +784,7 @@ class CommissionDocumentGenerationService
 
             /** @var string $numInsee */
             $numInsee = $adresse['NUMINSEE_COMMUNE'] ?? '';
-
-            $existe = false;
-            foreach ($tabCommune as $value) {
-                if ($value[0] === $libelleCommune) {
-                    $existe = true;
-
-                    break;
-                }
-            }
+            $existe = array_any($tabCommune, fn ($value): bool => $value[0] === $libelleCommune);
 
             if (!$existe) {
                 $tabCommune[] = [$libelleCommune, $this->dataProvider->getCommuneContactInfo($numInsee)];
@@ -876,7 +814,7 @@ class CommissionDocumentGenerationService
         string $heureDeb,
         int $dateCommId
     ): int {
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
         $villeODF = $odf->setSegment('villeDoss');
 
         foreach ($listeCommunes as $commune) {
@@ -898,7 +836,7 @@ class CommissionDocumentGenerationService
             $this->addChamp($villeODF, 'date', $dateDuJour->format('d/m/Y'));
 
             $dateCommObj = $this->parseDateSql($dateComm);
-            $this->addChamp($villeODF, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
+            $this->addChamp($villeODF, 'dateCommission', $dateCommObj?->format('d/m/Y') ?? '');
 
             $this->addChamp($villeODF, 'heureDebutComm', $this->formatHeure($heureDeb));
 
@@ -929,7 +867,7 @@ class CommissionDocumentGenerationService
 
             // Segment infosDoss
             $infosDossName = 'infosDoss';
-            /** @var \Segment $infosDoss */
+            /** @var Segment $infosDoss */
             // @phpstan-ignore-next-line
             $infosDoss = $villeODF->$infosDossName;
             foreach ($listeDossiers as $dossierInfos) {
@@ -1017,7 +955,7 @@ class CommissionDocumentGenerationService
             ['id' => $groupementId]
         );
 
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
 
         $this->fillGroupementCommissionInfo($odf, $commissionInfos, $heureDeb, $dateComm, $infosGroupement, $listeCommunes);
 
@@ -1085,7 +1023,7 @@ class CommissionDocumentGenerationService
      *
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillConvocationDossierInfos(\Segment $segment, array $dossierInfos): void
+    private function fillConvocationDossierInfos(Segment $segment, array $dossierInfos): void
     {
         /** @var array<string, mixed> $infosEtab */
         $infosEtab = $dossierInfos['infosEtab'] ?? [];
@@ -1131,6 +1069,7 @@ class CommissionDocumentGenerationService
         $this->addChamp($segment, 'categorieEtab', $informations['LIBELLE_CATEGORIE'] ?? '');
         $this->addChamp($segment, 'typeLettreP', $informations['LIBELLE_TYPE_PRINCIPAL'] ?? '');
         $this->addChamp($segment, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
+        $this->addChamp($segment, 'referenceCourrier', $dossierInfos['REFCOURRIER_DOSSIER'] ?? '');
         $this->addChamp($segment, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
         $this->addChamp($segment, 'avisDossierCommission', AvisCommission::getLibelle($avisDossierCommission));
         $this->addChamp($segment, 'avisDossier', AvisCommission::getLibelle($avisDossier));
@@ -1186,12 +1125,11 @@ class CommissionDocumentGenerationService
     }
 
     /**
-     * @param \Odf|\Segment                                                     $odf
      * @param array<string, mixed>                                              $commissionInfos
      * @param array<string, string|null>                                        $infosGroupement
      * @param array<int, array{0: string, 1: array<int, array<string, mixed>>}> $listeCommunes
      */
-    private function fillGroupementCommissionInfo($odf, array $commissionInfos, string $heureDeb, string $dateComm, array $infosGroupement, array $listeCommunes): void
+    private function fillGroupementCommissionInfo(Odf|Segment $odf, array $commissionInfos, string $heureDeb, string $dateComm, array $infosGroupement, array $listeCommunes): void
     {
         $this->addChamp($odf, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
 
@@ -1204,7 +1142,7 @@ class CommissionDocumentGenerationService
         $this->addChamp($odf, 'cpGrp', $infosGroupement['CPADRESSE_UTILISATEURINFORMATIONS'] ?? '');
 
         $dateCommObj = $this->parseDateSql($dateComm);
-        $this->addChamp($odf, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
+        $this->addChamp($odf, 'dateCommission', $dateCommObj?->format('d/m/Y') ?? '');
         $this->addChamp($odf, 'heureDebutComm', $heureDeb);
 
         $maires = [];
@@ -1252,7 +1190,7 @@ class CommissionDocumentGenerationService
         int $dateCommId
     ): array {
         $vowels = ['a', 'e', 'i', 'o', 'u', 'y', 'A', 'E', 'I', 'O', 'U', 'Y'];
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
         $membreLoop = $odf->setSegment('membresComm');
         $communesWithoutContact = [];
 
@@ -1282,7 +1220,7 @@ class CommissionDocumentGenerationService
             $this->addChamp($membreLoop, 'date', $dateDuJour->format('d/m/Y'));
 
             $dateCommObj = $this->parseDateSql($dateComm);
-            $this->addChamp($membreLoop, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
+            $this->addChamp($membreLoop, 'dateCommission', $dateCommObj?->format('d/m/Y') ?? '');
 
             $this->addChamp($membreLoop, 'heureDebutComm', $this->formatHeure($heureDeb));
 
@@ -1301,7 +1239,7 @@ class CommissionDocumentGenerationService
                     && $this->eligibilityChecker->isDossierConcerneMembre($membre, $dossierInfos)
                 ) {
                     $this->fillOdjDossierInfos($membreLoop, $dossierInfos);
-                    /** @var \Segment $infosDossOdj */
+                    /** @var Segment $infosDossOdj */
                     // @phpstan-ignore-next-line
                     $infosDossOdj = $membreLoop->$infosDossOdjName;
                     $infosDossOdj->merge();
@@ -1364,7 +1302,7 @@ class CommissionDocumentGenerationService
             $infosGroupement = [];
         }
 
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
         $grpLoop = $odf->setSegment('grpLoop');
 
         $this->addChamp($grpLoop, 'commissionNom', $commissionInfos['LIBELLE_COMMISSION'] ?? '');
@@ -1377,14 +1315,14 @@ class CommissionDocumentGenerationService
         $this->addChamp($grpLoop, 'cpGrp', $infosGroupement['CPADRESSE_UTILISATEURINFORMATIONS'] ?? '');
 
         $dateCommObj = $this->parseDateSql($dateComm);
-        $this->addChamp($grpLoop, 'dateCommission', null !== $dateCommObj ? $dateCommObj->format('d/m/Y') : '');
+        $this->addChamp($grpLoop, 'dateCommission', $dateCommObj?->format('d/m/Y') ?? '');
         $this->addChamp($grpLoop, 'heureDebutComm', $heureDeb);
 
         // Tous les dossiers (pas de filtrage par groupement dans le legacy ODJ groupement)
         $infosDossGrpName = 'infosDoss';
         foreach ($listeDossiers as $dossierInfos) {
             $this->fillOdjDossierInfos($grpLoop, $dossierInfos);
-            /** @var \Segment $infosDossGrp */
+            /** @var Segment $infosDossGrp */
             // @phpstan-ignore-next-line
             $infosDossGrp = $grpLoop->$infosDossGrpName;
             $infosDossGrp->merge();
@@ -1412,10 +1350,10 @@ class CommissionDocumentGenerationService
      *
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillOdjDossierInfos(\Segment $segment, array $dossierInfos): void
+    private function fillOdjDossierInfos(Segment $segment, array $dossierInfos): void
     {
         $infosDossOdjFillName = 'infosDoss';
-        /** @var \Segment $infosDoss */
+        /** @var Segment $infosDoss */
         // @phpstan-ignore-next-line
         $infosDoss = $segment->$infosDossOdjFillName;
         /** @var array<string, mixed> $infosEtab */
@@ -1470,7 +1408,7 @@ class CommissionDocumentGenerationService
         $dateVisiteStr = $dossierInfos['DATEVISITE_DOSSIER'] ?? null;
         if (null !== $dateVisiteStr && '' !== $dateVisiteStr) {
             $dtVisite = $this->parseDateSql($dateVisiteStr);
-            if (null !== $dtVisite) {
+            if ($dtVisite instanceof \DateTime) {
                 $dateVisite = $dtVisite->format('d/m/Y');
             }
         }
@@ -1479,6 +1417,7 @@ class CommissionDocumentGenerationService
         $this->addChamp($infosDoss, 'categorieEtab', $informations['LIBELLE_CATEGORIE'] ?? '');
         $this->addChamp($infosDoss, 'typeLettreP', $informations['LIBELLE_TYPE_PRINCIPAL'] ?? '');
         $this->addChamp($infosDoss, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
+        $this->addChamp($infosDoss, 'referenceCourrier', $dossierInfos['REFCOURRIER_DOSSIER'] ?? '');
         $this->addChamp($infosDoss, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
         $this->addChamp($infosDoss, 'communeConcerne', $adresseCourante['LIBELLE_COMMUNE'] ?? '');
 
@@ -1558,7 +1497,7 @@ class CommissionDocumentGenerationService
         string $dateComm,
         int $dateCommId
     ): int {
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
         $dossInfos = $odf->setSegment('dossierInfos');
 
         foreach ($listeDossiers as $dossierInfos) {
@@ -1586,6 +1525,7 @@ class CommissionDocumentGenerationService
                 }
 
                 $this->addChamp($dossInfos, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
+                $this->addChamp($dossInfos, 'referenceCourrier', $dossierInfos['REFCOURRIER_DOSSIER'] ?? '');
                 $this->addChamp($dossInfos, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
 
                 // Avis dérogations
@@ -1596,7 +1536,7 @@ class CommissionDocumentGenerationService
 
                 // Date commission
                 $dateCommObj = $this->parseDateSql($dateComm);
-                $this->addChamp($dossInfos, 'dateCommission', null !== $dateCommObj ? DateFormatterFr::formatLong($dateCommObj) : '');
+                $this->addChamp($dossInfos, 'dateCommission', $dateCommObj instanceof \DateTime ? DateFormatterFr::formatLong($dateCommObj) : '');
 
                 // Date visite
                 $dateVisite = null;
@@ -1610,7 +1550,7 @@ class CommissionDocumentGenerationService
                     $dateVisite = $this->parseDateSql($pvLastVisite);
                 }
 
-                $this->addChamp($dossInfos, 'dateVisite', null !== $dateVisite ? DateFormatterFr::formatLong($dateVisite) : '');
+                $this->addChamp($dossInfos, 'dateVisite', $dateVisite instanceof \DateTime ? DateFormatterFr::formatLong($dateVisite) : '');
 
                 // Adresse
                 $pvAdresse0 = $pvAdresses[0] ?? [];
@@ -1718,7 +1658,7 @@ class CommissionDocumentGenerationService
         string $dateComm,
         int $dateCommId
     ): int {
-        $odf = new \Odf($templatePath);
+        $odf = new Odf($templatePath);
 
         $dateDuJour = new \DateTime();
         $this->addChamp($odf, 'dateGeneration', DateFormatterFr::formatLong($dateDuJour));
@@ -1750,12 +1690,13 @@ class CommissionDocumentGenerationService
                 }
 
                 $this->addChamp($dossInfos, 'objetDossier', $dossierInfos['OBJET_DOSSIER'] ?? '');
+                $this->addChamp($dossInfos, 'referenceCourrier', $dossierInfos['REFCOURRIER_DOSSIER'] ?? '');
                 $this->addChamp($dossInfos, 'natureDossier', $dossierInfos['LIBELLE_DOSSIERNATURE'] ?? '');
                 $this->addChamp($dossInfos, 'observationDossier', $dossierInfos['OBSERVATION_DOSSIER'] ?? '');
 
                 // Date commission
                 $dateCommObj = $this->parseDateSql($dateComm);
-                $this->addChamp($dossInfos, 'dateCommission', null !== $dateCommObj ? DateFormatterFr::formatLong($dateCommObj) : '');
+                $this->addChamp($dossInfos, 'dateCommission', $dateCommObj instanceof \DateTime ? DateFormatterFr::formatLong($dateCommObj) : '');
 
                 // Date visite
                 $dateVisite = null;
@@ -1769,7 +1710,7 @@ class CommissionDocumentGenerationService
                     $dateVisite = $this->parseDateSql($crLastVisite);
                 }
 
-                $this->addChamp($dossInfos, 'dateVisite', null !== $dateVisite ? DateFormatterFr::formatLong($dateVisite) : '');
+                $this->addChamp($dossInfos, 'dateVisite', $dateVisite instanceof \DateTime ? DateFormatterFr::formatLong($dateVisite) : '');
 
                 // Adresse
                 $crAdresse0 = $crAdresses[0] ?? [];
@@ -1779,7 +1720,7 @@ class CommissionDocumentGenerationService
                 // numWinPrev
                 try {
                     $dossInfos->setVars('numWinPrev', $crGeneral['NUMEROID_ETABLISSEMENT'] ?? '', true, 'UTF-8');
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     // Silencieux
                 }
 
@@ -1880,20 +1821,18 @@ class CommissionDocumentGenerationService
     /**
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillAvisDerogationsSegment(\Segment $segment, array $dossierInfos): void
+    private function fillAvisDerogationsSegment(Segment $segment, array $dossierInfos): void
     {
         /** @var string $avisDerogationsPropName */
         $avisDerogationsPropName = 'avisDerogations';
-        /** @var \Segment|null $avisDerogations */
+        /** @var Segment|null $avisDerogations */
         $avisDerogations = null;
         try {
             $avisDerogationsRaw = $segment->$avisDerogationsPropName;
-            if ($avisDerogationsRaw instanceof \Segment) {
+            if ($avisDerogationsRaw instanceof Segment) {
                 $avisDerogations = $avisDerogationsRaw;
             }
-
-            // @phpstan-ignore-next-line
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         if (null !== $avisDerogations) {
@@ -1904,16 +1843,14 @@ class CommissionDocumentGenerationService
 
         /** @var string $avisDerogationsEtabPropName */
         $avisDerogationsEtabPropName = 'avisDerogationsEtablissement';
-        /** @var \Segment|null $avisDerogationsEtablissement */
+        /** @var Segment|null $avisDerogationsEtablissement */
         $avisDerogationsEtablissement = null;
         try {
             $avisDerogationsEtabRaw = $segment->$avisDerogationsEtabPropName;
-            if ($avisDerogationsEtabRaw instanceof \Segment) {
+            if ($avisDerogationsEtabRaw instanceof Segment) {
                 $avisDerogationsEtablissement = $avisDerogationsEtabRaw;
             }
-
-            // @phpstan-ignore-next-line
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         if (null !== $avisDerogationsEtablissement) {
@@ -1926,7 +1863,7 @@ class CommissionDocumentGenerationService
     /**
      * @param array<int, array<string, string|null>> $derogations
      */
-    private function fillDerogationSegmentData(\Segment $derogationSegment, array $derogations): void
+    private function fillDerogationSegmentData(Segment $derogationSegment, array $derogations): void
     {
         if (!empty($derogations)) {
             foreach ($derogations as $avisDerogation) {
@@ -1978,7 +1915,7 @@ class CommissionDocumentGenerationService
      *
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillPrescriptionsSegment(\Segment $odfSegment, array $dossierInfos): void
+    private function fillPrescriptionsSegment(Segment $odfSegment, array $dossierInfos): void
     {
         $prescriptionTypes = [
             ['key' => 'prescriptionReglDossier', 'type' => TypePrescription::REGLEMENTAIRE, 'contenu' => 'default'],
@@ -2011,20 +1948,18 @@ class CommissionDocumentGenerationService
      * @param array<int, array<int, array<string, string|null>>> $listePrescription Tableau issu de withoutLevees/withoutActuals/withoutPrevious (clés non nécessairement séquentielles)
      * @param string                                             $typeContenu       'default', 'reprises', 'actuelles'
      */
-    private function addPrescription(array $listePrescription, int $type, \Segment $odf, string $typeContenu): void
+    private function addPrescription(array $listePrescription, int $type, Segment $odf, string $typeContenu): void
     {
         $segmentName = $this->getPrescriptionSegmentNameLegacy($type, $typeContenu);
-        /** @var \Segment|null $prescription */
+        /** @var Segment|null $prescription */
         $prescription = null;
 
         try {
             $prescriptionRaw = $odf->$segmentName;
-            if ($prescriptionRaw instanceof \Segment) {
+            if ($prescriptionRaw instanceof Segment) {
                 $prescription = $prescriptionRaw;
             }
-
-            // @phpstan-ignore-next-line
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
         }
 
         if (null === $prescription) {
@@ -2039,7 +1974,7 @@ class CommissionDocumentGenerationService
 
                 // Port direct : num et libelle viennent du premier élément du groupe
                 /** @var array<string, string|null> $firstAssoc */
-                $firstAssoc = reset($prescRow) ?: [];
+                $firstAssoc = reset($prescRow);
                 $this->addChamp($prescription, 'num', (string) ($firstAssoc['NUM_PRESCRIPTION_DOSSIER'] ?? ''));
                 if ('' === (string) ($firstAssoc['LIBELLE_PRESCRIPTION_DOSSIER'] ?? '')) {
                     $this->addChamp($prescription, 'libelle', (string) ($firstAssoc['PRESCRIPTIONTYPE_LIBELLE'] ?? ''));
@@ -2103,7 +2038,7 @@ class CommissionDocumentGenerationService
     /**
      * @param array<string, mixed> $dossierInfos
      */
-    private function fillFormulairesSegment(\Segment $segment, array $dossierInfos): void
+    private function fillFormulairesSegment(Segment $segment, array $dossierInfos): void
     {
         /** @var array<string, array{capsule: mixed, rubriques: array<int, array{rubrique: Rubrique, champs: array<int, array<string, mixed>>}>}> $formulaires */
         $formulaires = $dossierInfos['FORMULAIRES'] ?? [];
@@ -2115,8 +2050,8 @@ class CommissionDocumentGenerationService
     // ========================================================================
 
     /**
-     * @param \Odf|\Segment $odf
-     * @param mixed         $variable
+     * @param Odf|Segment $odf
+     * @param mixed       $variable
      */
     private function addChamp($odf, string $nomOdf, $variable): void
     {

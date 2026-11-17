@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Sdis29;
 
+use App\Entity\Etablissement;
+use App\Repository\EtablissementRepository;
 use App\Service\Sdis29\NumeroIdGenerator;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,8 +31,8 @@ final class NumeroIdGeneratorTest extends TestCase
 {
     public function testGenerateThrowsForUnknownArrondissement(): void
     {
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $generator = new NumeroIdGenerator($entityManager);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
+        $generator = new NumeroIdGenerator($entityManager, $this->createStub(EtablissementRepository::class));
 
         $this->expectException(\InvalidArgumentException::class);
 
@@ -38,34 +42,34 @@ final class NumeroIdGeneratorTest extends TestCase
     public function testGenerateRacineReturnsPaddedNumeroid(): void
     {
         $connection = $this->createMock(Connection::class);
-        $connection->expects(self::once())->method('fetchOne')
+        $connection->expects($this->once())->method('fetchOne')
             ->with(self::anything(), ['minId' => 1000, 'maxId' => 39999])
             ->willReturn(1042);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('getConnection')->willReturn($connection);
 
-        $generator = new NumeroIdGenerator($entityManager);
+        $generator = new NumeroIdGenerator($entityManager, $this->createStub(EtablissementRepository::class));
 
         $result = $generator->generate('Brest', '1', null);
 
-        self::assertSame('01042', $result);
+        $this->assertSame('01042', $result);
     }
 
     public function testGenerateRacineAppendsCelluleSuffix(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $connection = $this->createStub(Connection::class);
         $connection->method('fetchOne')->willReturn(500);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createStub(EntityManagerInterface::class);
         $entityManager->method('getConnection')->willReturn($connection);
 
-        $generator = new NumeroIdGenerator($entityManager);
+        $generator = new NumeroIdGenerator($entityManager, $this->createStub(EtablissementRepository::class));
 
         // Genre "3" = Cellule (cf. App\Constant\GenreEtablissement::CELLULE).
         $result = $generator->generate('Brest', '3', null);
 
-        self::assertSame('00500.00', $result);
+        $this->assertSame('00500.00', $result);
     }
 
     /**
@@ -76,26 +80,11 @@ final class NumeroIdGeneratorTest extends TestCase
      */
     public function testGenerateEnfantAppendsCelluleSuffixToPlainParentNumeroid(): void
     {
-        $connection = $this->createMock(Connection::class);
-        // Premier appel : lecture du numéro du père (idPere = 7 bien transmis en paramètre lié).
-        $connection->expects(self::once())->method('fetchOne')
-            ->with(self::anything(), ['idPere' => 7])
-            ->willReturn('01042');
-        // Second appel : recherche des enfants existants partageant ce même numéro de père.
-        $connection->expects(self::once())->method('fetchAllAssociative')
-            ->with(self::anything(), ['length' => 5, 'numeroSearch' => '01042'])
-            ->willReturn([
-                ['numeroid' => '01042.01'],
-            ]);
-
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->method('getConnection')->willReturn($connection);
-
-        $generator = new NumeroIdGenerator($entityManager);
+        $generator = $this->createEnfantGenerator('01042', '01042', ['01042.01']);
 
         $result = $generator->generate('Brest', '3', 7);
 
-        self::assertSame('01042.02', $result);
+        $this->assertSame('01042.02', $result);
     }
 
     /**
@@ -109,48 +98,36 @@ final class NumeroIdGeneratorTest extends TestCase
      */
     public function testGenerateEnfantAppendsCelluleSuffixToSiteParentNumeroid(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects(self::once())->method('fetchOne')
-            ->with(self::anything(), ['idPere' => 7])
-            ->willReturn('01042.00');
-        $connection->expects(self::once())->method('fetchAllAssociative')
-            ->with(self::anything(), ['length' => 8, 'numeroSearch' => '01042.00'])
-            ->willReturn([
-                ['numeroid' => '01042.00'],
-                ['numeroid' => '01042.00.01'],
-            ]);
-
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->method('getConnection')->willReturn($connection);
-
-        $generator = new NumeroIdGenerator($entityManager);
+        $generator = $this->createEnfantGenerator('01042.00', '01042.00', ['01042.00', '01042.00.01']);
 
         $result = $generator->generate('Brest', '3', 7);
 
-        self::assertSame('01042.00.02', $result);
+        $this->assertSame('01042.00.02', $result);
     }
 
     public function testGenerateEnfantReturnsNextLetterSuffixForNonCelluleGenre(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects(self::once())->method('fetchOne')
-            ->with(self::anything(), ['idPere' => 7])
-            ->willReturn('01042');
-        $connection->expects(self::once())->method('fetchAllAssociative')
-            ->with(self::anything(), ['length' => 5, 'numeroSearch' => '01042'])
-            ->willReturn([
-                ['numeroid' => '01042.A'],
-                ['numeroid' => '01042.B'],
-            ]);
-
-        $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->method('getConnection')->willReturn($connection);
-
-        $generator = new NumeroIdGenerator($entityManager);
+        $generator = $this->createEnfantGenerator('01042', '01042', ['01042.A', '01042.B']);
 
         // Genre "1" (non-Cellule) : suffixe alphabétique sur la racine à 5 caractères.
         $result = $generator->generate('Brest', '1', 7);
 
-        self::assertSame('01042.C', $result);
+        $this->assertSame('01042.C', $result);
+    }
+
+    /**
+     * @param list<string> $numerosExistants
+     */
+    private function createEnfantGenerator(string $numeroPere, string $prefixeAttendu, array $numerosExistants): NumeroIdGenerator
+    {
+        $repository = $this->createMock(EtablissementRepository::class);
+        $repository->expects($this->once())->method('find')
+            ->with(7)
+            ->willReturn(new Etablissement()->setNumero($numeroPere));
+        $repository->expects($this->once())->method('findNumerosByPrefix')
+            ->with($prefixeAttendu)
+            ->willReturn($numerosExistants);
+
+        return new NumeroIdGenerator($this->createStub(EntityManagerInterface::class), $repository);
     }
 }

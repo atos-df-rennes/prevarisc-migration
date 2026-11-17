@@ -3,16 +3,12 @@
 namespace App\Service;
 
 use App\Entity\Utilisateur;
-use App\Security\Md5SaltedEncoder;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UtilisateurManager
 {
-    /** @var Md5SaltedEncoder */
-    private $encoder;
-
-    public function __construct(Md5SaltedEncoder $encoder)
+    public function __construct(private readonly UserPasswordHasherInterface $hasher)
     {
-        $this->encoder = $encoder;
     }
 
     /**
@@ -32,7 +28,7 @@ class UtilisateurManager
         $plain = $utilisateur->getPlainPassword();
         if (null !== $plain && '' !== $plain) {
             // Utilisateur::getSalt() retourne le username pour l'encodeur MD5 legacy
-            $utilisateur->setPassword($this->encoder->encodePassword($plain, $utilisateur->getSalt()));
+            $utilisateur->setPassword($this->hasher->hashPassword($utilisateur, $plain));
         }
     }
 }

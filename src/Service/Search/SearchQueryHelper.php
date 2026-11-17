@@ -10,12 +10,8 @@ use Doctrine\DBAL\Connection;
  */
 class SearchQueryHelper
 {
-    /** @var Connection */
-    private $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
@@ -61,7 +57,7 @@ class SearchQueryHelper
             return [$label, null];
         }
 
-        if ('#' === substr($label, 0, 1)) {
+        if (str_starts_with($label, '#')) {
             return [null, substr($label, 1)];
         }
 

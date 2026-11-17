@@ -20,22 +20,13 @@ use Psr\Log\LoggerInterface;
  */
 class PlatauHealthcheckService
 {
-    private const HEALTHCHECK_ENDPOINT = 'healthcheck';
+    private const string HEALTHCHECK_ENDPOINT = 'healthcheck';
 
-    /** @var string */
-    private $platauConfigFilePath;
+    private readonly string $platauConfigFilePath;
 
-    /** @var string */
-    private $platauServiceFilePath;
+    private readonly string $platauServiceFilePath;
 
-    /** @var string */
-    private $varDir;
-
-    /** @var string */
-    private $appEnv;
-
-    /** @var LoggerInterface */
-    private $logger;
+    private readonly string $varDir;
 
     /** @var string|null */
     private $pisteClientId;
@@ -43,23 +34,17 @@ class PlatauHealthcheckService
     /** @var string|null */
     private $pisteClientSecret;
 
-    /** @var ProxyConfigurationService */
-    private $proxyConfiguration;
-
     public function __construct(
         string $platauConfigFile,
         string $projectDir,
-        string $appEnv,
-        LoggerInterface $logger,
-        ProxyConfigurationService $proxyConfiguration
+        private readonly string $appEnv,
+        private readonly LoggerInterface $logger,
+        private readonly ProxyConfigurationService $proxyConfiguration
     ) {
         $platauPath = (string) (getenv('PREVARISC_PLATAU_PATH') ?: dirname($projectDir).DIRECTORY_SEPARATOR.'prevarisc-passerelle-platau');
         $this->platauConfigFilePath = $platauPath.DIRECTORY_SEPARATOR.$platauConfigFile;
         $this->platauServiceFilePath = $platauPath.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, ['src', 'Service', 'PlatauAbstract.php']);
         $this->varDir = $projectDir.DIRECTORY_SEPARATOR.'var';
-        $this->appEnv = $appEnv;
-        $this->logger = $logger;
-        $this->proxyConfiguration = $proxyConfiguration;
 
         $pisteCredentials = $this->getPisteCredentials();
         if (is_array($pisteCredentials)) {
@@ -255,12 +240,9 @@ class PlatauHealthcheckService
 
         if ('' !== ($error = curl_error($curlHandle))) {
             $this->logger->error($error);
-            curl_close($curlHandle);
 
             return null;
         }
-
-        curl_close($curlHandle);
 
         if (!is_string($data)) {
             return null;
@@ -319,13 +301,11 @@ class PlatauHealthcheckService
 
         if ('' !== ($error = curl_error($curlHandle))) {
             $this->logger->error($error);
-            curl_close($curlHandle);
 
             return ['body' => null, 'httpCode' => 0];
         }
 
         $httpCode = curl_getinfo($curlHandle, CURLINFO_HTTP_CODE);
-        curl_close($curlHandle);
 
         if (!is_string($data) || '' === $data) {
             $this->logger->error("Le healthcheck n'a rien renvoyé. Vérifiez que l'URL de Plat'AU est correctement renseignée.");
@@ -444,7 +424,7 @@ class PlatauHealthcheckService
         }
 
         foreach ($fileContent as $line) {
-            if (false !== strpos($line, $const)) {
+            if (str_contains($line, $const)) {
                 return explode("'", $line)[1];
             }
         }

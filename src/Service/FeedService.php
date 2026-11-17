@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Groupe;
 use App\Entity\News;
 use App\Entity\Utilisateur;
 use App\Repository\GroupeRepository;
@@ -14,23 +15,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class FeedService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var NewsRepository */
-    private $newsRepository;
-
-    /** @var GroupeRepository */
-    private $groupeRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        NewsRepository $newsRepository,
-        GroupeRepository $groupeRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->newsRepository = $newsRepository;
-        $this->groupeRepository = $groupeRepository;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly NewsRepository $newsRepository, private readonly GroupeRepository $groupeRepository)
+    {
     }
 
     /**
@@ -41,7 +27,7 @@ class FeedService
     public function getFeeds(Utilisateur $user, int $count = 5): array
     {
         $groupe = $user->getGroupe();
-        if (null === $groupe) {
+        if (!$groupe instanceof Groupe) {
             return [];
         }
 
@@ -54,7 +40,7 @@ class FeedService
     public function getFeedsCount(Utilisateur $user): int
     {
         $groupe = $user->getGroupe();
-        if (null === $groupe) {
+        if (!$groupe instanceof Groupe) {
             return 0;
         }
 

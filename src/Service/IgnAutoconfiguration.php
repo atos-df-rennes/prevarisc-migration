@@ -5,22 +5,10 @@ namespace App\Service;
 use App\Utils\PathNormalizer;
 use Psr\Log\LoggerInterface;
 
-final class IgnAutoconfiguration
+final readonly class IgnAutoconfiguration
 {
-    /** @var string */
-    private $autoconfPath;
-
-    /** @var string */
-    private $srcDir;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(string $autoconfPath, string $srcDir, LoggerInterface $logger)
+    public function __construct(private string $autoconfPath, private string $srcDir, private LoggerInterface $logger)
     {
-        $this->autoconfPath = $autoconfPath;
-        $this->srcDir = $srcDir;
-        $this->logger = $logger;
     }
 
     public function getPath(): string

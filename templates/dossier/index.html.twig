@@ -57,6 +57,7 @@
                     </li>
                 {% endif %}
 
+                {{ dm.champ_texte(dossier, 'referenceCourrier', 'Référence courrier') }}
                 {{ dm.champ_texte(dossier, 'objet', 'Objet', true) }}
                 {{ dm.champ_texte(dossier, 'demandeur', 'Demandeur') }}
                 {{ dm.champ_texte(dossier, 'lieuReunion', 'Lieu réunion', true) }}
@@ -75,7 +76,7 @@
                 {% endif %}
 
                 {{ dm.champ_date(dossier, 'dateMairie', 'Date de réception mairie') }}
-                {{ dm.champ_date(dossier, 'dateSecretariat', 'Date de réception secrétariat SDIS') }}
+                {{ dm.champ_date(dossier, 'dateSecretariat', 'Date de réception secrétariat commission') }}
                 {{ dm.champ_date(dossier, 'dateEnvoiTransit', "Date d'envoi/transit") }}
                 {{ dm.champ_date(dossier, 'dateReception', 'Date de réception SDIS') }}
                 {{ dm.champ_texte(dossier, 'serviceInstructeur', 'Service instructeur') }}

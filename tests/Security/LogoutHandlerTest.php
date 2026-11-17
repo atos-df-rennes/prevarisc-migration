@@ -6,27 +6,23 @@ namespace App\Tests\Security;
 
 use App\Entity\Utilisateur;
 use App\Security\LogoutHandler;
-use App\Security\ZendSessionBridge;
 use App\Service\LastActionUpdater;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Event\LogoutEvent;
 
 final class LogoutHandlerTest extends TestCase
 {
-    /** @var ZendSessionBridge|MockObject */
-    private $zendSessionBridge;
-
-    /** @var LastActionUpdater|MockObject */
-    private $lastActionUpdater;
+    /** @var MockObject&LastActionUpdater */
+    private MockObject $lastActionUpdater;
 
     protected function setUp(): void
     {
-        $this->zendSessionBridge = $this->createMock(ZendSessionBridge::class);
         $this->lastActionUpdater = $this->createMock(LastActionUpdater::class);
         $_SESSION = [];
     }
@@ -38,80 +34,68 @@ final class LogoutHandlerTest extends TestCase
 
     private function buildHandler(bool $casEnabled = false): LogoutHandler
     {
-        return new LogoutHandler($this->zendSessionBridge, $this->lastActionUpdater, $casEnabled);
+        return new LogoutHandler($this->lastActionUpdater, $casEnabled);
     }
 
     private function buildRequest(): Request
     {
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
-        $request->getSession()->set('username', 'jdupont');
 
         return $request;
+    }
+
+    private function buildLogoutEvent(?TokenInterface $token): LogoutEvent
+    {
+        return new LogoutEvent($this->buildRequest(), $token);
     }
 
     public function testLogoutUpdatesLastActionForUtilisateur(): void
     {
         $utilisateur = new Utilisateur();
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn($utilisateur);
 
         $this->lastActionUpdater->expects($this->once())->method('update')->with($utilisateur);
 
-        $this->buildHandler()->logout($this->buildRequest(), new Response(), $token);
+        $this->buildHandler()->onLogout($this->buildLogoutEvent($token));
     }
 
     public function testLogoutSkipsLastActionWhenUserIsNotUtilisateur(): void
     {
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
 
         $this->lastActionUpdater->expects($this->never())->method('update');
 
-        $this->buildHandler()->logout($this->buildRequest(), new Response(), $token);
+        $this->buildHandler()->onLogout($this->buildLogoutEvent($token));
     }
 
-    public function testLogoutSkipsLastActionWhenUserIsString(): void
+    public function testLogoutSkipsLastActionWhenUserIsNotUtilisateurInstance(): void
     {
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')->willReturn('anonymous');
+        // TokenInterface::getUser() is now strictly typed as ?UserInterface (Symfony 6.4),
+        // so a string return is no longer possible. This exercises the equivalent branch:
+        // a UserInterface implementation that is not an App\Entity\Utilisateur.
+        $otherUser = $this->createStub(UserInterface::class);
+
+        $token = $this->createStub(TokenInterface::class);
+        $token->method('getUser')->willReturn($otherUser);
 
         $this->lastActionUpdater->expects($this->never())->method('update');
 
-        $this->buildHandler()->logout($this->buildRequest(), new Response(), $token);
-    }
-
-    public function testLogoutClearsZendAuthentication(): void
-    {
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')->willReturn(null);
-
-        $this->zendSessionBridge->expects($this->once())->method('clearAuthentication');
-
-        $this->buildHandler()->logout($this->buildRequest(), new Response(), $token);
-    }
-
-    public function testLogoutRemovesUsernameFromSession(): void
-    {
-        $token = $this->createMock(TokenInterface::class);
-        $token->method('getUser')->willReturn(null);
-
-        $request = $this->buildRequest();
-
-        $this->buildHandler()->logout($request, new Response(), $token);
-
-        $this->assertFalse($request->getSession()->has('username'));
+        $this->buildHandler()->onLogout($this->buildLogoutEvent($token));
     }
 
     public function testLogoutClearsPhpCasSessionWhenCasEnabled(): void
     {
         $_SESSION['phpCAS'] = ['ticket' => 'ST-123'];
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
+        $this->lastActionUpdater->expects($this->never())->method('update');
 
-        $this->buildHandler(true)->logout($this->buildRequest(), new Response(), $token);
+        $this->buildHandler(true)->onLogout($this->buildLogoutEvent($token));
 
         $this->assertArrayNotHasKey('phpCAS', $_SESSION);
     }
@@ -120,10 +104,11 @@ final class LogoutHandlerTest extends TestCase
     {
         $_SESSION['phpCAS'] = ['ticket' => 'ST-123'];
 
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
         $token->method('getUser')->willReturn(null);
+        $this->lastActionUpdater->expects($this->never())->method('update');
 
-        $this->buildHandler(false)->logout($this->buildRequest(), new Response(), $token);
+        $this->buildHandler(false)->onLogout($this->buildLogoutEvent($token));
 
         $this->assertArrayHasKey('phpCAS', $_SESSION);
     }

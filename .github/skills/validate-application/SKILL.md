@@ -1,0 +1,86 @@
+---
+name: validate-application
+description: Run and understand the PHPStan, code-style, and PHPUnit checks used to validate the Prevarisc application
+---
+
+# Validate the application
+
+## Required local CLI workflow: Castor
+
+Local CLI sessions have the `prevarisc-infra` checkout available. Always use its Castor tasks for validation, including from local subagents. Run full validation from the infrastructure repository root:
+
+```bash
+castor symfony:validate
+```
+
+The task executes these checks sequentially and stops at the first failure:
+
+1. Git conflict markers: `symfony:conflicts` (Swiss Knife, excluding dependencies and generated files)
+2. PHPStan: `tools/vendor/bin/phpstan --memory-limit=-1`
+3. Rector check: `tools/vendor/bin/rector --dry-run`
+4. PHP-CS-Fixer check: `tools/vendor/bin/php-cs-fixer fix --dry-run`
+5. Twig-CS-Fixer check: `tools/vendor/bin/twig-cs-fixer check`
+6. PHPUnit: `php vendor/bin/phpunit --testdox --exclude-group functional`
+
+Castor runs them inside the `app` container with `/var/www/html/prevarisc-migration` as the working directory. The relevant task definitions are in `prevarisc-infra/.castor/symfony.php`.
+
+For individual checks, Castor also provides:
+
+```bash
+castor symfony:analyse
+castor symfony:test
+castor symfony:cs
+castor symfony:conflicts
+```
+
+`castor symfony:cs` applies PHP-CS-Fixer and Twig-CS-Fixer changes; it is not a check-only command. Use `castor symfony:validate` for the non-mutating style checks.
+
+`castor symfony:dependencies` checks both Composer projects using Swiss Knife installed in `tools/`; `--target=app` or `--target=tools` restricts the scope. It remains outside validation because it depends on network/cache state. `castor symfony:duplicates` diagnoses PHP clones in `src/` with a default threshold of 150 tokens; it also remains outside validation and returns a nonzero exit code for detected clones or execution errors.
+
+Do not invoke the underlying validation tools directly in local sessions. If access permissions, Docker, or another environment issue prevents Castor validation, report the blocker rather than switching to direct commands. A local fallback requires explicit user authorization.
+
+## Remote/cloud delegated fallback
+
+In remote/cloud delegated sessions, use Castor when the infrastructure checkout and Docker environment are available. Only when that environment is unavailable, run the relevant installed tools from this repository root:
+
+```bash
+tools/vendor/bin/phpstan --memory-limit=-1
+tools/vendor/bin/rector --dry-run
+tools/vendor/bin/php-cs-fixer fix --dry-run
+tools/vendor/bin/twig-cs-fixer check
+php vendor/bin/phpunit --testdox --exclude-group functional
+```
+
+Run only checks whose dependencies are installed and report clearly when a check cannot run. Do not substitute the style-fixing command for the check-only workflow.
+
+## Tests
+
+The default PHPUnit command excludes the `functional` group. Browser-driven end-to-end tests live under `cypress/`; `tests/Functional/` contains PHPUnit HTTP-level functional tests.
+
+## GitHub Actions
+
+`.github/workflows/ci.yml` runs the tools directly (no Castor on the runner)
+on all pull requests and pushes to `develop`, `main`, and `release/**`. Pull
+requests use `dorny/paths-filter` to skip PHP checks when PHP/configuration/
+dependency files are unchanged and Twig-CS-Fixer when Twig/configuration/
+dependency files are unchanged. Changes to `.github/workflows/ci.yml` or
+`.github/actions/**` trigger the relevant full checks. PHPStan still analyses
+all of `src/`, Rector still analyses its complete configured scope, and PHPUnit
+runs for changes in application/test code, app configuration or dependencies.
+On pull requests, PHP-CS-Fixer and Twig-CS-Fixer receive only changed files,
+except when their configuration, dependencies, or shared workflow/action
+changes, which trigger a full check.
+Deleted files are excluded from formatter arguments. Pushes run every check
+with both formatters using their full configured scopes; conflict-marker and
+Composer audit jobs always run. The `CI` job aggregates results, failing on
+failed or cancelled jobs while accepting skipped checks. The workflow has
+`contents: read`; the change-detection job additionally has `pull-requests: read`
+to inspect PR files. It also audits both Composer lock files.
+PHP and Composer installation is shared through
+`.github/actions/setup/action.yml`; configuration is supplied through workflow
+environment variables, without generating `.env`.
+
+The PHPUnit job excludes `functional` and requires no database. When `.env`
+is absent, `tests/bootstrap.php` loads `.env.test` only. See
+`docs/tech/integration-continue.md` for the commands, caches and scope.
+This CI configuration does not change the required local Castor workflow.

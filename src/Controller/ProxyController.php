@@ -7,7 +7,8 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Relai HTTP côté serveur pour contourner les restrictions réseau (CORS, intranet SDIS).
@@ -15,33 +16,17 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ProxyController extends AbstractController
 {
-    /** @var ProxyConfigurationService */
-    private $proxyConfiguration;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var bool */
-    private $debugEnabled;
-
-    public function __construct(
-        ProxyConfigurationService $proxyConfiguration,
-        LoggerInterface $logger,
-        bool $debugEnabled
-    ) {
-        $this->proxyConfiguration = $proxyConfiguration;
-        $this->logger = $logger;
-        $this->debugEnabled = $debugEnabled;
+    public function __construct(private readonly ProxyConfigurationService $proxyConfiguration, private readonly LoggerInterface $logger, private readonly bool $debugEnabled)
+    {
     }
 
     /**
      * Reçoit une URL externe en paramètre et la relaie via cURL côté serveur.
      * Retransmet le header Content-Type et le status HTTP de la réponse externe.
-     *
-     * @Route("/proxy/index", name="proxy_index", methods={"GET"})
-     * @Route("/proxy/", name="proxy_index_root", methods={"GET"})
      */
-    public function index(Request $request): Response
+    #[Route(path: '/proxy/index', name: 'proxy_index', methods: ['GET'])]
+    #[Route(path: '/proxy/', name: 'proxy_index_root', methods: ['GET'])]
+    public function index(Request $request, #[MapQueryParameter] string $url = ''): Response
     {
         // On forme la chaîne de paramètres en excluant les paramètres de routage
         $excluded = ['url', 'controller', 'action', 'module'];
@@ -49,17 +34,14 @@ class ProxyController extends AbstractController
         $queryAll = $request->query->all();
         $filteredParams = array_filter(
             $queryAll,
-            static function (string $key) use ($excluded): bool {
-                return !in_array($key, $excluded, true);
-            },
+            static fn (string $key): bool => !in_array($key, $excluded, true),
             ARRAY_FILTER_USE_KEY
         );
 
         $queryString = !empty($filteredParams) ? '?'.http_build_query($filteredParams) : '';
 
         // URL cible
-        $rawUrl = $request->query->get('url', '');
-        $targetUrl = (is_string($rawUrl) ? $rawUrl : '').$queryString;
+        $targetUrl = $url.$queryString;
 
         if ('' === $targetUrl) {
             return new Response('URL parameter required', Response::HTTP_BAD_REQUEST);
@@ -90,7 +72,6 @@ class ProxyController extends AbstractController
 
         if (false === $data) {
             $error = curl_error($ch);
-            curl_close($ch);
             $this->logger->error('ProxyController: curl_exec() failed', ['error' => $error, 'url' => $targetUrl]);
 
             return new Response($error, Response::HTTP_BAD_GATEWAY);
@@ -102,8 +83,6 @@ class ProxyController extends AbstractController
         $headerBlock = substr($dataStr, 0, $headerSize);
         $headers = explode("\r\n", $headerBlock);
         $body = substr($dataStr, $headerSize);
-
-        curl_close($ch);
 
         $contentType = null;
         foreach ($headers as $header) {

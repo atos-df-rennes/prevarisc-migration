@@ -6,10 +6,9 @@ use Imagine\Gd\Imagine;
 use Imagine\Image\Box;
 use Imagine\Image\ImageInterface;
 
-final class Image
+final readonly class Image
 {
-    /** @var Imagine */
-    private $imagine;
+    private Imagine $imagine;
 
     public function __construct()
     {
@@ -20,9 +19,7 @@ final class Image
     {
         $image = $this->imagine->open($filename);
 
-        if (null === $height) {
-            $height = $this->calculateHeightFromWidth($image, $width);
-        }
+        $height ??= $this->calculateHeightFromWidth($image, $width);
 
         return $image->resize(new Box($width, $height));
     }

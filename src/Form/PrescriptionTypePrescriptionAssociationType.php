@@ -14,18 +14,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PrescriptionTypePrescriptionAssociationType extends AbstractType
 {
-    /** @var PrescriptionArticleListeRepository */
-    private $prescriptionArticleListeRepository;
-
-    /** @var PrescriptionTexteListeRepository */
-    private $prescriptionTexteListeRepository;
-
-    public function __construct(
-        PrescriptionArticleListeRepository $prescriptionArticleListeRepository,
-        PrescriptionTexteListeRepository $prescriptionTexteListeRepository
-    ) {
-        $this->prescriptionArticleListeRepository = $prescriptionArticleListeRepository;
-        $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
+    public function __construct(private readonly PrescriptionArticleListeRepository $prescriptionArticleListeRepository, private readonly PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
+    {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

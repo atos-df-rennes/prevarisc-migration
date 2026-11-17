@@ -254,6 +254,23 @@ SQL;
     }
 
     /**
+     * Retourne les numéros d'identifiant (NUMEROID) commençant par le préfixe donné.
+     *
+     * @return list<string>
+     */
+    public function findNumerosByPrefix(string $prefix): array
+    {
+        /** @var list<string> */
+        return $this->createQueryBuilder('e')
+            ->select('e.numero')
+            ->where('SUBSTRING(e.numero, 1, :length) = :prefix')
+            ->setParameter('length', strlen($prefix))
+            ->setParameter('prefix', $prefix)
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
+
+    /**
      * Retourne les établissements fils triés par libellé de leur dernière information (ID max).
      *
      * La sous-requête DQL isole la dernière EtablissementInformations de chaque fils,
@@ -313,6 +330,7 @@ SQL;
                 dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER,
                 avis.ID_AVIS, avis.LIBELLE_AVIS,
                 type.LIBELLE_TYPE,
+                categorie.LIBELLE_CATEGORIE,
                 genre.LIBELLE_GENRE,
                 etablissementlie.ID_ETABLISSEMENT AS pere, etablissementlie.ID_FILS_ETABLISSEMENT,
                 utilisateur.ID_UTILISATEUR,
@@ -336,6 +354,7 @@ SQL;
             LEFT JOIN dossier ON e.ID_DOSSIER_DONNANT_AVIS = dossier.ID_DOSSIER
             LEFT JOIN avis ON dossier.AVIS_DOSSIER_COMMISSION = avis.ID_AVIS
             LEFT JOIN type ON etablissementinformations.ID_TYPE = type.ID_TYPE
+            '.(!$getCount ? 'LEFT JOIN categorie ON categorie.ID_CATEGORIE = etablissementinformations.ID_CATEGORIE' : '').'
             JOIN genre ON etablissementinformations.ID_GENRE = genre.ID_GENRE
             LEFT JOIN etablissementlie ON e.ID_ETABLISSEMENT = etablissementlie.ID_FILS_ETABLISSEMENT
             LEFT JOIN etablissementinformationspreventionniste
@@ -385,7 +404,7 @@ SQL;
         }
 
         if (null !== $commissionIds && [] !== $commissionIds) {
-            $inList = implode(',', array_map('intval', $commissionIds));
+            $inList = implode(',', array_map(intval(...), $commissionIds));
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
@@ -401,9 +420,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, $params);
 
-        return array_map(static function (array $row): EtablissementDashboardDto {
-            return EtablissementDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(EtablissementDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -458,7 +475,7 @@ SQL;
 
         $params = [];
         if ([] !== $commissionsUser) {
-            $inList = implode(',', array_map('intval', $commissionsUser));
+            $inList = implode(',', array_map(intval(...), $commissionsUser));
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
@@ -473,9 +490,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, $params);
 
-        return array_map(static function (array $row): EtablissementDashboardDto {
-            return EtablissementDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(EtablissementDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -500,9 +515,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, []);
 
-        return array_map(static function (array $row): EtablissementDashboardDto {
-            return EtablissementDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(EtablissementDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -532,9 +545,7 @@ SQL;
         /** @var array<int, array<string, mixed>> $rows */
         $rows = $conn->fetchAllAssociative($sql, ['idUtilisateur' => $idUtilisateur]);
 
-        return array_map(static function (array $row): EtablissementDashboardDto {
-            return EtablissementDashboardDto::fromArray($row);
-        }, $rows);
+        return array_map(EtablissementDashboardDto::fromArray(...), $rows);
     }
 
     /**
@@ -616,7 +627,7 @@ SQL;
 
         $params = [];
         if ([] !== $commissionsUser) {
-            $inList = implode(',', array_map('intval', $commissionsUser));
+            $inList = implode(',', array_map(intval(...), $commissionsUser));
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 
@@ -679,7 +690,7 @@ SQL;
         }
 
         if (null !== $commissionIds && [] !== $commissionIds) {
-            $inList = implode(',', array_map('intval', $commissionIds));
+            $inList = implode(',', array_map(intval(...), $commissionIds));
             $sql .= ' AND etablissementinformations.ID_COMMISSION IN ('.$inList.')';
         }
 

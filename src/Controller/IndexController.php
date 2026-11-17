@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Builder\VersionBuilder;
+use App\Entity\News;
 use App\Entity\Utilisateur;
 use App\Repository\GroupeRepository;
 use App\Service\Dashboard\DashboardBlocConfig;
@@ -15,81 +16,22 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class IndexController extends AbstractController
 {
-    /** @var VersionBuilder */
-    private $versionBuilder;
-
-    /** @var DashboardBlocConfig */
-    private $dashboardBlocConfig;
-
-    /** @var DashboardService */
-    private $dashboardService;
-
-    /** @var FeedService */
-    private $feedService;
-
-    /** @var GroupeRepository */
-    private $groupeRepository;
-
-    /** @var NotificationService */
-    private $notificationService;
-
-    /** @var PlatauHealthcheckService */
-    private $platauHealthcheckService;
-
-    /** @var bool */
-    private $deactivatePlatau;
-
-    /** @var bool */
-    private $platauNoHealthcheck;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var bool */
-    private $sdis29CustomEnabled;
-
-    public function __construct(
-        VersionBuilder $versionBuilder,
-        DashboardBlocConfig $dashboardBlocConfig,
-        DashboardService $dashboardService,
-        FeedService $feedService,
-        GroupeRepository $groupeRepository,
-        NotificationService $notificationService,
-        PlatauHealthcheckService $platauHealthcheckService,
-        bool $deactivatePlatau,
-        bool $platauNoHealthcheck,
-        LoggerInterface $logger,
-        bool $sdis29CustomEnabled
-    ) {
-        $this->versionBuilder = $versionBuilder;
-        $this->dashboardBlocConfig = $dashboardBlocConfig;
-        $this->dashboardService = $dashboardService;
-        $this->feedService = $feedService;
-        $this->groupeRepository = $groupeRepository;
-        $this->notificationService = $notificationService;
-        $this->platauHealthcheckService = $platauHealthcheckService;
-        $this->deactivatePlatau = $deactivatePlatau;
-        $this->platauNoHealthcheck = $platauNoHealthcheck;
-        $this->logger = $logger;
-        $this->sdis29CustomEnabled = $sdis29CustomEnabled;
+    public function __construct(private readonly VersionBuilder $versionBuilder, private readonly DashboardBlocConfig $dashboardBlocConfig, private readonly DashboardService $dashboardService, private readonly FeedService $feedService, private readonly GroupeRepository $groupeRepository, private readonly NotificationService $notificationService, private readonly PlatauHealthcheckService $platauHealthcheckService, private readonly bool $deactivatePlatau, private readonly bool $platauNoHealthcheck, private readonly LoggerInterface $logger, private readonly bool $sdis29CustomEnabled)
+    {
     }
 
-    /**
-     * @Route("/", name="homepage")
-     */
+    #[Route(path: '/', name: 'homepage')]
     public function homepage(): Response
     {
         return $this->redirectToRoute('accueil_index', [], 301);
     }
 
-    /**
-     * @Route("/accueil", name="accueil_index", methods={"GET"})
-     */
+    #[Route(path: '/accueil', name: 'accueil_index', methods: ['GET'])]
     public function index(): Response
     {
         /** @var Utilisateur $user */
@@ -147,9 +89,8 @@ class IndexController extends AbstractController
 
     /**
      * Chargement AJAX d'un bloc du tableau de bord.
-     *
-     * @Route("/accueil/bloc", name="accueil_bloc", methods={"POST"})
      */
+    #[Route(path: '/accueil/bloc', name: 'accueil_bloc', methods: ['POST'])]
     public function bloc(Request $request): Response
     {
         /** @var Utilisateur $user */
@@ -183,9 +124,8 @@ class IndexController extends AbstractController
 
     /**
      * Formulaire d'ajout d'un message dans le flux.
-     *
-     * @Route("/accueil/add-message", name="accueil_add_message", methods={"GET", "POST"})
      */
+    #[Route(path: '/accueil/add-message', name: 'accueil_add_message', methods: ['GET', 'POST'])]
     public function addMessage(Request $request): Response
     {
         $this->denyAccessUnlessGranted('fil_actus');
@@ -205,14 +145,12 @@ class IndexController extends AbstractController
                 $type = is_string($rawType) ? $rawType : '';
                 $rawText = $request->request->get('text', '');
                 $text = is_string($rawText) ? $rawText : '';
-                $conf = $request->request->get('conf', []);
-
-                if (!is_array($conf)) {
-                    $conf = [];
-                }
+                $requestData = $request->request->all();
+                $conf = $requestData['conf'] ?? [];
+                $conf = is_array($conf) ? $conf : [];
 
                 /** @var int[] $confIds */
-                $confIds = array_map(static function ($v): int { return is_numeric($v) ? (int) $v : 0; }, $conf);
+                $confIds = array_map(static fn ($v): int => is_numeric($v) ? (int) $v : 0, $conf);
 
                 $this->feedService->addMessage($type, $text, $user, $confIds);
                 $this->addFlash('success', 'Le message a bien été ajouté.');
@@ -230,9 +168,8 @@ class IndexController extends AbstractController
 
     /**
      * Suppression d'un message du flux.
-     *
-     * @Route("/accueil/delete-message", name="accueil_delete_message", methods={"POST"})
      */
+    #[Route(path: '/accueil/delete-message', name: 'accueil_delete_message', methods: ['POST'])]
     public function deleteMessage(Request $request): Response
     {
         $this->denyAccessUnlessGranted('fil_actus');
@@ -246,10 +183,10 @@ class IndexController extends AbstractController
             $id = filter_var($request->request->get('id'), FILTER_VALIDATE_INT);
             if (false !== $id) {
                 $news = $this->feedService->findMessage((int) $id);
-                if (null !== $news) {
+                if ($news instanceof News) {
                     /** @var Utilisateur $currentUser */
                     $currentUser = $this->getUser();
-                    if (null !== $news->getUtilisateur() && $news->getUtilisateur()->getId() !== $currentUser->getId()) {
+                    if ($news->getUtilisateur() instanceof Utilisateur && $news->getUtilisateur()->getId() !== $currentUser->getId()) {
                         throw $this->createAccessDeniedException("Vous ne pouvez pas supprimer le message d'un autre utilisateur.");
                     }
 
@@ -269,9 +206,8 @@ class IndexController extends AbstractController
 
     /**
      * Vérification de la santé de Plat'AU (AJAX).
-     *
-     * @Route("/accueil/platau-healthcheck", name="accueil_platau_healthcheck", methods={"GET"}, options={"expose"=true})
      */
+    #[Route(path: '/accueil/platau-healthcheck', name: 'accueil_platau_healthcheck', methods: ['GET'], options: ['expose' => true])]
     public function platauHealthcheck(): JsonResponse
     {
         return new JsonResponse($this->platauHealthcheckService->executeHealthcheck());

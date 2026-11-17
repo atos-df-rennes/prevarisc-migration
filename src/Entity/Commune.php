@@ -5,60 +5,41 @@ namespace App\Entity;
 use App\Repository\CommuneRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CommuneRepository::class)
- *
- * @ORM\Table(name="adressecommune")
- */
+#[ORM\Entity(repositoryClass: CommuneRepository::class)]
+#[ORM\Table(name: 'adressecommune')]
 class Commune
 {
     /**
      * @var string Numéro INSEE de la commune
-     *
-     * @ORM\Id
-     *
-     * @ORM\Column(name="NUMINSEE_COMMUNE", type="string", length=5, options={"fixed":true})
      */
-    private $id;
+    #[ORM\Id]
+    #[ORM\Column(name: 'NUMINSEE_COMMUNE', type: Types::STRING, length: 5, options: ['fixed' => true])]
+    private ?string $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_COMMUNE", type="string", length=60, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_COMMUNE', type: Types::STRING, length: 60, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="CODEPOSTAL_COMMUNE", type="string", length=5, nullable=false)
-     */
-    private $codePostal;
+    #[ORM\Column(name: 'CODEPOSTAL_COMMUNE', type: Types::STRING, length: 5, nullable: false)]
+    private ?string $codePostal = null;
 
-    /**
-     * @var ?UtilisateurInformations
-     *
-     * @ORM\OneToOne(targetEntity=UtilisateurInformations::class, cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", nullable=true)
-     */
-    private $utilisateurInformations;
+    #[ORM\OneToOne(targetEntity: UtilisateurInformations::class, cascade: ['persist'])]
+    #[ORM\JoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', nullable: true)]
+    private ?UtilisateurInformations $utilisateurInformations = null;
 
     /**
      * @var Collection<int, Utilisateur>
-     *
-     * @ORM\OneToMany(targetEntity=Utilisateur::class, mappedBy="commune")
      */
-    private $utilisateurs;
+    #[ORM\OneToMany(targetEntity: Utilisateur::class, mappedBy: 'commune')]
+    private Collection $utilisateurs;
 
     /**
      * @var Collection<int, Groupement>
-     *
-     * @ORM\ManyToMany(targetEntity=Groupement::class, mappedBy="communes")
      */
-    private $groupements;
+    #[ORM\ManyToMany(targetEntity: Groupement::class, mappedBy: 'communes')]
+    private Collection $groupements;
 
     public function __construct()
     {

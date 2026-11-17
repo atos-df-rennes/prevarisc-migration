@@ -10,23 +10,17 @@ use App\Entity\IghClasse;
 
 class LastInformations
 {
-    /** @var ?EtablissementStatut */
-    private $statut;
+    private ?EtablissementStatut $statut;
 
-    /** @var ?EtablissementType */
-    private $type;
+    private ?EtablissementType $type;
 
-    /** @var ?EtablissementCategorie */
-    private $categorie;
+    private ?EtablissementCategorie $categorie;
 
-    /** @var ?string */
-    private $libelle;
+    private ?string $libelle;
 
-    /** @var ?IghClasse */
-    private $classe;
+    private ?IghClasse $classe;
 
-    /** @var ?Famille */
-    private $famille;
+    private ?Famille $famille;
 
     public function __construct()
     {

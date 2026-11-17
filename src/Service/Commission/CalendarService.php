@@ -17,30 +17,10 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Service pour gérer les événements du calendrier des commissions.
  */
-final class CalendarService
+final readonly class CalendarService
 {
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepository;
-
-    /** @var CommissionTypeEvenementRepository */
-    private $commissionTypeEvenementRepository;
-
-    /** @var CommissionRepository */
-    private $commissionRepository;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    public function __construct(
-        DateCommissionRepository $dateCommissionRepository,
-        CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
-        CommissionRepository $commissionRepository,
-        EntityManagerInterface $entityManager
-    ) {
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->commissionTypeEvenementRepository = $commissionTypeEvenementRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->entityManager = $entityManager;
+    public function __construct(private DateCommissionRepository $dateCommissionRepository, private CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private CommissionRepository $commissionRepository, private EntityManagerInterface $entityManager)
+    {
     }
 
     /**
@@ -191,11 +171,11 @@ final class CalendarService
 
         $dateCommission->setDate($nouvelleDate);
 
-        if (null !== $nouvelleHeureDebut) {
+        if ($nouvelleHeureDebut instanceof \DateTimeInterface) {
             $dateCommission->setHeureDebut($nouvelleHeureDebut);
         }
 
-        if (null !== $nouvelleHeureFin) {
+        if ($nouvelleHeureFin instanceof \DateTimeInterface) {
             $dateCommission->setHeureFin($nouvelleHeureFin);
         }
 
@@ -214,11 +194,8 @@ final class CalendarService
      */
     public function createDatesDtoFromRequest(Request $request): CommissionDatesDto
     {
+        /** @var string|null $libelle */
         $libelle = $request->query->get('libelle');
-
-        if (!\is_string($libelle) && null !== $libelle) {
-            throw new \InvalidArgumentException("Le format du libellé n'est pas valide.");
-        }
 
         // Propriétés générales.
         $dateCommissionDto = new CommissionDatesDto();
@@ -257,14 +234,12 @@ final class CalendarService
 
         // Ajout des dates suivantes si sélection multiple.
         $numberOfAdditionalDates = $dateStart->diff($dateEnd)->days;
-        if (\is_int($numberOfAdditionalDates)) {
-            for ($i = 1; $i <= $numberOfAdditionalDates; ++$i) {
-                $date = clone $dateStart;
-                $date->modify(\sprintf('+%d days', $i));
+        for ($i = 1; $i <= $numberOfAdditionalDates; ++$i) {
+            $date = clone $dateStart;
+            $date->modify(\sprintf('+%d days', $i));
 
-                $dateCommissionItem = new DateCommissionItemDto($date);
-                $dateCommissionDto->addDate($dateCommissionItem);
-            }
+            $dateCommissionItem = new DateCommissionItemDto($date);
+            $dateCommissionDto->addDate($dateCommissionItem);
         }
 
         return $dateCommissionDto;
@@ -511,7 +486,7 @@ final class CalendarService
                 continue;
             }
 
-            if (null === $nouvelleDate) {
+            if (!$nouvelleDate instanceof \DateTimeInterface) {
                 continue;
             }
 

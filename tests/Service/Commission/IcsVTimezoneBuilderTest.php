@@ -8,13 +8,13 @@ use App\Service\Commission\IcsVTimezoneBuilder;
 use PHPUnit\Framework\TestCase;
 use Sabre\VObject\Component\VCalendar;
 
-class IcsVTimezoneBuilderTest extends TestCase
+final class IcsVTimezoneBuilderTest extends TestCase
 {
     public function testAddVTimezoneDefinesEuropeParisRules(): void
     {
         $calendar = new VCalendar(['PRODID' => 'Test']);
 
-        (new IcsVTimezoneBuilder())->addVTimezone($calendar, 'Europe/Paris');
+        new IcsVTimezoneBuilder()->addVTimezone($calendar, 'Europe/Paris');
 
         $ics = $calendar->serialize();
 
@@ -35,7 +35,7 @@ class IcsVTimezoneBuilderTest extends TestCase
         // doit toujours être accompagné du VTIMEZONE correspondant dans le même
         // VCALENDAR, sous peine de décalage horaire à la lecture (cf. #export Outlook).
         $calendar = new VCalendar(['PRODID' => 'Test']);
-        (new IcsVTimezoneBuilder())->addVTimezone($calendar, 'Europe/Paris');
+        new IcsVTimezoneBuilder()->addVTimezone($calendar, 'Europe/Paris');
 
         $tz = new \DateTimeZone('Europe/Paris');
         $calendar->add('VEVENT', [

@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Service\Alerte;
 
 use App\Constant\GenreEtablissement;
+use App\Entity\Avis;
+use App\Entity\Dossier;
 use App\Entity\Etablissement;
+use App\Entity\Genre;
 use App\Repository\DossierRepository;
 
 /**
@@ -16,15 +19,11 @@ use App\Repository\DossierRepository;
  */
 class AvisService
 {
-    /** @var DossierRepository */
-    private $dossierRepository;
-
     /**
      * @param DossierRepository $dossierRepository Pour vérifier avis différé
      */
-    public function __construct(DossierRepository $dossierRepository)
+    public function __construct(private readonly DossierRepository $dossierRepository)
     {
-        $this->dossierRepository = $dossierRepository;
     }
 
     /**
@@ -51,7 +50,7 @@ class AvisService
 
         // Cas 1 : Vérifier présence avis différé plus récent
         $dossierAvisDiffere = $this->dossierRepository->findLastDossierAvisDiffere($etablissement);
-        if (null !== $dossierAvisDiffere && null !== $dossierDonnantAvis) {
+        if ($dossierAvisDiffere instanceof Dossier && $dossierDonnantAvis instanceof Dossier) {
             $dateAvisDiffere = $dossierAvisDiffere->getDateInsert();
             $dateDossierDonnantAvis = $dossierDonnantAvis->getDateInsert();
 
@@ -62,15 +61,15 @@ class AvisService
         }
 
         // Cas 2 : Avis du dossier donnant avis
-        if (null !== $dossierDonnantAvis) {
+        if ($dossierDonnantAvis instanceof Dossier) {
             $avis = $dossierDonnantAvis->getAvisCommission();
-            if (null !== $avis) {
+            if ($avis instanceof Avis) {
                 $libelleAvis = $avis->getLibelle();
                 $texteAvis = is_string($libelleAvis) ? $libelleAvis : '';
 
                 // Pas de suffixe pour genre Cellule
                 $genre = $latestInfos->getGenre();
-                $ajouterSuffixe = null === $genre || GenreEtablissement::CELLULE !== $genre->getId();
+                $ajouterSuffixe = !$genre instanceof Genre || GenreEtablissement::CELLULE !== $genre->getId();
 
                 if ($ajouterSuffixe && '' !== $texteAvis) {
                     return $texteAvis." à l'exploitation";

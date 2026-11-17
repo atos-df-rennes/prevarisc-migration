@@ -1,0 +1,350 @@
+name: Prevarisc CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - main
+      - 'release/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  APP_ENV: dev
+  APP_DEBUG: '1'
+  APP_SECRET: ci-only-not-a-production-secret
+  APP_RUNTIME_OPTIONS: '{"disable_dotenv":true}'
+  DATABASE_URL: 'mysql://ci:ci@127.0.0.1:3306/prevarisc_ci?serverVersion=11.8.8-MariaDB&charset=utf8mb4'
+
+jobs:
+  changes:
+    name: Detect changed files
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      phpstan: ${{ steps.changes.outputs.phpstan || steps.push.outputs.phpstan }}
+      rector: ${{ steps.changes.outputs.rector || steps.push.outputs.rector }}
+      phpunit: ${{ steps.changes.outputs.phpunit || steps.push.outputs.phpunit }}
+      php_style: ${{ steps.changes.outputs.php_style || steps.push.outputs.php_style }}
+      php_style_full: ${{ steps.changes.outputs.php_style_full || steps.push.outputs.php_style_full }}
+      php_style_files: ${{ steps.changes.outputs.php_style_files }}
+      twig_style: ${{ steps.changes.outputs.twig_style || steps.push.outputs.twig_style }}
+      twig_style_full: ${{ steps.changes.outputs.twig_style_full || steps.push.outputs.twig_style_full }}
+      twig_style_files: ${{ steps.changes.outputs.twig_style_files }}
+    steps:
+      - name: Filter changed files
+        id: changes
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          list-files: json
+          filters: |
+            phpstan:
+              - 'src/**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - 'config/**'
+              - 'phpstan*.neon*'
+              - '.env'
+              - '.env.test'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            rector:
+              - '**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - 'config/**'
+              - 'phpstan*.neon*'
+              - 'phpunit.xml.dist'
+              - '.env'
+              - '.env.test'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            phpunit:
+              - 'src/**/*.php'
+              - 'tests/**/*.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'config/**'
+              - 'phpunit.xml.dist'
+              - '.env'
+              - '.env.test'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            php_style:
+              - 'src/**/*.php'
+              - 'migrations/**/*.php'
+              - 'tests/**/*.php'
+            php_style_full:
+              - '.php-cs-fixer.dist.php'
+              - 'composer.json'
+              - 'composer.lock'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+            twig_style:
+              - 'templates/**/*.twig'
+            twig_style_full:
+              - '.twig-cs-fixer.dist.php'
+              - 'linter/**'
+              - 'tools/composer.json'
+              - 'tools/composer.lock'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/**'
+      - name: Run all checks for pushes
+        id: push
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          echo "phpstan=true" >> "$GITHUB_OUTPUT"
+          echo "rector=true" >> "$GITHUB_OUTPUT"
+          echo "phpunit=true" >> "$GITHUB_OUTPUT"
+          echo "php_style=true" >> "$GITHUB_OUTPUT"
+          echo "php_style_full=true" >> "$GITHUB_OUTPUT"
+          echo "twig_style=true" >> "$GITHUB_OUTPUT"
+          echo "twig_style_full=true" >> "$GITHUB_OUTPUT"
+
+  phpstan:
+    name: PHPStan
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.phpstan == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          app: 'true'
+          tools: 'true'
+      - name: Restore PHPStan cache
+        uses: actions/cache@v6
+        with:
+          path: var/cache/phpstan
+          key: ${{ runner.os }}-php85-phpstan-${{ hashFiles('composer.lock', 'tools/composer.lock', 'phpstan*.neon*', 'config/**') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-php85-phpstan-${{ hashFiles('composer.lock', 'tools/composer.lock', 'phpstan*.neon*', 'config/**') }}-
+      - name: Analyse PHP
+        run: tools/vendor/bin/phpstan --memory-limit=-1 --no-progress
+
+  rector:
+    name: Rector
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.rector == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          app: 'true'
+          tools: 'true'
+      - name: Restore Rector cache
+        uses: actions/cache@v6
+        with:
+          path: var/cache/rector
+          key: ${{ runner.os }}-php85-rector-${{ hashFiles('composer.lock', 'tools/composer.lock', 'rector.php') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-php85-rector-${{ hashFiles('composer.lock', 'tools/composer.lock', 'rector.php') }}-
+      - name: Check refactoring
+        run: tools/vendor/bin/rector --dry-run --no-progress-bar
+
+  php-cs-fixer:
+    name: PHP-CS-Fixer
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.php_style == 'true' || needs.changes.outputs.php_style_full == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          tools: 'true'
+      - name: Restore PHP-CS-Fixer cache
+        uses: actions/cache@v6
+        with:
+          path: .php-cs-fixer.cache
+          key: ${{ runner.os }}-php85-php-cs-fixer-${{ hashFiles('tools/composer.lock', '.php-cs-fixer.dist.php') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-php85-php-cs-fixer-${{ hashFiles('tools/composer.lock', '.php-cs-fixer.dist.php') }}-
+      - name: Check PHP style on the whole configured scope
+        if: github.event_name == 'push' || needs.changes.outputs.php_style_full == 'true'
+        run: tools/vendor/bin/php-cs-fixer fix --dry-run --diff
+      - name: Check PHP style on changed files
+        if: github.event_name == 'pull_request' && needs.changes.outputs.php_style == 'true' && needs.changes.outputs.php_style_full != 'true'
+        env:
+          CHANGED_FILES: ${{ needs.changes.outputs.php_style_files }}
+        run: |
+          mapfile -d '' -t files < <(jq -j '.[] | ., "\u0000"' <<< "$CHANGED_FILES")
+          existing_files=()
+          for file in "${files[@]}"; do
+            if [[ -f "$file" ]]; then
+              existing_files+=("$file")
+            fi
+          done
+          if ((${#existing_files[@]})); then
+            tools/vendor/bin/php-cs-fixer fix --dry-run --diff --config=.php-cs-fixer.dist.php --path-mode=intersection "${existing_files[@]}"
+          fi
+
+  twig-cs-fixer:
+    name: Twig-CS-Fixer
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.twig_style == 'true' || needs.changes.outputs.twig_style_full == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          tools: 'true'
+      - name: Restore Twig-CS-Fixer cache
+        uses: actions/cache@v6
+        with:
+          path: .twig-cs-fixer.cache
+          key: ${{ runner.os }}-php85-twig-cs-fixer-${{ hashFiles('tools/composer.lock', '.twig-cs-fixer.dist.php', 'linter/**') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-php85-twig-cs-fixer-${{ hashFiles('tools/composer.lock', '.twig-cs-fixer.dist.php', 'linter/**') }}-
+      - name: Check Twig style on the whole configured scope
+        if: github.event_name == 'push' || needs.changes.outputs.twig_style_full == 'true'
+        run: tools/vendor/bin/twig-cs-fixer check
+      - name: Check Twig style on changed files
+        if: github.event_name == 'pull_request' && needs.changes.outputs.twig_style == 'true' && needs.changes.outputs.twig_style_full != 'true'
+        env:
+          CHANGED_FILES: ${{ needs.changes.outputs.twig_style_files }}
+        run: |
+          mapfile -d '' -t files < <(jq -j '.[] | ., "\u0000"' <<< "$CHANGED_FILES")
+          existing_files=()
+          for file in "${files[@]}"; do
+            if [[ -f "$file" ]]; then
+              existing_files+=("$file")
+            fi
+          done
+          if ((${#existing_files[@]})); then
+            tools/vendor/bin/twig-cs-fixer check "${existing_files[@]}"
+          fi
+
+  phpunit:
+    name: PHPUnit (${{ matrix.os }})
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.phpunit == 'true'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    timeout-minutes: 15
+    env:
+      APP_ENV: test
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          app: 'true'
+      - name: Run tests without database-dependent scenarios
+        run: php vendor/bin/phpunit --testdox --exclude-group functional
+
+  conflicts:
+    name: Git conflict markers
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          tools: 'true'
+      - name: Check conflict markers
+        run: >-
+          tools/vendor/bin/swiss-knife check-conflicts .
+          --exclude /.git/
+          --exclude /var/
+          --exclude /public/bundles/
+          --exclude /cypress/screenshots/
+          --exclude /cypress/videos/
+          --exclude /bin/.phpunit/
+          --exclude /vendor/
+          --exclude /node_modules/
+
+  gitleaks:
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install Gitleaks
+        working-directory: ${{ runner.temp }}
+        env:
+          GITLEAKS_VERSION: '8.30.1'
+          GITLEAKS_SHA256: '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb'
+        run: |
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl --fail --silent --show-error --location --retry 3 \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}" \
+            --output "$archive"
+          echo "${GITLEAKS_SHA256}  ${archive}" | sha256sum --check --strict
+          mkdir -p gitleaks-bin
+          tar -xzf "$archive" -C gitleaks-bin gitleaks
+          echo "${RUNNER_TEMP}/gitleaks-bin" >> "$GITHUB_PATH"
+      - name: Scan Git history for secrets
+        run: gitleaks git --redact --no-banner --log-opts="--all" .
+
+  audit:
+    name: Composer audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      COMPOSER_AUDIT_ABANDONED: ignore
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Audit application dependencies
+        run: composer audit --locked
+      - name: Audit tooling dependencies
+        if: ${{ !cancelled() }}
+        working-directory: tools
+        run: composer audit --locked
+
+  ci:
+    name: CI
+    if: always()
+    needs:
+      - changes
+      - phpstan
+      - rector
+      - php-cs-fixer
+      - twig-cs-fixer
+      - phpunit
+      - conflicts
+      - gitleaks
+      - audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail when a check failed or was cancelled
+        if: ${{ always() && (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+        run: exit 1

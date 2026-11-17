@@ -5,31 +5,21 @@ namespace App\Controller;
 use App\Exception\FusionTechnicalException;
 use App\Form\FusionDesCommunesType;
 use App\Service\FusionDesCommunes;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("communes")
- */
+#[IsGranted('communes')]
 class FusionDesCommunesController extends AbstractController
 {
-    /**
-     * @var FusionDesCommunes
-     */
-    private $fusionDesCommunes;
-
-    public function __construct(FusionDesCommunes $fusionDesCommunes)
+    public function __construct(private readonly FusionDesCommunes $fusionDesCommunes)
     {
-        $this->fusionDesCommunes = $fusionDesCommunes;
     }
 
-    /**
-     * @Route("/admin/fusion-des-communes", name="admin_fusion_des_communes")
-     */
+    #[Route(path: '/admin/fusion-des-communes', name: 'admin_fusion_des_communes')]
     public function index(Request $request): Response
     {
         $form = $this->createForm(FusionDesCommunesType::class);
@@ -55,7 +45,7 @@ class FusionDesCommunesController extends AbstractController
         }
 
         return $this->render('fusion_des_communes/index.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 }

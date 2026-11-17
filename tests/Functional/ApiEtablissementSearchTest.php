@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Functional;
 
 use App\Entity\Etablissement;
 use App\Entity\Utilisateur;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,15 +16,13 @@ use Symfony\Component\HttpFoundation\Request;
  * Test fonctionnel de la route API commune de recherche d'établissements
  * (api_etablissements_search), utilisée par la recherche de la barre de navigation,
  * les liaisons de dossier et les établissements père/enfants.
- *
- * @group functional
  */
-class ApiEtablissementSearchTest extends WebTestCase
+#[Group('functional')]
+final class ApiEtablissementSearchTest extends WebTestCase
 {
-    private const ROUTE = '/api/etablissements/search';
+    private const string ROUTE = '/api/etablissements/search';
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     protected function setUp(): void
     {
@@ -181,6 +182,9 @@ class ApiEtablissementSearchTest extends WebTestCase
 
         self::ensureKernelShutdown();
 
-        return static::createClient();
+        $client = static::createClient();
+        $client->loginUser($utilisateur);
+
+        return $client;
     }
 }

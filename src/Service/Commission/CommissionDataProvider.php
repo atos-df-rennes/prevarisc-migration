@@ -15,16 +15,8 @@ use Doctrine\DBAL\Connection;
  */
 class CommissionDataProvider
 {
-    /** @var Connection */
-    private $conn;
-
-    /** @var EtablissementAdresseRepository */
-    private $etablissementAdresseRepository;
-
-    public function __construct(Connection $conn, EtablissementAdresseRepository $etablissementAdresseRepository)
+    public function __construct(private readonly Connection $conn, private readonly EtablissementAdresseRepository $etablissementAdresseRepository)
     {
-        $this->conn = $conn;
-        $this->etablissementAdresseRepository = $etablissementAdresseRepository;
     }
 
     /**
@@ -228,9 +220,9 @@ class CommissionDataProvider
                     'ID_ETABLISSEMENT' => $etabId,
                     'NUMERO_ADRESSE' => $adresse->getNumero(),
                     'LIBELLE_RUE' => $rue->getLibelle(),
-                    'LIBELLE_COMMUNE' => null !== $commune ? $commune->getLibelle() : null,
-                    'CODEPOSTAL_COMMUNE' => null !== $commune ? $commune->getCodePostal() : null,
-                    'NUMINSEE_COMMUNE' => null !== $commune ? $commune->getId() : null,
+                    'LIBELLE_COMMUNE' => $commune?->getLibelle(),
+                    'CODEPOSTAL_COMMUNE' => $commune?->getCodePostal(),
+                    'NUMINSEE_COMMUNE' => $commune?->getId(),
                 ];
             }
         }
@@ -271,9 +263,7 @@ class CommissionDataProvider
         foreach ($parentInformationsRows as $parentInformations) {
             /** @var int|string $filsId */
             $filsId = $parentInformations['ID_FILS_ETABLISSEMENT'];
-            if (!isset($parentInformationsMap[(int) $filsId])) {
-                $parentInformationsMap[(int) $filsId] = $parentInformations;
-            }
+            $parentInformationsMap[(int) $filsId] ??= $parentInformations;
         }
 
         // Établissements liés (enfants)
@@ -342,6 +332,7 @@ class CommissionDataProvider
         }
 
         $placeholders = implode(',', array_fill(0, count($dossierIds), '?'));
+        $params = array_values($dossierIds);
         $rows = $this->conn->fetchAllAssociative(
             'SELECT ad.*, d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
                     a.LIBELLE_AVIS, dl.TYPE_DOSSIER, dl.OBJET_DOSSIER
@@ -350,7 +341,7 @@ class CommissionDataProvider
              JOIN avis a ON ad.AVIS = a.ID_AVIS
              LEFT JOIN dossier dl ON ad.ID_DOSSIER_LIE = dl.ID_DOSSIER
              WHERE d.ID_DOSSIER IN ('.$placeholders.')',
-            $dossierIds
+            $params
         );
 
         $grouped = [];
@@ -379,6 +370,8 @@ class CommissionDataProvider
 
         $placeholders = implode(',', array_fill(0, count($idsEtablissements), '?'));
 
+        $params = array_values($idsEtablissements);
+
         return $this->conn->fetchAllAssociative(
             'SELECT d.ID_DOSSIER, d.DATECOMM_DOSSIER, d.DATEVISITE_DOSSIER,
                     ad.*, a.LIBELLE_AVIS, d2.TYPE_DOSSIER
@@ -390,7 +383,7 @@ class CommissionDataProvider
              LEFT JOIN dossier d2 ON d2.ID_DOSSIER = ad.ID_DOSSIER_LIE
              WHERE e.ID_ETABLISSEMENT IN ('.$placeholders.')
                AND ad.DISPLAY_HISTORIQUE = 1',
-            $idsEtablissements
+            $params
         );
     }
 
@@ -408,9 +401,10 @@ class CommissionDataProvider
         }
 
         $placeholders = implode(',', array_fill(0, count($dossierIds), '?'));
+        $params = array_values($dossierIds);
         $rows = $this->conn->fetchAllAssociative(
             'SELECT * FROM dossierdocurba WHERE ID_DOSSIER IN ('.$placeholders.')',
-            $dossierIds
+            $params
         );
 
         $grouped = [];
@@ -455,9 +449,10 @@ class CommissionDataProvider
         }
 
         $placeholders = implode(',', array_fill(0, count($membreIds), '?'));
+        $params = array_values($membreIds);
         $rows = $this->conn->fetchAllAssociative(
             'SELECT * FROM '.$table.' WHERE ID_COMMISSIONMEMBRE IN ('.$placeholders.')',
-            $membreIds
+            $params
         );
 
         $grouped = [];

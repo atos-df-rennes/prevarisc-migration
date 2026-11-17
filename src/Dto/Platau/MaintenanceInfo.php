@@ -6,35 +6,10 @@ namespace App\Dto\Platau;
  * Informations de maintenance retournées par le healthcheck Plat'AU.
  * Couvre la maintenance en cours ET la prochaine maintenance programmée.
  */
-final class MaintenanceInfo implements \JsonSerializable
+final readonly class MaintenanceInfo implements \JsonSerializable
 {
-    /** @var bool */
-    private $active;
-
-    /** @var string|null */
-    private $typeMaintenance;
-
-    /** @var string|null */
-    private $descMaintenance;
-
-    /** @var string|null */
-    private $prochaineMaintenance;
-
-    /** @var string|null */
-    private $descProchaineMaintenance;
-
-    public function __construct(
-        bool $active,
-        ?string $typeMaintenance,
-        ?string $descMaintenance,
-        ?string $prochaineMaintenance,
-        ?string $descProchaineMaintenance
-    ) {
-        $this->active = $active;
-        $this->typeMaintenance = $typeMaintenance;
-        $this->descMaintenance = $descMaintenance;
-        $this->prochaineMaintenance = $prochaineMaintenance;
-        $this->descProchaineMaintenance = $descProchaineMaintenance;
+    public function __construct(private bool $active, private ?string $typeMaintenance, private ?string $descMaintenance, private ?string $prochaineMaintenance, private ?string $descProchaineMaintenance)
+    {
     }
 
     /**
@@ -53,7 +28,7 @@ final class MaintenanceInfo implements \JsonSerializable
             try {
                 $date = new \DateTime($rawDate);
                 $prochaineMaintenance = $date->format('d/m/Y à H\hi');
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $prochaineMaintenance = $rawDate;
             }
         }

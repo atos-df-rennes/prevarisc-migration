@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Enum;
 
 use App\Enum\PlatauStatutPecEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class PlatauStatutPecEnumTest extends TestCase
+final class PlatauStatutPecEnumTest extends TestCase
 {
-    /** @dataProvider labelProvider */
+    #[DataProvider('labelProvider')]
     public function testGetLabelReturnsCorrectValueForStatus(?string $status, string $expected): void
     {
         $this->assertSame($expected, PlatauStatutPecEnum::getLabel($status));
@@ -17,6 +20,7 @@ class PlatauStatutPecEnumTest extends TestCase
     {
         yield 'inconnu' => [PlatauStatutPecEnum::INCONNU, 'Statut inconnu'];
         yield 'en attente' => [PlatauStatutPecEnum::EN_ATTENTE, 'En attente de complétude sur Prevarisc'];
+        yield 'complétude renseignée' => [PlatauStatutPecEnum::SAISIE_A_TRANSMETTRE, "Complétude renseignée sur Prevarisc (en attente de transmission à Plat'AU)"];
         yield 'prise en compte' => [PlatauStatutPecEnum::PRISE_EN_COMPTE, "Prise en compte sur Plat'AU"];
         yield 'renvoi' => [PlatauStatutPecEnum::A_RENVOYER, "Prise en compte sur Plat'AU (en attente de renvoi)"];
         yield 'en erreur' => [PlatauStatutPecEnum::EN_ERREUR, "En erreur sur Plat'AU"];
@@ -24,7 +28,7 @@ class PlatauStatutPecEnumTest extends TestCase
         yield 'invalide' => ['invalid_status', 'Statut inconnu'];
     }
 
-    /** @dataProvider constantProvider */
+    #[DataProvider('constantProvider')]
     public function testConstantValues(string $constant, string $expected): void
     {
         $this->assertSame($expected, $constant);
@@ -34,6 +38,7 @@ class PlatauStatutPecEnumTest extends TestCase
     {
         yield 'inconnu' => [PlatauStatutPecEnum::INCONNU, 'unknown'];
         yield 'en attente' => [PlatauStatutPecEnum::EN_ATTENTE, 'awaiting'];
+        yield 'complétude renseignée' => [PlatauStatutPecEnum::SAISIE_A_TRANSMETTRE, 'filled_awaiting_export'];
         yield 'prise en compte' => [PlatauStatutPecEnum::PRISE_EN_COMPTE, 'taken_into_account'];
         yield 'à renvoyer' => [PlatauStatutPecEnum::A_RENVOYER, 'to_export'];
         yield 'en erreur' => [PlatauStatutPecEnum::EN_ERREUR, 'in_error'];

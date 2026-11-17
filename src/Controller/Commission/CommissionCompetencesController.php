@@ -7,41 +7,23 @@ use App\Form\CommissionReglesCollectionType;
 use App\Repository\EtablissementInformationsRepository;
 use App\Service\Commission\CommissionRegleCompetenceService;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("gestion_commissions")
- */
+#[IsGranted('gestion_commissions')]
 class CommissionCompetencesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var CommissionRegleCompetenceService */
-    private $competenceService;
-
-    /** @var EtablissementInformationsRepository */
-    private $etablissementInformationsRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        CommissionRegleCompetenceService $competenceService,
-        EtablissementInformationsRepository $etablissementInformationsRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->competenceService = $competenceService;
-        $this->etablissementInformationsRepository = $etablissementInformationsRepository;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommissionRegleCompetenceService $competenceService, private readonly EtablissementInformationsRepository $etablissementInformationsRepository)
+    {
     }
 
     /**
      * Onglet Compétences — édition des règles de compétence d'une commission.
-     *
-     * @Route("/admin/commissions/{id}/competences", name="admin_commissions_competences", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
+    #[Route(path: '/admin/commissions/{id}/competences', name: 'admin_commissions_competences', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function competences(Commission $commission, Request $request): Response
     {
         /*
@@ -66,16 +48,15 @@ class CommissionCompetencesController extends AbstractController
         return $this->render('commissions/edit.html.twig', [
             'commission' => $commission,
             'active_tab' => 'competences',
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
     /**
      * Applique les règles de compétence d'une commission à l'ensemble des établissements ERP et IGH.
      * Met à jour ID_COMMISSION sur les établissements correspondants, puis vide le cache legacy.
-     *
-     * @Route("/admin/commissions/{id}/competences/appliquer-regles", name="admin_commissions_apply_regles", requirements={"id"="\d+"}, methods={"POST"})
      */
+    #[Route(path: '/admin/commissions/{id}/competences/appliquer-regles', name: 'admin_commissions_apply_regles', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function applyRegles(Request $request, Commission $commission): Response
     {
         /** @var string $csrfToken */

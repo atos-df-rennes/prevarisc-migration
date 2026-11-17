@@ -9,46 +9,23 @@ use App\Repository\CommissionMembreRepository;
 use App\Repository\DossierNatureListeRepository;
 use App\Service\Commission\CommissionMembreCourrierService;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("gestion_commissions")
- */
+#[IsGranted('gestion_commissions')]
 class CommissionMembresController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var CommissionMembreRepository */
-    private $membreRepository;
-
-    /** @var DossierNatureListeRepository */
-    private $dossierNatureListeRepository;
-
-    /** @var CommissionMembreCourrierService */
-    private $courrierService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        CommissionMembreRepository $membreRepository,
-        DossierNatureListeRepository $dossierNatureListeRepository,
-        CommissionMembreCourrierService $courrierService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->membreRepository = $membreRepository;
-        $this->dossierNatureListeRepository = $dossierNatureListeRepository;
-        $this->courrierService = $courrierService;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommissionMembreRepository $membreRepository, private readonly DossierNatureListeRepository $dossierNatureListeRepository, private readonly CommissionMembreCourrierService $courrierService)
+    {
     }
 
     /**
      * Onglet Membres — gestion des membres d'une commission.
-     *
-     * @Route("/admin/commissions/{id}/membres", name="admin_commissions_membres", requirements={"id"="\d+"}, methods={"GET", "POST"})
      */
+    #[Route(path: '/admin/commissions/{id}/membres', name: 'admin_commissions_membres', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     public function membres(Commission $commission, Request $request): Response
     {
         // Pré-chargement des membres avec leurs relations pour éviter N+1
@@ -70,9 +47,7 @@ class CommissionMembresController extends AbstractController
             // Identifie les membres supprimés : présents avant, absents après soumission
             $removedMembres = array_filter(
                 $originalMembres,
-                static function (CommissionMembre $membre) use ($commission): bool {
-                    return !$commission->getMembres()->contains($membre);
-                }
+                static fn (CommissionMembre $membre): bool => !$commission->getMembres()->contains($membre)
             );
 
             // Capture les IDs AVANT le flush (après, ils seront null)
@@ -101,7 +76,7 @@ class CommissionMembresController extends AbstractController
         return $this->render('commissions/edit.html.twig', [
             'commission' => $commission,
             'active_tab' => 'membres',
-            'form' => $form->createView(),
+            'form' => $form,
             'natures_by_type' => $this->dossierNatureListeRepository->findNaturesGroupedByType(),
         ]);
     }

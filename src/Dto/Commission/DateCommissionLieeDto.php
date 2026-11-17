@@ -2,51 +2,18 @@
 
 namespace App\Dto\Commission;
 
+use App\Entity\Commission;
+use App\Entity\CommissionTypeEvenement;
 use App\Entity\DateCommission;
 
 /**
  * DTO pour les dates de commission liées.
  * Contient uniquement les informations basiques nécessaires.
  */
-final class DateCommissionLieeDto
+final readonly class DateCommissionLieeDto
 {
-    /** @var int */
-    private $id;
-
-    /** @var string */
-    private $dateCommission;
-
-    /** @var string */
-    private $heureDebut;
-
-    /** @var string */
-    private $heureFin;
-
-    /** @var string|null */
-    private $libelle;
-
-    /** @var int */
-    private $idCommission;
-
-    /** @var int */
-    private $idTypeEvenement;
-
-    private function __construct(
-        int $id,
-        string $dateCommission,
-        string $heureDebut,
-        string $heureFin,
-        ?string $libelle,
-        int $idCommission,
-        int $idTypeEvenement
-    ) {
-        $this->id = $id;
-        $this->dateCommission = $dateCommission;
-        $this->heureDebut = $heureDebut;
-        $this->heureFin = $heureFin;
-        $this->libelle = $libelle;
-        $this->idCommission = $idCommission;
-        $this->idTypeEvenement = $idTypeEvenement;
+    private function __construct(private int $id, private string $dateCommission, private string $heureDebut, private string $heureFin, private ?string $libelle, private int $idCommission, private int $idTypeEvenement)
+    {
     }
 
     /**
@@ -62,28 +29,28 @@ final class DateCommissionLieeDto
         }
 
         $date = $dateCommission->getDate();
-        if (null === $date) {
+        if (!$date instanceof \DateTimeInterface) {
             throw new \InvalidArgumentException('La date de commission est requise.');
         }
 
         $heureDebut = $dateCommission->getHeureDebut();
-        if (null === $heureDebut) {
-            throw new \InvalidArgumentException('L\'heure de début est requise.');
+        if (!$heureDebut instanceof \DateTimeInterface) {
+            throw new \InvalidArgumentException("L'heure de début est requise.");
         }
 
         $heureFin = $dateCommission->getHeureFin();
-        if (null === $heureFin) {
+        if (!$heureFin instanceof \DateTimeInterface) {
             throw new \InvalidArgumentException("L'heure de fin est requise.");
         }
 
         $commission = $dateCommission->getCommission();
-        if (null === $commission || null === $commission->getId()) {
+        if (!$commission instanceof Commission || null === $commission->getId()) {
             throw new \InvalidArgumentException('La commission est requise.');
         }
 
         $typeEvenement = $dateCommission->getTypeEvenement();
-        if (null === $typeEvenement || null === $typeEvenement->getId()) {
-            throw new \InvalidArgumentException('Le type d\'événement est requis.');
+        if (!$typeEvenement instanceof CommissionTypeEvenement || null === $typeEvenement->getId()) {
+            throw new \InvalidArgumentException("Le type d'événement est requis.");
         }
 
         return new self(

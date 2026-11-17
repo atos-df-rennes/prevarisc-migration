@@ -18,27 +18,22 @@ class DossierTextesApplicablesType extends AbstractType
             ->add('textesApplicables', EntityType::class, [
                 'label' => false,
                 'class' => TexteApplicable::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('t')
-                        ->where('t.visible = 1')
-                        ->orderBy('t.type', 'ASC')
-                        ->addOrderBy('t.num', 'ASC')
-                    ;
-                },
-                'choice_label' => function (TexteApplicable $texteApplicable): ?string {
-                    return $texteApplicable->getLibelle();
-                },
+                'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('t')
+                    ->where('t.visible = 1')
+                    ->orderBy('t.type', 'ASC')
+                    ->addOrderBy('t.num', 'ASC'),
+                'choice_label' => fn (TexteApplicable $texteApplicable): ?string => $texteApplicable->getLibelle(),
                 'choice_attr' => function (TexteApplicable $texteApplicable): array {
                     $type = $texteApplicable->getType();
 
-                    return ['data-type' => (null !== $type ? $type->getLibelle() : null)];
+                    return ['data-type' => $type?->getLibelle()];
                 },
                 'multiple' => true,
                 'expanded' => true,
                 'group_by' => function (TexteApplicable $texteApplicable): ?int {
                     $type = $texteApplicable->getType();
 
-                    return null !== $type ? $type->getId() : null;
+                    return $type?->getId();
                 }
             ])
         ;

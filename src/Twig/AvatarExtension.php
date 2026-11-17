@@ -4,39 +4,20 @@ namespace App\Twig;
 
 use App\Service\Avatar;
 use App\Utils\PathNormalizer;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
+use Twig\Attribute\AsTwigFunction;
 
-final class AvatarExtension extends AbstractExtension
+final class AvatarExtension
 {
-    /** @var string */
-    private $dataPath;
+    private ?string $imageTag = null;
 
-    /** @var string */
-    private $realDataPath;
-
-    /** @var string */
-    private $imageTag;
-
-    public function __construct(string $dataPath, string $realDataPath)
+    public function __construct(private readonly string $dataPath, private readonly string $realDataPath)
     {
-        $this->dataPath = $dataPath;
-        $this->realDataPath = $realDataPath;
-    }
-
-    /**
-     * @return TwigFunction[]
-     */
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('avatar', [$this, 'avatar']),
-        ];
     }
 
     /**
      * Retourne l'avatar d'un utilisateur.
      */
+    #[AsTwigFunction(name: 'avatar')]
     public function avatar(?int $id = null, string $size = Avatar::SMALL_DIRECTORY, ?string $styleAttributes = null): void
     {
         $src = PathNormalizer::join($this->dataPath, 'uploads', 'avatars', $size);

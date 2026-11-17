@@ -39,55 +39,55 @@ class SearchExport
         $sheet->getStyle('A1:Z1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('A1:Z1')->getFont()->setSize(11)->setBold(true);
 
-        $sheet->setCellValueByColumnAndRow(1, 1, 'Commune');
-        $sheet->setCellValueByColumnAndRow(2, 1, 'Catégorie');
-        $sheet->setCellValueByColumnAndRow(3, 1, 'Type');
-        $sheet->setCellValueByColumnAndRow(4, 1, 'Activité');
-        $sheet->setCellValueByColumnAndRow(5, 1, 'Commission compétente');
-        $sheet->setCellValueByColumnAndRow(6, 1, 'Code/identifiant établissement');
-        $sheet->setCellValueByColumnAndRow(7, 1, 'Libellé établissement');
-        $sheet->setCellValueByColumnAndRow(8, 1, 'Statut');
-        $sheet->setCellValueByColumnAndRow(9, 1, 'Avis');
-        $sheet->setCellValueByColumnAndRow(10, 1, 'Date du dernier avis');
-        $sheet->setCellValueByColumnAndRow(11, 1, 'Date du premier avis favorable');
-        $sheet->setCellValueByColumnAndRow(12, 1, 'Date du premier avis défavorable consécutif');
-        $sheet->setCellValueByColumnAndRow(13, 1, 'Effectif total');
-        $sheet->setCellValueByColumnAndRow(14, 1, 'Effectif public');
-        $sheet->setCellValueByColumnAndRow(15, 1, 'Effectif personnel');
-        $sheet->setCellValueByColumnAndRow(16, 1, 'Date de dernière visite');
-        $sheet->setCellValueByColumnAndRow(17, 1, 'Date de prochaine visite périodique');
-        $sheet->setCellValueByColumnAndRow(18, 1, 'Date de visite prévue');
-        $sheet->setCellValueByColumnAndRow(19, 1, 'Adresse');
-        $sheet->setCellValueByColumnAndRow(20, 1, 'Libellé du père/site');
-        $sheet->setCellValueByColumnAndRow(21, 1, 'Genre');
-        $sheet->setCellValueByColumnAndRow(22, 1, 'Préventionniste');
-        $sheet->setCellValueByColumnAndRow(23, 1, 'Présence de locaux à sommeil');
-        $sheet->setCellValueByColumnAndRow(24, 1, 'Facteur de criticité');
-        $sheet->setCellValueByColumnAndRow(25, 1, 'Groupement(s)');
+        $sheet->setCellValue('A1', 'Commune');
+        $sheet->setCellValue('B1', 'Catégorie');
+        $sheet->setCellValue('C1', 'Type');
+        $sheet->setCellValue('D1', 'Activité');
+        $sheet->setCellValue('E1', 'Commission compétente');
+        $sheet->setCellValue('F1', 'Code/identifiant établissement');
+        $sheet->setCellValue('G1', 'Libellé établissement');
+        $sheet->setCellValue('H1', 'Statut');
+        $sheet->setCellValue('I1', 'Avis');
+        $sheet->setCellValue('J1', 'Date du dernier avis');
+        $sheet->setCellValue('K1', 'Date du premier avis favorable');
+        $sheet->setCellValue('L1', 'Date du premier avis défavorable consécutif');
+        $sheet->setCellValue('M1', 'Effectif total');
+        $sheet->setCellValue('N1', 'Effectif public');
+        $sheet->setCellValue('O1', 'Effectif personnel');
+        $sheet->setCellValue('P1', 'Date de dernière visite');
+        $sheet->setCellValue('Q1', 'Date de prochaine visite périodique');
+        $sheet->setCellValue('R1', 'Date de visite prévue');
+        $sheet->setCellValue('S1', 'Adresse');
+        $sheet->setCellValue('T1', 'Libellé du père/site');
+        $sheet->setCellValue('U1', 'Genre');
+        $sheet->setCellValue('V1', 'Préventionniste');
+        $sheet->setCellValue('W1', 'Présence de locaux à sommeil');
+        $sheet->setCellValue('X1', 'Facteur de criticité');
+        $sheet->setCellValue('Y1', 'Groupement(s)');
 
         $ligne = 2;
         foreach ($rows as $row) {
-            $this->writeTextCell($sheet, 1, $ligne, $row['LIBELLE_COMMUNE'] ?? '');
-            $this->writeTextCell($sheet, 2, $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
-            $this->writeTextCell($sheet, 3, $ligne, $row['LIBELLE_TYPE'] ?? '');
-            $this->writeTextCell($sheet, 4, $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
-            $this->writeTextCell($sheet, 5, $ligne, $row['LIBELLE_COMMISSION'] ?? '');
-            $this->writeTextCell($sheet, 6, $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
-            $this->writeTextCell($sheet, 7, $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-            $this->writeTextCell($sheet, 8, $ligne, $row['LIBELLE_STATUT'] ?? '');
-            $this->writeTextCell($sheet, 9, $ligne, $row['LIBELLE_AVIS'] ?? '');
+            $this->writeTextCell($sheet, 'A'.$ligne, $row['LIBELLE_COMMUNE'] ?? '');
+            $this->writeTextCell($sheet, 'B'.$ligne, $row['LIBELLE_CATEGORIE'] ?? '');
+            $this->writeTextCell($sheet, 'C'.$ligne, $row['LIBELLE_TYPE'] ?? '');
+            $this->writeTextCell($sheet, 'D'.$ligne, $row['LIBELLE_ACTIVITE'] ?? '');
+            $this->writeTextCell($sheet, 'E'.$ligne, $row['LIBELLE_COMMISSION'] ?? '');
+            $this->writeTextCell($sheet, 'F'.$ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
+            $this->writeTextCell($sheet, 'G'.$ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+            $this->writeTextCell($sheet, 'H'.$ligne, $row['LIBELLE_STATUT'] ?? '');
+            $this->writeTextCell($sheet, 'I'.$ligne, $row['LIBELLE_AVIS'] ?? '');
 
-            $this->writeDateCell($sheet, 10, $ligne, $row['DATE_DERNIER_AVIS'] ?? null);
-            $this->writeDateCell($sheet, 11, $ligne, $row['DATE_PREMIER_AVIS_FAVORABLE'] ?? null);
-            $this->writeDateCell($sheet, 12, $ligne, $row['DATE_PREMIER_AVIS_DEFAVORABLE_CONSECUTIF'] ?? null);
+            $this->writeDateCell($sheet, 'J'.$ligne, $row['DATE_DERNIER_AVIS'] ?? null);
+            $this->writeDateCell($sheet, 'K'.$ligne, $row['DATE_PREMIER_AVIS_FAVORABLE'] ?? null);
+            $this->writeDateCell($sheet, 'L'.$ligne, $row['DATE_PREMIER_AVIS_DEFAVORABLE_CONSECUTIF'] ?? null);
 
             $effectifPublic = is_numeric($row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] ?? null) ? (int) $row['EFFECTIFPUBLIC_ETABLISSEMENTINFORMATIONS'] : 0;
             $effectifPersonnel = is_numeric($row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] ?? null) ? (int) $row['EFFECTIFPERSONNEL_ETABLISSEMENTINFORMATIONS'] : 0;
-            $sheet->setCellValueByColumnAndRow(13, $ligne, $effectifPublic + $effectifPersonnel);
-            $sheet->setCellValueByColumnAndRow(14, $ligne, $effectifPublic);
-            $sheet->setCellValueByColumnAndRow(15, $ligne, $effectifPersonnel);
+            $sheet->setCellValue('M'.$ligne, $effectifPublic + $effectifPersonnel);
+            $sheet->setCellValue('N'.$ligne, $effectifPublic);
+            $sheet->setCellValue('O'.$ligne, $effectifPersonnel);
 
-            $this->writeDateCell($sheet, 16, $ligne, $row['DATE_DERNIERE_VISITE'] ?? null);
+            $this->writeDateCell($sheet, 'P'.$ligne, $row['DATE_DERNIERE_VISITE'] ?? null);
 
             if (is_string($row['DATE_DERNIERE_VISITE'] ?? null) && '' !== $row['DATE_DERNIERE_VISITE']
                 && is_numeric($row['PERIODICITE_ETABLISSEMENTINFORMATIONS'] ?? null)
@@ -97,17 +97,17 @@ class SearchExport
                 if ($derniereVisite instanceof \DateTime) {
                     $periodicite = (int) $row['PERIODICITE_ETABLISSEMENTINFORMATIONS'];
                     $derniereVisite->modify('+'.$periodicite.' months');
-                    $this->writeTextCell($sheet, 17, $ligne, $derniereVisite->format('d/m/Y'));
+                    $this->writeTextCell($sheet, 'Q'.$ligne, $derniereVisite->format('d/m/Y'));
                 }
             }
 
-            $this->writeDateCell($sheet, 18, $ligne, $row['DATE_VISITE_PREVUE'] ?? null);
+            $this->writeDateCell($sheet, 'R'.$ligne, $row['DATE_VISITE_PREVUE'] ?? null);
 
-            $this->writeTextCell($sheet, 19, $ligne, trim($this->toStr($row['NUMERO_ADRESSE'] ?? null).' '.$this->toStr($row['LIBELLE_RUE'] ?? null).' '.$this->toStr($row['COMPLEMENT_ADRESSE'] ?? null).' '.$this->toStr($row['CODEPOSTAL_COMMUNE'] ?? null)));
-            $this->writeTextCell($sheet, 20, $ligne, $row['LIBELLE_ETABLISSEMENT_PERE'] ?? '');
-            $this->writeTextCell($sheet, 21, $ligne, $row['LIBELLE_GENRE'] ?? '');
-            $this->writeTextCell($sheet, 22, $ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
-            $sheet->setCellValueByColumnAndRow(23, $ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
+            $this->writeTextCell($sheet, 'S'.$ligne, trim($this->toStr($row['NUMERO_ADRESSE'] ?? null).' '.$this->toStr($row['LIBELLE_RUE'] ?? null).' '.$this->toStr($row['COMPLEMENT_ADRESSE'] ?? null).' '.$this->toStr($row['CODEPOSTAL_COMMUNE'] ?? null)));
+            $this->writeTextCell($sheet, 'T'.$ligne, $row['LIBELLE_ETABLISSEMENT_PERE'] ?? '');
+            $this->writeTextCell($sheet, 'U'.$ligne, $row['LIBELLE_GENRE'] ?? '');
+            $this->writeTextCell($sheet, 'V'.$ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
+            $sheet->setCellValue('W'.$ligne, ($row['LOCALSOMMEIL_ETABLISSEMENTINFORMATIONS'] ?? false) ? 'oui' : 'non');
 
             $facteurDeCriticite = $row['FACTDANGE_DOSSIER'] ?? '';
             $idAvis = is_numeric($row['ID_AVIS'] ?? null) ? (int) $row['ID_AVIS'] : 0;
@@ -115,9 +115,9 @@ class SearchExport
                 $facteurDeCriticite = '';
             }
 
-            $this->writeTextCell($sheet, 24, $ligne, $facteurDeCriticite);
+            $this->writeTextCell($sheet, 'X'.$ligne, $facteurDeCriticite);
 
-            $this->writeTextCell($sheet, 25, $ligne, $row['GROUPEMENTS'] ?? '');
+            $this->writeTextCell($sheet, 'Y'.$ligne, $row['GROUPEMENTS'] ?? '');
             ++$ligne;
         }
 
@@ -145,65 +145,67 @@ class SearchExport
         $styleArray = [
             'borders' => ['allBorders' => ['style' => Border::BORDER_THIN]],
         ];
-        $sheet->getStyle('A1:V1')->applyFromArray($styleArray);
-        $sheet->getStyle('A1:V1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:V1')->getFont()->setSize(11)->setBold(true);
+        $sheet->getStyle('A1:W1')->applyFromArray($styleArray);
+        $sheet->getStyle('A1:W1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:W1')->getFont()->setSize(11)->setBold(true);
 
-        $sheet->setCellValueByColumnAndRow(1, 1, 'Groupement');
-        $sheet->setCellValueByColumnAndRow(2, 1, 'Commune');
-        $sheet->setCellValueByColumnAndRow(3, 1, 'Catégorie');
-        $sheet->setCellValueByColumnAndRow(4, 1, 'Type');
-        $sheet->setCellValueByColumnAndRow(5, 1, 'Activité');
-        $sheet->setCellValueByColumnAndRow(6, 1, 'Code/identifiant établissement');
-        $sheet->setCellValueByColumnAndRow(7, 1, 'Libellé établissement');
-        $sheet->setCellValueByColumnAndRow(8, 1, 'Statut');
-        $sheet->setCellValueByColumnAndRow(9, 1, 'Genre');
-        $sheet->setCellValueByColumnAndRow(10, 1, 'Type du dossier');
-        $sheet->setCellValueByColumnAndRow(11, 1, 'Nature du dossier');
-        $sheet->setCellValueByColumnAndRow(12, 1, 'Date de création du dossier');
-        $sheet->setCellValueByColumnAndRow(13, 1, 'Objet du dossier');
-        $sheet->setCellValueByColumnAndRow(14, 1, 'Numéro document urbanisme');
-        $sheet->setCellValueByColumnAndRow(15, 1, 'Date de visite');
-        $sheet->setCellValueByColumnAndRow(16, 1, 'Date de la commission en salle');
-        $sheet->setCellValueByColumnAndRow(17, 1, 'Commission du dossier');
-        $sheet->setCellValueByColumnAndRow(18, 1, 'Avis rapporteur');
-        $sheet->setCellValueByColumnAndRow(19, 1, 'Avis commission');
-        $sheet->setCellValueByColumnAndRow(20, 1, 'Préventionniste en charge du dossier');
-        $sheet->setCellValueByColumnAndRow(21, 1, 'Pièces jointes ?');
-        $sheet->setCellValueByColumnAndRow(22, 1, 'Identifiant PLATAU');
+        $sheet->setCellValue('A1', 'Groupement');
+        $sheet->setCellValue('B1', 'Commune');
+        $sheet->setCellValue('C1', 'Catégorie');
+        $sheet->setCellValue('D1', 'Type');
+        $sheet->setCellValue('E1', 'Activité');
+        $sheet->setCellValue('F1', 'Code/identifiant établissement');
+        $sheet->setCellValue('G1', 'Libellé établissement');
+        $sheet->setCellValue('H1', 'Statut');
+        $sheet->setCellValue('I1', 'Genre');
+        $sheet->setCellValue('J1', 'Type du dossier');
+        $sheet->setCellValue('K1', 'Nature du dossier');
+        $sheet->setCellValue('L1', 'Date de création du dossier');
+        $sheet->setCellValue('M1', 'Référence courrier');
+        $sheet->setCellValue('N1', 'Objet du dossier');
+        $sheet->setCellValue('O1', 'Numéro document urbanisme');
+        $sheet->setCellValue('P1', 'Date de visite');
+        $sheet->setCellValue('Q1', 'Date de la commission en salle');
+        $sheet->setCellValue('R1', 'Commission du dossier');
+        $sheet->setCellValue('S1', 'Avis rapporteur');
+        $sheet->setCellValue('T1', 'Avis commission');
+        $sheet->setCellValue('U1', 'Préventionniste en charge du dossier');
+        $sheet->setCellValue('V1', 'Pièces jointes ?');
+        $sheet->setCellValue('W1', 'Identifiant PLATAU');
 
         $ligne = 2;
         foreach ($rows as $row) {
-            $this->writeTextCell($sheet, 1, $ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
-            $this->writeTextCell($sheet, 2, $ligne, $row['LIBELLE_COMMUNE'] ?? '');
-            $this->writeTextCell($sheet, 3, $ligne, $row['LIBELLE_CATEGORIE'] ?? '');
-            $this->writeTextCell($sheet, 4, $ligne, $row['LIBELLE_TYPE_ETABLISSEMENT'] ?? '');
-            $this->writeTextCell($sheet, 5, $ligne, $row['LIBELLE_ACTIVITE'] ?? '');
-            $this->writeTextCell($sheet, 6, $ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
-            $this->writeTextCell($sheet, 7, $ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
-            $this->writeTextCell($sheet, 8, $ligne, $row['LIBELLE_STATUT'] ?? '');
-            $this->writeTextCell($sheet, 9, $ligne, $row['LIBELLE_GENRE'] ?? '');
-            $this->writeTextCell($sheet, 10, $ligne, $row['LIBELLE_DOSSIERTYPE'] ?? '');
-            $this->writeTextCell($sheet, 11, $ligne, $row['LIBELLE_DOSSIERNATURE'] ?? '');
+            $this->writeTextCell($sheet, 'A'.$ligne, $row['LIBELLE_GROUPEMENT'] ?? '');
+            $this->writeTextCell($sheet, 'B'.$ligne, $row['LIBELLE_COMMUNE'] ?? '');
+            $this->writeTextCell($sheet, 'C'.$ligne, $row['LIBELLE_CATEGORIE'] ?? '');
+            $this->writeTextCell($sheet, 'D'.$ligne, $row['LIBELLE_TYPE_ETABLISSEMENT'] ?? '');
+            $this->writeTextCell($sheet, 'E'.$ligne, $row['LIBELLE_ACTIVITE'] ?? '');
+            $this->writeTextCell($sheet, 'F'.$ligne, $row['NUMEROID_ETABLISSEMENT'] ?? '');
+            $this->writeTextCell($sheet, 'G'.$ligne, $row['LIBELLE_ETABLISSEMENTINFORMATIONS'] ?? '');
+            $this->writeTextCell($sheet, 'H'.$ligne, $row['LIBELLE_STATUT'] ?? '');
+            $this->writeTextCell($sheet, 'I'.$ligne, $row['LIBELLE_GENRE'] ?? '');
+            $this->writeTextCell($sheet, 'J'.$ligne, $row['LIBELLE_DOSSIERTYPE'] ?? '');
+            $this->writeTextCell($sheet, 'K'.$ligne, $row['LIBELLE_DOSSIERNATURE'] ?? '');
 
-            $this->writeDateCell($sheet, 12, $ligne, $row['DATEINSERT_DOSSIER'] ?? null);
+            $this->writeDateCell($sheet, 'L'.$ligne, $row['DATEINSERT_DOSSIER'] ?? null);
 
-            $this->writeTextCell($sheet, 13, $ligne, $row['OBJET_DOSSIER'] ?? '');
-            $this->writeTextCell($sheet, 14, $ligne, $row['NUM_DOCURBA'] ?? '');
+            $this->writeTextCell($sheet, 'M'.$ligne, $row['REFCOURRIER_DOSSIER'] ?? '');
+            $this->writeTextCell($sheet, 'N'.$ligne, $row['OBJET_DOSSIER'] ?? '');
+            $this->writeTextCell($sheet, 'O'.$ligne, $row['NUM_DOCURBA'] ?? '');
 
-            $this->writeDateCell($sheet, 15, $ligne, $row['DATEVISITE_DOSSIER'] ?? null);
+            $this->writeDateCell($sheet, 'P'.$ligne, $row['DATEVISITE_DOSSIER'] ?? null);
 
-            $this->writeDateCell($sheet, 16, $ligne, $row['DATECOMM_DOSSIER'] ?? null);
+            $this->writeDateCell($sheet, 'Q'.$ligne, $row['DATECOMM_DOSSIER'] ?? null);
 
-            $this->writeTextCell($sheet, 17, $ligne, $row['LIBELLE_COMMISSION'] ?? '');
-            $this->writeTextCell($sheet, 18, $ligne, $row['LIBELLE_AVIS_RAPPORTEUR'] ?? '');
-            $this->writeTextCell($sheet, 19, $ligne, $row['LIBELLE_AVIS_COMMISSION'] ?? '');
-            $this->writeTextCell($sheet, 20, $ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
+            $this->writeTextCell($sheet, 'R'.$ligne, $row['LIBELLE_COMMISSION'] ?? '');
+            $this->writeTextCell($sheet, 'S'.$ligne, $row['LIBELLE_AVIS_RAPPORTEUR'] ?? '');
+            $this->writeTextCell($sheet, 'T'.$ligne, $row['LIBELLE_AVIS_COMMISSION'] ?? '');
+            $this->writeTextCell($sheet, 'U'.$ligne, trim($this->toStr($row['PRENOM_UTILISATEURINFORMATIONS'] ?? null).' '.$this->toStr($row['NOM_UTILISATEURINFORMATIONS'] ?? null)));
 
-            $sheet->setCellValueByColumnAndRow(21, $ligne, '' !== ($row['ID_PIECEJOINTE'] ?? '') ? 'Oui' : 'Non');
+            $sheet->setCellValue('V'.$ligne, '' !== ($row['ID_PIECEJOINTE'] ?? '') ? 'Oui' : 'Non');
 
             if ('1' === $provenance) {
-                $this->writeTextCell($sheet, 22, $ligne, $row['ID_PLATAU'] ?? '');
+                $this->writeTextCell($sheet, 'W'.$ligne, $row['ID_PLATAU'] ?? '');
             }
 
             ++$ligne;
@@ -227,12 +229,10 @@ class SearchExport
      * Écrit une valeur texte dans une cellule en forçant le type STRING.
      * Empêche l'interprétation comme formule (spreadsheet formula injection)
      * pour les valeurs commençant par =, +, -, @.
-     *
-     * @param mixed $value
      */
-    private function writeTextCell(Worksheet $sheet, int $col, int $row, $value): void
+    private function writeTextCell(Worksheet $sheet, string $coordinate, mixed $value): void
     {
-        $sheet->setCellValueExplicitByColumnAndRow($col, $row, is_scalar($value) ? (string) $value : '', DataType::TYPE_STRING);
+        $sheet->setCellValueExplicit($coordinate, is_scalar($value) ? (string) $value : '', DataType::TYPE_STRING);
     }
 
     /**
@@ -242,7 +242,7 @@ class SearchExport
      *
      * @param mixed $rawDate Valeur brute YYYY-MM-DD (ou YYYY-MM-DD HH:MM:SS)
      */
-    private function writeDateCell(Worksheet $sheet, int $col, int $row, $rawDate): void
+    private function writeDateCell(Worksheet $sheet, string $coordinate, mixed $rawDate): void
     {
         if (!is_string($rawDate) || '' === $rawDate) {
             return;
@@ -250,7 +250,7 @@ class SearchExport
 
         $date = \DateTime::createFromFormat('Y-m-d', substr($rawDate, 0, 10));
         if ($date instanceof \DateTime) {
-            $this->writeTextCell($sheet, $col, $row, $date->format('d/m/Y'));
+            $this->writeTextCell($sheet, $coordinate, $date->format('d/m/Y'));
         }
     }
 }

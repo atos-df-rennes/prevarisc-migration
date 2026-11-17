@@ -25,23 +25,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DossierSuppressionService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var DossierAffectationRepository */
-    private $dossierAffectationRepository;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierAffectationRepository $dossierAffectationRepository,
-        DossierRepository $dossierRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->dossierAffectationRepository = $dossierAffectationRepository;
-        $this->dossierRepository = $dossierRepository;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierAffectationRepository $dossierAffectationRepository, private readonly DossierRepository $dossierRepository)
+    {
     }
 
     /**

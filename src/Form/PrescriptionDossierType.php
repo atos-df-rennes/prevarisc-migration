@@ -31,7 +31,7 @@ class PrescriptionDossierType extends AbstractType
                 'label' => 'Contenu',
                 'attr' => ['rows' => 10],
                 'constraints' => [
-                    new NotBlank(['message' => 'Le contenu de la prescription est obligatoire.']),
+                    new NotBlank(message: 'Le contenu de la prescription est obligatoire.'),
                 ],
             ])
             ->add('associations', CollectionType::class, [
@@ -41,10 +41,7 @@ class PrescriptionDossierType extends AbstractType
                 'allow_delete' => true,
                 'delete_empty' => true,
                 'constraints' => [
-                    new Count([
-                        'min' => 1,
-                        'minMessage' => 'Vous devez ajouter au moins une association (texte/article).',
-                    ]),
+                    new Count(min: 1, minMessage: 'Vous devez ajouter au moins une association (texte/article).'),
                 ],
                 'error_bubbling' => false,
             ])

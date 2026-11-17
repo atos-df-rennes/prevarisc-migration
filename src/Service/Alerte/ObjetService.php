@@ -17,15 +17,11 @@ use App\Entity\EtablissementType;
  */
 class ObjetService
 {
-    /** @var AvisService */
-    private $avisService;
-
     /**
      * @param AvisService $avisService Service utilitaire pour récupération avis
      */
-    public function __construct(AvisService $avisService)
+    public function __construct(private readonly AvisService $avisService)
     {
-        $this->avisService = $avisService;
     }
 
     /**
@@ -54,7 +50,7 @@ class ObjetService
 
         // Ajouter parent direct si existe
         $parent = $etablissement->getParent();
-        if (null !== $parent) {
+        if ($parent instanceof Etablissement) {
             $parentInfos = $parent->getLatestInformations();
             $parentLibelle = $parentInfos->getLibelle() ?? '';
             if ('' !== $parentLibelle) {
@@ -99,19 +95,12 @@ class ObjetService
      */
     private function getPartieChangement(int $typeChangement, Etablissement $etablissement): string
     {
-        switch ($typeChangement) {
-            case TypeChangement::STATUT:
-                return $this->getObjetStatut($etablissement);
-
-            case TypeChangement::AVIS:
-                return $this->getObjetAvis($etablissement);
-
-            case TypeChangement::CLASSEMENT:
-                return $this->getObjetClassement($etablissement);
-
-            default:
-                return 'Changement';
-        }
+        return match ($typeChangement) {
+            TypeChangement::STATUT => $this->getObjetStatut($etablissement),
+            TypeChangement::AVIS => $this->getObjetAvis($etablissement),
+            TypeChangement::CLASSEMENT => $this->getObjetClassement($etablissement),
+            default => 'Changement',
+        };
     }
 
     /**

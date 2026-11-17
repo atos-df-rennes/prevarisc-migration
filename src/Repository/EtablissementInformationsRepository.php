@@ -2,9 +2,10 @@
 
 namespace App\Repository;
 
+use App\Constant\GenreEtablissement;
 use App\Entity\EtablissementInformations;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,14 +18,6 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class EtablissementInformationsRepository extends ServiceEntityRepository
 {
-    // @todo: A remplacer par l'utilisation des constantes une fois la release/2.9 dispo.
-    // @todo: Penser aussi à remplacer les usages en direct (2, 5) en plus des constantes privées déclarées ici.
-    private const GENRE_SITE = 1;
-
-    private const GENRE_ETABLISSEMENT = 2;
-
-    private const GENRE_CELLULE = 3;
-
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, EtablissementInformations::class);
@@ -55,7 +48,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
                 WHERE ea.NUMINSEE_COMMUNE IN (:communes)';
 
-        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_INT_ARRAY]);
+        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => ArrayParameterType::INTEGER]);
     }
 
     /**
@@ -85,7 +78,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
                 WHERE ea.NUMINSEE_COMMUNE IN (:communes)';
 
-        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_INT_ARRAY]);
+        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => ArrayParameterType::INTEGER]);
     }
 
     /**
@@ -115,7 +108,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                     AND ei.DATE_ETABLISSEMENTINFORMATIONS = ei_max.MAX_DATE
                 WHERE ea.NUMINSEE_COMMUNE IN (:communes)';
 
-        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => Connection::PARAM_INT_ARRAY]);
+        return $conn->executeStatement($sql, ['communes' => $communesNumInsee], ['communes' => ArrayParameterType::INTEGER]);
     }
 
     /**
@@ -145,7 +138,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 WHERE ei.ID_GENRE = :genre
                 AND g.LIBELLE_GROUPEMENT = :groupement';
 
-        return $conn->executeStatement($sql, ['genre' => self::GENRE_ETABLISSEMENT, 'groupement' => $groupement]);
+        return $conn->executeStatement($sql, ['genre' => GenreEtablissement::ERP, 'groupement' => $groupement]);
     }
 
     /**
@@ -177,7 +170,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 WHERE ei.ID_GENRE = :genre
                 AND g.LIBELLE_GROUPEMENT = :groupement';
 
-        return $conn->executeStatement($sql, ['genre' => self::GENRE_CELLULE, 'groupement' => $groupement]);
+        return $conn->executeStatement($sql, ['genre' => GenreEtablissement::CELLULE, 'groupement' => $groupement]);
     }
 
     /**
@@ -209,7 +202,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
                 WHERE ei.ID_GENRE = :genre
                 AND g.LIBELLE_GROUPEMENT = :groupement';
 
-        return $conn->executeStatement($sql, ['genre' => self::GENRE_SITE, 'groupement' => $groupement]);
+        return $conn->executeStatement($sql, ['genre' => GenreEtablissement::SITE, 'groupement' => $groupement]);
     }
 
     /**
@@ -235,8 +228,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
             ->innerJoin('e.adresses', 'ea')
             ->where('IDENTITY(ei.genre) IN (:genres)')
             ->andWhere('ei.date = (SELECT MAX(ei2.date) FROM App\Entity\EtablissementInformations ei2 WHERE ei2.etablissement = ei.etablissement)')
-            // @todo: Remplacer pour l'utilisation des constantes
-            ->setParameter('genres', [2, 5])
+            ->setParameter('genres', [GenreEtablissement::ERP, GenreEtablissement::IGH])
             ->getQuery()
             ->getArrayResult();
     }
@@ -257,7 +249,7 @@ class EtablissementInformationsRepository extends ServiceEntityRepository
         return $conn->executeStatement(
             'UPDATE etablissementinformations SET ID_COMMISSION = :commissionId WHERE ID_ETABLISSEMENTINFORMATIONS IN (:ids)',
             ['commissionId' => $commissionId, 'ids' => $ids],
-            ['ids' => Connection::PARAM_INT_ARRAY]
+            ['ids' => ArrayParameterType::INTEGER]
         );
     }
 }

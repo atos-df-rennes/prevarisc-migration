@@ -18,15 +18,16 @@ use App\Service\DataStore\DataStore;
 use App\Utils\Date;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 // Routes du calendrier des commissions migrées vers Symfony.
 // URL principale : /commissions/calendrier (≠ legacy /calendrier-des-commissions).
@@ -36,72 +37,17 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 // Pièces jointes → CalendrierDesCommissionsPiecesJointesController
 class CalendrierDesCommissionsController extends AbstractController
 {
-    /**
-     * @var CalendarService
-     */
-    private $calendarService;
-
-    /**
-     * @var DateCommissionRepository
-     */
-    private $dateCommissionRepository;
-
-    /**
-     * @var CommissionDatesTransformer
-     */
-    private $commissionDatesTransformer;
-
-    /**
-     * @var CommissionTypeEvenementRepository
-     */
-    private $commissionTypeEvenementRepository;
-
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
-
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var DataStore
-     */
-    private $dataStore;
-
-    public function __construct(
-        CalendarService $calendarService,
-        DateCommissionRepository $dateCommissionRepository,
-        CommissionDatesTransformer $commissionDatesTransformer,
-        CommissionTypeEvenementRepository $commissionTypeEvenementRepository,
-        CommissionRepository $commissionRepository,
-        EntityManagerInterface $entityManager,
-        DataStore $dataStore
-    ) {
-        $this->calendarService = $calendarService;
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->commissionDatesTransformer = $commissionDatesTransformer;
-        $this->commissionTypeEvenementRepository = $commissionTypeEvenementRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->entityManager = $entityManager;
-        $this->dataStore = $dataStore;
+    public function __construct(private readonly CalendarService $calendarService, private readonly DateCommissionRepository $dateCommissionRepository, private readonly CommissionDatesTransformer $commissionDatesTransformer, private readonly CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private readonly CommissionRepository $commissionRepository, private readonly EntityManagerInterface $entityManager, private readonly DataStore $dataStore)
+    {
     }
 
     /**
      * Page principale du calendrier des commissions.
-     *
-     * @Route("/commissions/calendrier", name="calendrier_des_commissions_index", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
-    public function index(Request $request): Response
+    #[Route(path: '/commissions/calendrier', name: 'calendrier_des_commissions_index', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
+    public function index(Request $request, #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $idComm = null): Response
     {
-        /** @var string|null $rawIdComm */
-        $rawIdComm = $request->query->get('idComm');
-        $idComm = null !== $rawIdComm && '' !== $rawIdComm ? (int) $rawIdComm : null;
-
         $arrayCommissions = $this->commissionRepository->getCommissionsAndTypes();
 
         $isAdmin = $this->isGranted('gestion_commissions');
@@ -111,9 +57,7 @@ class CalendrierDesCommissionsController extends AbstractController
         $userCommissionIds = [];
         if ($user instanceof Utilisateur) {
             $userCommissionIds = array_map(
-                function (Commission $c): int {
-                    return (int) $c->getId();
-                },
+                fn (Commission $c): int => (int) $c->getId(),
                 $user->getCommissions()->toArray()
             );
         }
@@ -145,16 +89,11 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Autocomplete de recherche de commission.
-     *
-     * @Route("/commissions/calendrier/commissionselection", name="calendrier_des_commissions_commissionselection", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
-    public function commissionSelection(Request $request): JsonResponse
+    #[Route(path: '/commissions/calendrier/commissionselection', name: 'calendrier_des_commissions_commissionselection', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
+    public function commissionSelection(#[MapQueryParameter] string $q = ''): JsonResponse
     {
-        /** @var string $q */
-        $q = $request->query->get('q', '');
-
         if ('' === $q) {
             return $this->json([]);
         }
@@ -167,23 +106,19 @@ class CalendrierDesCommissionsController extends AbstractController
             ['q' => '%'.$q.'%']
         );
 
-        $items = array_map(function (array $row): array {
-            return [
-                'id' => $row['ID_COMMISSION'],
-                'infos' => $row['LIBELLE_COMMISSION'],
-            ];
-        }, $rows);
+        $items = array_map(fn (array $row): array => [
+            'id' => $row['ID_COMMISSION'],
+            'infos' => $row['LIBELLE_COMMISSION'],
+        ], $rows);
 
         return $this->json($items);
     }
 
     /**
      * Dialogue de gestion des dates de commission (mega-switch).
-     *
-     * @Route("/commissions/calendrier/dialogcomm", name="calendrier_des_commissions_dialog_edit", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("ecriture_commission")
      */
+    #[Route(path: '/commissions/calendrier/dialogcomm', name: 'calendrier_des_commissions_dialog_edit', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('ecriture_commission')]
     public function dialogComm(Request $request): Response
     {
         /** @var string $do */
@@ -275,7 +210,7 @@ class CalendrierDesCommissionsController extends AbstractController
 
             return $this->render('calendrier_des_commissions/dialog/_type_edit.html.twig', [
                 'listeCommType' => $listeCommType,
-                'typeComSelect' => null !== $typeEvenement ? $typeEvenement->getId() : null,
+                'typeComSelect' => $typeEvenement?->getId(),
             ]);
         }
 
@@ -442,16 +377,14 @@ class CalendrierDesCommissionsController extends AbstractController
                     if ('' !== $dateFStr) {
                         $dateEnd = $this->calendarService->parseJavaScriptDate($dateFStr);
                         $numberOfDays = $dateStart->diff($dateEnd)->days;
-                        if (is_int($numberOfDays)) {
-                            for ($i = 1; $i <= $numberOfDays; ++$i) {
-                                $date = clone $dateStart;
-                                $date->modify(sprintf('+%d days', $i));
-                                $dateCommissionDto->addDate(new DateCommissionItemDto($date));
-                            }
+                        for ($i = 1; $i <= $numberOfDays; ++$i) {
+                            $date = clone $dateStart;
+                            $date->modify(sprintf('+%d days', $i));
+                            $dateCommissionDto->addDate(new DateCommissionItemDto($date));
                         }
                     }
                 }
-            } catch (\InvalidArgumentException $e) {
+            } catch (\InvalidArgumentException) {
                 // Date invalide ou absente : on laisse le formulaire vide
             }
 
@@ -460,7 +393,7 @@ class CalendrierDesCommissionsController extends AbstractController
             ]);
 
             return $this->render('calendrier_des_commissions/form_date.html.twig', [
-                'form' => $form->createView(),
+                'form' => $form,
                 'show_footer' => false,
             ]);
         }
@@ -470,11 +403,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Affiche la boîte de dialogue de confirmation de suppression d'une date.
-     *
-     * @Route("/commissions/calendrier/alertsuppression", name="calendrier_des_commissions_alertsuppression", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("ecriture_commission")
      */
+    #[Route(path: '/commissions/calendrier/alertsuppression', name: 'calendrier_des_commissions_alertsuppression', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('ecriture_commission')]
     public function alertSuppression(Request $request): Response
     {
         /** @var string $commissionId */
@@ -490,11 +421,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Supprime définitivement une date de commission et ses données liées.
-     *
-     * @Route("/commissions/calendrier/validsuppression", name="calendrier_des_commissions_validsuppression", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("ecriture_commission")
      */
+    #[Route(path: '/commissions/calendrier/validsuppression', name: 'calendrier_des_commissions_validsuppression', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('ecriture_commission')]
     public function validSuppression(Request $request): Response
     {
         /** @var string $csrfToken */
@@ -536,7 +465,7 @@ class CalendrierDesCommissionsController extends AbstractController
                 if ('' !== $path && $filesystem->exists($path)) {
                     try {
                         $filesystem->remove($path);
-                    } catch (IOException $e) {
+                    } catch (IOException) {
                         // Fichier non supprimable (permissions) : on continue la suppression de la commission
                     }
                 }
@@ -551,22 +480,15 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Récupère les événements du calendrier des commissions.
-     *
-     * @Route("/commissions/calendrier/recupevenement", name="calendrier_des_commissions_recuperer_evenements", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
-    public function getCalendarEvents(Request $request): JsonResponse
-    {
-        /** @var string|null $start */
-        $start = $request->query->get('start');
-        /** @var string|null $end */
-        $end = $request->query->get('end');
-        /** @var string|null $idCommission */
-        $idCommission = $request->query->get('idComm');
-        /** @var string|null $type */
-        $type = $request->query->get('type');
-
+    #[Route(path: '/commissions/calendrier/recupevenement', name: 'calendrier_des_commissions_recuperer_evenements', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
+    public function getCalendarEvents(
+        #[MapQueryParameter] ?string $start = null,
+        #[MapQueryParameter] ?string $end = null,
+        #[MapQueryParameter(name: 'idComm')] ?string $idCommission = null,
+        #[MapQueryParameter] ?string $type = null,
+    ): JsonResponse {
         if (null === $start || null === $end) {
             return $this->json(['items' => []]);
         }
@@ -574,7 +496,7 @@ class CalendrierDesCommissionsController extends AbstractController
         $dateDebut = $this->calendarService->parseTimestamp($start);
         $dateFin = $this->calendarService->parseTimestamp($end);
 
-        if (null === $dateDebut || null === $dateFin) {
+        if (!$dateDebut instanceof \DateTimeInterface || !$dateFin instanceof \DateTimeInterface) {
             return $this->json(['items' => []]);
         }
 
@@ -586,9 +508,7 @@ class CalendrierDesCommissionsController extends AbstractController
         );
 
         $items = array_map(
-            function (CalendarEventDto $event): array {
-                return $event->toArray();
-            },
+            fn (CalendarEventDto $event): array => $event->toArray(),
             $events
         );
 
@@ -600,16 +520,12 @@ class CalendrierDesCommissionsController extends AbstractController
      * exemple: /calendrier-des-commissions/<date>/recuperer-dates-liees qui donnera le paramètre DateCommission $dateCommission.
      *
      * Récupère les dates de commission liées à une date donnée.
-     *
-     * @Route("/commissions/calendrier/recuperer-dates-liees", name="calendrier_des_commissions_recuperer_dates_liees", methods={"GET"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
-    public function getLinkedDates(Request $request): JsonResponse
+    #[Route(path: '/commissions/calendrier/recuperer-dates-liees', name: 'calendrier_des_commissions_recuperer_dates_liees', methods: ['GET'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
+    public function getLinkedDates(#[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $idDate = null): JsonResponse
     {
-        $idDate = filter_var($request->query->get('idDate'), FILTER_VALIDATE_INT);
-
-        if (false === $idDate) {
+        if (null === $idDate) {
             return $this->json([]);
         }
 
@@ -624,9 +540,7 @@ class CalendrierDesCommissionsController extends AbstractController
         $dtos = array_map([DateCommissionLieeDto::class, 'fromEntity'], $datesLiees);
 
         $items = array_map(
-            function (DateCommissionLieeDto $dto): array {
-                return $dto->toArray();
-            },
+            fn (DateCommissionLieeDto $dto): array => $dto->toArray(),
             $dtos
         );
 
@@ -635,11 +549,9 @@ class CalendrierDesCommissionsController extends AbstractController
 
     /**
      * Modifie l'heure de fin d'une date de commission.
-     *
-     * @Route("/commissions/calendrier/redimensionner-date", name="calendrier_des_commissions_redimensionner_date", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("lecture_commission")
      */
+    #[Route(path: '/commissions/calendrier/redimensionner-date', name: 'calendrier_des_commissions_redimensionner_date', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('lecture_commission')]
     public function resizeCommissionDate(Request $request): JsonResponse
     {
         try {
@@ -660,28 +572,26 @@ class CalendrierDesCommissionsController extends AbstractController
 
             return $this->json([
                 'success' => true,
-                'message' => 'L\'événement a bien été modifié',
+                'message' => "L'événement a bien été modifié",
             ]);
         } catch (\InvalidArgumentException $e) {
             return $this->json([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], 404);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return $this->json([
                 'success' => false,
-                'error' => 'Erreur lors de la modification de l\'événement',
+                'error' => "Erreur lors de la modification de l'événement",
             ], 500);
         }
     }
 
     /**
      * Déplace une date de commission (modifie la date et les heures).
-     *
-     * @Route("/commissions/calendrier/deplacer-date", name="calendrier_des_commissions_deplacer_date", methods={"POST"}, options={"expose"=true})
-     *
-     * @IsGranted("ecriture_commission")
      */
+    #[Route(path: '/commissions/calendrier/deplacer-date', name: 'calendrier_des_commissions_deplacer_date', methods: ['POST'], options: ['expose' => true])]
+    #[IsGranted('ecriture_commission')]
     public function moveCommissionDate(Request $request): JsonResponse
     {
         try {
@@ -723,28 +633,26 @@ class CalendrierDesCommissionsController extends AbstractController
 
             return $this->json([
                 'success' => true,
-                'message' => 'L\'événement a bien été déplacé',
+                'message' => "L'événement a bien été déplacé",
             ]);
         } catch (\InvalidArgumentException $e) {
             return $this->json([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], 404);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return $this->json([
                 'success' => false,
-                'error' => 'Erreur lors du déplacement de l\'événement',
+                'error' => "Erreur lors du déplacement de l'événement",
             ], 500);
         }
     }
 
-    /**
-     * @Route("/commissions/calendrier/creer-date", name="calendrier_des_commissions_creer_date", methods={"GET", "POST"}, options={"expose"=true})
-     *
-     * @IsGranted("creation_commission")
-     */
+    #[Route(path: '/commissions/calendrier/creer-date', name: 'calendrier_des_commissions_creer_date', methods: ['GET', 'POST'], options: ['expose' => true])]
+    #[IsGranted('creation_commission')]
     public function creerDate(
-        Request $request
+        Request $request,
+        #[MapQueryParameter(name: 'show_footer', flags: \FILTER_NULL_ON_FAILURE)] ?bool $showFooter = null,
     ): Response {
         $dateCommissionDto = new CommissionDatesDto();
 
@@ -772,7 +680,7 @@ class CalendrierDesCommissionsController extends AbstractController
             $datesCommission = $this->commissionDatesTransformer->transformToEntities($data);
             try {
                 $idAffectation = $this->calendarService->sauvegarderDatesCommission($datesCommission, $data->isWithPeriodicite());
-            } catch (EntityNotFoundException $entityNotFoundException) {
+            } catch (EntityNotFoundException) {
                 return $this->json([
                     'success' => false,
                     'error' => "La date principale n'a pas pu être récupérée correctement",
@@ -788,10 +696,10 @@ class CalendrierDesCommissionsController extends AbstractController
         }
 
         return $this->render('calendrier_des_commissions/form_date.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             // Par défaut : pas de footer si requête AJAX (calendrier principal gère ses propres boutons via jQuery UI dialog).
             // Le contexte dossier passe show_footer=1 pour afficher les boutons dans la modale Bootstrap.
-            'show_footer' => (bool) $request->query->get('show_footer', !$request->isXmlHttpRequest()),
+            'show_footer' => $showFooter ?? !$request->isXmlHttpRequest(),
         ]);
     }
 }

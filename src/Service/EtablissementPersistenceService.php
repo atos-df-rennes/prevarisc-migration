@@ -25,15 +25,10 @@ use Doctrine\ORM\EntityManagerInterface;
  * d'un établissement (préventionnistes, rubriques, plans, activités secondaires, adresses,
  * établissements liés et père).
  */
-final class EtablissementPersistenceService
+final readonly class EtablissementPersistenceService
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
+    public function __construct(private EtablissementRepository $etablissementRepository)
+    {
     }
 
     /**
@@ -256,13 +251,13 @@ final class EtablissementPersistenceService
                 }
 
                 $filsGenre = $fils->getLatestInformations()->getGenre();
-                $filsGenreId = null !== $filsGenre ? $filsGenre->getId() : null;
+                $filsGenreId = $filsGenre?->getId();
 
                 // Validations de compatibilité genre
                 if (GenreEtablissement::SITE === $idGenre
                     && !in_array($filsGenreId, [GenreEtablissement::ERP, GenreEtablissement::HABITATION, GenreEtablissement::IGH, GenreEtablissement::BUP, GenreEtablissement::CAMPING, GenreEtablissement::MANIFESTATION_TEMPORAIRE, GenreEtablissement::IOP], true)
                 ) {
-                    throw new \InvalidArgumentException('L\'établissement enfant n\'est pas compatible avec un site.', 500);
+                    throw new \InvalidArgumentException("L'établissement enfant n'est pas compatible avec un site.", 500);
                 }
 
                 if (in_array($idGenre, [GenreEtablissement::ERP, GenreEtablissement::IGH], true)
@@ -272,7 +267,7 @@ final class EtablissementPersistenceService
                 }
 
                 if (GenreEtablissement::SITE === $filsGenreId) {
-                    throw new \InvalidArgumentException('Un site ne peut pas être enfant d\'un autre établissement.', 500);
+                    throw new \InvalidArgumentException("Un site ne peut pas être enfant d'un autre établissement.", 500);
                 }
 
                 $etablissement->addFils($fils);
@@ -294,12 +289,12 @@ final class EtablissementPersistenceService
             $pere = $this->etablissementRepository->find($idPere);
             if (null !== $pere) {
                 $pereGenre = $pere->getLatestInformations()->getGenre();
-                $pereGenreId = null !== $pereGenre ? $pereGenre->getId() : null;
+                $pereGenreId = $pereGenre?->getId();
 
                 if (in_array($idGenre, [GenreEtablissement::ERP, GenreEtablissement::HABITATION, GenreEtablissement::IGH, GenreEtablissement::BUP, GenreEtablissement::CAMPING, GenreEtablissement::MANIFESTATION_TEMPORAIRE, GenreEtablissement::IOP], true)
                     && GenreEtablissement::SITE !== $pereGenreId
                 ) {
-                    throw new \InvalidArgumentException('L\'établissement père doit être un site.', 500);
+                    throw new \InvalidArgumentException("L'établissement père doit être un site.", 500);
                 }
 
                 if (GenreEtablissement::CELLULE === $idGenre

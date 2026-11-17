@@ -1,0 +1,42 @@
+name: Prevarisc dependency updates
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  APP_ENV: dev
+  APP_DEBUG: '1'
+  APP_SECRET: ci-only-not-a-production-secret
+  APP_RUNTIME_OPTIONS: '{"disable_dotenv":true}'
+  DATABASE_URL: 'mysql://ci:ci@127.0.0.1:3306/prevarisc_ci?serverVersion=11.8.8-MariaDB&charset=utf8mb4'
+
+jobs:
+  dependencies:
+    name: Outdated dependencies (informational)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        id: setup
+        with:
+          app: 'true'
+          tools: 'true'
+      - name: Check application dependency updates
+        run: tools/vendor/bin/swiss-knife breakpoint --limit 5
+      - name: Check tooling dependency updates
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        working-directory: tools
+        run: vendor/bin/swiss-knife breakpoint --limit 5

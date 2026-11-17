@@ -2,30 +2,10 @@
 
 namespace App\Dto;
 
-final class Ldap
+final readonly class Ldap
 {
-    /** @var bool */
-    private $enabled;
-
-    /** @var string */
-    private $host;
-
-    /** @var int */
-    private $port;
-
-    /** @var string */
-    private $baseDn;
-
-    public function __construct(
-        bool $enabled,
-        string $host,
-        int $port,
-        string $baseDn
-    ) {
-        $this->enabled = $enabled;
-        $this->host = $host;
-        $this->port = $port;
-        $this->baseDn = $baseDn;
+    public function __construct(private bool $enabled, private string $host, private int $port, private string $baseDn)
+    {
     }
 
     public function enabled(): bool

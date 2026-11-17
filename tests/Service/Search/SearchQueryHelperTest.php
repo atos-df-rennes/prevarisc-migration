@@ -1,22 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Search;
 
 use App\Service\Search\SearchQueryHelper;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \App\Service\Search\SearchQueryHelper
- */
+#[CoversClass(SearchQueryHelper::class)]
+#[AllowMockObjectsWithoutExpectations]
 final class SearchQueryHelperTest extends TestCase
 {
-    /** @var Connection|MockObject */
-    private $connection;
+    /** @var MockObject&Connection */
+    private MockObject $connection;
 
-    /** @var SearchQueryHelper */
-    private $helper;
+    private SearchQueryHelper $helper;
 
     protected function setUp(): void
     {
@@ -30,9 +33,9 @@ final class SearchQueryHelperTest extends TestCase
 
     public function testSafeQuoteRetourneLeResultatDeConnectionQuote(): void
     {
-        $this->connection->method('quote')->with('test')->willReturn("'test'");
+        $this->connection->expects($this->once())->method('quote')->with('test')->willReturn("'test'");
 
-        self::assertSame("'test'", $this->helper->safeQuote('test'));
+        $this->assertSame("'test'", $this->helper->safeQuote('test'));
     }
 
     public function testSafeQuoteUtiliseFallbackSiConnectionQuoteRetourneNonString(): void
@@ -41,7 +44,7 @@ final class SearchQueryHelperTest extends TestCase
         $this->connection->method('quote')->willReturn(false);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Connection::quote() returned a non-string value');
+        $this->expectExceptionMessageIsOrContains('Connection::quote() returned a non-string value');
 
         $this->helper->safeQuote('hello');
     }
@@ -53,7 +56,7 @@ final class SearchQueryHelperTest extends TestCase
         $this->connection->method('quote')->willReturn(false);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Connection::quote() returned a non-string value');
+        $this->expectExceptionMessageIsOrContains('Connection::quote() returned a non-string value');
 
         $this->helper->safeQuote("it's fine");
     }
@@ -63,85 +66,81 @@ final class SearchQueryHelperTest extends TestCase
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * @dataProvider splitLabelAndIdentifiantProvider
-     *
      * @param array{0: string|null, 1: string|null} $expected
      */
+    #[DataProvider('splitLabelAndIdentifiantProvider')]
     public function testSplitLabelAndIdentifiant(?string $label, array $expected): void
     {
-        self::assertSame($expected, $this->helper->splitLabelAndIdentifiant($label));
+        $this->assertSame($expected, $this->helper->splitLabelAndIdentifiant($label));
     }
 
     /**
-     * @return array<string, array{0: string|null, 1: array{0: string|null, 1: string|null}}>
+     * @return \Iterator<string, array{(string | null), array{(string | null), (string | null)}}>
      */
-    public function splitLabelAndIdentifiantProvider(): array
+    public static function splitLabelAndIdentifiantProvider(): \Iterator
     {
-        return [
-            'label null' => [null, [null, null]],
-            'label vide' => ['', ['', null]],
-            'label sans dièse' => ['mairie', ['mairie', null]],
-            'label numerique sans dièse' => ['101', ['101', null]],
-            'label avec dièse simple' => ['#101', [null, '101']],
-            'label avec dièse et suffixe' => ['#101A', [null, '101A']],
-            'label uniquement dièse' => ['#', [null, '']],
-            'dièse pas en première position' => ['ab#101', ['ab#101', null]],
-        ];
+        yield 'label null' => [null, [null, null]];
+        yield 'label vide' => ['', ['', null]];
+        yield 'label sans dièse' => ['mairie', ['mairie', null]];
+        yield 'label numerique sans dièse' => ['101', ['101', null]];
+        yield 'label avec dièse simple' => ['#101', [null, '101']];
+        yield 'label avec dièse et suffixe' => ['#101A', [null, '101A']];
+        yield 'label uniquement dièse' => ['#', [null, '']];
+        yield 'dièse pas en première position' => ['ab#101', ['ab#101', null]];
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     // buildCriteria — mode exact (=)
     // ─────────────────────────────────────────────────────────────────────────
     /**
-     * @dataProvider buildCriteriaExactProvider
-     *
      * @param array<int|string, bool|int|string>|bool|float|int|string $value
      */
-    public function testBuildCriteriaExactProduitConditionEgalite(string $key, $value, string $quoteInput, string $expected): void
+    #[DataProvider('buildCriteriaExactProvider')]
+    public function testBuildCriteriaExactProduitConditionEgalite(string $key, string|int|bool $value, string $quoteInput, string $expected): void
     {
-        $this->connection->method('quote')
+        $this->connection->expects($this->once())
+            ->method('quote')
             ->with($quoteInput)
             ->willReturn(sprintf("'%s'", $quoteInput));
 
-        self::assertSame($expected, $this->helper->buildCriteria($key, $value));
+        $this->assertSame($expected, $this->helper->buildCriteria($key, $value));
     }
 
     /**
-     * @return array<string, array<mixed>>
+     * @return \Iterator<string, array<mixed>>
      */
-    public function buildCriteriaExactProvider(): array
+    public static function buildCriteriaExactProvider(): \Iterator
     {
-        return [
-            'valeur string simple' => ['mon_champ', 'valeur', 'valeur', "(mon_champ='valeur')"],
-            'valeur entière' => ['id', 42, '42', "(id='42')"],
-            'valeur booléenne true' => ['actif', true, '1', "(actif='1')"],
-            'valeur booléenne false' => ['actif', false, '0', "(actif='0')"],
-        ];
+        yield 'valeur string simple' => ['mon_champ', 'valeur', 'valeur', "(mon_champ='valeur')"];
+        yield 'valeur entière' => ['id', 42, '42', "(id='42')"];
+        yield 'valeur booléenne true' => ['actif', true, '1', "(actif='1')"];
+        yield 'valeur booléenne false' => ['actif', false, '0', "(actif='0')"];
     }
 
     public function testBuildCriteriaExactAvecTableauProduitConditionOr(): void
     {
         $this->connection->method('quote')
-            ->willReturnCallback(function (string $v): string { return sprintf("'%s'", $v); });
+            ->willReturnCallback(fn (string $v): string => sprintf("'%s'", $v));
 
         $result = $this->helper->buildCriteria('genre.ID_GENRE', ['1', '2', '3']);
 
-        self::assertSame("(genre.ID_GENRE='1' OR genre.ID_GENRE='2' OR genre.ID_GENRE='3')", $result);
+        $this->assertSame("(genre.ID_GENRE='1' OR genre.ID_GENRE='2' OR genre.ID_GENRE='3')", $result);
     }
 
     public function testBuildCriteriaExactAvecTableauDUnElement(): void
     {
-        $this->connection->method('quote')
+        $this->connection->expects($this->once())
+            ->method('quote')
             ->with('5')
             ->willReturn("'5'");
 
-        self::assertSame("(id='5')", $this->helper->buildCriteria('id', ['5']));
+        $this->assertSame("(id='5')", $this->helper->buildCriteria('id', ['5']));
     }
 
     public function testBuildCriteriaAvecTableauVideLeveUneException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('buildCriteria() requires a non-empty value.');
+        $this->expectExceptionMessageIsOrContains('buildCriteria() requires a non-empty value.');
 
         $this->helper->buildCriteria('id', []);
     }
@@ -152,23 +151,24 @@ final class SearchQueryHelperTest extends TestCase
 
     public function testBuildCriteriaLikeProduitConditionLike(): void
     {
-        $this->connection->method('quote')
+        $this->connection->expects($this->once())
+            ->method('quote')
             ->with('%mairie%')
             ->willReturn("'%mairie%'");
 
         $result = $this->helper->buildCriteria('LIBELLE_ETABLISSEMENTINFORMATIONS', 'mairie', false);
 
-        self::assertSame("(LIBELLE_ETABLISSEMENTINFORMATIONS LIKE '%mairie%')", $result);
+        $this->assertSame("(LIBELLE_ETABLISSEMENTINFORMATIONS LIKE '%mairie%')", $result);
     }
 
     public function testBuildCriteriaLikeAvecTableauProduitMultiplesLike(): void
     {
         $this->connection->method('quote')
-            ->willReturnCallback(function (string $v): string { return sprintf("'%s'", $v); });
+            ->willReturnCallback(fn (string $v): string => sprintf("'%s'", $v));
 
         $result = $this->helper->buildCriteria('LIBELLE', ['foo', 'bar'], false);
 
-        self::assertSame("(LIBELLE LIKE '%foo%' OR LIBELLE LIKE '%bar%')", $result);
+        $this->assertSame("(LIBELLE LIKE '%foo%' OR LIBELLE LIKE '%bar%')", $result);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -177,7 +177,8 @@ final class SearchQueryHelperTest extends TestCase
 
     public function testBuildCriteriaExactVraiParDefaut(): void
     {
-        $this->connection->method('quote')
+        $this->connection->expects($this->exactly(2))
+            ->method('quote')
             ->with('abc')
             ->willReturn("'abc'");
 
@@ -185,8 +186,8 @@ final class SearchQueryHelperTest extends TestCase
         $withDefault = $this->helper->buildCriteria('champ', 'abc');
         $withTrue = $this->helper->buildCriteria('champ', 'abc', true);
 
-        self::assertSame($withTrue, $withDefault);
-        self::assertStringContainsString('=', $withDefault);
-        self::assertStringNotContainsString('LIKE', $withDefault);
+        $this->assertSame($withTrue, $withDefault);
+        $this->assertStringContainsString('=', $withDefault);
+        $this->assertStringNotContainsString('LIKE', $withDefault);
     }
 }

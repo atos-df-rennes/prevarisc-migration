@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\Dossier;
@@ -7,10 +9,9 @@ use App\Entity\DossierNatureListe;
 use App\Service\DossierFields;
 use PHPUnit\Framework\TestCase;
 
-class DossierFieldsTest extends TestCase
+final class DossierFieldsTest extends TestCase
 {
-    /** @var DossierFields */
-    private $service;
+    private DossierFields $service;
 
     protected function setUp(): void
     {
@@ -85,7 +86,7 @@ class DossierFieldsTest extends TestCase
 
     public function testGetFieldsToDisplayReturnsEmptyArrayWhenNoNature(): void
     {
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getNature')->willReturn(null);
 
         $this->assertEmpty($this->service->getFieldsToDisplay($dossier));
@@ -104,12 +105,19 @@ class DossierFieldsTest extends TestCase
         $this->assertContains('dureeIntervention', $fields);
     }
 
+    public function testReferenceCourrierIsAvailableForEveryNature(): void
+    {
+        foreach ($this->service->getAllFieldsByNature() as $natureId => $fields) {
+            $this->assertContains('referenceCourrier', $fields, sprintf('Nature %s must display the reference courrier field.', $natureId));
+        }
+    }
+
     private function createDossierWithNature(int $natureId): Dossier
     {
-        $nature = $this->createMock(DossierNatureListe::class);
+        $nature = $this->createStub(DossierNatureListe::class);
         $nature->method('getId')->willReturn($natureId);
 
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $dossier->method('getNature')->willReturn($nature);
 
         return $dossier;

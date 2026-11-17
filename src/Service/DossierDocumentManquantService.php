@@ -68,13 +68,9 @@ final class DossierDocumentManquantService
         // Trier par ID décroissant (plus récent en premier)
         // Note : tri en PHP car les documents sont déjà chargés en mémoire
         // Alternative : utiliser ORDER BY dans une requête DQL custom si performance critique
-        usort($actifs, function ($a, $b): int {
-            return $b->getId() <=> $a->getId();
-        });
+        usort($actifs, fn ($a, $b): int => $b->getId() <=> $a->getId());
 
-        usort($historique, function ($a, $b): int {
-            return $b->getId() <=> $a->getId();
-        });
+        usort($historique, fn ($a, $b): int => $b->getId() <=> $a->getId());
 
         // Reconstruire la collection : actifs d'abord, puis historique
         $documentsManquants->clear();

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -20,7 +21,7 @@ final class Version20250220153248 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
         $this->skipIf($schema->getTable('utilisateur')->hasColumn('roles'), 'Rôles déjà existants.');
 
         $this->addSql('ALTER TABLE utilisateur DROP INDEX fk_utilisateur_utilisateurinformations1_idx, ADD UNIQUE INDEX UNIQ_1D1C63B3B2A0DA51 (ID_UTILISATEURINFORMATIONS)');
@@ -41,7 +42,7 @@ final class Version20250220153248 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
         $this->skipIf(!$schema->getTable('utilisateur')->hasColumn('roles'), 'Rôles non existants.');
 
         $this->addSql('ALTER TABLE utilisateur DROP INDEX UNIQ_1D1C63B3B2A0DA51, ADD INDEX fk_utilisateur_utilisateurinformations1_idx (ID_UTILISATEURINFORMATIONS)');

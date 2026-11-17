@@ -10,7 +10,7 @@
                 <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {% endif %}
             {% if dossier.nbPJ > 0 %}
-                <a href='{{ path('dossier_pieces_jointes', {id: dossier.id}) }}' style="color: black;">
+                <a href="{{ path('dossier_pieces_jointes', {id: dossier.id}) }}" style="color: black;">
                     <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
                 </a>
             {% endif %}

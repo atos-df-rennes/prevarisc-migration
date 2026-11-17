@@ -11,51 +11,28 @@ use App\Service\Avatar;
 use App\Service\Image;
 use App\Service\UtilisateurManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Route(requirements={"id"="\d+"})
- *
- * @IsGranted("admin")
- */
+#[Route(requirements: ['id' => '\d+'])]
+#[IsGranted('admin')]
 class UtilisateursController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
-
-    /** @var GroupeRepository */
-    private $groupeRepository;
-
-    /** @var Avatar */
-    private $avatar;
-
-    /** @var Image */
-    private $image;
-
-    /** @var UtilisateurManager */
-    private $utilisateurManager;
-
-    public function __construct(EntityManagerInterface $entityManager, UtilisateurRepository $utilisateurRepository, GroupeRepository $groupeRepository, Avatar $avatar, Image $image, UtilisateurManager $utilisateurManager)
-    {
-        $this->entityManager = $entityManager;
-        $this->utilisateurRepository = $utilisateurRepository;
-        $this->groupeRepository = $groupeRepository;
-        $this->avatar = $avatar;
-        $this->image = $image;
-        $this->utilisateurManager = $utilisateurManager;
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly UtilisateurRepository $utilisateurRepository,
+        private readonly GroupeRepository $groupeRepository,
+        private readonly Avatar $avatar,
+        private readonly Image $image,
+        private readonly UtilisateurManager $utilisateurManager,
+    ) {
     }
 
-    /**
-     * @Route("/admin/utilisateurs/", name="admin_utilisateurs_index")
-     */
+    #[Route(path: '/admin/utilisateurs/', name: 'admin_utilisateurs_index')]
     public function utilisateurs(): Response
     {
         return $this->render('utilisateurs/index.html.twig', [
@@ -66,9 +43,7 @@ class UtilisateursController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/utilisateurs/ajouter", name="admin_utilisateurs_add")
-     */
+    #[Route(path: '/admin/utilisateurs/ajouter', name: 'admin_utilisateurs_add')]
     public function ajouter(Request $request): Response
     {
         $utilisateur = new Utilisateur();
@@ -114,14 +89,12 @@ class UtilisateursController extends AbstractController
         }
 
         return $this->render('utilisateurs/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
         ]);
     }
 
-    /**
-     * @Route("/admin/utilisateurs/{id}/modifier", name="admin_utilisateurs_edit")
-     */
+    #[Route(path: '/admin/utilisateurs/{id}/modifier', name: 'admin_utilisateurs_edit')]
     public function modifier(Request $request, Utilisateur $utilisateur): Response
     {
         $form = $this->createForm(UtilisateurType::class, $utilisateur);
@@ -153,12 +126,11 @@ class UtilisateursController extends AbstractController
 
             $this->addFlash('success', "L'utilisateur a bien été modifié.");
 
-            // @todo: supprimer en v3.0.0 et rediriger directement vers Symfony
-            return $this->redirect('/legacy/admin/utilisateurs/sauvegarder?userId='.$userId);
+            return $this->redirectToRoute('admin_utilisateurs_index');
         }
 
         return $this->render('utilisateurs/modification.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
             'utilisateur' => $utilisateur,
             'can_unlock_ip' => $this->getParameter('app.enforce_security') && $utilisateur->getFailedLoginAttempts() >= 2,

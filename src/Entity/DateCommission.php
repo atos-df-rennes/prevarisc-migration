@@ -5,105 +5,58 @@ namespace App\Entity;
 use App\Repository\DateCommissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DateCommissionRepository::class)
- *
- * @ORM\Table(name="datecommission")
- */
+#[ORM\Entity(repositoryClass: DateCommissionRepository::class)]
+#[ORM\Table(name: 'datecommission')]
 class DateCommission
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_DATECOMMISSION", type="bigint")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_DATECOMMISSION', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="DATE_COMMISSION", type="date", nullable=false)
-     */
-    private $date;
+    #[ORM\Column(name: 'DATE_COMMISSION', type: Types::DATE_MUTABLE, nullable: false)]
+    private ?\DateTimeInterface $date = null;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="HEUREDEB_COMMISSION", type="time", nullable=false, options={"default":"09:00:00"})
-     */
-    private $heureDebut;
+    #[ORM\Column(name: 'HEUREDEB_COMMISSION', type: Types::TIME_MUTABLE, nullable: false, options: ['default' => '09:00:00'])]
+    private ?\DateTimeInterface $heureDebut = null;
 
-    /**
-     * @var \DateTimeInterface
-     *
-     * @ORM\Column(name="HEUREFIN_COMMISSION", type="time", nullable=false, options={"default":"18:00:00"})
-     */
-    private $heureFin;
+    #[ORM\Column(name: 'HEUREFIN_COMMISSION', type: Types::TIME_MUTABLE, nullable: false, options: ['default' => '18:00:00'])]
+    private ?\DateTimeInterface $heureFin = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="LIBELLE_DATECOMMISSION", type="string", length=255, nullable=true)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_DATECOMMISSION', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $libelle = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="GESTION_HEURES", type="boolean", nullable=false)
-     */
-    private $gestionHeures;
+    #[ORM\Column(name: 'GESTION_HEURES', type: Types::BOOLEAN, nullable: false)]
+    private ?bool $gestionHeures = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(name="DATECOMMISSION_LIEES", type="bigint", nullable=true)
-     */
-    private $dateCommissionLiees;
+    #[ORM\Column(name: 'DATECOMMISSION_LIEES', type: Types::BIGINT, nullable: true)]
+    private ?int $dateCommissionLiees = null;
 
-    /**
-     * @var CommissionTypeEvenement
-     *
-     * @ORM\ManyToOne(targetEntity=CommissionTypeEvenement::class)
-     *
-     * @ORM\JoinColumn(name="ID_COMMISSIONTYPEEVENEMENT", referencedColumnName="ID_COMMISSIONTYPEEVENEMENT", nullable=false, options={"unsigned":true})
-     */
-    private $typeEvenement;
+    #[ORM\ManyToOne(targetEntity: CommissionTypeEvenement::class)]
+    #[ORM\JoinColumn(name: 'ID_COMMISSIONTYPEEVENEMENT', referencedColumnName: 'ID_COMMISSIONTYPEEVENEMENT', nullable: false, options: ['unsigned' => true])]
+    private ?CommissionTypeEvenement $typeEvenement = null;
 
-    /**
-     * @var ?Commission
-     *
-     * @ORM\ManyToOne(targetEntity=Commission::class, inversedBy="dateCommissions")
-     *
-     * @ORM\JoinColumn(name="COMMISSION_CONCERNE", referencedColumnName="ID_COMMISSION", nullable=false, options={"unsigned":true})
-     */
-    private $commission;
+    #[ORM\ManyToOne(targetEntity: Commission::class, inversedBy: 'dateCommissions')]
+    #[ORM\JoinColumn(name: 'COMMISSION_CONCERNE', referencedColumnName: 'ID_COMMISSION', nullable: false, options: ['unsigned' => true])]
+    private ?Commission $commission = null;
 
     /**
      * @var Collection<int, PieceJointe>
-     *
-     * @ORM\JoinTable(
-     *     name="datecommissionpj",
-     *     joinColumns={@ORM\JoinColumn(name="ID_DATECOMMISSION", referencedColumnName="ID_DATECOMMISSION")},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_PIECEJOINTE", referencedColumnName="ID_PIECEJOINTE")}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=PieceJointe::class)
      */
-    private $piecesJointes;
+    #[ORM\JoinTable(name: 'datecommissionpj')]
+    #[ORM\JoinColumn(name: 'ID_DATECOMMISSION', referencedColumnName: 'ID_DATECOMMISSION')]
+    #[ORM\InverseJoinColumn(name: 'ID_PIECEJOINTE', referencedColumnName: 'ID_PIECEJOINTE')]
+    #[ORM\ManyToMany(targetEntity: PieceJointe::class)]
+    private Collection $piecesJointes;
 
     /**
      * @var Collection<int, DossierAffectation>
-     *
-     * @ORM\OneToMany(targetEntity=DossierAffectation::class, mappedBy="dateCommission", orphanRemoval=true)
      */
-    private $dossierAffectations;
+    #[ORM\OneToMany(targetEntity: DossierAffectation::class, mappedBy: 'dateCommission', orphanRemoval: true)]
+    private Collection $dossierAffectations;
 
     public function __construct()
     {

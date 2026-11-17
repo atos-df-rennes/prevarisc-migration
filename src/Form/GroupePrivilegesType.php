@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Groupe;
 use App\Entity\Privileges;
+use App\Entity\Resources;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -20,21 +21,19 @@ class GroupePrivilegesType extends AbstractType
                 'choice_attr' => function (Privileges $privileges): ?array {
                     $resource = $privileges->getResource();
 
-                    if (null === $resource) {
+                    if (!$resource instanceof Resources) {
                         return null;
                     }
 
                     return ['data-resource' => $resource->getText().' ('.$resource->getName().')'];
                 },
-                'choice_label' => function (Privileges $privilege): string {
-                    return $privilege->getText().' ('.$privilege->getName().')';
-                },
+                'choice_label' => fn (Privileges $privilege): string => $privilege->getText().' ('.$privilege->getName().')',
                 'expanded' => true,
                 'multiple' => true,
                 'group_by' => function (Privileges $privilege): ?string {
                     $resource = $privilege->getResource();
 
-                    if (null === $resource) {
+                    if (!$resource instanceof Resources) {
                         return null;
                     }
 

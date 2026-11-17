@@ -3,57 +3,31 @@
 namespace App\Entity;
 
 use App\Repository\DossierAffectationRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DossierAffectationRepository::class)
- *
- * @ORM\Table(name="dossieraffectation")
- */
+#[ORM\Entity(repositoryClass: DossierAffectationRepository::class)]
+#[ORM\Table(name: 'dossieraffectation')]
 class DossierAffectation
 {
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="HEURE_DEB_AFFECT", type="time", nullable=true)
-     */
-    private $heureDebut;
+    #[ORM\Column(name: 'HEURE_DEB_AFFECT', type: Types::TIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $heureDebut = null;
 
-    /**
-     * @var ?\DateTimeInterface
-     *
-     * @ORM\Column(name="HEURE_FIN_AFFECT", type="time", nullable=true)
-     */
-    private $heureFin;
+    #[ORM\Column(name: 'HEURE_FIN_AFFECT', type: Types::TIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $heureFin = null;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="NUM_DOSSIER", type="integer", nullable=false)
-     */
-    private $numero;
+    #[ORM\Column(name: 'NUM_DOSSIER', type: Types::INTEGER, nullable: false)]
+    private ?int $numero = null;
 
-    /**
-     * @var ?DateCommission
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=DateCommission::class, inversedBy="dossierAffectations")
-     *
-     * @ORM\JoinColumn(name="ID_DATECOMMISSION_AFFECT", referencedColumnName="ID_DATECOMMISSION", nullable=false)
-     */
-    private $dateCommission;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: DateCommission::class, inversedBy: 'dossierAffectations')]
+    #[ORM\JoinColumn(name: 'ID_DATECOMMISSION_AFFECT', referencedColumnName: 'ID_DATECOMMISSION', nullable: false)]
+    private ?DateCommission $dateCommission = null;
 
-    /**
-     * @var Dossier
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class)
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER_AFFECT", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Dossier::class)]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER_AFFECT', referencedColumnName: 'ID_DOSSIER', nullable: false)]
+    private ?Dossier $dossier = null;
 
     public function getHeureDebut(): ?\DateTimeInterface
     {

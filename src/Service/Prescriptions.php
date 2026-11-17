@@ -17,40 +17,10 @@ use App\Repository\PrescriptionTexteListeRepository;
 use App\Repository\PrescriptionTypeAssociationRepository;
 use App\Repository\PrescriptionTypeRepository;
 
-final class Prescriptions
+final readonly class Prescriptions
 {
-    /** @var PrescriptionTypeRepository */
-    private $prescriptionTypeRepository;
-
-    /** @var PrescriptionTypeAssociationRepository */
-    private $prescriptionTypeAssociationRepository;
-
-    /** @var PrescriptionTexteListeRepository */
-    private $prescriptionTexteListeRepository;
-
-    /** @var PrescriptionArticleListeRepository */
-    private $prescriptionArticleListeRepository;
-
-    /** @var PrescriptionReglementaireRepository */
-    private $prescriptionReglementaireRepository;
-
-    /** @var PrescriptionReglementaireAssociationRepository */
-    private $prescriptionReglementaireAssociationRepository;
-
-    public function __construct(
-        PrescriptionTypeRepository $prescriptionTypeRepository,
-        PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository,
-        PrescriptionTexteListeRepository $prescriptionTexteListeRepository,
-        PrescriptionArticleListeRepository $prescriptionArticleListeRepository,
-        PrescriptionReglementaireRepository $prescriptionReglementaireRepository,
-        PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository
-    ) {
-        $this->prescriptionTypeRepository = $prescriptionTypeRepository;
-        $this->prescriptionTypeAssociationRepository = $prescriptionTypeAssociationRepository;
-        $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
-        $this->prescriptionArticleListeRepository = $prescriptionArticleListeRepository;
-        $this->prescriptionReglementaireRepository = $prescriptionReglementaireRepository;
-        $this->prescriptionReglementaireAssociationRepository = $prescriptionReglementaireAssociationRepository;
+    public function __construct(private PrescriptionTypeRepository $prescriptionTypeRepository, private PrescriptionTypeAssociationRepository $prescriptionTypeAssociationRepository, private PrescriptionTexteListeRepository $prescriptionTexteListeRepository, private PrescriptionArticleListeRepository $prescriptionArticleListeRepository, private PrescriptionReglementaireRepository $prescriptionReglementaireRepository, private PrescriptionReglementaireAssociationRepository $prescriptionReglementaireAssociationRepository)
+    {
     }
 
     /**

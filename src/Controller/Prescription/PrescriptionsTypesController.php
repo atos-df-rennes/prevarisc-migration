@@ -17,61 +17,22 @@ use App\Repository\PrescriptionTypeRepository;
 use App\Service\Prescriptions;
 use App\Utils\FormHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("gestion_prescriptions")
- */
+#[IsGranted('gestion_prescriptions')]
 class PrescriptionsTypesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var PrescriptionCategorieRepository */
-    private $prescriptionCategorieRepository;
-
-    /** @var PrescriptionTexteRepository */
-    private $prescriptionTexteRepository;
-
-    /** @var PrescriptionArticleRepository */
-    private $prescriptionArticleRepository;
-
-    /** @var PrescriptionTypeRepository */
-    private $prescriptionTypeRepository;
-
-    /** @var Prescriptions */
-    private $prescriptionsService;
-
-    /** @var FormHelper */
-    private $formHelper;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        PrescriptionCategorieRepository $prescriptionCategorieRepository,
-        PrescriptionTexteRepository $prescriptionTexteRepository,
-        PrescriptionArticleRepository $prescriptionArticleRepository,
-        PrescriptionTypeRepository $prescriptionTypeRepository,
-        Prescriptions $prescriptionsService,
-        FormHelper $formHelper
-    ) {
-        $this->entityManager = $entityManager;
-        $this->prescriptionCategorieRepository = $prescriptionCategorieRepository;
-        $this->prescriptionTexteRepository = $prescriptionTexteRepository;
-        $this->prescriptionArticleRepository = $prescriptionArticleRepository;
-        $this->prescriptionTypeRepository = $prescriptionTypeRepository;
-        $this->prescriptionsService = $prescriptionsService;
-        $this->formHelper = $formHelper;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly PrescriptionCategorieRepository $prescriptionCategorieRepository, private readonly PrescriptionTexteRepository $prescriptionTexteRepository, private readonly PrescriptionArticleRepository $prescriptionArticleRepository, private readonly PrescriptionTypeRepository $prescriptionTypeRepository, private readonly Prescriptions $prescriptionsService, private readonly FormHelper $formHelper)
+    {
     }
 
-    /**
-     * @Route("/admin/prescriptions", name="admin_prescriptions")
-     */
+    #[Route(path: '/admin/prescriptions', name: 'admin_prescriptions')]
     public function index(): Response
     {
         return $this->render('prescriptions_types/index.html.twig', [
@@ -80,22 +41,18 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/changement-ordre", name="admin_prescriptions_types_changement_ordre", methods={"POST"}, options={"expose"=true})
-     */
+    #[Route(path: '/admin/prescriptions/changement-ordre', name: 'admin_prescriptions_types_changement_ordre', methods: ['POST'], options: ['expose' => true])]
     public function reOrder(Request $request): Response
     {
-        $orders = $request->get('order');
-        $type = $request->get('type');
+        $orders = $request->request->all()['order'] ?? null;
+        $type = $request->request->get('type');
 
         if (!is_array($orders)) {
             throw new BadRequestHttpException("Le paramètre order n'est pas valide");
         }
 
         /** @var array<int, string> $orders */
-        $order = array_map(function (string $identifiant): int {
-            return (int) $identifiant;
-        }, $orders);
+        $order = array_map(fn (string $identifiant): int => (int) $identifiant, $orders);
 
         if ('categorie' === $type) {
             $this->prescriptionCategorieRepository->setOrder($order);
@@ -110,9 +67,7 @@ class PrescriptionsTypesController extends AbstractController
         return $this->json([]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/ajouter", name="admin_prescriptions_types_categorie_ajouter")
-     */
+    #[Route(path: '/admin/prescriptions/categorie/ajouter', name: 'admin_prescriptions_types_categorie_ajouter')]
     public function categoryAdd(Request $request): Response
     {
         $form = $this->createForm(PrescriptionTypeCategorieType::class, null, [
@@ -141,13 +96,11 @@ class PrescriptionsTypesController extends AbstractController
         }
 
         return $this->render('prescriptions_types/ajout_categorie.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes", name="admin_prescriptions_types_textes_voir")
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes', name: 'admin_prescriptions_types_textes_voir')]
     public function textsView(PrescriptionCategorie $categorie): Response
     {
         $textes = $this->prescriptionTexteRepository->findBy(['categorie' => $categorie], ['numero' => 'ASC']);
@@ -159,18 +112,13 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/ajouter", name="admin_prescriptions_types_textes_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/modifier", name="admin_prescriptions_types_textes_modifier")
-     *
-     * @ParamConverter("categorie", options={"id" = "categorie"})
-     * @ParamConverter("texte", options={"id" = "texte"})
-     */
-    public function textsForm(Request $request, PrescriptionCategorie $categorie, ?PrescriptionTexte $texte = null): Response
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/ajouter', name: 'admin_prescriptions_types_textes_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/modifier', name: 'admin_prescriptions_types_textes_modifier')]
+    public function textsForm(Request $request, #[MapEntity(id: 'categorie')] PrescriptionCategorie $categorie, #[MapEntity(id: 'texte')] ?PrescriptionTexte $texte = null): Response
     {
         $actionUrl = $this->getCurrentUrl($request);
 
-        if (null === $texte) {
+        if (!$texte instanceof PrescriptionTexte) {
             $maxNumCat = $this->prescriptionTexteRepository->recupMaxNumCat();
 
             $texte = new PrescriptionTexte();
@@ -201,13 +149,11 @@ class PrescriptionsTypesController extends AbstractController
         return $this->render('prescriptions_types/form_texte.html.twig', [
             'categorie' => $categorie,
             'texte' => $texte,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}", name="admin_prescriptions_types_texte_voir_articles")
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}', name: 'admin_prescriptions_types_texte_voir_articles')]
     public function categoryTextsArticles(PrescriptionCategorie $categorie, PrescriptionTexte $texte): Response
     {
         $articles = $this->prescriptionArticleRepository->findBy(['texte' => $texte], ['numero' => 'ASC']);
@@ -220,19 +166,13 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/ajouter", name="admin_prescriptions_types_article_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/modifier", name="admin_prescriptions_types_articles_modifier")
-     *
-     * @ParamConverter("categorie", options={"id" = "categorie"})
-     * @ParamConverter("texte", options={"id" = "texte"})
-     * @ParamConverter("article", options={"id" = "article"})
-     */
-    public function articlesForm(Request $request, PrescriptionCategorie $categorie, PrescriptionTexte $texte, ?PrescriptionArticle $article = null): Response
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/ajouter', name: 'admin_prescriptions_types_article_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/modifier', name: 'admin_prescriptions_types_articles_modifier')]
+    public function articlesForm(Request $request, #[MapEntity(id: 'categorie')] PrescriptionCategorie $categorie, #[MapEntity(id: 'texte')] PrescriptionTexte $texte, #[MapEntity(id: 'article')] ?PrescriptionArticle $article = null): Response
     {
         $actionUrl = $this->getCurrentUrl($request);
 
-        if (null === $article) {
+        if (!$article instanceof PrescriptionArticle) {
             $maxNumCat = $this->prescriptionArticleRepository->recupMaxNumCat();
 
             $article = new PrescriptionArticle();
@@ -263,13 +203,11 @@ class PrescriptionsTypesController extends AbstractController
         return $this->render('prescriptions_types/form_article.html.twig', [
             'texte' => $texte,
             'article' => $article,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/article/{article}", name="admin_prescriptions_types_texte_voir_article_contenu")
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/article/{article}', name: 'admin_prescriptions_types_texte_voir_article_contenu')]
     public function articlesAssociation(PrescriptionCategorie $categorie, PrescriptionTexte $texte, PrescriptionArticle $article): Response
     {
         $associations = $this->prescriptionsService->showPrescriptionType($categorie->getId() ?? 0, $texte->getId() ?? 0, $article->getId() ?? 0);
@@ -284,38 +222,31 @@ class PrescriptionsTypesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/prescriptions-types/ajouter", name="admin_prescriptions_types_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_modifier")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/ajouter", name="admin_prescriptions_types_prescriptions_textes_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_prescriptions_texte_modifier")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/ajouter", name="admin_prescriptions_types_prescriptions_ajouter")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/modifier", name="admin_prescriptions_types_prescriptions_modifier")
-     *
-     * @ParamConverter("categorie", options={"id" = "categorie"})
-     * @ParamConverter("texte", options={"id" = "texte"})
-     * @ParamConverter("article", options={"id" = "article"})
-     * @ParamConverter("prescription", options={"id" = "prescription"})
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/prescriptions-types/ajouter', name: 'admin_prescriptions_types_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/modifier', name: 'admin_prescriptions_types_modifier')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/ajouter', name: 'admin_prescriptions_types_prescriptions_textes_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/modifier', name: 'admin_prescriptions_types_prescriptions_texte_modifier')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/ajouter', name: 'admin_prescriptions_types_prescriptions_ajouter')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/modifier', name: 'admin_prescriptions_types_prescriptions_modifier')]
     public function articlesAssociationForm(
         Request $request,
-        PrescriptionCategorie $categorie,
-        ?PrescriptionTexte $texte = null,
-        ?PrescriptionArticle $article = null,
-        ?PrescriptionType $prescription = null
+        #[MapEntity(id: 'categorie')] PrescriptionCategorie $categorie,
+        #[MapEntity(id: 'texte')] ?PrescriptionTexte $texte = null,
+        #[MapEntity(id: 'article')] ?PrescriptionArticle $article = null,
+        #[MapEntity(id: 'prescription')] ?PrescriptionType $prescription = null
     ): Response {
         $actionUrl = $this->getCurrentUrl($request);
 
-        if (null === $prescription) {
+        if (!$prescription instanceof PrescriptionType) {
             $maxNumCat = $this->prescriptionTypeRepository->recupMaxNumCat();
 
             $texteId = 0;
-            if (null !== $texte) {
+            if ($texte instanceof PrescriptionTexte) {
                 $texteId = $texte->getId();
             }
 
             $articleId = 0;
-            if (null !== $article) {
+            if ($article instanceof PrescriptionArticle) {
                 $articleId = $article->getId();
             }
 
@@ -353,26 +284,19 @@ class PrescriptionsTypesController extends AbstractController
             'texte' => $texte,
             'article' => $article,
             'prescription' => $prescription,
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_supprimer")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_prescriptions_texte_supprimer")
-     * @Route("/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/supprimer", name="admin_prescriptions_types_prescriptions_supprimer")
-     *
-     * @ParamConverter("categorie", options={"id" = "categorie"})
-     * @ParamConverter("texte", options={"id" = "texte"})
-     * @ParamConverter("article", options={"id" = "article"})
-     * @ParamConverter("prescription", options={"id" = "prescription"})
-     */
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/prescriptions-types/{prescription}/supprimer', name: 'admin_prescriptions_types_supprimer')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/prescriptions-types/{prescription}/supprimer', name: 'admin_prescriptions_types_prescriptions_texte_supprimer')]
+    #[Route(path: '/admin/prescriptions/categorie/{categorie}/textes/{texte}/articles/{article}/prescriptions-types/{prescription}/supprimer', name: 'admin_prescriptions_types_prescriptions_supprimer')]
     public function prescriptionTypeRemove(
         Request $request,
-        PrescriptionCategorie $categorie,
-        PrescriptionType $prescription,
-        ?PrescriptionTexte $texte = null,
-        ?PrescriptionArticle $article = null
+        #[MapEntity(id: 'categorie')] PrescriptionCategorie $categorie,
+        #[MapEntity(id: 'prescription')] PrescriptionType $prescription,
+        #[MapEntity(id: 'texte')] ?PrescriptionTexte $texte = null,
+        #[MapEntity(id: 'article')] ?PrescriptionArticle $article = null
     ): Response {
         $form = $this->createFormBuilder(null, [
             'action' => $this->getCurrentUrl($request),
@@ -387,7 +311,7 @@ class PrescriptionsTypesController extends AbstractController
         }
 
         return $this->render('prescriptions_types/remove_prescription.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 

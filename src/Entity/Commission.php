@@ -7,94 +7,64 @@ use App\Repository\CommissionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Selectable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass=CommissionRepository::class)
- */
+#[ORM\Entity(repositoryClass: CommissionRepository::class)]
 class Commission
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_COMMISSION", type="bigint", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_COMMISSION', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @Assert\NotBlank(message="Le libellé est obligatoire.")
-     *
-     * @Assert\Length(max=80, maxMessage="Le libellé de la commission ne peut pas dépasser {{ limit }} caractères.")
-     *
-     * @ORM\Column(name="LIBELLE_COMMISSION", type="string", length=80, nullable=false)
-     */
-    private $libelle;
+    #[Assert\NotBlank(message: 'Le libellé est obligatoire.')]
+    #[Assert\Length(max: 80, maxMessage: 'Le libellé de la commission ne peut pas dépasser {{ limit }} caractères.')]
+    #[ORM\Column(name: 'LIBELLE_COMMISSION', type: Types::STRING, length: 80, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var ?string
-     *
-     * @ORM\Column(name="DOCUMENT_CR", type="string", length=255, nullable=true)
-     */
-    private $documentCr;
+    #[ORM\Column(name: 'DOCUMENT_CR', type: Types::STRING, length: 255, nullable: true)]
+    private ?string $documentCr = null;
 
-    /**
-     * @var ?CommissionType
-     *
-     * @ORM\ManyToOne(targetEntity=CommissionType::class, inversedBy="commissions")
-     *
-     * @ORM\JoinColumn(name="ID_COMMISSIONTYPE", referencedColumnName="ID_COMMISSIONTYPE", nullable=false, options={"unsigned":true})
-     */
-    private $type;
+    #[ORM\ManyToOne(targetEntity: CommissionType::class, inversedBy: 'commissions')]
+    #[ORM\JoinColumn(name: 'ID_COMMISSIONTYPE', referencedColumnName: 'ID_COMMISSIONTYPE', nullable: false, options: ['unsigned' => true])]
+    private ?CommissionType $type = null;
 
     // @todo: à quoi correspond cette propriété ?
     /**
      * @var Collection<int, Utilisateur>
-     *
-     * @ORM\ManyToMany(targetEntity=Utilisateur::class, mappedBy="commissions")
      */
-    private $utilisateurs;
+    #[ORM\ManyToMany(targetEntity: Utilisateur::class, mappedBy: 'commissions')]
+    private Collection $utilisateurs;
 
     /**
      * @var Collection<int, CommissionRegle>
-     *
-     * @ORM\OneToMany(targetEntity=CommissionRegle::class, mappedBy="commission", cascade={"persist"}, orphanRemoval=true)
      */
-    private $regles;
+    #[ORM\OneToMany(targetEntity: CommissionRegle::class, mappedBy: 'commission', cascade: ['persist'], orphanRemoval: true)]
+    private Collection $regles;
 
     /**
      * @var Collection<int, UtilisateurInformations>
-     *
-     * @ORM\JoinTable(
-     *     name="commissioncontact",
-     *     joinColumns={@ORM\JoinColumn(name="ID_COMMISSION", referencedColumnName="ID_COMMISSION", options={"unsigned":true})},
-     *     inverseJoinColumns={@ORM\JoinColumn(name="ID_UTILISATEURINFORMATIONS", referencedColumnName="ID_UTILISATEURINFORMATIONS", options={"unsigned":true})}
-     * )
-     *
-     * @ORM\ManyToMany(targetEntity=UtilisateurInformations::class)
      */
-    private $contacts;
+    #[ORM\JoinTable(name: 'commissioncontact')]
+    #[ORM\JoinColumn(name: 'ID_COMMISSION', referencedColumnName: 'ID_COMMISSION', options: ['unsigned' => true])]
+    #[ORM\InverseJoinColumn(name: 'ID_UTILISATEURINFORMATIONS', referencedColumnName: 'ID_UTILISATEURINFORMATIONS', options: ['unsigned' => true])]
+    #[ORM\ManyToMany(targetEntity: UtilisateurInformations::class)]
+    private Collection $contacts;
 
     /**
      * @var Collection<int, CommissionMembre>
-     *
-     * @ORM\OneToMany(targetEntity=CommissionMembre::class, mappedBy="commission", orphanRemoval=true, cascade={"persist", "remove"})
      */
-    private $membres;
+    #[ORM\OneToMany(targetEntity: CommissionMembre::class, mappedBy: 'commission', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    private Collection $membres;
 
     // @todo: à quoi correspond cette propriété ?
     /**
      * @var Collection<int, DateCommission>
-     *
-     * @ORM\OneToMany(targetEntity=DateCommission::class, mappedBy="commission", orphanRemoval=true)
      */
-    private $dateCommissions;
+    #[ORM\OneToMany(targetEntity: DateCommission::class, mappedBy: 'commission', orphanRemoval: true)]
+    private Collection $dateCommissions;
 
     public function __construct()
     {

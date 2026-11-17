@@ -8,46 +8,39 @@ use App\Entity\Utilisateur;
 use App\EventSubscriber\LastActionSubscriber;
 use App\Service\LastActionUpdater;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 final class LastActionSubscriberTest extends TestCase
 {
-    /** @var Security|MockObject */
-    private $security;
+    /** @var Stub&Security */
+    private Security $security;
 
-    /** @var LastActionUpdater|MockObject */
-    private $lastActionUpdater;
+    /** @var MockObject&LastActionUpdater */
+    private MockObject $lastActionUpdater;
 
-    /** @var LastActionSubscriber */
-    private $subscriber;
+    private LastActionSubscriber $subscriber;
 
     protected function setUp(): void
     {
-        $this->security = $this->createMock(Security::class);
+        $this->security = $this->createStub(Security::class);
         $this->lastActionUpdater = $this->createMock(LastActionUpdater::class);
         $this->subscriber = new LastActionSubscriber($this->security, $this->lastActionUpdater);
     }
 
     private function buildTerminateEvent(bool $isMasterRequest = true): TerminateEvent
     {
-        $kernel = $this->createMock(HttpKernelInterface::class);
         $requestType = $isMasterRequest
-            ? HttpKernelInterface::MASTER_REQUEST
+            ? HttpKernelInterface::MAIN_REQUEST
             : HttpKernelInterface::SUB_REQUEST;
 
-        return new TerminateEvent($kernel, new Request(), new Response(), $requestType);
-    }
-
-    public function testSubscribesToKernelTerminate(): void
-    {
-        $events = LastActionSubscriber::getSubscribedEvents();
-
-        $this->assertArrayHasKey('kernel.terminate', $events);
+        return new TerminateEvent($this->createStub(HttpKernelInterface::class), new Request(), new Response(), $requestType);
     }
 
     public function testSkipsSubRequests(): void
@@ -67,7 +60,7 @@ final class LastActionSubscriberTest extends TestCase
 
     public function testSkipsWhenUserIsNotUtilisateur(): void
     {
-        $this->security->method('getUser')->willReturn(new \stdClass());
+        $this->security->method('getUser')->willReturn($this->createStub(UserInterface::class));
         $this->lastActionUpdater->expects($this->never())->method('update');
 
         $this->subscriber->onKernelTerminate($this->buildTerminateEvent());

@@ -27,20 +27,8 @@ use Sabre\VObject\Component\VCalendar;
  */
 class IcalendarSyncService
 {
-    /**
-     * @var DateCommissionRepository
-     */
-    private $dateCommissionRepository;
-
-    /**
-     * @var IcsVTimezoneBuilder
-     */
-    private $icsVTimezoneBuilder;
-
-    public function __construct(DateCommissionRepository $dateCommissionRepository, IcsVTimezoneBuilder $icsVTimezoneBuilder)
+    public function __construct(private readonly DateCommissionRepository $dateCommissionRepository, private readonly IcsVTimezoneBuilder $icsVTimezoneBuilder)
     {
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->icsVTimezoneBuilder = $icsVTimezoneBuilder;
     }
 
     /**
@@ -109,7 +97,7 @@ class IcalendarSyncService
             try {
                 $dtStart = new \DateTime($dateStr.' '.$heureDebStr, $tz);
                 $dtEnd = new \DateTime($dateStr.' '.$heureFinStr, $tz);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 continue;
             }
 
@@ -226,9 +214,7 @@ class IcalendarSyncService
             ? trim($row['CONTACTS_ETABLISSEMENT'])
             : '';
 
-        $allContacts = array_filter([$contactsDossier, $contactsEts], static function ($c): bool {
-            return '' !== $c;
-        });
+        $allContacts = array_filter([$contactsDossier, $contactsEts], static fn ($c): bool => '' !== $c);
 
         if (!empty($allContacts)) {
             $corpus .= implode($lf, $allContacts).$lf;
@@ -281,8 +267,8 @@ class IcalendarSyncService
         $derniereVisiteStr = 'Aucune date.';
         if (\is_string($derniereVisite) && '' !== $derniereVisite) {
             try {
-                $derniereVisiteStr = (new \DateTime($derniereVisite))->format('d/m/Y');
-            } catch (\Exception $e) {
+                $derniereVisiteStr = new \DateTime($derniereVisite)->format('d/m/Y');
+            } catch (\Exception) {
                 $derniereVisiteStr = $derniereVisite;
             }
         }

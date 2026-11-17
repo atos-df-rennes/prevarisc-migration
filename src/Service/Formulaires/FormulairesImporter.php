@@ -12,25 +12,10 @@ use App\Repository\TypeChampRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-final class FormulairesImporter
+final readonly class FormulairesImporter
 {
-    /** @var CapsuleRubriqueRepository */
-    private $capsuleRubriqueRepository;
-
-    /** @var TypeChampRepository */
-    private $typeChampRepository;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(
-        CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        TypeChampRepository $typeChampRepository,
-        LoggerInterface $logger
-    ) {
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->typeChampRepository = $typeChampRepository;
-        $this->logger = $logger;
+    public function __construct(private CapsuleRubriqueRepository $capsuleRubriqueRepository, private TypeChampRepository $typeChampRepository, private LoggerInterface $logger)
+    {
     }
 
     /**
@@ -80,7 +65,7 @@ final class FormulairesImporter
                     $refetchedCapsule = $this->capsuleRubriqueRepository->find($capsuleRubriqueId);
 
                     if (!$refetchedCapsule instanceof CapsuleRubrique) {
-                        $this->logger->error('Impossible de récupérer la capsule rubrique avec l\'ID {id}.', ['id' => $capsuleRubriqueId]);
+                        $this->logger->error("Impossible de récupérer la capsule rubrique avec l'ID {id}.", ['id' => $capsuleRubriqueId]);
                         continue;
                     }
 
@@ -90,7 +75,7 @@ final class FormulairesImporter
                 // Crée la nouvelle rubrique
                 $newRubrique = $this->createRubrique($entityManager, $rubrique, $managedCapsuleRubrique, false);
 
-                if (null === $newRubrique) {
+                if (!$newRubrique instanceof Rubrique) {
                     continue;
                 }
 
@@ -102,7 +87,7 @@ final class FormulairesImporter
                     // Crée le nouveau champ, les champs enfants sont exclus
                     $newChamp = $this->createChamp($entityManager, $champ, $newRubrique, null, false, $typeChampMap);
 
-                    if (null === $newChamp) {
+                    if (!$newChamp instanceof Champ) {
                         continue;
                     }
 
@@ -111,7 +96,7 @@ final class FormulairesImporter
                             // Crée le nouveau champ enfant depuis le champ parent créé au préalable
                             $enfantNewChamp = $this->createChamp($entityManager, $enfant, $newRubrique, $newChamp, false, $typeChampMap);
 
-                            if (null === $enfantNewChamp) {
+                            if (!$enfantNewChamp instanceof Champ) {
                                 continue;
                             }
 
@@ -168,7 +153,7 @@ final class FormulairesImporter
     {
         $champType = $exportedChamp->getType();
 
-        if (null === $champType) {
+        if (!$champType instanceof TypeChamp) {
             $this->logger->warning('Le type du champ doit être renseigné.');
 
             return null;
@@ -202,12 +187,6 @@ final class FormulairesImporter
         $entityManager->persist($champ);
 
         foreach ($exportedChamp->getValeursListe() as $exportedValeurListe) {
-            if (null === $exportedValeurListe->getValeur()) {
-                $this->logger->warning('La valeur de la liste doit être renseignée.');
-
-                continue;
-            }
-
             $valeurListe = new ChampValeurListe();
             $valeurListe->setValeur($exportedValeurListe->getValeur());
             $valeurListe->setChamp($champ);
@@ -235,10 +214,7 @@ final class FormulairesImporter
         $map = [];
 
         foreach ($typeChamps as $typeChamp) {
-            $id = $typeChamp->getId();
-            if (null !== $id) {
-                $map[$typeChamp->getType()] = $id;
-            }
+            $map[$typeChamp->getType()] = $typeChamp->getIdOrFail();
         }
 
         return $map;

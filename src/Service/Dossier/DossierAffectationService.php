@@ -3,6 +3,7 @@
 namespace App\Service\Dossier;
 
 use App\Constant\CommissionTypeEvenement as TypeEvenement;
+use App\Entity\DateCommission;
 use App\Entity\Dossier;
 use App\Entity\DossierAffectation;
 use App\Entity\DossierNatureListe;
@@ -16,28 +17,8 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class DossierAffectationService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var DossierAffectationRepository */
-    private $affectationRepository;
-
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepository;
-
-    /** @var DossierFields */
-    private $dossierFieldsService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierAffectationRepository $affectationRepository,
-        DateCommissionRepository $dateCommissionRepository,
-        DossierFields $dossierFieldsService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->affectationRepository = $affectationRepository;
-        $this->dateCommissionRepository = $dateCommissionRepository;
-        $this->dossierFieldsService = $dossierFieldsService;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly DossierAffectationRepository $affectationRepository, private readonly DateCommissionRepository $dateCommissionRepository, private readonly DossierFields $dossierFieldsService)
+    {
     }
 
     /**
@@ -59,7 +40,7 @@ class DossierAffectationService
         $nature = $dossier->getNature();
         $natureId = $nature instanceof DossierNatureListe ? $nature->getId() : null;
 
-        if (null === $nature || null === $natureId) {
+        if (!$nature instanceof DossierNatureListe || null === $natureId) {
             // Pas de nature → Supprimer toutes affectations
             $this->affectationRepository->deleteAllAffectations($dossier);
             $dossier->setDateCommission(null);
@@ -106,7 +87,7 @@ class DossierAffectationService
     private function gererAffectation(
         Dossier $dossier,
         ?int $idDateCommission,
-        $typesEvenement,
+        int|array $typesEvenement,
         string $colonneDate
     ): void {
         // Récupérer affectation existante pour ce type
@@ -120,7 +101,7 @@ class DossierAffectationService
             $setter = 'set'.ucfirst($colonneDate);
             $dossier->$setter(null);
 
-            if ($affectationExistante) {
+            if ($affectationExistante instanceof DossierAffectation) {
                 $this->entityManager->remove($affectationExistante);
             }
 
@@ -134,7 +115,7 @@ class DossierAffectationService
         }
 
         // Cas 2.1 : Nouvelle affectation → INSERT et early return
-        if (!$affectationExistante) {
+        if (!$affectationExistante instanceof DossierAffectation) {
             $nouvelleAffectation = new DossierAffectation();
             $nouvelleAffectation->setDossier($dossier);
             $nouvelleAffectation->setDateCommission($dateCommission);
@@ -149,7 +130,7 @@ class DossierAffectationService
 
         // Cas 2.2 : Affectation existe déjà → Vérifier si date changée
         $affectationDateCommission = $affectationExistante->getDateCommission();
-        if (!$affectationDateCommission || $affectationDateCommission->getId() === $idDateCommission) {
+        if (!$affectationDateCommission instanceof DateCommission || $affectationDateCommission->getId() === $idDateCommission) {
             // Même date → Rien à faire
             return;
         }
@@ -179,7 +160,7 @@ class DossierAffectationService
         $setter = 'set'.ucfirst($colonneDate);
 
         // Si date null → effacement
-        if (null === $date) {
+        if (!$date instanceof \DateTimeInterface) {
             $dossier->$setter(null);
 
             return;

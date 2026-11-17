@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Entity\Dossier as DossierEntity;
@@ -13,7 +15,7 @@ use App\Service\PlatauTempsRestant;
 use App\Service\TexteApplicable;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * Tests pour Dossier::extraireDonneesUtiles() - résolution du libellé établissement historique.
@@ -25,24 +27,23 @@ use Symfony\Component\Security\Core\Security;
  * Iso-legacy (quirk assumé) : quand DATECOMM_DOSSIER est renseignée, le legacy compare en réalité
  * à DATEINSERT_DOSSIER (et non DATECOMM_DOSSIER).
  */
-class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
+final class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
 {
-    /** @var Dossier */
-    private $service;
+    private Dossier $service;
 
     protected function setUp(): void
     {
-        $dossierRepository = $this->createMock(DossierRepository::class);
+        $dossierRepository = $this->createStub(DossierRepository::class);
         $dossierRepository->method('hasAlerteReceptionTravauxBulk')->willReturn([]);
         $dossierRepository->method('hasEcheancierTravauxBulk')->willReturn([]);
         $dossierRepository->method('countPiecesJointesBulk')->willReturn([]);
 
         $this->service = new Dossier(
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
             $dossierRepository,
-            $this->createMock(Security::class),
+            $this->createStub(Security::class),
             new PlatauTempsRestant(),
-            $this->createMock(TexteApplicable::class)
+            $this->createStub(TexteApplicable::class)
         );
     }
 
@@ -73,7 +74,15 @@ class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
         $dossier->setNature(new DossierNatureListe());
         $dossier->setDateInsert(new \DateTime('2015-06-01'));
 
+        $this->setEntityId($dossier, 1);
+
         return $dossier;
+    }
+
+    private function setEntityId(DossierEntity $entity, int $id): void
+    {
+        $ref = new \ReflectionProperty($entity::class, 'id');
+        $ref->setValue($entity, $id);
     }
 
     public function testDateCommissionRenseigneeUtiliseDateInsertIsoLegacyQuirk(): void
@@ -119,5 +128,19 @@ class DossierExtraireDonneesUtilesEtablissementLabelTest extends TestCase
         $result = $this->service->extraireDonneesUtiles([$dossier]);
 
         $this->assertNull($result[0]['etablissement']);
+    }
+
+    public function testReferenceCourrierEstAjouteeAuLibelleDuDossierAvantObjet(): void
+    {
+        $etablissement = $this->creerEtablissementAvecHistorique();
+        $dossier = $this->creerDossier($etablissement)
+            ->setType(new DossierType()->setLibelle('Étude'))
+            ->setNature(new DossierNatureListe()->setLibelle('Permis de construire'))
+            ->setReferenceCourrier('REF-2026-01')
+            ->setObjet('Objet du dossier');
+
+        $result = $this->service->extraireDonneesUtiles([$dossier]);
+
+        $this->assertSame('Étude - Permis de construire - REF-2026-01 - Objet du dossier', $result[0]['objet']);
     }
 }

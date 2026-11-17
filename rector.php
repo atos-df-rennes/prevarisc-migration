@@ -3,30 +3,43 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
-use Rector\ValueObject\PhpVersion;
+use Rector\Symfony\Configs\Rector\Closure\ServiceArgsToServiceNamedArgRector;
+use Rector\Symfony\Configs\Rector\Closure\ServiceSettersToSettersAutodiscoveryRector;
+use Rector\Symfony\Set\SymfonySetList;
 
 return RectorConfig::configure()
+    ->withCache(cacheDirectory: __DIR__.'/var/cache/rector')
     ->withPaths([
+        __DIR__.'/config',
         __DIR__.'/src',
         __DIR__.'/tests',
     ])
+    ->withSkip([
+        ServiceArgsToServiceNamedArgRector::class,
+        ServiceSettersToSettersAutodiscoveryRector::class,
+    ])
     ->withRootFiles()
-    ->withPhpVersion(PhpVersion::PHP_71)
-    ->withPhpSets(php71: true)
+    ->withPhpSets()
     ->withTypeCoverageLevel(50)
     ->withDeadCodeLevel(50)
     ->withCodeQualityLevel(50)
-    ->withImportNames(removeUnusedImports: true, importShortClasses: false)
+    ->withAttributesSets(all: true)
+    ->withImportNames(importShortClasses: false, removeUnusedImports: true)
+    ->withSets([
+        SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
+    ])
     ->withPreparedSets(
         codingStyle: true,
         privatization: true,
-        earlyReturn: true,
-        symfonyConfigs: true,
+        phpunitCodeQuality: true,
+        doctrineCodeQuality: true,
         symfonyCodeQuality: true,
+        symfonyConfigs: true,
     )
     ->withComposerBased(
-        doctrine: true,
         twig: true,
+        doctrine: true,
+        phpunit: true,
         symfony: true,
     )
 ;

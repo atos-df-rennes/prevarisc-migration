@@ -12,44 +12,30 @@ use Doctrine\ORM\EntityManagerInterface;
  * Service de gestion des commissions : création, mise à jour et suppression,
  * avec synchronisation du filesystem associé.
  */
-final class CommissionManagerService
+final readonly class CommissionManagerService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var CommissionFilesystem */
-    private $commissionFilesystem;
-
-    /** @var CommissionMembreCourrierService */
-    private $courrierService;
-
-    /** @var Contact */
-    private $contactService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        CommissionFilesystem $commissionFilesystem,
-        CommissionMembreCourrierService $courrierService,
-        Contact $contactService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->commissionFilesystem = $commissionFilesystem;
-        $this->courrierService = $courrierService;
-        $this->contactService = $contactService;
+    public function __construct(private EntityManagerInterface $entityManager, private CommissionFilesystem $commissionFilesystem, private CommissionMembreCourrierService $courrierService, private Contact $contactService)
+    {
     }
 
     /**
      * Sauvegarde les commissions soumises et supprime celles absentes de la soumission.
      * Synchronise ensuite le filesystem (création/suppression de répertoires).
      *
-     * Alignement legacy (CommissionController::deleteAction) :
+     * Comportements conservés ou adaptés par rapport au legacy (CommissionController::deleteAction
+     * et CommissionController::deleteMembreAction) :
      * - Les contacts de la commission sont dissociés ; ceux non utilisés ailleurs sont supprimés.
      * - Les membres de la commission sont supprimés via cascade Doctrine.
      * - Les règles de compétence sont supprimées via orphanRemoval.
-     * - Les fichiers ODT des membres sont supprimés du filesystem après le flush.
+     * - Les courriers types des membres sont supprimés du filesystem après le flush ;
+     *   le legacy ne supprimait pas effectivement les ODJ et convocations à cause d'un chemin
+     *   de fichier erroné, et ne traitait pas les procès-verbaux des membres.
+     * - La suppression du répertoire des modèles de rapports de la commission est tentée ;
+     *   contrairement au legacy, qui le conservait.
      *
      * Note d'intégrité : en cas d'échec filesystem après le flush, la base de données
-     * reste authoritative. Les répertoires manquants peuvent être recréés manuellement.
+     * reste authoritative. Des répertoires peuvent être manquants ou orphelins et nécessiter
+     * une intervention manuelle.
      * Probabilité : très faible (échec DB est davantage susceptible d'arriver que l'inverse).
      *
      * @param Commission[] $originalCommissions  Commissions avant soumission du formulaire
@@ -94,7 +80,7 @@ final class CommissionManagerService
 
             // Capture les membres avant que Doctrine ne les supprime en cascade
             foreach ($commission->getMembres() as $membre) {
-                $membresOdtToClean[$membre->getId()] = $membre;
+                $membresOdtToClean[$membre->getIdOrFail()] = $membre;
             }
 
             // Supprime les contacts de la commission :

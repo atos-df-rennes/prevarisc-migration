@@ -17,38 +17,28 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 class ContactController extends AbstractController
 {
-    /**
-     * @var UtilisateurInformationsRepository
-     */
-    private $utilisateurInformationsRepository;
-
-    /** @var RouterInterface */
-    private $router;
-
-    public function __construct(
-        UtilisateurInformationsRepository $utilisateurInformationsRepository,
-        RouterInterface $router
-    ) {
-        $this->utilisateurInformationsRepository = $utilisateurInformationsRepository;
-        $this->router = $router;
+    public function __construct(private readonly UtilisateurInformationsRepository $utilisateurInformationsRepository, private readonly RouterInterface $router, private readonly EntityManagerInterface $entityManager)
+    {
     }
 
-    /**
-     * @Route("/contact/{id}/modifier", name="contact_edit", options={"expose"=true})
-     */
-    public function edit(Request $request, UtilisateurInformations $contact, EntityManagerInterface $entityManager): Response
-    {
-        $elementLie = $request->query->get('elementLie');
-        $elementId = $request->query->getInt('elementId');
+    #[Route(path: '/contact/{id}/modifier', name: 'contact_edit', options: ['expose' => true])]
+    public function edit(
+        Request $request,
+        UtilisateurInformations $contact,
+        #[MapQueryParameter] ?string $elementLie = null,
+        #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $elementId = 0,
+    ): Response {
+        $elementId ??= 0;
 
         switch ($elementLie) {
             case Contact::ETABLISSEMENT:
-                $entity = $entityManager->find(Etablissement::class, $elementId);
+                $entity = $this->entityManager->find(Etablissement::class, $elementId);
                 if (null === $entity) {
                     throw $this->createNotFoundException('Établissement non trouvé.');
                 }
@@ -58,7 +48,7 @@ class ContactController extends AbstractController
 
                 break;
             case Contact::GROUPEMENT:
-                $entity = $entityManager->find(Groupement::class, $elementId);
+                $entity = $this->entityManager->find(Groupement::class, $elementId);
                 if (null === $entity) {
                     throw $this->createNotFoundException('Groupement non trouvé.');
                 }
@@ -68,7 +58,7 @@ class ContactController extends AbstractController
 
                 break;
             case Contact::DOSSIER:
-                $entity = $entityManager->find(Dossier::class, $elementId);
+                $entity = $this->entityManager->find(Dossier::class, $elementId);
                 if (null === $entity) {
                     throw $this->createNotFoundException('Dossier non trouvé.');
                 }
@@ -85,7 +75,7 @@ class ContactController extends AbstractController
 
                 break;
             case Contact::COMMISSION:
-                $entity = $entityManager->find(Commission::class, $elementId);
+                $entity = $this->entityManager->find(Commission::class, $elementId);
                 if (null === $entity) {
                     throw $this->createNotFoundException('Commission non trouvée.');
                 }
@@ -113,7 +103,7 @@ class ContactController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'Le contact a bien été modifié.');
 
@@ -121,14 +111,12 @@ class ContactController extends AbstractController
         }
 
         return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'is_edit' => true,
         ]);
     }
 
-    /**
-     * @Route("/contacts/{search}", name="contact_autocomplete", options={"expose"=true})
-     */
+    #[Route(path: '/contacts/{search}', name: 'contact_autocomplete', options: ['expose' => true])]
     public function autocomplete(string $search): JsonResponse
     {
         return $this->json($this->utilisateurInformationsRepository->findByNameNotInUser($search));

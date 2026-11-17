@@ -10,47 +10,21 @@ use App\Service\CouchesCarto;
 use App\Service\IgnAutoconfiguration;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @IsGranted("admin")
- */
+#[IsGranted('admin')]
 class CouchesCartographiquesController extends AbstractController
 {
-    /** @var SerializerInterface */
-    private $serializer;
-
-    /** @var CouchesCarto */
-    private $couchesCarto;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var CoucheCartoRepository */
-    private $coucheCartoRepository;
-
-    /**
-     * @var IgnAutoconfiguration
-     */
-    private $ignAutoconfiguration;
-
-    public function __construct(CouchesCarto $couchesCarto, SerializerInterface $serializer, LoggerInterface $logger, CoucheCartoRepository $coucheCartoRepository, IgnAutoconfiguration $ignAutoconfiguration)
+    public function __construct(private readonly CouchesCarto $couchesCarto, private readonly SerializerInterface $serializer, private readonly LoggerInterface $logger, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly EntityManagerInterface $entityManager, private readonly IgnAutoconfiguration $ignAutoconfiguration)
     {
-        $this->couchesCarto = $couchesCarto;
-        $this->serializer = $serializer;
-        $this->logger = $logger;
-        $this->coucheCartoRepository = $coucheCartoRepository;
-        $this->ignAutoconfiguration = $ignAutoconfiguration;
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques", name="couches_cartographiques")
-     */
+    #[Route(path: '/admin/couches-cartographiques', name: 'couches_cartographiques')]
     public function index(): Response
     {
         return $this->render('couches_cartographiques/index.html.twig', [
@@ -69,10 +43,8 @@ class CouchesCartographiquesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/ajouter", name="couches_cartographiques_add")
-     */
-    public function ajouter(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route(path: '/admin/couches-cartographiques/ajouter', name: 'couches_cartographiques_add')]
+    public function ajouter(Request $request): Response
     {
         $coucheCarto = new CoucheCarto();
 
@@ -80,8 +52,8 @@ class CouchesCartographiquesController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($coucheCarto);
-            $entityManager->flush();
+            $this->entityManager->persist($coucheCarto);
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'La couche cartographique a été ajoutée.');
 
@@ -89,15 +61,13 @@ class CouchesCartographiquesController extends AbstractController
         }
 
         return $this->render('couches_cartographiques/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/ajouter-ign", name="couches_cartographiques_add_IGN")
-     */
-    public function ajouterIGN(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route(path: '/admin/couches-cartographiques/ajouter-ign', name: 'couches_cartographiques_add_IGN')]
+    public function ajouterIGN(Request $request): Response
     {
         if ($request->isMethod('POST')) {
             $coucheCartoData = $request->request->all();
@@ -118,8 +88,8 @@ class CouchesCartographiquesController extends AbstractController
 
             $coucheCarto = $this->serializer->deserialize(json_encode($coucheCartoData), CoucheCarto::class, 'json');
 
-            $entityManager->persist($coucheCarto);
-            $entityManager->flush();
+            $this->entityManager->persist($coucheCarto);
+            $this->entityManager->flush();
             $this->addFlash('success', 'La couche cartographique IGN a été ajoutée.');
 
             return $this->redirectToRoute('couches_cartographiques');
@@ -137,10 +107,8 @@ class CouchesCartographiquesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/reordonner", name="couches_cartographiques_order")
-     */
-    public function changerOrdre(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route(path: '/admin/couches-cartographiques/reordonner', name: 'couches_cartographiques_order')]
+    public function changerOrdre(Request $request): Response
     {
         $couchesCarto = $this->coucheCartoRepository->findAllOrdered();
 
@@ -149,29 +117,27 @@ class CouchesCartographiquesController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             foreach ($couchesCarto as $coucheCarto) {
-                $entityManager->persist($coucheCarto);
+                $this->entityManager->persist($coucheCarto);
             }
 
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             return $this->redirectToRoute('couches_cartographiques');
         }
 
         return $this->render('couches_cartographiques/change_order.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/{id}/modifier", name="couche_cartographique_edit")
-     */
-    public function modifier(Request $request, CoucheCarto $coucheCarto, EntityManagerInterface $entityManager): Response
+    #[Route(path: '/admin/couches-cartographiques/{id}/modifier', name: 'couche_cartographique_edit')]
+    public function modifier(Request $request, CoucheCarto $coucheCarto): Response
     {
         $form = $this->createForm(CoucheCartoType::class, $coucheCarto);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $this->entityManager->flush();
 
             $this->addFlash('success', 'La couche cartographique a bien été modifiée.');
 
@@ -179,22 +145,20 @@ class CouchesCartographiquesController extends AbstractController
         }
 
         return $this->render('couches_cartographiques/ajout.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'errors' => $form->getErrors(),
             'couche_id' => $coucheCarto->getId(),
         ]);
     }
 
-    /**
-     * @Route("/admin/couches-cartographiques/{id}/supprimer", name="couche_cartographique_delete")
-     */
+    #[Route(path: '/admin/couches-cartographiques/{id}/supprimer', name: 'couche_cartographique_delete')]
     public function supprimer(CoucheCarto $coucheCarto): Response
     {
         try {
             $this->coucheCartoRepository->remove($coucheCarto);
             $this->addFlash('success', 'La couche cartographique a été supprimée.');
         } catch (\Exception $exception) {
-            $this->addFlash('danger', 'La couche cartographique n\'a pas été supprimée. Veuillez rééssayez. ('.$exception->getMessage().')');
+            $this->addFlash('danger', "La couche cartographique n'a pas été supprimée. Veuillez rééssayez. (".$exception->getMessage().')');
         }
 
         return $this->redirectToRoute('couches_cartographiques');

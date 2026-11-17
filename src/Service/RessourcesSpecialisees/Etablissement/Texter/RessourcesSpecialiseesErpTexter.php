@@ -11,13 +11,8 @@ use App\ValueObject\EtablissementTexter;
  */
 class RessourcesSpecialiseesErpTexter implements RessourcesSpecialiseesEtablissementTexter
 {
-    /** @var EtablissementTexter */
-    private $etablissementTexter;
-
-    public function __construct(
-        EtablissementTexter $etablissementTexter
-    ) {
-        $this->etablissementTexter = $etablissementTexter;
+    public function __construct(private readonly EtablissementTexter $etablissementTexter)
+    {
     }
 
     /**

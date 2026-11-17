@@ -52,4 +52,19 @@ class CommuneRepository extends ServiceEntityRepository implements HasContacts
             ->getArrayResult()
         ;
     }
+
+    public function findFirstByLibelle(string $libelle): ?Commune
+    {
+        return $this->createQueryBuilder('c')
+            ->addSelect('ui')
+            ->leftJoin('c.utilisateurInformations', 'ui')
+            ->where('c.libelle LIKE :libelle')
+            ->setParameter('libelle', '%'.$libelle.'%')
+            ->addSelect('LENGTH(c.libelle) AS HIDDEN longueur')
+            ->orderBy('longueur', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 }

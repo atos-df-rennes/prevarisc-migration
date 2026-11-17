@@ -10,15 +10,11 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 final class PasswordValidator extends ConstraintValidator
 {
-    /** @var bool */
-    private $enforceSecurity;
-
-    public function __construct(bool $enforceSecurity)
+    public function __construct(private readonly bool $enforceSecurity)
     {
-        $this->enforceSecurity = $enforceSecurity;
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof Password) {
             throw new UnexpectedTypeException($constraint, Password::class);

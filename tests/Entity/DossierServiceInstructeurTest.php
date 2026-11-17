@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Entity;
 
 use App\Entity\Dossier;
@@ -13,10 +15,9 @@ use PHPUnit\Framework\TestCase;
  *
  * TODO: Quand création dossier migrée dans Symfony, ajouter migration SQL pour nettoyer la BDD.
  */
-class DossierServiceInstructeurTest extends TestCase
+final class DossierServiceInstructeurTest extends TestCase
 {
-    /** @var Dossier */
-    private $dossier;
+    private Dossier $dossier;
 
     protected function setUp(): void
     {
@@ -31,7 +32,6 @@ class DossierServiceInstructeurTest extends TestCase
         // Simuler valeur legacy "0" en base
         $reflection = new \ReflectionClass($this->dossier);
         $property = $reflection->getProperty('serviceInstructeur');
-        $property->setAccessible(true);
         $property->setValue($this->dossier, '0');
 
         // Vérifier normalisation
@@ -49,7 +49,6 @@ class DossierServiceInstructeurTest extends TestCase
         // Simuler valeur legacy "" en base
         $reflection = new \ReflectionClass($this->dossier);
         $property = $reflection->getProperty('serviceInstructeur');
-        $property->setAccessible(true);
         $property->setValue($this->dossier, '');
 
         // Vérifier normalisation

@@ -2,6 +2,7 @@
 
 return [
     'headerDescription' => '',
+    'path' => 'CHANGELOG-3.x.md',
     'sortBy' => 'date',
     'preset' => [
         'feat' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/wand-magic-sparkles.svg" width="20" height="20"> Évolutions', 'description' => 'Nouvelles fonctionnalités'],
@@ -9,6 +10,7 @@ return [
         'fix' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections', 'description' => 'Corrections de bug'],
         'migration' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/gears.svg" width="20" height="20"> Migration', 'description' => 'Changements liés à la migration vers Symfony'],
         'style' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/palette.svg" width="20" height="20"> Style', 'description' => "Améliorations de l'interface utilisateur"],
+        'security' => ['label' => '<img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/lock.svg" width="20" height="20"> Sécurité', 'description' => "Sécurité"],
     ],
     'ignoreTypes' => ['build', 'chore', 'ci', 'docs', 'refactor', 'revert', 'test'],
     'dateFormat' => 'd-m-Y',

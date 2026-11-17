@@ -22,12 +22,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ChampValueType extends AbstractType
 {
-    /** @var ChampRepository */
-    private $champRepository;
-
-    public function __construct(ChampRepository $champRepository)
+    public function __construct(private readonly ChampRepository $champRepository)
     {
-        $this->champRepository = $champRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -50,7 +46,7 @@ class ChampValueType extends AbstractType
                 }
 
                 $type = $champ->getType();
-                $typeId = null !== $type ? $type->getId() : null;
+                $typeId = $type?->getId();
 
                 switch ($typeId) {
                     case TypeChamp::TEXT:

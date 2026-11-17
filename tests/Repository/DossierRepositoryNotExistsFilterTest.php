@@ -1,26 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Repository;
 
 use App\Repository\DossierRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * Tests fonctionnels pour le filtrage NOT EXISTS (dossiers liés) dans DossierRepository.
  * Couvre les méthodes findLeveePresc, findAbsenceQuorum et findNpsp qui excluent
  * les dossiers possédant un dossier lié d'une nature ou d'un type donné.
- *
- * @group functional
  */
-class DossierRepositoryNotExistsFilterTest extends KernelTestCase
+#[Group('functional')]
+final class DossierRepositoryNotExistsFilterTest extends KernelTestCase
 {
-    /** @var DossierRepository */
-    private $repository;
+    private DossierRepository $repository;
 
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->repository = self::$container->get(DossierRepository::class);
+        $this->repository = self::getContainer()->get(DossierRepository::class);
     }
 
     /**
@@ -31,7 +32,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
     {
         $result = $this->repository->findLeveePresc();
 
-        self::assertIsArray($result);
+        $this->assertIsArray($result);
     }
 
     /**
@@ -42,7 +43,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
     {
         $result = $this->repository->findAbsenceQuorum();
 
-        self::assertIsArray($result);
+        $this->assertIsArray($result);
     }
 
     /**
@@ -53,7 +54,7 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
     {
         $result = $this->repository->findNpsp();
 
-        self::assertIsArray($result);
+        $this->assertIsArray($result);
     }
 
     /**
@@ -67,9 +68,8 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
             $this->markTestSkipped('Aucun dossier avec levée de prescription en base.');
         }
 
-        foreach ($result as $row) {
-            self::assertArrayHasKey('id', $row);
-            self::assertNotNull($row['id']);
+        foreach ($result as $dto) {
+            $this->assertNotNull($dto->ID_DOSSIER);
         }
     }
 
@@ -84,9 +84,8 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
             $this->markTestSkipped('Aucun dossier avec absence de quorum en base.');
         }
 
-        foreach ($result as $row) {
-            self::assertArrayHasKey('id', $row);
-            self::assertNotNull($row['id']);
+        foreach ($result as $dto) {
+            $this->assertNotNull($dto->ID_DOSSIER);
         }
     }
 
@@ -101,9 +100,8 @@ class DossierRepositoryNotExistsFilterTest extends KernelTestCase
             $this->markTestSkipped('Aucun dossier NPSP en base.');
         }
 
-        foreach ($result as $row) {
-            self::assertArrayHasKey('id', $row);
-            self::assertNotNull($row['id']);
+        foreach ($result as $dto) {
+            $this->assertNotNull($dto->ID_DOSSIER);
         }
     }
 }

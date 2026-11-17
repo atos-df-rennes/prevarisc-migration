@@ -22,7 +22,7 @@ class RessourcesSpecialiseesEtablissementNameGenerator
     public static function fromRequest(Request $request): string
     {
         /** @var FormData $formData */
-        $formData = $request->request->get('ressource_specialisee_etablissement');
+        $formData = $request->request->all('ressource_specialisee_etablissement');
 
         $name = 'etablissement_';
         $namer = self::createNamer($formData['genre']);
@@ -32,38 +32,17 @@ class RessourcesSpecialiseesEtablissementNameGenerator
 
     private static function createNamer(int $genreId): RessourcesSpecialiseesEtablissementNamer
     {
-        switch ($genreId) {
-            case 2:
-                $namer = new RessourcesSpecialiseesErpNamer();
-                break;
-            case 3:
-                $namer = new RessourcesSpecialiseesCelluleNamer();
-                break;
-            case 4:
-                $namer = new RessourcesSpecialiseesHabitationNamer();
-                break;
-            case 5:
-                $namer = new RessourcesSpecialiseesIghNamer();
-                break;
-            case 6:
-                $namer = new RessourcesSpecialiseesBupNamer();
-                break;
-            case 7:
-                $namer = new RessourcesSpecialiseesCampingNamer();
-                break;
-            case 8:
-                $namer = new RessourcesSpecialiseesManifestationTemporaireNamer();
-                break;
-            case 9:
-                $namer = new RessourcesSpecialiseesIopNamer();
-                break;
-            case 10:
-                $namer = new RessourcesSpecialiseesZoneNamer();
-                break;
-            default:
-                throw new \InvalidArgumentException(\sprintf('Genre %d inconnu', $genreId));
-        }
-
-        return $namer;
+        return match ($genreId) {
+            2 => new RessourcesSpecialiseesErpNamer(),
+            3 => new RessourcesSpecialiseesCelluleNamer(),
+            4 => new RessourcesSpecialiseesHabitationNamer(),
+            5 => new RessourcesSpecialiseesIghNamer(),
+            6 => new RessourcesSpecialiseesBupNamer(),
+            7 => new RessourcesSpecialiseesCampingNamer(),
+            8 => new RessourcesSpecialiseesManifestationTemporaireNamer(),
+            9 => new RessourcesSpecialiseesIopNamer(),
+            10 => new RessourcesSpecialiseesZoneNamer(),
+            default => throw new \InvalidArgumentException(\sprintf('Genre %d inconnu', $genreId)),
+        };
     }
 }

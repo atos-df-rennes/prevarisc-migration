@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security;
 
-use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\LegacyPasswordHasherInterface;
 
 /**
  * Encodeur MD5 legacy compatible avec le format de hachage Prévarisc.
@@ -15,17 +15,13 @@ use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
  * Utilisé via migrate_from dans security.php pour migrer automatiquement
  * les anciens hashs MD5 vers bcrypt lors de la prochaine connexion réussie.
  */
-class Md5SaltedEncoder implements PasswordEncoderInterface
+class Md5SaltedEncoder implements LegacyPasswordHasherInterface
 {
-    /** @var string */
-    private $globalSalt;
-
     /**
      * @param string $globalSalt La valeur de PREVARISC_SECURITY_SALT
      */
-    public function __construct(string $globalSalt)
+    public function __construct(private readonly string $globalSalt)
     {
-        $this->globalSalt = $globalSalt;
     }
 
     /**
@@ -36,9 +32,16 @@ class Md5SaltedEncoder implements PasswordEncoderInterface
      *
      * @return string Le hash MD5
      */
+    #[\Deprecated(message: 'utilisez un algorithme moderne à la place', since: '3.0.0')]
     public function encodePassword($raw, $salt): string
     {
         return md5($salt.$this->globalSalt.$raw);
+    }
+
+    #[\Deprecated(message: 'utilisez un algorithme moderne à la place', since: '3.0.0')]
+    public function hash(string $plainPassword, ?string $salt = null): string
+    {
+        return $this->encodePassword($plainPassword, $salt);
     }
 
     /**
@@ -48,26 +51,21 @@ class Md5SaltedEncoder implements PasswordEncoderInterface
      * @param string      $raw     Le mot de passe en clair à vérifier
      * @param string|null $salt    Le username retourné par Utilisateur::getSalt()
      */
+    #[\Deprecated(message: 'utilisez un algorithme moderne à la place', since: '3.0.0')]
     public function isPasswordValid($encoded, $raw, $salt): bool
     {
         return hash_equals($encoded, $this->encodePassword($raw, $salt));
     }
 
-    /**
-     * Indique qu'aucun re-hash n'est nécessaire pendant la période de transition.
-     *
-     * Retourne false pour bloquer la migration automatique MD5 → bcrypt sur login,
-     * ce qui garantit que le fallback legacy (PREVARISC_SYMFONY_LOGIN=0) reste
-     * opérationnel à tout moment.
-     *
-     * À passer à true (ou supprimer cette méthode) une fois le legacy retiré.
-     *
-     * @param string $encoded Le hash actuel (ignoré)
-     *
-     * @return bool Toujours false pendant la transition
-     */
-    public function needsRehash(string $encoded): bool
+    #[\Deprecated(message: 'utilisez un algorithme moderne à la place', since: '3.0.0')]
+    public function verify(string $hashedPassword, string $plainPassword, ?string $salt = null): bool
     {
-        return false;
+        return $this->isPasswordValid($hashedPassword, $plainPassword, $salt);
+    }
+
+    #[\Deprecated(message: 'utilisez un algorithme moderne à la place', since: '3.0.0')]
+    public function needsRehash(string $hashedPassword): bool
+    {
+        return true;
     }
 }

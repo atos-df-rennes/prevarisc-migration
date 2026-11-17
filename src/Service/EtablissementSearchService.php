@@ -15,20 +15,8 @@ class EtablissementSearchService
 {
     public const MAX_LIMIT_PAGES_ETABLISSEMENTS = 1000;
 
-    /** @var Connection */
-    private $connection;
-
-    /** @var SearchQueryHelper */
-    private $queryHelper;
-
-    /** @var TagAwareCacheInterface */
-    private $searchCache;
-
-    public function __construct(Connection $connection, SearchQueryHelper $queryHelper, TagAwareCacheInterface $searchCache)
+    public function __construct(private readonly Connection $connection, private readonly SearchQueryHelper $queryHelper, private readonly TagAwareCacheInterface $searchCache)
     {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
-        $this->searchCache = $searchCache;
     }
 
     /**
@@ -102,6 +90,7 @@ class EtablissementSearchService
             dossier.DATEVISITE_DOSSIER, dossier.DATECOMM_DOSSIER, dossier.DATEINSERT_DOSSIER, dossier.DIFFEREAVIS_DOSSIER,
             avis.ID_AVIS, avis.LIBELLE_AVIS,
             type.LIBELLE_TYPE,
+            categorie.LIBELLE_CATEGORIE,
             typeactivite.LIBELLE_ACTIVITE,
             genre.LIBELLE_GENRE,
             etablissementlie.ID_ETABLISSEMENT AS pere, etablissementlie.ID_FILS_ETABLISSEMENT,
@@ -149,7 +138,8 @@ class EtablissementSearchService
                 ON etablissementadressecell.NUMINSEE_COMMUNE = adressecommunecell.NUMINSEE_COMMUNE';
 
             // Requête de données : inclut toujours adressesite/adressecell pour l'affichage
-            $sqlFrom = $sqlFromBase.$sqlFromAdresseSiteCell;
+            $sqlFrom = $sqlFromBase.$sqlFromAdresseSiteCell.'
+            LEFT JOIN categorie ON categorie.ID_CATEGORIE = etablissementinformations.ID_CATEGORIE';
 
             $whereConditions = ['e.DATESUPPRESSION_ETABLISSEMENT IS NULL'];
             $hasAdditionalConditions = false;
@@ -157,7 +147,7 @@ class EtablissementSearchService
             // Critères : nom de l'établissement
             if (null !== $label) {
                 $cleanLabel = trim($label);
-                if ('#' === substr($cleanLabel, 0, 1)) {
+                if (str_starts_with($cleanLabel, '#')) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
                 } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $cleanLabel, false);
@@ -182,7 +172,7 @@ class EtablissementSearchService
 
             // Critères : catégorie
             if (null !== $categories) {
-                $whereConditions[] = $this->queryHelper->buildCriteria('ID_CATEGORIE', $categories);
+                $whereConditions[] = $this->queryHelper->buildCriteria('etablissementinformations.ID_CATEGORIE', $categories);
                 $hasAdditionalConditions = true;
             }
 
@@ -494,7 +484,7 @@ class EtablissementSearchService
         // Critères : nom de l'établissement
         if (null !== $label) {
             $cleanLabel = trim($label);
-            if ('#' === substr($cleanLabel, 0, 1)) {
+            if (str_starts_with($cleanLabel, '#')) {
                 $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
             } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
                 $whereConditions[] = $this->queryHelper->buildCriteria('e.NUMEROID_ETABLISSEMENT', $cleanLabel, false);

@@ -6,14 +6,10 @@ use App\Entity\DateCommission as DateCommissionEntity;
 use App\Entity\Dossier;
 use App\Repository\DateCommissionRepository;
 
-final class DateCommission
+final readonly class DateCommission
 {
-    /** @var DateCommissionRepository */
-    private $dateCommissionRepository;
-
-    public function __construct(DateCommissionRepository $dateCommissionRepository)
+    public function __construct(private DateCommissionRepository $dateCommissionRepository)
     {
-        $this->dateCommissionRepository = $dateCommissionRepository;
     }
 
     /**
@@ -25,13 +21,13 @@ final class DateCommission
     {
         $dateVisite = $dossier->getDateVisite();
 
-        if (null === $dateVisite) {
+        if (!$dateVisite instanceof \DateTimeInterface) {
             return [];
         }
 
         $dateCommissionPrincipale = $this->dateCommissionRepository->findForDossier($dossier, $dateVisite);
 
-        if (null === $dateCommissionPrincipale) {
+        if (!$dateCommissionPrincipale instanceof DateCommissionEntity) {
             return [];
         }
 

@@ -11,22 +11,10 @@ use Symfony\Component\Filesystem\Filesystem;
  * Service de gestion du filesystem pour les commissions.
  * Gère la création et suppression des dossiers de documents.
  */
-final class CommissionFilesystem
+final readonly class CommissionFilesystem
 {
-    /** @var string */
-    private $documentsRealDataPath;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var Filesystem */
-    private $filesystem;
-
-    public function __construct(string $documentsRealDataPath, LoggerInterface $logger, Filesystem $filesystem)
+    public function __construct(private string $documentsRealDataPath, private LoggerInterface $logger, private Filesystem $filesystem)
     {
-        $this->documentsRealDataPath = $documentsRealDataPath;
-        $this->logger = $logger;
-        $this->filesystem = $filesystem;
     }
 
     public function createCommissionDirectory(int $commissionId): void

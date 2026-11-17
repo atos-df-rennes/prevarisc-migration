@@ -164,7 +164,7 @@ final class PrescriptionArrayHelper
                     'PRESCRIPTIONTYPE_LIBELLE' => null !== $prescType ? ($prescType->getLibelle() ?? '') : '',
                     'LIBELLE_TEXTE' => null !== $assoc->getTexte() ? ($assoc->getTexte()->getLibelle() ?? '') : '',
                     'LIBELLE_ARTICLE' => null !== $assoc->getArticle() ? ($assoc->getArticle()->getLibelle() ?? '') : '',
-                    'DATE_LEVEE' => null !== $dateLevee ? $dateLevee->format('d/m/Y') : '',
+                    'DATE_LEVEE' => $dateLevee?->format('d/m/Y') ?? '',
                     'ID_DOSSIER_REPRISE' => $repriseId,
                 ];
             }

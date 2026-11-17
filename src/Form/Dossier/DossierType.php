@@ -17,6 +17,7 @@ use App\Repository\DossierPieceJointeRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -31,25 +32,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class DossierType extends AbstractType
 {
-    /** @var Security */
-    private $security;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var bool */
-    private $facteurCriticiteCustomEnabled;
-
-    public function __construct(Security $security, EntityManagerInterface $entityManager, bool $facteurCriticiteCustomEnabled)
+    public function __construct(private readonly Security $security, private readonly EntityManagerInterface $entityManager, private readonly bool $facteurCriticiteCustomEnabled)
     {
-        $this->security = $security;
-        $this->entityManager = $entityManager;
-        $this->facteurCriticiteCustomEnabled = $facteurCriticiteCustomEnabled;
     }
 
     // Note : Possibilité future de séparer en plusieurs FormTypes selon le type de dossier
@@ -83,6 +71,16 @@ class DossierType extends AbstractType
                 'label' => 'Date de création du dossier',
                 'widget' => 'single_text',
                 'required' => false,
+            ])
+            ->add('referenceCourrier', TextType::class, [
+                'label' => 'Référence courrier',
+                'required' => false,
+                'attr' => [
+                    'maxlength' => 15,
+                ],
+                'constraints' => [
+                    new Assert\Length(max: 15),
+                ],
             ])
             ->add('objet', TextareaType::class, [
                 'label' => 'Objet',
@@ -138,9 +136,22 @@ class DossierType extends AbstractType
                 'widget' => 'single_text',
                 'required' => false,
             ])
-            ->add('serviceInstructeur', TextType::class, [
+            ->add('serviceInstructeur', HiddenType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length(max: 255),
+                ],
+            ])
+            ->add('typeServiceInstructeur', HiddenType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Assert\Choice(choices: ['servInstCommune', 'servInstGrp']),
+                ],
+            ])
+            ->add('serviceInstructeurSelection', TextType::class, [
                 'label' => 'Service instructeur',
                 'required' => false,
+                'mapped' => false,
                 'attr' => [
                     'class' => 'tomselect-ajax',
                     'placeholder' => 'Sélectionnez ou saisissez un service instructeur',
@@ -149,9 +160,6 @@ class DossierType extends AbstractType
                         'maxItems' => 1,
                         'plugins' => [],
                     ]),
-                ],
-                'constraints' => [
-                    new Assert\Length(['max' => 255]),
                 ],
             ])
             ->add('incomplet', ChoiceType::class, [
@@ -254,7 +262,7 @@ class DossierType extends AbstractType
                 'mapped' => false,
             ])
             ->add('avisDiffere', CheckboxType::class, [
-                'label' => 'Diffère l\'avis',
+                'label' => "Diffère l'avis",
                 'required' => false,
                 'attr' => ['class' => 'form-check-input'],
                 'help' => "(Disponible uniquement lorsque l'avis d'exploitation de l'établissement est favorable)",
@@ -415,12 +423,10 @@ class DossierType extends AbstractType
             $builder
                 // Pièces jointes exportables vers Plat'AU (multiselect avec checkboxes)
                 ->add('piecesJointesPlatau', EntityType::class, [
-                    'label' => 'Liste des pièces jointes pouvant être envoyées vers Plat\'AU',
+                    'label' => "Liste des pièces jointes pouvant être envoyées vers Plat'AU",
                     'class' => PieceJointe::class,
                     'choices' => $this->getPiecesJointesExportables($options),
-                    'choice_label' => function (PieceJointe $pieceJointe): string {
-                        return $pieceJointe->getNom().$pieceJointe->getExtension();
-                    },
+                    'choice_label' => fn (PieceJointe $pieceJointe): string => $pieceJointe->getNom().$pieceJointe->getExtension(),
                     'multiple' => true,
                     'expanded' => true,
                     // Affiche des checkboxes au lieu d'un select multiple
@@ -459,7 +465,7 @@ class DossierType extends AbstractType
             // IDs soumis par TomSelect (dédoublonnés et castés en int)
             $submittedIds = isset($data['preventionnistes']) && is_array($data['preventionnistes'])
                 ? array_values(array_unique(array_filter(array_map(
-                    static function ($id): int { return is_scalar($id) ? (int) $id : 0; },
+                    static fn ($id): int => is_scalar($id) ? (int) $id : 0,
                     $data['preventionnistes']
                 ))))
                 : [];
@@ -468,7 +474,7 @@ class DossierType extends AbstractType
             $dossier = $form->getData();
             $existingIds = $dossier instanceof Dossier
                 ? array_values(array_unique($dossier->getPreventionnistes()->map(
-                    static function (Utilisateur $u): int { return (int) $u->getId(); }
+                    static fn (Utilisateur $u): int => (int) $u->getId()
                 )->toArray()))
                 : [];
 
@@ -574,7 +580,7 @@ class DossierType extends AbstractType
 
         $typeDossier = $options['data']->getType();
 
-        if (null === $typeDossier) {
+        if (!$typeDossier instanceof DossierTypeEntity) {
             return [];
         }
 

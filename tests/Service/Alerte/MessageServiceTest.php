@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\Alerte;
 
 use App\Constant\GenreEtablissement;
@@ -9,45 +11,42 @@ use App\Entity\EtablissementInformations;
 use App\Entity\Genre;
 use App\Service\Alerte\AvisService;
 use App\Service\Alerte\MessageService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class MessageServiceTest extends TestCase
+final class MessageServiceTest extends TestCase
 {
-    /**
-     * @dataProvider categorieProvider
-     */
+    #[DataProvider('categorieProvider')]
     public function testBaliseCategorieEffective(int $genreId, bool $avecParent, ?string $libelleParent, string $attendu): void
     {
         $etablissement = new Etablissement();
-        $genre = $this->createConfiguredMock(Genre::class, ['getId' => $genreId]);
+        $genre = $this->createConfiguredStub(Genre::class, ['getId' => $genreId]);
         $informations = new EtablissementInformations();
         $informations->setGenre($genre);
         $informations->setLibelle('Cellule Type M');
-        $informations->setCategorie((new EtablissementCategorie())->setLibelle('2ème catégorie'));
+        $informations->setCategorie(new EtablissementCategorie()->setLibelle('2ème catégorie'));
 
         $etablissement->addInformations($informations);
 
         if ($avecParent) {
             $parent = new Etablissement();
             $parentInformations = new EtablissementInformations();
-            $parentInformations->setCategorie(null !== $libelleParent ? (new EtablissementCategorie())->setLibelle($libelleParent) : null);
+            $parentInformations->setCategorie(null !== $libelleParent ? new EtablissementCategorie()->setLibelle($libelleParent) : null);
             $parent->addInformations($parentInformations);
             $etablissement->addParent($parent);
         }
 
-        $avisService = $this->createConfiguredMock(AvisService::class, ['getTexte' => 'Favorable']);
+        $avisService = $this->createConfiguredStub(AvisService::class, ['getTexte' => 'Favorable']);
         $service = new MessageService($avisService);
 
-        self::assertSame('Cellule Type M : '.$attendu.' / Favorable / {inconnue}', $service->generer('{etablissementLibelle} : {categorieEtablissement} / {etablissementAvis} / {inconnue}', $etablissement));
+        $this->assertSame('Cellule Type M : '.$attendu.' / Favorable / {inconnue}', $service->generer('{etablissementLibelle} : {categorieEtablissement} / {etablissementAvis} / {inconnue}', $etablissement));
     }
 
-    public function categorieProvider(): array
+    public static function categorieProvider(): \Iterator
     {
-        return [
-            'cellule avec parent' => [GenreEtablissement::CELLULE, true, '5ème catégorie', '5ème catégorie'],
-            'parent sans categorie' => [GenreEtablissement::CELLULE, true, null, ''],
-            'cellule sans parent' => [GenreEtablissement::CELLULE, false, null, '2ème catégorie'],
-            'ERP inchange' => [GenreEtablissement::ERP, true, '5ème catégorie', '2ème catégorie'],
-        ];
+        yield 'cellule avec parent' => [GenreEtablissement::CELLULE, true, '5ème catégorie', '5ème catégorie'];
+        yield 'parent sans categorie' => [GenreEtablissement::CELLULE, true, null, ''];
+        yield 'cellule sans parent' => [GenreEtablissement::CELLULE, false, null, '2ème catégorie'];
+        yield 'ERP inchange' => [GenreEtablissement::ERP, true, '5ème catégorie', '2ème catégorie'];
     }
 }

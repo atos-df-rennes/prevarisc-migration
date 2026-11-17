@@ -15,57 +15,24 @@ use App\Repository\IghClasseRepository;
 
 final class EtablissementTexter
 {
-    /** @var ?string */
-    private $typesActivites;
+    private ?string $typesActivites = null;
 
-    /** @var ?string */
-    private $categories;
+    private ?string $categories = null;
 
-    /** @var ?string */
-    private $familles;
+    private ?string $familles = null;
 
-    /** @var ?string */
-    private $classes;
+    private ?string $classes = null;
 
-    /** @var ?string */
-    private $classements;
+    private ?string $classements = null;
 
-    /** @var ?string */
-    private $useUserCommissions;
+    private ?string $useUserCommissions = null;
 
-    /** @var ?string */
-    private $useUserGroupements;
+    private ?string $useUserGroupements = null;
 
-    /** @var ?string */
-    private $useUserCommune;
+    private ?string $useUserCommune = null;
 
-    /** @var EtablissementActiviteRepository */
-    private $etablissementActiviteRepository;
-
-    /** @var EtablissementCategorieRepository */
-    private $categorieRepository;
-
-    /** @var FamilleRepository */
-    private $familleRepository;
-
-    /** @var IghClasseRepository */
-    private $classeRepository;
-
-    /** @var ClassementRepository */
-    private $classementRepository;
-
-    public function __construct(
-        EtablissementActiviteRepository $etablissementActiviteRepository,
-        EtablissementCategorieRepository $categorieRepository,
-        FamilleRepository $familleRepository,
-        IghClasseRepository $classeRepository,
-        ClassementRepository $classementRepository
-    ) {
-        $this->etablissementActiviteRepository = $etablissementActiviteRepository;
-        $this->categorieRepository = $categorieRepository;
-        $this->familleRepository = $familleRepository;
-        $this->classeRepository = $classeRepository;
-        $this->classementRepository = $classementRepository;
+    public function __construct(private readonly EtablissementActiviteRepository $etablissementActiviteRepository, private readonly EtablissementCategorieRepository $categorieRepository, private readonly FamilleRepository $familleRepository, private readonly IghClasseRepository $classeRepository, private readonly ClassementRepository $classementRepository)
+    {
     }
 
     /**
@@ -77,16 +44,12 @@ final class EtablissementTexter
             $this->typesActivites = 'Tous les types';
         } else {
             /** @var array<int, ?EtablissementActivite> $typesEntities */
-            $typesEntities = array_map(function (string $typeId) {
-                return $this->etablissementActiviteRepository->find($typeId);
-            }, $typesActivites);
+            $typesEntities = array_map(fn (string $typeId) => $this->etablissementActiviteRepository->find($typeId), $typesActivites);
             /** @var array<int, EtablissementActivite> $typesEntities */
             $typesEntities = array_filter($typesEntities);
 
             /** @var array<int, ?string> $typesLibelles */
-            $typesLibelles = array_map(function (EtablissementActivite $typeId): ?string {
-                return $typeId->getLibelle();
-            }, $typesEntities);
+            $typesLibelles = array_map(fn (EtablissementActivite $typeId): ?string => $typeId->getLibelle(), $typesEntities);
             /** @var array<int, string> $typesLibelles */
             $typesLibelles = array_filter($typesLibelles);
 
@@ -105,16 +68,12 @@ final class EtablissementTexter
             $this->categories = 'Toutes les catégories';
         } else {
             /** @var array<int, ?EtablissementCategorie> $categoriesEntities */
-            $categoriesEntities = array_map(function (string $categorieId) {
-                return $this->categorieRepository->find($categorieId);
-            }, $categories);
+            $categoriesEntities = array_map(fn (string $categorieId) => $this->categorieRepository->find($categorieId), $categories);
             /** @var array<int, EtablissementCategorie> $categoriesEntities */
             $categoriesEntities = array_filter($categoriesEntities);
 
             /** @var array<int, ?string> $categoriesLibelles */
-            $categoriesLibelles = array_map(function (EtablissementCategorie $categorieId): ?string {
-                return $categorieId->getLibelle();
-            }, $categoriesEntities);
+            $categoriesLibelles = array_map(fn (EtablissementCategorie $categorieId): ?string => $categorieId->getLibelle(), $categoriesEntities);
             /** @var array<int, string> $categoriesLibelles */
             $categoriesLibelles = array_filter($categoriesLibelles);
 
@@ -133,16 +92,12 @@ final class EtablissementTexter
             $this->familles = 'Toutes les familles';
         } else {
             /** @var array<int, ?Famille> $famillesEntities */
-            $famillesEntities = array_map(function (string $familleId) {
-                return $this->familleRepository->find($familleId);
-            }, $familles);
+            $famillesEntities = array_map(fn (string $familleId) => $this->familleRepository->find($familleId), $familles);
             /** @var array<int, Famille> $famillesEntities */
             $famillesEntities = array_filter($famillesEntities);
 
             /** @var array<int, ?string> $famillesLibelles */
-            $famillesLibelles = array_map(function (Famille $familleId): ?string {
-                return $familleId->getLibelle();
-            }, $famillesEntities);
+            $famillesLibelles = array_map(fn (Famille $familleId): ?string => $familleId->getLibelle(), $famillesEntities);
             /** @var array<int, string> $famillesLibelles */
             $famillesLibelles = array_filter($famillesLibelles);
 
@@ -161,16 +116,12 @@ final class EtablissementTexter
             $this->classes = 'Toutes les classes';
         } else {
             /** @var array<int, ?IghClasse> $classesEntities */
-            $classesEntities = array_map(function (string $classeId) {
-                return $this->classeRepository->find($classeId);
-            }, $classes);
+            $classesEntities = array_map(fn (string $classeId) => $this->classeRepository->find($classeId), $classes);
             /** @var array<int, IghClasse> $classesEntities */
             $classesEntities = array_filter($classesEntities);
 
             /** @var array<int, ?string> $classesLibelles */
-            $classesLibelles = array_map(function (IghClasse $classeId): ?string {
-                return $classeId->getLibelle();
-            }, $classesEntities);
+            $classesLibelles = array_map(fn (IghClasse $classeId): ?string => $classeId->getLibelle(), $classesEntities);
             /** @var array<int, string> $classesLibelles */
             $classesLibelles = array_filter($classesLibelles);
 
@@ -189,16 +140,12 @@ final class EtablissementTexter
             $this->classements = 'Tous les classements';
         } else {
             /** @var array<int, ?Classement> $classementsEntities */
-            $classementsEntities = array_map(function (string $classementId) {
-                return $this->classementRepository->find($classementId);
-            }, $classements);
+            $classementsEntities = array_map(fn (string $classementId) => $this->classementRepository->find($classementId), $classements);
             /** @var array<int, Classement> $classementsEntities */
             $classementsEntities = array_filter($classementsEntities);
 
             /** @var array<int, ?string> $classementsLibelles */
-            $classementsLibelles = array_map(function (Classement $classementId): ?string {
-                return $classementId->getLibelle();
-            }, $classementsEntities);
+            $classementsLibelles = array_map(fn (Classement $classementId): ?string => $classementId->getLibelle(), $classementsEntities);
             /** @var array<int, string> $classementsLibelles */
             $classementsLibelles = array_filter($classementsLibelles);
 

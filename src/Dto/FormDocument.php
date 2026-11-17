@@ -4,20 +4,8 @@ namespace App\Dto;
 
 class FormDocument
 {
-    /** @var int */
-    private $id;
-
-    /** @var string */
-    private $nom;
-
-    /** @var ?string */
-    private $type;
-
-    public function __construct(int $id, string $nom, ?string $type = null)
+    public function __construct(private readonly int $id, private readonly string $nom, private readonly ?string $type = null)
     {
-        $this->id = $id;
-        $this->nom = $nom;
-        $this->type = $type;
     }
 
     public function id(): int

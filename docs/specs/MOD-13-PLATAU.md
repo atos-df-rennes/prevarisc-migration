@@ -72,21 +72,27 @@ Le module est activable ou désactivable au niveau de la configuration de l'envi
 |--------|----------------|---------|-------------|
 | Inconnu | Statut inconnu | Gris | La PEC n'a pas encore été initiée ou le statut n'est pas déterminé. |
 | En attente | En attente de complétude sur Prevarisc | Bleu | Le dossier a été reçu mais la complétude n'a pas encore été renseignée. |
+| Complétude renseignée (affichage uniquement) | Complétude renseignée sur Prevarisc (en attente de transmission à Plat'AU) | Bleu primaire (`text-primary`) | Le statut stocké est « En attente » et la complétude est renseignée, que le dossier soit complet ou incomplet. |
 | Transmise | Prise en compte sur Plat'AU | Vert | La PEC a été transmise et acceptée par Plat'AU. |
 | En attente de renvoi | Prise en compte sur Plat'AU (en attente de renvoi) | Orange | Une relance manuelle a été demandée, la PEC sera retransmise. |
 | En erreur | En erreur sur Plat'AU | Rouge | La transmission de la PEC a échoué sur Plat'AU. |
 
-Lorsque le statut est « En attente » et que l'état de complétude du dossier n'est pas renseigné dans Prevarisc, un message d'information invite le préventionniste à modifier le dossier pour le compléter.
+Lorsque la complétude n'est pas renseignée dans Prevarisc (valeur `null`), le libellé « En attente de complétude sur Prevarisc » suffit à indiquer l'information manquante : aucun message informatif supplémentaire n'est affiché. Cette règle s'applique en consultation comme en modification du dossier.
 
 #### Statuts de l'avis
 
 | Statut | Libellé affiché | Couleur | Description |
 |--------|----------------|---------|-------------|
 | Inconnu | Statut inconnu | Gris | L'avis n'a pas encore été initié ou le statut n'est pas déterminé. |
-| En cours | En attente de complétude sur Prevarisc | Bleu | L'avis est en préparation dans Prevarisc. |
+| En cours | En attente d'avis sur Prevarisc | Bleu | L'avis n'a pas encore été renseigné dans Prevarisc. |
+| Avis renseigné (affichage uniquement) | Avis renseigné sur Prevarisc (en attente de transmission à Plat'AU) | Bleu primaire (`text-primary`) | Un avis de commission est renseigné et le statut stocké est « En cours », « Inconnu » ou absent. |
 | Traité | Traité sur Plat'AU | Vert | L'avis a été transmis et accepté par Plat'AU. |
 | En attente de renvoi | Traité sur Plat'AU (en attente de renvoi) | Orange | Une relance manuelle a été demandée, l'avis sera retransmis. |
 | En erreur | En erreur sur Plat'AU | Rouge | La transmission de l'avis a échoué sur Plat'AU. |
+
+Ces états d'affichage sont recalculés à chaque chargement de la fiche, en consultation et en modification, à partir des données sauvegardées du dossier et du statut de transmission. Ils ne sont jamais stockés et ne déclenchent aucun envoi. Les statuts « Transmise », « Traité », « En attente de renvoi » et « En erreur » restent prioritaires, même si les informations du dossier sont ensuite modifiées ou retirées. Les dates de transmission, boutons de renvoi et calculs du temps restant conservent leur fonctionnement existant.
+
+Un formulaire non sauvegardé, y compris après une soumission invalide, ne change pas ces états d'affichage. Après une sauvegarde ou une mise à jour par la passerelle, le prochain chargement reflète les données enregistrées ; une page déjà ouverte ne se rafraîchit pas automatiquement.
 
 #### Statuts d'envoi des pièces jointes
 
@@ -201,15 +207,17 @@ La vérification peut être désactivée indépendamment du module Plat'AU via u
 | **RG-PLT-009** | La PEC est transmise lorsque le préventionniste renseigne l'état de complétude du dossier (complet ou incomplet). |
 | **RG-PLT-010** | La relance manuelle de la PEC n'est possible que si la PEC est au statut « Transmise » **et** qu'aucun avis n'a encore été transmis (pas de date d'avis). |
 | **RG-PLT-011** | La relance remet la PEC au statut « En attente de renvoi ». La retransmission effective est assurée par le processus asynchrone. |
+| **RG-PLT-044** | Si le statut stocké de la PEC est « En attente » (`awaiting`) et que la complétude est renseignée (`false` ou `true`), afficher « Complétude renseignée sur Prevarisc (en attente de transmission à Plat'AU) » en `text-primary`, sans modifier le statut stocké. Si la complétude est retirée, afficher à nouveau l'attente de complétude. Les autres statuts restent inchangés. |
 
 ### Avis
 
 | # | Règle |
 |---|-------|
-| **RG-PLT-012** | À la réception d'une consultation, le statut de l'avis est initialisé à « En cours ». |
+| **RG-PLT-012** | Dans la passerelle actuelle (comportement observé), le statut de l'avis est positionné à « En cours » après transmission de la PEC. Avant cette étape, il peut être absent ou « Inconnu ». |
 | **RG-PLT-013** | L'avis est transmis lorsque le préventionniste saisit un avis de commission sur le dossier. |
 | **RG-PLT-014** | La relance manuelle de l'avis n'est possible que si l'avis est au statut « Traité ». |
 | **RG-PLT-015** | La relance remet l'avis au statut « En attente de renvoi ». La retransmission effective est assurée par le processus asynchrone. |
+| **RG-PLT-045** | Si un avis de commission est renseigné et que le statut stocké est « En cours » (`in_progress`), « Inconnu » (`unknown`) ou absent (`null`), afficher « Avis renseigné sur Prevarisc (en attente de transmission à Plat'AU) » en `text-primary`, sans modifier le statut stocké. Cette règle couvre les avis favorable, défavorable et « Pas d'avis ». Si l'avis est retiré, reprendre le libellé du statut stocké ; pour « En cours », afficher « En attente d'avis sur Prevarisc ». Les autres statuts restent inchangés. |
 
 ### Pièces jointes
 
@@ -270,11 +278,11 @@ La vérification peut être désactivée indépendamment du module Plat'AU via u
 
 ### 7.1 Statut inconnu
 
-Lorsqu'une consultation est reçue sans information de statut pour la PEC ou l'avis, le système affiche « Statut inconnu » en gris. Ce cas survient lors de la réception initiale ou en cas d'incohérence de données.
+Lorsqu'une consultation est reçue sans information de statut pour la PEC ou l'avis, le système affiche « Statut inconnu » en gris. Ce cas survient lors de la réception initiale ou en cas d'incohérence de données. Pour l'avis, si un avis de commission est déjà renseigné, l'état d'affichage « Avis renseigné » remplace ce libellé (RG-PLT-045).
 
 ### 7.2 Dossier Plat'AU sans état de complétude
 
-Si un dossier Plat'AU a une PEC « En attente » et que la complétude n'est pas renseignée dans Prevarisc, un message d'alerte invite le préventionniste à modifier le dossier pour renseigner l'information. Aucune transmission ne peut être déclenchée tant que la complétude n'est pas définie.
+Si un dossier Plat'AU a une PEC « En attente » et que la complétude n'est pas renseignée dans Prevarisc, seul le libellé « En attente de complétude sur Prevarisc » est affiché, sans message d'alerte supplémentaire. Aucune transmission ne peut être déclenchée tant que la complétude n'est pas définie.
 
 ### 7.3 Stockage spécifique des pièces jointes Plat'AU
 
@@ -303,3 +311,9 @@ Les communications avec les services PISTE et Plat'AU peuvent transiter par un p
 ### 7.9 Pièces jointes avec métadonnées Plat'AU
 
 Les pièces jointes transmises par Plat'AU peuvent porter des métadonnées supplémentaires : type, sous-type, date de dépôt et nature. Ces informations sont affichées dans la colonne description de la liste des pièces jointes lorsque la description libre est absente.
+
+### 7.10 Information renseignée et transmission effective
+
+L'état « renseigné » indique seulement la présence de l'information dans Prevarisc, pas une mise en file d'attente ni une garantie d'envoi. Selon le fonctionnement observé de la passerelle, l'avis saisi avant la transmission de la PEC peut déjà être affiché comme renseigné, alors que son envoi attend l'étape de prise en compte côté Plat'AU.
+
+La passerelle actuelle ne transmet pas automatiquement une PEC pour une consultation refusée, sauf dans les cas de renvoi ou d'erreur qu'elle prend en charge. L'état d'affichage ne lève pas cette restriction. Si la passerelle remet la PEC au statut `awaiting`, le prochain chargement recalcule son affichage selon la complétude alors enregistrée. Ces contraintes décrivent le fonctionnement actuel observé de la passerelle, sans ajouter de nouvelle règle de transmission.

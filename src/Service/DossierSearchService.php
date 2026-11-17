@@ -16,20 +16,8 @@ class DossierSearchService
 {
     public const MAX_LIMIT_PAGES_DOSSIERS = 100;
 
-    /** @var Connection */
-    private $connection;
-
-    /** @var SearchQueryHelper */
-    private $queryHelper;
-
-    /** @var TagAwareCacheInterface */
-    private $searchCache;
-
-    public function __construct(Connection $connection, SearchQueryHelper $queryHelper, TagAwareCacheInterface $searchCache)
+    public function __construct(private readonly Connection $connection, private readonly SearchQueryHelper $queryHelper, private readonly TagAwareCacheInterface $searchCache)
     {
-        $this->connection = $connection;
-        $this->queryHelper = $queryHelper;
-        $this->searchCache = $searchCache;
     }
 
     /**
@@ -104,8 +92,9 @@ class DossierSearchService
             ) AS ECHEANCIER_TRAVAUX,
             dossiernatureliste.LIBELLE_DOSSIERNATURE, dossiernatureliste.ID_DOSSIERNATURE,
             dossiertype.LIBELLE_DOSSIERTYPE,
-            eia.LIBELLE_ETABLISSEMENTINFORMATIONS, eia.ID_ETABLISSEMENT,
+            eia.LIBELLE_ETABLISSEMENTINFORMATIONS, eia.ID_ETABLISSEMENT, eia.ID_CATEGORIE,
             type.ID_TYPE, type.LIBELLE_TYPE,
+            categorie.LIBELLE_CATEGORIE,
             genre.LIBELLE_GENRE,
             avis.ID_AVIS,
             adressecommune.CODEPOSTAL_COMMUNE, adressecommune.LIBELLE_COMMUNE,
@@ -119,6 +108,7 @@ class DossierSearchService
             LEFT JOIN etablissementdossier e ON d.ID_DOSSIER = e.ID_DOSSIER
             LEFT JOIN etablissementinformationsactuel eia ON e.ID_ETABLISSEMENT = eia.ID_ETABLISSEMENT
             LEFT JOIN type ON type.ID_TYPE = eia.ID_TYPE
+            LEFT JOIN categorie ON categorie.ID_CATEGORIE = eia.ID_CATEGORIE
             LEFT JOIN genre ON genre.ID_GENRE = eia.ID_GENRE
             LEFT JOIN avis ON d.AVIS_DOSSIER_COMMISSION = avis.ID_AVIS
             LEFT JOIN dossierdocurba ON dossierdocurba.ID_DOSSIER = d.ID_DOSSIER
@@ -151,7 +141,7 @@ class DossierSearchService
             // Critères : objet
             if (null !== $objet) {
                 $cleanObjet = trim($objet);
-                if ('#' === substr($cleanObjet, 0, 1)) {
+                if (str_starts_with($cleanObjet, '#')) {
                     $nbUrbaPattern = $this->queryHelper->safeQuote('%'.substr($cleanObjet, 1).'%');
                     $havingConditions[] = 'NB_URBA LIKE '.$nbUrbaPattern;
                     $countWhereFromHaving[] = 'EXISTS (SELECT 1 FROM dossierdocurba dc_urba WHERE dc_urba.ID_DOSSIER = d.ID_DOSSIER AND dc_urba.NUM_DOCURBA LIKE '.$nbUrbaPattern.')';
@@ -318,6 +308,26 @@ class DossierSearchService
 
                 if (isset($criterias['dateReponseEnd']) && is_string($criterias['dateReponseEnd'])) {
                     $whereConditions[] = 'd.DATEREP_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReponseEnd']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateCommissionStart']) && is_string($criterias['dateCommissionStart'])) {
+                    $whereConditions[] = "STR_TO_DATE(d.DATECOMM_DOSSIER, '%Y-%m-%d') >= STR_TO_DATE(".$this->queryHelper->safeQuote($criterias['dateCommissionStart']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateCommissionEnd']) && is_string($criterias['dateCommissionEnd'])) {
+                    $whereConditions[] = "STR_TO_DATE(d.DATECOMM_DOSSIER, '%Y-%m-%d') <= STR_TO_DATE(".$this->queryHelper->safeQuote($criterias['dateCommissionEnd']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateVisiteStart']) && is_string($criterias['dateVisiteStart'])) {
+                    $whereConditions[] = 'd.DATEVISITE_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteStart']).", '%d/%m/%Y')";
+                    $hasAdditionalConditions = true;
+                }
+
+                if (isset($criterias['dateVisiteEnd']) && is_string($criterias['dateVisiteEnd'])) {
+                    $whereConditions[] = 'd.DATEVISITE_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteEnd']).", '%d/%m/%Y')";
                     $hasAdditionalConditions = true;
                 }
 
@@ -578,7 +588,7 @@ class DossierSearchService
         // Critères : objet
         if (null !== $objet) {
             $cleanObjet = trim($objet);
-            if ('#' === substr($cleanObjet, 0, 1)) {
+            if (str_starts_with($cleanObjet, '#')) {
                 $havingConditions[] = 'NB_URBA LIKE '.$this->queryHelper->safeQuote('%'.substr($cleanObjet, 1).'%');
             } elseif (1 === preg_match('/^[0-9A-Z\.]+$/', $cleanObjet)) {
                 $havingConditions[] = 'NB_URBA LIKE '.$this->queryHelper->safeQuote('%'.$cleanObjet.'%');
@@ -687,7 +697,7 @@ class DossierSearchService
             // Critères : label établissement
             if (isset($criterias['label']) && is_string($criterias['label'])) {
                 $cleanLabel = trim($criterias['label']);
-                if ('#' === substr($cleanLabel, 0, 1)) {
+                if (str_starts_with($cleanLabel, '#')) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', substr($cleanLabel, 1), false);
                 } elseif (1 === preg_match('/^[E0-9\/\-\.]+([0-9A-Z]{1,2})?$/', $cleanLabel)) {
                     $whereConditions[] = $this->queryHelper->buildCriteria('NUMEROID_ETABLISSEMENT', $cleanLabel, false);
@@ -725,6 +735,22 @@ class DossierSearchService
 
             if (isset($criterias['dateReponseEnd']) && is_string($criterias['dateReponseEnd'])) {
                 $whereConditions[] = 'd.DATEREP_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateReponseEnd']).", '%d/%m/%Y')";
+            }
+
+            if (isset($criterias['dateCommissionStart']) && is_string($criterias['dateCommissionStart'])) {
+                $whereConditions[] = "STR_TO_DATE(d.DATECOMM_DOSSIER, '%Y-%m-%d') >= STR_TO_DATE(".$this->queryHelper->safeQuote($criterias['dateCommissionStart']).", '%d/%m/%Y')";
+            }
+
+            if (isset($criterias['dateCommissionEnd']) && is_string($criterias['dateCommissionEnd'])) {
+                $whereConditions[] = "STR_TO_DATE(d.DATECOMM_DOSSIER, '%Y-%m-%d') <= STR_TO_DATE(".$this->queryHelper->safeQuote($criterias['dateCommissionEnd']).", '%d/%m/%Y')";
+            }
+
+            if (isset($criterias['dateVisiteStart']) && is_string($criterias['dateVisiteStart'])) {
+                $whereConditions[] = 'd.DATEVISITE_DOSSIER >= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteStart']).", '%d/%m/%Y')";
+            }
+
+            if (isset($criterias['dateVisiteEnd']) && is_string($criterias['dateVisiteEnd'])) {
+                $whereConditions[] = 'd.DATEVISITE_DOSSIER <= STR_TO_DATE('.$this->queryHelper->safeQuote($criterias['dateVisiteEnd']).", '%d/%m/%Y')";
             }
 
             $provenanceValue = isset($criterias['provenance']) && is_string($criterias['provenance']) ? $criterias['provenance'] : null;

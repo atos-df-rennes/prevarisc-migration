@@ -7,24 +7,18 @@ use App\Service\Doc;
 use Michelf\Markdown;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class AboutController extends AbstractController
 {
-    /** @var Doc */
-    private $docService;
-
-    public function __construct(Doc $docService)
+    public function __construct(private readonly Doc $docService)
     {
-        $this->docService = $docService;
     }
 
-    /**
-     * @Route("/about/{doc}", name="about")
-     */
+    #[Route(path: '/about/{doc}', name: 'about')]
     public function index(string $doc = AboutDocument::ABOUT): Response
     {
-        if (!in_array($doc, AboutDocument::ALL)) {
+        if (!in_array($doc, AboutDocument::ALL, true)) {
             throw $this->createNotFoundException("Le document que vous avez demandé n'a pas été trouvé.");
         }
 

@@ -1,22 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Repository;
 
 use App\Repository\PrescriptionTypeRepository;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-/**
- * @group functional
- */
-class PrescriptionTypeRepositoryTest extends KernelTestCase
+#[Group('functional')]
+final class PrescriptionTypeRepositoryTest extends KernelTestCase
 {
-    /** @var PrescriptionTypeRepository */
-    private $repository;
+    private PrescriptionTypeRepository $repository;
 
     protected function setUp(): void
     {
         self::bootKernel();
-        $this->repository = self::$container->get(PrescriptionTypeRepository::class);
+        $this->repository = self::getContainer()->get(PrescriptionTypeRepository::class);
     }
 
     public function testFindByClassementAvecCategorieFiltreLesResultats(): void
@@ -30,15 +30,15 @@ class PrescriptionTypeRepositoryTest extends KernelTestCase
         $premiereCategorie = $tous[0]->getCategorie();
 
         if (null === $premiereCategorie) {
-            $this->markTestSkipped('La première prescription type n\'a pas de catégorie.');
+            $this->markTestSkipped("La première prescription type n'a pas de catégorie.");
         }
 
         $filtres = $this->repository->findByClassement((int) $premiereCategorie, 0, 0);
 
-        self::assertIsArray($filtres);
+        $this->assertIsArray($filtres);
 
         foreach ($filtres as $prescriptionType) {
-            self::assertSame($premiereCategorie, $prescriptionType->getCategorie());
+            $this->assertSame($premiereCategorie, $prescriptionType->getCategorie());
         }
     }
 
@@ -46,15 +46,15 @@ class PrescriptionTypeRepositoryTest extends KernelTestCase
     {
         $results = $this->repository->findByMotsCles([]);
 
-        self::assertSame([], $results);
+        $this->assertSame([], $results);
     }
 
     public function testFindByMotsClesAvecMotInexistantRetourneTableauVide(): void
     {
         $results = $this->repository->findByMotsCles(['xyzinexistant12345']);
 
-        self::assertIsArray($results);
-        self::assertSame([], $results);
+        $this->assertIsArray($results);
+        $this->assertSame([], $results);
     }
 
     public function testFindByMotsClesRechercheParLibelle(): void
@@ -68,13 +68,13 @@ class PrescriptionTypeRepositoryTest extends KernelTestCase
         $premierLibelle = $tous[0]->getLibelle();
 
         if (null === $premierLibelle || '' === $premierLibelle) {
-            $this->markTestSkipped('La première prescription type n\'a pas de libellé.');
+            $this->markTestSkipped("La première prescription type n'a pas de libellé.");
         }
 
         $premierMot = explode(' ', trim($premierLibelle))[0];
         $results = $this->repository->findByMotsCles([$premierMot]);
 
-        self::assertIsArray($results);
-        self::assertNotEmpty($results);
+        $this->assertIsArray($results);
+        $this->assertNotEmpty($results);
     }
 }

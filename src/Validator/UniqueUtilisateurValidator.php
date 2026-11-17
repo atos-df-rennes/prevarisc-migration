@@ -3,6 +3,7 @@
 namespace App\Validator;
 
 use App\Entity\Utilisateur;
+use App\Entity\UtilisateurInformations;
 use App\Repository\UtilisateurRepository;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -18,15 +19,11 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
  */
 final class UniqueUtilisateurValidator extends ConstraintValidator
 {
-    /** @var UtilisateurRepository */
-    private $utilisateurRepository;
-
-    public function __construct(UtilisateurRepository $utilisateurRepository)
+    public function __construct(private readonly UtilisateurRepository $utilisateurRepository)
     {
-        $this->utilisateurRepository = $utilisateurRepository;
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof UniqueUtilisateur) {
             throw new UnexpectedTypeException($constraint, UniqueUtilisateur::class);
@@ -58,7 +55,7 @@ final class UniqueUtilisateurValidator extends ConstraintValidator
         }
 
         // Cas 2 : Login vide → vérifier unicité du mail
-        if (null !== $informations) {
+        if ($informations instanceof UtilisateurInformations) {
             $mail = $informations->getMail();
 
             // Vérifier que le mail est renseigné

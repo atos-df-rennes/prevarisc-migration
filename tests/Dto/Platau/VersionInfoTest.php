@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Dto\Platau;
 
 use App\Dto\Platau\VersionInfo;
 use PHPUnit\Framework\TestCase;
 
-class VersionInfoTest extends TestCase
+final class VersionInfoTest extends TestCase
 {
     public function testFromApiResponseExtractsFields(): void
     {

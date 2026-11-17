@@ -7,29 +7,22 @@ use App\Repository\DossierNatureListeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DossierController extends AbstractController
 {
-    /**
-     * @var DossierNatureListeRepository
-     */
-    private $dossierNatureListeRepository;
-
-    public function __construct(DossierNatureListeRepository $dossierNatureListeRepository)
+    public function __construct(private readonly DossierNatureListeRepository $dossierNatureListeRepository)
     {
-        $this->dossierNatureListeRepository = $dossierNatureListeRepository;
     }
 
     /**
      * API : Récupère les natures de dossier pour un type donné.
      *
-     * @Route("/api/dossier/natures-by-type/{type}", name="api_dossier_natures_by_type", requirements={"type"="\d+"}, methods={"GET"}, options={"expose"=true})
-     *
      * @param DossierType $type Type de dossier
      *
      * @return JsonResponse Liste des natures au format [{id, libelle}, ...]
      */
+    #[Route(path: '/api/dossier/natures-by-type/{type}', name: 'api_dossier_natures_by_type', requirements: ['type' => '\d+'], methods: ['GET'], options: ['expose' => true])]
     public function getNaturesByType(DossierType $type): JsonResponse
     {
         $natures = $this->dossierNatureListeRepository->findByTypeOrderedByOrdre($type);

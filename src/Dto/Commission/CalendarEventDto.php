@@ -9,45 +9,10 @@ use App\Entity\DateCommission;
  * Value Object représentant un événement de calendrier pour FullCalendar.
  * Immutable avec validation des données requises.
  */
-final class CalendarEventDto
+final readonly class CalendarEventDto
 {
-    /** @var int */
-    private $id;
-
-    /** @var string */
-    private $title;
-
-    /** @var string */
-    private $start;
-
-    /** @var string */
-    private $end;
-
-    /** @var string */
-    private $url;
-
-    /** @var string */
-    private $className;
-
-    /** @var bool */
-    private $allDay;
-
-    private function __construct(
-        int $id,
-        string $title,
-        string $start,
-        string $end,
-        string $url,
-        string $className,
-        bool $allDay
-    ) {
-        $this->id = $id;
-        $this->title = $title;
-        $this->start = $start;
-        $this->end = $end;
-        $this->url = $url;
-        $this->className = $className;
-        $this->allDay = $allDay;
+    private function __construct(private int $id, private string $title, private string $start, private string $end, private string $url, private string $className, private bool $allDay)
+    {
     }
 
     /**
@@ -63,23 +28,23 @@ final class CalendarEventDto
         }
 
         $date = $dateCommission->getDate();
-        if (null === $date) {
+        if (!$date instanceof \DateTimeInterface) {
             throw new \InvalidArgumentException('La date de commission est requise.');
         }
 
         $heureDebut = $dateCommission->getHeureDebut();
-        if (null === $heureDebut) {
-            throw new \InvalidArgumentException('L\'heure de début de commission est requise.');
+        if (!$heureDebut instanceof \DateTimeInterface) {
+            throw new \InvalidArgumentException("L'heure de début de commission est requise.");
         }
 
         $heureFin = $dateCommission->getHeureFin();
-        if (null === $heureFin) {
+        if (!$heureFin instanceof \DateTimeInterface) {
             throw new \InvalidArgumentException("L'heure de fin de commission est requise.");
         }
 
         $typeEvenement = $dateCommission->getTypeEvenement();
-        if (null === $typeEvenement) {
-            throw new \InvalidArgumentException('Le type d\'événement de commission est requis.');
+        if (!$typeEvenement instanceof CommissionTypeEvenement) {
+            throw new \InvalidArgumentException("Le type d'événement de commission est requis.");
         }
 
         $dateStr = $date->format('Y-m-d');

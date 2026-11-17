@@ -18,22 +18,15 @@ use App\Entity\PieceJointe;
  */
 class RuntimeDataStore implements DataStore
 {
-    /** @var DataStoreFactory */
-    private $factory;
+    private ?DataStore $dataStore = null;
 
-    /** @var DataStore|null */
-    private $dataStore;
-
-    public function __construct(DataStoreFactory $factory)
+    public function __construct(private readonly DataStoreFactory $factory)
     {
-        $this->factory = $factory;
     }
 
     private function getDataStore(): DataStore
     {
-        if (null === $this->dataStore) {
-            $this->dataStore = $this->factory->create();
-        }
+        $this->dataStore ??= $this->factory->create();
 
         return $this->dataStore;
     }

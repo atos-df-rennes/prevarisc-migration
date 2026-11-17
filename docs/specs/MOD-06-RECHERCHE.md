@@ -96,7 +96,7 @@ Chaque résultat affiché comporte :
 
 | Information | Détail |
 |-------------|--------|
-| Type et genre | Icône du type (si disponible) et 4 premières lettres du genre en majuscules |
+| Type, genre et catégorie | Icône du type (si disponible), libellé du type en texte, 4 premières lettres du genre en majuscules et numéro de catégorie. Le numéro de catégorie est affiché uniquement s'il est renseigné ; son libellé complet est accessible au survol. Les éléments absents et leurs séparateurs sont masqués. |
 | Libellé | Nom de l'établissement (lien vers la fiche). Si vide : « Libellé non renseigné » |
 | Commune | Affichée selon le genre : commune du site (pour un site), commune de la cellule (pour une cellule), commune de l'adresse directe (sinon) |
 | Avis d'exploitation | Favorable / Défavorable / Avis différé / Avis d'exploitation indisponible, avec date de l'avis (date de visite ou date de passage en commission) |
@@ -200,11 +200,16 @@ Un champ texte libre permet de rechercher un dossier :
 | 9 | **Numéro** | Sélection simple | Numéros de la voie sélectionnée (chargement dynamique) | Aucun |
 | 10 | **Préventionniste** | Sélection simple | Liste des préventionnistes actifs | Aucun |
 | 11 | **Numéro de permis** | Champ texte libre | Numéro de document d'urbanisme | Vide |
-| 12 | **Date de création** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
-| 13 | **Date de réception** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
-| 14 | **Date de réponse** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 12 | **Référence courrier** | Champ texte libre | Référence courrier du dossier | Vide |
+| 13 | **Date de création** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 14 | **Date de réception** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 15 | **Date de réponse** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 16 | **Date de passage en commission** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
+| 17 | **Date de visite** | Plage de dates (du/au) | Format JJ/MM/AAAA | Aucune |
 
 > **Critère conditionnel :** le filtre « Provenance » (Plat'AU) n'est affiché que si l'intégration Plat'AU est activée dans la configuration de l'application.
+
+Le critère « Référence courrier » effectue une recherche partielle : la chaîne saisie peut apparaître n'importe où dans la référence enregistrée.
 
 #### 4.1.3 Adresse en cascade
 
@@ -229,7 +234,7 @@ Les résultats sont affichés sous forme de tableau à 5 colonnes :
 
 | Colonne | Contenu |
 |---------|---------|
-| **Établissement** | Libellé de l'établissement lié (lien vers sa fiche), type et genre |
+| **Établissement** | Libellé de l'établissement lié (lien vers sa fiche), pictogramme du type (si disponible), libellé du type en texte, genre abrégé (4 premières lettres en majuscules) et numéro de catégorie. Le libellé complet de la catégorie est accessible au survol. Les éléments absents et leurs séparateurs sont masqués. |
 | **Objet** | Type + nature + objet du dossier + numéro d'urbanisme. Comprend également : date significative (commission, visite ou création), avis (favorable / défavorable / différé / incomplet / répondu / réponse à faire), alertes (réception de travaux, échéancier de travaux), badges Plat'AU, temps restant avant échéance de réponse |
 | **Date** | Trois dates empilées : date de création, date de réception, date de réponse |
 | **Préventionnistes** | Noms des préventionnistes affectés au dossier |
@@ -288,7 +293,7 @@ Les dossiers marqués comme **supprimés** sont systématiquement exclus des ré
 
 #### 4.3.3 Colonnes du fichier d'export
 
-L'export contient 22 colonnes :
+L'export contient 23 colonnes :
 
 | # | Colonne | Description |
 |---|---------|-------------|
@@ -304,16 +309,17 @@ L'export contient 22 colonnes :
 | 10 | Type du dossier | Type de dossier (visite, étude, courrier…) |
 | 11 | Nature du dossier | Nature précise du dossier |
 | 12 | Date de création du dossier | Date de création |
-| 13 | Objet du dossier | Texte libre de l'objet |
-| 14 | Numéro document urbanisme | Numéro(s) de permis liés |
-| 15 | Date de visite | Date de visite du dossier |
-| 16 | Date de la commission en salle | Date du passage en commission |
-| 17 | Commission du dossier | Nom de la commission affectée |
-| 18 | Avis rapporteur | Avis du rapporteur (favorable / défavorable) |
-| 19 | Avis commission | Avis de la commission (favorable / défavorable) |
-| 20 | Préventionniste en charge du dossier | Nom et prénom |
-| 21 | Pièces jointes ? | « Oui » ou « Non » |
-| 22 | Identifiant Plat'AU | Affiché uniquement si le filtre de provenance Plat'AU est actif |
+| 13 | Référence courrier | Référence courrier du dossier |
+| 14 | Objet du dossier | Texte libre de l'objet |
+| 15 | Numéro document urbanisme | Numéro(s) de permis liés |
+| 16 | Date de visite | Date de visite du dossier |
+| 17 | Date de la commission en salle | Date du passage en commission |
+| 18 | Commission du dossier | Nom de la commission affectée |
+| 19 | Avis rapporteur | Avis du rapporteur (favorable / défavorable) |
+| 20 | Avis commission | Avis de la commission (favorable / défavorable) |
+| 21 | Préventionniste en charge du dossier | Nom et prénom |
+| 22 | Pièces jointes ? | « Oui » ou « Non » |
+| 23 | Identifiant Plat'AU | Affiché uniquement si le filtre de provenance Plat'AU est actif |
 
 ---
 
@@ -399,6 +405,7 @@ Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté
 | **RG-RCH-038** | La colonne « Identifiant Plat'AU » dans l'export n'est remplie que si le filtre de provenance Plat'AU est actif. |
 | **RG-RCH-039** | L'affichage du **temps restant** avant l'échéance de réponse utilise un code couleur variable selon l'urgence. |
 | **RG-RCH-040** | L'objet du dossier affiché dans la liste est **tronqué à 70 caractères** suivi de « (...) » s'il dépasse cette longueur. |
+| **RG-RCH-041** | Les filtres par date de passage en commission et par date de visite s'appliquent comme des plages inclusives aux dates correspondantes du dossier. Lorsqu'une borne est renseignée, les dossiers sans date correspondante sont exclus. Les mêmes critères s'appliquent à la liste et à l'export. |
 
 ---
 
@@ -446,6 +453,6 @@ La date affichée sous chaque dossier suit la priorité suivante :
 2. **Date de visite** (si la date de commission n'est pas disponible)
 3. **Date de création du dossier** (en dernier recours)
 
-### 7.8 Critères non exposés dans l'interface
+### 7.8 Filtres par date de passage en commission et par date de visite
 
-Les filtres par date de passage en commission et par date de visite n'ont jamais été exposés dans le formulaire de recherche des dossiers. Les valeurs ne sont pas transmises au contrôleur, le code de traitement est du code mort. Ces critères ont été supprimés du moteur de recherche Symfony (voir écart MOD-06-ECART-02).
+Les plages de dates filtrent respectivement la date de passage en commission et la date de visite enregistrées sur le dossier. Chaque borne renseignée est inclusive ; les dossiers sans date correspondante ne sont pas retenus lorsque le filtre est actif. Les critères sont combinables avec les autres filtres et produisent les mêmes résultats dans la liste et l'export.

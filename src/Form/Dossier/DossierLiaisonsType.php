@@ -24,7 +24,7 @@ class DossierLiaisonsType extends AbstractType
             'required' => true,
             'error_bubbling' => true,
             'constraints' => [
-                new Count(['min' => 1, 'minMessage' => 'Veuillez sélectionner au moins un dossier à lier.']),
+                new Count(min: 1, minMessage: 'Veuillez sélectionner au moins un dossier à lier.'),
             ],
         ]);
     }

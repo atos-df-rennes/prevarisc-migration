@@ -14,18 +14,6 @@ namespace App\Service\Dashboard;
  */
 class DashboardBlocConfig
 {
-    /** @var bool */
-    private $deactivatePlatau;
-
-    /** @var int */
-    private $nextCommissionsDays;
-
-    /** @var int */
-    private $dossiersSansAvisDays;
-
-    /** @var int */
-    private $courrierSansReponseDays;
-
     /** @var array<string, array<string, mixed>> */
     private $blocsConfig = [
         'nextCommissions' => [
@@ -139,16 +127,11 @@ class DashboardBlocConfig
     ];
 
     public function __construct(
-        bool $deactivatePlatau,
-        int $nextCommissionsDays,
-        int $dossiersSansAvisDays,
-        int $courrierSansReponseDays
+        private readonly bool $deactivatePlatau,
+        private readonly int $nextCommissionsDays,
+        private readonly int $dossiersSansAvisDays,
+        private readonly int $courrierSansReponseDays
     ) {
-        $this->deactivatePlatau = $deactivatePlatau;
-        $this->nextCommissionsDays = $nextCommissionsDays;
-        $this->dossiersSansAvisDays = $dossiersSansAvisDays;
-        $this->courrierSansReponseDays = $courrierSansReponseDays;
-
         if (!$this->deactivatePlatau) {
             $this->blocsConfig['dossierPlatau'] = [
                 'method' => 'getDossiersPlatauSansEtablissement',

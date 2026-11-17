@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\AbstractMySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -20,7 +21,7 @@ final class Version20260217072408 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
         $this->skipIf($schema->getTable('rubrique')->hasColumn('ouverte'), "Mode d'ouverture déjà présent sur les rubriques.");
 
         $this->addSql('ALTER TABLE rubrique ADD ouverte TINYINT(1) NOT NULL');
@@ -29,7 +30,7 @@ final class Version20260217072408 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof AbstractMySQLPlatform, 'Migration can only be executed safely on \'mysql\'.');
         $this->skipIf(!$schema->getTable('rubrique')->hasColumn('ouverte'), "Mode d'ouverture déjà supprimé des rubriques.");
 
         $this->addSql('ALTER TABLE rubrique DROP ouverte');

@@ -5,21 +5,14 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SessionController extends AbstractController
 {
-    /**
-     * @var AuthenticationUtils
-     */
-    private $authenticationUtils;
-
-    public function __construct(AuthenticationUtils $authenticationUtils)
+    public function __construct(private readonly AuthenticationUtils $authenticationUtils)
     {
-        $this->authenticationUtils = $authenticationUtils;
     }
 
     /**
@@ -27,23 +20,10 @@ class SessionController extends AbstractController
      *
      * GET  : affiche le formulaire (erreurs et dernier username depuis AuthenticationUtils).
      * POST : délégué à FormLoginAuthenticator — le controller n'est pas rappelé.
-     *
-     * Route toujours enregistrée. Quand PREVARISC_SYMFONY_LOGIN=0, le controller supprime
-     * l'attribut _route et lève une 404 sans header X-Symfony-Route-Found → Strangler Pattern
-     * déclenche le fallback vers le legacy Zend (cf. SymfonyRouteFoundSubscriber + index.php).
-     *
-     * @Route("/session/login", name="session_login", methods={"GET", "POST"})
      */
-    public function login(Request $request): Response
+    #[Route(path: '/session/login', name: 'session_login', methods: ['GET', 'POST'])]
+    public function login(): Response
     {
-        if (!$this->getParameter('app.symfony_login')) {
-            // Supprimer _route pour que SymfonyRouteFoundSubscriber n'ajoute pas le header.
-            // Sans ce header, index.php détecte une 404 "route non trouvée" → fallback Zend.
-            $request->attributes->remove('_route');
-
-            throw $this->createNotFoundException();
-        }
-
         $error = $this->authenticationUtils->getLastAuthenticationError();
         $lastUsername = $this->authenticationUtils->getLastUsername();
 
@@ -61,9 +41,8 @@ class SessionController extends AbstractController
      * la route `session_logout` via LogoutListener avant d'atteindre ce contrôleur.
      * Le nettoyage complémentaire (Zend_Auth, session username, phpCAS) est
      * délégué à App\Security\LogoutHandler (enregistré dans security.php).
-     *
-     * @Route("/session/logout", name="session_logout", methods={"GET", "POST"})
      */
+    #[Route(path: '/session/logout', name: 'session_logout', methods: ['GET', 'POST'])]
     public function logout(): void
     {
         throw new \RuntimeException('La déconnexion est gérée par le firewall Symfony (LogoutListener). Ce code ne doit jamais être atteint.');

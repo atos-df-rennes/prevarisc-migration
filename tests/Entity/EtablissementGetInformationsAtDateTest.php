@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Entity;
 
 use App\Entity\Etablissement;
@@ -14,7 +16,7 @@ use PHPUnit\Framework\TestCase;
  * changement de raison sociale d'un établissement), au lieu de toujours prendre la fiche
  * la plus récente.
  */
-class EtablissementGetInformationsAtDateTest extends TestCase
+final class EtablissementGetInformationsAtDateTest extends TestCase
 {
     private function createInformations(Etablissement $etablissement, string $date, string $libelle): EtablissementInformations
     {
@@ -36,7 +38,7 @@ class EtablissementGetInformationsAtDateTest extends TestCase
 
         $result = $etablissement->getInformationsAtDate(new \DateTime('2016-01-01'));
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(EtablissementInformations::class, $result);
         $this->assertSame('Nom intermédiaire', $result->getLibelle());
     }
 
@@ -48,7 +50,7 @@ class EtablissementGetInformationsAtDateTest extends TestCase
 
         $result = $etablissement->getInformationsAtDate(new \DateTime('2015-06-15'));
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(EtablissementInformations::class, $result);
         $this->assertSame('Nom intermédiaire', $result->getLibelle());
     }
 
@@ -61,7 +63,7 @@ class EtablissementGetInformationsAtDateTest extends TestCase
         // Date antérieure à toute fiche existante : fallback legacy sur la fiche la plus ancienne.
         $result = $etablissement->getInformationsAtDate(new \DateTime('2000-01-01'));
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(EtablissementInformations::class, $result);
         $this->assertSame('Nom intermédiaire', $result->getLibelle());
     }
 
@@ -82,7 +84,7 @@ class EtablissementGetInformationsAtDateTest extends TestCase
 
         $result = $etablissement->getInformationsAtDate(new \DateTime('2030-01-01'));
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(EtablissementInformations::class, $result);
         $this->assertSame('Nom actuel', $result->getLibelle());
     }
 }

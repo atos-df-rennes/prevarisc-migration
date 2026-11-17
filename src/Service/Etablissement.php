@@ -26,57 +26,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-final class Etablissement
+final readonly class Etablissement
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var AvisDerogationsRepository */
-    private $avisDerogationsRepository;
-
-    /**
-     * @var ParameterBagInterface
-     */
-    private $parameterBag;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var TexteApplicable */
-    private $texteApplicableService;
-
-    /** @var EtablissementPersistenceService */
-    private $persistenceService;
-
-    /** @var EtablissementInformationsRepository */
-    private $informationsRepository;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        AvisDerogationsRepository $avisDerogationsRepository,
-        ParameterBagInterface $parameterBag,
-        EntityManagerInterface $entityManager,
-        LoggerInterface $logger,
-        TexteApplicable $texteApplicableService,
-        EtablissementPersistenceService $persistenceService,
-        EtablissementInformationsRepository $informationsRepository
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->avisDerogationsRepository = $avisDerogationsRepository;
-        $this->parameterBag = $parameterBag;
-        $this->entityManager = $entityManager;
-        $this->logger = $logger;
-        $this->texteApplicableService = $texteApplicableService;
-        $this->persistenceService = $persistenceService;
-        $this->informationsRepository = $informationsRepository;
+    public function __construct(private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private AvisDerogationsRepository $avisDerogationsRepository, private ParameterBagInterface $parameterBag, private EntityManagerInterface $entityManager, private LoggerInterface $logger, private TexteApplicable $texteApplicableService, private EtablissementPersistenceService $persistenceService, private EtablissementInformationsRepository $informationsRepository)
+    {
     }
 
     /**
@@ -134,7 +87,7 @@ final class Etablissement
     {
         $textesApplicablesData = $this->etablissementRepository->getTextesApplicablesByType($id);
 
-        if (null === $textesApplicablesData) {
+        if (!$textesApplicablesData instanceof EtablissementEntity) {
             return [];
         }
 
@@ -269,7 +222,7 @@ final class Etablissement
                     $periodicity = $periodiciteEnfant;
                 }
             }
-        } elseif (3 === $genreId && ($parent = $etablissement->getParent()) !== null) {
+        } elseif (3 === $genreId && ($parent = $etablissement->getParent()) instanceof EtablissementEntity) {
             $periodicity = $parent->getLatestInformations()->getPeriodicite();
         }
 
@@ -316,7 +269,7 @@ final class Etablissement
 
         // Site (genre 1)
         if (1 === $genreId) {
-            $dureeVisiteTotal = (new \DateTime())->setTime(0, 0, 0);
+            $dureeVisiteTotal = new \DateTime()->setTime(0, 0, 0);
 
             foreach ($etablissement->getFils() as $enfant) {
                 $dureeVisite = $enfant->getDureeVisite();
@@ -357,7 +310,7 @@ final class Etablissement
 
         // Récupération des contacts des parents
         $currentEtablissement = $etablissement;
-        while (null !== $currentEtablissement->getParent()) {
+        while ($currentEtablissement->getParent() instanceof EtablissementEntity) {
             $parent = $currentEtablissement->getParent();
             $allContacts = array_merge($allContacts, $parent->getContacts()->toArray());
             $currentEtablissement = $parent;
@@ -605,7 +558,7 @@ final class Etablissement
             $statut = $em->getReference(EtablissementStatut::class, $statutId);
             $informations->setStatut($statut);
 
-            if (null !== $user) {
+            if ($user instanceof Utilisateur) {
                 $informations->setUtilisateur($user);
             }
 
@@ -761,7 +714,7 @@ final class Etablissement
             $statut = $em->getReference(EtablissementStatut::class, $statutId);
             $informations->setStatut($statut);
 
-            if (null !== $user) {
+            if ($user instanceof Utilisateur) {
                 $informations->setUtilisateur($user);
             }
 
@@ -1012,13 +965,13 @@ final class Etablissement
      *
      * @return int|false Le type de changement (TypeChangement::STATUT ou TypeChangement::CLASSEMENT), ou false
      */
-    public function checkAlerte(EtablissementEntity $etablissement, array $postData)
+    public function checkAlerte(EtablissementEntity $etablissement, array $postData): int|false
     {
         $alerte = false;
         $informations = $etablissement->getLatestInformations();
 
         $currentStatut = $informations->getStatut();
-        $currentStatutId = null !== $currentStatut ? $currentStatut->getId() : null;
+        $currentStatutId = $currentStatut?->getId();
         $postStatutId = isset($postData['ID_STATUT']) ? self::toInt($postData['ID_STATUT']) : null;
 
         // Utiliser une comparaison non-stricte (==) comme le legacy pour couvrir le cas
@@ -1028,15 +981,15 @@ final class Etablissement
         }
 
         $currentCategorie = $informations->getCategorie();
-        $currentCategorieId = null !== $currentCategorie ? $currentCategorie->getId() : null;
+        $currentCategorieId = $currentCategorie?->getId();
         $postCategorieId = isset($postData['ID_CATEGORIE']) ? self::toInt($postData['ID_CATEGORIE']) : null;
 
         $currentType = $informations->getType();
-        $currentTypeId = null !== $currentType ? $currentType->getId() : null;
+        $currentTypeId = $currentType?->getId();
         $postTypeId = isset($postData['ID_TYPE']) ? self::toInt($postData['ID_TYPE']) : null;
 
         $currentActivite = $informations->getTypeActivite();
-        $currentActiviteId = null !== $currentActivite ? $currentActivite->getId() : null;
+        $currentActiviteId = $currentActivite?->getId();
         $postActiviteId = isset($postData['ID_TYPEACTIVITE']) ? self::toInt($postData['ID_TYPEACTIVITE']) : null;
 
         if ($currentCategorieId !== $postCategorieId

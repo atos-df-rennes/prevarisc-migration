@@ -8,37 +8,12 @@ use App\Entity\Utilisateur;
 use App\Repository\DossierRepository;
 use App\Utils\StringHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
-final class Dossier
+final readonly class Dossier
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var Security */
-    private $security;
-
-    /** @var PlatauTempsRestant */
-    private $servicePlatauTempsRestant;
-
-    /** @var TexteApplicable */
-    private $texteApplicableService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierRepository $dossierRepository,
-        Security $security,
-        PlatauTempsRestant $servicePlatauTempsRestant,
-        TexteApplicable $texteApplicableService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->dossierRepository = $dossierRepository;
-        $this->security = $security;
-        $this->servicePlatauTempsRestant = $servicePlatauTempsRestant;
-        $this->texteApplicableService = $texteApplicableService;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierRepository $dossierRepository, private Security $security, private PlatauTempsRestant $servicePlatauTempsRestant, private TexteApplicable $texteApplicableService)
+    {
     }
 
     /**
@@ -66,7 +41,7 @@ final class Dossier
      */
     public function deleteByEtablissement(EtablissementEntity $etablissement, Utilisateur $user): void
     {
-        $date = (new \DateTime())->format('Y-m-d');
+        $date = new \DateTime()->format('Y-m-d');
         $conn = $this->entityManager->getConnection();
         $etabId = $etablissement->getId();
         $userId = $user->getId();
@@ -119,7 +94,7 @@ final class Dossier
 
         $dateDerniereVisitePage = $user->getDerniereVisitePiecesDossier();
 
-        if (null === $dateDerniereVisitePage) {
+        if (!$dateDerniereVisitePage instanceof \DateTimeInterface) {
             return 0;
         }
 
@@ -169,7 +144,7 @@ final class Dossier
         foreach ($dossiers as $dossierEntity) {
             $donneeUtile = [];
             $donneeUtile['nbDossiersLies'] = count($dossierEntity->getDossiersLies());
-            $id = $dossierEntity->getId();
+            $id = $dossierEntity->getIdOrFail();
             $donneeUtile['alerteReceptionTravaux'] = $alertes[$id] ?? false;
             $donneeUtile['echeancierTravaux'] = $echeanciers[$id] ?? false;
 
@@ -220,6 +195,15 @@ final class Dossier
                 $libelle .= $nature;
             }
 
+            $referenceCourrier = $dossierEntity->getReferenceCourrier();
+            if (null !== $referenceCourrier && '' !== $referenceCourrier) {
+                if ('' !== $libelle) {
+                    $libelle .= ' - ';
+                }
+
+                $libelle .= $referenceCourrier;
+            }
+
             if ('' !== $donneeUtile['objet']) {
                 if ('' !== $libelle) {
                     $libelle .= ' - ';
@@ -232,7 +216,7 @@ final class Dossier
             $etablissement = $dossierEntity->getEtablissements()->first();
             if (false !== $etablissement) {
                 $informationsAtDate = $etablissement->getInformationsAtDate($this->getDateReferenceLibelleEtablissement($dossierEntity));
-                $donneeUtile['etablissement'] = null !== $informationsAtDate ? $informationsAtDate->getLibelle() : null;
+                $donneeUtile['etablissement'] = $informationsAtDate?->getLibelle();
             } else {
                 $donneeUtile['etablissement'] = null;
             }
@@ -285,7 +269,7 @@ final class Dossier
             return $dossier->getDateInsert() ?? new \DateTime();
         }
 
-        if (null !== $dossier->getDateVisite()) {
+        if ($dossier->getDateVisite() instanceof \DateTimeInterface) {
             return $dossier->getDateVisite();
         }
 
@@ -300,7 +284,7 @@ final class Dossier
     public function getTextesApplicables(int $idDossier): array
     {
         $textesApplicablesData = $this->dossierRepository->getTextesApplicablesByType($idDossier);
-        if (null === $textesApplicablesData) {
+        if (!$textesApplicablesData instanceof DossierEntity) {
             return [];
         }
 
@@ -319,9 +303,7 @@ final class Dossier
         $end = new \DateTime();
         $interval = $end->diff($start);
 
-        $doPlural = function (int $nb, string $str): string {
-            return $nb > 1 ? $str.'s' : $str;
-        };
+        $doPlural = (fn (int $nb, string $str): string => $nb > 1 ? $str.'s' : $str);
 
         $format = [];
         if (0 !== $interval->y) {

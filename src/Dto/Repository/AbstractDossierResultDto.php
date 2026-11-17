@@ -48,6 +48,11 @@ abstract class AbstractDossierResultDto
     /**
      * @var string|null
      */
+    public $REFCOURRIER_DOSSIER;
+
+    /**
+     * @var string|null
+     */
     public $DATECOMM_DOSSIER;
 
     /**
@@ -118,6 +123,7 @@ abstract class AbstractDossierResultDto
         $this->DIFFEREAVIS_DOSSIER = SqlTypeHelper::toInt($row['DIFFEREAVIS_DOSSIER'] ?? null);
         $this->VERROU_DOSSIER = SqlTypeHelper::toInt($row['VERROU_DOSSIER'] ?? null);
         $this->OBJET_DOSSIER = SqlTypeHelper::toStr($row['OBJET_DOSSIER'] ?? null);
+        $this->REFCOURRIER_DOSSIER = SqlTypeHelper::toStr($row['REFCOURRIER_DOSSIER'] ?? null);
         $this->DATECOMM_DOSSIER = SqlTypeHelper::toStr($row['DATECOMM_DOSSIER'] ?? null);
         $this->DATEVISITE_DOSSIER = SqlTypeHelper::toStr($row['DATEVISITE_DOSSIER'] ?? null);
         $this->DATEINSERT_DOSSIER = SqlTypeHelper::toStr($row['DATEINSERT_DOSSIER'] ?? null);

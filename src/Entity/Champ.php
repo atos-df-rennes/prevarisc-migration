@@ -2,104 +2,66 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\GetIdOrFailTrait;
 use App\Repository\ChampRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
-/**
- * @ORM\Entity(repositoryClass=ChampRepository::class)
- */
+#[ORM\Entity(repositoryClass: ChampRepository::class)]
 class Champ
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_CHAMP", type="integer")
-     */
-    private $id;
+    use GetIdOrFailTrait;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="NOM", type="string", length=255, nullable=false)
-     */
-    private $nom;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_CHAMP', type: Types::BIGINT)]
+    private ?int $id = null;
 
-    /**
-     * @var ?bool
-     *
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $tableau;
+    #[ORM\Column(name: 'NOM', type: Types::STRING, length: 255, nullable: false)]
+    private ?string $nom = null;
 
-    /**
-     * @var ?int
-     *
-     * @ORM\Column(type="integer", nullable=false)
-     */
-    private $idx;
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    private ?bool $tableau = null;
 
-    /**
-     * @var ?TypeChamp
-     *
-     * @ORM\ManyToOne(targetEntity=TypeChamp::class)
-     *
-     * @ORM\JoinColumn(name="ID_TYPECHAMP", referencedColumnName="ID_TYPECHAMP", nullable=false)
-     */
-    private $type;
+    #[ORM\Column(type: Types::INTEGER, nullable: false)]
+    private ?int $idx = null;
 
-    /**
-     * @var ?Rubrique
-     *
-     * @ORM\ManyToOne(targetEntity=Rubrique::class, inversedBy="champs")
-     *
-     * @ORM\JoinColumn(name="ID_RUBRIQUE", referencedColumnName="ID_RUBRIQUE", nullable=false)
-     */
-    private $rubrique;
+    #[ORM\ManyToOne(targetEntity: TypeChamp::class)]
+    #[ORM\JoinColumn(name: 'ID_TYPECHAMP', referencedColumnName: 'ID_TYPECHAMP', nullable: false, onDelete: 'CASCADE')]
+    private ?TypeChamp $type = null;
 
-    /**
-     * @var ?self
-     *
-     * @MaxDepth(1)
-     *
-     * @ORM\ManyToOne(targetEntity=Champ::class, inversedBy="enfants")
-     *
-     * @ORM\JoinColumn(name="ID_PARENT", referencedColumnName="ID_CHAMP", nullable=true)
-     */
-    private $parent;
+    #[ORM\ManyToOne(targetEntity: Rubrique::class, inversedBy: 'champs')]
+    #[ORM\JoinColumn(name: 'ID_RUBRIQUE', referencedColumnName: 'ID_RUBRIQUE', nullable: false, onDelete: 'CASCADE')]
+    private ?Rubrique $rubrique = null;
+
+    #[MaxDepth(1)]
+    #[ORM\ManyToOne(targetEntity: Champ::class, inversedBy: 'enfants')]
+    #[ORM\JoinColumn(name: 'ID_PARENT', referencedColumnName: 'ID_CHAMP', nullable: true, onDelete: 'CASCADE')]
+    private ?Champ $parent = null;
 
     /**
      * @var Collection<int, Champ>
-     *
-     * @MaxDepth(1)
-     *
-     * @ORM\OneToMany(targetEntity=Champ::class, mappedBy="parent", cascade={"persist", "remove"})
-     *
-     * @ORM\OrderBy({"idx" = "ASC", "id" = "ASC"})
      */
-    private $enfants;
+    #[MaxDepth(1)]
+    #[ORM\OneToMany(targetEntity: Champ::class, mappedBy: 'parent', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['idx' => 'ASC', 'id' => 'ASC'])]
+    private Collection $enfants;
 
     /**
      * @var Collection<int, ChampValeurListe>
-     *
-     * @ORM\OneToMany(targetEntity=ChampValeurListe::class, mappedBy="champ", orphanRemoval=true, cascade={"persist", "remove"})
-     *
-     * @ORM\OrderBy({"idx" = "ASC", "id" = "ASC"})
      */
-    private $valeursListe;
+    #[ORM\OneToMany(targetEntity: ChampValeurListe::class, mappedBy: 'champ', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['idx' => 'ASC', 'id' => 'ASC'])]
+    private Collection $valeursListe;
 
     /**
      * @var Collection<int, Valeur>
-     *
-     * @ORM\OneToMany(targetEntity=Valeur::class, mappedBy="champ", orphanRemoval=true)
      */
-    private $valeurs;
+    #[ORM\OneToMany(targetEntity: Valeur::class, mappedBy: 'champ', orphanRemoval: true)]
+    private Collection $valeurs;
 
     public function __construct()
     {

@@ -7,6 +7,8 @@ namespace App\Utils;
 /**
  * Normalizes file paths to handle configuration with or without trailing slashes.
  * Works consistently on both Windows and Unix systems by normalizing to forward slashes.
+ *
+ * @todo: use Symfony's Path Component instead.
  */
 final class PathNormalizer
 {
@@ -32,7 +34,7 @@ final class PathNormalizer
         // Preserve a leading double slash, which denotes a UNC network path
         // (e.g. \\server\share, turned into //server/share above). Collapsing
         // it to a single slash would break access to the mounted file server.
-        $isUncPath = 0 === strncmp($path, '//', 2);
+        $isUncPath = str_starts_with($path, '//');
 
         // Remove multiple consecutive slashes
         $path = (string) preg_replace('#/+#', '/', $path);

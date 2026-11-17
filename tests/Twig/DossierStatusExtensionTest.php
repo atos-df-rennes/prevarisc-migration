@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Twig;
 
 use App\Constant\Avis;
@@ -10,13 +12,12 @@ use App\Twig\DossierStatusExtension;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class DossierStatusExtensionTest extends TestCase
+final class DossierStatusExtensionTest extends TestCase
 {
-    /** @var DateDiffFormatterService|MockObject */
-    private $dateDiffFormatter;
+    /** @var MockObject&DateDiffFormatterService */
+    private MockObject $dateDiffFormatter;
 
-    /** @var DossierStatusExtension */
-    private $extension;
+    private DossierStatusExtension $extension;
 
     protected function setUp(): void
     {
@@ -30,6 +31,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testDossierIncompletRetourneOrangeBadge(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray(['INCOMPLET_DOSSIER' => 1]));
 
         $this->assertSame(
@@ -40,6 +43,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testDossierIncompletEstPrioritaireSurDiffere(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'INCOMPLET_DOSSIER' => 1,
             'DIFFEREAVIS_DOSSIER' => 1,
@@ -54,6 +59,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testAvisDiffereRetourneBlueBadge(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray(['DIFFEREAVIS_DOSSIER' => 1]));
 
         $this->assertSame(
@@ -68,6 +75,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testCourrierReponduRetourneRepondu(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'TYPE_DOSSIER' => DossierType::COURRIER,
             'DATEREP_DOSSIER' => '2023-01-15',
@@ -136,6 +145,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testFavorableSansExploitationRetourneFavorable(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'ID_AVIS' => Avis::FAVORABLE,
             'ID_DOSSIERNATURE' => 1, // 1 n'est pas dans la liste exploitation
@@ -146,6 +157,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testFavorableAvecExploitationRetourneFavorableExploitation(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'ID_AVIS' => Avis::FAVORABLE,
             'ID_DOSSIERNATURE' => 7, // 7 est dans la liste exploitation
@@ -160,6 +173,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testDefavorableSansExploitationRetourneDefavorable(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'ID_AVIS' => Avis::DEFAVORABLE,
             'ID_DOSSIERNATURE' => 1, // hors liste exploitation
@@ -170,6 +185,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testDefavorableAvecExploitationRetourneDefavorableExploitation(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([
             'ID_AVIS' => Avis::DEFAVORABLE,
             'ID_DOSSIERNATURE' => 16, // 16 est dans la liste exploitation
@@ -184,6 +201,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testFallbackRetourneAvisIndisponible(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray([]));
 
         $this->assertSame('<span class="avis">Avis indisponible</span>', $result);
@@ -191,6 +210,8 @@ class DossierStatusExtensionTest extends TestCase
 
     public function testFallbackAvecAvisInconnuRetourneAvisIndisponible(): void
     {
+        $this->dateDiffFormatter->expects($this->never())->method('format');
+
         $result = $this->extension->renderAvisBadge(DossierSearchResultDto::fromArray(['ID_AVIS' => 99]));
 
         $this->assertSame('<span class="avis">Avis indisponible</span>', $result);

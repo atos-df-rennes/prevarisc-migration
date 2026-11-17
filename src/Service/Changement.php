@@ -22,7 +22,7 @@ final class Changement
      *
      * @var array<string, array{description: string, method: string}>
      */
-    public const BALISES = [
+    public const array BALISES = [
         '{activitePrincipaleEtablissement}' => [
             'description' => "L'activité principale de l'établissement",
             'method' => 'getTypeActivite', // Sur EtablissementInformations

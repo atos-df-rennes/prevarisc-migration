@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Repository;
 
 use App\Entity\Commune;
@@ -16,60 +18,50 @@ use App\Entity\UtilisateurInformations;
 use App\Repository\UtilisateurRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-/**
- * @group functional
- */
-class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
+#[Group('functional')]
+final class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /** @var Connection */
-    private $connection;
+    private Connection $connection;
 
-    /** @var UtilisateurRepository */
-    private $repository;
+    private UtilisateurRepository $repository;
 
-    /** @var Fonction */
-    private $fonction;
+    private Fonction $fonction;
 
-    /** @var Groupe */
-    private $groupe;
+    private Groupe $groupe;
 
-    /** @var Genre */
-    private $genre;
+    private Genre $genre;
 
-    /** @var EtablissementStatut */
-    private $statut;
+    private EtablissementStatut $statut;
 
-    /** @var Commune */
-    private $commune;
+    private Commune $commune;
 
-    /** @var int */
-    private $userNumber = 0;
+    private int $userNumber = 0;
 
     protected function setUp(): void
     {
         self::bootKernel();
         /** @var EntityManagerInterface $entityManager */
-        $entityManager = self::$container->get('doctrine.orm.entity_manager');
+        $entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
         $this->entityManager = $entityManager;
 
         $this->connection = $this->entityManager->getConnection();
         $this->connection->beginTransaction();
 
-        $this->repository = self::$container->get(UtilisateurRepository::class);
+        $this->repository = self::getContainer()->get(UtilisateurRepository::class);
 
-        $genres = $this->entityManager->getRepository(Genre::class)->findAll();
-        $statuts = $this->entityManager->getRepository(EtablissementStatut::class)->findAll();
-        if ([] === $genres || [] === $statuts) {
+        $genre = $this->entityManager->getRepository(Genre::class)->findOneBy([]);
+        $statut = $this->entityManager->getRepository(EtablissementStatut::class)->findOneBy([]);
+        if (null === $genre || null === $statut) {
             self::markTestSkipped('Les données de référence nécessaires sont absentes.');
         }
 
-        $this->genre = array_values($genres)[0];
-        $this->statut = array_values($statuts)[0];
+        $this->genre = $genre;
+        $this->statut = $statut;
         do {
             $numinsee = (string) random_int(10000, 99999);
             $existingCommune = $this->connection->executeQuery(
@@ -88,13 +80,13 @@ class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
         ]);
         $commune = $this->entityManager->getReference(Commune::class, $numinsee);
         if (!$commune instanceof Commune) {
-            throw new \UnexpectedValueException('La commune de test n\'a pas pu être chargée.');
+            throw new \UnexpectedValueException("La commune de test n'a pas pu être chargée.");
         }
 
         $this->commune = $commune;
 
-        $this->fonction = (new Fonction())->setLibelle('Test preventionniste '.$this->uniqueSuffix());
-        $this->groupe = (new Groupe())->setLibelle('Test groupe '.$this->uniqueSuffix());
+        $this->fonction = new Fonction()->setLibelle('Test preventionniste '.$this->uniqueSuffix());
+        $this->groupe = new Groupe()->setLibelle('Test groupe '.$this->uniqueSuffix());
         $this->entityManager->persist($this->fonction);
         $this->entityManager->persist($this->groupe);
         $this->entityManager->flush();
@@ -102,11 +94,11 @@ class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
 
     protected function tearDown(): void
     {
-        if (null !== $this->connection && $this->connection->isTransactionActive()) {
+        if ($this->connection instanceof Connection && $this->connection->isTransactionActive()) {
             $this->connection->rollBack();
         }
 
-        if (null !== $this->entityManager && $this->entityManager->isOpen()) {
+        if ($this->entityManager instanceof EntityManagerInterface && $this->entityManager->isOpen()) {
             $this->entityManager->clear();
         }
 
@@ -125,10 +117,7 @@ class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
 
         $results = $this->repository->findPreventionnistesSuggeresPourEtablissement($etablissement->getId());
 
-        self::assertSame(
-            [$latestOnly->getId(), $shared->getId()],
-            $this->resultIds($results)
-        );
+        $this->assertSame([$latestOnly->getId(), $shared->getId()], $this->resultIds($results));
     }
 
     public function testFindPreventionnistesSuggeresPourEtablissementExcludesInactiveUsers(): void
@@ -141,13 +130,13 @@ class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
 
         $results = $this->repository->findPreventionnistesSuggeresPourEtablissement($etablissement->getId());
 
-        self::assertSame([$actif->getId()], $this->resultIds($results));
+        $this->assertSame([$actif->getId()], $this->resultIds($results));
     }
 
     public function testFindPreventionnistesSuggeresPourCommuneDeduplicatesAndUsesLegacyOrder(): void
     {
-        $typePrioritaire = (new GroupementType())->setLibelle('Type A '.$this->uniqueSuffix());
-        $typeSecondaire = (new GroupementType())->setLibelle('Type B '.$this->uniqueSuffix());
+        $typePrioritaire = new GroupementType()->setLibelle('Type A '.$this->uniqueSuffix());
+        $typeSecondaire = new GroupementType()->setLibelle('Type B '.$this->uniqueSuffix());
         $this->entityManager->persist($typePrioritaire);
         $this->entityManager->persist($typeSecondaire);
         $this->entityManager->flush();
@@ -164,16 +153,13 @@ class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
 
         $results = $this->repository->findPreventionnistesSuggeresPourCommune($this->commune->getId());
 
-        self::assertSame(
-            [$premier->getId(), $shared->getId(), $dernier->getId(), $typeTwo->getId()],
-            $this->resultIds($results)
-        );
+        $this->assertSame([$premier->getId(), $shared->getId(), $dernier->getId(), $typeTwo->getId()], $this->resultIds($results));
     }
 
     public function testFindPreventionnistesSuggeresPourCommuneKeepsInactiveUsers(): void
     {
         $inactif = $this->createUser('Inactif commune', false);
-        $type = (new GroupementType())->setLibelle('Type commune '.$this->uniqueSuffix());
+        $type = new GroupementType()->setLibelle('Type commune '.$this->uniqueSuffix());
         $this->entityManager->persist($type);
         $this->entityManager->flush();
         $this->createGroupement('Groupe commune '.$this->uniqueSuffix(), $type, [$inactif]);
@@ -181,7 +167,7 @@ class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
 
         $results = $this->repository->findPreventionnistesSuggeresPourCommune($this->commune->getId());
 
-        self::assertSame([$inactif->getId()], $this->resultIds($results));
+        $this->assertSame([$inactif->getId()], $this->resultIds($results));
     }
 
     /**
@@ -189,7 +175,7 @@ class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
      */
     private function createInformations(Etablissement $etablissement, string $date, array $preventionnistes): EtablissementInformations
     {
-        $informations = (new EtablissementInformations())
+        $informations = new EtablissementInformations()
             ->setLibelle('Test établissement')
             ->setDate(new \DateTime($date))
             ->setEtablissement($etablissement)
@@ -215,11 +201,11 @@ class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
 
     private function createUser(string $nom, bool $actif): Utilisateur
     {
-        $informations = (new UtilisateurInformations())
+        $informations = new UtilisateurInformations()
             ->setNom($nom)
             ->setPrenom('Test')
             ->setFonction($this->fonction);
-        $utilisateur = (new Utilisateur())
+        $utilisateur = new Utilisateur()
             ->setUsername('suggestion-test-'.$this->userNumber++)
             ->setActif($actif)
             ->setGroupe($this->groupe)
@@ -235,7 +221,7 @@ class UtilisateurRepositoryPreventionnistesSuggeresTest extends KernelTestCase
      */
     private function createGroupement(string $libelle, GroupementType $type, array $preventionnistes): void
     {
-        $groupement = (new Groupement())
+        $groupement = new Groupement()
             ->setLibelle($libelle)
             ->setType($type)
             ->addCommune($this->commune);

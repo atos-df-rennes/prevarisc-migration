@@ -3,43 +3,25 @@
 namespace App\Entity;
 
 use App\Repository\DossierDisplayRubriqueRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DossierDisplayRubriqueRepository::class)
- *
- * @ORM\Table(name="displayrubriquedossier")
- */
+#[ORM\Entity(repositoryClass: DossierDisplayRubriqueRepository::class)]
+#[ORM\Table(name: 'displayrubriquedossier')]
 class DossierDisplayRubrique
 {
-    /**
-     * @var ?Dossier
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=Dossier::class, inversedBy="displayRubriques")
-     *
-     * @ORM\JoinColumn(name="ID_DOSSIER", referencedColumnName="ID_DOSSIER", nullable=false)
-     */
-    private $dossier;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Dossier::class, inversedBy: 'displayRubriques')]
+    #[ORM\JoinColumn(name: 'ID_DOSSIER', referencedColumnName: 'ID_DOSSIER', nullable: false, onDelete: 'CASCADE')]
+    private ?Dossier $dossier = null;
 
-    /**
-     * @var Rubrique
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=Rubrique::class)
-     *
-     * @ORM\JoinColumn(name="ID_RUBRIQUE", referencedColumnName="ID_RUBRIQUE", nullable=false)
-     */
-    private $rubrique;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Rubrique::class)]
+    #[ORM\JoinColumn(name: 'ID_RUBRIQUE', referencedColumnName: 'ID_RUBRIQUE', nullable: false, onDelete: 'CASCADE')]
+    private ?Rubrique $rubrique = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="USER_DISPLAY", type="boolean", nullable=false)
-     */
-    private $userDisplay;
+    #[ORM\Column(name: 'USER_DISPLAY', type: Types::BOOLEAN, nullable: true, options: ['default' => 0])]
+    private ?bool $userDisplay = null;
 
     public function getDossier(): ?Dossier
     {

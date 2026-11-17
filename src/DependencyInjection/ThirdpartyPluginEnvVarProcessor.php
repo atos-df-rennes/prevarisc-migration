@@ -26,7 +26,7 @@ class ThirdpartyPluginEnvVarProcessor implements EnvVarProcessorInterface
      * Association préfixe env(...) => nom de classe Plugin_* legacy détectée
      * dans PREVARISC_THIRDPARTY_PLUGINS.
      */
-    private const PLUGIN_CLASSES = [
+    private const array PLUGIN_CLASSES = [
         'sdis29_plugin_enabled' => 'Plugin_SDIS29',
         'facteur_criticite_plugin_enabled' => 'Plugin_FacteurCriticite',
         'libelle_dossier_observations_plugin_enabled' => 'Plugin_LibelleDossierObservations',
@@ -58,7 +58,7 @@ class ThirdpartyPluginEnvVarProcessor implements EnvVarProcessorInterface
             return false;
         }
 
-        $plugins = array_map('trim', explode(';', $rawValue));
+        $plugins = array_map(trim(...), explode(';', $rawValue));
 
         return in_array(self::PLUGIN_CLASSES[$prefix], $plugins, true);
     }

@@ -9,38 +9,14 @@ use App\Repository\EtablissementRepository;
 
 class DataStoreFactory
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    /** @var string */
-    private $adapter;
-
-    /** @var string */
-    protected $dataPath;
-
-    /** @var string */
-    protected $realDataPath;
-
-    /** @var string */
-    private $fileFormat;
-
     public function __construct(
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        string $adapter,
-        string $dataPath,
-        string $realDataPath,
-        string $fileFormat
+        private readonly EtablissementRepository $etablissementRepository,
+        private readonly DossierRepository $dossierRepository,
+        private readonly string $adapter,
+        protected string $dataPath,
+        protected string $realDataPath,
+        private readonly string $fileFormat,
     ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->adapter = $adapter;
-        $this->dataPath = $dataPath;
-        $this->realDataPath = $realDataPath;
-        $this->fileFormat = $fileFormat;
     }
 
     public function create(): DataStore

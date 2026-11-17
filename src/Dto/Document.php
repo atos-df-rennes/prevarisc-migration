@@ -2,18 +2,10 @@
 
 namespace App\Dto;
 
-final class Document
+final readonly class Document
 {
-    /** @var string */
-    private $filename;
-
-    /** @var string */
-    private $filepath;
-
-    public function __construct(string $filename, string $filepath)
+    public function __construct(private string $filename, private string $filepath)
     {
-        $this->filename = $filename;
-        $this->filepath = $filepath;
     }
 
     public function filename(): string

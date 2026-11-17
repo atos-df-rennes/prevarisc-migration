@@ -3,43 +3,25 @@
 namespace App\Entity;
 
 use App\Repository\EtablissementDisplayRubriqueRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EtablissementDisplayRubriqueRepository::class)
- *
- * @ORM\Table(name="displayrubriqueetablissement")
- */
+#[ORM\Entity(repositoryClass: EtablissementDisplayRubriqueRepository::class)]
+#[ORM\Table(name: 'displayrubriqueetablissement')]
 class EtablissementDisplayRubrique
 {
-    /**
-     * @var ?Etablissement
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=Etablissement::class, inversedBy="displayRubriques")
-     *
-     * @ORM\JoinColumn(name="ID_ETABLISSEMENT", referencedColumnName="ID_ETABLISSEMENT", nullable=false)
-     */
-    private $etablissement;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Etablissement::class, inversedBy: 'displayRubriques')]
+    #[ORM\JoinColumn(name: 'ID_ETABLISSEMENT', referencedColumnName: 'ID_ETABLISSEMENT', nullable: false, onDelete: 'CASCADE')]
+    private ?Etablissement $etablissement = null;
 
-    /**
-     * @var Rubrique
-     *
-     * @ORM\Id
-     *
-     * @ORM\ManyToOne(targetEntity=Rubrique::class)
-     *
-     * @ORM\JoinColumn(name="ID_RUBRIQUE", referencedColumnName="ID_RUBRIQUE", nullable=false)
-     */
-    private $rubrique;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Rubrique::class)]
+    #[ORM\JoinColumn(name: 'ID_RUBRIQUE', referencedColumnName: 'ID_RUBRIQUE', nullable: false, onDelete: 'CASCADE')]
+    private ?Rubrique $rubrique = null;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="USER_DISPLAY", type="boolean", nullable=false)
-     */
-    private $userDisplay;
+    #[ORM\Column(name: 'USER_DISPLAY', type: Types::BOOLEAN, nullable: true, options: ['default' => 0])]
+    private ?bool $userDisplay = null;
 
     public function getEtablissement(): ?Etablissement
     {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Sdis29;
 
 use App\Constant\GenreEtablissement;
+use App\Repository\EtablissementRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -18,19 +19,17 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 class NumeroIdGenerator
 {
-    private const RANGES = [
+    private const array RANGES = [
         'Brest' => [1000, 39999],
         'Quimper' => [40000, 79999],
         'Morlaix' => [80000, 89999],
         'Châteaulin' => [90000, 99999],
     ];
 
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly EtablissementRepository $etablissementRepository,
+    ) {
     }
 
     /**
@@ -72,40 +71,28 @@ class NumeroIdGenerator
 
     private function generateEnfant(int $idPere, string $idGenre): string
     {
-        $conn = $this->entityManager->getConnection();
-
-        $rawNumeroPere = $conn->fetchOne(
-            'SELECT NUMEROID_ETABLISSEMENT AS numeroid FROM etablissement WHERE ID_ETABLISSEMENT = :idPere',
-            ['idPere' => $idPere]
-        );
-        $numeroPere = is_scalar($rawNumeroPere) ? (string) $rawNumeroPere : '';
+        $numeroPere = $this->etablissementRepository->find($idPere)?->getNumero() ?? '';
 
         // Genre "Cellule" (3) : on cherche parmi les enfants partageant le numéro complet du père,
         // les autres genres : uniquement sur les 5 premiers caractères (racine commune).
         $numeroSearch = (string) GenreEtablissement::CELLULE === $idGenre ? $numeroPere : substr($numeroPere, 0, 5);
-        $length = strlen($numeroSearch);
 
-        $rows = $conn->fetchAllAssociative(
-            'SELECT NUMEROID_ETABLISSEMENT AS numeroid FROM etablissement e
-                WHERE SUBSTRING(e.NUMEROID_ETABLISSEMENT, 1, :length) = :numeroSearch',
-            ['length' => $length, 'numeroSearch' => $numeroSearch]
-        );
+        $numeros = $this->etablissementRepository->findNumerosByPrefix($numeroSearch);
 
         if ((string) GenreEtablissement::CELLULE === $idGenre) {
-            return $this->nextCelluleSuffix($rows, $numeroPere);
+            return $this->nextCelluleSuffix($numeros, $numeroPere);
         }
 
-        return $this->nextLetterSuffix($rows, $numeroSearch);
+        return $this->nextLetterSuffix($numeros, $numeroSearch);
     }
 
     /**
-     * @param array<int, array<string, mixed>> $rows
+     * @param list<string> $numeros
      */
-    private function nextCelluleSuffix(array $rows, string $numeroPere): string
+    private function nextCelluleSuffix(array $numeros, string $numeroPere): string
     {
         $compteur = 0;
-        foreach ($rows as $row) {
-            $numeroid = is_scalar($row['numeroid']) ? (string) $row['numeroid'] : '';
+        foreach ($numeros as $numeroid) {
             $parts = explode('.', $numeroid);
             $suffix = end($parts);
             if (2 === strlen($suffix) && (int) $suffix > $compteur) {
@@ -117,18 +104,21 @@ class NumeroIdGenerator
     }
 
     /**
-     * @param array<int, array<string, mixed>> $rows
+     * @param list<string> $numeros
      */
-    private function nextLetterSuffix(array $rows, string $numeroSearch): string
+    private function nextLetterSuffix(array $numeros, string $numeroSearch): string
     {
         $compteur = \ord('A') - 1;
-        foreach ($rows as $row) {
-            $numeroid = is_scalar($row['numeroid']) ? (string) $row['numeroid'] : '';
+        foreach ($numeros as $numeroid) {
             $parts = explode('.', $numeroid);
             $suffix = end($parts);
-            if (1 === strlen($suffix) && \ord($suffix) > $compteur) {
-                $compteur = \ord($suffix);
+            if (1 === strlen($suffix) && \ord($suffix[0]) > $compteur) {
+                $compteur = \ord($suffix[0]);
             }
+        }
+
+        if ($compteur + 1 > 255) {
+            throw new \RuntimeException('Impossible de générer un suffixe supplémentaire : limite de caractères atteinte.');
         }
 
         return $numeroSearch.'.'.\chr($compteur + 1);

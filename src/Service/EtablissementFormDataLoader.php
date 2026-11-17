@@ -23,80 +23,10 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * Ce service centralise le chargement de données communes aux actions add() et edit()
  * du contrôleur, évitant la duplication de code.
  */
-final class EtablissementFormDataLoader
+final readonly class EtablissementFormDataLoader
 {
-    /** @var GenreRepository */
-    private $genreRepository;
-
-    /** @var EtablissementStatutRepository */
-    private $statutRepository;
-
-    /** @var EtablissementCategorieRepository */
-    private $categorieRepository;
-
-    /** @var EtablissementTypeRepository */
-    private $typeRepository;
-
-    /** @var EtablissementActiviteRepository */
-    private $activiteRepository;
-
-    /** @var CommissionRepository */
-    private $commissionRepository;
-
-    /** @var TypePlanRepository */
-    private $typePlanRepository;
-
-    /** @var FamilleRepository */
-    private $familleRepository;
-
-    /** @var IghClasseRepository */
-    private $ighClasseRepository;
-
-    /** @var ClassementRepository */
-    private $classementRepository;
-
-    /** @var CoucheCartoRepository */
-    private $coucheCartoRepository;
-
-    /** @var ParameterBagInterface */
-    private $parameterBag;
-
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
-    /** @var IgnAutoconfiguration */
-    private $ignAutoconfiguration;
-
-    public function __construct(
-        GenreRepository $genreRepository,
-        EtablissementStatutRepository $statutRepository,
-        EtablissementCategorieRepository $categorieRepository,
-        EtablissementTypeRepository $typeRepository,
-        EtablissementActiviteRepository $activiteRepository,
-        CommissionRepository $commissionRepository,
-        TypePlanRepository $typePlanRepository,
-        FamilleRepository $familleRepository,
-        IghClasseRepository $ighClasseRepository,
-        ClassementRepository $classementRepository,
-        CoucheCartoRepository $coucheCartoRepository,
-        ParameterBagInterface $parameterBag,
-        AuthorizationCheckerInterface $authorizationChecker,
-        IgnAutoconfiguration $ignAutoconfiguration
-    ) {
-        $this->genreRepository = $genreRepository;
-        $this->statutRepository = $statutRepository;
-        $this->categorieRepository = $categorieRepository;
-        $this->typeRepository = $typeRepository;
-        $this->activiteRepository = $activiteRepository;
-        $this->commissionRepository = $commissionRepository;
-        $this->typePlanRepository = $typePlanRepository;
-        $this->familleRepository = $familleRepository;
-        $this->ighClasseRepository = $ighClasseRepository;
-        $this->classementRepository = $classementRepository;
-        $this->coucheCartoRepository = $coucheCartoRepository;
-        $this->parameterBag = $parameterBag;
-        $this->authorizationChecker = $authorizationChecker;
-        $this->ignAutoconfiguration = $ignAutoconfiguration;
+    public function __construct(private GenreRepository $genreRepository, private EtablissementStatutRepository $statutRepository, private EtablissementCategorieRepository $categorieRepository, private EtablissementTypeRepository $typeRepository, private EtablissementActiviteRepository $activiteRepository, private CommissionRepository $commissionRepository, private TypePlanRepository $typePlanRepository, private FamilleRepository $familleRepository, private IghClasseRepository $ighClasseRepository, private ClassementRepository $classementRepository, private CoucheCartoRepository $coucheCartoRepository, private ParameterBagInterface $parameterBag, private AuthorizationCheckerInterface $authorizationChecker, private IgnAutoconfiguration $ignAutoconfiguration)
+    {
     }
 
     /**
@@ -127,9 +57,7 @@ final class EtablissementFormDataLoader
             $type = $commission->getType();
             $typeId = $type ? (int) $type->getId() : 0;
             $typeLibelle = $type ? (string) $type->getLibelle() : '';
-            if (!isset($commissionsData[$typeId])) {
-                $commissionsData[$typeId] = ['libelle' => $typeLibelle, 'items' => []];
-            }
+            $commissionsData[$typeId] ??= ['libelle' => $typeLibelle, 'items' => []];
 
             $commissionsData[$typeId]['items'][] = $commission;
         }

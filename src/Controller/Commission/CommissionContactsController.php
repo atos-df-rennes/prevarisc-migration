@@ -8,39 +8,27 @@ use App\Form\AddExistingContactsType;
 use App\Form\ContactType;
 use App\Service\Contact;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Gère l'onglet "Contacts" d'une commission.
- *
- * @IsGranted("gestion_commissions")
  */
+#[IsGranted('gestion_commissions')]
 class CommissionContactsController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var Contact */
-    private $contactService;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        Contact $contactService
-    ) {
-        $this->entityManager = $entityManager;
-        $this->contactService = $contactService;
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly Contact $contactService)
+    {
     }
 
     /**
      * Onglet Contacts.
-     *
-     * @Route("/admin/commissions/{id}/contacts", name="admin_commissions_contacts", requirements={"id"="\d+"}, methods={"GET"})
      */
+    #[Route(path: '/admin/commissions/{id}/contacts', name: 'admin_commissions_contacts', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function contacts(Commission $commission): Response
     {
         return $this->render('commissions/edit.html.twig', [
@@ -50,9 +38,7 @@ class CommissionContactsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/commissions/{id}/contacts/ajouter", name="admin_commissions_contacts_add", requirements={"id"="\d+"})
-     */
+    #[Route(path: '/admin/commissions/{id}/contacts/ajouter', name: 'admin_commissions_contacts_add', requirements: ['id' => '\d+'])]
     public function addNewContact(Request $request, Commission $commission): Response
     {
         $contact = new UtilisateurInformations();
@@ -73,13 +59,11 @@ class CommissionContactsController extends AbstractController
         }
 
         return $this->render('contact/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/commissions/{id}/contacts/ajouter/existant", name="admin_commissions_contacts_add_existing", requirements={"id"="\d+"})
-     */
+    #[Route(path: '/admin/commissions/{id}/contacts/ajouter/existant', name: 'admin_commissions_contacts_add_existing', requirements: ['id' => '\d+'])]
     public function addExistingContact(Request $request, Commission $commission): Response
     {
         $form = $this->createForm(AddExistingContactsType::class, null, [
@@ -104,20 +88,15 @@ class CommissionContactsController extends AbstractController
         }
 
         return $this->render('components/_form_contact_existant.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/admin/commissions/{id}/contacts/{contact}/supprimer", name="admin_commissions_contacts_delete", requirements={"id"="\d+", "contact"="\d+"}, methods={"GET", "DELETE"}, options={"expose"=true})
-     *
-     * @ParamConverter("commission", options={"id" = "id"})
-     * @ParamConverter("contact", options={"id" = "contact"})
-     */
+    #[Route(path: '/admin/commissions/{id}/contacts/{contact}/supprimer', name: 'admin_commissions_contacts_delete', requirements: ['id' => '\d+', 'contact' => '\d+'], methods: ['GET', 'DELETE'], options: ['expose' => true])]
     public function deleteContact(
         Request $request,
-        Commission $commission,
-        UtilisateurInformations $contact
+        #[MapEntity(id: 'id')] Commission $commission,
+        #[MapEntity(id: 'contact')] UtilisateurInformations $contact
     ): Response {
         $form = $this->createFormBuilder()
             ->setMethod(Request::METHOD_DELETE)
@@ -152,7 +131,7 @@ class CommissionContactsController extends AbstractController
         }
 
         return $this->render('components/_form_delete_contact.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'contact' => $contact,
             'entity_article' => 'de la commission',
             'entity_libelle' => $commission->getLibelle(),

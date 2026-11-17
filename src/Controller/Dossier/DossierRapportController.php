@@ -10,72 +10,32 @@ use App\Repository\CommissionRepository;
 use App\Service\Documents;
 use App\Service\DossierRapportOdtService;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Onglet Rapport du dossier : affichage du formulaire de génération et génération ODT.
  */
 class DossierRapportController extends AbstractController implements DossierLateralNavigationInterface
 {
-    /**
-     * @var CommissionRepository
-     */
-    private $commissionRepository;
-
-    /**
-     * @var DossierRapportOdtService
-     */
-    private $odtService;
-
-    /**
-     * Chemin URL des documents de commission (pour les liens de téléchargement).
-     *
-     * @var string
-     */
-    private $documentsDataPath;
-
-    /**
-     * Chemin réel (filesystem) des documents de commission (pour lister les fichiers).
-     *
-     * @var string
-     */
-    private $documentsRealDataPath;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /** @var Documents */
-    private $documents;
-
     public function __construct(
-        CommissionRepository $commissionRepository,
-        DossierRapportOdtService $odtService,
-        string $documentsDataPath,
-        string $documentsRealDataPath,
-        LoggerInterface $logger,
-        Documents $documents
+        private readonly CommissionRepository $commissionRepository,
+        private readonly DossierRapportOdtService $odtService,
+        private readonly string $documentsDataPath,
+        private readonly string $documentsRealDataPath,
+        private readonly LoggerInterface $logger,
+        private readonly Documents $documents
     ) {
-        $this->commissionRepository = $commissionRepository;
-        $this->odtService = $odtService;
-        $this->documentsDataPath = $documentsDataPath;
-        $this->documentsRealDataPath = $documentsRealDataPath;
-        $this->logger = $logger;
-        $this->documents = $documents;
     }
 
     /**
      * Affiche l'onglet Rapport du dossier.
-     *
-     * @Route("/dossier/{id}/rapport", name="dossier_rapport", requirements={"id"="\d+"}, methods={"GET"})
-     *
-     * @IsGranted("view_doss", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/rapport', name: 'dossier_rapport', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[IsGranted('view_doss', subject: 'dossier')]
     public function rapport(Dossier $dossier): Response
     {
         $idDossier = (int) $dossier->getId();
@@ -113,7 +73,7 @@ class DossierRapportController extends AbstractController implements DossierLate
                 if (null !== $latestInfos->getTypeActivite()) {
                     $idTypeActivitePrinc = $latestInfos->getTypeActivite()->getId();
                 }
-            } catch (\OutOfBoundsException $e) {
+            } catch (\OutOfBoundsException) {
                 // Établissement sans informations : idTypeActivitePrinc reste null
             }
         }
@@ -132,11 +92,9 @@ class DossierRapportController extends AbstractController implements DossierLate
 
     /**
      * Action AJAX POST de génération des rapports ODT.
-     *
-     * @Route("/dossier/{id}/rapport/generer", name="dossier_generationrapport", requirements={"id"="\d+"}, methods={"POST"}, defaults={"_dossier_lateral_nav": false})
-     *
-     * @IsGranted("edit_doss_ignore_verrou", subject="dossier")
      */
+    #[Route(path: '/dossier/{id}/rapport/generer', name: 'dossier_generationrapport', requirements: ['id' => '\d+'], methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
+    #[IsGranted('edit_doss_ignore_verrou', subject: 'dossier')]
     public function generationRapport(Dossier $dossier, Request $request): Response
     {
         $idDossier = (int) $dossier->getId();
@@ -171,22 +129,22 @@ class DossierRapportController extends AbstractController implements DossierLate
 
         $repriseCC = $request->request->getBoolean('repriseCC');
 
-        /** @var string[]|null $idEtabList */
-        $idEtabList = $request->request->get('idEtab', []);
-        if (!is_array($idEtabList)) {
-            $idEtabList = [];
-        }
+        $requestData = $request->request->all();
+        $idEtabList = $requestData['idEtab'] ?? [];
+        $idEtabList = is_array($idEtabList) ? $idEtabList : [];
 
         // B4 : filtrer les idEtab soumis contre ceux du dossier (IDOR)
-        $allowedIds = array_map(function (Etablissement $e): int { return $e->getId(); }, $dossier->getEtablissements()->toArray());
-        $idEtabList = array_values(array_filter($idEtabList, function ($id) use ($allowedIds): bool {
-            return in_array((int) $id, $allowedIds, true);
-        }));
+        $allowedIds = array_map(fn (Etablissement $e): int => $e->getId(), $dossier->getEtablissements()->toArray());
+        $idEtabList = array_map(
+            static fn ($id): int => is_scalar($id) ? (int) $id : 0,
+            $idEtabList
+        );
+        $idEtabList = array_values(array_filter($idEtabList, fn (int $id): bool => in_array($id, $allowedIds, true)));
 
         $html = '';
         try {
             foreach ($idEtabList as $etablissementId) {
-                $html .= $this->odtService->generer($idDossier, (int) $etablissementId, $fichierSelect, $repriseCC);
+                $html .= $this->odtService->generer($idDossier, $etablissementId, $fichierSelect, $repriseCC);
             }
         } catch (\Exception $exception) {
             $this->logger->error('Erreur lors de la génération du rapport dans le contrôleur.', [

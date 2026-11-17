@@ -4,34 +4,22 @@ namespace App\Security\Voter\Etablissement;
 
 use App\Constant\GenreEtablissement;
 use App\Entity\Etablissement;
+use App\Entity\Groupe;
 use App\Entity\Utilisateur;
 use App\Repository\PrivilegesRepository;
 use App\Repository\ResourcesRepository;
 use App\Service\Voter\EtablissementCollectionAccessChecker;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EtablissementSiteVoter extends EtablissementVoter
 {
-    /** @var EtablissementCollectionAccessChecker */
-    private $collectionAccessChecker;
-
-    /** @var ResourcesRepository */
-    private $resourcesRepository;
-
-    /** @var PrivilegesRepository */
-    private $privilegesRepository;
-
-    public function __construct(
-        EtablissementCollectionAccessChecker $collectionAccessChecker,
-        ResourcesRepository $resourcesRepository,
-        PrivilegesRepository $privilegesRepository
-    ) {
-        $this->collectionAccessChecker = $collectionAccessChecker;
-        $this->resourcesRepository = $resourcesRepository;
-        $this->privilegesRepository = $privilegesRepository;
+    public function __construct(private readonly EtablissementCollectionAccessChecker $collectionAccessChecker, private readonly ResourcesRepository $resourcesRepository, private readonly PrivilegesRepository $privilegesRepository)
+    {
     }
 
-    protected function supports($attribute, $subject): bool
+    #[\Override]
+    protected function supports(string $attribute, mixed $subject): bool
     {
         return parent::supports($attribute, $subject)
             && parent::isSubjectGenreAllowed($subject, GenreEtablissement::SITE);
@@ -45,7 +33,8 @@ class EtablissementSiteVoter extends EtablissementVoter
      * En modification, le privilège 'add_etablissement' accorde l'accès à tout site (vide ou non),
      * aligné sur le comportement legacy (ACL.php:275 — ressource editsite + privilège add_etablissement).
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    #[\Override]
+    protected function voteOnAttribute($attribute, $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (!parent::voteOnAttribute($attribute, $subject, $token)) {
             return false;
@@ -100,7 +89,7 @@ class EtablissementSiteVoter extends EtablissementVoter
     private function userHasAnyEtablissementResource(Utilisateur $user, string $attribute): bool
     {
         $groupe = $user->getGroupe();
-        if (null === $groupe) {
+        if (!$groupe instanceof Groupe) {
             return false;
         }
 

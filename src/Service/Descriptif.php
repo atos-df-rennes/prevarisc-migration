@@ -18,28 +18,8 @@ use App\Repository\ValeurRepository;
 
 class Descriptif
 {
-    /** @var CapsuleRubriqueRepository */
-    private $capsuleRubriqueRepository;
-
-    /** @var ValeurRepository */
-    private $valeurRepository;
-
-    /** @var DossierDisplayRubriqueRepository */
-    private $dossierDisplayRubriqueRepository;
-
-    /** @var EtablissementDisplayRubriqueRepository */
-    private $etablissementDisplayRubriqueRepository;
-
-    public function __construct(
-        CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        ValeurRepository $valeurRepository,
-        DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository,
-        EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository
-    ) {
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->valeurRepository = $valeurRepository;
-        $this->dossierDisplayRubriqueRepository = $dossierDisplayRubriqueRepository;
-        $this->etablissementDisplayRubriqueRepository = $etablissementDisplayRubriqueRepository;
+    public function __construct(private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly ValeurRepository $valeurRepository, private readonly DossierDisplayRubriqueRepository $dossierDisplayRubriqueRepository, private readonly EtablissementDisplayRubriqueRepository $etablissementDisplayRubriqueRepository)
+    {
     }
 
     /**
@@ -85,7 +65,7 @@ class Descriptif
     {
         $capsule = $this->capsuleRubriqueRepository->findByNomInterneWithFullData($capsuleNomInterne);
 
-        if (null === $capsule) {
+        if (!$capsule instanceof CapsuleRubrique) {
             return ['capsule' => null, 'rubriques' => []];
         }
 
@@ -108,7 +88,7 @@ class Descriptif
         $result = [];
 
         foreach ($capsule->getRubriques() as $rubrique) {
-            $display = $displayPrefs[$rubrique->getId()] ?? $rubrique->getDefaultDisplay() ?? true;
+            $display = $displayPrefs[$rubrique->getIdOrFail()] ?? $rubrique->getDefaultDisplay() ?? true;
 
             $champs = [];
             foreach ($rubrique->getRootChamps() as $champ) {
@@ -136,7 +116,7 @@ class Descriptif
     private function buildChamp(Champ $champ, array $valeurs): array
     {
         $type = $champ->getType();
-        if (null !== $type && TypeChamp::PARENT === $type->getId()) {
+        if ($type instanceof \App\Entity\TypeChamp && TypeChamp::PARENT === $type->getId()) {
             return $this->buildParentChamp($champ, $valeurs);
         }
 
@@ -217,7 +197,7 @@ class Descriptif
      */
     private function resolveValeur(Champ $champ, array $valeurs): ?Valeur
     {
-        $champValeurs = $valeurs[$champ->getId()] ?? [];
+        $champValeurs = $valeurs[$champ->getIdOrFail()] ?? [];
 
         return $champValeurs[0] ?? null;
     }
@@ -234,7 +214,7 @@ class Descriptif
         $prefs = [];
         foreach ($displayRubriques as $displayRubrique) {
             $rubrique = $displayRubrique->getRubrique();
-            $rubriqueId = null !== $rubrique ? $rubrique->getId() : null;
+            $rubriqueId = $rubrique?->getId();
             if (null !== $rubriqueId) {
                 $prefs[$rubriqueId] = (bool) $displayRubrique->getUserDisplay();
             }

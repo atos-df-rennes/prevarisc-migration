@@ -4,70 +4,70 @@
     <ul class="nav nav-tabs nav-stacked menu_dashboard">
         <li class="nav-header">Général</li>
 
-        <li {% if app.request.get('_route') is same as('admin_index') %}class="active"{% endif %}>
+        <li {% if app.current_route is same as('admin_index') %}class="active"{% endif %}>
             <a href="{{ path('admin_index') }}"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> Informations</a>
         </li>
 
         <li class="nav-header">Gestion des entités</li>
 
-        <li {% if app.request.get('_route') is same as('admin_elements_supprimes') %}class="active"{% endif %}>
+        <li {% if app.current_route is same as('admin_elements_supprimes') %}class="active"{% endif %}>
             <a href="{{ path('admin_elements_supprimes') }}"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Gestion des éléments supprimés</a>
         </li>
 
-        <li {% if app.request.get('_route') starts with 'admin_utilisateurs_'
-                or app.request.get('_route') starts with 'admin_groupe_'
+        <li {% if app.current_route starts with 'admin_utilisateurs_'
+                or app.current_route starts with 'admin_groupe_'
             %}class="active"{% endif %}
         >
             <a href="{{ path('admin_utilisateurs_index') }}"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Gestion des utilisateurs</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_communes') %}class="active"{% endif %}>
+        <li {% if app.current_route is same as('admin_communes') %}class="active"{% endif %}>
             <a href="{{ path('admin_communes') }}"><span class="glyphicon glyphicon-globe" aria-hidden="true"></span> Gestion des communes</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_fusion_des_communes') %}class="active"{% endif %}>
+        <li {% if app.current_route is same as('admin_fusion_des_communes') %}class="active"{% endif %}>
             <a href="{{ path('admin_fusion_des_communes') }}"><span class="glyphicon glyphicon-random" aria-hidden="true"></span> Fusion des communes</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('couches_cartographiques') %}class="active"{% endif %}>
+        <li {% if app.current_route starts with 'couches_cartographiques' %}class="active"{% endif %}>
             <a href="{{ path('couches_cartographiques') }}"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span> Gestion des couches cartographiques</a>
         </li>
 
-        <li {% if app.request.get('_route') starts with 'admin_commissions' %}class="active"{% endif %}>
+        <li {% if app.current_route starts with 'admin_commissions' %}class="active"{% endif %}>
             <a href="{{ path('admin_commissions_index') }}"><span class="glyphicon glyphicon-certificate" aria-hidden="true"></span> Gestion des commissions</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_documents') %}class="active"{% endif %}>
+        <li {% if app.current_route is same as('admin_documents') %}class="active"{% endif %}>
             <a href="{{ path('admin_documents') }}"><span class="glyphicon glyphicon-file" aria-hidden="true"></span> Gestion des documents</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_prescriptions')
-                or app.request.get('_route') starts with 'admin_prescriptions_'
+        <li {% if app.current_route is same as('admin_prescriptions')
+                or app.current_route starts with 'admin_prescriptions_'
             %}class="active"{% endif %}>
             <a href="{{ path('admin_prescriptions') }}"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> Gestion des prescriptions</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_textes_applicables') %}class="active"{% endif %}>
+        <li {% if app.current_route is same as('admin_textes_applicables') %}class="active"{% endif %}>
             <a href="{{ path('admin_textes_applicables') }}"><span class="glyphicon glyphicon-align-center" aria-hidden="true"></span> Gestion des textes applicables</a>
         </li>
 
         <li class="nav-header">Paramétrage du logiciel</li>
 
-        <li {% if app.request.get('_route') is same as('admin_tableau_des_periodicites') %}class="active"{% endif %}>
+        <li {% if app.current_route is same as('admin_tableau_des_periodicites') %}class="active"{% endif %}>
             <a href="{{ path('admin_tableau_des_periodicites') }}"><span class="glyphicon glyphicon-th" aria-hidden="true"></span> Tableau des périodicités</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_groupement')
-                or app.request.get('_route') starts with 'admin_groupement_'
+        <li {% if app.current_route is same as('admin_groupement')
+                or app.current_route starts with 'admin_groupement_'
             %}class="active"{% endif %}>
             <a href='{{ path('admin_groupement') }}'><span class="glyphicon glyphicon-tags" aria-hidden="true"></span> Groupements de communes</a>
         </li>
 
-        <li {% if app.request.get('_route') is same as('admin_changement') %}class="active"{% endif %}>
+        <li {% if app.current_route is same as('admin_changement') %}class="active"{% endif %}>
             <a href="{{ path('admin_changement') }}"><span class="glyphicon glyphicon-bell" aria-hidden="true"></span> Messages des alertes</a>
         </li>
 
-        <li {% if app.request.get('_route') starts with 'admin_formulaires' %}class="active"{% endif %}>
+        <li {% if app.current_route starts with 'admin_formulaires' %}class="active"{% endif %}>
             <a href='{{ path('admin_formulaires') }}'><span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> Formulaires</a>
         </li>
     </ul>

@@ -16,26 +16,11 @@ namespace App\Dto\Descriptif;
 class RubriqueFormData implements \ArrayAccess
 {
     /**
-     * Préférence d'affichage de la rubrique (true = visible, false = masquée).
-     *
-     * @var bool
+     * @param bool                       $display Préférence d'affichage (true = visible, false = masquée)
+     * @param array<int, ChampValueData> $champs  Données des champs racines indexées par champId
      */
-    private $display;
-
-    /**
-     * Données des champs racines indexées par champId.
-     *
-     * @var array<int, ChampValueData>
-     */
-    private $champs;
-
-    /**
-     * @param array<int, ChampValueData> $champs
-     */
-    public function __construct(bool $display = true, array $champs = [])
+    public function __construct(private bool $display = true, private array $champs = [])
     {
-        $this->display = $display;
-        $this->champs = $champs;
     }
 
     public function isDisplay(): bool
@@ -88,13 +73,10 @@ class RubriqueFormData implements \ArrayAccess
             return false;
         }
 
-        return null !== $this->getChamp($this->parseChampId($offset));
+        return $this->getChamp($this->parseChampId($offset)) instanceof ChampValueData;
     }
 
-    /**
-     * @return ChampValueData|null
-     */
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?ChampValueData
     {
         if (!is_string($offset)) {
             return null;

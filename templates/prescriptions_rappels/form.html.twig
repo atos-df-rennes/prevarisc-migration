@@ -2,9 +2,7 @@
 
 {% form_theme form '_form_theme.html.twig' %}
 
-{% set rappel_reg = app.request.get('rappelReg') %}
-
-{% if rappel_reg is null %}
+{% if rappel_reg.id is null %}
     {% set title = 'Ajout d\'un nouveau rappel réglementaire' %}
 {% else %}
     {% set title = 'Modification d\'un rappel réglementaire existant' %}
@@ -27,7 +25,7 @@
     <div class="row text-right mb-4">
         <div class="col-sm-12">
             <a class="btn btn-default" href="{{ path('admin_prescriptions_rappels') }}">
-                {% if rappel_reg is null %}
+                {% if rappel_reg.id is null %}
                     Annuler l'ajout
                 {% else %}
                     Annuler la modification

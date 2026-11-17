@@ -12,43 +12,33 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ChangelogController extends AbstractController
 {
-    /** @var VersionService */
-    private $versionService;
-
-    /**
-     * @var UtilisateurPreferencesRepository
-     */
-    private $prefsRepository;
-
-    public function __construct(VersionService $versionService, UtilisateurPreferencesRepository $prefsRepository)
+    public function __construct(private readonly VersionService $versionService, private readonly UtilisateurPreferencesRepository $prefsRepository, private readonly EntityManagerInterface $em)
     {
-        $this->versionService = $versionService;
-        $this->prefsRepository = $prefsRepository;
     }
 
-    /**
-     * @Route("/changelog", name="changelog_index")
-     */
+    #[Route(path: '/changelog', name: 'changelog_index')]
     public function index(): Response
     {
-        $rawSections = $this->versionService->getChangelogByMinorVersion();
+        $rawSections = $this->versionService->getChangelogByMajorVersion();
 
         $sections = [];
-        foreach ($rawSections as $minorVersion => $entries) {
-            $rendered = [];
-            foreach ($entries as $entry) {
-                $rendered[] = [
-                    'version' => $entry['version'],
-                    'date' => $entry['date'],
-                    'html' => Markdown::defaultTransform($entry['content']),
-                ];
-            }
+        foreach ($rawSections as $majorVersion => $minorVersions) {
+            foreach ($minorVersions as $minorVersion => $entries) {
+                $rendered = [];
+                foreach ($entries as $entry) {
+                    $rendered[] = [
+                        'version' => $entry['version'],
+                        'date' => $entry['date'],
+                        'html' => Markdown::defaultTransform($entry['content']),
+                    ];
+                }
 
-            $sections[(string) $minorVersion] = $rendered;
+                $sections[$majorVersion][$minorVersion] = $rendered;
+            }
         }
 
         return $this->render('changelog/index.html.twig', [
@@ -56,9 +46,7 @@ class ChangelogController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/changelog/banner", name="changelog_banner")
-     */
+    #[Route(path: '/changelog/banner', name: 'changelog_banner')]
     public function banner(): Response
     {
         /** @var Utilisateur|null $user */
@@ -71,8 +59,8 @@ class ChangelogController extends AbstractController
 
         try {
             $prefs = $this->prefsRepository->findOneBy(['utilisateur' => $user]);
-            $derniereVersionVue = null !== $prefs ? $prefs->getDerniereVersionVue() : null;
-        } catch (\Exception $exception) {
+            $derniereVersionVue = $prefs?->getDerniereVersionVue();
+        } catch (\Exception) {
             // La migration ajoutant DERNIERE_VERSION_VUE n'a pas encore été jouée.
             return new Response('');
         }
@@ -83,12 +71,9 @@ class ChangelogController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/api/changelog/dismiss", name="changelog_dismiss", methods={"POST"})
-     */
+    #[Route(path: '/api/changelog/dismiss', name: 'changelog_dismiss', methods: ['POST'])]
     public function dismiss(
-        Request $request,
-        EntityManagerInterface $em
+        Request $request
     ): JsonResponse {
         /** @var Utilisateur|null $user */
         $user = $this->getUser();
@@ -107,11 +92,11 @@ class ChangelogController extends AbstractController
         if (null === $prefs) {
             $prefs = new UtilisateurPreferences();
             $prefs->setUtilisateur($user);
-            $em->persist($prefs);
+            $this->em->persist($prefs);
         }
 
         $prefs->setDerniereVersionVue($this->versionService->getCurrentVersion());
-        $em->flush();
+        $this->em->flush();
 
         return new JsonResponse(['success' => true]);
     }

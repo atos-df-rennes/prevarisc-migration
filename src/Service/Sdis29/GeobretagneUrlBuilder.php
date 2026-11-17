@@ -7,6 +7,7 @@ namespace App\Service\Sdis29;
 use App\Entity\CoucheCarto;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementAdresse;
+use App\Entity\EtablissementInformations;
 
 /**
  * Construit les URLs du visualiseur cartographique Géobretagne (sviewer),
@@ -22,9 +23,9 @@ class GeobretagneUrlBuilder
      * Coordonnées d'exemple utilisées par l'admin des couches cartographiques
      * (centre approximatif du département du Finistère), identiques au legacy.
      */
-    private const ADMIN_SAMPLE_LONGITUDE = -4.080290;
+    private const float ADMIN_SAMPLE_LONGITUDE = -4.080290;
 
-    private const ADMIN_SAMPLE_LATITUDE = 47.976387;
+    private const float ADMIN_SAMPLE_LATITUDE = 47.976387;
 
     /**
      * Construit l'URL de l'iframe Géobretagne pour la fiche d'un établissement.
@@ -60,7 +61,7 @@ class GeobretagneUrlBuilder
         }
 
         $latestInformations = $etablissement->getLatestInformationsOrNull();
-        $libelle = null !== $latestInformations ? (string) $latestInformations->getLibelle() : '';
+        $libelle = $latestInformations instanceof EtablissementInformations ? (string) $latestInformations->getLibelle() : '';
 
         return $this->buildUrl($geobretagneBaseUrl, $coordinates, $couchesCartographiques, $libelle, $kmlUrl);
     }

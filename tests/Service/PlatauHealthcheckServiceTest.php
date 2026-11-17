@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service;
 
 use App\Constant\Platau\HealthcheckErrorSource;
@@ -17,7 +19,7 @@ use Psr\Log\NullLogger;
  *
  * Les scénarios dépendant de cURL (appels réseau réels) sont couverts en intégration.
  */
-class PlatauHealthcheckServiceTest extends TestCase
+final class PlatauHealthcheckServiceTest extends TestCase
 {
     /**
      * Crée une instance du service avec des chemins de fichiers inexistants,
@@ -25,7 +27,7 @@ class PlatauHealthcheckServiceTest extends TestCase
      */
     private function buildService(): PlatauHealthcheckService
     {
-        $proxy = $this->createMock(ProxyConfigurationService::class);
+        $proxy = $this->createStub(ProxyConfigurationService::class);
         $proxy->method('getCurlOptions')->willReturn([]);
 
         return new PlatauHealthcheckService(
@@ -69,7 +71,7 @@ class PlatauHealthcheckServiceTest extends TestCase
 
         $this->assertNotFalse($json);
 
-        $data = json_decode((string) $json, true);
+        $data = json_decode($json, true);
 
         $this->assertArrayHasKey('success', $data);
         $this->assertArrayHasKey('errorSource', $data);

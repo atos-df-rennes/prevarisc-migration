@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Service\DataStore;
 
 use App\Entity\Dossier;
@@ -10,111 +12,85 @@ use App\Repository\EtablissementRepository;
 use App\Service\DataStore\DataStoreFactory;
 use App\Service\DataStore\RuntimeDataStore;
 use Doctrine\Common\Collections\ArrayCollection;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+#[AllowMockObjectsWithoutExpectations]
 final class DataStoreFilenameTest extends TestCase
 {
-    private const CLIENT_FORMAT = '%NUMEROID_ETABLISSEMENT%_%DATE_PIECEJOINTE%_%NOM_PIECEJOINTE%_%ID_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
+    private const string CLIENT_FORMAT = '%NUMEROID_ETABLISSEMENT%_%DATE_PIECEJOINTE%_%NOM_PIECEJOINTE%_%ID_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
 
-    private const DEFAULT_FORMAT = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
+    private const string DEFAULT_FORMAT = '%NOM_PIECEJOINTE%%EXTENSION_PIECEJOINTE%';
 
-    /**
-     * @dataProvider provideCommissionDocuments
-     */
+    #[DataProvider('provideCommissionDocuments')]
     public function testConfiguredFilename(string $adapter, string $name): void
     {
-        /** @var EtablissementRepository&MockObject $repository */
-        $repository = $this->createMock(EtablissementRepository::class);
+        $repository = $this->createStub(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         /** @var DossierRepository&MockObject $dossierRepository */
-        $dossierRepository = $this->createMock(DossierRepository::class);
+        $dossierRepository = $this->createStub(DossierRepository::class);
         $factory = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::CLIENT_FORMAT);
         $store = new RuntimeDataStore($factory);
         $pieceJointe = $this->createPieceJointe($name, new \DateTimeImmutable('2026-10-05 15:42:00'));
 
-        self::assertSame(
-            '42_2026-10-05_'.$name.'_123.odt',
-            $store->getFormattedFilename($pieceJointe, 'dateCommission', 42)
-        );
+        $this->assertSame('42_2026-10-05_'.$name.'_123.odt', $store->getFormattedFilename($pieceJointe, 'dateCommission', 42));
 
-        $defaultStore = (new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::DEFAULT_FORMAT))->create();
-        self::assertSame(
-            $defaultStore->getFilePath($pieceJointe, 'dateCommission', 42),
-            $store->getFilePath($pieceJointe, 'dateCommission', 42)
-        );
-        self::assertSame(
-            $defaultStore->getURLPath($pieceJointe, 'dateCommission', 42),
-            $store->getURLPath($pieceJointe, 'dateCommission', 42)
-        );
-        self::assertSame($name, $pieceJointe->getNom());
+        $defaultStore = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::DEFAULT_FORMAT)->create();
+        $this->assertSame($defaultStore->getFilePath($pieceJointe, 'dateCommission', 42), $store->getFilePath($pieceJointe, 'dateCommission', 42));
+        $this->assertSame($defaultStore->getURLPath($pieceJointe, 'dateCommission', 42), $store->getURLPath($pieceJointe, 'dateCommission', 42));
+        $this->assertSame($name, $pieceJointe->getNom());
     }
 
-    /**
-     * @dataProvider provideCommissionDocuments
-     */
+    #[DataProvider('provideCommissionDocuments')]
     public function testInjectedDefaultFormatPreservesFilename(string $adapter, string $name): void
     {
-        /** @var EtablissementRepository&MockObject $repository */
-        $repository = $this->createMock(EtablissementRepository::class);
+        $repository = $this->createStub(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         /** @var DossierRepository&MockObject $dossierRepository */
-        $dossierRepository = $this->createMock(DossierRepository::class);
+        $dossierRepository = $this->createStub(DossierRepository::class);
         $pieceJointe = $this->createPieceJointe($name, new \DateTime('2026-10-05 15:42:00'));
         $factory = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::DEFAULT_FORMAT);
 
-        self::assertSame(
-            $name.'.odt',
-            $factory->create()->getFormattedFilename($pieceJointe, 'dateCommission', 42)
-        );
+        $this->assertSame($name.'.odt', $factory->create()->getFormattedFilename($pieceJointe, 'dateCommission', 42));
     }
 
-    /**
-     * @dataProvider provideEmptyFormats
-     */
+    #[DataProvider('provideEmptyFormats')]
     public function testEmptyFormatIsRejected(string $adapter, string $format): void
     {
-        /** @var EtablissementRepository&MockObject $repository */
-        $repository = $this->createMock(EtablissementRepository::class);
+        $repository = $this->createStub(EtablissementRepository::class);
         /** @var DossierRepository&MockObject $dossierRepository */
-        $dossierRepository = $this->createMock(DossierRepository::class);
+        $dossierRepository = $this->createStub(DossierRepository::class);
         $factory = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', $format);
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('PREVARISC_DATASTORE_FILE_FORMAT must not be empty.');
+        $this->expectExceptionMessageIsOrContains('PREVARISC_DATASTORE_FILE_FORMAT must not be empty.');
 
         $factory->create();
     }
 
     /**
-     * @return array<string, array{string, string}>
+     * @return \Iterator<string, array{string, string}>
      */
-    public static function provideEmptyFormats(): array
+    public static function provideEmptyFormats(): \Iterator
     {
-        return [
-            'simple empty' => ['Plugin_SimpleFileDataStore', ''],
-            'hashed empty' => ['Plugin_HashedFileDataStore', ''],
-            'simple whitespace' => ['Plugin_SimpleFileDataStore', '   '],
-            'hashed whitespace' => ['Plugin_HashedFileDataStore', '   '],
-        ];
+        yield 'simple empty' => ['Plugin_SimpleFileDataStore', ''];
+        yield 'hashed empty' => ['Plugin_HashedFileDataStore', ''];
+        yield 'simple whitespace' => ['Plugin_SimpleFileDataStore', '   '];
+        yield 'hashed whitespace' => ['Plugin_HashedFileDataStore', '   '];
     }
 
-    /**
-     * @dataProvider provideCommissionDocuments
-     */
+    #[DataProvider('provideCommissionDocuments')]
     public function testMissingDateProducesEmptyDateToken(string $adapter, string $name): void
     {
-        /** @var EtablissementRepository&MockObject $repository */
-        $repository = $this->createMock(EtablissementRepository::class);
+        $repository = $this->createStub(EtablissementRepository::class);
         $repository->method('find')->willReturn(null);
         /** @var DossierRepository&MockObject $dossierRepository */
-        $dossierRepository = $this->createMock(DossierRepository::class);
-        $store = (new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::CLIENT_FORMAT))->create();
+        $dossierRepository = $this->createStub(DossierRepository::class);
+        $store = new DataStoreFactory($repository, $dossierRepository, $adapter, '/data', '/files', self::CLIENT_FORMAT)->create();
 
-        self::assertSame(
-            '42__'.$name.'_123.odt',
-            $store->getFormattedFilename($this->createPieceJointe($name, null), 'dateCommission', 42)
-        );
+        $this->assertSame('42__'.$name.'_123.odt', $store->getFormattedFilename($this->createPieceJointe($name, null), 'dateCommission', 42));
     }
 
     /**
@@ -133,10 +109,9 @@ final class DataStoreFilenameTest extends TestCase
     }
 
     /**
-     * @dataProvider provideLinkedObjectFilenameCases
-     *
      * @param array<array{id: int, numero: ?string}> $etablissementData
      */
+    #[DataProvider('provideLinkedObjectFilenameCases')]
     public function testLinkedObjectNumberToken(
         string $adapter,
         string $linkedObjectType,
@@ -168,19 +143,16 @@ final class DataStoreFilenameTest extends TestCase
             $etablissementRepository->method('find')->willReturn($etablissements[0] ?? null);
         }
 
-        $store = (new DataStoreFactory(
+        $store = new DataStoreFactory(
             $etablissementRepository,
             $dossierRepository,
             $adapter,
             '/data',
             '/files',
             '%NUMEROID_ETABLISSEMENT%'
-        ))->create();
+        )->create();
 
-        self::assertSame(
-            $expected,
-            $store->getFormattedFilename($this->createPieceJointe('Document', null, $description), $linkedObjectType, $linkedObjectId)
-        );
+        $this->assertSame($expected, $store->getFormattedFilename($this->createPieceJointe('Document', null, $description), $linkedObjectType, $linkedObjectId));
     }
 
     /**
@@ -217,7 +189,6 @@ final class DataStoreFilenameTest extends TestCase
     {
         $pieceJointe = new PieceJointe();
         $id = new \ReflectionProperty(PieceJointe::class, 'id');
-        $id->setAccessible(true);
         $id->setValue($pieceJointe, 123);
 
         $pieceJointe->setNom($name);

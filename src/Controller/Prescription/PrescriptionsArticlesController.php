@@ -8,36 +8,20 @@ use App\Form\ReplacePrescriptionArticleListeType;
 use App\Repository\PrescriptionArticleListeRepository;
 use App\Service\Prescriptions;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("gestion_prescriptions")
- */
+#[IsGranted('gestion_prescriptions')]
 class PrescriptionsArticlesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var Prescriptions */
-    private $servicePresc;
-
-    /** @var PrescriptionArticleListeRepository */
-    private $prescriptionArticleListeRepository;
-
-    public function __construct(EntityManagerInterface $entityManager, Prescriptions $servicePresc, PrescriptionArticleListeRepository $prescriptionArticleListeRepository)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly Prescriptions $servicePresc, private readonly PrescriptionArticleListeRepository $prescriptionArticleListeRepository)
     {
-        $this->entityManager = $entityManager;
-        $this->servicePresc = $servicePresc;
-        $this->prescriptionArticleListeRepository = $prescriptionArticleListeRepository;
     }
 
-    /**
-     * @Route("/admin/prescriptions/articles/", name="admin_prescriptions_articles")
-     */
+    #[Route(path: '/admin/prescriptions/articles/', name: 'admin_prescriptions_articles')]
     public function gestionArticles(): Response
     {
         $listeArticles = $this->servicePresc->getArticlesListe();
@@ -47,15 +31,11 @@ class PrescriptionsArticlesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/articles/ajouter", name="admin_prescriptions_articles_add")
-     * @Route("/admin/prescriptions/articles/modifier/{articleListe}", name="admin_prescriptions_articles_edit")
-     */
+    #[Route(path: '/admin/prescriptions/articles/ajouter', name: 'admin_prescriptions_articles_add')]
+    #[Route(path: '/admin/prescriptions/articles/modifier/{articleListe}', name: 'admin_prescriptions_articles_edit')]
     public function formArticle(Request $request, ?PrescriptionArticleListe $articleListe = null): Response
     {
-        if (null === $articleListe) {
-            $articleListe = new PrescriptionArticleListe();
-        }
+        $articleListe ??= new PrescriptionArticleListe();
 
         $form = $this->createForm(PrescriptionArticleListeType::class, $articleListe);
         $form->handleRequest($request);
@@ -65,7 +45,7 @@ class PrescriptionsArticlesController extends AbstractController
                 $this->entityManager->persist($articleListe);
                 $this->entityManager->flush();
 
-                $this->addFlash('success', 'L\'article a bien été enregistré');
+                $this->addFlash('success', "L'article a bien été enregistré");
             } catch (\Exception $e) {
                 $this->addFlash('danger', 'Une erreur s\'est produite lors de l\enregistrement de la prescription ('.$e->getMessage().')');
             }
@@ -74,13 +54,12 @@ class PrescriptionsArticlesController extends AbstractController
         }
 
         return $this->render('prescriptions_articles/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
+            'article_liste' => $articleListe,
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/articles/suppression/{articleListe}", name="admin_prescriptions_articles_suppression")
-     */
+    #[Route(path: '/admin/prescriptions/articles/suppression/{articleListe}', name: 'admin_prescriptions_articles_suppression')]
     public function suppressionArticle(
         Request $request,
         PrescriptionArticleListe $articleListe
@@ -97,7 +76,7 @@ class PrescriptionsArticlesController extends AbstractController
 
             try {
                 $this->prescriptionArticleListeRepository->replaceAndRemove($articleListe, $newArticle);
-                $this->addFlash('success', 'L\'article a bien été supprimé');
+                $this->addFlash('success', "L'article a bien été supprimé");
             } catch (\Exception $e) {
                 $this->addFlash('danger', "Une erreur s'est produite lors de la suppression du article (".$e->getMessage().')');
             }
@@ -106,7 +85,8 @@ class PrescriptionsArticlesController extends AbstractController
         }
 
         return $this->render('prescriptions_articles/form_replacement.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
+            'article_liste' => $articleListe,
         ]);
     }
 }

@@ -4,42 +4,26 @@ namespace App\Controller;
 
 use App\Constant\Fonction;
 use App\Entity\Commune;
+use App\Entity\UtilisateurInformations;
 use App\Form\CommuneType;
 use App\Repository\CommuneRepository;
 use App\Repository\FonctionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Route(requirements={"id"="\d+"})
- *
- * @IsGranted("communes")
- */
+#[Route(requirements: ['id' => '\d+'])]
+#[IsGranted('communes')]
 class CommunesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var CommuneRepository */
-    private $communeRepository;
-
-    /** @var FonctionRepository */
-    private $fonctionRepository;
-
-    public function __construct(EntityManagerInterface $entityManager, CommuneRepository $communeRepository, FonctionRepository $fonctionRepository)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly CommuneRepository $communeRepository, private readonly FonctionRepository $fonctionRepository)
     {
-        $this->entityManager = $entityManager;
-        $this->communeRepository = $communeRepository;
-        $this->fonctionRepository = $fonctionRepository;
     }
 
-    /**
-     * @Route("/admin/communes", name="admin_communes")
-     */
+    #[Route(path: '/admin/communes', name: 'admin_communes')]
     public function index(Request $request): Response
     {
         $communes = $this->communeRepository->findBy([], ['libelle' => 'ASC']);
@@ -51,14 +35,12 @@ class CommunesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/communes/{id}", name="admin_commune_infos", options={"expose"=true})
-     */
+    #[Route(path: '/admin/communes/{id}', name: 'admin_commune_infos', options: ['expose' => true])]
     public function informations(Request $request, Commune $commune): Response
     {
         // Force la fonction à maire pour les communes
         $utilisateurInformations = $commune->getUtilisateurInformations();
-        if (null !== $utilisateurInformations) {
+        if ($utilisateurInformations instanceof UtilisateurInformations) {
             $fonctionMaire = $this->fonctionRepository->find(Fonction::MAIRE);
             if ($fonctionMaire) {
                 $utilisateurInformations->setFonction($fonctionMaire);
@@ -78,7 +60,7 @@ class CommunesController extends AbstractController
         }
 
         return $this->render('communes/_informations.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
             'commune' => $commune,
         ]);
     }

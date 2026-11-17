@@ -9,47 +9,47 @@ namespace App\Constant;
  */
 final class GenreEtablissement
 {
-    public const SITE = 1;
+    public const int SITE = 1;
 
     /**
      * ERP - Établissement Recevant du Public.
      */
-    public const ERP = 2;
+    public const int ERP = 2;
 
-    public const CELLULE = 3;
+    public const int CELLULE = 3;
 
-    public const HABITATION = 4;
+    public const int HABITATION = 4;
 
     /**
      * IGH - Immeuble de Grande Hauteur.
      */
-    public const IGH = 5;
+    public const int IGH = 5;
 
     /**
      * BUP - Bâtiment d'Utilité Publique.
      */
-    public const BUP = 6;
+    public const int BUP = 6;
 
-    public const CAMPING = 7;
+    public const int CAMPING = 7;
 
-    public const MANIFESTATION_TEMPORAIRE = 8;
+    public const int MANIFESTATION_TEMPORAIRE = 8;
 
-    public const IOP = 9;
+    public const int IOP = 9;
 
-    public const ZONE = 10;
+    public const int ZONE = 10;
 
-    public const GENRES_AVEC_PERIODICITE = [self::SITE, self::ERP, self::CELLULE, self::IGH];
+    public const array GENRES_AVEC_PERIODICITE = [self::SITE, self::ERP, self::CELLULE, self::IGH];
 
-    public const GENRES_AVEC_EFFECTIF = [self::ERP, self::CELLULE, self::IGH, self::BUP];
+    public const array GENRES_AVEC_EFFECTIF = [self::ERP, self::CELLULE, self::IGH, self::BUP];
 
-    public const GENRES_AVEC_EFFECTIF_PUBLIC = [self::ERP, self::CELLULE, self::IGH];
+    public const array GENRES_AVEC_EFFECTIF_PUBLIC = [self::ERP, self::CELLULE, self::IGH];
 
     /**
      * Liste de tous les genres disponibles.
      *
      * @var int[]
      */
-    public const ALL = [
+    public const array ALL = [
         self::SITE,
         self::ERP,
         self::CELLULE,

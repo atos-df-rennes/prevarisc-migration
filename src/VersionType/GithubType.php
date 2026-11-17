@@ -5,51 +5,47 @@ namespace App\VersionType;
 use App\Builder\VersionBuilder;
 use App\Dto\GithubApi;
 use Psr\Log\LoggerInterface;
-use SebastianBergmann\Git\Git;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-/**
- * @phpstan-type GitRevision array{
- *   sha1: string,
- * }
- */
-final class GithubType implements VersionType
+final readonly class GithubType implements VersionType
 {
-    /** @var string */
-    private $branch;
+    private string $branch;
 
-    /** @var string */
-    private $revision;
+    private string $revision;
 
-    /** @var HttpClientInterface */
-    private $client;
-
-    /** @var SerializerInterface */
-    private $serializer;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    public function __construct(string $srcDir, HttpClientInterface $client, SerializerInterface $serializer, LoggerInterface $logger)
+    public function __construct(string $srcDir, private HttpClientInterface $client, private SerializerInterface $serializer, private LoggerInterface $logger)
     {
-        $this->client = $client;
-        $this->serializer = $serializer;
-        $this->logger = $logger;
+        $this->branch = $this->getCurrentBranch($srcDir);
+        $this->revision = $this->getLastRevision($srcDir);
+    }
 
-        $git = new Git(dirname($srcDir).'/prevarisc');
+    private function getCurrentBranch(string $gitDir): string
+    {
+        try {
+            $process = new Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $gitDir);
+            $process->mustRun();
+            $branch = trim($process->getOutput());
 
-        $this->branch = $git->getCurrentBranch();
-
-        /** @var GitRevision[] */
-        $revisions = $git->getRevisions();
-        $lastRevision = end($revisions);
-
-        if (false === $lastRevision) {
-            throw new \Exception('Aucune révision trouvée.');
+            return '' !== $branch ? $branch : 'indisponible';
+        } catch (\Exception) {
+            return 'indisponible';
         }
+    }
 
-        $this->revision = $lastRevision['sha1'];
+    private function getLastRevision(string $gitDir): string
+    {
+        try {
+            $process = new Process(['git', 'rev-parse', 'HEAD'], $gitDir);
+            $process->mustRun();
+            $sha1 = trim($process->getOutput());
+
+            return '' !== $sha1 ? $sha1 : 'indisponible';
+        } catch (\Exception) {
+            return 'indisponible';
+        }
     }
 
     public function version(): string
@@ -65,10 +61,21 @@ final class GithubType implements VersionType
     public function isUpToDate(): bool
     {
         try {
-            // @fixme: modifier par main une fois le dépôt migration basculé en dépôt principal
-            $githubApiResponse = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/refs/heads/2.5', [
+            $branch = in_array($this->branch, ['HEAD', 'indisponible'], true) ? 'main' : $this->branch;
+            $branchRef = explode('/', $branch)
+                    |> (fn ($x): array => array_map(rawurlencode(...), $x))
+                    |> (fn ($x): string => implode('/', $x));
+            $response = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/ref/heads/'.$branchRef, [
                 'timeout' => 3,
-            ])->getContent();
+            ]);
+
+            if ('main' !== $branch && Response::HTTP_NOT_FOUND === $response->getStatusCode()) {
+                $response = $this->client->request('GET', VersionBuilder::REPO_API_URL.'/git/ref/heads/main', [
+                    'timeout' => 3,
+                ]);
+            }
+
+            $githubApiResponse = $response->getContent();
         } catch (\Exception $exception) {
             $this->logger->notice("La vérification des commits sur le dépôt n'a pas pu être effectuée : ".$exception->getMessage());
 

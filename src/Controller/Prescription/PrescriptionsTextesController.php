@@ -8,36 +8,20 @@ use App\Form\ReplacePrescriptionTexteListeType;
 use App\Repository\PrescriptionTexteListeRepository;
 use App\Service\Prescriptions;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @IsGranted("gestion_prescriptions")
- */
+#[IsGranted('gestion_prescriptions')]
 class PrescriptionsTextesController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var Prescriptions */
-    private $servicePrescTextes;
-
-    /** @var PrescriptionTexteListeRepository */
-    private $prescriptionTexteListeRepository;
-
-    public function __construct(EntityManagerInterface $entityManager, Prescriptions $servicePrescTextes, PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly Prescriptions $servicePrescTextes, private readonly PrescriptionTexteListeRepository $prescriptionTexteListeRepository)
     {
-        $this->entityManager = $entityManager;
-        $this->servicePrescTextes = $servicePrescTextes;
-        $this->prescriptionTexteListeRepository = $prescriptionTexteListeRepository;
     }
 
-    /**
-     * @Route("/admin/prescriptions/textes/", name="admin_prescriptions_textes")
-     */
+    #[Route(path: '/admin/prescriptions/textes/', name: 'admin_prescriptions_textes')]
     public function gestionTextes(): Response
     {
         $listeTextes = $this->servicePrescTextes->getTextesListe();
@@ -47,15 +31,11 @@ class PrescriptionsTextesController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/textes/ajouter", name="admin_prescriptions_textes_add")
-     * @Route("/admin/prescriptions/textes/modifier/{texteListe}", name="admin_prescriptions_textes_edit")
-     */
+    #[Route(path: '/admin/prescriptions/textes/ajouter', name: 'admin_prescriptions_textes_add')]
+    #[Route(path: '/admin/prescriptions/textes/modifier/{texteListe}', name: 'admin_prescriptions_textes_edit')]
     public function formTexte(Request $request, ?PrescriptionTexteListe $texteListe = null): Response
     {
-        if (null === $texteListe) {
-            $texteListe = new PrescriptionTexteListe();
-        }
+        $texteListe ??= new PrescriptionTexteListe();
 
         $form = $this->createForm(PrescriptionTexteListeType::class, $texteListe);
         $form->handleRequest($request);
@@ -74,13 +54,12 @@ class PrescriptionsTextesController extends AbstractController
         }
 
         return $this->render('prescriptions_textes/form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
+            'texte_liste' => $texteListe,
         ]);
     }
 
-    /**
-     * @Route("/admin/prescriptions/textes/suppression/{texteListe}", name="admin_prescriptions_textes_suppression")
-     */
+    #[Route(path: '/admin/prescriptions/textes/suppression/{texteListe}', name: 'admin_prescriptions_textes_suppression')]
     public function suppressionTexte(
         Request $request,
         PrescriptionTexteListe $texteListe
@@ -106,7 +85,8 @@ class PrescriptionsTextesController extends AbstractController
         }
 
         return $this->render('prescriptions_textes/replacement_form.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
+            'texte_liste' => $texteListe,
         ]);
     }
 }

@@ -16,20 +16,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
  */
 class EtablissementCollectionAccessChecker
 {
-    /** @var EtablissementVoterFactory */
-    private $voterFactory;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
-    public function __construct(EtablissementVoterFactory $voterFactory, LoggerInterface $logger, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(private readonly EtablissementVoterFactory $voterFactory, private readonly LoggerInterface $logger, private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
-        $this->voterFactory = $voterFactory;
-        $this->logger = $logger;
-        $this->authorizationChecker = $authorizationChecker;
     }
 
     /**
@@ -67,11 +55,11 @@ class EtablissementCollectionAccessChecker
             }
 
             $voter = $this->voterFactory->getVoterForGenre($genreId);
-            if (null === $voter) {
+            if (!$voter instanceof VoterInterface) {
                 // Certains genres (ex. Site, genre 1) n'ont pas de voter dédié dans la factory
                 // (pour éviter une dépendance circulaire Factory -> EtablissementSiteVoter -> ce service).
                 // On délègue à la chaîne de voters Symfony complète via l'authorization checker.
-                $this->logger->info('Aucun voter dédié dans la factory pour le genre, délégation à l\'authorization checker', [
+                $this->logger->info("Aucun voter dédié dans la factory pour le genre, délégation à l'authorization checker", [
                     'etablissement_id' => $etablissement->getId(),
                     'genre_id' => $genreId,
                 ]);

@@ -4,36 +4,23 @@ namespace App\Service;
 
 use App\Dto\IgnApi;
 use App\Dto\IgnCapabilities;
-use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final class CouchesCarto
+final readonly class CouchesCarto
 {
-    public const WMTS = 'wmts';
+    public const string WMTS = 'wmts';
 
-    public const WMS_RASTER = 'wms raster';
+    public const string WMS_RASTER = 'wms raster';
 
-    public const WMS_VECTEUR = 'wms vecteur';
+    public const string WMS_VECTEUR = 'wms vecteur';
 
-    public const FORMATS = [self::WMTS, self::WMS_RASTER, self::WMS_VECTEUR];
+    public const array FORMATS = [self::WMTS, self::WMS_RASTER, self::WMS_VECTEUR];
 
-    /** @var HttpClientInterface */
-    private $client;
-
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var CacheItemPoolInterface */
-    private $cache;
-
-    public function __construct(HttpClientInterface $client, LoggerInterface $logger, CacheItemPoolInterface $cache)
+    public function __construct(private HttpClientInterface $client, private LoggerInterface $logger, private CacheItemPoolInterface $cache)
     {
-        $this->client = $client;
-        $this->logger = $logger;
-        $this->cache = $cache;
     }
 
     // @todo: A refacto
@@ -74,7 +61,7 @@ final class CouchesCarto
 
         $crawler = $this->getCrawler($capabilities, $format);
 
-        if (null === $crawler) {
+        if (!$crawler instanceof Crawler) {
             return [];
         }
 
@@ -210,7 +197,6 @@ final class CouchesCarto
 
     private function getCrawler(IgnCapabilities $capabilities, string $format): ?Crawler
     {
-        /** @var CacheItemInterface $cacheIgn */
         $cacheIgn = $this->cache->getItem(str_replace(' ', '_', $format));
 
         if ($cacheIgn->isHit()) {

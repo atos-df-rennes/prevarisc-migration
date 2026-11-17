@@ -6,36 +6,21 @@ use App\Form\MessagesAlerteType;
 use App\Repository\ChangementRepository;
 use App\Service\Changement;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-/**
- * @Security("is_granted('alerte_statut') or is_granted('alerte_avis') or is_granted('alerte_classement')")
- */
+#[IsGranted(new Expression("is_granted('alerte_statut') or is_granted('alerte_avis') or is_granted('alerte_classement')"))]
 class ChangementController extends AbstractController
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var ChangementRepository */
-    private $changementRepository;
-
-    /** @var Changement */
-    private $changement;
-
-    public function __construct(EntityManagerInterface $entityManager, ChangementRepository $changementRepository, Changement $changement)
+    public function __construct(private readonly EntityManagerInterface $entityManager, private readonly ChangementRepository $changementRepository, private readonly Changement $changement)
     {
-        $this->entityManager = $entityManager;
-        $this->changementRepository = $changementRepository;
-        $this->changement = $changement;
     }
 
-    /**
-     * @Route("/admin/changement", name="admin_changement")
-     */
+    #[Route(path: '/admin/changement', name: 'admin_changement')]
     public function index(Request $request): Response
     {
         $messages = $this->changementRepository->findAll();
@@ -56,13 +41,11 @@ class ChangementController extends AbstractController
         }
 
         return $this->render('changement/index.html.twig', [
-            'form' => $form->createView(),
+            'form' => $form,
         ]);
     }
 
-    /**
-     * @Route("/changement/balises", name="changement_balises", options={"expose"=true})
-     */
+    #[Route(path: '/changement/balises', name: 'changement_balises', options: ['expose' => true])]
     public function balises(): Response
     {
         return $this->render('changement/balises.html.twig', [

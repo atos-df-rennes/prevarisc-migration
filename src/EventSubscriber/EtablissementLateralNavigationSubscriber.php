@@ -8,38 +8,20 @@ use App\Entity\Etablissement;
 use App\Repository\AvisDerogationsRepository;
 use App\Repository\CapsuleRubriqueRepository;
 use App\Repository\EtablissementRepository;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use App\Service\EtablissementAncestryService;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
-class EtablissementLateralNavigationSubscriber implements EventSubscriberInterface
+class EtablissementLateralNavigationSubscriber
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    /** @var CapsuleRubriqueRepository */
-    private $capsuleRubriqueRepository;
-
-    /** @var AvisDerogationsRepository */
-    private $avisDerogationsRepository;
-
-    /** @var AuthorizationCheckerInterface */
-    private $authorizationChecker;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository,
-        CapsuleRubriqueRepository $capsuleRubriqueRepository,
-        AvisDerogationsRepository $avisDerogationsRepository,
-        AuthorizationCheckerInterface $authorizationChecker
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->capsuleRubriqueRepository = $capsuleRubriqueRepository;
-        $this->avisDerogationsRepository = $avisDerogationsRepository;
-        $this->authorizationChecker = $authorizationChecker;
+    public function __construct(private readonly EtablissementRepository $etablissementRepository, private readonly CapsuleRubriqueRepository $capsuleRubriqueRepository, private readonly AuthorizationCheckerInterface $authorizationChecker, private readonly EtablissementAncestryService $etablissementAncestryService, private readonly AvisDerogationsRepository $avisDerogationsRepository)
+    {
     }
 
+    #[AsEventListener(event: KernelEvents::CONTROLLER)]
     public function onKernelController(ControllerEvent $event): void
     {
         $controller = $event->getController();
@@ -76,19 +58,7 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
         $event->getRequest()->attributes->set('is_allowed_delete_etablissement', $isAllowedDeleteEtablissement);
 
         // Récupère récursivement le parent de l'établissement
-        $etablissementCourant = $etablissement;
-        $parents = [];
-
-        do {
-            $parent = $etablissementCourant->getParent();
-
-            if (null !== $parent) {
-                $parents[] = $parent;
-                $etablissementCourant = $parent;
-            }
-        } while (null !== $parent);
-
-        $parents = array_reverse($parents);
+        $parents = $this->etablissementAncestryService->getAncetres($etablissement);
         $event->getRequest()->attributes->set('parents_etablissement', $parents);
 
         $capsuleDescriptifEtablissement = $this->capsuleRubriqueRepository->findOneBy(['nomInterne' => NomInterneCapsule::DESCRIPTIF_ETABLISSEMENT]);
@@ -114,12 +84,5 @@ class EtablissementLateralNavigationSubscriber implements EventSubscriberInterfa
         }
 
         return $ids;
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            KernelEvents::CONTROLLER => 'onKernelController',
-        ];
     }
 }

@@ -4,16 +4,8 @@ namespace App\Dto\Historique;
 
 class Auteur
 {
-    /** @var ?int */
-    private $id;
-
-    /** @var string */
-    private $name;
-
-    public function __construct(?int $id, string $name)
+    public function __construct(private readonly ?int $id, private readonly string $name)
     {
-        $this->id = $id;
-        $this->name = $name;
     }
 
     public function getId(): ?int

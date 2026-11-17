@@ -44,12 +44,3 @@
         <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Renvoyer
     </button>
 {% endif %}
-
-{% if type == 'pec'
-    and statut == constant('App\\Enum\\PlatauStatutPecEnum::EN_ATTENTE')
-    and dossier_incomplet is null %}
-    <div>
-        <span class='glyphicon glyphicon-info-sign'></span>
-        L'état du dossier est actuellement inconnu dans Prevarisc. Veuillez modifier le dossier pour le renseigner.
-    </div>
-{% endif %}

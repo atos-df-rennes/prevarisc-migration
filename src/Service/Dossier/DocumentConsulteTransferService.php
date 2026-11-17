@@ -17,25 +17,10 @@ use Doctrine\ORM\EntityManagerInterface;
  *
  * @see prevarisc/application/services/Dossier.php::transfertOuSupprimeDocumentsConsultes()
  */
-final class DocumentConsulteTransferService
+final readonly class DocumentConsulteTransferService
 {
-    /** @var EntityManagerInterface */
-    private $entityManager;
-
-    /** @var DossierDocumentConsulteRepository */
-    private $documentConsulteRepository;
-
-    /** @var ListeDocumentAjouteRepository */
-    private $documentAjouteRepository;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        DossierDocumentConsulteRepository $documentConsulteRepository,
-        ListeDocumentAjouteRepository $documentAjouteRepository
-    ) {
-        $this->entityManager = $entityManager;
-        $this->documentConsulteRepository = $documentConsulteRepository;
-        $this->documentAjouteRepository = $documentAjouteRepository;
+    public function __construct(private EntityManagerInterface $entityManager, private DossierDocumentConsulteRepository $documentConsulteRepository, private ListeDocumentAjouteRepository $documentAjouteRepository)
+    {
     }
 
     /**
@@ -57,7 +42,7 @@ final class DocumentConsulteTransferService
         ?DossierNatureListe $nouvelleNature
     ): void {
         $ancienType = $dossier->getType();
-        if (null === $ancienType) {
+        if (!$ancienType instanceof DossierTypeEntity) {
             return; // Pas de type : rien à faire
         }
 
@@ -159,7 +144,7 @@ final class DocumentConsulteTransferService
     {
         // Si la nouvelle nature est null, on ne peut pas mettre à jour (setNature n'accepte pas null)
         // Dans ce cas, on ne fait rien (les documents gardent leur ancienne nature)
-        if (null === $nouvelleNature) {
+        if (!$nouvelleNature instanceof DossierNatureListe) {
             return;
         }
 

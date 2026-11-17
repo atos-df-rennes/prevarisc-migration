@@ -11,21 +11,12 @@ use App\Entity\Dossier;
 use App\Entity\Etablissement as EtablissementEntity;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
+use Psr\Log\LoggerInterface;
 
-final class EtablissementHistoriqueService
+final readonly class EtablissementHistoriqueService
 {
-    /** @var EtablissementRepository */
-    private $etablissementRepository;
-
-    /** @var DossierRepository */
-    private $dossierRepository;
-
-    public function __construct(
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository
-    ) {
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
+    public function __construct(private EtablissementRepository $etablissementRepository, private DossierRepository $dossierRepository, private LoggerInterface $logger)
+    {
     }
 
     public function getHistorique(int $id): Informations
@@ -92,22 +83,22 @@ final class EtablissementHistoriqueService
             }
 
             if ($historique->isEmpty()) {
-                $statutHistorique = new DonneeHistorique($date->getTimestamp(), null !== $statut ? $statut->getLibelle() : null, $infosAuteur);
+                $statutHistorique = new DonneeHistorique($date->getTimestamp(), $statut?->getLibelle(), $infosAuteur);
                 $historique->addStatut($statutHistorique);
 
-                $typeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $type ? $type->getLibelle() : null, $infosAuteur);
+                $typeHistorique = new DonneeHistorique($date->getTimestamp(), $type?->getLibelle(), $infosAuteur);
                 $historique->addType($typeHistorique);
 
-                $classeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $classe ? $classe->getLibelle() : null, $infosAuteur);
+                $classeHistorique = new DonneeHistorique($date->getTimestamp(), $classe?->getLibelle(), $infosAuteur);
                 $historique->addClasse($classeHistorique);
 
-                $familleHistorique = new DonneeHistorique($date->getTimestamp(), null !== $famille ? $famille->getLibelle() : null, $infosAuteur);
+                $familleHistorique = new DonneeHistorique($date->getTimestamp(), $famille?->getLibelle(), $infosAuteur);
                 $historique->addFamille($familleHistorique);
 
                 $libelleHistorique = new DonneeHistorique($date->getTimestamp(), $libelle, $infosAuteur);
                 $historique->addLibelle($libelleHistorique);
 
-                $categorieHistorique = new DonneeHistorique($date->getTimestamp(), null !== $categorie ? $categorie->getLibelle() : null, $infosAuteur);
+                $categorieHistorique = new DonneeHistorique($date->getTimestamp(), $categorie?->getLibelle(), $infosAuteur);
                 $historique->addCategorie($categorieHistorique);
 
                 $lastHistorique
@@ -127,7 +118,7 @@ final class EtablissementHistoriqueService
 
                     $lastHistorique->setStatut($statut);
 
-                    $statutHistorique = new DonneeHistorique($date->getTimestamp(), null !== $statut ? $statut->getLibelle() : null, $infosAuteur);
+                    $statutHistorique = new DonneeHistorique($date->getTimestamp(), $statut?->getLibelle(), $infosAuteur);
                     $historique->addStatut($statutHistorique);
                 }
 
@@ -139,7 +130,7 @@ final class EtablissementHistoriqueService
 
                     $lastHistorique->setType($type);
 
-                    $typeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $type ? $type->getLibelle() : null, $infosAuteur);
+                    $typeHistorique = new DonneeHistorique($date->getTimestamp(), $type?->getLibelle(), $infosAuteur);
                     $historique->addType($typeHistorique);
                 }
 
@@ -163,7 +154,7 @@ final class EtablissementHistoriqueService
 
                     $lastHistorique->setClasse($classe);
 
-                    $classeHistorique = new DonneeHistorique($date->getTimestamp(), null !== $classe ? $classe->getLibelle() : null, $infosAuteur);
+                    $classeHistorique = new DonneeHistorique($date->getTimestamp(), $classe?->getLibelle(), $infosAuteur);
                     $historique->addClasse($classeHistorique);
                 }
 
@@ -175,7 +166,7 @@ final class EtablissementHistoriqueService
 
                     $lastHistorique->setFamille($famille);
 
-                    $familleHistorique = new DonneeHistorique($date->getTimestamp(), null !== $famille ? $famille->getLibelle() : null, $infosAuteur);
+                    $familleHistorique = new DonneeHistorique($date->getTimestamp(), $famille?->getLibelle(), $infosAuteur);
                     $historique->addFamille($familleHistorique);
                 }
 
@@ -187,7 +178,7 @@ final class EtablissementHistoriqueService
 
                     $lastHistorique->setCategorie($categorie);
 
-                    $categorieHistorique = new DonneeHistorique($date->getTimestamp(), null !== $categorie ? $categorie->getLibelle() : null, $infosAuteur);
+                    $categorieHistorique = new DonneeHistorique($date->getTimestamp(), $categorie?->getLibelle(), $infosAuteur);
                     $historique->addCategorie($categorieHistorique);
                 }
             }
@@ -214,7 +205,23 @@ final class EtablissementHistoriqueService
 
         foreach ($dossiers as $dossier) {
             $avis = $dossier->getAvisCommission();
-            $date = null !== $dossier->getDateCommission() ? strtotime($dossier->getDateCommission()) : (null !== $dossier->getDateVisite() ? $dossier->getDateVisite()->getTimestamp() : false);
+
+            // Résoudre la date : commission > visite > null
+            $date = null;
+            if (null !== $dossier->getDateCommission()) {
+                $timestamp = strtotime($dossier->getDateCommission());
+                if (false === $timestamp) {
+                    $this->logger->warning('Invalid date_commission in dossier', [
+                        'dossier_id' => $dossier->getId(),
+                        'date_commission' => $dossier->getDateCommission(),
+                    ]);
+                } else {
+                    $date = $timestamp;
+                }
+            } elseif (null !== $dossier->getDateVisite()) {
+                $date = $dossier->getDateVisite()->getTimestamp();
+            }
+
             $auteur = $dossier->getCreateur();
             $infosAuteur = null;
 
@@ -227,7 +234,7 @@ final class EtablissementHistoriqueService
             }
 
             if ([] === $historique) {
-                $avisHistorique = new DonneeHistorique($date, null !== $avis ? $avis->getLibelle() : null, $infosAuteur);
+                $avisHistorique = new DonneeHistorique($date, $avis?->getLibelle(), $infosAuteur);
                 $historique[] = $avisHistorique;
 
                 $lastHistorique->setAvis($avis);
@@ -236,7 +243,7 @@ final class EtablissementHistoriqueService
                 $currentLastAvis = end($historique);
                 $currentLastAvis->setFin($date);
 
-                $avisHistorique = new DonneeHistorique($date, null !== $avis ? $avis->getLibelle() : null, $infosAuteur);
+                $avisHistorique = new DonneeHistorique($date, $avis?->getLibelle(), $infosAuteur);
                 $historique[] = $avisHistorique;
 
                 $lastHistorique

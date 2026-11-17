@@ -2,6 +2,7 @@
 
 namespace App\Service\DataStore;
 
+use App\Constant\DataStoreObjectTypes;
 use App\Entity\PieceJointe;
 use App\Repository\DossierRepository;
 use App\Repository\EtablissementRepository;
@@ -12,30 +13,17 @@ use App\Repository\EtablissementRepository;
 class SimpleFileDataStore implements DataStore
 {
     // Format de formattage des noms de fichiers.
-    /** @var string */
-    protected $format;
+    protected string $format;
 
     // Mapping entre les types de pièces jointes et les répertoires dans lesquels ils sont stockés.
     /** @var array|string[] */
     protected $types = [];
 
-    /** @var EtablissementRepository */
-    protected $etablissementRepository;
-
-    /** @var DossierRepository */
-    protected $dossierRepository;
-
-    /** @var string */
-    protected $dataPath;
-
-    /** @var string */
-    protected $realDataPath;
-
     public function __construct(
-        EtablissementRepository $etablissementRepository,
-        DossierRepository $dossierRepository,
-        string $dataPath,
-        string $realDataPath,
+        protected EtablissementRepository $etablissementRepository,
+        protected DossierRepository $dossierRepository,
+        protected string $dataPath,
+        protected string $realDataPath,
         string $fileFormat
     ) {
         if ('' === trim($fileFormat)) {
@@ -43,21 +31,16 @@ class SimpleFileDataStore implements DataStore
         }
 
         $this->types = [
-            'etablissement' => 'pieces-jointes',
-            'etablissement_miniature' => 'etablissement_miniature',
-            'dossier' => 'pieces-jointes',
-            'dateCommission' => 'documents_commission',
-            'document' => 'documents',
-            'courrier' => 'courriers',
-            'avatar' => 'avatars',
+            DataStoreObjectTypes::ETABLISSEMENT => 'pieces-jointes',
+            DataStoreObjectTypes::ETABLISSEMENT_MINIATURE => 'etablissement_miniature',
+            DataStoreObjectTypes::DOSSIER => 'pieces-jointes',
+            DataStoreObjectTypes::DATE_COMMISSION => 'documents_commission',
+            DataStoreObjectTypes::DOCUMENT => 'documents',
+            DataStoreObjectTypes::COURRIER => 'courriers',
+            DataStoreObjectTypes::AVATAR => 'avatars',
         ];
 
         $this->format = $fileFormat;
-
-        $this->etablissementRepository = $etablissementRepository;
-        $this->dossierRepository = $dossierRepository;
-        $this->dataPath = $dataPath;
-        $this->realDataPath = $realDataPath;
     }
 
     public function getFilePath(PieceJointe $piece_jointe, string $linkedObjectType, int $linkedObjectId, bool $createDirIfNotExists = false): string
@@ -94,7 +77,7 @@ class SimpleFileDataStore implements DataStore
             '%NOM_PIECEJOINTE%' => $piece_jointe->getNom(),
             '%EXTENSION_PIECEJOINTE%' => $piece_jointe->getExtension(),
             '%DESCRIPTION_PIECEJOINTE%' => $piece_jointe->getDescription(),
-            '%DATE_PIECEJOINTE%' => null !== $piece_jointe->getDate() ? $piece_jointe->getDate()->format('Y-m-d') : '',
+            '%DATE_PIECEJOINTE%' => $piece_jointe->getDate()?->format('Y-m-d') ?? '',
             '%ID_OBJECT%' => $linkedObjectId,
             '%TYPE_OBJET%' => $linkedObjectType,
             '%CODE_TYPE_OBJET%' => strtoupper(substr($linkedObjectType, 0, 3)),
@@ -103,15 +86,15 @@ class SimpleFileDataStore implements DataStore
         ];
 
         switch ($linkedObjectType) {
-            case 'etablissement':
+            case DataStoreObjectTypes::ETABLISSEMENT:
                 $etablissement = $this->etablissementRepository->find($linkedObjectId);
                 $tokens['%NUMEROID_ETABLISSEMENT%'] = null !== $etablissement
                     ? ($etablissement->getNumero() ?: $etablissement->getId() ?: $linkedObjectId)
                     : $linkedObjectId;
                 break;
-            case 'dossier':
+            case DataStoreObjectTypes::DOSSIER:
                 $dossier = $this->dossierRepository->find($linkedObjectId);
-                $etablissements = null !== $dossier ? $dossier->getEtablissements() : [];
+                $etablissements = $dossier?->getEtablissements() ?? [];
                 $numerosEtablissement = [];
                 foreach ($etablissements as $etablissement) {
                     $numeroId = $etablissement->getNumero() ?: $linkedObjectId;
@@ -122,11 +105,9 @@ class SimpleFileDataStore implements DataStore
                     }
                 }
 
-                if (null === $tokens['%NUMEROID_ETABLISSEMENT%']) {
-                    $tokens['%NUMEROID_ETABLISSEMENT%'] = [] !== $numerosEtablissement
-                        ? implode('_', $numerosEtablissement)
-                        : $linkedObjectId;
-                }
+                $tokens['%NUMEROID_ETABLISSEMENT%'] ??= [] !== $numerosEtablissement
+                    ? implode('_', $numerosEtablissement)
+                    : $linkedObjectId;
 
                 break;
             default:

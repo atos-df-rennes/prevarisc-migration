@@ -8,8 +8,7 @@ use App\Entity\Etablissement;
 use App\Repository\CoucheCartoRepository;
 use App\Service\Sdis29\GeobretagneUrlBuilder;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFunction;
+use Twig\Attribute\AsTwigFunction;
 
 /**
  * Fonctions Twig portant l'intégration du visualiseur Géobretagne (sviewer)
@@ -22,38 +21,13 @@ use Twig\TwigFunction;
  * l'appel depuis les templates qui est conditionné par `sdis29_custom_enabled`
  * et par la présence de l'URL Géobretagne (`geobretagne_url`).
  */
-class Sdis29Extension extends AbstractExtension
+class Sdis29Extension
 {
-    /** @var GeobretagneUrlBuilder */
-    private $geobretagneUrlBuilder;
-
-    /** @var CoucheCartoRepository */
-    private $coucheCartoRepository;
-
-    /** @var UrlGeneratorInterface */
-    private $urlGenerator;
-
-    public function __construct(
-        GeobretagneUrlBuilder $geobretagneUrlBuilder,
-        CoucheCartoRepository $coucheCartoRepository,
-        UrlGeneratorInterface $urlGenerator
-    ) {
-        $this->geobretagneUrlBuilder = $geobretagneUrlBuilder;
-        $this->coucheCartoRepository = $coucheCartoRepository;
-        $this->urlGenerator = $urlGenerator;
-    }
-
-    /**
-     * @return TwigFunction[]
-     */
-    public function getFunctions(): array
+    public function __construct(private readonly GeobretagneUrlBuilder $geobretagneUrlBuilder, private readonly CoucheCartoRepository $coucheCartoRepository, private readonly UrlGeneratorInterface $urlGenerator)
     {
-        return [
-            new TwigFunction('sdis29_geobretagne_etablissement_url', [$this, 'buildEtablissementViewerUrl']),
-            new TwigFunction('sdis29_geobretagne_admin_url', [$this, 'buildAdminViewerUrl']),
-        ];
     }
 
+    #[AsTwigFunction(name: 'sdis29_geobretagne_etablissement_url')]
     public function buildEtablissementViewerUrl(string $geobretagneBaseUrl, Etablissement $etablissement): ?string
     {
         $kmlUrl = $this->urlGenerator->generate(
@@ -70,6 +44,7 @@ class Sdis29Extension extends AbstractExtension
         );
     }
 
+    #[AsTwigFunction(name: 'sdis29_geobretagne_admin_url')]
     public function buildAdminViewerUrl(string $geobretagneBaseUrl): ?string
     {
         return $this->geobretagneUrlBuilder->buildAdminViewerUrl($geobretagneBaseUrl, $this->coucheCartoRepository->findAll());

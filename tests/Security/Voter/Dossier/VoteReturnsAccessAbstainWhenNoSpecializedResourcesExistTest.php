@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Security\Voter\Dossier;
 
 use App\Entity\Dossier;
@@ -11,21 +13,21 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\VoterInterface;
 
-class VoteReturnsAccessAbstainWhenNoSpecializedResourcesExistTest extends TestCase
+final class VoteReturnsAccessAbstainWhenNoSpecializedResourcesExistTest extends TestCase
 {
     public function testVoteReturnsAccessAbstainWhenNoSpecializedResourcesExist(): void
     {
-        $resourcesRepository = $this->createMock(ResourcesRepository::class);
-        $privilegesRepository = $this->createMock(PrivilegesRepository::class);
-        $collectionAccessChecker = $this->createMock(EtablissementCollectionAccessChecker::class);
+        $resourcesRepository = $this->createStub(ResourcesRepository::class);
+        $privilegesRepository = $this->createStub(PrivilegesRepository::class);
+        $collectionAccessChecker = $this->createStub(EtablissementCollectionAccessChecker::class);
         $voter = new DossierVoter($resourcesRepository, $privilegesRepository, $collectionAccessChecker);
 
-        $dossier = $this->createMock(Dossier::class);
+        $dossier = $this->createStub(Dossier::class);
         $resourcesRepository->method('findRessourcesSpecialiseesSimplesDossier')->willReturn([]);
-        $token = $this->createMock(TokenInterface::class);
+        $token = $this->createStub(TokenInterface::class);
 
         $result = $voter->vote($token, $dossier, [DossierVoter::LECTURE]);
 
-        $this->assertEquals(VoterInterface::ACCESS_ABSTAIN, $result);
+        $this->assertSame(VoterInterface::ACCESS_ABSTAIN, $result);
     }
 }

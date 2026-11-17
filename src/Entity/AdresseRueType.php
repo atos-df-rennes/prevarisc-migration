@@ -3,39 +3,23 @@
 namespace App\Entity;
 
 use App\Repository\AdresseRueTypeRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=AdresseRueTypeRepository::class)
- *
- * @ORM\Table(name="adresseruetype")
- */
+#[ORM\Entity(repositoryClass: AdresseRueTypeRepository::class)]
+#[ORM\Table(name: 'adresseruetype')]
 class AdresseRueType
 {
-    /**
-     * @var int
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue
-     *
-     * @ORM\Column(name="ID_RUETYPE", type="bigint", options={"unsigned":true})
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'ID_RUETYPE', type: Types::BIGINT, options: ['unsigned' => true])]
+    private ?int $id = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="LIBELLE_RUETYPE", type="string", length=32, nullable=false)
-     */
-    private $libelle;
+    #[ORM\Column(name: 'LIBELLE_RUETYPE', type: Types::STRING, length: 32, nullable: false)]
+    private ?string $libelle = null;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ABREVIATION_RUETYPE", type="string", length=16, nullable=false)
-     */
-    private $abbreviation;
+    #[ORM\Column(name: 'ABREVIATION_RUETYPE', type: Types::STRING, length: 16, nullable: false)]
+    private ?string $abbreviation = null;
 
     public function getId(): ?int
     {

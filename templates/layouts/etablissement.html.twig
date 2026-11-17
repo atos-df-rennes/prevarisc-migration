@@ -19,7 +19,10 @@
 {% block lateral_navigation %}
     {% if etablissement is defined and etablissement is not null %}
         <ul class='nav nav-tabs nav-stacked menu_dashboard'>
-            <li {% if app.request.get('_route') is same as('etablissement_informations') %}class="active"{% endif %}>
+            <li {% if
+                    app.current_route is same as('etablissement_informations')
+                    or app.current_route is same as('etablissement_modifier')
+                %}class="active"{% endif %}>
                 <a href="{{ path('etablissement_informations', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
                     Général
@@ -27,13 +30,13 @@
             </li>
 
             {% if etablissement.informations|last.genre.libelle != 'Site' %}
-                <li {% if app.request.get('_route') starts with 'etablissement_textes_applicables' %}class="active"{% endif %}>
+                <li {% if app.current_route starts with 'etablissement_textes_applicables' %}class="active"{% endif %}>
                     <a href="{{ path('etablissement_textes_applicables', {id: etablissement.id}) }}">
                         <span class="glyphicon glyphicon-align-center" aria-hidden="true"></span>
                         Textes applicables
                     </a>
                 </li>
-                <li {% if app.request.get('_route') starts with 'etablissement_descriptif' %}class="active"{% endif %}>
+                <li {% if app.current_route starts with 'etablissement_descriptif' %}class="active"{% endif %}>
                     <a href="{{ path('etablissement_descriptif', {id: etablissement.id}) }}">
                         <span class="glyphicon glyphicon-book" aria-hidden="true"></span>
                         {{ libelle_descriptif }}
@@ -42,7 +45,7 @@
             {% endif %}
 
             {% if is_granted('effectifs_degagements_ets') %}
-                <li {% if app.request.get('_route') starts with 'etablissement_effectifs_degagements' %}class="active"{% endif %}>
+                <li {% if app.current_route starts with 'etablissement_effectifs_degagements' %}class="active"{% endif %}>
                     <a class='sep' href="{{ path('etablissement_effectifs_degagements', {id: etablissement.id}) }}">
                         <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
                         {{ libelle_effectifs_degagements }}
@@ -51,7 +54,7 @@
             {% endif %}
 
             {% if is_granted('avis_derogations') %}
-                <li {% if app.request.get('_route') is same as('etablissement_avis_derogations') %}class="active"{% endif %}>
+                <li {% if app.current_route is same as('etablissement_avis_derogations') %}class="active"{% endif %}>
                     <a class='sep' href="{{ path('etablissement_avis_derogations', {id: etablissement.id}) }}">
                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                         Avis et dérogations
@@ -63,25 +66,25 @@
                 </li>
             {% endif %}
 
-            <li {% if app.request.get('_route') starts with 'etablissement_pieces_jointes' %}class="active"{% endif %}>
+            <li {% if app.current_route starts with 'etablissement_pieces_jointes' %}class="active"{% endif %}>
                 <a href="{{ path('etablissement_pieces_jointes', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-share" aria-hidden="true"></span>
                     Pièces jointes
                 </a>
             </li>
-            <li {% if app.request.get('_route') is same as('etablissement_contacts') %}class="active"{% endif %}>
+            <li {% if app.current_route is same as('etablissement_contacts') %}class="active"{% endif %}>
                 <a href="{{ path('etablissement_contacts', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
                     Contacts
                 </a>
             </li>
-            <li {% if app.request.get('_route') is same as('etablissement_dossiers') %}class="active"{% endif %}>
+            <li {% if app.current_route is same as('etablissement_dossiers') %}class="active"{% endif %}>
                 <a href="{{ path('etablissement_dossiers', {id: etablissement.id}) }}">
                     <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
                     Dossiers
                 </a>
             </li>
-            <li {% if app.request.get('_route') is same as('etablissement_historique') %}class="active"{% endif %}>
+            <li {% if app.current_route is same as('etablissement_historique') %}class="active"{% endif %}>
                 <a class='sep' href='{{ path('etablissement_historique', {id: etablissement.id}) }}'>
                     <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
                     Afficher l'historique
@@ -95,7 +98,7 @@
                 </a>
             </li>
 
-            {% if is_granted('delete_etablissement') and app.request.get('_route') is same as('etablissement_informations') %}
+            {% if is_granted('delete_etablissement') and app.current_route is same as('etablissement_informations') %}
                 <li>
                     <a id="suppressionEtablissement" href="#">
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -122,9 +125,10 @@
                 {% endif %}
 
                 {% if etablissement.informations|last.type is not null %}
-                    {% if icone_type_etablissement_exists(etablissement.informations|last.type.libelle) %}
+                    {% set etablissement_type_asset_path = 'images/types/b/icone-type-' ~ etablissement.informations|last.type.libelle ~ '.png' %}
+                    {% if asset_exist(etablissement_type_asset_path) %}
                         <img
-                            src="{{ asset('images/types/b/icone-type-' ~ etablissement.informations|last.type.libelle ~ '.png') }}"
+                            src="{{ asset(etablissement_type_asset_path) }}"
                             title="{{ etablissement.informations|last.type.libelle }}"
                             alt="{{ 'Type ' ~ etablissement.informations|last.type.libelle }}"
                         />

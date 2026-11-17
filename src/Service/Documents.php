@@ -7,18 +7,10 @@ use App\Utils\PathNormalizer;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
-final class Documents
+final readonly class Documents
 {
-    /** @var string */
-    private $dataPath;
-
-    /** @var string */
-    private $realDataPath;
-
-    public function __construct(string $documentsDataPath, string $documentsRealDataPath)
+    public function __construct(private string $documentsDataPath, private string $documentsRealDataPath)
     {
-        $this->dataPath = $documentsDataPath;
-        $this->realDataPath = $documentsRealDataPath;
     }
 
     /**
@@ -31,7 +23,7 @@ final class Documents
 
         $finder
             ->files()
-            ->in(PathNormalizer::join($this->realDataPath, (string) $idCommission))
+            ->in(PathNormalizer::join($this->documentsRealDataPath, (string) $idCommission))
             ->ignoreVCS(true)
             ->name('*.odt')
             ->sortByName();
@@ -43,7 +35,7 @@ final class Documents
         foreach ($finder as $file) {
             $documents[] = new Document(
                 $file->getFilename(),
-                PathNormalizer::join($this->dataPath, (string) $idCommission, $file->getFilename())
+                PathNormalizer::join($this->documentsDataPath, (string) $idCommission, $file->getFilename())
             );
         }
 
@@ -71,7 +63,7 @@ final class Documents
         }
 
         [$idCommission, $filename] = $parts;
-        if (!ctype_digit($idCommission) || '' === $filename || false !== strpos($filename, '\\')) {
+        if (!ctype_digit($idCommission) || '' === $filename || str_contains($filename, '\\')) {
             return null;
         }
 
@@ -81,7 +73,7 @@ final class Documents
             }
 
             $resolvedPath = $file->getRealPath();
-            $resolvedBase = realpath(PathNormalizer::normalize($this->realDataPath));
+            $resolvedBase = realpath(PathNormalizer::normalize($this->documentsRealDataPath));
             if (false === $resolvedPath || false === $resolvedBase) {
                 return null;
             }
@@ -91,7 +83,7 @@ final class Documents
             $base = PathNormalizer::normalize($resolvedBase);
             $isWithin = '\\' === DIRECTORY_SEPARATOR
                 ? 0 === strncasecmp($path, $base, strlen($base))
-                : 0 === strpos($path, $base);
+                : str_starts_with($path, $base);
 
             return $isWithin ? $resolvedPath : null;
         }
@@ -104,11 +96,11 @@ final class Documents
      */
     private function reportTemplates(string $idCommission): iterable
     {
-        $path = PathNormalizer::join($this->realDataPath, $idCommission);
+        $path = PathNormalizer::join($this->documentsRealDataPath, $idCommission);
         if (!is_dir($path)) {
             return [];
         }
 
-        return (new Finder())->files()->in($path)->depth('== 0')->name('*.odt')->sortByName();
+        return new Finder()->files()->in($path)->depth('== 0')->name('*.odt')->sortByName();
     }
 }
