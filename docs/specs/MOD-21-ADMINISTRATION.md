@@ -85,7 +85,7 @@ Trois fournisseurs de cartographie peuvent être configurés indépendamment :
 
 ### 3.5 Méthode d'authentification
 
-Le panneau affiche la méthode d'authentification active parmi les quatre possibles (une seule est active à un instant donné) :
+Le panneau affiche le mode de configuration prioritaire parmi les quatre possibles :
 
 | Méthode | Informations complémentaires affichées |
 |---|---|
@@ -93,6 +93,8 @@ Le panneau affiche la méthode d'authentification active parmi les quatre possib
 | **NTLM + Base de données** | Aucune. |
 | **LDAP + Base de données** | Adresse du serveur LDAP, port et base de recherche (DN). |
 | **Base de données seule** (par défaut) | Aucune. |
+
+Ce libellé ne décrit pas une chaîne de fallbacks : sur le formulaire, LDAP ou la base locale est sélectionné selon la case d'authentification déléguée du compte (MOD-05 §6.1.5). CAS et NTLM gardent leur priorité lorsqu'ils prennent en charge la requête.
 
 Une information complémentaire est affichée indépendamment de la méthode :
 
@@ -190,10 +192,10 @@ Cette section regroupe les paramètres de configuration spécifiques à la plate
 
 | # | Règle |
 |---|---|
-| **RG-ADM-012** | Une seule méthode d'authentification est active à la fois. L'ordre de priorité d'évaluation est : CAS → NTLM → LDAP → Base de données seule. |
+| **RG-ADM-012** | Le libellé de configuration suit la priorité CAS → NTLM → LDAP → Base de données seule. Pour l'authentification effective, CAS puis NTLM avec identité Windows fournie sont prioritaires ; sinon le compte sélectionne LDAP ou la base locale, sans fallback (MOD-05). |
 | **RG-ADM-013** | Si la méthode CAS est activée, le libellé « CAS » est affiché. |
 | **RG-ADM-014** | Si la méthode NTLM est activée (et CAS ne l'est pas), le libellé « NTLM + BDD » est affiché. |
-| **RG-ADM-015** | Si la méthode LDAP est activée (et ni CAS ni NTLM ne le sont), le libellé « LDAP + BDD » est affiché, suivi de l'adresse du serveur LDAP, du port et de la base de recherche. Le port par défaut est 389 s'il n'est pas explicitement configuré. |
+| **RG-ADM-015** | Si la méthode LDAP est activée (et ni CAS ni NTLM ne le sont), le libellé « LDAP + BDD » est affiché, suivi de l'adresse du serveur LDAP, du port et de la base de recherche. Le port par défaut est 389 s'il n'est pas explicitement configuré. LDAP et BDD correspondent à des comptes distincts selon leur case SSO, sans fallback entre les deux. |
 | **RG-ADM-016** | Si aucune méthode externe n'est activée, le libellé « BDD » (base de données seule) est affiché. |
 | **RG-ADM-017** | L'état du renforcement de sécurité (activé / désactivé) est affiché indépendamment de la méthode d'authentification choisie. |
 

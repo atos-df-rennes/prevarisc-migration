@@ -7,6 +7,13 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->extension('monolog', [
         'handlers' => [
+            'authentication' => [
+                'type' => 'rotating_file',
+                'path' => '%kernel.logs_dir%/authentication.log',
+                'level' => 'notice',
+                'max_files' => 30,
+                'channels' => ['authentication'],
+            ],
             'main' => [
                 'type' => 'fingers_crossed',
                 'action_level' => 'error',

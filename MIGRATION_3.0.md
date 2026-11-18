@@ -704,6 +704,14 @@ Avant de remettre Prevarisc à disposition :
 - [ ] Un compte local existant peut se connecter avec son mot de passe
       habituel ; une pièce jointe antérieure peut être téléchargée et une
       nouvelle pièce peut être ajoutée.
+- [ ] Le mode SSO des comptes a été vérifié après la reprise automatique :
+      comptes à login renseigné sans mot de passe local → SSO ; fiches mairie
+      sans login → non SSO si la valeur était NULL. Les connexions LDAP et
+      locales sont vérifiées séparément, sans fallback, selon la
+      [procédure de correction des comptes SSO](docs/guide/admin/utilisateurs/correction-authentification-sso.md).
+      Prévenir les administrateurs qu'un compte LDAP encore classé local peut
+      nécessiter de cocher la case SSO ; contrôler les journaux
+      `var/log/authentication-AAAA-MM-JJ.log`.
 - [ ] Les ressources CSS/JavaScript se chargent sans erreur et les écrans
       utilisant les routes JavaScript fonctionnent.
 - [ ] Les tâches planifiées, mails, LDAP/SSO, IGN, plugins et Plat'AU sont
