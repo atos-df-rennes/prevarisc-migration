@@ -362,7 +362,7 @@ L'application supporte quatre méthodes d'authentification, activables par confi
 
 #### 6.1.1 Authentification par base de données locale
 
-- **Contexte d'utilisation :** Méthode par défaut, toujours disponible. Utilisée lorsqu'aucune authentification déléguée n'est activée.
+- **Contexte d'utilisation :** Méthode utilisée sur le formulaire pour les comptes dont la case « Connexion via LDAP/CAS/NTLM » est décochée, y compris lorsque LDAP est activé.
 - **Fonctionnement :** L'utilisateur saisit son identifiant et son mot de passe dans un formulaire de connexion. Le mot de passe est comparé à celui stocké dans l'application (haché avec un sel de sécurité propre à l'instance).
 - **Cas d'usage :** SDIS de petite taille ou environnements sans annuaire centralisé.
 
@@ -383,7 +383,7 @@ L'application supporte quatre méthodes d'authentification, activables par confi
 #### 6.1.4 Authentification LDAP (Annuaire d'entreprise)
 
 - **Contexte d'utilisation :** Environnements disposant d'un annuaire LDAP. Peut être activée en complément de l'authentification locale.
-- **Fonctionnement :** L'utilisateur saisit son identifiant et son mot de passe dans le formulaire standard. Le système tente d'abord l'authentification locale, puis, en cas d'échec, l'authentification auprès de l'annuaire LDAP.
+- **Fonctionnement :** L'utilisateur saisit son identifiant et son mot de passe dans le formulaire standard. Pour un compte dont la case « Connexion via LDAP/CAS/NTLM » est cochée, le système vérifie uniquement le mot de passe auprès de LDAP. Un échec LDAP ne déclenche jamais une vérification locale.
 - **Cas d'usage :** SDIS souhaitant centraliser la gestion des mots de passe dans un annuaire existant tout en conservant une possibilité d'authentification locale.
 
 #### 6.1.5 Ordre d'évaluation des méthodes
@@ -391,11 +391,11 @@ L'application supporte quatre méthodes d'authentification, activables par confi
 Lorsque plusieurs méthodes sont activées simultanément :
 
 1. Si CAS est activé : seul CAS est utilisé (pas de formulaire de saisie de mot de passe).
-2. Si NTLM est activé : l'identifiant Windows est capturé automatiquement (pas de formulaire de saisie de mot de passe).
-3. Si LDAP est activé : le formulaire est présenté, et le mot de passe est vérifié d'abord localement, puis auprès de l'annuaire LDAP.
-4. Sinon : authentification locale uniquement.
+2. Sinon, si NTLM est activé et que l'identité Windows est fournie (`REMOTE_USER`) : cette identité est utilisée sans mot de passe local.
+3. Sinon, le formulaire est utilisé : case cochée et LDAP activé → LDAP uniquement ; case décochée → base locale uniquement, même si LDAP est activé.
+4. Si la case est cochée mais LDAP désactivé, la connexion par formulaire est refusée.
 
-Le système essaie les adaptateurs d'authentification dans l'ordre. Dès qu'un adaptateur valide les identifiants, la connexion est accordée.
+Dans tous les cas, le compte doit exister dans Prevarisc et être actif. CAS et NTLM conservent leur priorité indépendamment de la case du compte. Aucun échec ne provoque un basculement entre LDAP et la base locale.
 
 **Indication dans le formulaire de création d'utilisateur :** Lorsqu'au moins un mode d'authentification déléguée (CAS, NTLM, LDAP) est activé, une case à cocher « Connexion via LDAP/CAS/NTLM » apparaît dans le formulaire de création/modification de l'utilisateur. Si cette case est cochée, aucun mot de passe local n'est défini.
 
@@ -405,7 +405,7 @@ Un mécanisme de protection est disponible lorsque le mode de sécurité renforc
 
 **Fonctionnement :**
 
-1. À chaque tentative de connexion échouée, le compteur de tentatives échouées de l'utilisateur est incrémenté.
+1. À chaque tentative de connexion échouée pour un compte identifié, le compteur de tentatives échouées de l'utilisateur est incrémenté. Un formulaire contenant un identifiant ou un mot de passe vide est refusé avant la recherche du compte, sans incrémenter de compteur.
 2. Lorsque le compteur atteint le seuil de **2 tentatives échouées**, le système active une restriction par adresse réseau.
 3. Seule l'adresse réseau ayant réussi la dernière connexion légitime est autorisée à poursuivre les tentatives. Toute tentative depuis une autre adresse est rejetée silencieusement.
 4. En cas de connexion réussie, le compteur est remis à zéro et la dernière adresse réseau authentifiée est mise à jour.
@@ -448,7 +448,7 @@ Un mécanisme de protection est disponible lorsque le mode de sécurité renforc
 | **RG-USR-009** | Lorsqu'un utilisateur accède à un dossier, le système vérifie à la fois les droits sur la nature du dossier et les droits sur les établissements rattachés au dossier. L'accès n'est accordé que si les deux conditions sont remplies. |
 | **RG-USR-010** | En mode de sécurité renforcée, le mot de passe doit contenir au minimum 8 caractères, dont au moins 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial. |
 | **RG-USR-011** | Après 2 tentatives de connexion échouées en mode de sécurité renforcée, seule l'adresse réseau de la dernière connexion réussie peut continuer à tenter de s'authentifier. |
-| **RG-USR-012** | Lorsqu'un utilisateur créé avec authentification déléguée (CAS, NTLM, LDAP) se connecte, aucun mot de passe local n'est vérifié. |
+| **RG-USR-012** | CAS et NTLM restent prioritaires lorsqu'ils prennent en charge la requête. Sinon, la case d'authentification déléguée enregistrée sur le compte sélectionne LDAP (si activé) ou, lorsqu'elle est décochée, la base locale. Aucun mot de passe local n'est vérifié pour un compte SSO. |
 | **RG-USR-013** | Un message d'erreur générique « Authentification invalide » est affiché en cas d'échec, que la cause soit un identifiant inconnu, un compte inactif ou un mot de passe erroné. |
 | **RG-USR-014** | L'enregistrement de la matrice des droits invalide immédiatement le cache de contrôle d'accès. Les nouveaux droits s'appliquent sans nécessité de reconnexion. |
 | **RG-USR-015** | La création d'une ressource spécialisée sur les établissements génère automatiquement deux privilèges : Lecture et Modifier. |
@@ -461,6 +461,8 @@ Un mécanisme de protection est disponible lorsque le mode de sécurité renforc
 | **RG-USR-022** | Les utilisateurs ayant le privilège d'alerte approprié et dont les domaines de compétences (commune ou groupements de communes) correspondent à l'adresse de l'établissement concerné reçoivent une notification en cas de changement de statut, d'avis ou de classement d'un établissement. |
 | **RG-USR-023** | L'accès à un établissement de type « site » nécessite que l'utilisateur ait les droits sur au moins un des établissements enfants du site, ou le droit de création d'établissement. |
 | **RG-USR-024** | Le filtrage de la liste des utilisateurs par groupe est possible via la barre latérale du panneau d'administration. |
+| **RG-USR-025** | Il n'existe aucun fallback entre LDAP et la base locale. L'échec du mécanisme sélectionné termine la tentative, avec un message générique et une trace de diagnostic indiquant le mécanisme concerné, sans mot de passe ni hachage. Un échec local ne prouve pas que le compte relève de LDAP. |
+| **RG-USR-026** | Le formulaire de connexion refuse un identifiant ou un mot de passe vide avant toute recherche de compte ou vérification LDAP/locale. Ce refus est journalisé sans incrémenter de compteur d'échecs. |
 
 ---
 
@@ -468,11 +470,15 @@ Un mécanisme de protection est disponible lorsque le mode de sécurité renforc
 
 ### 8.1 Utilisateur sans mot de passe local
 
-Lorsqu'un utilisateur est créé avec la case « Connexion via LDAP/CAS/NTLM » cochée, son mot de passe local est vide. Cet utilisateur ne peut se connecter qu'avec la méthode d'authentification déléguée activée. Si cette méthode est désactivée ultérieurement, l'utilisateur ne pourra plus se connecter tant qu'un administrateur ne lui aura pas défini un mot de passe local.
+Lorsqu'un utilisateur est créé avec la case « Connexion via LDAP/CAS/NTLM » cochée, son mot de passe local est vide. Cet utilisateur ne peut se connecter qu'avec la méthode d'authentification déléguée activée. Si cette méthode est désactivée ultérieurement, un administrateur doit décocher la case et définir un mot de passe local pour permettre la connexion par formulaire.
+
+Lors de la reprise des données, les comptes à login renseigné et mot de passe NULL passent à SSO si leur valeur était NULL ou fausse. Les autres valeurs NULL deviennent fausses, notamment pour les fiches sans login (mairies utilisées uniquement pour leurs informations). Les choix SSO vrais déjà enregistrés sont conservés. Un mot de passe présent conduit à conserver un mode local présumé : un administrateur doit vérifier et corriger ce choix si le compte doit relever de LDAP.
 
 ### 8.2 Changement de mode d'authentification
 
 Si un utilisateur possède un mot de passe local et qu'un administrateur coche « Connexion via LDAP/CAS/NTLM », le mot de passe local est supprimé. Le champ mot de passe est masqué dans le formulaire.
+
+Pour revenir à une connexion locale par formulaire, l'administrateur décoche la case et définit un nouveau mot de passe. Il vérifie ensuite la connexion avec l'utilisateur. Les journaux servent au diagnostic ; ils ne déclenchent aucune reclassification automatique.
 
 ### 8.3 Utilisateur rattaché à aucune commission et aucun groupement
 

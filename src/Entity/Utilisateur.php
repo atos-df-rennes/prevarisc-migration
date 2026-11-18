@@ -98,8 +98,8 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
     #[ORM\ManyToMany(targetEntity: Groupement::class, inversedBy: 'utilisateurs')]
     private Collection $groupements;
 
-    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    private ?bool $sso = null;
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $sso = false;
 
     #[Groups(['api_response'])]
     private ?string $displayLabel = null;
@@ -421,12 +421,12 @@ class Utilisateur implements UserInterface, LegacyPasswordAuthenticatedUserInter
         return $this;
     }
 
-    public function getSso(): ?bool
+    public function getSso(): bool
     {
         return $this->sso;
     }
 
-    public function setSso(?bool $sso): self
+    public function setSso(bool $sso): self
     {
         $this->sso = $sso;
 
