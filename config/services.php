@@ -133,6 +133,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$casNoSsl', '%app.cas_no_ssl%');
 
     $services->set(FormLoginAuthenticator::class)
+        ->arg('$logger', service('monolog.logger.authentication'))
         ->arg('$tokenStorage', service('security.token_storage'))
         ->arg('$csrfTokenManager', service('security.csrf.token_manager'))
         ->arg('$casEnabled', '%app.cas_enabled%')

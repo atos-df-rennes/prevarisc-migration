@@ -30,7 +30,8 @@ final class SessionController extends AbstractController
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
-            'sso_enabled' => $this->getParameter('app.cas_enabled') || $this->getParameter('app.ntlm_enabled'),
+            'sso_enabled' => $this->getParameter('app.cas_enabled')
+                || ($this->getParameter('app.ntlm_enabled') && isset($_SERVER['REMOTE_USER'])),
         ]);
     }
 

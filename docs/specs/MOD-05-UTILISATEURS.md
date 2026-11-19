@@ -307,8 +307,8 @@ Le mode de connexion dépend du paramétrage de l'organisation. L'utilisateur pe
 
 #### 6.1.1 Connexion avec un compte Prevarisc
 
-- **Contexte d'utilisation :** Méthode par défaut, toujours disponible. Utilisée lorsqu'aucun mode de connexion de l'organisation n'est activé.
-- **Fonctionnement :** L'utilisateur saisit son identifiant et son mot de passe sur la page de connexion.
+- **Contexte d'utilisation :** Méthode utilisée sur le formulaire pour les comptes dont la case « Connexion via LDAP/CAS/NTLM » est décochée, y compris lorsque LDAP est activé.
+- **Fonctionnement :** L'utilisateur saisit son identifiant et son mot de passe sur la page de connexion. Le mot de passe est vérifié à partir de celui stocké dans l'application.
 
 #### 6.1.2 Connexion par portail de l'organisation
 
@@ -324,17 +324,19 @@ Le mode de connexion dépend du paramétrage de l'organisation. L'utilisateur pe
 
 #### 6.1.4 Connexion par annuaire de l'organisation
 
-- **Contexte d'utilisation :** Organisations qui gèrent les comptes dans un annuaire commun.
-- **Fonctionnement :** L'utilisateur saisit son identifiant et son mot de passe. La connexion peut être vérifiée par l'annuaire de l'organisation.
+- **Contexte d'utilisation :** Organisations qui gèrent les comptes dans un annuaire LDAP commun. Ce mode peut être activé en complément de l'authentification locale.
+- **Fonctionnement :** L'utilisateur saisit son identifiant et son mot de passe dans le formulaire standard. Pour un compte dont la case « Connexion via LDAP/CAS/NTLM » est cochée, le système vérifie uniquement le mot de passe auprès de LDAP. Un échec LDAP ne déclenche jamais une vérification locale.
 
 #### 6.1.5 Ordre d'évaluation des méthodes
 
 Lorsque plusieurs modes sont activés, Prevarisc utilise :
 
-1. Le portail de l'organisation, s'il est activé.
-2. Sinon, la reconnaissance de la connexion Windows, si elle est activée.
-3. Sinon, le formulaire de connexion habituel. Si l'annuaire de l'organisation est activé, le compte Prevarisc est vérifié en premier, puis l'annuaire.
-4. Si aucun mode externe n'est activé, seul le compte Prevarisc est utilisé.
+1. Si CAS est activé : seul CAS est utilisé (pas de formulaire de saisie de mot de passe).
+2. Sinon, si NTLM est activé et que l'identité Windows est fournie (`REMOTE_USER`) : cette identité est utilisée sans mot de passe local.
+3. Sinon, le formulaire est utilisé : case cochée et LDAP activé → LDAP uniquement ; case décochée → base locale uniquement, même si LDAP est activé.
+4. Si la case est cochée mais LDAP désactivé, la connexion par formulaire est refusée.
+
+Dans tous les cas, le compte doit exister dans Prevarisc et être actif. CAS et NTLM conservent leur priorité indépendamment de la case du compte. Aucun échec ne provoque un basculement entre LDAP et la base locale.
 
 **Compte utilisateur :** Lorsque l'organisation utilise un mode de connexion externe, le formulaire de création ou de modification propose une option indiquant que le compte dépend de ce mode. Dans ce cas, l'utilisateur ne dispose pas d'un mot de passe Prevarisc.
 
@@ -344,9 +346,9 @@ Une mesure de protection est disponible lorsque le mode de sécurité renforcée
 
 **Fonctionnement :**
 
-1. À chaque tentative de connexion échouée, le compteur de tentatives échouées de l'utilisateur est incrémenté.
+1. À chaque tentative de connexion échouée pour un compte identifié, le compteur de tentatives échouées de l'utilisateur est incrémenté. Un formulaire contenant un identifiant ou un mot de passe vide est refusé avant la recherche du compte, sans incrémenter de compteur.
 2. Après **2 tentatives échouées**, les tentatives suivantes sont limitées à l'adresse utilisée lors de la dernière connexion réussie.
-3. En cas de connexion réussie, le compteur est remis à zéro.
+3. En cas de connexion réussie, le compteur est remis à zéro et la dernière adresse réseau authentifiée est mise à jour.
 
 **Déblocage :** Un administrateur peut manuellement débloquer un utilisateur verrouillé en remettant le compteur de tentatives à zéro dans le formulaire de modification de l'utilisateur. Un bouton « Débloquer » est présenté lorsque le compteur a atteint le seuil.
 
@@ -385,7 +387,7 @@ Une mesure de protection est disponible lorsque le mode de sécurité renforcée
 | **RG-USR-009** | Lorsqu'un utilisateur accède à un dossier, le système vérifie à la fois les droits sur la nature du dossier et les droits sur les établissements rattachés au dossier. L'accès n'est accordé que si les deux conditions sont remplies. |
 | **RG-USR-010** | En mode de sécurité renforcée, le mot de passe doit contenir au minimum 8 caractères, dont au moins 1 minuscule, 1 majuscule, 1 chiffre et 1 caractère spécial. |
 | **RG-USR-011** | Après 2 tentatives de connexion échouées en mode de sécurité renforcée, les nouvelles tentatives sont limitées à l'adresse utilisée lors de la dernière connexion réussie. |
-| **RG-USR-012** | Lorsqu'un utilisateur dépend du mode de connexion de son organisation, aucun mot de passe Prevarisc n'est vérifié. |
+| **RG-USR-012** | CAS et NTLM restent prioritaires lorsqu'ils prennent en charge la requête. Sinon, la case d'authentification déléguée enregistrée sur le compte sélectionne LDAP (si activé) ou, lorsqu'elle est décochée, la base locale. Aucun mot de passe local n'est vérifié pour un compte SSO. |
 | **RG-USR-013** | Un message d'erreur générique « Authentification invalide » est affiché en cas d'échec, que la cause soit un identifiant inconnu, un compte inactif ou un mot de passe erroné. |
 | **RG-USR-014** | Les droits définis dans la matrice s'appliquent dès leur enregistrement, sans reconnexion. |
 | **RG-USR-015** | Une règle d'accès aux établissements distingue les droits de consultation et de modification. |
@@ -405,6 +407,8 @@ Une mesure de protection est disponible lorsque le mode de sécurité renforcée
 | **RG-USR-030** | Une erreur sur un utilisateur n'interrompt pas la suppression des autres ; l'utilisateur en erreur reste intact. |
 | **RG-USR-031** | Le mode simulation produit l'analyse et les traces sans rien supprimer. |
 | **RG-USR-032** | Chaque exécution de la suppression définitive est tracée dans un journal d'audit dédié conservé 30 jours, ne contenant que des identifiants techniques. |
+| **RG-USR-033** | Il n'existe aucun repli entre LDAP et la base locale. L'échec du mécanisme sélectionné termine la tentative, avec un message générique et une trace de diagnostic indiquant le mécanisme concerné, sans mot de passe ni hachage. Un échec local ne prouve pas que le compte relève de LDAP. |
+| **RG-USR-034** | Le formulaire de connexion refuse un identifiant ou un mot de passe vide avant toute recherche de compte ou vérification LDAP/locale. Ce refus est journalisé sans incrémenter de compteur d'échecs. |
 
 ---
 
@@ -412,11 +416,15 @@ Une mesure de protection est disponible lorsque le mode de sécurité renforcée
 
 ### 8.1 Utilisateur sans mot de passe local
 
-Lorsqu'un compte est associé au mode de connexion de l'organisation, son titulaire ne peut pas se connecter avec un mot de passe Prevarisc. Si ce mode est ensuite désactivé, un administrateur doit configurer un mot de passe Prevarisc pour rétablir l'accès.
+Lorsqu'un utilisateur est créé avec la case « Connexion via LDAP/CAS/NTLM » cochée, son mot de passe local est vide. Pour permettre la connexion par formulaire avec un mot de passe Prevarisc, un administrateur doit décocher la case et définir un mot de passe local. Si aucun mécanisme délégué n'est activé, la case n'est pas affichée et l'équipe d'exploitation doit intervenir pour préparer la remise en état.
+
+Lors de la reprise des données, les comptes à login renseigné et mot de passe NULL passent à SSO si leur valeur était NULL ou fausse. Les autres valeurs NULL deviennent fausses, notamment pour les fiches sans login (mairies utilisées uniquement pour leurs informations). Les choix SSO vrais déjà enregistrés sont conservés. Un mot de passe présent conduit à conserver un mode local présumé : un administrateur doit vérifier et corriger ce choix si le compte doit relever de LDAP.
 
 ### 8.2 Changement de mode d'authentification
 
 Si un administrateur associe un compte au mode de connexion de l'organisation, son mot de passe Prevarisc est supprimé et le champ correspondant est masqué dans le formulaire.
+
+Pour revenir à une connexion locale par formulaire, l'administrateur décoche la case et définit un nouveau mot de passe. Il vérifie ensuite la connexion avec l'utilisateur. Les journaux servent au diagnostic ; ils ne déclenchent aucune reclassification automatique.
 
 ### 8.3 Utilisateur rattaché à aucune commission et aucun groupement
 

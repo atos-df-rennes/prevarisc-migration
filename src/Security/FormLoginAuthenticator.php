@@ -17,6 +17,7 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -36,8 +37,7 @@ use Symfony\Component\Security\Http\Util\TargetPathTrait;
  * Gère quatre mécanismes d'authentification dans l'ordre de priorité :
  *   1. CAS  (phpCAS) — si PREVARISC_CAS_ENABLED=1
  *   2. NTLM ($_SERVER['REMOTE_USER']) — si PREVARISC_NTLM_ENABLED=1
- *   3. LDAP (Symfony\Component\Ldap) — si PREVARISC_LDAP_ENABLED=1 (fallback du dbtable)
- *   4. dbtable MD5 → bcrypt via migrate_from — cas par défaut
+ *   3. Formulaire : LDAP pour les comptes SSO, base locale pour les autres, sans fallback
  */
 final class FormLoginAuthenticator extends AbstractAuthenticator implements AuthenticationEntryPointInterface, InteractiveAuthenticatorInterface
 {
@@ -123,6 +123,7 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
 
     public function authenticate(Request $request): Passport
     {
+        $this->lastAttemptedUser = null;
         $credentials = $this->getCredentials($request);
 
         return new Passport(
@@ -152,7 +153,7 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
         }
 
         // --- NTLM ---
-        if ($this->ntlmEnabled) {
+        if ($this->ntlmEnabled && isset($_SERVER['REMOTE_USER'])) {
             $rawRemoteUser = $_SERVER['REMOTE_USER'] ?? null;
             $remoteUser = is_string($rawRemoteUser) ? $rawRemoteUser : '';
             $cred = explode('\\', $remoteUser);
@@ -184,10 +185,17 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
 
         $rawUsername = $request->request->get('_username');
         $rawPassword = $request->request->get('_password');
+        $username = is_string($rawUsername) ? $rawUsername : '';
+        $password = is_string($rawPassword) ? $rawPassword : '';
+
+        if ('' === $username || '' === $password) {
+            $this->logger->notice('Auth formulaire: identifiant ou mot de passe vide');
+            throw new BadCredentialsException();
+        }
 
         return [
-            'username' => is_string($rawUsername) ? $rawUsername : '',
-            'password' => is_string($rawPassword) ? $rawPassword : '',
+            'username' => $username,
+            'password' => $password,
             'sso_type' => null,
         ];
     }
@@ -219,12 +227,11 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
     /**
      * Vérifie les identifiants selon le mécanisme d'auth actif.
      *
-     * Ordre de vérification (port direct du legacy) :
+     * Ordre de vérification :
      *   1. SSO (CAS/NTLM) → true immédiat
      *   2. Utilisateur SSO sur formulaire → false (configuration incohérente)
      *   3. Anti-brute-force si ENFORCE_SECURITY + IP différente
-     *   4. LDAP si activé (fallback sur dbtable si échec)
-     *   5. Vérification dbtable via passwordEncoder (gère migrate_from MD5→bcrypt)
+     *   4. Compte SSO → LDAP uniquement ; compte local → passwordEncoder (MD5→bcrypt)
      */
     public function checkCredentials(mixed $credentials, UserInterface $user): bool
     {
@@ -238,10 +245,12 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
             return true;
         }
 
-        // 2. Utilisateur SSO (CAS/NTLM) essayant le formulaire sans son mécanisme SSO configuré.
-        // Ne s'applique pas si LDAP est activé : les utilisateurs LDAP utilisent le formulaire
-        // même avec sso=true, car LDAP est un vérificateur de credentials sur le formulaire,
-        // pas une délégation de token (comportement identique au legacy — cf. SessionController).
+        if ('' === $credentials['username'] || null === $credentials['password'] || '' === $credentials['password']) {
+            $this->logger->notice('Auth formulaire: identifiant ou mot de passe vide');
+
+            return false;
+        }
+
         if (true === $utilisateur->getSso() && !$this->ldapEnabled) {
             $this->logger->error(
                 "Auth: utilisateur SSO '{username}' tentant une connexion par formulaire (CAS/NTLM non activé)",
@@ -268,8 +277,8 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
             return false;
         }
 
-        // 4. LDAP (si activé) : authentification via bind Symfony\Component\Ldap
-        if ($this->ldapEnabled) {
+        // 4. Le compte choisit un seul mécanisme, sans repli vers la base locale.
+        if ($utilisateur->getSso()) {
             try {
                 // Utiliser l'instance LDAP injectée (connexion lazy, partagée sur la requête)
                 // ou en créer une à la volée si non injectée (fallback de compatibilité).
@@ -321,15 +330,33 @@ final class FormLoginAuthenticator extends AbstractAuthenticator implements Auth
 
                 return true;
             } catch (\Exception $e) {
-                $this->logger->notice('Auth LDAP: échec, fallback sur dbtable', [
+                $this->logger->notice('Auth LDAP: échec sans repli local', [
                     'username' => $credentials['username'],
-                    'exception' => $e,
+                    'exception_class' => $e::class,
                 ]);
+
+                return false;
             }
+        }
+
+        if (null === $utilisateur->getPassword() || '' === $utilisateur->getPassword()) {
+            $this->logger->notice('Auth BDD: compte local sans mot de passe', [
+                'username' => $utilisateur->getUsername(),
+                'ldap_enabled' => $this->ldapEnabled,
+            ]);
+
+            return false;
         }
 
         // 5. Vérification dbtable — passwordEncoder gère migrate_from (MD5 → bcrypt) automatiquement
         $isValid = $this->passwordEncoder->isPasswordValid($utilisateur, (string) $credentials['password']);
+
+        if (!$isValid) {
+            $this->logger->notice('Auth BDD: échec sans repli LDAP', [
+                'username' => $utilisateur->getUsername(),
+                'ldap_enabled' => $this->ldapEnabled,
+            ]);
+        }
 
         // Migration MD5 → bcrypt/argon2 : le CustomCredentials utilisé ci-dessus ne déclenche pas
         // le mécanisme standard PasswordUpgradeBadge de Symfony, donc l'upgrade est déclenché
