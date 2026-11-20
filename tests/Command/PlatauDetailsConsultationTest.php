@@ -82,24 +82,29 @@ final class PlatauDetailsConsultationTest extends KernelTestCase
 
     public function testExigeUnIdentifiantAvantToutAppelHttp(): void
     {
-        $kernel = self::bootKernel();
         $transport = new MockHttpClient([]);
-        self::getContainer()->set('http_client.transport', $transport);
-        $application = new Application($kernel);
-        $application->setAutoExit(false);
-        $tester = new ApplicationTester($application);
+        $tester = $this->console($transport);
 
         $this->assertNotSame(Command::SUCCESS, $tester->run(['command' => 'details-consultation']));
         $this->assertStringContainsString('consultation-id', $tester->getDisplay());
         $this->assertSame(0, $transport->getRequestsCount());
     }
 
+    #[WithEnvironmentVariable('PLATAU_ID_ACTEUR_APPELANT', '')]
+    public function testLaCommandeResteDisponibleSansConfigurationActeur(): void
+    {
+        $transport = new MockHttpClient([]);
+        $tester = $this->console($transport);
+
+        $this->assertSame(Command::SUCCESS, $tester->run(['command' => 'help', 'command_name' => 'details-consultation']));
+        $this->assertNotSame(Command::SUCCESS, $tester->run(['command' => 'details-consultation', 'consultation-id' => 'AAA-BBB-CCC']));
+        $this->assertStringContainsString('acteur', $tester->getDisplay());
+        $this->assertSame(0, $transport->getRequestsCount());
+    }
+
     private function application(MockResponse $page): ApplicationTester
     {
-        $kernel = self::bootKernel();
-        $container = self::getContainer();
-        $container->set('cache.platau_consultation_tokens', new ArrayAdapter());
-        $container->set('http_client.transport', new MockHttpClient(function (string $method, string $url, array $options) use ($page): MockResponse {
+        return $this->console(new MockHttpClient(function (string $method, string $url, array $options) use ($page): MockResponse {
             $this->assertSame('POST', $method);
             $this->assertSame(30.0, $options['timeout']);
             $this->assertSame('http://proxy.example.test:8080', $options['proxy']);
@@ -123,6 +128,14 @@ final class PlatauDetailsConsultationTest extends KernelTestCase
 
             return $page;
         }));
+    }
+
+    private function console(MockHttpClient $transport): ApplicationTester
+    {
+        $kernel = self::bootKernel();
+        $container = self::getContainer();
+        $container->set('cache.platau_consultation_tokens', new ArrayAdapter());
+        $container->set('http_client.transport', $transport);
         $application = new Application($kernel);
         $application->setAutoExit(false);
 
