@@ -62,6 +62,16 @@ L'utilisation de l'intégration avec Plat'AU dépend du paramétrage du service.
 
 ---
 
+### 3.5 Consultation manuelle par identifiant
+
+L'exploitant peut lire une consultation sans l'importer : `bin/console platau:details-consultation <consultation-id>` (alias historique `details-consultation`). L'environnement Symfony sélectionne les identifiants du service ; la commande intégrée ne prend pas l'option historique `--config`.
+
+La commande affiche les champs de la réponse, un par ligne sous la forme `chemin : valeur`. Les niveaux et indices de liste sont séparés par des points. Avec `--champ=chemin`, elle affiche uniquement ce champ, ou `Aucune donnée` si le chemin n'existe pas. Un champ absent n'est pas une erreur d'exécution. En revanche, si la lecture échoue, la commande signale l'échec et retourne un code non nul.
+
+Cette lecture ne crée ni dossier ni pièce jointe et ne transmet ni PEC ni avis. Elle ne remplace ni les tâches planifiées de la passerelle historique ni le contrôle du tableau de bord.
+
+---
+
 ## 4. Suivi des transmissions
 
 ### 4.1 Statuts de transmission
