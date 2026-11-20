@@ -106,7 +106,7 @@ final class PlatauDetailsConsultationTest extends KernelTestCase
     {
         return $this->console(new MockHttpClient(function (string $method, string $url, array $options) use ($page): MockResponse {
             $this->assertSame('POST', $method);
-            $this->assertSame(30.0, $options['timeout']);
+            $this->assertEqualsWithDelta(30.0, $options['timeout'], PHP_FLOAT_EPSILON);
             $this->assertSame('http://proxy.example.test:8080', $options['proxy']);
             if ('https://oauth.example.test/token' === $url) {
                 parse_str($options['body'], $form);
@@ -136,6 +136,7 @@ final class PlatauDetailsConsultationTest extends KernelTestCase
         $container = self::getContainer();
         $container->set('cache.platau_consultation_tokens', new ArrayAdapter());
         $container->set('http_client.transport', $transport);
+
         $application = new Application($kernel);
         $application->setAutoExit(false);
 

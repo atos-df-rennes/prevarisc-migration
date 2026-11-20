@@ -21,7 +21,7 @@ final readonly class PisteTokenProvider
         #[Autowire(env: 'PISTE_CLIENT_ID')] private string $clientId,
         #[Autowire(env: 'PISTE_CLIENT_SECRET')] #[\SensitiveParameter] private string $clientSecret,
         #[Autowire(env: 'PISTE_ACCESS_TOKEN_URL')] private string $tokenUrl,
-        #[Autowire('%kernel.environment%')] string $environment,
+        #[Autowire(param: 'kernel.environment')] string $environment,
     ) {
         $this->cacheKey = hash('sha256', implode("\0", [$environment, $tokenUrl, $clientId, $clientSecret]));
     }
@@ -45,8 +45,8 @@ final readonly class PisteTokenProvider
                     'extra' => ['trace_content' => false],
                 ]);
                 $data = $this->http->json($response, 'PISTE');
-            } catch (TransportExceptionInterface $exception) {
-                throw $this->http->failure('Connexion PISTE', $exception->getMessage());
+            } catch (TransportExceptionInterface $transportException) {
+                throw $this->http->failure('Connexion PISTE', $transportException->getMessage());
             }
 
             $token = $data['access_token'] ?? null;

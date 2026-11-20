@@ -23,7 +23,9 @@ use Symfony\Component\HttpClient\RetryableHttpClient;
 final class ConsultationHttpTest extends TestCase
 {
     private const array ROW = ['dossier' => ['consultations' => [['idConsultation' => 'ABC']]], 'autre' => null];
+
     private const string TOKEN_URL = 'https://piste.test/token';
+
     private const string BASE = 'https://platau.test/v13/dau/';
 
     public static function proxyModes(): iterable
@@ -49,6 +51,7 @@ final class ConsultationHttpTest extends TestCase
 
                 return $this->token('piste-token');
             }
+
             $this->assertSame(self::BASE.'consultations/recherche', explode('?', $url)[0]);
             $this->assertSame(['criteresSurConsultations' => ['idConsultation' => 'ABC']], json_decode($options['body'], true, flags: JSON_THROW_ON_ERROR));
             $this->assertContains('Authorization: Bearer piste-token', $options['headers']);
@@ -57,6 +60,7 @@ final class ConsultationHttpTest extends TestCase
             $this->assertSame('DESC', $query['sensTri']);
             $this->assertSame('DT_LIMITE_DE_REPONSE', $query['colonneTri']);
             $calls[] = [$query['numeroPage'], $query['nbElementsParPage']];
+
             return new JsonMockResponse(['nombrePages' => 3, 'resultats' => '0' === $query['numeroPage'] ? [] : [self::ROW]]);
         }, self::BASE);
         $reader = new HttpConsultationReader($transport, $this->provider($transport, $http), $http, 'actor');
@@ -105,11 +109,12 @@ final class ConsultationHttpTest extends TestCase
         $provider = $this->provider(new MockHttpClient([$this->token('old'), $this->token('fresh'), $this->token('next')]), $http);
         $api = new MockHttpClient([new MockResponse('', ['http_code' => 401]), new MockResponse('refus', ['http_code' => 401])], self::BASE);
         try {
-            (new HttpConsultationReader($api, $provider, $http, 'actor'))->details('ABC');
+            new HttpConsultationReader($api, $provider, $http, 'actor')->details('ABC');
             $this->fail('Le second refus doit être définitif.');
-        } catch (PlatauException $exception) {
-            $this->assertStringContainsString('HTTP 401 : refus', $exception->getMessage());
+        } catch (PlatauException $platauException) {
+            $this->assertStringContainsString('HTTP 401 : refus', $platauException->getMessage());
         }
+
         $this->assertSame('next', $provider->token());
     }
 
@@ -121,13 +126,14 @@ final class ConsultationHttpTest extends TestCase
         foreach ([429, 503, 500, 401, 503, 500] as $status) {
             $responses[] = new MockResponse('', ['http_code' => $status, 'response_headers' => ['Retry-After: 0']]);
         }
+
         $responses[] = new MockResponse(str_repeat('x', 17000).' fin fresh-token', ['http_code' => 503]);
         $api = new RetryableHttpClient(new MockHttpClient($responses, self::BASE), new ConsultationRetryStrategy(), ConsultationRetryStrategy::MAX_RETRIES);
         try {
-            (new HttpConsultationReader($api, $provider, $http, 'actor'))->details('ABC');
+            new HttpConsultationReader($api, $provider, $http, 'actor')->details('ABC');
             $this->fail('La sixième réponse transitoire doit être définitive.');
-        } catch (PlatauException $exception) {
-            $this->assertStringContainsString('HTTP 503 : '.str_repeat('x', 17000).' fin [masqué]', $exception->getMessage());
+        } catch (PlatauException $platauException) {
+            $this->assertStringContainsString('HTTP 503 : '.str_repeat('x', 17000).' fin [masqué]', $platauException->getMessage());
         }
     }
 
@@ -144,17 +150,17 @@ final class ConsultationHttpTest extends TestCase
     {
         $provider = $this->provider(new MockHttpClient([new MockResponse($body, ['http_code' => $status])]), $this->http());
         $this->expectException(PlatauException::class);
-        $this->expectExceptionMessage($expected);
+        $this->expectExceptionMessageIsOrContains($expected);
         $provider->token();
     }
 
     public function testTransportFailureDoesNotLeakProxyCredentials(): void
     {
         $http = $this->http(true);
-        $api = new MockHttpClient(static fn () => throw new TransportException('proxy http://user:p%40ss@proxy.test ; Bearer abc'), self::BASE);
+        $api = new MockHttpClient(static fn (): never => throw new TransportException('proxy http://user:p%40ss@proxy.test ; Bearer abc'), self::BASE);
         $reader = new HttpConsultationReader($api, $this->provider(new MockHttpClient([$this->token('abc')]), $http), $http, 'actor');
         $this->expectException(PlatauException::class);
-        $this->expectExceptionMessage('proxy http://[masqué]@proxy.test ; Bearer [masqué]');
+        $this->expectExceptionMessageIsOrContains('proxy http://[masqué]@proxy.test ; Bearer [masqué]');
         $reader->details('ABC');
     }
 
@@ -172,8 +178,8 @@ final class ConsultationHttpTest extends TestCase
         $provider = $this->provider(new MockHttpClient([$this->token('abc')]), $http);
         $api = new MockHttpClient([new JsonMockResponse($data)], self::BASE);
         $this->expectException(PlatauException::class);
-        $this->expectExceptionMessage($expected);
-        (new HttpConsultationReader($api, $provider, $http, 'actor'))->details('ABC');
+        $this->expectExceptionMessageIsOrContains($expected);
+        new HttpConsultationReader($api, $provider, $http, 'actor')->details('ABC');
     }
 
     public static function incompleteConfigurations(): iterable
@@ -190,8 +196,8 @@ final class ConsultationHttpTest extends TestCase
         $transport = new MockHttpClient([]);
         $provider = new PisteTokenProvider($transport, $http, new ArrayAdapter(), $clientId, $secret, self::TOKEN_URL, 'prod');
         $this->expectException(PlatauException::class);
-        $this->expectExceptionMessage($expected);
-        (new HttpConsultationReader($transport, $provider, $http, $actor))->details('ABC');
+        $this->expectExceptionMessageIsOrContains($expected);
+        new HttpConsultationReader($transport, $provider, $http, $actor)->details('ABC');
     }
 
     private function http(bool $proxy = false): PlatauHttp

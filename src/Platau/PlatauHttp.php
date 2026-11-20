@@ -39,9 +39,10 @@ final readonly class PlatauHttp
 
         try {
             $data = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
-        } catch (\JsonException $exception) {
-            throw new PlatauException($operation.' : JSON invalide ('.$exception->getMessage().').');
+        } catch (\JsonException $jsonException) {
+            throw new PlatauException($operation.' : JSON invalide ('.$jsonException->getMessage().').', $jsonException->getCode(), $jsonException);
         }
+
         if (!is_array($data)) {
             throw new PlatauException($operation.' : objet JSON attendu.');
         }
@@ -59,12 +60,14 @@ final readonly class PlatauHttp
                 $secrets[] = rawurldecode($value);
             }
         }
+
         $replacements = [];
         foreach ($secrets as $secret) {
             if ('' !== $secret) {
                 $replacements[$secret] = $replacements[rawurlencode($secret)] = '[masqué]';
             }
         }
+
         // Également masquer les identifiants d'un proxy système et un éventuel jeton
         // jusque-là inconnu renvoyé par PISTE dans une réponse d'erreur.
         $message = preg_replace('~(://)[^\s/@]+@~', '$1[masqué]@', $message) ?? '';

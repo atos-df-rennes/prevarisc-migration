@@ -33,6 +33,7 @@ final readonly class HttpConsultationReader implements ConsultationReader
             if (!is_int($pages) || $pages < 0 || !is_array($results) || !array_is_list($results)) {
                 throw new PlatauException("La pagination renvoyée par Plat'AU est incorrecte.");
             }
+
             if ([] !== $results) {
                 $row = $results[0];
                 if (!is_array($row) || !is_array($row['dossier'] ?? null)
@@ -65,8 +66,8 @@ final readonly class HttpConsultationReader implements ConsultationReader
             }
 
             return $this->http->json($response, "Plat'AU consultations/recherche", $token);
-        } catch (TransportExceptionInterface $exception) {
-            throw $this->http->failure("Connexion Plat'AU consultations/recherche", $exception->getMessage(), $token);
+        } catch (TransportExceptionInterface $transportException) {
+            throw $this->http->failure("Connexion Plat'AU consultations/recherche", $transportException->getMessage(), $token);
         }
     }
 
