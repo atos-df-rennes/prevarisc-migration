@@ -34,14 +34,10 @@ final readonly class DetailsConsultationCommand
         $output->writeln('Récupération de la consultation concernée ...');
         try {
             $details = $this->reader->details($consultationId);
-        } catch (\Exception $exception) {
-            $erreur = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
-            $diagnostic = $exception instanceof PlatauException
-                ? $exception->getMessage()
-                : 'Échec de la lecture de la consultation Plat’AU.';
-            $erreur->writeln($diagnostic, OutputInterface::OUTPUT_RAW);
-
-            return Command::FAILURE;
+        } catch (PlatauException $exception) {
+            return $this->signalerEchec($output, $exception->getMessage());
+        } catch (\Exception) {
+            return $this->signalerEchec($output, 'Échec de la lecture de la consultation Plat’AU.');
         }
 
         $champs = \is_string($champ) && '' !== $champ
@@ -54,6 +50,14 @@ final readonly class DetailsConsultationCommand
         }
 
         return Command::SUCCESS;
+    }
+
+    private function signalerEchec(OutputInterface $output, string $diagnostic): int
+    {
+        $erreur = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+        $erreur->writeln($diagnostic, OutputInterface::OUTPUT_RAW);
+
+        return Command::FAILURE;
     }
 
     /** @param array<array-key, mixed> $details */
