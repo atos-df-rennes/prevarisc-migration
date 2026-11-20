@@ -27,6 +27,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PISTE_CLIENT_ID)', '');
     $parameters->set('env(PISTE_CLIENT_SECRET)', '');
     $parameters->set('env(PLATAU_ID_ACTEUR_APPELANT)', '');
+    $parameters->set('env(PREVARISC_DB_PLATAU_USER_ID)', '');
     $parameters->set('env(PISTE_ACCESS_TOKEN_URL)', 'https://oauth.piste.gouv.fr/api/oauth/token');
     $parameters->set('env(PLATAU_URL)', 'https://api.piste.gouv.fr/mtes/platau/v13/dau/');
 };
