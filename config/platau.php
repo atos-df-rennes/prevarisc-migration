@@ -22,4 +22,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_PLATAU_HEALTHCHECK_CACHE_TTL)', 300);
 
     $parameters->set('app.platau_healthcheck_cache_ttl', '%env(int:PREVARISC_PLATAU_HEALTHCHECK_CACHE_TTL)%');
+
+    // Configuration intégrée, indépendante du fichier JSON du tableau de bord.
+    $parameters->set('env(PISTE_CLIENT_ID)', '');
+    $parameters->set('env(PISTE_CLIENT_SECRET)', '');
+    $parameters->set('env(PLATAU_ID_ACTEUR_APPELANT)', '');
+    $parameters->set('env(PISTE_ACCESS_TOKEN_URL)', 'https://oauth.piste.gouv.fr/api/oauth/token');
+    $parameters->set('env(PLATAU_URL)', 'https://api.piste.gouv.fr/mtes/platau/v13/dau/');
 };

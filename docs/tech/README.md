@@ -38,6 +38,7 @@ Les versions des dépendances PHP sont des contraintes Composer, pas une affirma
 
 - [Intégration continue](integration-continue.md) — contrôles GitHub Actions, environnement et caches.
 - [Tests PHP](tests-php.md) — base dédiée, Foundry, isolation transactionnelle et feuille de route.
+- [Recette de la passerelle Plat'AU](recette-passerelle-platau.md) — première commande de lecture et critères proposés pour les tranches suivantes.
 
 ### Formulaires personnalisés et documents
 

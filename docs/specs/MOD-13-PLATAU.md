@@ -62,6 +62,16 @@ L'utilisation de l'intégration avec Plat'AU dépend du paramétrage du service.
 
 ---
 
+### 3.5 Consultation manuelle par identifiant
+
+L'exploitant peut retrouver une consultation de son service à partir de son identifiant et en lire le détail ou une information précise, par exemple la date limite de réponse. Il peut distinguer une information absente d'une consultation introuvable ou d'un refus d'accès.
+
+Cette consultation est en lecture seule : elle ne crée ni dossier ni pièce jointe dans Prevarisc et ne transmet ni prise en charge ni avis à Plat'AU.
+
+Si la lecture est refusée, l'exploitant sait quel service a refusé la demande et peut distinguer un échec d'authentification d'une absence d'autorisation, sans afficher de données confidentielles.
+
+---
+
 ## 4. Suivi des transmissions
 
 ### 4.1 Statuts de transmission
