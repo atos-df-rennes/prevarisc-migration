@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Platau\ConsultationReader;
+use App\Platau\PlatauException;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
@@ -33,9 +34,12 @@ final readonly class DetailsConsultationCommand
         $output->writeln('Récupération de la consultation concernée ...');
         try {
             $details = $this->reader->details($consultationId);
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
             $erreur = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
-            $erreur->writeln('Échec de la lecture de la consultation Plat’AU.');
+            $diagnostic = $exception instanceof PlatauException
+                ? $exception->getMessage()
+                : 'Échec de la lecture de la consultation Plat’AU.';
+            $erreur->writeln($diagnostic, OutputInterface::OUTPUT_RAW);
 
             return Command::FAILURE;
         }
