@@ -16,6 +16,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\ApplicationTester;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
+use Symfony\Component\HttpClient\TraceableHttpClient;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
 #[ResetDatabase]
@@ -42,11 +43,9 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
 
     private ApplicationTester $console;
 
-    /** @var array<string, JsonMockResponse> Réponses à usage unique ; aucun autre appel n'est permis. */
-    private array $reponses = [];
+    private MockHttpClient $transport;
 
-    /** @var list<string> */
-    private array $imprevus = [];
+    private TraceableHttpClient $appels;
 
     protected function setUp(): void
     {
@@ -60,7 +59,9 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
         $_ENV['PREVARISC_DB_PLATAU_USER_ID'] = (string) $id;
 
         $container->set('cache.platau_consultation_tokens', new ArrayAdapter());
-        $container->set('http_client.transport', new MockHttpClient($this->repondre(...)));
+        $this->transport = new MockHttpClient([]);
+        $this->appels = new TraceableHttpClient($this->transport);
+        $container->set('http_client.transport', $this->appels);
 
         $application = new Application($kernel);
         $application->setAutoExit(false);
@@ -70,7 +71,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
 
     public function testExigeUnOptInMemeDansLEnvironnementDeTest(): void
     {
-        $code = $this->executer(['command' => 'lecture-notifications', '--offset' => '0']);
+        $code = $this->lecture(recette: false);
 
         $this->assertNotSame(Command::SUCCESS, $code);
         $message = mb_strtolower($this->console->getDisplay());
@@ -83,7 +84,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
 
     public function testOffsetNonEntierRefuseAvantToutAppel(): void
     {
-        $this->assertNotSame(Command::SUCCESS, $this->lecture('12.3'));
+        $this->assertNotSame(Command::SUCCESS, $this->lecture(offset: '12.3'));
         $this->assertStringContainsString('offset', $this->console->getDisplay());
         $this->assertAucunImport();
     }
@@ -112,9 +113,8 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
 
     public function testUnRefusDuFluxNestPasUneListeVide(): void
     {
-        $this->jeton();
-        $this->reponses['GET notifications'] = new JsonMockResponse(['message' => 'detail-confidentiel-fictif'], ['http_code' => 403]);
-        $this->assertNotSame(Command::SUCCESS, $this->lecture());
+        $refus = new JsonMockResponse(['message' => 'detail-confidentiel-fictif'], ['http_code' => 403]);
+        $this->assertNotSame(Command::SUCCESS, $this->lecture([$this->jeton(), $refus]));
         $this->assertStringContainsString('403', $this->console->getDisplay());
         $this->assertStringNotContainsString('detail-confidentiel-fictif', $this->console->getDisplay());
         $this->assertAucunImport();
@@ -122,44 +122,57 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
 
     public function testFluxVideSansOffset(): void
     {
-        $this->jeton();
-        $this->notifications([]);
-        $this->assertSame(Command::SUCCESS, $this->lecture(), $this->console->getDisplay());
+        $flux = new JsonMockResponse(['notifications' => []]);
+        $this->assertSame(Command::SUCCESS, $this->lecture([$this->jeton(), $flux]), $this->console->getDisplay());
+        $this->assertSame(self::API.'notifications', $flux->getRequestUrl());
+        $this->assertStringContainsString('Aucune nouvelle notification', $this->console->getDisplay());
         $this->assertAucunImport();
     }
 
     public function testConsultationDUnAutreIdentifiantRejeteeAvantRechercheDesActeurs(): void
     {
-        $this->jeton();
-        $this->notifications([$this->notification(self::ID, offset: 51)]);
-        $this->page(self::ID, 0, [$this->information(self::AUTRE, acteurs: true)]);
+        $code = $this->lecture([
+            $this->jeton(),
+            new JsonMockResponse(['notifications' => [$this->notification(self::ID, offset: 51)]]),
+            $this->consultation(self::AUTRE, instructeur: 'INS'),
+        ]);
 
-        $this->assertSame(Command::SUCCESS, $this->lecture(), $this->console->getDisplay());
+        $this->assertSame(Command::SUCCESS, $code, $this->console->getDisplay());
         $this->assertMatchesRegularExpression('/offset\D*51\b[^\n]*ne correspond pas/iu', $this->console->getDisplay());
         $this->assertAucunImport();
     }
 
     public function testFluxMixteNeVerseQueLaConsultationEmise(): void
     {
-        $this->jeton();
-        $this->notifications([
+        $flux = new JsonMockResponse(['notifications' => [
             $this->notification('PIE-AAA-001', 5, 71, 0),
             $this->notification('DOC-AAA-002', 31, 84, 1),
             $this->notification('IGN-AAA-003', 6, 15, 2),
             $this->notification('IGN-AAA-004', 5, 19, 3),
             $this->notification(self::ID, 6, 19, 4),
-        ], '0');
-        $this->page(self::ID, 0, [], 2);
-        $this->page(self::ID, 1, [$this->information(self::ID, acteurs: true)], 2);
-        foreach (['INS' => 'Service instructeur fictif', 'CST' => 'Service consultant fictif'] as $acteur => $designation) {
-            $this->reponses['POST acteurs/recherche '.$acteur.' 0'] = new JsonMockResponse([
-                'nombrePages' => 1, 'resultats' => [['idActeur' => $acteur, 'designationActeur' => $designation]],
-            ]);
+        ]]);
+        $premierePage = new JsonMockResponse(['nombrePages' => 2, 'resultats' => []]);
+        $secondePage = JsonMockResponse::fromFile(__DIR__.'/../Platau/fixtures/recherche-consultation-emise.json');
+        $instructeur = new JsonMockResponse(['resultats' => [['idActeur' => 'INS', 'designationActeur' => 'Service instructeur fictif']]]);
+        $consultant = new JsonMockResponse(['resultats' => [['idActeur' => 'CST', 'designationActeur' => 'Service consultant fictif']]]);
+        $code = $this->lecture([$this->jeton(), $flux, $premierePage, $secondePage, $instructeur, $consultant], offset: '0', commande: 'lecture-notifications');
+
+        $this->assertSame(Command::SUCCESS, $code, $this->console->getDisplay());
+        $this->assertSame('GET', $flux->getRequestMethod());
+        $this->assertSame(self::API.'notifications?offset=0', $flux->getRequestUrl());
+        $this->assertStringContainsString('numeroPage=0', $premierePage->getRequestUrl());
+        $this->assertStringContainsString('numeroPage=1', $secondePage->getRequestUrl());
+
+        foreach (['INS' => $instructeur, 'CST' => $consultant] as $id => $acteur) {
+            $this->assertSame('POST', $acteur->getRequestMethod());
+            $this->assertStringStartsWith(self::API.'acteurs/recherche?', $acteur->getRequestUrl());
+            $this->assertJsonStringEqualsJsonString(json_encode(['idActeur' => $id], \JSON_THROW_ON_ERROR), $acteur->getRequestOptions()['body']);
         }
 
-        $this->assertSame(Command::SUCCESS, $this->lecture('0', 'lecture-notifications'), $this->console->getDisplay());
+        $this->assertContains('Authorization: Bearer jeton-recette', $flux->getRequestOptions()['headers']);
+        $this->assertContains('Id-Acteur-Appelant: ACTEUR-TEST', $instructeur->getRequestOptions()['headers']);
+
         $this->assertSame([self::ID], $this->db->fetchFirstColumn('SELECT ID_PLATAU FROM dossier'));
-        $this->assertSame([self::ID], $this->db->fetchFirstColumn('SELECT ID_PLATAU FROM platauconsultation'));
         $dossier = $this->db->fetchAssociative('SELECT * FROM dossier WHERE ID_PLATAU = ?', [self::ID]);
         $this->assertIsArray($dossier);
         $this->assertSame(1, (int) $dossier['TYPE_DOSSIER']);
@@ -202,10 +215,9 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
             'ID_PLATAU' => self::ID, 'OBJET_DOSSIER' => 'Objet conservé', 'INCOMPLET_DOSSIER' => null,
         ]);
         $avant = $this->db->fetchAssociative('SELECT * FROM dossier WHERE ID_PLATAU = ?', [self::ID]);
-        $this->jeton();
-        $this->notifications([$this->notification(self::ID)]);
+        $flux = new JsonMockResponse(['notifications' => [$this->notification(self::ID)]]);
 
-        $this->assertSame(Command::SUCCESS, $this->lecture(), $this->console->getDisplay());
+        $this->assertSame(Command::SUCCESS, $this->lecture([$this->jeton(), $flux]), $this->console->getDisplay());
         $this->assertSame([$avant], $this->db->fetchAllAssociative('SELECT * FROM dossier'));
         $this->assertSame([$pec], $this->db->fetchFirstColumn('SELECT STATUT_PEC FROM platauconsultation WHERE ID_PLATAU = ?', [self::ID]));
     }
@@ -220,20 +232,19 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
     #[DataProvider('erreursIndividuelles')]
     public function testErreurSansImportPartielPuisRejeuDepuisLOffset(bool $refusActeur): void
     {
-        $lot = [$this->notification(self::ID, offset: 42), $this->notification(self::AUTRE, offset: 43)];
-        $this->jeton();
-        $this->notifications($lot, '42');
-        $information = $this->information(self::ID, nature: $refusActeur ? 3 : 7);
+        $lot = ['notifications' => [$this->notification(self::ID, offset: 42), $this->notification(self::AUTRE, offset: 43)]];
+        $reponses = [$this->jeton(), new JsonMockResponse($lot)];
         if ($refusActeur) {
-            $information['dossier']['idServiceInstructeur'] = 'INS';
-            $this->reponses['POST acteurs/recherche INS 0'] = new JsonMockResponse([], ['http_code' => 403]);
+            $reponses[] = $this->consultation(self::ID, instructeur: 'INS');
+            $reponses[] = new JsonMockResponse([], ['http_code' => 403]);
+        } else {
+            $reponses[] = $this->consultation(self::ID, nature: 7);
         }
 
-        $this->page(self::ID, 0, [$information]);
-        $this->page(self::AUTRE, 0, [$this->information(self::AUTRE)]);
+        $reponses[] = $this->consultation(self::AUTRE);
 
         // Une erreur de traitement est locale à la notification, pas au lot.
-        $this->assertSame(Command::SUCCESS, $this->lecture('42'), $this->console->getDisplay());
+        $this->assertSame(Command::SUCCESS, $this->lecture($reponses, offset: '42'), $this->console->getDisplay());
         $motif = $refusActeur ? 'accès refusé \(HTTP 403\)' : 'Nature Demande de transfert \(DT\) non supportée';
         $this->assertMatchesRegularExpression('/offset\D*42\b[^\n]*'.$motif.'/iu', $this->console->getDisplay());
         $this->assertSame([self::AUTRE], $this->db->fetchFirstColumn('SELECT ID_PLATAU FROM dossier'));
@@ -242,28 +253,27 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
         $this->assertSame(1, (int) $this->db->fetchOne('SELECT COUNT(*) FROM dossiernature'));
 
         // Même flux corrigé : seule la consultation en erreur doit être recherchée.
-        $this->notifications($lot, '42');
-        $this->page(self::ID, 0, [$this->information(self::ID)]);
-        $this->assertSame(Command::SUCCESS, $this->lecture('42'), $this->console->getDisplay());
+        $rejeu = new JsonMockResponse($lot);
+        $corrigee = $this->consultation(self::ID);
+        $this->assertSame(Command::SUCCESS, $this->lecture([$rejeu, $corrigee], offset: '42'), $this->console->getDisplay());
+        $this->assertSame(self::API.'notifications?offset=42', $rejeu->getRequestUrl());
+        $this->assertJsonStringEqualsJsonString('{"criteresSurConsultations":{"idConsultation":"AAA-BBB-001"}}', $corrigee->getRequestOptions()['body']);
         $this->assertSame([self::ID, self::AUTRE], $this->db->fetchFirstColumn('SELECT ID_PLATAU FROM dossier ORDER BY ID_PLATAU'));
         $this->assertSame([self::ID, self::AUTRE], $this->db->fetchFirstColumn("SELECT ID_PLATAU FROM platauconsultation WHERE STATUT_PEC = 'awaiting' ORDER BY ID_PLATAU"));
     }
 
-    private function lecture(?string $offset = null, string $commande = 'platau:lecture-notifications'): int
+    /** @param list<JsonMockResponse> $reponses Réponses HTTP dans l'ordre des appels attendus. */
+    private function lecture(array $reponses = [], ?string $offset = null, bool $recette = true, string $commande = 'platau:lecture-notifications'): int
     {
-        $arguments = ['command' => $commande, '--recette' => true];
+        $this->transport->setResponseFactory($reponses);
+        $avant = count($this->appels->getTracedRequests());
+        $arguments = ['command' => $commande, '--recette' => $recette];
         if (null !== $offset) {
             $arguments['--offset'] = $offset;
         }
 
-        return $this->executer($arguments);
-    }
-
-    private function executer(array $arguments): int
-    {
         $code = $this->console->run($arguments);
-        $this->assertSame([], $this->imprevus, 'Appels HTTP non attendus.');
-        $this->assertSame([], array_keys($this->reponses), $this->console->getDisplay());
+        $this->assertCount($avant + count($reponses), $this->appels->getTracedRequests(), $this->console->getDisplay());
 
         return $code;
     }
@@ -274,14 +284,9 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
         $this->assertSame(0, (int) $this->db->fetchOne('SELECT COUNT(*) FROM platauconsultation'));
     }
 
-    private function jeton(): void
+    private function jeton(): JsonMockResponse
     {
-        $this->reponses['POST jeton'] = new JsonMockResponse(['access_token' => 'jeton-recette', 'expires_in' => 3600, 'token_type' => 'Bearer']);
-    }
-
-    private function notifications(array $lot, ?string $offset = null): void
-    {
-        $this->reponses['GET notifications'.(null === $offset ? '' : '?offset='.$offset)] = new JsonMockResponse(['notifications' => $lot]);
+        return new JsonMockResponse(['access_token' => 'jeton-recette', 'expires_in' => 3600, 'token_type' => 'Bearer']);
     }
 
     private function notification(string $id, int $objet = 6, int $evenement = 19, int $offset = 0): array
@@ -289,63 +294,13 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
         return ['idElementConcerne' => $id, 'idTypeObjetMetier' => $objet, 'idTypeEvenement' => $evenement, 'offset' => $offset, 'idDossier' => 'DOS-AAA-001'];
     }
 
-    private function page(string $id, int $page, array $resultats, int $pages = 1): void
+    private function consultation(string $id, int $nature = 3, ?string $instructeur = null): JsonMockResponse
     {
-        $this->reponses['POST consultations/recherche '.$id.' '.$page] = new JsonMockResponse(['nombrePages' => $pages, 'resultats' => $resultats]);
-    }
-
-    private function information(string $id, int $nature = 3, bool $acteurs = false): array
-    {
-        return ['dossier' => [
-            'idDossier' => 'DOS-AAA-001', 'noVersion' => 1, 'txDescriptifGlobal' => 'Bâtiment fictif',
-            'nomTypeDossier' => ['idNom' => $nature], 'noLocal' => 'DP-FICTIF', 'suffixeNoLocal' => '-M01',
-            'idServiceInstructeur' => $acteurs ? 'INS' : null,
-            'personnes' => [
-                ['libDenomination' => 'Atelier fictif', 'roles' => [['nomRole' => ['idNom' => 1]]]],
-                ['libDenomination' => 'Tiers fictif', 'roles' => [['nomRole' => ['idNom' => 2]]]],
-            ],
-            'consultations' => [[
-                'idConsultation' => $id, 'noVersion' => 2,
-                'dtConsultation' => '2026-03-09', 'dtEmission' => '2026-03-10',
-                'delaiDeReponse' => 10, 'nomTypeDelai' => ['libNom' => 'Jours calendaires'],
-                'nomTypeConsultation' => ['libNom' => 'Consultation fictive'],
-                'nomEtatConsultation' => ['idNom' => 1, 'libNom' => 'Émise'],
-                'txObjetDeLaConsultation' => 'Étude fictive', 'idServiceConsultant' => $acteurs ? 'CST' : null,
-            ]],
-        ]];
-    }
-
-    private function repondre(string $method, string $url, array $options): JsonMockResponse
-    {
-        $cible = $url;
-        if (self::TOKEN_URL === $url) {
-            $cible = 'jeton';
-        } elseif (str_starts_with($url, self::API)) {
-            $cible = substr($url, strlen(self::API));
-            [$route, $query] = array_pad(explode('?', $cible, 2), 2, '');
-            if (in_array($route, ['consultations/recherche', 'acteurs/recherche'], true)) {
-                parse_str($query, $pagination);
-                $body = json_decode($options['body'] ?? '', true);
-                $id = 'acteurs/recherche' === $route ? ($body['idActeur'] ?? '?') : ($body['criteresSurConsultations']['idConsultation'] ?? '?');
-                $cible = $route.' '.$id.' '.($pagination['numeroPage'] ?? '?');
-            }
-        }
-
-        $cle = $method.' '.$cible;
-        if (!isset($this->reponses[$cle])) {
-            $this->imprevus[] = $cle;
-
-            return new JsonMockResponse([], ['http_code' => 403]);
-        }
-
-        if (self::TOKEN_URL !== $url) {
-            $this->assertContains('Authorization: Bearer jeton-recette', $options['headers']);
-            $this->assertContains('Id-Acteur-Appelant: ACTEUR-TEST', $options['headers']);
-        }
-
-        $reponse = $this->reponses[$cle];
-        unset($this->reponses[$cle]);
-
-        return $reponse;
+        return new JsonMockResponse(['nombrePages' => 1, 'resultats' => [['dossier' => [
+            'nomTypeDossier' => ['idNom' => $nature],
+            'noLocal' => 'DP-FICTIF',
+            'idServiceInstructeur' => $instructeur,
+            'consultations' => [['idConsultation' => $id]],
+        ]]]]);
     }
 }
