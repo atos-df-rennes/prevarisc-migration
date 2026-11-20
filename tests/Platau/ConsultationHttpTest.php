@@ -170,6 +170,10 @@ final class ConsultationHttpTest extends TestCase
         yield 'aucun résultat' => [['nombrePages' => 1, 'resultats' => []], 'la consultation ABC est introuvable'];
         yield 'pagination absente' => [['message' => 'incorrect'], 'pagination'];
         yield 'résultat incomplet' => [['nombrePages' => 1, 'resultats' => [['dossier' => []]]], 'une consultation par dossier'];
+        yield 'la recherche ciblée attend une seule consultation' => [
+            ['nombrePages' => 1, 'resultats' => [['dossier' => ['consultations' => [['idConsultation' => 'DEF'], ['idConsultation' => 'ABC']]]]]],
+            'une consultation par dossier',
+        ];
     }
 
     #[DataProvider('invalidConsultationResponses')]

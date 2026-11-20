@@ -36,6 +36,10 @@ L'utilisation de l'intégration avec Plat'AU dépend du paramétrage du service.
 4. Les pièces jointes reçues avec la consultation sont associées au dossier.
 5. Le dossier apparaît dans le bloc du tableau de bord **« Dossiers Plat'AU à traiter »** tant qu'il n'est pas rattaché à un établissement.
 
+La réception intégrée en recette couvre uniquement la création du dossier d'étude, sans rattachement à un établissement. Sa complétude reste à renseigner et sa prise en charge est en attente ; rien n'est envoyé à Plat'AU. Les pièces initiales restent hors de cette étape de recette. La passerelle existante continue d'assurer la réception en production.
+
+Lorsqu'une consultation est déjà présente, une nouvelle réception ne modifie pas son dossier. En particulier, si le dossier a été créé mais que la préparation de la prise en charge a échoué, relire la notification ne répare pas cette étape.
+
 ### 3.2 Transmission d'une prise en charge (PEC)
 
 1. Le préventionniste ouvre le dossier Plat'AU et renseigne son état de complétude (complet ou incomplet).
