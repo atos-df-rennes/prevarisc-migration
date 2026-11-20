@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Platau\ConsultationImporter;
-use App\Platau\ConsultationReader;
 use App\Platau\HttpNotificationReader;
 use App\Platau\PlatauException;
+use App\Platau\ReceptionException;
+use App\Platau\ReceptionReader;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
@@ -26,7 +27,7 @@ final readonly class LectureNotificationsCommand
 {
     public function __construct(
         private HttpNotificationReader $notifications,
-        private ConsultationReader $consultations,
+        private ReceptionReader $reception,
         private ConsultationImporter $importer,
     ) {
     }
@@ -110,33 +111,19 @@ final readonly class LectureNotificationsCommand
             }
 
             $stage = 'lecture de la consultation';
-            $information = $this->consultations->details($id);
-            $dossier = $information['dossier'] ?? null;
-            $consultations = is_array($dossier) ? ($dossier['consultations'] ?? null) : null;
-            $consultation = is_array($consultations) ? ($consultations[0] ?? null) : null;
-            if (!is_array($dossier) || !is_array($consultation) || $id !== ($consultation['idConsultation'] ?? null)) {
-                $errors->writeln($prefix.'La consultation renvoyée ne correspond pas à la notification.');
-
-                return;
-            }
+            $dossier = $this->reception->dossier($id);
 
             $stage = 'recherche des acteurs';
-            $instructeur = $dossier['idServiceInstructeur'] ?? null;
-            $consultant = $consultation['idServiceConsultant'] ?? null;
-            if ((null !== $instructeur && !is_string($instructeur)) || (null !== $consultant && !is_string($consultant))) {
-                $errors->writeln($prefix.'Identifiant de service incorrect.');
-
-                return;
-            }
-
-            $serviceInstructeur = $this->notifications->actorDesignation($instructeur);
-            $serviceConsultant = $this->notifications->actorDesignation($consultant);
+            $serviceInstructeur = $this->notifications->actorDesignation($dossier->idServiceInstructeur);
+            $serviceConsultant = $this->notifications->actorDesignation($dossier->consultation->idServiceConsultant);
             $stage = 'import de la consultation';
-            $this->importer->import($information, $serviceConsultant, $serviceInstructeur);
+            $this->importer->import($dossier, $serviceConsultant, $serviceInstructeur);
 
             $stage = 'mise en attente de la PEC';
             $this->importer->markAwaiting($id);
             $output->writeln($prefix.'Consultation récupérée et stockée dans Prevarisc.');
+        } catch (ReceptionException $exception) {
+            $errors->writeln($prefix.$exception->getMessage(), OutputInterface::OUTPUT_RAW);
         } catch (PlatauException $exception) {
             $errors->writeln($prefix.sprintf('Échec (%s) : %s', $stage, $exception->getMessage()), OutputInterface::OUTPUT_RAW);
         } catch (\Throwable) {
