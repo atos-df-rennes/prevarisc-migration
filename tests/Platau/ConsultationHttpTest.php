@@ -112,7 +112,7 @@ final class ConsultationHttpTest extends TestCase
             new HttpConsultationReader($api, $provider, $http, 'actor')->details('ABC');
             $this->fail('Le second refus doit être définitif.');
         } catch (PlatauException $platauException) {
-            $this->assertStringContainsString('HTTP 401 : refus', $platauException->getMessage());
+            $this->assertSame("Plat'AU : authentification refusée (HTTP 401).", $platauException->getMessage());
         }
 
         $this->assertSame('next', $provider->token());
@@ -127,20 +127,21 @@ final class ConsultationHttpTest extends TestCase
             $responses[] = new MockResponse('', ['http_code' => $status, 'response_headers' => ['Retry-After: 0']]);
         }
 
-        $responses[] = new MockResponse(str_repeat('x', 17000).' fin fresh-token', ['http_code' => 503]);
+        $responses[] = new MockResponse('Détail confidentiel', ['http_code' => 503]);
         $api = new RetryableHttpClient(new MockHttpClient($responses, self::BASE), new ConsultationRetryStrategy(), ConsultationRetryStrategy::MAX_RETRIES);
         try {
             new HttpConsultationReader($api, $provider, $http, 'actor')->details('ABC');
             $this->fail('La sixième réponse transitoire doit être définitive.');
         } catch (PlatauException $platauException) {
-            $this->assertStringContainsString('HTTP 503 : '.str_repeat('x', 17000).' fin [masqué]', $platauException->getMessage());
+            $this->assertSame("Plat'AU : échec de la requête (HTTP 503).", $platauException->getMessage());
         }
     }
 
     public static function invalidTokenResponses(): iterable
     {
-        yield 'statut avant décodage' => [403, 'refus secret', 'HTTP 403 : refus [masqué]'];
-        yield 'ne pas exposer un jeton reçu par erreur' => [400, '{"access_token":"inattendu"}', 'HTTP 400 : {"access_token":"[masqué]"}'];
+        yield 'identifiants refusés' => [401, 'secret', 'PISTE : authentification refusée (HTTP 401).'];
+        yield 'statut avant décodage' => [403, 'refus secret', 'PISTE : accès refusé (HTTP 403).'];
+        yield 'ne pas exposer un jeton reçu par erreur' => [400, '{"access_token":"inattendu"}', 'PISTE : échec de la requête (HTTP 400).'];
         yield 'JSON incorrect' => [200, 'illisible', 'PISTE : JSON invalide'];
         yield 'jeton vide' => [200, '{"access_token":""}', 'token utilisable'];
     }
@@ -160,7 +161,7 @@ final class ConsultationHttpTest extends TestCase
         $api = new MockHttpClient(static fn (): never => throw new TransportException('proxy http://user:p%40ss@proxy.test ; Bearer abc'), self::BASE);
         $reader = new HttpConsultationReader($api, $this->provider(new MockHttpClient([$this->token('abc')]), $http), $http, 'actor');
         $this->expectException(PlatauException::class);
-        $this->expectExceptionMessageIsOrContains('proxy http://[masqué]@proxy.test ; Bearer [masqué]');
+        $this->expectExceptionMessageMatches('/^Impossible de communiquer avec Plat\'AU\.$/D');
         $reader->details('ABC');
     }
 
@@ -202,7 +203,7 @@ final class ConsultationHttpTest extends TestCase
 
     private function http(bool $proxy = false): PlatauHttp
     {
-        return new PlatauHttp(new ProxyConfigurationService($proxy, '5', 8080, 'proxy.test', 'user', 'p@ss'), 'client', 'secret');
+        return new PlatauHttp(new ProxyConfigurationService($proxy, '5', 8080, 'proxy.test', 'user', 'p@ss'));
     }
 
     private function provider(MockHttpClient $client, PlatauHttp $http, ?ArrayAdapter $cache = null, string $env = 'prod'): PisteTokenProvider

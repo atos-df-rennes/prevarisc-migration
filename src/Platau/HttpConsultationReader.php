@@ -65,9 +65,9 @@ final readonly class HttpConsultationReader implements ConsultationReader
                 }
             }
 
-            return $this->http->json($response, "Plat'AU consultations/recherche", $token);
-        } catch (TransportExceptionInterface $transportException) {
-            throw $this->http->failure("Connexion Plat'AU consultations/recherche", $transportException->getMessage(), $token);
+            return $this->http->json($response, "Plat'AU");
+        } catch (TransportExceptionInterface) {
+            throw new PlatauException("Impossible de communiquer avec Plat'AU.");
         }
     }
 

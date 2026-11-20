@@ -16,4 +16,21 @@ Pour chaque tranche, partir des routes effectivement utilisées et de leur sché
 
 - Dans le dépôt d'infrastructure, `castor symfony:validate` exécute les contrôles et la suite PHPUnit par défaut. Les tests de commande doivent en faire partie, sans groupe `functional` historique.
 - La lecture par identifiant utilise **`POST /dau/consultations/recherche`**, avec le critère `criteresSurConsultations.idConsultation`. Ce `POST` de recherche n'est pas une transmission métier. La fixture conserve l'enveloppe `nombrePages` / `resultats` et la liste imbriquée `dossier.consultations`.
-- Pour une vérification d'exploitation autorisée : `bin/console platau:details-consultation <identifiant> --champ=dossier.consultations.0.idConsultation --env=prod`. Sélectionner l'environnement du service concerné. Aucun changement de cron, de tableau de bord ou d'émetteur actif n'est nécessaire.
+
+## Utilisation par l'exploitant
+
+```shell
+bin/console --env=prod platau:details-consultation <identifiant>
+bin/console --env=prod details-consultation <identifiant> --champ=dossier.consultations.0.dtLimiteDeReponse
+```
+
+Remplacer `<identifiant>` par celui de la consultation. `details-consultation` est l'alias historique. `--env` (ou `-e`) est une option globale de Symfony : elle sélectionne l'environnement de **Prevarisc**, pas une plateforme Plat'AU de test. Utiliser `--env=prevision` si ce service dispose de cet environnement sur l'installation. Sans l'option, c'est l'environnement configuré par `APP_ENV` qui s'applique. Les identifiants PISTE et l'acteur Plat'AU doivent être configurés pour le service sélectionné ; il n'y a pas d'option `--config` dans la commande intégrée.
+
+Sans `--champ`, la commande affiche une ligne `chemin : valeur` par champ. Les points séparent les niveaux et les indices de liste (`0` pour le premier élément). Un champ absent affiche `Aucune donnée` sans erreur. Une consultation introuvable ou une lecture refusée produit un diagnostic et un code de sortie non nul.
+
+**En cas de `401`, identifier le service qui refuse l'appel :**
+
+- **PISTE** authentifie l'application avec ses identifiants client (HTTP Basic sur HTTPS) pour délivrer un jeton. Si PISTE les refuse, vérifier `PISTE_CLIENT_ID` et `PISTE_CLIENT_SECRET` dans la configuration effective de l'environnement, puis relancer.
+- **Plat'AU** reçoit le jeton (`Authorization: Bearer …`) et l'identifiant d'acteur. Au premier `401` de Plat'AU, la commande écarte le jeton et réessaie avec un nouveau. Au second, elle écarte aussi ce dernier jeton et s'arrête. Il n'y a ni verrouillage local ni purge manuelle à effectuer avant une nouvelle exécution.
+
+Un `403` indique un accès refusé : vérifier les habilitations auprès du service indiqué et, pour Plat'AU, l'acteur configuré. Les diagnostics HTTP indiquent le service et le statut, sans reproduire le corps de la réponse. En cas d'erreur de transport, la commande indique le service injoignable sans afficher le détail réseau ou les paramètres du proxy.

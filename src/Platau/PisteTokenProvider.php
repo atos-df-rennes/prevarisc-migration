@@ -45,8 +45,8 @@ final readonly class PisteTokenProvider
                     'extra' => ['trace_content' => false],
                 ]);
                 $data = $this->http->json($response, 'PISTE');
-            } catch (TransportExceptionInterface $transportException) {
-                throw $this->http->failure('Connexion PISTE', $transportException->getMessage());
+            } catch (TransportExceptionInterface) {
+                throw new PlatauException('Impossible de communiquer avec PISTE.');
             }
 
             $token = $data['access_token'] ?? null;

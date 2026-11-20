@@ -74,10 +74,7 @@ final class PlatauDetailsConsultationTest extends KernelTestCase
         $tester = $this->application(new JsonMockResponse(['message' => 'Acces refuse'], ['http_code' => 403]));
 
         $this->assertNotSame(Command::SUCCESS, $tester->run(['command' => 'platau:details-consultation', 'consultation-id' => 'AAA-BBB-CCC']));
-        $this->assertStringContainsString('403', $tester->getDisplay());
-        $this->assertStringContainsString('Acces refuse', $tester->getDisplay());
-        $this->assertStringNotContainsString('introuvable', $tester->getDisplay());
-        $this->assertStringNotContainsString('secret-fictif', $tester->getDisplay());
+        $this->assertSame("Récupération de la consultation concernée ...\nPlat'AU : accès refusé (HTTP 403).\n", $tester->getDisplay(true));
     }
 
     public function testExigeUnIdentifiantAvantToutAppelHttp(): void
