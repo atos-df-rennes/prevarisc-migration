@@ -232,6 +232,8 @@ L'avis de la commission peut être masqué dans certaines situations (voir RG-DO
 
 Des pièces jointes peuvent être associées au dossier (documents numérisés, rapports générés, photos, etc.). Chaque pièce jointe comporte un nom, une extension, une description et une date.
 
+L'accès à la liste et la gestion des pièces jointes sont soumis aux droits précisés dans [MOD-09](MOD-09-PIECES-JOINTES.md#7-règles-de-gestion).
+
 Certaines pièces jointes peuvent être marquées comme « pièces jointes de commission » (pour être intégrées aux documents de la commission).
 
 Un compteur de nouvelles pièces jointes est affiché sur l'onglet correspondant.

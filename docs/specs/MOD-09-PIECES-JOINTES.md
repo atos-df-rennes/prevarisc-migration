@@ -214,7 +214,7 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-006** | La mise en avant dans le diaporama ou les plans ne s'applique qu'aux images (JPG, JPEG, PNG, GIF) déposées sur un établissement. |
 | **RG-PJ-007** | Lorsqu'une image est placée dans le diaporama ou dans les plans, une miniature de 450 px de large est générée automatiquement (proportions conservées). |
 | **RG-PJ-008** | La suppression d'une pièce jointe entraîne la suppression du fichier physique, de sa miniature éventuelle et de toutes ses liaisons. |
-| **RG-PJ-009** | La suppression est interdite lorsque le dossier est verrouillé. |
+| **RG-PJ-009** | Le dépôt et la suppression sont interdits lorsque le dossier est verrouillé. |
 | **RG-PJ-010** | La suppression est interdite pour les pièces jointes dont le statut Plat'AU est « En attente d'envoi », « Envoyé » ou « Vérification du statut ». |
 | **RG-PJ-011** | Seules les pièces jointes dont le fichier physique est accessible en lecture sont affichées dans la liste. Les fichiers manquants ou illisibles sont masqués. |
 | **RG-PJ-012** | Pour un dossier, une seule pièce jointe à la fois peut être sélectionnée pour le passage en commission. |
@@ -229,6 +229,8 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-021** | Les pièces jointes des dossiers Plat'AU sont stockées dans un espace de stockage distinct de celui des dossiers classiques. |
 | **RG-PJ-022** | Si la taille du fichier dépasse la limite autorisée par le serveur, le système affiche un message invitant l'utilisateur à contacter son service informatique. |
 | **RG-PJ-023** | Le nom de téléchargement unitaire et les noms des entrées ZIP d'un dossier peuvent être personnalisés à l'échelle de l'installation, indépendamment du libellé affiché et du chemin de stockage, pour les adaptateurs simple et hashé. En l'absence de variable de configuration, le libellé suivi de l'extension est conservé. Une variable explicitement vide est rejetée avec une erreur de configuration. La date utilisée dans le nom est celle d'ajout ou de génération de la pièce jointe, au format `Y-m-d`. Le jeton `%NUMEROID_ETABLISSEMENT%` désigne le numéro de l'établissement parent (ou son identifiant à défaut), les numéros des établissements liés au dossier selon la règle décrite en §5.2.3, ou l'identifiant de la séance pour une pièce jointe de commission. |
+| **RG-PJ-024** | Pour un dossier, la liste, le formulaire de dépôt, le dépôt, la suppression et la vérification après dépôt exigent les droits `view_doss` sur le dossier et `modification_odj`. Le téléchargement unitaire ou groupé exige `view_doss` ; la relance Plat'AU reste soumise à `edit_doss`. Le recours à `modification_odj` reprend le droit historique, avec maintien du contrôle de lecture et du verrouillage. |
+| **RG-PJ-025** | Pour un établissement, la consultation exige `view_ets` et la gestion des pièces jointes exige `edit_ets`. Pour une date de commission, la gestion exige `modification_odj`. |
 
 ---
 
@@ -253,7 +255,7 @@ Lorsqu'une pièce jointe a une description textuelle, celle-ci est affichée en 
 
 ### 8.3 Dossier verrouillé
 
-Lorsque le dossier est verrouillé, le bouton de suppression n'apparaît pas. Le dépôt et la consultation restent possibles.
+Lorsque le dossier est verrouillé, les boutons de dépôt et de suppression n'apparaissent pas et ces actions sont interdites. La liste et le téléchargement restent accessibles aux utilisateurs disposant des droits correspondants.
 
 ### 8.4 Fichier physique absent
 

@@ -61,6 +61,13 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         return $this->dataStore->getFilePath($pj, 'dossier', (int) $dossier->getId(), $createDir);
     }
 
+    private function denyIfLocked(Dossier $dossier): void
+    {
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé.');
+        }
+    }
+
     /**
      * Liste des pièces jointes d'un dossier.
      *
@@ -68,6 +75,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      */
     #[Route(path: '/dossier/{id}/pieces-jointes', name: 'dossier_pieces_jointes', methods: ['GET'])]
     #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function index(Dossier $dossier): Response
     {
         $dossierPjs = $this->dossierPieceJointeRepository->findAllByDossier((int) $dossier->getId());
@@ -117,8 +125,11 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      */
     #[Route(path: '/dossier/{id}/pieces-jointes/formulaire', name: 'dossier_pieces_jointes_form', methods: ['GET'], defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function form(Dossier $dossier): Response
     {
+        $this->denyIfLocked($dossier);
+
         return $this->render('dossier/pieces_jointes/form.html.twig', [
             'dossier' => $dossier,
         ]);
@@ -130,9 +141,12 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Port direct de PieceJointeController::addAction() (type=dossier).
      */
     #[Route(path: '/dossier/{id}/pieces-jointes/ajouter', name: 'dossier_pieces_jointes_add', methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
-    #[IsGranted('edit_doss', subject: 'dossier')]
+    #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function add(Dossier $dossier, Request $request): JsonResponse
     {
+        $this->denyIfLocked($dossier);
+
         $rawCsrfAdd = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_add', is_string($rawCsrfAdd) ? $rawCsrfAdd : null)) {
             return $this->json(['success' => false, 'message' => 'Token CSRF invalide.'], 403);
@@ -264,9 +278,12 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Port direct de PieceJointeController::deleteAction() (type=dossier).
      */
     #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/supprimer', name: 'dossier_pieces_jointes_delete', methods: ['POST'], requirements: ['idpj' => '\d+'], defaults: ['_dossier_lateral_nav' => false])]
-    #[IsGranted('edit_doss', subject: 'dossier')]
+    #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function delete(Dossier $dossier, #[MapEntity(id: 'idpj')] PieceJointe $pj, Request $request): JsonResponse
     {
+        $this->denyIfLocked($dossier);
+
         $rawTokenDelete = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_delete_'.$pj->getId(), is_string($rawTokenDelete) ? $rawTokenDelete : null)) {
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
@@ -303,9 +320,12 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
      * Port direct de PieceJointeController::checkAction() (type=dossier).
      */
     #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/verifier', name: 'dossier_pieces_jointes_check', methods: ['POST'], requirements: ['idpj' => '\d+'], defaults: ['_dossier_lateral_nav' => false])]
-    #[IsGranted('edit_doss', subject: 'dossier')]
+    #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function check(Dossier $dossier, #[MapEntity(id: 'idpj')] PieceJointe $pj, Request $request): JsonResponse
     {
+        $this->denyIfLocked($dossier);
+
         $rawToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_add', is_string($rawToken) ? $rawToken : null)) {
             return $this->json(['exists' => false]);
