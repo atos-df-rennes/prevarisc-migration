@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\Dto\Ldap;
+use App\Enum\LdapEncryption;
 use App\Service\Informations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -111,43 +112,61 @@ final class InformationsTest extends TestCase
         yield 'CAS enabled' => [
             true,
             false,
-            new Ldap(false, '', 389, ''),
+            new Ldap(false, '', 389, '', LdapEncryption::None),
             'CAS',
         ];
         yield 'CAS enabled with NTLM enabled' => [
             true,
             true,
-            new Ldap(false, '', 389, ''),
+            new Ldap(false, '', 389, '', LdapEncryption::None),
             'CAS',
         ];
         yield 'CAS enabled with LDAP enabled' => [
             true,
             false,
-            new Ldap(true, '', 389, ''),
+            new Ldap(true, '', 389, '', LdapEncryption::None),
             'CAS',
         ];
         yield 'NTLM enabled' => [
             false,
             true,
-            new Ldap(false, '', 389, ''),
+            new Ldap(false, '', 389, '', LdapEncryption::None),
             'NTLM + BDD',
         ];
         yield 'NTLM enabled with LDAP enabled' => [
             false,
             true,
-            new Ldap(true, '', 389, ''),
+            new Ldap(true, '', 389, '', LdapEncryption::None),
             'NTLM + BDD',
         ];
         yield 'LDAP enabled' => [
             false,
             false,
-            new Ldap(true, 'ldap://prevarisc.test', 389, 'user={username}'),
+            new Ldap(true, 'prevarisc.test', 0, 'user={username}', LdapEncryption::None),
             'LDAP + BDD : ldap://prevarisc.test:389/user={username}',
+        ];
+        yield 'LDAPS enabled' => [
+            false,
+            false,
+            new Ldap(true, 'prevarisc.test', 0, 'dc=prevarisc', LdapEncryption::Ssl),
+            'LDAP + BDD : ldaps://prevarisc.test:636/dc=prevarisc',
+        ];
+        yield 'LDAPS custom port' => [
+            false,
+            false,
+            new Ldap(true, 'prevarisc.test', 1636, 'dc=prevarisc', LdapEncryption::Ssl),
+            'LDAP + BDD : ldaps://prevarisc.test:1636/dc=prevarisc',
+        ];
+        yield 'LDAP custom port' => [
+            false,
+            false,
+            new Ldap(true, 'prevarisc.test', 1389, 'dc=prevarisc', LdapEncryption::None),
+            'LDAP + BDD : ldap://prevarisc.test:1389/dc=prevarisc',
         ];
         yield 'BDD enabled' => [
             false,
             false,
-            new Ldap(false, '', 389, ''),
+            new Ldap(false, '', 389, '', LdapEncryption::None),
             'BDD',
         ];
     }

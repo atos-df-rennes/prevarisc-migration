@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\Utilisateur;
+use App\Enum\LdapEncryption;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -81,6 +82,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
         private bool $ldapEnabled,
         private string $ldapHost,
         private int $ldapPort,
+        private LdapEncryption $ldapEncryption,
         private string $ldapUsername,
         private string $ldapPassword,
         private string $ldapBaseDn,
@@ -284,9 +286,7 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
             try {
                 // Utiliser l'instance LDAP injectée (connexion lazy, partagée sur la requête)
                 // ou en créer une à la volée si non injectée (fallback de compatibilité).
-                $ldap = $this->ldap ?? Ldap::create('ext_ldap', [
-                    'connection_string' => sprintf('ldap://%s:%d', $this->ldapHost, $this->ldapPort),
-                ]);
+                $ldap = $this->ldap ?? LdapClientFactory::create($this->ldapHost, $this->ldapPort, $this->ldapEncryption);
 
                 // Tentative de bind en deux étapes si un compte de service est configuré :
                 // 1) Bind service account → 2) Recherche DN utilisateur → 3) Bind utilisateur

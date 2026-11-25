@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Security;
 
 use App\Entity\Utilisateur;
+use App\Enum\LdapEncryption;
 use App\Repository\UtilisateurRepository;
 use App\Security\FormLoginAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -301,6 +302,7 @@ final class FormLoginAuthenticatorTest extends TestCase
             $ldapEnabled,
             '',
             0,
+            LdapEncryption::None,
             '',
             '',
             '',
