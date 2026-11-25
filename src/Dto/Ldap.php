@@ -15,16 +15,6 @@ final readonly class Ldap
         return $this->enabled;
     }
 
-    public function host(): string
-    {
-        return $this->host;
-    }
-
-    public function port(): int
-    {
-        return $this->port;
-    }
-
     public function baseDn(): string
     {
         return $this->baseDn;
