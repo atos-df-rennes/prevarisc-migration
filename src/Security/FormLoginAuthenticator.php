@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Ldap\Exception\ConnectionException;
+use Symfony\Component\Ldap\Exception\ConnectionTimeoutException;
+use Symfony\Component\Ldap\Exception\InvalidCredentialsException;
 use Symfony\Component\Ldap\Ldap;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -333,10 +336,22 @@ class FormLoginAuthenticator extends AbstractAuthenticator implements Authentica
 
                 return true;
             } catch (\Exception $e) {
-                $this->logger->notice('Auth LDAP: échec sans repli local', [
+                $context = [
                     'username' => $credentials['username'],
                     'exception_class' => $e::class,
-                ]);
+                ];
+                if ($e instanceof ConnectionException && !$e instanceof InvalidCredentialsException) {
+                    $message = strtolower($e->getMessage());
+                    $context['diagnostic'] = match (true) {
+                        $e instanceof ConnectionTimeoutException => 'Délai de connexion LDAP dépassé',
+                        str_contains($message, 'certificate has expired') => 'Certificat du serveur LDAP expiré',
+                        str_contains($message, 'hostname does not match') => 'Nom du certificat LDAP incorrect',
+                        str_contains($message, 'certificate verify failed'),
+                        str_contains($message, 'peer cert untrusted or revoked') => 'Certificat du serveur LDAP non fiable',
+                        default => 'Serveur LDAP inaccessible ou négociation TLS échouée',
+                    };
+                }
+                $this->logger->notice('Auth LDAP: échec sans repli local', $context);
 
                 return false;
             }

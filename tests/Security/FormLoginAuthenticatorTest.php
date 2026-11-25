@@ -18,6 +18,8 @@ use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Ldap\Adapter\AdapterInterface;
 use Symfony\Component\Ldap\Adapter\ConnectionInterface;
+use Symfony\Component\Ldap\Exception\ConnectionException;
+use Symfony\Component\Ldap\Exception\ConnectionTimeoutException;
 use Symfony\Component\Ldap\Exception\InvalidCredentialsException;
 use Symfony\Component\Ldap\Ldap;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -155,6 +157,44 @@ final class FormLoginAuthenticatorTest extends TestCase
         yield 'local failure never tries LDAP' => [false, true, false];
         yield 'SSO without LDAP is refused' => [true, false, true];
         yield 'local without LDAP' => [false, false, true];
+    }
+
+    #[DataProvider('provideLdapFailures')]
+    public function testLdapFailureLogsSafeDiagnostic(\Exception $exception, ?string $diagnostic): void
+    {
+        $connection = $this->createStub(ConnectionInterface::class);
+        $connection->method('bind')->willThrowException($exception);
+        $adapter = $this->createStub(AdapterInterface::class);
+        $adapter->method('getConnection')->willReturn($connection);
+
+        $context = ['username' => 'jsmith', 'exception_class' => $exception::class];
+        if (null !== $diagnostic) {
+            $context['diagnostic'] = $diagnostic;
+        }
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('notice')->with('Auth LDAP: échec sans repli local', $context);
+        $authenticator = $this->createAuthenticator(
+            $this->createStub(UserPasswordHasherInterface::class),
+            $this->createStub(EntityManagerInterface::class),
+            ldapEnabled: true,
+            ldap: new Ldap($adapter),
+            logger: $logger
+        );
+
+        $this->assertFalse($authenticator->checkCredentials(
+            ['username' => 'jsmith', 'password' => 'secret', 'sso_type' => null],
+            new Utilisateur()->setSso(true)
+        ));
+    }
+
+    public static function provideLdapFailures(): iterable
+    {
+        yield 'untrusted certificate' => [new ConnectionException("Can't contact LDAP server certificate verify failed secret"), 'Certificat du serveur LDAP non fiable'];
+        yield 'expired certificate' => [new ConnectionException('certificate verify failed (certificate has expired) secret'), 'Certificat du serveur LDAP expiré'];
+        yield 'wrong hostname' => [new ConnectionException('TLS: hostname does not match secret'), 'Nom du certificat LDAP incorrect'];
+        yield 'unreachable server' => [new ConnectionException("Can't contact LDAP server secret"), 'Serveur LDAP inaccessible ou négociation TLS échouée'];
+        yield 'timeout' => [new ConnectionTimeoutException('secret'), 'Délai de connexion LDAP dépassé'];
+        yield 'invalid password' => [new InvalidCredentialsException('secret'), null];
     }
 
     #[DataProvider('provideEmptyCredentials')]
