@@ -308,6 +308,7 @@ final class FormLoginAuthenticatorTest extends TestCase
             '',
             '',
             '',
+            '',
             false, // enforceSecurity
             $ldap
         );

@@ -121,6 +121,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             '%app.ldap_host%',
             '%app.ldap_port%',
             '%app.ldap_encryption%',
+            '%app.ldap_ca_cert_file%',
         ]);
 
     $services->set(LogoutHandler::class)
@@ -153,6 +154,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ldapHost', '%app.ldap_host%')
         ->arg('$ldapPort', '%app.ldap_port%')
         ->arg('$ldapEncryption', '%app.ldap_encryption%')
+        ->arg('$ldapCaCertFile', '%app.ldap_ca_cert_file%')
         ->arg('$ldapUsername', '%app.ldap_username%')
         ->arg('$ldapPassword', '%app.ldap_password%')
         ->arg('$ldapBaseDn', '%app.ldap_basedn%')

@@ -87,6 +87,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set('app.ldap_encryption', '%env(enum:App\Enum\LdapEncryption:PREVARISC_LDAP_ENCRYPTION)%');
 
+    $parameters->set('env(PREVARISC_LDAP_CA_CERT_FILE)', '');
+
+    $parameters->set('app.ldap_ca_cert_file', '%env(string:PREVARISC_LDAP_CA_CERT_FILE)%');
+
     $parameters->set('env(PREVARISC_LDAP_USERNAME)', '');
 
     $parameters->set('app.ldap_username', '%env(string:PREVARISC_LDAP_USERNAME)%');
