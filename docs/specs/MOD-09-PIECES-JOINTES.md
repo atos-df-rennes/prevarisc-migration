@@ -105,6 +105,10 @@ L'utilisateur valide. Une barre de progression s'affiche pendant le transfert. E
 
 L'utilisateur clique sur « Ajout rapide ». Une zone de glisser-déposer apparaît. L'utilisateur y dépose un ou plusieurs fichiers. Chaque fichier est envoyé automatiquement avec le nom d'origine et sans description. En cas de succès, la zone se masque et la pièce jointe apparaît dans la liste.
 
+Pour un dossier, en cas d'échec, le fichier concerné est retiré de la zone de dépôt et une notification affiche un message lisible. Les refus d'accès (HTTP 403) et les réponses serveur sans message exploitable affichent « Erreur lors de l'ajout de la pièce jointe. », sans détail technique. Les autres messages métier renvoyés par le serveur et les messages de validation locale du fichier sont conservés. Une réponse objet ou HTML ne doit jamais être affichée brute.
+
+Le libellé générique est un choix technique retenu pour cette correction, sans validation métier spécifique.
+
 ### 5.2 Consulter et télécharger une pièce jointe
 
 #### 5.2.1 Liste des pièces jointes

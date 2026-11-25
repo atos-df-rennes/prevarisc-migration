@@ -111,15 +111,21 @@ $(document).ready(function () {
                 $('#dropzone-pj').removeClass('dz-started').hide();
             }
         },
-        error: function (file, message) {
-            const errorMessage = (typeof message === 'object' && message.message)
-                ? message.message
-                : String(message);
+        error: function (file, message, xhr) {
+            let errorMessage = "Erreur lors de l'ajout de la pièce jointe.";
+            if (!xhr || xhr.status !== 403) {
+                const candidate = message && typeof message === 'object'
+                    ? message.message
+                    : (!xhr ? message : null);
+                if (typeof candidate === 'string' && candidate.trim() !== '' && !/<[^>]*>/.test(candidate)) {
+                    errorMessage = candidate;
+                }
+            }
             myDropzone.removeFile(file);
             if ($('#dropzone-pj .dz-preview').length === 0) {
                 $('#dropzone-pj').removeClass('dz-started').hide();
             }
-            $.toast.error(errorMessage);
+            $.toast.error($('<span>').text(errorMessage).html());
         }
     });
 

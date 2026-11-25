@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerArgumentsEvent;
@@ -68,7 +69,11 @@ final class DossierPiecesJointesAccessTest extends TestCase
     #[DataProvider('lockedActions')]
     public function testLockedDossierRejectsModification(string $action): void
     {
-        $controller = $this->controller();
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects('add' === $action ? $this->once() : $this->never())
+            ->method('warning')
+            ->with("Ajout d'une pièce jointe refusé : le dossier est verrouillé.", ['dossierId' => null]);
+        $controller = $this->controller(logger: $logger);
         $dossier = new Dossier()->setVerrou(true);
         $request = new Request();
         $pieceJointe = new PieceJointe();
@@ -105,7 +110,7 @@ final class DossierPiecesJointesAccessTest extends TestCase
         $this->assertSame('formulaire', $response->getContent());
     }
 
-    private function controller(?DataStore $dataStore = null, ?EntityManagerInterface $entityManager = null, ?ValidatorInterface $validator = null): DossierPiecesJointesController
+    private function controller(?DataStore $dataStore = null, ?EntityManagerInterface $entityManager = null, ?ValidatorInterface $validator = null, ?LoggerInterface $logger = null): DossierPiecesJointesController
     {
         return new DossierPiecesJointesController(
             $dataStore ?? $this->createStub(DataStore::class),
@@ -116,6 +121,7 @@ final class DossierPiecesJointesAccessTest extends TestCase
             $validator ?? $this->createStub(ValidatorInterface::class),
             $this->createStub(Filesystem::class),
             '',
+            $logger ?? $this->createStub(LoggerInterface::class),
         );
     }
 }
