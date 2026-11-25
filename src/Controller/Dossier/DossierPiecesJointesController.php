@@ -16,6 +16,7 @@ use App\Service\NotificationService;
 use App\Utils\File;
 use App\Utils\PathNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -38,7 +39,7 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 {
     private const array FORBIDDEN_EXTENSIONS = ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'];
 
-    public function __construct(private readonly DataStore $dataStore, private readonly DossierPieceJointeRepository $dossierPieceJointeRepository, private readonly PieceJointeStatutRepository $pieceJointeStatutRepository, private readonly EntityManagerInterface $entityManager, private readonly NotificationService $notificationService, private readonly ValidatorInterface $validator, private readonly Filesystem $filesystem, private readonly string $realDataPath)
+    public function __construct(private readonly DataStore $dataStore, private readonly DossierPieceJointeRepository $dossierPieceJointeRepository, private readonly PieceJointeStatutRepository $pieceJointeStatutRepository, private readonly EntityManagerInterface $entityManager, private readonly NotificationService $notificationService, private readonly ValidatorInterface $validator, private readonly Filesystem $filesystem, private readonly string $realDataPath, private readonly LoggerInterface $logger)
     {
     }
 
@@ -145,10 +146,20 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
     #[IsGranted('modification_odj')]
     public function add(Dossier $dossier, Request $request): JsonResponse
     {
-        $this->denyIfLocked($dossier);
+        if ($dossier->hasVerrou()) {
+            $this->logger->warning("Ajout d'une pièce jointe refusé : le dossier est verrouillé.", [
+                'dossierId' => $dossier->getId(),
+            ]);
+
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé.');
+        }
 
         $rawCsrfAdd = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_add', is_string($rawCsrfAdd) ? $rawCsrfAdd : null)) {
+            $this->logger->warning("Ajout d'une pièce jointe refusé : token CSRF invalide.", [
+                'dossierId' => $dossier->getId(),
+            ]);
+
             return $this->json(['success' => false, 'message' => 'Token CSRF invalide.'], 403);
         }
 
@@ -212,7 +223,13 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
 
         try {
             $file->move(dirname($destPath), basename($destPath));
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
+            $this->logger->error("Erreur lors du déplacement d'une pièce jointe de dossier.", [
+                'dossierId' => $dossier->getId(),
+                'pieceJointeId' => $pj->getId(),
+                'exception' => $exception,
+            ]);
+
             $this->entityManager->remove($pj);
             $this->entityManager->flush();
 
