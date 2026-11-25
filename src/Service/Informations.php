@@ -49,9 +49,8 @@ final class Informations
 
         if ($ldapInformations->enabled()) {
             return \sprintf(
-                'LDAP + BDD : %s:%d/%s',
-                $ldapInformations->host(),
-                $ldapInformations->port(),
+                'LDAP + BDD : %s/%s',
+                $ldapInformations->uri(),
                 $ldapInformations->baseDn()
             );
         }

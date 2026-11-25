@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Builder\VersionBuilder;
 use App\Dto\Ldap;
+use App\Enum\LdapEncryption;
 use App\Repository\UtilisateurRepository;
 use App\Service\Informations;
 use App\Utils\PathNormalizer;
@@ -15,8 +16,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('admin')]
 class AdminController extends AbstractController
 {
-    public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly VersionBuilder $versionBuilder)
-    {
+    public function __construct(
+        private readonly UtilisateurRepository $utilisateurRepository,
+        private readonly VersionBuilder $versionBuilder,
+        private readonly LdapEncryption $ldapEncryption,
+    ) {
     }
 
     #[Route(path: '/admin/', name: 'admin_index')]
@@ -55,7 +59,8 @@ class AdminController extends AbstractController
                     $this->getParameter('app.ldap_enabled'),
                     $this->getParameter('app.ldap_host'),
                     $this->getParameter('app.ldap_port'),
-                    $this->getParameter('app.ldap_basedn')
+                    $this->getParameter('app.ldap_basedn'),
+                    $this->ldapEncryption
                 )
             ),
             'enforce_security' => $this->getParameter('app.enforce_security'),
