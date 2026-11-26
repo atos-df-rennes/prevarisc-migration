@@ -326,6 +326,8 @@ Le mode de connexion dépend du paramétrage de l'organisation. L'utilisateur pe
 
 - **Contexte d'utilisation :** Organisations qui gèrent les comptes dans un annuaire LDAP commun. Ce mode peut être activé en complément de l'authentification locale.
 - **Fonctionnement :** L'utilisateur saisit son identifiant et son mot de passe dans le formulaire standard. Pour un compte dont la case « Connexion via LDAP/CAS/NTLM » est cochée, le système vérifie uniquement le mot de passe auprès de LDAP. Un échec LDAP ne déclenche jamais une vérification locale.
+- **Transport :** La liaison avec l'annuaire utilise LDAP en clair par défaut. L'exploitant peut choisir LDAPS pour chiffrer les échanges dès la connexion ; le certificat du serveur doit être approuvé. L'exploitant peut préciser un fichier d'autorité de certification ; sinon, la configuration système est utilisée. Si la connexion sécurisée échoue, l'authentification est refusée sans repli vers LDAP en clair.
+- **Cas d'usage :** SDIS souhaitant centraliser la gestion des mots de passe dans un annuaire existant tout en conservant une possibilité d'authentification locale.
 
 #### 6.1.5 Ordre d'évaluation des méthodes
 

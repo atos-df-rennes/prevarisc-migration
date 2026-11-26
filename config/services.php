@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Controller\Admin\AdminController;
 use App\Controller\Dossier\DossierController;
 use App\Controller\Etablissement\EtablissementController;
 use App\Controller\IndexController;
@@ -13,6 +14,7 @@ use App\Form\DescriptifOriginalType;
 use App\Form\UtilisateurType;
 use App\Security\CasLogoutSuccessHandler;
 use App\Security\FormLoginAuthenticator;
+use App\Security\LdapClientFactory;
 use App\Security\LogoutHandler;
 use App\Security\Md5SaltedEncoder;
 use App\Service\Authentification;
@@ -76,6 +78,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->load('App\Controller\\', __DIR__.'/../src/Controller/')
         ->tag('controller.service_arguments');
 
+    $services->set(AdminController::class)
+        ->arg('$ldapEncryption', '%app.ldap_encryption%');
+
     // Environment Variable Processor pour construire MAILER_DSN depuis PREVARISC_MAIL_*
     $services->set(PrevariscMailerDsnProcessor::class)
         ->tag('container.env_var_processor');
@@ -114,10 +119,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     // Service LDAP partagé : connexion lazy, évite une nouvelle instance à chaque tentative d'auth.
     // Utilisé uniquement si PREVARISC_LDAP_ENABLED=1.
     $services->set('app.ldap', Ldap::class)
-        ->factory([Ldap::class, 'create'])
+        ->factory(LdapClientFactory::create(...))
         ->args([
-            'ext_ldap',
-            ['connection_string' => 'ldap://%app.ldap_host%:%app.ldap_port%'],
+            '%app.ldap_host%',
+            '%app.ldap_port%',
+            '%app.ldap_encryption%',
+            '%app.ldap_ca_cert_file%',
         ]);
 
     $services->set(LogoutHandler::class)
@@ -149,6 +156,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$ldapEnabled', '%app.ldap_enabled%')
         ->arg('$ldapHost', '%app.ldap_host%')
         ->arg('$ldapPort', '%app.ldap_port%')
+        ->arg('$ldapEncryption', '%app.ldap_encryption%')
+        ->arg('$ldapCaCertFile', '%app.ldap_ca_cert_file%')
         ->arg('$ldapUsername', '%app.ldap_username%')
         ->arg('$ldapPassword', '%app.ldap_password%')
         ->arg('$ldapBaseDn', '%app.ldap_basedn%')

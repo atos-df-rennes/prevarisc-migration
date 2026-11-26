@@ -147,13 +147,35 @@ les définir uniquement dans `.env.local` ne suffit pas pour ces lectures.
 | --- | --- | --- | --- |
 | `PREVARISC_LDAP_ENABLED` | Booléen | `0` | Active l'authentification LDAP. |
 | `PREVARISC_LDAP_HOST` | Chaîne | `""` | Adresse IP ou nom du serveur LDAP, sans préfixe `ldap://`. |
-| `PREVARISC_LDAP_PORT` | Entier | `389` | Port du serveur LDAP. |
+| `PREVARISC_LDAP_PORT` | Entier | `0` | Port du serveur LDAP. `0` ou variable absente : `389` en LDAP, `636` en LDAPS. Un port non nul est utilisé tel quel. |
+| `PREVARISC_LDAP_ENCRYPTION` | Chaîne | `none` | `none` : LDAP en clair ; `ssl` : LDAPS, chiffré dès la connexion. StartTLS n'est pas pris en charge. |
+| `PREVARISC_LDAP_CA_CERT_FILE` | Chemin | `""` | Fichier de CA à utiliser pour LDAPS, par exemple `/etc/ssl/certs/ldap-ca.crt`. Vide : configuration LDAP du système. Ignoré en LDAP en clair. |
 | `PREVARISC_LDAP_USERNAME` | Chaîne | `""` | DN ou UPN du compte de service utilisé pour rechercher le DN de l'utilisateur. Pour Active Directory : `svc-prevarisc@sdisxx.fr` ou `CN=Svc Prevarisc,CN=Users,DC=sdisxx,DC=fr`. Vide : bind direct. |
 | `PREVARISC_LDAP_PASSWORD` | Chaîne secrète | `""` | Mot de passe du compte de service LDAP. |
 | `PREVARISC_LDAP_BASEDN` | Chaîne | `""` | Base de recherche, par exemple `DC=sdisxx,DC=fr`. |
 | `PREVARISC_LDAP_FILTER` | Chaîne | `(sAMAccountName=%s)` | Filtre de recherche ; `%s` représente le login. Pour OpenLDAP : `(uid=%s)`. |
 | `PREVARISC_LDAP_ACCOUNT_FORM` | Chaîne | `""` | Format `sprintf` pour le bind direct, notamment en repli de la recherche : `%s@sdisxx.fr` ou `DOMAIN\%s`. Vide : login utilisé tel quel. |
 | `PREVARISC_NTLM_ENABLED` | Booléen | `0` | Active l'authentification à partir de `REMOTE_USER`, fourni par le serveur web. |
+
+Pour utiliser LDAPS, renseigner `PREVARISC_LDAP_ENCRYPTION=ssl` et, si nécessaire,
+le port LDAPS dans `PREVARISC_LDAP_PORT`. Le nom `PREVARISC_LDAP_HOST` doit
+correspondre au certificat du serveur. L'autorité de certification qui l'a signé
+doit être approuvée par la bibliothèque LDAP du serveur applicatif. Pour un fichier
+de CA spécifique, renseigner `PREVARISC_LDAP_CA_CERT_FILE` avec son chemin absolu.
+Sinon, utiliser la configuration système : par exemple, configurer
+`TLS_CACERT /chemin/vers/ca.pem` dans `/etc/ldap/ldap.conf` ou installer la CA
+dans le magasin système utilisé par cette bibliothèque.
+Le fichier doit être lisible par le processus PHP ; en conteneur, il doit être
+disponible et configuré **dans le conteneur applicatif**. La validation du
+certificat est obligatoire et une connexion LDAPS en échec ne revient pas en LDAP
+en clair. Ne pas désactiver la vérification des certificats.
+
+Après modification de la configuration, si `.env.local.php` est utilisé,
+le régénérer avec `composer dump-env prod`, puis vider le cache Symfony avec
+`php bin/console cache:clear --env=prod` et recharger le processus web.
+En cas d'échec de connexion,
+vérifier le port, le nom du serveur, la chaîne de certificats et la CA configurée
+pour PHP, puis consulter le journal d'authentification.
 
 ### Authentification CAS
 
