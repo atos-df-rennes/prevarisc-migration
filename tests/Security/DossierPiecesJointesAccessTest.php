@@ -112,12 +112,14 @@ final class DossierPiecesJointesAccessTest extends TestCase
 
     private function controller(?DataStore $dataStore = null, ?EntityManagerInterface $entityManager = null, ?ValidatorInterface $validator = null, ?LoggerInterface $logger = null): DossierPiecesJointesController
     {
+        $entityManager ??= $this->createStub(EntityManagerInterface::class);
+
         return new DossierPiecesJointesController(
             $dataStore ?? $this->createStub(DataStore::class),
             $this->createStub(DossierPieceJointeRepository::class),
             $this->createStub(PieceJointeStatutRepository::class),
-            $entityManager ?? $this->createStub(EntityManagerInterface::class),
-            $this->createStub(NotificationService::class),
+            $entityManager,
+            new NotificationService($entityManager),
             $validator ?? $this->createStub(ValidatorInterface::class),
             $this->createStub(Filesystem::class),
             '',
