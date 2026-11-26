@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/version-3.0.0--rc.4-orange)
+![Version](https://img.shields.io/badge/version-3.0.2-orange)
 ![Static Badge](https://img.shields.io/badge/php-8.5-blue)
 ![Static Badge](https://img.shields.io/badge/symfony-7.4-green)
 ![Static Badge](https://img.shields.io/badge/license-CeCILL--B-yellow)
