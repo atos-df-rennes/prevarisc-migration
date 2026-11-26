@@ -40,11 +40,19 @@ Un `403` indique un accès refusé : vérifier les habilitations auprès du serv
 Effectuer la recette sur la base de test habituelle. Vérifier les URL PISTE et Plat'AU, l'acteur et la base effectivement configurés : `--env` sélectionne l'environnement Symfony, mais n'isole pas à lui seul la plateforme, l'acteur ou la base. Ne pas modifier le cron historique.
 
 1. Configurer les accès PISTE et Plat'AU et `PREVARISC_DB_PLATAU_USER_ID`, l'identifiant d'un utilisateur technique existant dans la base de test.
-2. Dans cet environnement, exécuter `bin/console platau:lecture-notifications` (alias `lecture-notifications`), éventuellement avec `--env=…`. Sans `--offset`, la plateforme retourne les notifications jamais récupérées pour l'acteur. La commande traite un lot ; seules les notifications « Consultation / Occurrence d’une consultation » (codes v13.9 : 6 / 19) déclenchent un import.
-3. Vérifier le dossier d'étude, sa nature, le numéro d'urbanisme lorsqu'il est fourni, la date de réponse attendue et la PEC en attente de complétude. Aucun fichier ne doit être créé et rien ne doit être transmis à Plat'AU.
+2. Dans cet environnement, exécuter `bin/console platau:lecture-notifications` (alias `lecture-notifications`), éventuellement avec `--env=…`. Sans `--offset`, la plateforme retourne les notifications jamais récupérées pour l'acteur. La commande traite un lot : l'événement consultation `6/19` crée un dossier et importe ses pièces initiales ; les événements de pièce `5/15`, `5/17` et `5/71` complètent les dossiers déjà présents.
+3. Vérifier le dossier d'étude, sa nature, le numéro d'urbanisme lorsqu'il est fourni, la date de réponse attendue et la PEC en attente de complétude. Aucune PEC ni aucun avis ne doit être transmis à Plat'AU.
 
 Pour un rejeu sur la base de test, `bin/console platau:lecture-notifications --offset=42` demande le lot **à partir** de 42, pas la seule notification 42. Une consultation déjà présente est ignorée. Si une erreur survient avant la validation de la création du dossier, le rejeu peut retenter l'import. Si le dossier a été validé mais que l'initialisation de la PEC a échoué, le rejeu ne la répare pas. Contrôler les diagnostics de chaque notification, pas uniquement le code de sortie.
 
 Les messages d'erreur peuvent contenir des données techniques ou des données de dossier : protéger l'accès à la sortie et aux journaux de la commande.
 
-La lecture du flux n'est pas une simulation : elle peut consommer des notifications de pièces et de documents sans les traiter, y compris si seule la base est une base de test. La passerelle historique ignore elle aussi les consultations déjà créées, pièces initiales comprises. C'est pourquoi cette commande ne remplace pas encore le traitement de production.
+### Vérifier la réception des pièces
+
+Utiliser un stockage de recette isolé (`PREVARISC_REAL_DATA_PATH`) et vérifier les droits d'écriture du compte qui exécute la commande. Une base de test seule n'isole ni les fichiers ni le flux de notifications.
+
+1. Pour une nouvelle consultation avec pièces, comparer la liste renvoyée par `GET /dau/dossiers/{idDossier}/pieces` avec l'onglet **Pièces jointes**. Vérifier le nom versionné, les métadonnées, le lien `dossierpj` et le contenu du fichier téléchargé depuis Prevarisc. Une liste vide ne doit produire ni ligne ni fichier.
+2. Pour une notification de pièce ultérieure, vérifier que seule la pièce désignée est ajoutée, à chaque consultation du dossier Plat'AU déjà importée. Rejouer depuis l'offset : les lignes et fichiers déjà présents doivent rester inchangés.
+3. En cas d'échec de stockage, vérifier l'absence de nouvelle pièce et de liaison pour la tentative. Après correction, rejouer la **notification de pièce**. Rejouer une **notification de consultation** déjà importée ne reprend pas les pièces initiales manquantes.
+
+**Avant toute bascule**, télécharger depuis l'interface une pièce historique connue sur le volume cible, avec le compte et la configuration prévus en exploitation. Un fichier nouvellement créé ou un test automatisé sur un volume temporaire ne prouve pas que l'ancien volume est monté. Ne pas changer le cron : les notifications de documents relatives aux envois peuvent encore être consommées sans traitement.
