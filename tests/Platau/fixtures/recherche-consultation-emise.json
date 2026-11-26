@@ -1,0 +1,30 @@
+{
+    "nombrePages": 2,
+    "resultats": [{
+        "dossier": {
+            "idDossier": "DOS-AAA-001",
+            "noVersion": 1,
+            "txDescriptifGlobal": "Bâtiment fictif",
+            "nomTypeDossier": {"idNom": 3},
+            "noLocal": "DP-FICTIF",
+            "suffixeNoLocal": "-M01",
+            "idServiceInstructeur": "INS",
+            "personnes": [
+                {"libDenomination": "Atelier fictif", "roles": [{"nomRole": {"idNom": 1}}]},
+                {"libDenomination": "Tiers fictif", "roles": [{"nomRole": {"idNom": 2}}]}
+            ],
+            "consultations": [{
+                "idConsultation": "AAA-BBB-001",
+                "noVersion": 2,
+                "dtConsultation": "2026-03-09",
+                "dtEmission": "2026-03-10",
+                "delaiDeReponse": 10,
+                "nomTypeDelai": {"libNom": "Jours calendaires"},
+                "nomTypeConsultation": {"libNom": "Consultation fictive"},
+                "nomEtatConsultation": {"idNom": 1, "libNom": "Émise"},
+                "txObjetDeLaConsultation": "Étude fictive",
+                "idServiceConsultant": "CST"
+            }]
+        }
+    }]
+}

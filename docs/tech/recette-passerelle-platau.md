@@ -34,3 +34,17 @@ Sans `--champ`, la commande affiche une ligne `chemin : valeur` par champ. Les p
 - **Plat'AU** reçoit le jeton (`Authorization: Bearer …`) et l'identifiant d'acteur. Au premier `401` de Plat'AU, la commande écarte le jeton et réessaie avec un nouveau. Au second, elle écarte aussi ce dernier jeton et s'arrête. Il n'y a ni verrouillage local ni purge manuelle à effectuer avant une nouvelle exécution.
 
 Un `403` indique un accès refusé : vérifier les habilitations auprès du service indiqué et, pour Plat'AU, l'acteur configuré. Les diagnostics HTTP indiquent le service et le statut, sans reproduire le corps de la réponse. En cas d'erreur de transport, la commande indique le service injoignable sans afficher le détail réseau ou les paramètres du proxy.
+
+## Rejouer la réception des consultations
+
+Effectuer la recette sur la base de test habituelle. Vérifier les URL PISTE et Plat'AU, l'acteur et la base effectivement configurés : `--env` sélectionne l'environnement Symfony, mais n'isole pas à lui seul la plateforme, l'acteur ou la base. Ne pas modifier le cron historique.
+
+1. Configurer les accès PISTE et Plat'AU et `PREVARISC_DB_PLATAU_USER_ID`, l'identifiant d'un utilisateur technique existant dans la base de test.
+2. Dans cet environnement, exécuter `bin/console platau:lecture-notifications` (alias `lecture-notifications`), éventuellement avec `--env=…`. Sans `--offset`, la plateforme retourne les notifications jamais récupérées pour l'acteur. La commande traite un lot ; seules les notifications « Consultation / Occurrence d’une consultation » (codes v13.9 : 6 / 19) déclenchent un import.
+3. Vérifier le dossier d'étude, sa nature, le numéro d'urbanisme lorsqu'il est fourni, la date de réponse attendue et la PEC en attente de complétude. Aucun fichier ne doit être créé et rien ne doit être transmis à Plat'AU.
+
+Pour un rejeu sur la base de test, `bin/console platau:lecture-notifications --offset=42` demande le lot **à partir** de 42, pas la seule notification 42. Une consultation déjà présente est ignorée. Si une erreur survient avant la validation de la création du dossier, le rejeu peut retenter l'import. Si le dossier a été validé mais que l'initialisation de la PEC a échoué, le rejeu ne la répare pas. Contrôler les diagnostics de chaque notification, pas uniquement le code de sortie.
+
+Les messages d'erreur peuvent contenir des données techniques ou des données de dossier : protéger l'accès à la sortie et aux journaux de la commande.
+
+La lecture du flux n'est pas une simulation : elle peut consommer des notifications de pièces et de documents sans les traiter, y compris si seule la base est une base de test. La passerelle historique ignore elle aussi les consultations déjà créées, pièces initiales comprises. C'est pourquoi cette commande ne remplace pas encore le traitement de production.

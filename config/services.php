@@ -73,6 +73,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             __DIR__.'/../src/Entity/',
             __DIR__.'/../src/Enum/',
             __DIR__.'/../src/Kernel.php',
+            __DIR__.'/../src/Platau/Dto/',
         ]);
 
     $services->load('App\Controller\\', __DIR__.'/../src/Controller/')
