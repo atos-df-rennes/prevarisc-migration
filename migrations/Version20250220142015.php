@@ -29,7 +29,7 @@ final class Version20250220142015 extends AbstractMigration
         ;
         $hasPlatauUser = $hasPlatauUserQuery->fetchAssociative();
 
-        $this->skipIf([] !== $hasPlatauUser, "Utilisateur Plat'AU déjà existant.");
+        $this->skipIf(false !== $hasPlatauUser, "Utilisateur Plat'AU déjà existant.");
 
         $this->addSql("INSERT INTO `utilisateurinformations`(`NOM_UTILISATEURINFORMATIONS`, `ID_FONCTION`) VALUES('Service Plat''AU', 99)");
         $this->addSql("INSERT INTO `utilisateur`(`USERNAME_UTILISATEUR`, `ID_UTILISATEURINFORMATIONS`, `ID_GROUPE`) VALUES('platau', (SELECT `ID_UTILISATEURINFORMATIONS` from `utilisateurinformations` where `NOM_UTILISATEURINFORMATIONS` = 'Service Plat''AU'), 1)");
@@ -48,7 +48,7 @@ final class Version20250220142015 extends AbstractMigration
         ;
         $hasPlatauUser = $hasPlatauUserQuery->fetchAssociative();
 
-        $this->skipIf([] === $hasPlatauUser, "Utilisateur Plat'AU non existant.");
+        $this->skipIf(false === $hasPlatauUser, "Utilisateur Plat'AU non existant.");
 
         $this->addSql("DELETE FROM `utilisateurpreferences` where `ID_UTILISATEUR` = (SELECT `ID_UTILISATEUR` from `utilisateur` where `USERNAME_UTILISATEUR` = 'platau')");
         $this->addSql("DELETE FROM `utilisateur` where `ID_UTILISATEURINFORMATIONS` = (SELECT `ID_UTILISATEURINFORMATIONS` from `utilisateurinformations` where `NOM_UTILISATEURINFORMATIONS` = 'Service Plat''AU')");

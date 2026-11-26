@@ -104,6 +104,10 @@ L'utilisateur valide. Une barre de progression s'affiche pendant le transfert. E
 
 L'utilisateur clique sur « Ajout rapide ». Une zone de glisser-déposer apparaît. L'utilisateur y dépose un ou plusieurs fichiers. Chaque fichier est envoyé automatiquement avec le nom d'origine et sans description. En cas de succès, la zone se masque et la pièce jointe apparaît dans la liste.
 
+Pour un dossier, en cas d'échec, le fichier concerné est retiré de la zone de dépôt et une notification affiche un message lisible. Les refus d'accès (HTTP 403) et les réponses serveur sans message exploitable affichent « Erreur lors de l'ajout de la pièce jointe. », sans détail technique. Les autres messages métier renvoyés par le serveur et les messages de validation locale du fichier sont conservés. Une réponse objet ou HTML ne doit jamais être affichée brute.
+
+Le libellé générique est un choix technique retenu pour cette correction, sans validation métier spécifique.
+
 ### 5.2 Consulter et télécharger une pièce jointe
 
 #### 5.2.1 Liste des pièces jointes
@@ -221,7 +225,7 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-006** | La mise en avant dans le diaporama ou les plans ne s'applique qu'aux images (JPG, JPEG, PNG, GIF) déposées sur un établissement. |
 | **RG-PJ-007** | Une miniature est créée automatiquement pour les images placées dans le diaporama ou dans les plans. |
 | **RG-PJ-008** | La suppression d'une pièce jointe retire également le fichier associé et les éventuelles miniatures. |
-| **RG-PJ-009** | La modification et la suppression d'une pièce jointe de dossier sont interdites lorsque le dossier est verrouillé. |
+| **RG-PJ-009** | Le dépôt, la modification et la suppression d'une pièce jointe de dossier sont interdits lorsque le dossier est verrouillé. |
 | **RG-PJ-010** | La modification et la suppression sont interdites pour les pièces jointes dont le statut Plat'AU est « En attente d'envoi », « Envoyé » ou « Vérification du statut ». |
 | **RG-PJ-011** | Seules les pièces jointes disponibles peuvent être ouvertes et téléchargées. |
 | **RG-PJ-012** | Le modèle conserve le booléen `PJ_COMMISSION`, initialisé à `false` lors d'un nouveau dépôt, mais l'utilisateur ne peut pas le modifier dans l'interface actuelle et les fonctions applicatives ne le consomment pas. |
@@ -238,6 +242,8 @@ Les pièces jointes transmises par Plat'AU lors des notifications sont automatiq
 | **RG-PJ-023** | Lorsque la modification ou la suppression est interdite, ces actions ne sont pas proposées. Une tentative de les réaliser malgré tout est refusée. |
 | **RG-PJ-024** | Le nom de téléchargement unitaire et les noms des entrées ZIP d'un dossier peuvent être personnalisés à l'échelle de l'installation, indépendamment du libellé affiché et du chemin de stockage, pour les adaptateurs simple et hashé. En l'absence de variable de configuration, le libellé suivi de l'extension est conservé. Une variable explicitement vide est rejetée avec une erreur de configuration. La date utilisée dans le nom est celle d'ajout ou de génération de la pièce jointe, au format `Y-m-d`. Le jeton `%NUMEROID_ETABLISSEMENT%` désigne le numéro de l'établissement parent (ou son identifiant à défaut), les numéros des établissements liés au dossier selon la règle décrite en §5.2.3, ou l'identifiant de la séance pour une pièce jointe de commission. |
 | **RG-PJ-025** | Les pièces jointes des dossiers Plat'AU sont stockées dans un espace de stockage distinct de celui des dossiers classiques. |
+| **RG-PJ-026** | Pour un dossier, la liste, le formulaire de dépôt, le dépôt, la suppression et la vérification après dépôt exigent les droits `view_doss` sur le dossier et `modification_odj`. Le téléchargement unitaire ou groupé exige `view_doss` ; la relance Plat'AU reste soumise à `edit_doss`. Le recours à `modification_odj` reprend le droit historique, avec maintien du contrôle de lecture et du verrouillage. |
+| **RG-PJ-027** | Pour un établissement, la consultation exige `view_ets` et la gestion des pièces jointes exige `edit_ets`. Pour une date de commission, la gestion exige `modification_odj`. |
 
 ---
 
@@ -262,7 +268,7 @@ Lorsqu'une pièce jointe a une description textuelle, celle-ci est affichée en 
 
 ### 8.3 Dossier verrouillé
 
-Lorsque le dossier est verrouillé, les boutons d'ajout, de modification et de suppression n'apparaissent pas et ces actions sont refusées en cas d'accès direct. La consultation et le téléchargement restent possibles.
+Lorsque le dossier est verrouillé, les boutons d'ajout, de modification et de suppression n'apparaissent pas et ces actions sont refusées en cas d'accès direct. La liste et le téléchargement restent accessibles aux utilisateurs disposant des droits correspondants.
 
 ### 8.4 Pièce jointe indisponible
 

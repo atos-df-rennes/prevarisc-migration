@@ -35,6 +35,7 @@ L'utilisation de l'intégration avec Plat'AU dépend du paramétrage du service.
 3. Le dossier porte une **date de réponse attendue** fixée par le service instructeur.
 4. Les pièces jointes reçues avec la consultation sont associées au dossier.
 5. Le dossier apparaît dans le bloc du tableau de bord **« Dossiers Plat'AU à traiter »** tant qu'il n'est pas rattaché à un établissement.
+6. Le dossier est attribué au compte de service Plat'AU configuré dans l'application.
 
 La réception intégrée en recette couvre uniquement la création du dossier d'étude, sans rattachement à un établissement. Sa complétude reste à renseigner et sa prise en charge est en attente ; rien n'est envoyé à Plat'AU. Les pièces initiales restent hors de cette étape de recette. La passerelle existante continue d'assurer la réception en production.
 
@@ -192,6 +193,7 @@ La durée de conservation du résultat est paramétrable (`PREVARISC_PLATAU_HEAL
 |---|-------|
 | **RG-PLT-006** | Chaque consultation reçue de Plat'AU est associée à un dossier Prevarisc et porte une date de réponse attendue. |
 | **RG-PLT-007** | Le temps restant avant la date de réponse attendue est calculé et affiché dans le dossier avec un code couleur indiquant l'urgence. |
+| **RG-PLT-046** | Le compte de service Plat'AU existant est utilisé comme créateur des dossiers issus de consultations reçues. La configuration doit référencer l'identifiant de ce compte. |
 
 ### Prise en charge (PEC)
 
@@ -305,3 +307,7 @@ Les pièces jointes transmises par Plat'AU peuvent porter des métadonnées supp
 L'état « renseigné » indique seulement la présence de l'information dans Prevarisc, pas une mise en file d'attente ni une garantie d'envoi. Selon le fonctionnement observé de la passerelle, l'avis saisi avant la transmission de la PEC peut déjà être affiché comme renseigné, alors que son envoi attend l'étape de prise en compte côté Plat'AU.
 
 La passerelle actuelle ne transmet pas automatiquement une PEC pour une consultation refusée, sauf dans les cas de renvoi ou d'erreur qu'elle prend en charge. L'état d'affichage ne lève pas cette restriction. Si la passerelle remet la PEC au statut `awaiting`, le prochain chargement recalcule son affichage selon la complétude alors enregistrée. Ces contraintes décrivent le fonctionnement actuel observé de la passerelle, sans ajouter de nouvelle règle de transmission.
+
+### 7.11 Reprise des créateurs invalides
+
+Lors de la reprise des données, un dossier dont le créateur vaut `0` et qui possède un identifiant Plat'AU est réattribué au compte de service Plat'AU. Un dossier dont le créateur vaut `0` sans identifiant Plat'AU reçoit un créateur NULL. Les autres créateurs ne sont pas modifiés.

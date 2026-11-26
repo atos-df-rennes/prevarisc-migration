@@ -235,6 +235,8 @@ Des pièces jointes peuvent être associées au dossier (documents numérisés, 
 
 Le modèle conserve un indicateur `PJ_COMMISSION`, mais l'interface actuelle ne permet pas de sélectionner une pièce jointe pour la commission et les fonctions applicatives ne consomment pas cet indicateur (voir MOD-09).
 
+L'accès à la liste et la gestion des pièces jointes sont soumis aux droits précisés dans [MOD-09](MOD-09-PIECES-JOINTES.md#7-règles-de-gestion).
+
 Un compteur de nouvelles pièces jointes est affiché sur l'onglet correspondant.
 
 L'ensemble des pièces jointes d'un dossier peut être téléchargé en une seule fois dans un fichier regroupant les documents.

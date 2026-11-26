@@ -177,7 +177,7 @@ Cette section regroupe les paramètres de configuration spécifiques à la plate
 | **RG-ADM-012** | Le libellé de configuration suit la priorité CAS → NTLM → LDAP → Base de données seule. Pour l'authentification effective, CAS puis NTLM avec identité Windows fournie sont prioritaires ; sinon le compte sélectionne LDAP ou la base locale, sans fallback (MOD-05). |
 | **RG-ADM-013** | Si la méthode CAS est activée, le libellé « CAS » est affiché. |
 | **RG-ADM-014** | Si la méthode NTLM est activée (et CAS ne l'est pas), le libellé « NTLM + BDD » est affiché. |
-| **RG-ADM-015** | Si la méthode LDAP est activée (et ni CAS ni NTLM ne le sont), le libellé « LDAP + BDD » est affiché, suivi de l'adresse du serveur LDAP, du port et de la base de recherche. Le port par défaut est 389 s'il n'est pas explicitement configuré. LDAP et BDD correspondent à des comptes distincts selon leur case SSO, sans fallback entre les deux. |
+| **RG-ADM-015** | Si la méthode LDAP est activée (et ni CAS ni NTLM ne le sont), le libellé « LDAP + BDD » est affiché, suivi du protocole (`ldap://` ou `ldaps://`), de l'adresse du serveur, du port effectif et de la base de recherche. Sans port explicite, le port est 389 en LDAP et 636 en LDAPS. LDAP et BDD correspondent à des comptes distincts selon leur case SSO, sans fallback entre les deux. |
 | **RG-ADM-016** | Si aucune méthode externe n'est activée, le libellé « BDD » (base de données seule) est affiché. |
 | **RG-ADM-017** | L'état du renforcement de sécurité (activé / désactivé) est affiché indépendamment de la méthode d'authentification choisie. |
 
@@ -233,7 +233,7 @@ Cette section regroupe les paramètres de configuration spécifiques à la plate
 | **Aucun service cartographique configuré** | Chaque service affiche indépendamment « Aucune clé » ou « Désactivé ». L'application reste fonctionnelle sans cartographie. |
 | **Plusieurs clés IGN** | Les clés multiples (séparées par des virgules dans la configuration) sont affichées chacune sur une ligne distincte. |
 | **Port de base de données non configuré** | L'application n'étant officiellement compatible qu'avec MySQL, le port par défaut 3306 est toujours affiché au format `hôte:3306`. |
-| **Port LDAP non configuré** | Le port par défaut 389 est utilisé dans l'affichage. |
+| **Port LDAP non configuré** | Le port affiché est 389 en LDAP ou 636 en LDAPS. |
 | **Projection Geoconcept absente** | La valeur « Non paramétrée » est affichée comme valeur par défaut. |
 | **Aucun utilisateur connecté** | Le tableau des sessions est remplacé par le message « Aucun résultat. ». |
 | **Plus de 1 000 utilisateurs dans l'annuaire** | Seuls les 1 000 premiers utilisateurs sont évalués pour déterminer les sessions actives. Des sessions actives au-delà de cette limite pourraient ne pas être affichées. |
