@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters = $containerConfigurator->parameters();
@@ -30,4 +32,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('env(PREVARISC_DB_PLATAU_USER_ID)', '');
     $parameters->set('env(PISTE_ACCESS_TOKEN_URL)', 'https://oauth.piste.gouv.fr/api/oauth/token');
     $parameters->set('env(PLATAU_URL)', 'https://api.piste.gouv.fr/mtes/platau/v13/dau/');
+
+    // Le transport standard journalise l'URL complète, y compris en console
+    // verbeuse. Une URL de stockage signée ne doit jamais y apparaître.
+    $containerConfigurator->services()->set('platau.piece_transport', HttpClientInterface::class)
+        ->factory(HttpClient::create(...));
 };
