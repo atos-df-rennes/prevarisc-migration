@@ -18,6 +18,7 @@ use App\Service\NotificationService;
 use App\Utils\File;
 use App\Utils\PathNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -40,7 +41,7 @@ final class DossierPiecesJointesController extends AbstractController implements
 {
     private const array FORBIDDEN_EXTENSIONS = ['.php', '.php4', '.php5', '.sh', '.ksh', '.csh'];
 
-    public function __construct(private readonly DataStore $dataStore, private readonly DossierPieceJointeRepository $dossierPieceJointeRepository, private readonly PieceJointeStatutRepository $pieceJointeStatutRepository, private readonly EntityManagerInterface $entityManager, private readonly NotificationService $notificationService, private readonly ValidatorInterface $validator, private readonly Filesystem $filesystem, private readonly string $realDataPath)
+    public function __construct(private readonly DataStore $dataStore, private readonly DossierPieceJointeRepository $dossierPieceJointeRepository, private readonly PieceJointeStatutRepository $pieceJointeStatutRepository, private readonly EntityManagerInterface $entityManager, private readonly NotificationService $notificationService, private readonly ValidatorInterface $validator, private readonly Filesystem $filesystem, private readonly string $realDataPath, private readonly LoggerInterface $logger)
     {
     }
 
@@ -63,6 +64,13 @@ final class DossierPiecesJointesController extends AbstractController implements
         return $this->dataStore->getFilePath($pj, 'dossier', (int) $dossier->getId(), $createDir);
     }
 
+    private function denyIfLocked(Dossier $dossier): void
+    {
+        if ($dossier->hasVerrou()) {
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé.');
+        }
+    }
+
     /**
      * Liste des pièces jointes d'un dossier.
      *
@@ -70,6 +78,7 @@ final class DossierPiecesJointesController extends AbstractController implements
      */
     #[Route(path: '/dossier/{id}/pieces-jointes', name: 'dossier_pieces_jointes', methods: ['GET'])]
     #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function index(Dossier $dossier): Response
     {
         $dossierPjs = $this->dossierPieceJointeRepository->findAllByDossier((int) $dossier->getId());
@@ -119,8 +128,11 @@ final class DossierPiecesJointesController extends AbstractController implements
      */
     #[Route(path: '/dossier/{id}/pieces-jointes/formulaire', name: 'dossier_pieces_jointes_form', methods: ['GET'], defaults: ['_dossier_lateral_nav' => false])]
     #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function form(Dossier $dossier): Response
     {
+        $this->denyIfLocked($dossier);
+
         return $this->render('dossier/pieces_jointes/form.html.twig', [
             'dossier' => $dossier,
         ]);
@@ -132,11 +144,24 @@ final class DossierPiecesJointesController extends AbstractController implements
      * Port direct de PieceJointeController::addAction() (type=dossier).
      */
     #[Route(path: '/dossier/{id}/pieces-jointes/ajouter', name: 'dossier_pieces_jointes_add', methods: ['POST'], defaults: ['_dossier_lateral_nav' => false])]
-    #[IsGranted('edit_doss', subject: 'dossier')]
+    #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function add(Dossier $dossier, Request $request): JsonResponse
     {
+        if ($dossier->hasVerrou()) {
+            $this->logger->warning("Ajout d'une pièce jointe refusé : le dossier est verrouillé.", [
+                'dossierId' => $dossier->getId(),
+            ]);
+
+            throw $this->createAccessDeniedException('Ce dossier est verrouillé.');
+        }
+
         $rawCsrfAdd = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_add', is_string($rawCsrfAdd) ? $rawCsrfAdd : null)) {
+            $this->logger->warning("Ajout d'une pièce jointe refusé : token CSRF invalide.", [
+                'dossierId' => $dossier->getId(),
+            ]);
+
             return $this->json(['success' => false, 'message' => 'Token CSRF invalide.'], 403);
         }
 
@@ -200,7 +225,13 @@ final class DossierPiecesJointesController extends AbstractController implements
 
         try {
             $file->move(dirname($destPath), basename($destPath));
-        } catch (\Exception) {
+        } catch (\Exception $exception) {
+            $this->logger->error("Erreur lors du déplacement d'une pièce jointe de dossier.", [
+                'dossierId' => $dossier->getId(),
+                'pieceJointeId' => $pj->getId(),
+                'exception' => $exception,
+            ]);
+
             $this->entityManager->remove($pj);
             $this->entityManager->flush();
 
@@ -303,9 +334,12 @@ final class DossierPiecesJointesController extends AbstractController implements
      * Port direct de PieceJointeController::deleteAction() (type=dossier).
      */
     #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/supprimer', name: 'dossier_pieces_jointes_delete', methods: ['POST'], requirements: ['idpj' => '\d+'], defaults: ['_dossier_lateral_nav' => false])]
-    #[IsGranted('edit_doss', subject: 'dossier')]
+    #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function delete(Dossier $dossier, #[MapEntity(id: 'idpj')] PieceJointe $pj, Request $request): JsonResponse
     {
+        $this->denyIfLocked($dossier);
+
         $rawTokenDelete = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_delete_'.$pj->getId(), is_string($rawTokenDelete) ? $rawTokenDelete : null)) {
             return $this->json(['error' => 'Token CSRF invalide.'], 403);
@@ -341,9 +375,12 @@ final class DossierPiecesJointesController extends AbstractController implements
      * Port direct de PieceJointeController::checkAction() (type=dossier).
      */
     #[Route(path: '/dossier/{id}/pieces-jointes/{idpj}/verifier', name: 'dossier_pieces_jointes_check', methods: ['POST'], requirements: ['idpj' => '\d+'], defaults: ['_dossier_lateral_nav' => false])]
-    #[IsGranted('edit_doss', subject: 'dossier')]
+    #[IsGranted('view_doss', subject: 'dossier')]
+    #[IsGranted('modification_odj')]
     public function check(Dossier $dossier, #[MapEntity(id: 'idpj')] PieceJointe $pj, Request $request): JsonResponse
     {
+        $this->denyIfLocked($dossier);
+
         $rawToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('dossier_pj_add', is_string($rawToken) ? $rawToken : null)) {
             return $this->json(['exists' => false]);
