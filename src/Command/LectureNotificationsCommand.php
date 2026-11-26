@@ -6,6 +6,9 @@ namespace App\Command;
 
 use App\Platau\ConsultationImporter;
 use App\Platau\HttpNotificationReader;
+use App\Platau\PieceReception;
+use App\Platau\PlatauException;
+use App\Platau\ReceptionException;
 use App\Platau\ReceptionReader;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
@@ -23,6 +26,7 @@ final readonly class LectureNotificationsCommand
         private HttpNotificationReader $notifications,
         private ReceptionReader $reception,
         private ConsultationImporter $importer,
+        private PieceReception $pieces,
     ) {
     }
 
@@ -80,7 +84,8 @@ final readonly class LectureNotificationsCommand
             return;
         }
 
-        if (6 !== $row['idTypeObjetMetier'] || 19 !== $row['idTypeEvenement']) {
+        $pieceNotifiee = 5 === $row['idTypeObjetMetier'] && in_array($row['idTypeEvenement'], [15, 17, 71], true);
+        if (!$pieceNotifiee && (6 !== $row['idTypeObjetMetier'] || 19 !== $row['idTypeEvenement'])) {
             $libelle = in_array($row['idTypeObjetMetier'], [5, 6, 31], true) ? $objet.' - '.$evenement : $objet;
             $this->log($output, sprintf("La notification %s pour l'élément d'identifiant %s n'est pas prise en compte par la passerelle actuellement", $libelle, $id));
 
@@ -88,6 +93,17 @@ final readonly class LectureNotificationsCommand
         }
 
         $this->log($output, sprintf("Traitement de la notification %s - %s pour l'élément d'identifiant %s", $objet, $evenement, $id));
+        $idDossier = $row['idDossier'] ?? null;
+        if ($pieceNotifiee) {
+            try {
+                $this->pieces->notified($this->dossierId($idDossier), $id);
+            } catch (\Throwable $throwable) {
+                $this->pieceError($output, $prefix, $throwable);
+            }
+
+            return;
+        }
+
         try {
             if ($this->importer->exists($id)) {
                 $this->log($output, sprintf('Consultation %s déjà existante dans Prevarisc', $id));
@@ -99,13 +115,43 @@ final readonly class LectureNotificationsCommand
 
             $serviceInstructeur = $this->notifications->actorDesignation($dossier->idServiceInstructeur);
             $serviceConsultant = $this->notifications->actorDesignation($dossier->consultation->idServiceConsultant);
-            $this->importer->import($dossier, $serviceConsultant, $serviceInstructeur);
+            $localId = $this->importer->import($dossier, $serviceConsultant, $serviceInstructeur);
 
             $this->importer->markAwaiting($id);
             $this->log($output, sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $id));
         } catch (\Throwable $throwable) {
             $this->log($output, $prefix.'Problème lors du traitement de la consultation : '.$throwable->getMessage());
+
+            return;
         }
+
+        try {
+            $idDossier = $this->dossierId($idDossier);
+            if ('' !== trim($dossier->idDossier ?? '') && $dossier->idDossier !== $idDossier) {
+                throw new ReceptionException('Le dossier de la consultation ne correspond pas à celui de la notification.');
+            }
+
+            foreach ($this->pieces->initial($idDossier, $localId) as $diagnostic) {
+                $this->log($output, $prefix.$diagnostic);
+            }
+        } catch (\Throwable $throwable) {
+            $this->pieceError($output, $prefix, $throwable);
+        }
+    }
+
+    private function dossierId(mixed $id): string
+    {
+        if (!is_string($id) || '' === trim($id) || in_array($id, ['.', '..'], true)) {
+            throw new ReceptionException('Identifiant de dossier manquant ou incorrect.');
+        }
+
+        return $id;
+    }
+
+    private function pieceError(OutputInterface $output, string $prefix, \Throwable $exception): void
+    {
+        $diagnostic = $exception instanceof ReceptionException || $exception instanceof PlatauException ? $exception->getMessage() : 'import impossible.';
+        $this->log($output, $prefix.'Problème lors du traitement des pièces : '.$diagnostic);
     }
 
     private function log(OutputInterface $output, string $message): void
