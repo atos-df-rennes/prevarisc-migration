@@ -34,9 +34,9 @@ final readonly class ConsultationImporter
         return false !== $this->db->fetchOne('SELECT 1 FROM dossier WHERE ID_PLATAU = ? LIMIT 1', [$id]);
     }
 
-    public function import(Dossier $dossier, ?string $serviceConsultant, ?string $serviceInstructeur): void
+    public function import(Dossier $dossier, ?string $serviceConsultant, ?string $serviceInstructeur): int
     {
-        $this->db->transactional(function (Connection $db) use ($dossier, $serviceConsultant, $serviceInstructeur): void {
+        return $this->db->transactional(function (Connection $db) use ($dossier, $serviceConsultant, $serviceInstructeur): int {
             $consultation = $dossier->consultation;
             $now = new \DateTimeImmutable()->format('Y-m-d H:i:s');
             $emission = $consultation->dtEmission;
@@ -93,6 +93,8 @@ final readonly class ConsultationImporter
                     default => throw new PlatauException('Nature inconnue'),
                 },
             ]);
+
+            return (int) $dossierId;
         });
     }
 

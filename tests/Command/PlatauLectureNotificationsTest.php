@@ -14,8 +14,10 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\ApplicationTester;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpClient\TraceableHttpClient;
 use Zenstruck\Foundry\Attribute\ResetDatabase;
 
@@ -27,6 +29,7 @@ use Zenstruck\Foundry\Attribute\ResetDatabase;
 #[WithEnvironmentVariable('PLATAU_URL', self::API)]
 #[WithEnvironmentVariable('PLATAU_ID_ACTEUR_APPELANT', 'ACTEUR-TEST')]
 #[WithEnvironmentVariable('PREVARISC_DB_PLATAU_USER_ID', '')]
+#[WithEnvironmentVariable('PREVARISC_REAL_DATA_PATH', '')]
 final class PlatauLectureNotificationsTest extends KernelTestCase
 {
     private const string TOKEN_URL = 'https://oauth.example.test/token';
@@ -47,8 +50,12 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
 
     private TraceableHttpClient $appels;
 
+    private string $stockage;
+
     protected function setUp(): void
     {
+        $this->stockage = sys_get_temp_dir().'/platau-recette-'.bin2hex(random_bytes(12));
+        $_ENV['PREVARISC_REAL_DATA_PATH'] = $this->stockage;
         $kernel = self::bootKernel();
         $container = self::getContainer();
         $this->db = $container->get(Connection::class);
@@ -62,11 +69,18 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
         $this->transport = new MockHttpClient([]);
         $this->appels = new TraceableHttpClient($this->transport);
         $container->set('http_client.transport', $this->appels);
+        $container->set('platau.piece_transport', $this->appels);
 
         $application = new Application($kernel);
         $application->setAutoExit(false);
 
         $this->console = new ApplicationTester($application);
+    }
+
+    protected function tearDown(): void
+    {
+        new Filesystem()->remove($this->stockage);
+        parent::tearDown();
     }
 
     public function testAliasEtOptionsDeLaCommande(): void
@@ -176,7 +190,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
         ]]);
         $this->assertSame(Command::SUCCESS, $this->lecture([
             $this->jeton(), $flux, new JsonMockResponse($reponse),
-            ...$this->nomenclatures(6, 19), $this->consultation(self::AUTRE),
+            ...$this->nomenclatures(6, 19), $this->consultation(self::AUTRE), new JsonMockResponse([]),
         ], separerSorties: true));
         $sortie = $this->console->getDisplay();
         $this->assertStringContainsString('[Offset: 42] '.$message, $sortie);
@@ -222,7 +236,6 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
     public function testFluxMixteNeVerseQueLaConsultationEmise(): void
     {
         $flux = new JsonMockResponse(['notifications' => [
-            $this->notification('PIE-AAA-001', 5, 71, 0),
             $this->notification('DOC-AAA-002', 31, 84, 1),
             $this->notification('IGN-AAA-003', 6, 15, 2),
             $this->notification('IGN-AAA-004', 5, 19, 3),
@@ -233,13 +246,13 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
         $instructeur = new JsonMockResponse(['resultats' => [['idActeur' => 'INS', 'designationActeur' => 'Service instructeur fictif']]]);
         $consultant = new JsonMockResponse(['resultats' => [['idActeur' => 'CST', 'designationActeur' => 'Service consultant fictif']]]);
         $nomenclatures = [
-            ...$this->nomenclatures(5, 71),
             ...$this->nomenclatures(31, 84),
             ...$this->nomenclatures(6, 15),
             ...$this->nomenclatures(5, 19),
             ...$this->nomenclatures(6, 19),
         ];
-        $code = $this->lecture([$this->jeton(), $flux, ...$nomenclatures, $premierePage, $secondePage, $instructeur, $consultant], offset: '0', commande: 'lecture-notifications');
+        $listeVide = new JsonMockResponse([]);
+        $code = $this->lecture([$this->jeton(), $flux, ...$nomenclatures, $premierePage, $secondePage, $instructeur, $consultant, $listeVide], offset: '0', commande: 'lecture-notifications');
 
         $this->assertSame(Command::SUCCESS, $code, $this->console->getDisplay());
         $this->assertSame('GET', $flux->getRequestMethod());
@@ -250,7 +263,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
             $this->assertSame('GET', $response->getRequestMethod());
             $this->assertSame(self::API.'nomenclatures/'.(0 === $index % 2 ? 'TYPE_OBJET_METIER' : 'TYPE_EVENEMENT'), $response->getRequestUrl());
         }
-        $this->assertStringContainsString("La notification Pièce - Initiale pour l'élément d'identifiant PIE-AAA-001 n'est pas prise en compte par la passerelle actuellement", $this->console->getDisplay());
+        $this->assertSame(self::API.'dossiers/DOS-AAA-001/pieces', $listeVide->getRequestUrl());
         $this->assertStringContainsString("La notification Document - Succès pour l'élément d'identifiant DOC-AAA-002 n'est pas prise en compte par la passerelle actuellement", $this->console->getDisplay());
         $this->assertStringContainsString("Traitement de la notification Consultation - Versée pour l'élément d'identifiant ".self::ID, $this->console->getDisplay());
         $this->assertStringContainsString('Consultation '.self::ID.' récupérée et stockée dans Prevarisc !', $this->console->getDisplay());
@@ -336,6 +349,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
 
         array_push($reponses, ...$this->nomenclatures(6, 19));
         $reponses[] = $this->consultation(self::AUTRE);
+        $reponses[] = new JsonMockResponse([]);
 
         // Une erreur de traitement est locale à la notification, pas au lot.
         $this->assertSame(Command::SUCCESS, $this->lecture($reponses, offset: '42'), $this->console->getDisplay());
@@ -349,14 +363,135 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
         // Même flux corrigé : seule la consultation en erreur doit être recherchée.
         $rejeu = new JsonMockResponse($lot);
         $corrigee = $this->consultation(self::ID);
-        $this->assertSame(Command::SUCCESS, $this->lecture([$rejeu, ...$this->nomenclatures(6, 19), $corrigee, ...$this->nomenclatures(6, 19)], offset: '42'), $this->console->getDisplay());
+        $this->assertSame(Command::SUCCESS, $this->lecture([$rejeu, ...$this->nomenclatures(6, 19), $corrigee, new JsonMockResponse([]), ...$this->nomenclatures(6, 19)], offset: '42'), $this->console->getDisplay());
         $this->assertSame(self::API.'notifications?offset=42', $rejeu->getRequestUrl());
         $this->assertJsonStringEqualsJsonString('{"criteresSurConsultations":{"idConsultation":"AAA-BBB-001"}}', $corrigee->getRequestOptions()['body']);
         $this->assertSame([self::ID, self::AUTRE], $this->db->fetchFirstColumn('SELECT ID_PLATAU FROM dossier ORDER BY ID_PLATAU'));
         $this->assertSame([self::ID, self::AUTRE], $this->db->fetchFirstColumn("SELECT ID_PLATAU FROM platauconsultation WHERE STATUT_PEC = 'awaiting' ORDER BY ID_PLATAU"));
     }
 
-    /** @param list<JsonMockResponse> $reponses Réponses HTTP dans l'ordre des appels attendus. */
+    public function testPiecesInitialesContinuentApresUnRefusDeTelechargement(): void
+    {
+        $piece = $this->piece();
+        $piece['dtDepot'] = '2026-11-01T10:15:00+01:00';
+        $refusee = ['idPiece' => 'PIE-AAA-002'] + $piece;
+        $binaire = $this->telechargement();
+        $this->lecture([
+            $this->jeton(), new JsonMockResponse(['notifications' => [$this->notification(self::ID, offset: 8)]]),
+            ...$this->nomenclatures(6, 19), $this->consultation(self::ID),
+            new JsonMockResponse([$refusee, $piece]), new MockResponse('message tiers', ['http_code' => 403]), $binaire,
+        ]);
+        $this->assertMatchesRegularExpression('/Offset: 8[^\n]*HTTP 403/', $this->console->getDisplay());
+        $this->assertStringNotContainsString('message tiers', $this->console->getDisplay());
+        $this->assertStringNotContainsString('ticket-fictif', $this->console->getDisplay());
+        $this->assertSame('GET', $binaire->getRequestMethod());
+        $this->assertSame($piece['url'], $binaire->getRequestUrl());
+        $headers = implode("\n", $binaire->getRequestOptions()['headers']);
+        $this->assertStringContainsString('Authorization: Bearer ticket-fictif', $headers);
+        $this->assertStringNotContainsString('Id-Acteur-Appelant', $headers);
+        $this->assertStringNotContainsString('jeton-recette', $headers);
+
+        $row = $this->db->fetchAssociative('SELECT p.*, d.ID_PLATAU AS CONSULTATION FROM piecejointe p JOIN dossierpj l USING (ID_PIECEJOINTE) JOIN dossier d USING (ID_DOSSIER)');
+        $this->assertIsArray($row);
+        $this->assertSame(self::ID, $row['CONSULTATION']);
+        $this->assertSame($piece['idPiece'], $row['ID_PLATAU']);
+        $this->assertSame(2, (int) $row['no_version']);
+        $this->assertSame('plan.pdf-v2', $row['NOM_PIECEJOINTE']);
+        $this->assertSame('Plan', $row['TYPE']);
+        $this->assertSame('Coupe', $row['SOUS_TYPE']);
+        $this->assertSame('Graphique', $row['NATURE']);
+        $this->assertSame('2026-11-01', $row['DATE_DEPOT']);
+        $this->assertNotNull($row['DATE_NOTIFICATION']);
+        $this->assertSame('.pdf', $row['EXTENSION_PIECEJOINTE']);
+        $this->assertSame(1, (int) $this->db->fetchOne('SELECT COUNT(*) FROM piecejointe'));
+        $this->assertSame("octets\0fictifs", file_get_contents($this->stockage.'/uploads/pieces-jointes/'.$row['ID_PIECEJOINTE'].'.pdf'));
+    }
+
+    public function testNotificationDePieceRetenteLeStockageSansDupliquerLesRattachements(): void
+    {
+        foreach ([self::ID, self::AUTRE] as $id) {
+            $this->db->insert('platauconsultation', ['ID_PLATAU' => $id]);
+            $this->db->insert('dossier', ['ID_PLATAU' => $id, 'TYPE_DOSSIER' => 1, 'DATEINSERT_DOSSIER' => '2026-11-01']);
+        }
+        $piece = $this->piece();
+        $piece['dtDepot'] = '2026-11-01T23:15:00-03:00';
+        $dossier = static fn (string ...$ids): array => ['dossier' => [
+            'idDossier' => 'DOS-AAA-001', 'consultations' => array_map(static fn (string $id): array => ['idConsultation' => $id], $ids),
+        ]];
+        $flux = ['notifications' => [$this->notification('PIE-AAA-001', 5, 17, 12)]];
+        $reponses = fn (): array => [
+            new JsonMockResponse($flux), ...$this->nomenclatures(5, 17),
+            new JsonMockResponse([['idPiece' => 'PIE-AAA-002'] + $piece, $piece]),
+            new JsonMockResponse(['nombrePages' => 2, 'resultats' => [$dossier(self::ID, 'AAA-BBB-003')]]),
+            new JsonMockResponse(['nombrePages' => 2, 'resultats' => [$dossier(self::AUTRE)]]),
+        ];
+        // Un fichier à la place du répertoire simule une erreur même sous root.
+        new Filesystem()->dumpFile($this->stockage.'/uploads', 'obstacle');
+        $this->lecture([$this->jeton(), ...$reponses(), $this->telechargement()], offset: '12');
+        $this->assertMatchesRegularExpression('/Offset: 12[^\n]*stockage/', $this->console->getDisplay());
+        $this->assertSame(0, (int) $this->db->fetchOne('SELECT COUNT(*) FROM piecejointe'));
+        $this->assertSame(0, (int) $this->db->fetchOne('SELECT COUNT(*) FROM dossierpj'));
+        unlink($this->stockage.'/uploads');
+
+        $rejeu = $reponses();
+        $this->lecture([...$rejeu, $this->telechargement()], offset: '12');
+        $this->assertJsonStringEqualsJsonString('{"criteresSurDossiers":{"idDossier":"DOS-AAA-001"}}', $rejeu[4]->getRequestOptions()['body']);
+        $this->assertStringContainsString('numeroPage=1', $rejeu[5]->getRequestUrl());
+        $this->lecture($reponses(), offset: '12');
+        $rows = $this->db->fetchAllKeyValue('SELECT d.ID_PLATAU, p.ID_PIECEJOINTE FROM dossier d JOIN dossierpj l USING (ID_DOSSIER) JOIN piecejointe p USING (ID_PIECEJOINTE) ORDER BY d.ID_PLATAU');
+        $this->assertSame([self::ID, self::AUTRE], array_keys($rows));
+        $this->assertSame(2, (int) $this->db->fetchOne('SELECT COUNT(*) FROM piecejointe'));
+        $this->assertSame(2, (int) $this->db->fetchOne('SELECT COUNT(*) FROM dossierpj'));
+        $this->assertSame(['2026-11-01', '2026-11-01'], $this->db->fetchFirstColumn('SELECT DATE_DEPOT FROM piecejointe'));
+        foreach ($rows as $pjId) {
+            $this->assertSame("octets\0fictifs", file_get_contents($this->stockage.'/uploads/pieces-jointes/'.$pjId.'.pdf'));
+        }
+    }
+
+    /** @return iterable<string, array{int, string}> */
+    public static function nomsHistoriques(): iterable
+    {
+        yield 'nom original versionné' => [15, 'plan.pdf-v2'];
+        yield 'ancien nom technique' => [71, 'PLATAU-PIE-AAA-001-PC1-v2'];
+    }
+
+    #[DataProvider('nomsHistoriques')]
+    public function testPieceHistoriqueSansVersionEnBaseNestPasDupliquee(int $evenement, string $nom): void
+    {
+        $this->db->insert('platauconsultation', ['ID_PLATAU' => self::ID]);
+        $this->db->insert('dossier', ['ID_PLATAU' => self::ID, 'TYPE_DOSSIER' => 1, 'DATEINSERT_DOSSIER' => '2026-11-01']);
+
+        $idDossier = $this->db->lastInsertId();
+        $this->db->insert('piecejointe', ['NOM_PIECEJOINTE' => $nom, 'EXTENSION_PIECEJOINTE' => '.pdf']);
+        $idPiece = $this->db->lastInsertId();
+        $this->db->insert('dossierpj', ['ID_DOSSIER' => $idDossier, 'ID_PIECEJOINTE' => $idPiece, 'PJ_COMMISSION' => 0]);
+        $chemin = $this->stockage.'/uploads/pieces-jointes/'.$idPiece.'.pdf';
+        new Filesystem()->dumpFile($chemin, 'contenu historique');
+        $this->lecture([
+            $this->jeton(), new JsonMockResponse(['notifications' => [$this->notification('PIE-AAA-001', 5, $evenement)]]),
+            ...$this->nomenclatures(5, $evenement), new JsonMockResponse([$this->piece()]), $this->consultation(self::ID),
+        ]);
+        $this->assertSame([$nom], $this->db->fetchFirstColumn('SELECT NOM_PIECEJOINTE FROM piecejointe'));
+        $this->assertSame('contenu historique', file_get_contents($chemin));
+    }
+
+    /** @return array<string, mixed> */
+    private function piece(): array
+    {
+        return [
+            'idPiece' => 'PIE-AAA-001', 'idDossier' => 'DOS-AAA-001', 'noPiece' => 'PC1', 'noVersion' => 2,
+            'txFileName' => 'plan.pdf', 'nomTypePiece' => ['libNom' => 'Plan'], 'libAutreTypePiece' => 'Coupe',
+            'nomNaturePiece' => ['libNom' => 'Graphique'], 'dtDepot' => '2026-11-01',
+            'url' => 'https://stockage.example.test/plan', 'token' => 'ticket-fictif',
+        ];
+    }
+
+    private function telechargement(): MockResponse
+    {
+        return new MockResponse("octets\0fictifs", ['response_headers' => ['Content-Disposition: attachment; filename="plan.pdf"']]);
+    }
+
+    /** @param list<MockResponse> $reponses Réponses HTTP dans l'ordre des appels attendus. */
     private function lecture(array $reponses = [], ?string $offset = null, string $commande = 'platau:lecture-notifications', bool $separerSorties = false): int
     {
         $this->transport->setResponseFactory($reponses);
@@ -387,7 +522,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
     private function nomenclatures(int $objet, int $evenement): array
     {
         $objets = [5 => 'Pièce', 6 => 'Consultation', 31 => 'Document', 99 => 'Objet inconnu'];
-        $evenements = [15 => 'Complémentaire', 19 => 'Versée', 71 => 'Initiale', 84 => 'Succès'];
+        $evenements = [15 => 'Complémentaire', 17 => 'Modificative', 19 => 'Versée', 71 => 'Initiale', 84 => 'Succès'];
 
         return [
             new JsonMockResponse([['idNom' => (string) $objet, 'libNom' => $objets[$objet]]]),
@@ -403,6 +538,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
     private function consultation(string $id, int $nature = 3, ?string $instructeur = null): JsonMockResponse
     {
         return new JsonMockResponse(['nombrePages' => 1, 'resultats' => [['dossier' => [
+            'idDossier' => 'DOS-AAA-001',
             'nomTypeDossier' => ['idNom' => $nature],
             'noLocal' => 'DP-FICTIF',
             'idServiceInstructeur' => $instructeur,

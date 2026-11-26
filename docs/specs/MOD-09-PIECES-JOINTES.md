@@ -211,6 +211,8 @@ Lorsqu'une pièce jointe est en statut « Erreur », un lien « Renvoyer » appa
 
 Les pièces jointes transmises par Plat'AU lors des notifications sont automatiquement rattachées au dossier concerné. Elles portent les métadonnées Plat'AU (identifiant, type, sous-type, nature, date de dépôt) et sont stockées dans un espace de stockage dédié. Elles apparaissent avec le badge « Nouveau ! » jusqu'à la prochaine visite de l'utilisateur sur l'onglet pièces jointes du dossier.
 
+Le contrôle du doublon se fait dans chaque dossier Prevarisc : la même pièce et la même version ne sont pas ajoutées deux fois. Les noms versionnés utilisés par la passerelle historique restent reconnus. Si le stockage échoue, aucune nouvelle pièce ni liaison n'est conservée pour cette tentative.
+
 ---
 
 ## 7. Règles de gestion
