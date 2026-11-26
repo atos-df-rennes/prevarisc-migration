@@ -41,6 +41,8 @@ La commande de réception intégrée crée le dossier d'étude, sans rattachemen
 
 Une notification de pièce complémentaire, modificative ou initiale (objet 5, événements 15, 17 ou 71) rattache la pièce notifiée à chaque consultation du dossier Plat'AU déjà présente dans Prevarisc. Elle ne crée pas de consultation. Les notifications de document relatives aux envois restent hors périmètre. La passerelle existante continue d'assurer la réception en production.
 
+Pour les pièces initiales comme pour les pièces notifiées, la date de dépôt transmise sous forme de date ou de date-heure est enregistrée comme date, sans conversion de fuseau horaire.
+
 Lorsqu'une consultation est déjà présente, relire sa notification ne répare ni la préparation de la prise en charge ni une pièce initiale manquante. En revanche, relire une notification de pièce retente les rattachements manquants sans dupliquer les pièces déjà reçues.
 
 ### 3.2 Transmission d'une prise en charge (PEC)

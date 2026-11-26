@@ -8,6 +8,8 @@ use App\Platau\ReceptionException;
 
 final readonly class Piece
 {
+    public ?string $dtDepot;
+
     public function __construct(
         public string $idPiece,
         public string $noPiece,
@@ -18,7 +20,7 @@ final readonly class Piece
         public ?Nomenclature $nomTypePiece = null,
         public ?string $libAutreTypePiece = null,
         public ?Nomenclature $nomNaturePiece = null,
-        public ?string $dtDepot = null,
+        ?string $dtDepot = null,
         public ?string $txFileExtension = null,
     ) {
         if ('' === trim($idPiece) || '' === trim($noPiece) || $noVersion < 0 || '' === trim($txFileName)
@@ -26,12 +28,23 @@ final readonly class Piece
             throw new ReceptionException('Identification de pièce incorrecte.');
         }
 
+        $date = null;
         if (null !== $dtDepot) {
-            $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $dtDepot);
-            if (false === $date || $date->format('Y-m-d') !== $dtDepot) {
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?(?:Z|[+-]\d{2}:\d{2})?)?$/D', $dtDepot)) {
+                throw new ReceptionException('Date de dépôt incorrecte.');
+            }
+            try {
+                $date = new \DateTimeImmutable($dtDepot);
+            } catch (\Exception) {
+                throw new ReceptionException('Date de dépôt incorrecte.');
+            }
+            $errors = \DateTimeImmutable::getLastErrors();
+            if (false !== $errors && ($errors['warning_count'] > 0 || $errors['error_count'] > 0)) {
                 throw new ReceptionException('Date de dépôt incorrecte.');
             }
         }
+
+        $this->dtDepot = $date?->format('Y-m-d') ?? null;
     }
 
     public function filename(): string

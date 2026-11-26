@@ -373,6 +373,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
     public function testPiecesInitialesContinuentApresUnRefusDeTelechargement(): void
     {
         $piece = $this->piece();
+        $piece['dtDepot'] = '2026-11-01T10:15:00+01:00';
         $refusee = ['idPiece' => 'PIE-AAA-002'] + $piece;
         $binaire = $this->telechargement();
         $this->lecture([
@@ -413,6 +414,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
             $this->db->insert('dossier', ['ID_PLATAU' => $id, 'TYPE_DOSSIER' => 1, 'DATEINSERT_DOSSIER' => '2026-11-01']);
         }
         $piece = $this->piece();
+        $piece['dtDepot'] = '2026-11-01T23:15:00-03:00';
         $dossier = static fn (string ...$ids): array => ['dossier' => [
             'idDossier' => 'DOS-AAA-001', 'consultations' => array_map(static fn (string $id): array => ['idConsultation' => $id], $ids),
         ]];
@@ -440,6 +442,7 @@ final class PlatauLectureNotificationsTest extends KernelTestCase
         $this->assertSame([self::ID, self::AUTRE], array_keys($rows));
         $this->assertSame(2, (int) $this->db->fetchOne('SELECT COUNT(*) FROM piecejointe'));
         $this->assertSame(2, (int) $this->db->fetchOne('SELECT COUNT(*) FROM dossierpj'));
+        $this->assertSame(['2026-11-01', '2026-11-01'], $this->db->fetchFirstColumn('SELECT DATE_DEPOT FROM piecejointe'));
         foreach ($rows as $pjId) {
             $this->assertSame("octets\0fictifs", file_get_contents($this->stockage.'/uploads/pieces-jointes/'.$pjId.'.pdf'));
         }
