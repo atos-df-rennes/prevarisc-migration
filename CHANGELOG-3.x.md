@@ -4,6 +4,37 @@
 
 <!-- END HEADER -->
 
+## [3.0.2](https://github.com/atos-df-rennes/prevarisc-migration/compare/v3.0.1...v3.0.2) (26-11-2026)
+
+### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
+
+* Sécurise l'ajout de clé étrangère et d'index (#488) ([0ef6af](https://github.com/atos-df-rennes/prevarisc-migration/commit/0ef6afd4f726894e352f3b9a377bdf9991978888))
+
+##### Assets
+
+* Utilise la bonne version applicative pour invalidation (#486) ([40c6fa](https://github.com/atos-df-rennes/prevarisc-migration/commit/40c6fa85059752ec81ff1b981f7e49304a56b93c))
+
+##### Authentification
+
+* Prise en charge de ldaps (#492) ([36280c](https://github.com/atos-df-rennes/prevarisc-migration/commit/36280cdfdad8a5d8fb0944c6c9ac6d5e5a927426))
+* La case "Connexion via LDAP/CAS/NTLM" n'était pas correctement cochée/décochée (#482) ([268a7f](https://github.com/atos-df-rennes/prevarisc-migration/commit/268a7fa5282f54f47c71eb673b01e3b065e05c01))
+
+##### Dossier
+
+* Normalise les créateurs invalides (#485) ([1b3dfe](https://github.com/atos-df-rennes/prevarisc-migration/commit/1b3dfe70e4a34ed138318203da6e01e37c4556ed))
+
+##### Pieces-jointes
+
+* Affiche un message d'erreur lisible (#489) ([119223](https://github.com/atos-df-rennes/prevarisc-migration/commit/119223020e77d6da14cdfdc545f03f2038bf8897))
+* Remise en état des droits d'ajout historiques (#487) ([2de4bd](https://github.com/atos-df-rennes/prevarisc-migration/commit/2de4bd2c1b33de82ab55eda47ad32cb1b4fe6a38))
+
+##### Rapports
+
+* Message d'erreur lors de l'ouverture d'un document avec LibreOffice > 7 (#423) ([941bef](https://github.com/atos-df-rennes/prevarisc-migration/commit/941befcab595329a0ea5e983a4495393cc8be40f))
+
+
+---
+
 ## [3.0.0](https://github.com/atos-df-rennes/prevarisc-migration/compare/v2.10.8...v3.0.0) (17-11-2026)
 
 ### <img src="https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/svgs/solid/bug.svg" width="20" height="20"> Corrections
