@@ -37,9 +37,11 @@ L'utilisation de l'intégration avec Plat'AU dépend du paramétrage du service.
 5. Le dossier apparaît dans le bloc du tableau de bord **« Dossiers Plat'AU à traiter »** tant qu'il n'est pas rattaché à un établissement.
 6. Le dossier est attribué au compte de service Plat'AU configuré dans l'application.
 
-La commande de réception intégrée crée uniquement le dossier d'étude, sans rattachement à un établissement. Sa complétude reste à renseigner et sa prise en charge est en attente ; rien n'est envoyé à Plat'AU. Elle n'importe ni les pièces initiales ni les notifications de pièces ou de documents. La lecture d'un lot peut néanmoins récupérer ces notifications sans les traiter. La passerelle existante continue d'assurer la réception en production.
+La commande de réception intégrée crée le dossier d'étude, sans rattachement à un établissement. Sa complétude reste à renseigner et sa prise en charge est en attente ; rien n'est envoyé à Plat'AU. Elle importe ensuite les pièces initiales du dossier Plat'AU. Une liste vide est normale ; l'échec d'une pièce n'annule ni le dossier ni les autres pièces et est signalé à l'exploitant.
 
-Lorsqu'une consultation est déjà présente, une nouvelle réception ne modifie pas son dossier. En particulier, si le dossier a été créé mais que la préparation de la prise en charge a échoué, relire la notification ne répare pas cette étape.
+Une notification de pièce complémentaire, modificative ou initiale (objet 5, événements 15, 17 ou 71) rattache la pièce notifiée à chaque consultation du dossier Plat'AU déjà présente dans Prevarisc. Elle ne crée pas de consultation. Les notifications de document relatives aux envois restent hors périmètre. La passerelle existante continue d'assurer la réception en production.
+
+Lorsqu'une consultation est déjà présente, relire sa notification ne répare ni la préparation de la prise en charge ni une pièce initiale manquante. En revanche, relire une notification de pièce retente les rattachements manquants sans dupliquer les pièces déjà reçues.
 
 ### 3.2 Transmission d'une prise en charge (PEC)
 
