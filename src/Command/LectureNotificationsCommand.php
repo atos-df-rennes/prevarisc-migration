@@ -6,22 +6,16 @@ namespace App\Command;
 
 use App\Platau\ConsultationImporter;
 use App\Platau\HttpNotificationReader;
-use App\Platau\PlatauException;
-use App\Platau\ReceptionException;
 use App\Platau\ReceptionReader;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'platau:lecture-notifications',
-    description: 'Lit un seul lot de notifications Plat’AU et importe les consultations versées en recette.',
+    description: "Lit les notifications qui n'ont pas encore été consommées.",
     aliases: ['lecture-notifications'],
-    help: 'Réserver cette commande à un acteur et une base isolés. Sans --offset, lire les notifications non consommées. '
-        .'Seules les consultations versées (6/19) sont importées, sans pièces. Une consultation déjà présente est laissée intacte. '
-        .'Une erreur individuelle est signalée avec son offset sans interrompre le lot ni changer le code de sortie.',
 )]
 final readonly class LectureNotificationsCommand
 {
@@ -34,100 +28,88 @@ final readonly class LectureNotificationsCommand
 
     public function __invoke(
         OutputInterface $output,
-        #[Option(description: 'Confirme l’utilisation d’un acteur et d’une base isolés pour la recette.')]
-        bool $recette = false,
-        #[Option(description: 'Offset à partir duquel lire les notifications.')]
+        #[Option(description: 'Offset à partir duquel on récupère les notifications')]
         ?string $offset = null,
     ): int {
-        $errors = $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
-        if (!$recette) {
-            $errors->writeln('Lecture refusée : --recette est obligatoire. Utilisez un acteur Plat’AU et une base Prevarisc isolés.');
-
-            return Command::FAILURE;
-        }
-
         $cursor = null === $offset ? null : filter_var($offset, \FILTER_VALIDATE_INT);
         if (false === $cursor) {
-            $errors->writeln("La valeur de l'option offset doit être un entier.");
-
-            return Command::FAILURE;
+            throw new \InvalidArgumentException(sprintf("La valeur de l'option offset doit être un entier. \"%s\" donné.", $offset));
         }
 
-        $output->writeln('Lecture des nouvelles notifications ...');
-        try {
-            // Sans offset, la lecture consomme le lot pour l'acteur.
-            $this->importer->requireCreator();
-            $batch = $this->notifications->batch($cursor);
-        } catch (PlatauException $exception) {
-            $errors->writeln($exception->getMessage(), OutputInterface::OUTPUT_RAW);
-
-            return Command::FAILURE;
-        } catch (\Throwable) {
-            $errors->writeln('Échec de la lecture du lot de notifications.');
-
-            return Command::FAILURE;
-        }
+        $this->importer->requireCreator();
+        $this->log($output, 'Lecture des nouvelles notifications ...');
+        // Sans offset, la lecture consomme le lot pour l'acteur.
+        $batch = $this->notifications->batch($cursor);
 
         if ([] === $batch) {
-            $output->writeln('Aucune nouvelle notification.');
+            $this->log($output, 'Aucune nouvelle notification.');
         }
 
         foreach ($batch as $row) {
-            $this->process($row, $output, $errors);
+            $this->process($row, $output);
         }
 
         return Command::SUCCESS;
     }
 
-    private function process(mixed $row, OutputInterface $output, OutputInterface $errors): void
+    private function process(mixed $row, OutputInterface $output): void
     {
         $offset = is_array($row) && is_int($row['offset'] ?? null) ? (string) $row['offset'] : 'inconnu';
         $prefix = sprintf('[Offset: %s] ', $offset);
         if (!is_array($row) || !is_int($row['idTypeObjetMetier'] ?? null) || !is_int($row['idTypeEvenement'] ?? null)) {
-            $errors->writeln($prefix.'Notification incorrecte.');
-
-            return;
-        }
-
-        if (6 !== $row['idTypeObjetMetier'] || 19 !== $row['idTypeEvenement']) {
-            $output->writeln($prefix.'Notification non prise en compte.');
+            $this->log($output, $prefix.'Notification incorrecte.');
 
             return;
         }
 
         $id = $row['idElementConcerne'] ?? null;
         if (!is_string($id) || '' === trim($id)) {
-            $errors->writeln($prefix.'Identifiant de consultation manquant ou incorrect.');
+            $message = 6 === $row['idTypeObjetMetier'] && 19 === $row['idTypeEvenement']
+                ? 'Identifiant de consultation manquant ou incorrect.' : 'Notification incorrecte.';
+            $this->log($output, $prefix.$message);
 
             return;
         }
 
-        $stage = 'vérification du doublon';
+        try {
+            $objet = $this->notifications->nomenclature('TYPE_OBJET_METIER', $row['idTypeObjetMetier']);
+            $evenement = $this->notifications->nomenclature('TYPE_EVENEMENT', $row['idTypeEvenement']);
+        } catch (\Throwable $throwable) {
+            $this->log($output, $prefix.$throwable->getMessage());
+
+            return;
+        }
+
+        if (6 !== $row['idTypeObjetMetier'] || 19 !== $row['idTypeEvenement']) {
+            $libelle = in_array($row['idTypeObjetMetier'], [5, 6, 31], true) ? $objet.' - '.$evenement : $objet;
+            $this->log($output, sprintf("La notification %s pour l'élément d'identifiant %s n'est pas prise en compte par la passerelle actuellement", $libelle, $id));
+
+            return;
+        }
+
+        $this->log($output, sprintf("Traitement de la notification %s - %s pour l'élément d'identifiant %s", $objet, $evenement, $id));
         try {
             if ($this->importer->exists($id)) {
-                $output->writeln($prefix.'Consultation déjà existante dans Prevarisc.');
+                $this->log($output, sprintf('Consultation %s déjà existante dans Prevarisc', $id));
 
                 return;
             }
 
-            $stage = 'lecture de la consultation';
             $dossier = $this->reception->dossier($id);
 
-            $stage = 'recherche des acteurs';
             $serviceInstructeur = $this->notifications->actorDesignation($dossier->idServiceInstructeur);
             $serviceConsultant = $this->notifications->actorDesignation($dossier->consultation->idServiceConsultant);
-            $stage = 'import de la consultation';
             $this->importer->import($dossier, $serviceConsultant, $serviceInstructeur);
 
-            $stage = 'mise en attente de la PEC';
             $this->importer->markAwaiting($id);
-            $output->writeln($prefix.'Consultation récupérée et stockée dans Prevarisc.');
-        } catch (ReceptionException $exception) {
-            $errors->writeln($prefix.$exception->getMessage(), OutputInterface::OUTPUT_RAW);
-        } catch (PlatauException $exception) {
-            $errors->writeln($prefix.sprintf('Échec (%s) : %s', $stage, $exception->getMessage()), OutputInterface::OUTPUT_RAW);
-        } catch (\Throwable) {
-            $errors->writeln($prefix.'Échec du traitement : '.$stage.'.');
+            $this->log($output, sprintf('Consultation %s récupérée et stockée dans Prevarisc !', $id));
+        } catch (\Throwable $throwable) {
+            $this->log($output, $prefix.'Problème lors du traitement de la consultation : '.$throwable->getMessage());
         }
+    }
+
+    private function log(OutputInterface $output, string $message): void
+    {
+        $output->writeln(sprintf('[%s] %s', new \DateTimeImmutable()->format('d-m-Y H:i:s'), $message), OutputInterface::OUTPUT_RAW);
     }
 }

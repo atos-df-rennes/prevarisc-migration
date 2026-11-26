@@ -37,12 +37,14 @@ Un `403` indique un accès refusé : vérifier les habilitations auprès du serv
 
 ## Rejouer la réception des consultations
 
-**Recette uniquement : utiliser une base et un acteur Plat'AU isolés.** Ne pas lancer cette commande avec l'acteur de production, même ponctuellement ou avec `--offset`. Ne pas modifier le cron historique. Le choix de `--env` seul n'isole ni la plateforme, ni l'acteur, ni la base.
+Effectuer la recette sur la base de test habituelle. Vérifier les URL PISTE et Plat'AU, l'acteur et la base effectivement configurés : `--env` sélectionne l'environnement Symfony, mais n'isole pas à lui seul la plateforme, l'acteur ou la base. Ne pas modifier le cron historique.
 
-1. Configurer les accès PISTE et Plat'AU de recette et `PREVARISC_DB_PLATAU_USER_ID`, l'identifiant d'un utilisateur technique existant dans la base de recette.
-2. Dans cet environnement, exécuter `bin/console platau:lecture-notifications --recette` (alias `lecture-notifications`). L'option `--recette` confirme l'isolation, elle ne la configure pas. Sans `--offset`, la plateforme retourne les notifications jamais récupérées pour l'acteur. La commande traite un lot ; seules les notifications « Consultation / Occurrence d’une consultation » (codes v13.9 : 6 / 19) déclenchent un import.
+1. Configurer les accès PISTE et Plat'AU et `PREVARISC_DB_PLATAU_USER_ID`, l'identifiant d'un utilisateur technique existant dans la base de test.
+2. Dans cet environnement, exécuter `bin/console platau:lecture-notifications` (alias `lecture-notifications`), éventuellement avec `--env=…`. Sans `--offset`, la plateforme retourne les notifications jamais récupérées pour l'acteur. La commande traite un lot ; seules les notifications « Consultation / Occurrence d’une consultation » (codes v13.9 : 6 / 19) déclenchent un import.
 3. Vérifier le dossier d'étude, sa nature, le numéro d'urbanisme lorsqu'il est fourni, la date de réponse attendue et la PEC en attente de complétude. Aucun fichier ne doit être créé et rien ne doit être transmis à Plat'AU.
 
-Pour un rejeu **en recette**, `bin/console platau:lecture-notifications --recette --offset=42` demande le lot **à partir** de 42, pas la seule notification 42. Une consultation déjà présente est ignorée. Si une erreur survient avant la validation de la création du dossier, le rejeu peut retenter l'import. Si le dossier a été validé mais que l'initialisation de la PEC a échoué, le rejeu ne la répare pas. Contrôler les diagnostics de chaque notification, pas uniquement le code de sortie.
+Pour un rejeu sur la base de test, `bin/console platau:lecture-notifications --offset=42` demande le lot **à partir** de 42, pas la seule notification 42. Une consultation déjà présente est ignorée. Si une erreur survient avant la validation de la création du dossier, le rejeu peut retenter l'import. Si le dossier a été validé mais que l'initialisation de la PEC a échoué, le rejeu ne la répare pas. Contrôler les diagnostics de chaque notification, pas uniquement le code de sortie.
 
-La lecture du flux n'est pas une simulation : les notifications de pièces et de documents peuvent faire partie du lot récupéré sans être traitées. La passerelle historique ignore elle aussi les consultations déjà créées, pièces initiales comprises. C'est pourquoi cette commande ne remplace pas encore le traitement de production.
+Les messages d'erreur peuvent contenir des données techniques ou des données de dossier : protéger l'accès à la sortie et aux journaux de la commande.
+
+La lecture du flux n'est pas une simulation : elle peut consommer des notifications de pièces et de documents sans les traiter, y compris si seule la base est une base de test. La passerelle historique ignore elle aussi les consultations déjà créées, pièces initiales comprises. C'est pourquoi cette commande ne remplace pas encore le traitement de production.
