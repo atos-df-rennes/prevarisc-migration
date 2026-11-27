@@ -44,7 +44,11 @@ final class PecApiTest extends TestCase
             $pages[] = $query['numeroPage'];
 
             return match ($query['numeroPage']) {
-                '0' => $this->page([self::CONSULTATION, ['idConsultation' => 'B', 'nomEtatConsultation' => ['idNom' => 1]]], 3),
+                '0' => $this->page([
+                    self::CONSULTATION,
+                    ['idConsultation' => 'hors-lot', 'nomEtatConsultation' => ['idNom' => 3]],
+                    ['idConsultation' => 'B', 'nomEtatConsultation' => ['idNom' => 1]],
+                ], 3),
                 '1' => new JsonMockResponse(['resultats' => [], 'nombrePages' => 3]),
                 '2' => $this->page([self::CONSULTATION, ['idConsultation' => 'Z', 'nomEtatConsultation' => ['idNom' => 2]]], 3),
             };
