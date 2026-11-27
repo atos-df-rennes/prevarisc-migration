@@ -31,9 +31,14 @@ final readonly class PisteTokenProvider
         $this->cache->delete($this->cacheKey);
     }
 
+    public function configured(): bool
+    {
+        return '' !== trim($this->clientId) && '' !== trim($this->clientSecret);
+    }
+
     public function token(): string
     {
-        if ('' === $this->clientId || '' === $this->clientSecret) {
+        if (!$this->configured()) {
             throw new PlatauException('Les identifiants client PISTE doivent être configurés.');
         }
 

@@ -52,6 +52,14 @@ Lorsqu'une consultation est déjà présente, relire sa notification ne répare 
 3. La demande de prise en charge est envoyée à Plat'AU. Son statut évolue au fil du traitement (voir §4.1).
 4. L'écran du dossier affiche le statut de la PEC et, le cas échéant, sa date de transmission.
 
+L'export traite les consultations versées et les consultations refusées (ces dernières uniquement en renvoi ou en erreur), ou la consultation désignée par l'exploitant. Un dossier absent ou sans complétude ne déclenche **ni dépôt de fichier ni envoi de PEC**. Un dossier complet produit une PEC positive ; un dossier incomplet produit une PEC négative dont les observations reprennent les documents manquants.
+
+L'échéance est calculée depuis la date de PEC avec le délai de la consultation (jours calendaires ou mois), sauf délai en jours fourni par l'exploitant. En renvoi, la date de PEC enregistrée est reprise si disponible. Si le dépôt documentaire est configuré, seules les pièces en attente d'envoi sont déposées avant la PEC ; sinon elles restent en attente. Un échec individuel est signalé sur la pièce et n'empêche pas l'envoi des autres. Chaque identifiant documentaire retourné doit être associé à la pièce effectivement déposée, jamais à une pièce en échec.
+
+Un libellé de pièce contenant `/` ou `\` ne bloque pas son envoi : ces caractères sont remplacés par `-` dans le nom de dépôt uniquement. Si Syncplicity refuse le jeton lors de la demande du ticket (`401`), la commande renouvelle le jeton et redemande le ticket une seule fois. Elle ne répète pas le dépôt du fichier.
+
+Une PEC acceptée, même négative, est datée et marquée transmise ; l'avis passe en cours sans être envoyé. Un refus de transmission ou une erreur de transport est signalé sur la PEC. L'acceptation de la PEC ne vaut pas confirmation du versement définitif des documents.
+
 ### 3.3 Transmission d'un avis
 
 1. Le préventionniste saisit l'**avis de la commission** sur le dossier (favorable, défavorable, etc.).

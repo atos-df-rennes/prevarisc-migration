@@ -15,7 +15,7 @@ abstract readonly class PlatauApiReader
         #[Autowire(service: 'platau.client')] private HttpClientInterface $platauClient,
         private PisteTokenProvider $tokens,
         private PlatauHttp $http,
-        #[Autowire(env: 'PLATAU_ID_ACTEUR_APPELANT')] private string $actorId,
+        #[Autowire(env: 'PLATAU_ID_ACTEUR_APPELANT')] protected string $actorId,
     ) {
     }
 
@@ -26,24 +26,45 @@ abstract readonly class PlatauApiReader
      */
     protected function read(string $method, string $path, array $options): array
     {
+        return $this->authenticatedRequest($method, $path, $options, ConsultationRetryStrategy::MAX_RETRIES);
+    }
+
+    /**
+     * @param array<array-key, mixed> $payload
+     *
+     * @return array<array-key, mixed>
+     */
+    protected function postOnce(string $path, array $payload): array
+    {
+        // Une réponse perdue ne signifie pas que l'écriture a échoué. Seul un 401 permet un nouvel envoi.
+        return $this->authenticatedRequest('POST', $path, ['json' => $payload], 0, 200);
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array<array-key, mixed>
+     */
+    private function authenticatedRequest(string $method, string $path, array $options, int $maxRetries, ?int $expectedStatus = null): array
+    {
         if ('' === $this->actorId) {
             throw new PlatauException("L'identifiant de l'acteur Plat'AU appelant doit être configuré.");
         }
 
         $token = $this->tokens->token();
         try {
-            $response = $this->request($method, $path, $options, $token, ConsultationRetryStrategy::MAX_RETRIES);
+            $response = $this->request($method, $path, $options, $token, $maxRetries);
             if (401 === $response->getStatusCode()) {
                 $this->tokens->invalidate();
                 $used = $response->getInfo('retry_count');
-                $remaining = ConsultationRetryStrategy::MAX_RETRIES - (is_int($used) ? $used : 0);
+                $remaining = $maxRetries - (is_int($used) ? $used : 0);
                 $response = $this->request($method, $path, $options, $this->tokens->token(), $remaining);
                 if (401 === $response->getStatusCode()) {
                     $this->tokens->invalidate();
                 }
             }
 
-            return $this->http->json($response, "Plat'AU");
+            return $this->http->json($response, "Plat'AU", $expectedStatus);
         } catch (TransportExceptionInterface) {
             throw new PlatauException("Impossible de communiquer avec Plat'AU.");
         }
