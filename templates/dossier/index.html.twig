@@ -316,6 +316,29 @@
         </div>
     </div>
 
+    {% if dossier.dateSuppression is not null and not dossier.verrou and is_granted('delete_dossier') %}
+        <div id="confirm-restore-dossier" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-restore-dossier-title">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                        <h3 class="modal-title" id="confirm-restore-dossier-title">Confirmation du rétablissement</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>Êtes-vous sûr de vouloir rétablir le dossier ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <form method="post" action="{{ path('admin_elements_supprimes_restore_dossier', {id: dossier.id}) }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('restore_dossier_' ~ dossier.id) }}">
+                            <button type="submit" class="btn btn-success">Rétablir le dossier</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     {{ include('alerte/modal.html.twig') }}
 {% endblock %}
 

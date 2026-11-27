@@ -64,7 +64,7 @@ L'onglet « Dossiers » est actif par défaut.
 | Nom du dossier | Composé du type de dossier, de la nature du dossier et de l'objet du dossier, séparés par des tirets. L'objet est tronqué à 70 caractères avec la mention « (...) » si nécessaire. |
 | Établissement lié | Libellés des établissements associés au dossier, affichés sous forme de badges visuels après le nom du dossier pour meilleure lisibilité. |
 | Lien de consultation | Le nom du dossier est un lien cliquable vers la fiche du dossier. |
-| Bouton « Rétablir le dossier » | Permet de rétablir le dossier en un clic. |
+| Bouton « Rétablir le dossier » | Ouvre une demande de confirmation du rétablissement. |
 
 Le compteur total d'éléments supprimés est affiché en haut de chaque onglet.
 
@@ -77,7 +77,7 @@ La liste est triée par **date de suppression décroissante** (le plus récemmen
 | Supprimé par | Nom de l'utilisateur ayant effectué la suppression, accompagné de son avatar. Si l'auteur est inconnu, la mention « Inconnu » est affichée avec un avatar par défaut. |
 | Date de suppression | Affichée au format lisible. |
 | Nom de l'établissement | Libellé de l'établissement, suivi du nom de la commune. |
-| Bouton « Rétablir l'établissement » | Permet de rétablir l'établissement en un clic. |
+| Bouton « Rétablir l'établissement » | Ouvre une demande de confirmation du rétablissement. |
 
 La liste est triée par **date de suppression décroissante**.
 
@@ -86,6 +86,8 @@ La liste est triée par **date de suppression décroissante**.
 ### 4.2 Rétablir un établissement
 
 **Déclencheur :** L'utilisateur clique sur le bouton « Rétablir l'établissement » depuis l'écran de gestion des éléments supprimés.
+
+Une boîte de dialogue demande confirmation ; l'annulation ne modifie rien.
 
 **Traitement :**
 
@@ -101,6 +103,8 @@ La liste est triée par **date de suppression décroissante**.
 ### 4.3 Rétablir un dossier
 
 **Déclencheur :** L'utilisateur clique sur le bouton « Rétablir le dossier » depuis l'écran de gestion des éléments supprimés ou depuis la fiche du dossier.
+
+Une boîte de dialogue demande confirmation ; l'annulation ne modifie rien.
 
 **Traitement :**
 
@@ -132,7 +136,7 @@ La liste est triée par **date de suppression décroissante**.
 | **RG-RET-013** | Lorsqu'un dossier est associé à un établissement unique, la suppression du dossier entraîne son marquage. Lorsque le dossier est partagé entre plusieurs établissements, il n'est supprimé logiquement que si la demande provient d'un contexte mono-établissement. |
 | **RG-RET-014** | La suppression d'un établissement entraîne automatiquement la suppression logique de tous ses dossiers associés. Le rétablissement de l'établissement, en revanche, **ne rétablit pas automatiquement** ses dossiers. |
 | **RG-RET-015** | Un établissement marqué comme supprimé est inaccessible. Toute tentative de consultation de sa fiche génère un message d'erreur indiquant que l'établissement n'existe pas. |
-| **RG-RET-016** | Le rétablissement est une action immédiate, sans demande de confirmation préalable. |
+| **RG-RET-016** | Le rétablissement nécessite une confirmation préalable. |
 | **RG-RET-017** | Lors de la suppression d'un dossier, sa date de passage en commission est également supprimée. Le rétablissement ne restaure pas cette date. |
 | **RG-RET-018** | Aucune pagination n'est appliquée sur les listes d'éléments supprimés. Tous les éléments sont affichés en une seule page. |
 
@@ -151,10 +155,6 @@ Lors de la suppression d'un dossier, la date de passage en commission est suppri
 ### Supprimeur inconnu
 
 Si l'utilisateur ayant effectué la suppression a été supprimé du système ou si l'information n'a pas été enregistrée (données historiques), la mention « Inconnu » est affichée à la place du nom.
-
-### Absence de confirmation
-
-Le rétablissement se déclenche en un seul clic, sans boîte de dialogue de confirmation. Une erreur de manipulation entraîne un rétablissement immédiat. L'élément peut être resupprimé depuis sa fiche, mais cela constitue une opération distincte.
 
 ### Absence de pagination
 

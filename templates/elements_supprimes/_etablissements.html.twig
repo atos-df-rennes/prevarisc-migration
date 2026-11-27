@@ -37,13 +37,16 @@
                                 {% endfor %}
                             </div>
 
-                            <a
+                            <button type="button"
                                 class='btn btn-default btn-sm deleted-element__restore-button'
-                                href="{{ path('admin_elements_supprimes_restore_etablissement', {id: etablissement.id}) }}"
+                                data-toggle="modal" data-target="#confirm-restore"
+                                data-url="{{ path('admin_elements_supprimes_restore_etablissement', {id: etablissement.id}) }}"
+                                data-token="{{ csrf_token('restore_etablissement_' ~ etablissement.id) }}"
+                                data-label="{{ etablissement.informations|first.libelle }}"
                             >
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                 Rétablir l'établissement
-                            </a>
+                            </button>
                         </div>
                     </td>
                 </tr>

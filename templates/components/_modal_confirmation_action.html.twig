@@ -1,0 +1,30 @@
+<div id="{{ modal_id }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="{{ modal_id }}-title">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="{{ modal_id }}-title">{{ titre }}</h3>
+            </div>
+            <div class="modal-body">
+                <p>{{ message }} <strong class="action-label"></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                <form method="post" style="display:inline">
+                    <input type="hidden" name="_token">
+                    <button type="submit" class="btn {{ bouton_classe }}">{{ bouton }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#{{ modal_id }}').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            $(this).find('form').attr('action', button.attr('data-url'));
+            $(this).find('input[name="_token"]').val(button.attr('data-token'));
+            $(this).find('.action-label').text(button.attr('data-label'));
+        });
+    });
+</script>

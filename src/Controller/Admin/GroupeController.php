@@ -91,10 +91,17 @@ class GroupeController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/admin/groupes/{id}/supprimer', name: 'admin_groupe_delete')]
-    public function supprimer(Groupe $groupe): Response
+    #[Route(path: '/admin/groupes/{id}/supprimer', name: 'admin_groupe_delete', methods: ['POST'])]
+    public function supprimer(Groupe $groupe, Request $request): Response
     {
         $groupeId = $groupe->getId();
+
+        $rawToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_groupe_'.$groupeId, is_string($rawToken) ? $rawToken : null)) {
+            $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('admin_groupe_edit', ['id' => $groupeId]);
+        }
 
         // On ne supprime pas le groupe par défaut
         if (1 === $groupeId) {

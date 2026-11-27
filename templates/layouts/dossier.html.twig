@@ -184,7 +184,7 @@
         %}
             <li>
                 {% if dossier.dateSuppression is not null %}
-                    <a id="retablissementDossier" href="{{ path('admin_elements_supprimes_restore_dossier', {id: dossier.id}) }}">
+                    <a id="retablissementDossier" href="#confirm-restore-dossier" data-toggle="modal">
                         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                         Rétablir le dossier
                     </a>

@@ -52,13 +52,16 @@
                                 {% endfor %}
                             </div>
 
-                            <a
+                            <button type="button"
                                 class="btn btn-sm btn-default deleted-element__restore-button"
-                                href="{{ path('admin_elements_supprimes_restore_dossier', {id: dossier.id}) }}"
+                                data-toggle="modal" data-target="#confirm-restore"
+                                data-url="{{ path('admin_elements_supprimes_restore_dossier', {id: dossier.id}) }}"
+                                data-token="{{ csrf_token('restore_dossier_' ~ dossier.id) }}"
+                                data-label="{{ libelle_complet|join(' - ') }}"
                             >
                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                 Rétablir le dossier
-                            </a>
+                            </button>
                         </div>
                     </td>
                 </tr>

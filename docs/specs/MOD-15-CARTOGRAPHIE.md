@@ -144,12 +144,12 @@ L'application propose deux parcours d'ajout distincts.
 
 ### 4.4 Supprimer une couche
 
-**Accès :** Lien « Supprimer » dans le tableau de la liste.
+**Accès :** Bouton « Supprimer » dans le tableau de la liste.
 
 **Comportement :**
 
-1. La suppression est immédiate, sans demande de confirmation.
-2. La couche est définitivement supprimée.
+1. Une boîte de dialogue demande confirmation ; l'annulation ne modifie rien.
+2. Après confirmation, la couche est définitivement supprimée.
 3. Un message de succès confirme la suppression.
 4. L'utilisateur est redirigé vers la liste.
 5. En cas d'erreur, un message indique l'échec.
@@ -214,7 +214,7 @@ Les couches cartographiques configurées dans le module d'administration sont ut
 | **RG-CAR-006** | Le type de couche ne peut prendre que deux valeurs : WMS ou WMTS. |
 | **RG-CAR-007** | Le format d'image ne peut prendre que deux valeurs : PNG ou JPEG. |
 | **RG-CAR-008** | L'ordre d'affichage est un entier positif, avec une valeur minimale de 1. |
-| **RG-CAR-009** | La suppression d'une couche est immédiate et définitive, sans demande de confirmation. |
+| **RG-CAR-009** | La suppression d'une couche est définitive et nécessite une confirmation préalable. |
 | **RG-CAR-010** | L'ajout d'une couche IGN pré-remplit automatiquement les champs à partir du catalogue des capacités du service IGN (nom, identifiant dans le flux, URL, type, format). |
 | **RG-CAR-011** | Les coordonnées par défaut de l'instance sont utilisées pour centrer les cartes en l'absence de géolocalisation spécifique. Si elles ne sont pas configurées, les coordonnées par défaut sont : longitude 2.7149, latitude 50.4727. |
 | **RG-CAR-012** | Le cache est appliqué aux appels IGN GetCapabilities (opération la plus coûteuse), avec une durée de 1 semaine. La liste des couches vient du repository Doctrine et ne nécessite pas de cache applicatif (opération triviale). |
