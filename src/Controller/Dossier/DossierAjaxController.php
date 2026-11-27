@@ -22,11 +22,14 @@ class DossierAjaxController extends AbstractController
     public function getDossiersEnfants(Request $request): Response
     {
         $parentId = $request->request->getInt('parent');
-        $dossiers = [];
-        if ($parentId > 0) {
-            $dossiersEnfants = $this->dossierRepository->getDossiersEnfants($parentId);
-            $dossiers = $this->dossierService->extraireDonneesUtiles($dossiersEnfants);
+        $parent = $parentId > 0 ? $this->dossierRepository->find($parentId) : null;
+        if (null === $parent) {
+            throw $this->createNotFoundException('Dossier introuvable.');
         }
+
+        $this->denyAccessUnlessGranted('view_doss', $parent);
+        $dossiersEnfants = $this->dossierRepository->getDossiersEnfants($parent);
+        $dossiers = $this->dossierService->extraireDonneesUtiles($dossiersEnfants);
 
         return $this->render('dossier/_liste_enfants.html.twig', [
             'dossiers' => $dossiers

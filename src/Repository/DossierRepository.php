@@ -375,9 +375,8 @@ class DossierRepository extends ServiceEntityRepository implements HasContacts
     /**
      * @return array<Dossier>
      */
-    public function getDossiersEnfants(int $parentId): array
+    public function getDossiersEnfants(Dossier $parent): array
     {
-        $parent = $this->find($parentId);
         $dossiersLies = $parent->getDossiersLies();
 
         if ($dossiersLies->isEmpty()) {

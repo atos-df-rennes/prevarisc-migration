@@ -264,6 +264,8 @@ Deux dossiers peuvent être liés entre eux de manière bidirectionnelle. Le lie
 
 La liaison se fait à partir de la liste des dossiers des établissements concernés. Les dossiers déjà liés sont signalés pour éviter les doublons.
 
+Depuis cette liste, l'affichage des dossiers liés exige le droit `view_doss` sur le dossier sélectionné. Si ce droit est refusé, la requête renvoie une erreur 403 ; si le dossier parent est absent ou inexistant, elle renvoie une erreur 404. Les dossiers liés ne sont pas filtrés individuellement. Ce contrôle renforce la sécurité par rapport au comportement historique.
+
 Un lien entre deux dossiers peut être supprimé.
 
 ---
