@@ -4,11 +4,13 @@ namespace App\Controller;
 
 use App\Constant\DataStoreObjectTypes;
 use App\Entity\DateCommission;
+use App\Entity\Etablissement;
 use App\Repository\DateCommissionRepository;
 use App\Repository\EtablissementPieceJointeRepository;
 use App\Repository\PieceJointeRepository;
 use App\Service\DataStore\DataStore;
 use App\Utils\File;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,12 +31,10 @@ class PieceJointeController extends AbstractController
      * Télécharge une pièce jointe d'établissement.
      *
      * Port direct de PieceJointeController::getAction() pour le type "etablissement".
-     *
-     * @todo: vérifier le droit à appliquer
      */
     #[Route(path: '/piece-jointe/etablissement/{id}/recuperer/{idpj}', name: 'piece_jointe_get_etablissement', methods: ['GET'], requirements: ['id' => '\d+', 'idpj' => '\d+'])]
-    #[IsGranted('ROLE_USER')]
-    public function getEtablissement(int $id, int $idpj): Response
+    #[IsGranted('view_ets', subject: 'etablissement')]
+    public function getEtablissement(int $id, int $idpj, #[MapEntity(id: 'id')] Etablissement $etablissement): Response
     {
         $pieceJointe = $this->pieceJointeRepository->find($idpj);
         if (null === $pieceJointe) {
@@ -71,11 +71,9 @@ class PieceJointeController extends AbstractController
      * Télécharge une pièce jointe de date de commission.
      *
      * Port direct de PieceJointeController::getAction() pour le type "dateCommission".
-     *
-     * @todo: vérifier le droit à appliquer
      */
     #[Route(path: '/piece-jointe/date-commission/{id}/recuperer/{idpj}', name: 'piece_jointe_get_date_commission', methods: ['GET'], requirements: ['id' => '\d+', 'idpj' => '\d+'])]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('lecture_commission')]
     public function getDateCommission(int $id, int $idpj): Response
     {
         $pieceJointe = $this->pieceJointeRepository->find($idpj);
