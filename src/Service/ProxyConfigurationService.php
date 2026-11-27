@@ -27,27 +27,12 @@ class ProxyConfigurationService
         $this->proxyProtocol = (int) $proxyProtocol;
     }
 
-    public function isEnabled(): bool
-    {
-        return $this->proxyEnabled;
-    }
-
     /**
      * Applique la configuration proxy sur un handle cURL si le proxy est activé.
      */
     public function applyCurlOptions(\CurlHandle $ch): void
     {
-        if (!$this->proxyEnabled) {
-            return;
-        }
-
-        curl_setopt($ch, CURLOPT_PROXYTYPE, $this->proxyProtocol);
-        curl_setopt($ch, CURLOPT_PROXYPORT, $this->proxyPort);
-        curl_setopt($ch, CURLOPT_PROXY, $this->proxyHost);
-
-        if ('' !== $this->proxyUsername && '0' !== $this->proxyUsername) {
-            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->proxyUsername.':'.$this->proxyPassword);
-        }
+        curl_setopt_array($ch, $this->getCurlOptions());
     }
 
     /**
