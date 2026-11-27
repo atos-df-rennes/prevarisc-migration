@@ -31,10 +31,33 @@
             <a class='btn btn-default' href="{{ path('admin_utilisateurs_index') }}">Annuler la modification</a>
             <div class="btn-group">
                 {% if groupe_id != 1 %}
-                    <a class='btn btn-danger' href="{{ path('admin_groupe_delete', {id: groupe_id}) }}">Supprimer le groupe</a>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirm-delete-groupe">Supprimer le groupe</button>
                 {% endif %}
                 <input type='submit' class="btn btn-success" value="Modifier le groupe">
             </div>
         </div>
     {{ form_end(form) }}
+
+    {% if groupe_id != 1 %}
+        <div id="confirm-delete-groupe" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="confirm-delete-groupe-title">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
+                        <h3 class="modal-title" id="confirm-delete-groupe-title">Confirmation de la suppression</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>Supprimer ce groupe ? Ses utilisateurs seront transférés dans le groupe par défaut.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <form method="post" action="{{ path('admin_groupe_delete', {id: groupe_id}) }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_groupe_' ~ groupe_id) }}">
+                            <button type="submit" class="btn btn-danger">Supprimer le groupe</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

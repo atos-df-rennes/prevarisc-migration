@@ -151,9 +151,16 @@ class CouchesCartographiquesController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/admin/couches-cartographiques/{id}/supprimer', name: 'couche_cartographique_delete')]
-    public function supprimer(CoucheCarto $coucheCarto): Response
+    #[Route(path: '/admin/couches-cartographiques/{id}/supprimer', name: 'couche_cartographique_delete', methods: ['POST'])]
+    public function supprimer(CoucheCarto $coucheCarto, Request $request): Response
     {
+        $rawToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('delete_couche_carto_'.$coucheCarto->getId(), is_string($rawToken) ? $rawToken : null)) {
+            $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('couches_cartographiques');
+        }
+
         try {
             $this->coucheCartoRepository->remove($coucheCarto);
             $this->addFlash('success', 'La couche cartographique a été supprimée.');

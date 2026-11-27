@@ -171,8 +171,9 @@ La modification d'un groupe invalide le cache des droits d'accès pour tous les 
 
 1. L'administrateur accède à la modification du groupe.
 2. Il clique sur « Supprimer le groupe ».
-3. Le système transfère les utilisateurs du groupe supprimé vers le groupe par défaut.
-4. Le groupe et ses associations de privilèges sont supprimés.
+3. Une boîte de dialogue demande confirmation ; l'annulation ne modifie rien.
+4. Après confirmation, le système transfère les utilisateurs du groupe supprimé vers le groupe par défaut.
+5. Le groupe et ses associations de privilèges sont supprimés.
 
 ---
 

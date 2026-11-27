@@ -35,10 +35,17 @@ class ElementsSupprimesController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/admin/elements-supprimes/dossier/restaurer/{id}', name: 'admin_elements_supprimes_restore_dossier', requirements: ['id' => '\d+'])]
+    #[Route(path: '/admin/elements-supprimes/dossier/restaurer/{id}', name: 'admin_elements_supprimes_restore_dossier', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[IsGranted('delete_dossier')]
     public function restoreDossier(Request $request, Dossier $id): Response
     {
+        $rawToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('restore_dossier_'.$id->getId(), is_string($rawToken) ? $rawToken : null)) {
+            $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('admin_elements_supprimes');
+        }
+
         $this->dossierService->restore($id);
         $this->addFlash('success', 'Le dossier a bien été rétabli.');
 
@@ -50,10 +57,17 @@ class ElementsSupprimesController extends AbstractController
         return $this->redirect($referer);
     }
 
-    #[Route(path: '/admin/elements-supprimes/etablissement/restaurer/{id}', name: 'admin_elements_supprimes_restore_etablissement', requirements: ['id' => '\d+'])]
+    #[Route(path: '/admin/elements-supprimes/etablissement/restaurer/{id}', name: 'admin_elements_supprimes_restore_etablissement', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[IsGranted('delete_etablissement')]
-    public function restoreEtablissement(Etablissement $id): Response
+    public function restoreEtablissement(Etablissement $id, Request $request): Response
     {
+        $rawToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('restore_etablissement_'.$id->getId(), is_string($rawToken) ? $rawToken : null)) {
+            $this->addFlash('danger', 'Token de sécurité invalide. Veuillez réessayer.');
+
+            return $this->redirectToRoute('admin_elements_supprimes');
+        }
+
         $this->etablissementService->restore($id);
         $this->addFlash('success', "L'établissement a bien été rétabli.");
 

@@ -176,12 +176,23 @@
                         </td>
                         <td>{{ couche_cartographique.ordre|default('Ordre non renseigné') }}</td>
                         <td>
-                            <a href="{{ path('couche_cartographique_edit', {id: couche_cartographique.id}) }}">Modifier la couche</a><br/>
-                            <a href="{{ path('couche_cartographique_delete', {id: couche_cartographique.id}) }}">Supprimer</a>
+                            <a class="btn btn-link p-0" href="{{ path('couche_cartographique_edit', {id: couche_cartographique.id}) }}">Modifier la couche</a><br/>
+                            <button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#confirm-delete-couche"
+                                data-url="{{ path('couche_cartographique_delete', {id: couche_cartographique.id}) }}"
+                                data-token="{{ csrf_token('delete_couche_carto_' ~ couche_cartographique.id) }}"
+                                data-label="{{ couche_cartographique.nom }}">Supprimer</button>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        {{ include('components/_modal_confirmation_action.html.twig', {
+            modal_id: 'confirm-delete-couche',
+            titre: 'Confirmation de la suppression',
+            message: 'Supprimer la couche cartographique :',
+            bouton: 'Supprimer',
+            bouton_classe: 'btn-danger',
+        }) }}
     {% endif %}
 {% endblock %}

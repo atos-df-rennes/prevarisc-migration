@@ -41,5 +41,13 @@
                 </div>
             {% endif %}
         </div>
+
+        {{ include('components/_modal_confirmation_action.html.twig', {
+            modal_id: 'confirm-restore',
+            titre: 'Confirmation du rétablissement',
+            message: 'Rétablir cet élément :',
+            bouton: 'Rétablir',
+            bouton_classe: 'btn-success',
+        }) }}
     {% endif %}
 {% endblock %}
