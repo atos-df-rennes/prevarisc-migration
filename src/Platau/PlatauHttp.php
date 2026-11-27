@@ -25,10 +25,10 @@ final readonly class PlatauHttp
     }
 
     /** @return array<array-key, mixed> */
-    public function json(ResponseInterface $response, string $service): array
+    public function json(ResponseInterface $response, string $service, ?int $expectedStatus = null): array
     {
         $status = $response->getStatusCode();
-        if ($status < 200 || $status >= 300) {
+        if ($status < 200 || $status >= 300 || (null !== $expectedStatus && $status !== $expectedStatus)) {
             $reason = match ($status) {
                 401 => 'authentification refusée',
                 403 => 'accès refusé',
