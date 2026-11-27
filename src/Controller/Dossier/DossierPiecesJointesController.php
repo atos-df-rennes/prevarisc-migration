@@ -322,11 +322,12 @@ class DossierPiecesJointesController extends AbstractController implements Dossi
         }
 
         $filePath = $this->resolvePjFilePath($pj, $dossier);
-        $this->filesystem->remove($filePath);
 
         $this->entityManager->remove($dpj);
         $this->entityManager->remove($pj);
         $this->entityManager->flush();
+
+        $this->filesystem->remove($filePath);
 
         return $this->json(['success' => true]);
     }

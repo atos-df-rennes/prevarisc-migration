@@ -142,11 +142,11 @@ final readonly class EtablissementPieceJointeService
 
         $miniaturePath = $this->dataStore->getFilePath($miniaturePjHelper, 'etablissement_miniature', $etablissement->getId());
 
-        $this->filesystem->remove(array_filter([$filePath, $miniaturePath], file_exists(...)));
-
         $this->entityManager->remove($etablissementPJ);
         $this->entityManager->remove($pieceJointe);
         $this->entityManager->flush();
+
+        $this->filesystem->remove(array_filter([$filePath, $miniaturePath], file_exists(...)));
     }
 
     /**
