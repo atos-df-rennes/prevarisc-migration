@@ -7,7 +7,9 @@ namespace App\Tests\Service;
 use App\Entity\Commune;
 use App\Entity\Dossier;
 use App\Entity\DossierDocumentUrbanisme;
+use App\Entity\DossierPieceJointe;
 use App\Entity\Groupement;
+use App\Entity\PieceJointe;
 use App\Entity\UtilisateurInformations;
 use App\Repository\CommuneRepository;
 use App\Repository\DateCommissionRepository;
@@ -22,6 +24,7 @@ use App\Service\DossierPrescriptionService;
 use App\Service\DossierRapportOdtService;
 use App\Service\Odt\OdtWriter;
 use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Odtphp\Odf;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -31,6 +34,133 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class DossierRapportOdtServiceTest extends TestCase
 {
+    #[DataProvider('sauvegardeRapportProvider')]
+    public function testSauvegardeRapportDansUneTransaction(string $resultat): void
+    {
+        $repertoire = sys_get_temp_dir().'/rapport-odt-'.bin2hex(random_bytes(8));
+        mkdir($repertoire);
+        $chemin = $repertoire.'/rapport.odt';
+        $transactionActive = false;
+        $piecesPersistees = [];
+
+        $em = $this->createMock(EntityManager::class);
+        $em->expects($this->once())->method('wrapInTransaction')->willReturnCallback(
+            static function (callable $callback) use ($em, &$transactionActive): mixed {
+                $transactionActive = true;
+                try {
+                    return $callback($em);
+                } finally {
+                    $transactionActive = false;
+                }
+            }
+        );
+        $em->expects($this->exactly(2))->method('persist')->willReturnCallback(
+            function (object $piece) use (&$transactionActive, &$piecesPersistees): void {
+                $this->assertTrue($transactionActive);
+                $piecesPersistees[] = $piece;
+            }
+        );
+        $em->expects($this->exactly(2))->method('flush')->willReturnCallback(
+            function () use (&$transactionActive): void {
+                $this->assertTrue($transactionActive);
+            }
+        );
+        $dataStore = $this->createStub(DataStore::class);
+        $dataStore->method('getFilePath')->willReturn($chemin);
+        $urlGenerator = $this->createStub(UrlGeneratorInterface::class);
+        $urlGenerator->method('generate')->willReturn('/rapport');
+        $service = new DossierRapportOdtService(
+            $em,
+            $this->createStub(Connection::class),
+            $dataStore,
+            $this->createStub(DossierPrescriptionService::class),
+            $this->createStub(DossierAffectationRepository::class),
+            $this->createStub(EtablissementAdresseRepository::class),
+            $this->createStub(DateCommissionRepository::class),
+            $this->createStub(Descriptif::class),
+            $this->createStub(ListeDocumentConsulteRepository::class),
+            $urlGenerator,
+            $this->createStub(OdtWriter::class),
+            $this->createStub(DossierVisiteConvocationService::class),
+            '',
+            $this->createStub(LoggerInterface::class),
+            $this->createStub(CommuneRepository::class),
+            $this->createStub(GroupementRepository::class)
+        );
+        $sauvegardes = 0;
+        $odf = new class(function (string $fichier) use ($resultat, $chemin, &$transactionActive, &$sauvegardes): void {
+            ++$sauvegardes;
+            $this->assertTrue($transactionActive);
+            $this->assertSame($chemin, $fichier);
+            if ('exception' === $resultat) {
+                throw new \RuntimeException('Échec de sauvegarde');
+            }
+            if ('succes' === $resultat) {
+                file_put_contents($chemin, 'rapport');
+            }
+        }) extends Odf {
+            public function __construct(private readonly \Closure $sauvegarder)
+            {
+            }
+
+            public function saveToDisk($file = null): void
+            {
+                ($this->sauvegarder)($file);
+            }
+
+            public function __destruct()
+            {
+            }
+        };
+
+        try {
+            $erreur = null;
+            $lien = null;
+            try {
+                $lien = new \ReflectionMethod($service, 'persistPieceJointe')->invoke(
+                    $service,
+                    $odf,
+                    new Dossier(),
+                    'modele.odt',
+                    [],
+                    ['LIBELLE_ETABLISSEMENTINFORMATIONS' => 'Établissement'],
+                    [],
+                    42
+                );
+            } catch (\RuntimeException $exception) {
+                $erreur = $exception;
+            }
+
+            $this->assertInstanceOf(PieceJointe::class, $piecesPersistees[0]);
+            $this->assertInstanceOf(DossierPieceJointe::class, $piecesPersistees[1]);
+            $this->assertSame(1, $sauvegardes);
+            if ('succes' === $resultat) {
+                $this->assertNull($erreur);
+                $this->assertSame("<a href='/rapport'>Ouvrir le rapport de l'établissement : Établissement</a>", $lien);
+                $this->assertFileExists($chemin);
+            } else {
+                $this->assertInstanceOf(\RuntimeException::class, $erreur);
+                $this->assertStringContainsString('exception' === $resultat ? 'Échec de sauvegarde' : 'Impossible de sauvegarder le rapport ODT', $erreur->getMessage());
+                $this->assertFileDoesNotExist($chemin);
+            }
+        } finally {
+            if (is_file($chemin)) {
+                unlink($chemin);
+            }
+            rmdir($repertoire);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function sauvegardeRapportProvider(): iterable
+    {
+        yield 'écriture réussie' => ['succes'];
+        yield 'écriture avec exception' => ['exception'];
+        yield 'écriture sans fichier' => ['sans fichier'];
+    }
+
     /**
      * @param list<string> $numeros
      */

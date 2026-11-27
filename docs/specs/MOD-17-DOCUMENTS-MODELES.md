@@ -179,6 +179,8 @@ Depuis l'onglet « Rapport » d'un dossier :
 5. Un document ODT est généré pour chaque établissement coché, en fusionnant les données réelles dans le modèle choisi.
 6. Le document généré est enregistré en pièce jointe du dossier.
 
+Si l'écriture d'un rapport échoue, sa pièce jointe n'est pas enregistrée et la génération s'arrête. Les rapports déjà générés pour les autres établissements restent enregistrés (RG-DOC-021).
+
 Le modèle sélectionné doit toujours être présent dans la bibliothèque de la commission choisie (ou dans l'espace transversal). Un fichier absent, un autre format ou un chemin sortant de cette bibliothèque est refusé. Un modèle stocké sur un partage réseau Windows (chemin UNC) doit pouvoir être utilisé comme un modèle stocké localement.
 
 **Comportement lié au verrouillage :**
@@ -227,6 +229,7 @@ Pour les convocations et ordres du jour, la génération utilise les courriers t
 | **RG-DOC-018** | Dans un rapport de dossier, les coordonnées du service instructeur sont celles du service désigné par le libellé et le type enregistrés sur le dossier. Pour une commune, la recherche historique porte sur les communes dont le libellé contient le libellé renseigné, en retenant le libellé le plus court, puis sur sa fiche mairie. Pour un groupement, la recherche porte sur le libellé exact, puis sur sa fiche de coordonnées propre (pas ses contacts liés). Sans type, sans service correspondant ou sans fiche de coordonnées, prénom, nom et courriel restent vides. Aucun repli sur la commune de l'établissement n'est effectué. Le libellé renseigné reste affiché, y compris en saisie libre. |
 | **RG-DOC-019** | Lorsqu'une commission est supprimée, l'application tente de supprimer son répertoire de modèles de rapports et son contenu. Si cette suppression échoue, la commission reste supprimée et le répertoire peut subsister. Cette suppression ne concerne pas le modèle de compte-rendu propre à la commission, qui est stocké séparément. |
 | **RG-DOC-020** | Dans un rapport de dossier, le champ `numDocUrba` contient tous les numéros de documents d'urbanisme associés au dossier, séparés par une virgule et un espace. Il est vide si le dossier n'en comporte aucun. Cette règle reprend le comportement historique ; aucun ordre particulier n'est garanti. |
+| **RG-DOC-021** | Si l'écriture du fichier d'un rapport de dossier échoue, sa pièce jointe n'est pas enregistrée et la génération s'arrête. Les rapports déjà générés pour les autres établissements restent enregistrés. |
 
 La règle RG-DOC-018 reprend la résolution historique des coordonnées, confirmée pour ce correctif ; le maintien du libellé affiché et l'absence de type pour une saisie libre sont les comportements convenus. Un dossier sans type doit être corrigé par resélection du service et sauvegarde (MOD-02), puis son rapport régénéré. Les rapports déjà produits ne sont pas modifiés.
 
