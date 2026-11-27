@@ -222,6 +222,7 @@ Site
 - Le formulaire propose des **valeurs conseillées** (commission, périodicité, locaux à sommeil, préventionnistes) calculées dynamiquement en fonction du genre, de la commune, du type, de la catégorie et de l'établissement père.
 - Les champs affichés varient dynamiquement selon le genre sélectionné.
 - À la validation, le système enregistre l'établissement et sa fiche d'informations initiale datée du jour.
+- Après création réussie, le cache de recherche est invalidé afin que les recherches suivantes tiennent compte du nouvel établissement.
 - Si l'établissement créé est un site avec un seul enfant, un avertissement invite l'utilisateur à ajouter des établissements enfants pour garantir les droits d'accès.
 
 ### 4.3 Modifier un établissement
@@ -233,6 +234,7 @@ Site
 - Avant la sauvegarde, une **boîte de confirmation** compare les valeurs saisies (commission, périodicité, locaux à sommeil, préventionnistes) aux valeurs conseillées par le système.
 - Une ligne de la boîte de confirmation est masquée lorsque la valeur saisie est égale à la valeur conseillée. Pour les préventionnistes, l'égalité correspond au même ensemble d'utilisateurs, quel que soit l'ordre. La boîte n'apparaît pas si toutes ses lignes sont masquées. Accepter la suggestion de préventionnistes remplace les préventionnistes affectés.
 - Si l'envoi de courriels est activé, le système détecte les changements de **statut** ou de **classement** (catégorie, type, activités) et propose d'envoyer une alerte par courriel.
+- Après modification réussie, le cache de recherche est invalidé afin que les recherches suivantes tiennent compte des nouvelles informations.
 - Après sauvegarde, l'utilisateur est redirigé et un message de succès est affiché.
 
 ### 4.4 Supprimer un établissement

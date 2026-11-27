@@ -81,6 +81,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                 /** @var Utilisateur|null $user */
                 $user = $this->getUser();
                 $idEtablissement = $this->etablissementService->save($idGenre, $post, $user);
+                $this->searchCache->invalidateTags(['search']);
 
                 // Cas particulier : site sans aucun établissement fils → rediriger vers édition
                 // (les droits d'accès au site dépendent de ceux de ses fils, un site sans fils
@@ -151,6 +152,7 @@ class EtablissementController extends AbstractController implements Etablissemen
                 /** @var Utilisateur|null $user */
                 $user = $this->getUser();
                 $this->etablissementService->update($idGenre, $post, $etablissement->getId(), $user);
+                $this->searchCache->invalidateTags(['search']);
 
                 // Gestion des alertes
                 $lienAlerte = '';

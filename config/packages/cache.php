@@ -13,6 +13,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 ],
                 'cache.search' => [
                     'adapter' => 'cache.adapter.filesystem',
+                    'default_lifetime' => 3600,
                     'tags' => true,
                 ],
             ],
