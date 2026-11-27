@@ -66,4 +66,16 @@ Utiliser un stockage de recette isolé (`PREVARISC_REAL_DATA_PATH`) et vérifier
 3. Retirer la complétude en laissant une pièce en attente. La commande ne doit ni demander de ticket ni transmettre la PEC. Une consultation refusée n'est traitée qu'en renvoi ou en erreur.
 4. Distinguer une PEC **négative acceptée** (PEC transmise, avis en cours, aucun avis envoyé) d'un **refus de transmission** (PEC en erreur). Lire les diagnostics de chaque consultation, pas uniquement le code de sortie. Après une rupture réseau pendant l'envoi, vérifier l'état distant avant toute relance : le client peut avoir perdu la réponse alors que la plateforme a reçu la PEC.
 
-Le dépôt réussi laisse la pièce en attente de retour. Les notifications documentaires `84`/`85`, l'envoi des avis et la bascule d'exploitation ne font pas partie de cette tranche.
+Le dépôt réussi laisse la pièce en attente de retour. La PEC ne transmet jamais l'avis.
+
+## Vérifier l'envoi d'un avis
+
+`bin/console platau:export-avis` (alias `export-avis`) traite le lot. `--consultation-id=<identifiant>` cible une consultation **sans forcer son éligibilité**. Ces commandes ne simulent pas l'envoi. Utiliser une base et un stockage de recette isolés et simuler PISTE, Plat'AU, Syncplicity et le stockage indiqué par le ticket. Ne pas exécuter les deux passerelles en parallèle.
+
+1. Préparer un dossier pris en compte (état distant `3`) avec un avis favorable sans prescription ni pièce. Vérifier le `POST /dau/avis` : identifiant et version du dossier, identifiant de consultation, avis simple et exprès, nature `1`, texte contenant « RAS ». Refaire avec prescriptions : nature `2` et libellés du dossier. Pour les avis défavorable et « pas d'avis », attendre respectivement `3` et `6`.
+2. Laisser une pièce en attente sur un dossier sans avis de commission, ou sur une consultation déjà traitée sans renvoi ni erreur. Même ciblée, la commande ne doit demander aucun ticket, verser aucun avis ni modifier la pièce.
+3. Sur un dossier éligible avec deux pièces, refuser le premier ticket et accepter le second dépôt. Contrôler que le stockage reçoit le ticket, jamais le jeton Plat'AU. Seule la seconde pièce (type `9`) figure dans l'avis et reçoit son `idDocument` ; la première reste en erreur.
+4. Refuser un avis après dépôt : vérifier l'avis en erreur, la PEC inchangée et les pièces déposées remises en attente. Accepter au contraire l'avis avec un retour documentaire incomplet : l'avis reste traité, l'anomalie est signalée, aucun identifiant ambigu n'est enregistré.
+5. Demander un renvoi sur une consultation traitée (état `6`). Vérifier `dtAvis` : date locale précédente, sinon date de l'avis distant de cette consultation. Après acceptation, `DATE_AVIS` indique le jour de transmission. Si une consultation apparaît à la fois dans la recherche distante et la liste locale de reprises, un seul versement doit partir.
+
+Lire les diagnostics par consultation. Après perte de la réponse à un versement, contrôler l'état distant avant toute relance : une erreur locale ne prouve pas que Plat'AU a refusé l'avis. Cette tranche n'active ni le cron ni le traitement des notifications documentaires `84`/`85`.
