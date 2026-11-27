@@ -72,16 +72,20 @@ final class PlatauExportAvisTest extends PlatauExportTestCase
 
     public function testLotReunitLesDeuxSourcesSansDoubleVersement(): void
     {
+        $introuvable = 'AAA-BBB-000';
         $local = 'AAA-BBB-002';
         $distant = 'AAA-BBB-003';
         $erreur = 'AAA-BBB-004';
         $this->dossierAvis(statut: 'in_error'); // À la fois en erreur locale et dans la recherche distante.
+        $this->dossierAvis(statut: 'in_error', id: $introuvable);
         $this->dossierAvis(statut: 'to_export', date: '2026-10-31', id: $local);
         $this->dossierAvis(id: $distant);
         $this->dossierAvis(statut: 'in_error', id: $erreur);
         $this->simulerPlatau([self::ID => 3, $local => 6, $distant => 3, $erreur => 6]);
         $this->exporter();
 
+        $this->assertStringContainsString("Consultation $introuvable : reprise ignorée", $this->console->getDisplay());
+        $this->assertStatuts('in_error', null, $introuvable);
         $this->assertEqualsCanonicalizing([self::ID, $local, $distant, $erreur], array_column($this->envois, 'idConsultation'));
         $this->assertSame('2026-10-31', array_column($this->envois, 'dtAvis', 'idConsultation')[$local]);
         foreach ([self::ID, $local, $distant, $erreur] as $id) {
@@ -316,8 +320,6 @@ final class PlatauExportAvisTest extends PlatauExportTestCase
         $id = $criteria['idConsultation'] ?? null;
         if (null === $id) {
             $this->assertSame([3], $criteria['nomEtatConsultation']);
-        } else {
-            $this->assertArrayHasKey($id, $this->etats);
         }
         $rows = [];
         foreach ($this->etats as $consultation => $etat) {
