@@ -125,7 +125,7 @@ les définir uniquement dans `.env.local` ne suffit pas pour ces lectures.
 | `PREVARISC_DEBUG_ENABLED` | Booléen | `0` | Active les diagnostics applicatifs, notamment les journaux de génération des rapports. N'active pas le débogage Symfony. |
 | `PREVARISC_SECURITY_SALT` | Chaîne | `""` | Sel global utilisé pour vérifier les anciens mots de passe MD5 avant leur migration vers le hachage moderne. **Conserver la valeur de l'installation 2.x** ; il n'y a plus de sel prédéfini ni de contrainte de longueur de 32 caractères dans cette configuration. |
 | `PREVARISC_ENFORCE_SECURITY` | Booléen | `0` | Active les contrôles renforcés sur les mots de passe locaux : au moins 8 caractères, avec minuscule, majuscule, chiffre et caractère spécial. |
-| `PREVARISC_SECURITY_KEY` | Chaîne secrète | `""` | Clé d'accès à la synchronisation iCalendar. Vide : accès refusé. Également lue par **`getenv()`** pour produire et contrôler les liens de synchronisation. |
+| `PREVARISC_SECURITY_KEY` | Chaîne secrète | `""` | Clé d'accès à la synchronisation iCalendar. Vide : accès refusé. |
 
 ### Courriels
 

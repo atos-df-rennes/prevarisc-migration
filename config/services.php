@@ -52,6 +52,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->bind('$documentsDataPath', '%app.data_path%/uploads/documents/')
         ->bind('$documentsRealDataPath', '%app.files_path%/uploads/documents/')
         ->bind('$mailEnabled', '%app.mail_enabled%')
+        ->bind('$securityKey', '%app.security_key%')
         ->bind('$documentsCommissionDataPath', '%app.data_path%/uploads/documents_commission/')
         ->bind('$documentsCommissionRealDataPath', '%app.files_path%/uploads/documents_commission/')
         ->bind('$courriersMembresDataPath', '%app.data_path%/uploads/courriers/')
