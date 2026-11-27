@@ -366,7 +366,7 @@ Le chargement des **dossiers liés** à un dossier parent n'est pas implémenté
 | **RG-RCH-001** | Les éléments supprimés (établissements ou dossiers) ne sont jamais inclus dans les résultats de recherche. |
 | **RG-RCH-002** | Les résultats de recherche sont paginés par blocs de **50 éléments** par page. |
 | **RG-RCH-003** | Le compteur total d'éléments est affiché au-dessus de la liste de résultats. |
-| **RG-RCH-004** | Les résultats de recherche sont **mis en cache**. Deux recherches identiques (mêmes critères, même page) retournent les résultats du cache sans relancer la requête. |
+| **RG-RCH-004** | Les résultats de recherche sont **mis en cache** pour une durée maximale d'une heure. Deux recherches identiques (mêmes critères, même page) retournent les résultats du cache sans relancer la requête tant que ce cache n'a pas expiré ou été invalidé. Après création ou modification réussie d'un établissement, le cache de recherche est invalidé. |
 | **RG-RCH-005** | Le nombre maximum de résultats par page est plafonné à **1 000 pour les établissements** et **100 pour les dossiers**. |
 | **RG-RCH-006** | L'export tableur est **limité à 10 000 résultats**. Au-delà de ce seuil, le bouton d'export est remplacé par un message d'avertissement. |
 | **RG-RCH-007** | Le droit d'accès à l'export tableur est contrôlé séparément pour les établissements et pour les dossiers, en fonction du groupe de l'utilisateur. |
