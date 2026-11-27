@@ -8,7 +8,6 @@ use App\Constant\DataStoreObjectTypes;
 use App\Controller\Dossier\DossierAjaxController;
 use App\Controller\PieceJointeController;
 use App\Entity\DateCommission;
-use App\Entity\Dossier;
 use App\Entity\Etablissement;
 use App\Entity\EtablissementPieceJointe;
 use App\Entity\PieceJointe;
@@ -24,7 +23,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +32,6 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\EventListener\IsGrantedAttributeListener;
-use Twig\Environment;
 
 #[AllowMockObjectsWithoutExpectations]
 final class DownloadAndLinkedDossiersAccessTest extends TestCase
