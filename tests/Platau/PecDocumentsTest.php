@@ -56,6 +56,7 @@ final class PecDocumentsTest extends KernelTestCase
         $this->transport = new MockHttpClient([]);
         $container->set('http_client.transport', $this->transport);
         $container->set('platau.piece_transport', $this->transport);
+
         $this->dossier = $this->newDossier();
     }
 
@@ -213,7 +214,7 @@ final class PecDocumentsTest extends KernelTestCase
 
     private function service(): PecDocuments
     {
-        return self::getContainer()->get('test.pec_documents');
+        return self::getContainer()->get(PecDocuments::class);
     }
 
     private function newDossier(): Dossier

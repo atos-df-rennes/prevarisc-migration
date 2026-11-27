@@ -51,6 +51,7 @@ final class PlatauExportPecTest extends KernelTestCase
         $_ENV['PREVARISC_REAL_DATA_PATH'] = $this->directory;
         $application = new Application(self::bootKernel());
         $application->setAutoExit(false);
+
         $this->console = new ApplicationTester($application);
         $this->db = self::getContainer()->get(Connection::class);
         self::getContainer()->set('cache.platau_consultation_tokens', new ArrayAdapter());

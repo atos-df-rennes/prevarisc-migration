@@ -25,7 +25,7 @@ final readonly class PecDocuments
     /**
      * @param callable(string): void $report
      *
-     * @return array<int, array<string, int|string>> Dépôts réussis, indexés par ID local dans l'ordre d'envoi.
+     * @return array<int, array<string, int|string>> dépôts réussis, indexés par ID local dans l'ordre d'envoi
      */
     public function prepare(int $dossierId, callable $report): array
     {
@@ -79,7 +79,7 @@ final readonly class PecDocuments
 
     /**
      * @param array<int, array<string, mixed>> $prepared
-     * @param array<int, mixed>                $remoteDocuments Documents dans l'ordre contractuel de la PEC.
+     * @param array<int, mixed>                $remoteDocuments documents dans l'ordre contractuel de la PEC
      * @param callable(string): void           $report
      */
     public function accepted(array $prepared, array $remoteDocuments, callable $report): void

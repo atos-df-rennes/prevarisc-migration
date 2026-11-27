@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Platau\PecDocuments;
 use App\Platau\PisteTokenProvider;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpClient\HttpClient;
@@ -48,9 +47,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->arg('$clientId', '%env(SYNCPLICITY_PISTE_CLIENT_ID)%')
         ->arg('$clientSecret', '%env(SYNCPLICITY_PISTE_CLIENT_SECRET)%')
         ->arg('$tokenUrl', '%env(SYNCPLICITY_PISTE_ACCESS_TOKEN_URL)%');
-    if ('test' === $containerConfigurator->env()) {
-        $containerConfigurator->services()->alias('test.pec_documents', PecDocuments::class)->public();
-    }
 
     // Le transport standard journalise l'URL complète, y compris en console
     // verbeuse. Une URL de stockage signée ne doit jamais y apparaître.

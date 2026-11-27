@@ -193,8 +193,8 @@ final class PecApiTest extends TestCase
         try {
             $api->send(self::PAYLOAD, []);
             $this->fail('Le dépôt ne doit pas être confirmé.');
-        } catch (PlatauException $exception) {
-            $this->assertStringContainsString($reason, $exception->getMessage());
+        } catch (PlatauException $platauException) {
+            $this->assertStringContainsString($reason, $platauException->getMessage());
             $this->assertCount($calls, $statuses);
         }
     }

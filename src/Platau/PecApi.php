@@ -72,7 +72,7 @@ final readonly class PecApi extends PlatauApiReader
      * @param PecPayload                             $payload
      * @param array<array-key, array<string, mixed>> $documents
      *
-     * @return list<array<array-key, mixed>> Documents dans l'ordre du dépôt ; une position non identifiée reste vide.
+     * @return list<array<array-key, mixed>> documents dans l'ordre du dépôt ; une position non identifiée reste vide
      */
     public function send(array $payload, array $documents): array
     {
