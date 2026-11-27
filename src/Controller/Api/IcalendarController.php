@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Attribute\Route;
  */
 class IcalendarController extends AbstractController
 {
-    public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly IcalendarSyncService $icalendarSyncService)
+    public function __construct(private readonly UtilisateurRepository $utilisateurRepository, private readonly IcalendarSyncService $icalendarSyncService, private readonly string $securityKey)
     {
     }
 
@@ -41,10 +41,7 @@ class IcalendarController extends AbstractController
         #[MapQueryParameter] string $userid = '',
         #[MapQueryParameter(flags: \FILTER_NULL_ON_FAILURE)] ?int $commission = null,
     ): Response {
-        // Vérification de la clé de sécurité
-        $securityKey = (string) (getenv('PREVARISC_SECURITY_KEY') ?: '');
-
-        if ('' === $securityKey || !hash_equals($securityKey, $key)) {
+        if ('' === $this->securityKey || !hash_equals($this->securityKey, $key)) {
             return new Response('Accès refusé', Response::HTTP_FORBIDDEN);
         }
 

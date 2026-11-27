@@ -37,7 +37,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 // Pièces jointes → CalendrierDesCommissionsPiecesJointesController
 class CalendrierDesCommissionsController extends AbstractController
 {
-    public function __construct(private readonly CalendarService $calendarService, private readonly DateCommissionRepository $dateCommissionRepository, private readonly CommissionDatesTransformer $commissionDatesTransformer, private readonly CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private readonly CommissionRepository $commissionRepository, private readonly EntityManagerInterface $entityManager, private readonly DataStore $dataStore)
+    public function __construct(private readonly CalendarService $calendarService, private readonly DateCommissionRepository $dateCommissionRepository, private readonly CommissionDatesTransformer $commissionDatesTransformer, private readonly CommissionTypeEvenementRepository $commissionTypeEvenementRepository, private readonly CommissionRepository $commissionRepository, private readonly EntityManagerInterface $entityManager, private readonly DataStore $dataStore, private readonly string $securityKey)
     {
     }
 
@@ -63,15 +63,14 @@ class CalendrierDesCommissionsController extends AbstractController
         }
 
         $urlWebcal = '';
-        $securityKey = getenv('PREVARISC_SECURITY_KEY');
-        if (false !== $securityKey && '' !== $securityKey) {
+        if ('' !== $this->securityKey) {
             $userId = ($user instanceof Utilisateur) ? (int) $user->getId() : 0;
             $baseScheme = $request->isSecure() ? 'webcals' : 'webcal';
             $host = $request->getHttpHost();
             // Génère le chemin via le router Symfony (sans commission — le JS l'ajoute pour syncCom)
             $path = $this->generateUrl(
                 'api_icalendar_sync',
-                ['userid' => $userId, 'key' => $securityKey],
+                ['userid' => $userId, 'key' => $this->securityKey],
                 UrlGeneratorInterface::ABSOLUTE_PATH
             );
             $urlWebcal = $baseScheme.'://'.$host.$path;
