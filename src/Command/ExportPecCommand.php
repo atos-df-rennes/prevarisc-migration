@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Enum\PlatauStatutPecEnum;
+use App\Platau\ExportDocuments;
 use App\Platau\PecApi;
-use App\Platau\PecDocuments;
 use App\Platau\PecDossiers;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'platau:export-pec', description: "Exporte des prises en compte métier sur Plat'AU.", aliases: ['export-pec'])]
 final readonly class ExportPecCommand
 {
-    public function __construct(private PecApi $api, private PecDossiers $dossiers, private PecDocuments $documents)
+    public function __construct(private PecApi $api, private PecDossiers $dossiers, private ExportDocuments $documents)
     {
     }
 
@@ -60,7 +60,7 @@ final readonly class ExportPecCommand
             $prepared = [];
             try {
                 $payload = $this->api->payload($id, !$dossier['incomplete'], $dossier['incomplete'] ? $dossier['observations'] : null, $dossier['author'], PlatauStatutPecEnum::A_RENVOYER === $dossier['status'] ? $dossier['date'] : null, $delay);
-                $prepared = $this->documents->prepare($dossier['id'], $report);
+                $prepared = $this->documents->prepare($dossier['id'], $report, 47);
                 $remote = $this->api->send($payload, $prepared);
             } catch (\Exception $exception) {
                 $this->dossiers->failed($id);

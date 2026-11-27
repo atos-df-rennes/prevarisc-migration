@@ -68,6 +68,12 @@ Une PEC acceptée, même négative, est datée et marquée transmise ; l'avis pa
 4. L'avis est envoyé à Plat'AU. Son statut évolue au fil du traitement (voir §4.1).
 5. L'écran du dossier affiche le statut de l'avis et, le cas échéant, sa date de transmission.
 
+L'export considère les consultations en cours de traitement sur Plat'AU (état 3), ainsi que les avis locaux à renvoyer ou en erreur. Une consultation déjà traitée (état 6) nécessite un renvoi demandé ou un avis en erreur. Les autres états sont exclus, même pour un export ciblé. Le dossier doit exister et porter un avis de commission transmissible avant toute demande de ticket ou dépôt de pièce.
+
+L'avis est exprès et simple. Sa nature est « favorable » (1), « favorable avec prescriptions » (2), « défavorable » (3) ou « pas d'avis » (6). Le texte reprend les libellés des prescriptions du dossier, ou « RAS » en leur absence. Seules les pièces déposées avec succès accompagnent l'avis (type documentaire 9).
+
+La date transmise est celle du jour, sauf pour un renvoi demandé : reprendre alors la date d'avis locale ou, à défaut, la date de l'avis distant de cette consultation. Après acceptation, enregistrer le jour de transmission et marquer l'avis traité sans modifier la PEC. Un retour documentaire incomplet est signalé sans remettre l'avis accepté en attente. En cas de refus, l'avis passe en erreur et seules les pièces effectivement déposées sont remises en attente d'envoi.
+
 ### 3.4 Transmission des pièces jointes
 
 1. Lorsque le préventionniste modifie la complétude ou l'avis d'un dossier Plat'AU, le système affiche la liste des pièces jointes **non encore envoyées** vers Plat'AU.

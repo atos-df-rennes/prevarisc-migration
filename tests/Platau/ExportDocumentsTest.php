@@ -9,7 +9,7 @@ use App\Entity\DossierPieceJointe;
 use App\Entity\DossierType;
 use App\Entity\PieceJointe;
 use App\Entity\PieceJointeStatut;
-use App\Platau\PecDocuments;
+use App\Platau\ExportDocuments;
 use App\Platau\PisteTokenProvider;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -36,7 +36,7 @@ use function Zenstruck\Foundry\Persistence\repository;
 #[WithEnvironmentVariable('SYNCPLICITY_PISTE_CLIENT_SECRET', 'test-depot')]
 #[WithEnvironmentVariable('SYNCPLICITY_PISTE_ACCESS_TOKEN_URL', 'https://oauth.test/depot')]
 #[WithEnvironmentVariable('SYNCPLICITY_URL', 'https://api.test/upload/')]
-final class PecDocumentsTest extends KernelTestCase
+final class ExportDocumentsTest extends KernelTestCase
 {
     private string $directory;
 
@@ -131,7 +131,7 @@ final class PecDocumentsTest extends KernelTestCase
         $report = static function (string $message) use (&$reports): void {
             $reports[] = $message;
         };
-        $prepared = $service->prepare($this->dossier->getIdOrFail(), $report);
+        $prepared = $service->prepare($this->dossier->getIdOrFail(), $report, 47);
         $this->assertSame([$success], array_keys($prepared));
         $this->assertSame([
             'fileId' => '151',
@@ -170,7 +170,7 @@ final class PecDocumentsTest extends KernelTestCase
             new JsonMockResponse(['access_token' => 'ancien', 'expires_in' => 3600]), $first,
             new JsonMockResponse(['access_token' => 'nouveau', 'expires_in' => 3600]), $second, $upload,
         ]);
-        $prepared = $this->service()->prepare($this->dossier->getIdOrFail(), $this->fail(...));
+        $prepared = $this->service()->prepare($this->dossier->getIdOrFail(), $this->fail(...), 47);
         $this->assertSame([$id], array_keys($prepared));
         $this->assertContains('Authorization: Bearer ancien', $first->getRequestOptions()['headers']);
         $this->assertContains('Authorization: Bearer nouveau', $second->getRequestOptions()['headers']);
@@ -192,7 +192,7 @@ final class PecDocumentsTest extends KernelTestCase
         $messages = [];
         $this->assertSame([], $this->service()->prepare($this->dossier->getIdOrFail(), static function (string $message) use (&$messages): void {
             $messages[] = $message;
-        }));
+        }, 47));
         $this->assertStringContainsString('HTTP 401', $messages[0]);
         $this->assertSame('on_error', $this->state($id)[0]);
     }
@@ -201,7 +201,7 @@ final class PecDocumentsTest extends KernelTestCase
     {
         $_ENV['SYNCPLICITY_PISTE_CLIENT_SECRET'] = '';
         $id = $this->piece($this->dossier);
-        $this->assertSame([], $this->service()->prepare($this->dossier->getIdOrFail(), $this->fail(...)));
+        $this->assertSame([], $this->service()->prepare($this->dossier->getIdOrFail(), $this->fail(...), 47));
         $this->assertSame(['to_be_exported', null, null], $this->state($id));
     }
 
@@ -232,7 +232,7 @@ final class PecDocumentsTest extends KernelTestCase
         $messages = [];
         $this->assertSame([], $this->service()->prepare($this->dossier->getIdOrFail(), static function (string $message) use (&$messages): void {
             $messages[] = $message;
-        }));
+        }, 47));
         $reason = 'Impossible de récupérer le contenu du fichier.';
         $this->assertSame([sprintf('Pièce %d : %s', $id, $reason)], $messages);
         $this->assertSame(['on_error', null, $reason], $this->state($id));
@@ -250,9 +250,9 @@ final class PecDocumentsTest extends KernelTestCase
         };
     }
 
-    private function service(): PecDocuments
+    private function service(): ExportDocuments
     {
-        return self::getContainer()->get(PecDocuments::class);
+        return self::getContainer()->get(ExportDocuments::class);
     }
 
     private function newDossier(): Dossier
