@@ -56,6 +56,8 @@ L'export traite les consultations versées et les consultations refusées (ces d
 
 L'échéance est calculée depuis la date de PEC avec le délai de la consultation (jours calendaires ou mois), sauf délai en jours fourni par l'exploitant. En renvoi, la date de PEC enregistrée est reprise si disponible. Si le dépôt documentaire est configuré, seules les pièces en attente d'envoi sont déposées avant la PEC ; sinon elles restent en attente. Un échec individuel est signalé sur la pièce et n'empêche pas l'envoi des autres. Chaque identifiant documentaire retourné doit être associé à la pièce effectivement déposée, jamais à une pièce en échec.
 
+Un libellé de pièce contenant `/` ou `\` ne bloque pas son envoi : ces caractères sont remplacés par `-` dans le nom de dépôt uniquement. Si Syncplicity refuse le jeton lors de la demande du ticket (`401`), la commande renouvelle le jeton et redemande le ticket une seule fois. Elle ne répète pas le dépôt du fichier.
+
 Une PEC acceptée, même négative, est datée et marquée transmise ; l'avis passe en cours sans être envoyé. Un refus de transmission ou une erreur de transport est signalé sur la PEC. L'acceptation de la PEC ne vaut pas confirmation du versement définitif des documents.
 
 ### 3.3 Transmission d'un avis

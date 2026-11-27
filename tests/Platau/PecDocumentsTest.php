@@ -83,7 +83,7 @@ final class PecDocumentsTest extends KernelTestCase
         $ticket = [
             'VirtualFolderId' => 29,
             'Folder_Name' => 'PEC',
-            'Storage_URL' => 'https://storage.test/',
+            'Storage_URL' => 'https://storage.test/base/ticket',
             'Authorization_for_upload' => 'ticket-de-test',
             'AppKey' => 'cle-de-test',
         ];
@@ -102,7 +102,7 @@ final class PecDocumentsTest extends KernelTestCase
             new JsonMockResponse($ticket),
             function (string $method, string $url, array $options) use ($filename): JsonMockResponse {
                 $this->assertSame('POST', $method);
-                $this->assertSame('https://storage.test/v2/mime/files', explode('?', $url)[0]);
+                $this->assertSame('https://storage.test/base/v2/mime/files', explode('?', $url)[0]);
                 parse_str(parse_url($url, \PHP_URL_QUERY), $query);
                 $this->assertSame('PEC/'.urlencode($filename), $query['filepath']);
                 $this->assertSame(['Authorization: ticket-de-test'], $options['normalized_headers']['authorization']);
@@ -157,6 +157,44 @@ final class PecDocumentsTest extends KernelTestCase
         $this->assertSame(['not_exported', null, null], $this->state($ignored));
         $this->assertSame(['to_be_exported', null, null], $this->state($other));
         $this->assertSame('jeton-lecture', $lecture->token());
+    }
+
+    public function testLibelleAvecSeparateursEtRenouvellementDuTicketAvantDepot(): void
+    {
+        $id = $this->piece($this->dossier, name: 'Plan RDC/R+1\\coupe');
+        $first = new MockResponse('', ['http_code' => 401]);
+        $second = new JsonMockResponse(['Storage_URL' => 'https://storage.test/prefix/', 'VirtualFolderId' => 1,
+            'Folder_Name' => 'PEC', 'Authorization_for_upload' => 'ticket', 'AppKey' => 'cle']);
+        $upload = new JsonMockResponse(['data_file_id' => 3, 'data_file_version_id' => 1]);
+        $this->transport->setResponseFactory([
+            new JsonMockResponse(['access_token' => 'ancien', 'expires_in' => 3600]), $first,
+            new JsonMockResponse(['access_token' => 'nouveau', 'expires_in' => 3600]), $second, $upload,
+        ]);
+        $prepared = $this->service()->prepare($this->dossier->getIdOrFail(), $this->fail(...));
+        $this->assertSame([$id], array_keys($prepared));
+        $this->assertContains('Authorization: Bearer ancien', $first->getRequestOptions()['headers']);
+        $this->assertContains('Authorization: Bearer nouveau', $second->getRequestOptions()['headers']);
+        $this->assertSame('GET', $second->getRequestMethod());
+        $this->assertSame($first->getRequestUrl(), $second->getRequestUrl());
+        $this->assertSame('https://storage.test/prefix/v2/mime/files', explode('?', $upload->getRequestUrl())[0]);
+        parse_str(parse_url($upload->getRequestUrl(), \PHP_URL_QUERY), $query);
+        $this->assertSame('PEC/'.urlencode('Plan RDC-R+1-coupe_'.$id.'.pdf'), $query['filepath']);
+        $this->assertSame('Plan RDC/R+1\\coupe', $this->db->fetchOne('SELECT NOM_PIECEJOINTE FROM piecejointe WHERE ID_PIECEJOINTE = ?', [$id]));
+    }
+
+    public function testSecondRefusDuTicketSansDepot(): void
+    {
+        $id = $this->piece($this->dossier);
+        $this->transport->setResponseFactory([
+            $this->token('depot', 'documents:test-depot'), new MockResponse('', ['http_code' => 401]),
+            $this->token('depot', 'documents:test-depot'), new MockResponse('', ['http_code' => 401]),
+        ]);
+        $messages = [];
+        $this->assertSame([], $this->service()->prepare($this->dossier->getIdOrFail(), static function (string $message) use (&$messages): void {
+            $messages[] = $message;
+        }));
+        $this->assertStringContainsString('HTTP 401', $messages[0]);
+        $this->assertSame('on_error', $this->state($id)[0]);
     }
 
     public function testConfigurationAbsenteLaisseLaPieceEnAttente(): void
@@ -222,10 +260,10 @@ final class PecDocumentsTest extends KernelTestCase
         return persist(Dossier::class, ['type' => repository(DossierType::class)->findOrFail(1), 'dateInsert' => new \DateTime()]);
     }
 
-    private function piece(Dossier $dossier, string $status = 'to_be_exported', bool $write = true): int
+    private function piece(Dossier $dossier, string $status = 'to_be_exported', bool $write = true, string $name = 'plan joint'): int
     {
         $piece = persist(PieceJointe::class, [
-            'nom' => 'plan joint', 'extension' => '.pdf',
+            'nom' => $name, 'extension' => '.pdf',
             'statut' => repository(PieceJointeStatut::class)->findOneBy(['nomStatut' => $status]),
         ]);
         persist(DossierPieceJointe::class, ['dossier' => $dossier, 'pieceJointe' => $piece, 'pieceJointeCommission' => false]);

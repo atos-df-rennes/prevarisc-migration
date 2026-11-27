@@ -28,10 +28,13 @@ final readonly class SyncplicityUpload
     public function upload(string $filename, #[\SensitiveParameter] string $contents): array
     {
         $options = ['max_redirects' => 0, 'timeout' => 30, 'extra' => ['trace_content' => false]] + $this->http->options();
-        $response = $this->transport->request('GET', rtrim($this->baseUrl, '/').'/pre-upload', [
-            'auth_bearer' => $this->tokens->token(),
-        ] + $options);
-        if (401 === $response->getStatusCode()) {
+        for ($attempt = 0; $attempt < 2; ++$attempt) {
+            $response = $this->transport->request('GET', rtrim($this->baseUrl, '/').'/pre-upload', [
+                'auth_bearer' => $this->tokens->token(),
+            ] + $options);
+            if (401 !== $response->getStatusCode()) {
+                break;
+            }
             $this->tokens->invalidate();
         }
         $ticket = $this->http->json($response, 'Pré-dépôt Syncplicity');
@@ -50,7 +53,8 @@ final readonly class SyncplicityUpload
             'sessionKey' => $session,
             'filename' => $filename,
         ]);
-        $upload = $this->transport->request('POST', rtrim($url, '/').'/v2/mime/files', [
+        $upload = $this->transport->request('POST', 'v2/mime/files', [
+            'base_uri' => $url,
             'query' => ['filepath' => $this->ticketField($ticket['Folder_Name'] ?? null).'/'.urlencode($filename)],
             'headers' => [
                 ...$form->getPreparedHeaders()->toArray(),

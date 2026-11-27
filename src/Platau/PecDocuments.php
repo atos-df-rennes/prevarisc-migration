@@ -44,7 +44,7 @@ final readonly class PecDocuments
         foreach ($pieces as $piece) {
             $id = (int) $piece['ID_PIECEJOINTE'];
             $extension = $piece['EXTENSION_PIECEJOINTE'];
-            $name = $piece['NOM_PIECEJOINTE'].'_'.$id.$extension;
+            $name = str_replace(['/', '\\'], '-', $piece['NOM_PIECEJOINTE']).'_'.$id.$extension;
             try {
                 if ('' === trim($this->realDataPath) || preg_match('~[/\\\\\x00-\x1f\x7f]~', $name)) {
                     throw new PlatauException('Chemin de pièce incorrect.');
