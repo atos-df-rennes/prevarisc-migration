@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Exception\ExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-final readonly class PecDocuments
+final readonly class ExportDocuments
 {
     public function __construct(
         private Connection $db,
@@ -27,7 +27,7 @@ final readonly class PecDocuments
      *
      * @return array<int, array<string, int|string>> dépôts réussis, indexés par ID local dans l'ordre d'envoi
      */
-    public function prepare(int $dossierId, callable $report): array
+    public function prepare(int $dossierId, callable $report, int $documentType): array
     {
         if (!$this->upload->configured()) {
             return [];
@@ -56,7 +56,7 @@ final readonly class PecDocuments
                     'idActeurProducteur' => $this->actor,
                     'algoHash' => 'SHA-512',
                     'hash' => hash('sha512', $contents),
-                    'nomTypeDocument' => 47,
+                    'nomTypeDocument' => $documentType,
                     'nomTypeProducteurDoc' => 1,
                 ];
             } catch (\Exception $exception) {
@@ -79,13 +79,13 @@ final readonly class PecDocuments
 
     /**
      * @param array<int, array<string, mixed>> $prepared
-     * @param array<int, mixed>                $remoteDocuments documents dans l'ordre contractuel de la PEC
+     * @param array<int, mixed>                $remoteDocuments documents dans l'ordre du versement
      * @param callable(string): void           $report
      */
     public function accepted(array $prepared, array $remoteDocuments, callable $report): void
     {
         if (count($remoteDocuments) !== count($prepared) || !array_is_list($remoteDocuments)) {
-            $report(sprintf('PEC acceptée : appariement impossible (%d dépôt(s), %d document(s) retourné(s)). Aucun identifiant associé.', count($prepared), count($remoteDocuments)));
+            $report(sprintf('Versement accepté : appariement impossible (%d dépôt(s), %d document(s) retourné(s)). Aucun identifiant associé.', count($prepared), count($remoteDocuments)));
 
             return;
         }
@@ -93,7 +93,7 @@ final readonly class PecDocuments
             $remote = $remoteDocuments[$position] ?? null;
             $documentId = is_array($remote) ? ($remote['idDocument'] ?? null) : null;
             if (!is_string($documentId) || '' === trim($documentId)) {
-                $report(sprintf('Pièce %d : identifiant documentaire absent du retour de PEC.', $id));
+                $report(sprintf('Pièce %d : identifiant documentaire absent du retour de versement.', $id));
                 continue;
             }
             $this->db->update('piecejointe', ['ID_PLATAU' => $documentId], ['ID_PIECEJOINTE' => $id]);
