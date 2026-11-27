@@ -9,6 +9,11 @@ return static function (ContainerConfigurator $container): void {
     $container->extension('framework', [
         'http_client' => [
             'scoped_clients' => [
+                'syncplicity.piste_client' => [
+                    'base_uri' => '%env(SYNCPLICITY_PISTE_ACCESS_TOKEN_URL)%',
+                    'timeout' => 30,
+                    'max_redirects' => 0,
+                ],
                 'piste.client' => [
                     'base_uri' => '%env(PISTE_ACCESS_TOKEN_URL)%',
                     'timeout' => 30,
@@ -28,6 +33,9 @@ return static function (ContainerConfigurator $container): void {
         ],
         'cache' => [
             'pools' => [
+                'cache.syncplicity_tokens' => [
+                    'adapter' => 'test' === $container->env() ? 'cache.adapter.array' : 'cache.adapter.filesystem',
+                ],
                 'cache.platau_consultation_tokens' => [
                     'adapter' => 'test' === $container->env() ? 'cache.adapter.array' : 'cache.adapter.filesystem',
                 ],
