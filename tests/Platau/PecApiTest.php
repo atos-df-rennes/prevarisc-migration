@@ -162,8 +162,8 @@ final class PecApiTest extends TestCase
     public static function incompleteDocumentLists(): iterable
     {
         yield 'liste absente' => [[], []];
-        yield 'nombre différent' => [['documents' => [['idDocument' => 'B']]], []];
-        yield 'première position sans identifiant' => [['documents' => [['noVersion' => 1], ['idDocument' => 'B']]], [[], ['idDocument' => 'B']]];
+        yield 'nombre différent' => [['documents' => [['idDocument' => 'B']]], [['idDocument' => 'B']]];
+        yield 'première position sans identifiant' => [['documents' => [['noVersion' => 1], ['idDocument' => 'B']]], [['noVersion' => 1], ['idDocument' => 'B']]];
     }
 
     #[DataProvider('incompleteDocumentLists')]

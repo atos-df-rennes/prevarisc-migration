@@ -72,7 +72,7 @@ final readonly class PecApi extends PlatauApiReader
      * @param PecPayload                             $payload
      * @param array<array-key, array<string, mixed>> $documents
      *
-     * @return list<array<array-key, mixed>> documents dans l'ordre du dépôt ; une position non identifiée reste vide
+     * @return list<mixed> documents tels que retournés par Plat'AU
      */
     public function send(array $payload, array $documents): array
     {
@@ -90,18 +90,9 @@ final readonly class PecApi extends PlatauApiReader
             || !is_array($item['pecMetier'] ?? null) || ([] !== $item['pecMetier'] && array_is_list($item['pecMetier']))) {
             throw new PlatauException("Consultation PEC absente ou incorrecte dans la réponse de Plat'AU.");
         }
-        $pec = $item['pecMetier'];
-        $remote = $pec['documents'] ?? null;
-        if (!is_array($remote) || !array_is_list($remote) || count($documents) !== count($remote)) {
-            // La PEC a été acceptée, mais aucun rapprochement positionnel n'est fiable.
-            return [];
-        }
-        $result = [];
-        foreach ($remote as $document) {
-            $result[] = is_array($document) && is_string($document['idDocument'] ?? null) && '' !== trim($document['idDocument']) ? $document : [];
-        }
+        $remote = $item['pecMetier']['documents'] ?? null;
 
-        return $result;
+        return is_array($remote) && array_is_list($remote) ? $remote : [];
     }
 
     /** @return \Generator<int, array{array<array-key, mixed>, array{idConsultation: string, ...}}> */
